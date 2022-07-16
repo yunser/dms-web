@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="src/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>设计插件</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <!-- <script src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/moment.js/2.29.1/moment.min.js"></script> -->
+    <!-- <script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/react/17.0.2/cjs/react.production.min.js"></script> -->
+
+    <!-- <script src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/react/17.0.2/umd/react.production.min.js"></script> -->
+    <!-- <script src=""></script> -->
+    <!-- <script src="https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/react-dom/17.0.1/umd/react-dom.production.min.js"></script> -->
+
+
+    
+    <!-- <script crossorigin src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script> -->
+
+    
+    <script type="module" src="/src/main.tsx"></script>
+
+    <script nomodule>
+        const root = document.createElement('DIV')
+        root.innerHTML = '检测到你的浏览器版本太低，更升级浏览器，推荐使用 Chrome'
+        root.style = `position: fixed;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background-color: #fff;
+padding: 16px;
+font-size: 16px;`
+        document.body.appendChild(root)
+    </script>
+
+    <!-- <script>
+        var _hmt = _hmt || [];
+        (function () {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?abbd2bdecdf3d7016157d09b4eb21bc3";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script> -->
+  </body>
+</html>

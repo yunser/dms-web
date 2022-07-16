@@ -1,0 +1,118 @@
+:root {
+    --color-red-0: #f00;
+    --button-bg-color: var(--color-red-0);
+    --button-radius: 2px;
+}
+
+.homePage {}
+
+.homePage_header {
+    display: flex;
+    justify-content: center;
+    // border: 1px solid #000;
+}
+.homePage_body {
+    display: flex;
+    justify-content: center;
+    // border: 1px solid #000;
+    padding-top: 32px;
+}
+.homePage_footer {
+    display: flex;
+    justify-content: center;
+    // border: 1px solid #000;
+    background-color: #fefefe;
+}
+.footerContent {
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 16px;
+}
+.container {
+    width: 100%;
+    max-width: 800px;
+    padding: 0 16px;
+    // border: 1px solid #f00;
+}
+
+
+.appBar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    .siteName {
+        font-size: 24px;
+    }
+    .lang {
+        cursor: pointer;
+    }
+}
+.slogonSection {
+    display: flex;
+    justify-content: center;
+    background-color: #f1f1f1;
+}
+.splogon {
+    height: 400px;
+    // border: 1px solid #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .text {
+        font-size: 64px;
+        font-weight: 100;
+    }
+}
+
+.plugins {
+    .item {
+        // height: 400px;
+        border: 1px solid rgba(0, 0, 0, .12);
+        margin-bottom: 32px;
+        border-radius: 8px;
+    }
+    .header {
+        padding: 32px;
+        height: 138px;
+    }
+    .name {
+        font-size: 24px;
+        margin-bottom: 16px;
+    }
+    .desc {
+        color: #888;
+    }
+    .banner {
+        max-width: 100%;
+    }
+    .footer {
+        height: 64px;
+        padding: 0 16px;
+        display: flex;
+        justify-content: flex-end;
+    }
+    .btns {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    .btn {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding: 0px 24px;
+        height: 40px;
+        background: #fb4d2e;
+        border-radius: 20px;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        &:hover {
+            opacity: .8;
+        }
+    }
+}

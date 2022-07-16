@@ -1,0 +1,68 @@
+:root {
+    --primary-color: #1628d4;
+    --main-color: #09c;
+    --primary: #f00;
+}
+.ui-unSupportEsm {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #fff;
+    padding: 16px;
+    font-size: 16px;
+}
+
+.mb-2 {
+    margin-bottom: 8px;
+}
+.mb-4 {
+    margin-bottom: 16px;
+}
+
+@font-face {
+    font-family: 'Rocher';
+    src: url(/font/RocherColorGX.woff2);
+}
+
+.fontBox {
+    font-family: 'Rocher';
+    text-align: center;
+    font-size: 50px;
+    height: 50vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    
+        
+}
+
+
+@font-palette-values --Grays {
+    font-family: Rocher;
+    base-palette: 9;
+}
+
+@font-palette-values --Purples {
+    font-family: Rocher;
+    base-palette: 6;
+}
+
+@font-palette-values --Mint {
+    font-family: Rocher;
+    base-palette: 7;
+}
+
+.grays {
+    font-palette: --Grays;
+}
+
+.purples {
+    font-palette: --Purples;
+}
+
+.mint {
+    font-palette: --Mint;
+}
