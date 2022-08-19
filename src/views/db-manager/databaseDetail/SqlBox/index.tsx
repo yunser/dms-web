@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import styles from './index.module.less'
-import { message, Input, Button, Table } from 'antd'
+import { message, Input, Button, Table, Popover } from 'antd'
 // import http from '@/utils/http'
 import classNames from 'classnames'
 import { Editor } from '../../editor/Editor'
@@ -10,6 +10,26 @@ const { TextArea } = Input
 export interface Props {
     defaultSql?: string;
     style: any
+}
+
+function Cell({ text }) {
+    return (
+        <div
+            className={styles.cell}
+        >
+            {text}
+            <div className={styles.tool}>
+                <Popover
+                    title="Content"
+                    content={
+                        <div className={styles.content}>{text}</div>
+                    }
+                >
+                    <a>查看</a>
+                </Popover>
+            </div>
+        </div>
+    )
 }
 
 function SqlBox({ config, className, defaultSql, style }: Props) {
@@ -46,7 +66,9 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
                     fixed: 'left',
                     // width: 120,
                     render(_value, _item, _idx) {
-                        return <div>{_idx}</div>
+                        return (
+                            <Cell text={_idx} />
+                        )
                     }
                 }
             ]
@@ -59,11 +81,13 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
                         // width: 120,  
                         render(value: any) {
                             return (
-                                <div
-                                    style={{
-                                        // minWidth: 120,
-                                    }}
-                                >{value}</div>
+                                <Cell text={value} />
+                                // <div
+                                //     className={styles.cell}
+                                //     style={{
+                                //         // minWidth: 120,
+                                //     }}
+                                // >{value}</div>
                             )
                         },
                     })

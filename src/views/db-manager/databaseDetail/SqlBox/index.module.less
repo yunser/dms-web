@@ -46,11 +46,45 @@
             .ant-table-tbody>tr>td {
                 white-space: nowrap !important;
                 min-width: 24px;
+                padding: 0;
+            }
+            .ant-table-row:nth-child(odd) {
+                background-color: rgba(0, 0, 0, .02);
             }
             tbody {
                 // height: 300px;
                 // overflow: auto;
             }
         }
+    }
+}
+.cell {
+    position: relative;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 240px;
+    // border: 1px solid #f00;
+    padding: 8px;
+    &:hover {
+        .tool {
+            display: flex;
+        }
+    }
+    .tool {
+        display: none;
+        position: absolute;
+        top: 0;
+        right: 0;
+        height: 100%;
+        padding: 0 8px;
+        background-color: #fff;
+        // display: flex;
+        justify-content: center;
+        align-items: center;
+        border-left: 1px solid rgba(0, 0, 0, .12);
+    }
+    .content {
+        max-width: 320px;
     }
 }
