@@ -10,25 +10,25 @@ console.log('styles', styles)
 const { TextArea } = Input
 const { TabPane } = Tabs
 
-function Connnector() {
+function Connnector({ config }) {
     const [code, setCode] = useState(`{
     "host": "",
     "user": "",
     "password": ""
 }`)
 
-//     useEffect(() => {
-//         console.log('onMouneed', storage.get('dbInfo', `{
-//     "host": "",
-//     "user": "",
-//     "password": ""
-// }`))
-//         setCode(storage.get('dbInfo', `{
-//             "host": "",
-//             "user": "",
-//             "password": ""
-//         }`))
-//     }, [])
+    useEffect(() => {
+        console.log('onMouneed', storage.get('dbInfo', `{
+    "host": "",
+    "user": "",
+    "password": ""
+}`))
+        setCode(storage.get('dbInfo', `{
+            "host": "",
+            "user": "",
+            "password": ""
+        }`))
+    }, [])
 
     async function  connect() {
         let ret = await axios.post(`${config.host}/mysql/connect`, JSON.parse(code))
@@ -143,7 +143,9 @@ export function DbManager({ config }) {
                             }}
                         >
                                 {item.type == 'connnect' &&
-                                    <Connnector />
+                                    <Connnector
+                                        config={config}
+                                    />
                                 }
                                 {item.type == 'database' &&
                                     <DataBaseDetail
