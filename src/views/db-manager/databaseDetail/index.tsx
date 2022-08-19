@@ -193,14 +193,21 @@ export function DataBaseDetail({ dbName, config }) {
         // this[action](targetKey);
         if (action === 'add') {
             let tabKey = '' + new Date().getTime()
-            _this.setState({
-                activeKey: tabKey,
-                tabs: tabs.concat([{
+            setActiveKey(tabKey)
+            setTabs([
+                ...tabs,
+                {
                     title: 'SQL',
                     key: tabKey,
-                    defaultSql: ''
-                }]),
-            })
+                    defaultSql: '',
+                }
+            ])
+            // _this.setState({
+            //     activeKey: tabKey,
+            //     tabs: tabs.concat([{
+                    
+            //     }]),
+            // })
         }
         if (action === 'remove') {
             for (let i = 0; i < tabs.length; i++) {
@@ -209,9 +216,13 @@ export function DataBaseDetail({ dbName, config }) {
                     break
                 }
             }
-            _this.setState({
-                tabs
-            })
+            setTabs([
+                ...tabs,
+            ])
+            setActiveKey(tabs[tabs.length - 1].key)
+            // _this.setState({
+            //     tabs
+            // })
         }
     }
 

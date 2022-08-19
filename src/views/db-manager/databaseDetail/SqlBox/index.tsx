@@ -118,7 +118,7 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
             console.log(res)
             let columns = [
                 {
-                    title: '序号',
+                    title: '#',
                     key: '__idx',
                     fixed: 'left',
                     // width: 120,

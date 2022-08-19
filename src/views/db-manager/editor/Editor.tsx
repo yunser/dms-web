@@ -103,7 +103,7 @@ export const Editor: VFC = ({ value, onChange }) => {
         // if (monacoEl) {
         //     console.log('monacoEl', monacoEl.current.getValue)
         // }
-        if (_editor && value) {
+        if (_editor && (value || value === '')) {
             // console.log('editor', _editor.getValue)
             if (value != _editor?.getValue()) {
                 console.log('compare', value, _editor?.getValue())
