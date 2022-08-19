@@ -1,11 +1,12 @@
 import {
     Card,
     Form,
+    Input,
     message,
     Tabs,
     Tree,
 } from 'antd'
-import React, { Component, Fragment, useEffect, useState } from 'react'
+import React, { Component, Fragment, useEffect, useMemo, useState } from 'react'
 import { Table, Button } from 'antd'
 // import { Dispatch } from 'redux'
 // import { FormComponentProps } from 'antd/es/form'
@@ -66,6 +67,7 @@ const tabs_default: Array<TabProps> = [
 export function DataBaseDetail({ dbName, config }) {
     const [activeKey, setActiveKey] = useState(tabs_default[0].key)
     // const
+    const [keyword, setKeyword] = useState('')
     const [list, setList] = useState([])
     const [tabs, setTabs] = useState(tabs_default)
     const [treeData, setTreeData] = useState([
@@ -84,6 +86,19 @@ export function DataBaseDetail({ dbName, config }) {
             ],
         },
     ])
+    const filterTreeData = useMemo(() => {
+        if (!keyword) {
+            return treeData
+        }
+        return [
+            {
+                ...treeData[0],
+                children: treeData[0].children.filter(item => {
+                    return item.title.includes(keyword)
+                })
+            }
+        ]
+    }, [treeData, keyword])
     // const treeData: any[] = [
         
     // ]
@@ -206,7 +221,15 @@ export function DataBaseDetail({ dbName, config }) {
         <div className={styles.layout}>
             <div className={styles.layoutLeft}>
                 <div className={styles.header}>
-                    Header
+                    {/* Header */}
+                    <Input
+                        value={keyword}
+                        onChange={e => {
+                            setKeyword(e.target.value)
+                        }}
+                        allowClear
+                        placeholder="Search..."
+                    />
                 </div>
                 <div className={styles.body}>
                     <Tree
@@ -221,7 +244,7 @@ export function DataBaseDetail({ dbName, config }) {
 
                         }}
                         // onCheck={onCheck}
-                        treeData={treeData}
+                        treeData={filterTreeData}
                     />
                     {/* <Card bordered={false}>
                         <div className={styles.tableList}>
