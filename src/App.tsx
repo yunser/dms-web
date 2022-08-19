@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
 // import logo from './logo.svg'
 import '@yunser/style-reset/dist/index.css'
-// import './App.less'
+// import './app.less'
 import './global.css'
 import './iconfont.css'
+import 'antd/dist/antd.css';
 // import '~antd/lib/style/themes/variable.less';
 import storage from '@/utils/storage'
 import clssses from './app.module.less'
