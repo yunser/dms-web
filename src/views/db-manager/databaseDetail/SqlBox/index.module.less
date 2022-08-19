@@ -30,17 +30,27 @@
     .resultBox {
         flex: 1 0 auto;
         height: 0;
+        // overflow: auto;
         // border: 1px solid #f00;
-    }
-}
-:global {
-    body {
-    }
-    // .ant-table-wrapper {
-    //     display: none;
-    // }
-    .ant-table-thead > tr > th {
-        // display: none !important;
-        white-space: nowrap !important;
+        :global {
+            body {
+            }
+            // .ant-table-wrapper {
+            //     display: none;
+            // }
+            .ant-table-thead > tr > th {
+                // display: none !important;
+                white-space: nowrap !important;
+                min-width: 24px;
+            }
+            .ant-table-tbody>tr>td {
+                white-space: nowrap !important;
+                min-width: 24px;
+            }
+            tbody {
+                // height: 300px;
+                // overflow: auto;
+            }
+        }
     }
 }

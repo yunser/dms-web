@@ -93,14 +93,23 @@ export const Editor: VFC = ({ value, onChange }) => {
                 },
                 // tabSize: 4,
             })
+            _editor.getModel().onDidChangeContent((event) => {
+                const newValue = _editor?.getValue()
+                console.log('onDidChangeContent', newValue)
+                onChange && onChange(newValue)
+            });
 			setEditor(_editor);
 		}
-        if (monacoEl) {
-            console.log('monacoEl', monacoEl.current.getValue)
-        }
+        // if (monacoEl) {
+        //     console.log('monacoEl', monacoEl.current.getValue)
+        // }
         if (_editor && value) {
             // console.log('editor', _editor.getValue)
-            _editor.setValue(value)
+            if (value != _editor?.getValue()) {
+                console.log('compare', value, _editor?.getValue())
+                console.log('setValue', value)
+                _editor.setValue(value)
+            }
         }
         // if (monacoEl && value) {
         //     monacoEl.setValue(value)

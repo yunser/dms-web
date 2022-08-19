@@ -18,6 +18,7 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
 
     const [loading, setLoading] = useState(false)
     const [code, setCode] = useState(defaultSql)
+    const [code2, setCode2] = useState(defaultSql)
     const [table, setTable] = useState({
         columns: [],
         list: [],
@@ -33,7 +34,7 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
     async function run() {
         setLoading(true)
         let res = await axios.post(`${config.host}/mysql/execSql`, {
-            sql: code,
+            sql: code2,
         })
         if (res.status === 200) {
             // message.success('执行成功')
@@ -42,7 +43,8 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
                 {
                     title: '序号',
                     key: '__idx',
-                    width: 80,
+                    fixed: 'left',
+                    // width: 120,
                     render(_value, _item, _idx) {
                         return <div>{_idx}</div>
                     }
@@ -54,8 +56,15 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
                         title: key,
                         dataIndex: key,
                         key,
+                        // width: 120,  
                         render(value: any) {
-                            return '' + value
+                            return (
+                                <div
+                                    style={{
+                                        // minWidth: 120,
+                                    }}
+                                >{value}</div>
+                            )
                         },
                     })
                 }
@@ -71,9 +80,9 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
     }
 
 
-    let columns = [
+    // let columns = [
 
-    ]
+    // ]
 
     return (
         <div className={classNames(styles.sqlBox, className)} style={style}>
@@ -84,7 +93,7 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
                 <div className={styles.codeBox}>
                     <Editor
                         value={code}
-                        onChange={e => setCode(e.target.value)}
+                        onChange={value => setCode2(value)}
                     />
                     {/* <TextArea 
                         className={styles.textarea} 
@@ -101,6 +110,7 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
                     columns={table.columns}
                     bordered
                     style={{
+                        // width: 600,
                         // height: '300px',
                         // border: '1px solid #09c',
                     }}
@@ -108,7 +118,8 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
                     size="small"
                     scroll={{
                         x: true,
-                        y: document.body.clientHeight - 396,
+                        // x: 2000,
+                        // y: document.body.clientHeight - 396,
                     }}
                 />
             </div>
