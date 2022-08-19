@@ -6,6 +6,8 @@ import './global.css'
 import './iconfont.css'
 import 'antd/dist/antd.css';
 // import '~antd/lib/style/themes/variable.less';
+// import 'antd/es/style/themes/dark.less'
+
 import storage from '@/utils/storage'
 import clssses from './app.module.less'
 import {
@@ -17,6 +19,7 @@ import {
 import { HomePage } from './views/home'
 storage.set('asd', 'asd2')
 import "./i18n";
+import './userWorker';
 
 export default function App() {
     // const [count, setCount] = useState(0)

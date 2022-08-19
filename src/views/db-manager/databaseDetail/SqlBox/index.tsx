@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import styles from './index.module.less'
 import { message, Input, Button, Table } from 'antd'
-import http from '@/utils/http'
+// import http from '@/utils/http'
 import classNames from 'classnames'
-
+import { Editor } from '../../editor/Editor'
+import axios from 'axios'
 const { TextArea } = Input
 
 export interface Props {
@@ -11,7 +12,7 @@ export interface Props {
     style: any
 }
 
-function SqlBox({ className, defaultSql, style }: Props) {
+function SqlBox({ config, className, defaultSql, style }: Props) {
 
     console.log('defaultSql', defaultSql)
 
@@ -31,7 +32,7 @@ function SqlBox({ className, defaultSql, style }: Props) {
 
     async function run() {
         setLoading(true)
-        let res = await axios.post('/mysql/execSql', {
+        let res = await axios.post(`${config.host}/mysql/execSql`, {
             sql: code,
         })
         if (res.status === 200) {
@@ -80,11 +81,17 @@ function SqlBox({ className, defaultSql, style }: Props) {
                 <div className={styles.toolBox}>
                     <Button type="primary" size="small" onClick={run}>执行</Button>
                 </div>
-                <TextArea 
-                    className={styles.textarea} 
-                    value={code} 
-                    rows={4} 
-                    onChange={e => setCode(e.target.value)} />
+                <div className={styles.codeBox}>
+                    <Editor
+                        value={code}
+                        onChange={e => setCode(e.target.value)}
+                    />
+                    {/* <TextArea 
+                        className={styles.textarea} 
+                        value={code}
+                        rows={4} 
+                        onChange={e => setCode(e.target.value)} /> */}
+                </div>
             </div>
             <div className={styles.resultBox}>
                 <Table
