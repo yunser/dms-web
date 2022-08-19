@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import styles from './index.module.less'
-import { message, Input, Button, Table, Popover } from 'antd'
+import { message, Input, Button, Table, Popover, Space } from 'antd'
 // import http from '@/utils/http'
 import classNames from 'classnames'
 import { Editor } from '../../editor/Editor'
@@ -51,10 +51,67 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
         // run()
     }, [])
 
+    function runPlain() {
+        _run('explain ' + code2)
+    }
+
     async function run() {
+        _run(code2)
+        // setLoading(true)
+        // let res = await axios.post(`${config.host}/mysql/execSql`, {
+        //     sql: code2,
+        // })
+        // if (res.status === 200) {
+        //     // message.success('执行成功')
+        //     console.log(res)
+        //     let columns = [
+        //         {
+        //             title: '序号',
+        //             key: '__idx',
+        //             fixed: 'left',
+        //             // width: 120,
+        //             render(_value, _item, _idx) {
+        //                 return (
+        //                     <Cell text={_idx} />
+        //                 )
+        //             }
+        //         }
+        //     ]
+        //     if (res.data[0]) {
+        //         for (let key in res.data[0]) {
+        //             columns.push({
+        //                 title: key,
+        //                 dataIndex: key,
+        //                 key,
+        //                 // width: 120,  
+        //                 render(value: any) {
+        //                     return (
+        //                         <Cell text={value} />
+        //                         // <div
+        //                         //     className={styles.cell}
+        //                         //     style={{
+        //                         //         // minWidth: 120,
+        //                         //     }}
+        //                         // >{value}</div>
+        //                     )
+        //                 },
+        //             })
+        //         }
+        //     }
+        //     setTable({
+        //         columns,
+        //         list: res.data
+        //     })
+        //     setLoading(false)
+        // } else {
+        //     message.error('执行失败')
+        // }
+    }
+
+    async function _run(execCode) {
         setLoading(true)
         let res = await axios.post(`${config.host}/mysql/execSql`, {
-            sql: code2,
+            sql: execCode,
         })
         if (res.status === 200) {
             // message.success('执行成功')
@@ -112,7 +169,10 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
         <div className={classNames(styles.sqlBox, className)} style={style}>
             <div className={styles.editorBox}>
                 <div className={styles.toolBox}>
-                    <Button type="primary" size="small" onClick={run}>执行</Button>
+                    <Space>
+                        <Button type="primary" size="small" onClick={run}>执行</Button>
+                        <Button size="small" onClick={runPlain}>执行计划</Button>
+                    </Space>
                 </div>
                 <div className={styles.codeBox}>
                     <Editor
