@@ -26,6 +26,7 @@ export default function DatabaseList({ config, onSelectDatabase }) {
     useEffect(() => {
         loadData()
     }, [])
+    
     const columns = [
         {
             title: '数据库名称',
@@ -37,21 +38,24 @@ export default function DatabaseList({ config, onSelectDatabase }) {
                         onClick={() => {
                             onSelectDatabase && onSelectDatabase(item)
                         }}
+                        style={{
+                            cursor: 'pointer',
+                        }}
                     >
                         {value}
                     </div>
                 )
-                return <a href={`/databases/${value}`}>{value}</a>
+                // return <a href={`/databases/${value}`}>{value}</a>
             },
         },
-        {
-            title: '操作',
-            dataIndex: 'op',
-            key: 'op',
-            // render(value) {
-            //     return <a href={`/databases/${value}`}>{value}</a>
-            // },
-        },
+        // {
+        //     title: '操作',
+        //     dataIndex: 'op',
+        //     key: 'op',
+        //     // render(value) {
+        //     //     return <a href={`/databases/${value}`}>{value}</a>
+        //     // },
+        // },
     ]
 
     return (

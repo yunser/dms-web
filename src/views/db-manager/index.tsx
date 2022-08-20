@@ -11,7 +11,7 @@ console.log('styles', styles)
 const { TextArea } = Input
 const { TabPane } = Tabs
 
-function Connnector({ config }) {
+function Connnector({ config, onConnnect }) {
     const [form] = Form.useForm()
     const [code, setCode] = useState(`{
     "host": "",
@@ -56,6 +56,7 @@ function Connnector({ config }) {
         console.log('ret', ret)
         if (ret.status === 200) {
             message.success('连接成功')
+            onConnnect && onConnnect()
         }
         // else {
         //     message.error('连接失败')
@@ -145,20 +146,20 @@ const tabs_default = [
         type: 'connnect',
         data: {},
     },
-    {
-        title: 'DB linxot',
-        key: '2',
-        type: 'database',
-        data: {
-            name: 'linxot',
-        },
-    },
-    {
-        title: 'Databases',
-        key: '1',
-        type: 'databases',
-        data: {},
-    },
+    // {
+    //     title: 'DB linxot',
+    //     key: '2',
+    //     type: 'database',
+    //     data: {
+    //         name: 'linxot',
+    //     },
+    // },
+    // {
+    //     title: 'Databases',
+    //     key: '1',
+    //     type: 'databases',
+    //     data: {},
+    // },
 ]
 
 export function DbManager({ config }) {
@@ -182,14 +183,54 @@ export function DbManager({ config }) {
         )
     }
 
+    const onEdit = (targetKey: string, action: string) => {
+        console.log('targetKey, action', targetKey, action)
+        // this[action](targetKey);
+        if (action === 'add') {
+            // let tabKey = '' + new Date().getTime()
+            // setActiveKey(tabKey)
+            // setTabs([
+            //     ...tabs,
+            //     {
+            //         title: 'SQL',
+            //         key: tabKey,
+            //         defaultSql: '',
+            //     }
+            // ])
+            // _this.setState({
+            //     activeKey: tabKey,
+            //     tabs: tabs.concat([{
+
+            //     }]),
+            // })
+        }
+        else if (action === 'remove') {
+            for (let i = 0; i < tabs.length; i++) {
+                if (tabs[i].key === targetKey) {
+                    tabs.splice(i, 1)
+                    break
+                }
+            }
+            setTabs([
+                ...tabs,
+            ])
+            setActiveKey(tabs[tabs.length - 1].key)
+            // _this.setState({
+            //     tabs
+            // })
+        }
+    }
+
     return (
         <div className={styles.app}>
             <div className={styles.appHeader}>
                 <Tabs
-                    // onEdit={onEdit}
+                    onEdit={onEdit}
                     activeKey={activeKey}
                     onChange={handleTabChange}
-                    type="editable-card">
+                    type="editable-card"
+                    hideAdd={true}
+                >
                     {tabs.map(TabItem)}
                     
                 </Tabs>
@@ -207,6 +248,18 @@ export function DbManager({ config }) {
                                 {item.type == 'connnect' &&
                                     <Connnector
                                         config={config}
+                                        onConnnect={() => {
+                                            setTabs([
+                                                ...tabs,
+                                                {
+                                                    title: 'Databases',
+                                                    key: '1',
+                                                    type: 'databases',
+                                                    data: {},
+                                                },
+                                            ])
+                                            setActiveKey('1')
+                                        }}
                                     />
                                 }
                                 {item.type == 'database' &&
@@ -219,17 +272,19 @@ export function DbManager({ config }) {
                                     <DatabaseList
                                         config={config}
                                         onSelectDatabase={({name}) => {
+                                            const key = '' + new Date().getTime()
                                             setTabs([
                                                 ...tabs,
                                                 {
                                                     title: `DB ${name}`,
-                                                    key: '' + new Date().getTime(), // TODO
+                                                    key,
                                                     type: 'database',
                                                     data: {
                                                         name,
                                                     }
                                                 }
                                             ])
+                                            setActiveKey(key)
                                         }}
                                     />
                                 }
