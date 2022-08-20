@@ -18,7 +18,9 @@ export const request = {
             return res
         }
         catch (err) {
-            message.error(err.response.data.message)
+            if (opts?.noMessage !== true) {
+                message.error(err.response.data.message)
+            }
             return err.response
         }
     }

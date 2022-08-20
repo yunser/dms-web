@@ -6,6 +6,7 @@ import classNames from 'classnames'
 import { Editor } from '../../editor/Editor'
 import axios from 'axios'
 import copy from 'copy-to-clipboard';
+import { request } from '../../utils/http'
 
 const { TextArea } = Input
 
@@ -51,6 +52,7 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
 
     console.log('defaultSql', defaultSql)
 
+    const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
     const [hasReq, setHasReq] = useState(false)
     const [code, setCode] = useState(defaultSql)
@@ -126,9 +128,13 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
 
     async function _run(execCode) {
         setLoading(true)
-        let res = await axios.post(`${config.host}/mysql/execSql`, {
+        setError('')
+        let res = await request.post(`${config.host}/mysql/execSql`, {
             sql: execCode,
+        }, {
+            noMessage: true,
         })
+        console.log('res', res)
         if (res.status === 200) {
             // message.success('执行成功')
             console.log(res)
@@ -172,9 +178,15 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
             })
             setLoading(false)
             setHasReq(true)
-        } else {
-            message.error('执行失败')
         }
+        else {
+            setLoading(false)
+            setHasReq(true)
+            setError(res.data.message || 'Unknown Error')
+        }
+        // else {
+        //     message.error('执行失败')
+        // }
     }
 
 
@@ -207,6 +219,10 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
                 {loading ?
                     <div className={styles.emptyFullBox}>
                         <div>Loading...</div>
+                    </div>
+                : !!error ?
+                    <div className={styles.emptyFullBox}>
+                        <div className={styles.errorBox}>{error}</div>
                     </div>
                 : hasReq ?
                     <Table
