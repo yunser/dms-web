@@ -130,6 +130,7 @@ export function DbManager({ config }) {
                     onChange={handleTabChange}
                     type="editable-card">
                     {tabs.map(TabItem)}
+                    
                 </Tabs>
             </div>
             <div className={styles.appBody}>
