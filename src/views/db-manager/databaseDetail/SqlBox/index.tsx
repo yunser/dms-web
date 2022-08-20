@@ -149,7 +149,7 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
                     // width: 120,
                     render(_value, _item, _idx) {
                         return (
-                            <Cell text={_idx} color="#999" />
+                            <Cell text={_idx + 1} color="#999" />
                         )
                     }
                 }
