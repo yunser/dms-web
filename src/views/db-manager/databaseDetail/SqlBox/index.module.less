@@ -63,7 +63,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 240px;
+    min-width: 64px;
     // border: 1px solid #f00;
     padding: 8px;
     font-size: 12px;
@@ -76,6 +76,7 @@
         display: none;
         position: absolute;
         top: 0;
+        // bottom: 100%;
         right: 0;
         height: 100%;
         padding: 0 8px;
@@ -84,11 +85,15 @@
         justify-content: center;
         align-items: center;
         border-left: 1px solid rgba(0, 0, 0, .12);
+        gap: 4px,
     }
     .content {
         max-width: 320px;
     }
     .null {
         color: #999;
+    }
+    .text {
+        // min-width: 40px;
     }
 }

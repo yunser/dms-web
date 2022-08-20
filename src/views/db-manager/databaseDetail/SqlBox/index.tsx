@@ -5,6 +5,8 @@ import { message, Input, Button, Table, Popover, Space } from 'antd'
 import classNames from 'classnames'
 import { Editor } from '../../editor/Editor'
 import axios from 'axios'
+import copy from 'copy-to-clipboard';
+
 const { TextArea } = Input
 
 export interface Props {
@@ -23,9 +25,15 @@ function Cell({ text, color }) {
             {text == null ?
                 <span className={styles.null}>NULL</span>
             :
-                <span>{text}</span>
+                <span className={styles.text}>{text}</span>
             }
             <div className={styles.tool}>
+                <a
+                    onClick={() => {
+                        copy(text == null ? 'null' : text)
+                        message.success('Copied')
+                    }}
+                >复制</a>
                 <Popover
                     title="Content"
                     content={
