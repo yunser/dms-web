@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import styles from './index.module.less'
-import { message, Input, Button, Table, Popover, Space, Empty, Result } from 'antd'
+import { message, Input, Modal, Button, Table, Popover, Space, Empty, Result } from 'antd'
 // import http from '@/utils/http'
 import classNames from 'classnames'
 import { Editor } from '../../editor/Editor'
@@ -8,11 +8,27 @@ import axios from 'axios'
 import copy from 'copy-to-clipboard';
 import { request } from '../../utils/http'
 
+const { confirm } = Modal
+
 const { TextArea } = Input
 
 export interface Props {
     defaultSql?: string;
     style: any
+}
+
+
+function SimpleCell({ text, color }) {
+    return (
+        <div
+            className={styles.idxCell}
+            // style={{
+            //     color,
+            // }}
+        >
+            <span className={styles.text}>{text}</span>
+        </div>
+    )
 }
 
 function Cell({ text, color }) {
@@ -48,11 +64,13 @@ function Cell({ text, color }) {
     )
 }
 
-function SqlBox({ config, className, defaultSql, style }: Props) {
+function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Props) {
 
     console.log('defaultSql', defaultSql)
 
     const [error, setError] = useState('')
+    const [selectedRowKeys, setSelectedRowKeys] = useState([])
+    const [selectedRows, setSelectedRows] = useState([])
     const [loading, setLoading] = useState(false)
     const [result, setResult] = useState({})
     const [hasReq, setHasReq] = useState(false)
@@ -62,6 +80,10 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
         columns: [],
         list: [],
     })
+    const [tableInfo, setTableInfo] = useState([])
+    const [modelVisible, setModalVisible] = useState(false)
+    const [modelCode, setModalCode] = useState('')
+    const [fields, setFields] = useState([])
 
     useEffect(() => {
         // console.log('onMouneed', storage.get('dbInfo', ''))
@@ -70,67 +92,97 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
         // run()
     }, [])
 
+    async function removeSelection() {
+        // if 
+        let pkField: string | number
+        for (let field of tableInfo) {
+            // Default: null
+            // Extra: ""
+            // Field: "id_"
+            // Key: "PRI"
+            // Null: "NO"
+            // Type: "bigint(20)"
+            if (field.Key == 'PRI') {
+                pkField = field.Field
+                break
+            }
+        }
+        console.log('fields', fields)
+        console.log('pkField', pkField)
+        console.log('selectedRows', selectedRows)
+        const pkColIdx = fields.findIndex(item => item.name == pkField)
+        console.log('pkColIdx', pkColIdx)
+        if (pkColIdx == -1) {
+            message.error('找不到表格主键')
+            return
+        }
+        const codes = selectedRows.map(row => {
+            return `DELETE FROM \`${dbName}\`.\`${tableName}\` WHERE \`${pkField}\` = '${row[pkColIdx]}';`
+        }).join('\n')
+        setModalCode(codes)
+        setModalVisible(true)
+
+        // Modal.confirm({
+        //     title: 'Confirm',
+        //     // icon: <ExclamationCircleOutlined />,
+        //     content: `删除 ${selectedRowKeys.length} 行记录？`,
+        //     okText: '确认',
+        //     cancelText: '取消',
+        //     async onOk() {
+
+        //     }
+        // })
+    }
+
+    async function doRemove() {
+        let res = await request.post(`${config.host}/mysql/execSql`, {
+            sql: modelCode,
+        }, {
+            // noMessage: true,
+        })
+        if (res.status == 200) {
+            message.success('删除成功')
+            setModalVisible(false)
+            run()
+        }
+        console.log('res', res)
+
+
+    }
+
+    async function loadTableInfo() {
+        if (dbName && tableName) {
+            let res = await request.get(`${config.host}/mysql/databases/${dbName}/tables/${tableName}`, {
+                noMessage: true,
+            })
+            console.log('loadTableInfo', res)
+            if (res.status == 200) {
+                setTableInfo(res.data)
+                
+
+
+            }
+        }
+    }
+
+    useEffect(() => {
+        loadTableInfo()
+    }, [])
+
     function runPlain() {
         _run('explain ' + code2)
     }
 
     async function run() {
         _run(code2)
-        // setLoading(true)
-        // let res = await axios.post(`${config.host}/mysql/execSql`, {
-        //     sql: code2,
-        // })
-        // if (res.status === 200) {
-        //     // message.success('执行成功')
-        //     console.log(res)
-        //     let columns = [
-        //         {
-        //             title: '序号',
-        //             key: '__idx',
-        //             fixed: 'left',
-        //             // width: 120,
-        //             render(_value, _item, _idx) {
-        //                 return (
-        //                     <Cell text={_idx} />
-        //                 )
-        //             }
-        //         }
-        //     ]
-        //     if (res.data[0]) {
-        //         for (let key in res.data[0]) {
-        //             columns.push({
-        //                 title: key,
-        //                 dataIndex: key,
-        //                 key,
-        //                 // width: 120,  
-        //                 render(value: any) {
-        //                     return (
-        //                         <Cell text={value} />
-        //                         // <div
-        //                         //     className={styles.cell}
-        //                         //     style={{
-        //                         //         // minWidth: 120,
-        //                         //     }}
-        //                         // >{value}</div>
-        //                     )
-        //                 },
-        //             })
-        //         }
-        //     }
-        //     setTable({
-        //         columns,
-        //         list: res.data
-        //     })
-        //     setLoading(false)
-        // } else {
-        //     message.error('执行失败')
-        // }
     }
 
     async function _run(execCode) {
         setLoading(true)
         setError('')
         setResult(null)
+        setSelectedRows([])
+        setSelectedRowKeys([])
         let res = await request.post(`${config.host}/mysql/execSql`, {
             sql: execCode,
         }, {
@@ -149,7 +201,7 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
                     // width: 120,
                     render(_value, _item, _idx) {
                         return (
-                            <Cell text={_idx + 1} color="#999" />
+                            <SimpleCell text={_idx + 1} color="#999" />
                         )
                     }
                 }
@@ -176,18 +228,22 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
                 })
                 idx++
             }
-            const list = []
-            for (let result of results) {
-                let item = {}
+            const list = results.map((result, rowIdx) => {
+                let item = {
+                    _idx: rowIdx,
+                }
                 idx = 0
                 for (let field of fields) {
                     const key = '' + idx
                     item[key] = result[idx]
                     idx++
                 }
-                list.push(item)
-            }
-            console.log('list', list)
+                return item
+            })
+
+            // for (let result of results) {
+            // }
+            // console.log('list', list)
 
             // if (res.data[0]) {
             //     for (let key in res.data[0]) {
@@ -217,6 +273,7 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
             setLoading(false)
             setHasReq(true)
             setResult(res.data)
+            setFields(fields)
         }
         else {
             setLoading(false)
@@ -265,6 +322,20 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
                     </div>
                 : hasReq ?
                     <>
+                        {!!result &&
+                            <div className={styles.header}>
+                                <Space>
+                                    <Button
+                                        danger
+                                        size="small"
+                                        disabled={!(selectedRowKeys.length > 0)}
+                                        onClick={() => {
+                                            removeSelection()
+                                        }}
+                                    >删除</Button>
+                                </Space>
+                            </div>
+                        }
                         <div className={styles.tableBox}>
                             <Table
                                 loading={loading}
@@ -279,6 +350,14 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
                                 }}
                                 // size="middle"
                                 size="small"
+                                rowSelection={{
+                                    selectedRowKeys,
+                                    onChange(selectedRowKeys, selectedRows) {
+                                        setSelectedRowKeys(selectedRowKeys)
+                                        setSelectedRows(selectedRows)
+                                    }
+                                }}
+                                rowKey="_idx"
                                 scroll={{
                                     x: true,
                                     // x: 2000,
@@ -287,7 +366,7 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
                             />
                         </div>
                         {!!result &&
-                            <div className={styles.status}>
+                            <div className={styles.footer}>
                                 Time: {result.time} ms
                             </div>
                         }
@@ -298,6 +377,33 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
                     </div>
                 }
             </div>
+            {modelVisible &&
+                <Modal
+                    title="删除" 
+                    visible={true}
+                    // onOk={handleOk}
+                    okButtonProps={{
+                        children: '执行',
+                    }}
+                    onCancel={() => {
+                        setModalVisible(false)
+                    }}
+                    onOk={() => {
+                        doRemove()
+                    }}
+                >
+                    <TextArea 
+                        // className={styles.textarea} 
+                        value={modelCode}
+                        rows={4}
+                        // disabled
+                        // onChange={e => setCode(e.target.value)}
+                    />
+                    {/* <p>Some contents...</p>
+                    <p>Some contents...</p>
+                    <p>Some contents...</p> */}
+                </Modal>
+            }
         </div>
     )
 }

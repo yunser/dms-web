@@ -56,6 +56,10 @@ const tabs_default: Array<TabProps> = [
         title: '测试 SQL',
         key: '0',
         defaultSql: 'SELECT * FROM `linxot`.`bak_sim` LIMIT 20;',
+        data: {
+            dbName: 'linxot',
+            tableName: 'bak_sim',
+        }
     },
     // {
     //     title: 'Tab 1',
@@ -149,7 +153,11 @@ export function DataBaseDetail({ dbName, config }) {
             {
                 title: tableName,
                 key: tabKey,
-                defaultSql: `SELECT * FROM \`${dbName}\`.\`${tableName}\` LIMIT 20;`
+                defaultSql: `SELECT * FROM \`${dbName}\`.\`${tableName}\` LIMIT 20;`,
+                data: {
+                    dbName,
+                    tableName,
+                },
             }
         ])
         // setTabs({
@@ -288,6 +296,8 @@ export function DataBaseDetail({ dbName, config }) {
                         return (
                             <SqlBox
                                 config={config}
+                                dbName={dbName}
+                                tableName={item.data?.tableName}
                                 // className={item.key == activeKey ? styles.visibleTab : styles.hiddenTab}
                                 key={item.key}
                                 defaultSql={item.defaultSql}

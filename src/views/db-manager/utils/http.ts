@@ -11,7 +11,18 @@ const instance = axios.create({
 // export default instance
 
 export const request = {
-    get(url) {},
+    async get(url, opts) {
+        try {
+            const res = await instance.get(url, opts)
+            return res
+        }
+        catch (err) {
+            if (opts?.noMessage !== true) {
+                message.error(err.response.data.message)
+            }
+            return err.response
+        }
+    },
     async post(url, data, opts?: any) {
         try {
             const res = await instance.post(url, data, opts)
