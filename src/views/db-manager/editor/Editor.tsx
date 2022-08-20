@@ -76,7 +76,7 @@ monaco.languages.registerCompletionItemProvider('sql', {
     },
 })
 
-export const Editor: VFC = ({ value, onChange }) => {
+export const Editor: VFC = ({ value, onChange, onEditor }) => {
 	const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
 	const monacoEl = useRef(null);
 
@@ -101,6 +101,7 @@ export const Editor: VFC = ({ value, onChange }) => {
                 onChange && onChange(newValue)
             });
 			setEditor(_editor);
+            onEditor && onEditor(_editor)
 		}
         // if (monacoEl) {
         //     console.log('monacoEl', monacoEl.current.getValue)
@@ -116,8 +117,18 @@ export const Editor: VFC = ({ value, onChange }) => {
         // if (monacoEl && value) {
         //     monacoEl.setValue(value)
         // }
-		return () => editor?.dispose();
+		return () => {
+            console.log('editor.dispose')
+            editor?.dispose();
+            setEditor(null)
+        }
     }, [monacoEl.current, value]);
 
-	return <div className={styles.Editor} ref={monacoEl}></div>;
+
+	return (
+        <div
+            className={styles.Editor}
+            ref={monacoEl}
+        ></div>
+    )
 };

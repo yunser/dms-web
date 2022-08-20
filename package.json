@@ -39,6 +39,7 @@
     "roughjs": "^4.5.2",
     "slate": "^0.82.0",
     "slate-react": "^0.82.0",
+    "sql-formatter": "^9.2.0",
     "svg-path-bounding-box": "^1.0.4",
     "svg-pathdata": "^6.0.3",
     "uid": "^2.0.0",

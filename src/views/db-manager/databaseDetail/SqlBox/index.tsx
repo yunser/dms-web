@@ -7,6 +7,8 @@ import { Editor } from '../../editor/Editor'
 // import axios from 'axios'
 import copy from 'copy-to-clipboard';
 import { request } from '../../utils/http'
+import { format } from 'sql-formatter'
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
 const { confirm } = Modal
 
@@ -68,6 +70,7 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
 
     console.log('defaultSql', defaultSql)
 
+    const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
     const [error, setError] = useState('')
     const [selectedRowKeys, setSelectedRowKeys] = useState([])
     const [selectedRows, setSelectedRows] = useState([])
@@ -174,6 +177,16 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
 
     function runPlain() {
         _run('explain ' + code2)
+    }
+
+    function formatSql() {
+        // console.log('ff', format(code2))
+        // setCode('1212 format' + new Date().getTime())
+        // setCode(format(code2))
+        // editor?.setValue('1212 format' + new Date().getTime())
+        editor?.setValue(format(code2, {
+            tabWidth: 4,
+        }))
     }
 
     async function run() {
@@ -300,12 +313,16 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
                     <Space>
                         <Button type="primary" size="small" onClick={run}>执行</Button>
                         <Button size="small" onClick={runPlain}>执行计划</Button>
+                        <Button size="small" onClick={formatSql}>格式化</Button>
                     </Space>
                 </div>
                 <div className={styles.codeBox}>
                     <Editor
                         value={code}
                         onChange={value => setCode2(value)}
+                        onEditor={editor => {
+                            setEditor(editor)
+                        }}
                     />
                     {/* <TextArea 
                         className={styles.textarea} 
