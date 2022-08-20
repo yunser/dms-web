@@ -20,7 +20,11 @@ function Cell({ text, color }) {
                 color,
             }}
         >
-            {text}
+            {text == null ?
+                <span className={styles.null}>NULL</span>
+            :
+                <span>{text}</span>
+            }
             <div className={styles.tool}>
                 <Popover
                     title="Content"
