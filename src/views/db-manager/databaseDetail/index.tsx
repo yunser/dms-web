@@ -122,13 +122,17 @@ export function DataBaseDetail({ dbName, config }) {
             console.log('res', list)
             setList(res.list)
 
-            const children = list.map(item => {
-                const tableName = item.TABLE_NAME
-                return {
-                    title: tableName,
-                    key: tableName,
-                }
-            })
+            const children = list
+                .map(item => {
+                    const tableName = item.TABLE_NAME
+                    return {
+                        title: tableName,
+                        key: tableName,
+                    }
+                })
+                .sort((a, b) => {
+                    return a.title.localeCompare(b.title)
+                })
             setTreeData([
                 {
                     title: dbName,
@@ -160,12 +164,22 @@ export function DataBaseDetail({ dbName, config }) {
                 },
             }
         ])
-        // setTabs({
-        //     // activeKey: tabKey,
-        //     tabs: tabs.concat([{
-
-        //     }]),
-        // })
+    }
+    function queryTableStruct(tableName: string) {
+        let tabKey = '' + new Date().getTime()
+        setActiveKey(tabKey)
+        setTabs([
+            ...tabs,
+            {
+                title: tableName,
+                key: tabKey,
+                defaultSql: `SELECT * FROM \`${dbName}\`.\`${tableName}\` LIMIT 20;`,
+                data: {
+                    dbName,
+                    tableName,
+                },
+            }
+        ])
     }
 
 
@@ -256,6 +270,26 @@ export function DataBaseDetail({ dbName, config }) {
                         defaultExpandedKeys={['root']}
                         // defaultSelectedKeys={['0-0-0', '0-0-1']}
                         // defaultCheckedKeys={['0-0-0', '0-0-1']}
+                        titleRender={nodeData => {
+                            console.log('nodeData', nodeData)
+
+                            return (
+                                <div className={styles.treeTitle}>
+                                    <div className={styles.label}>{nodeData.title}</div>
+                                    {nodeData.key != 'root' &&
+                                        <a
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                e.preventDefault()
+                                                queryTableStruct(nodeData.key)
+                                            }}
+                                        >
+                                            查看结构
+                                        </a>
+                                    }
+                                </div>
+                            )
+                        }}
                         onSelect={(selectedKeys, info) => {
                             console.log('selected', selectedKeys, info);
                             const tableName = selectedKeys[0]
