@@ -56,7 +56,7 @@ const tabs_default: Array<TabProps> = [
     {
         title: '测试 SQL',
         key: '0',
-        defaultSql: 'SELECT * FROM `linxot`.`bak_sim` LIMIT 20;',
+        defaultSql: '',
         data: {
             dbName: 'linxot',
             tableName: 'bak_sim',
