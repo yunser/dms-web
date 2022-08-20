@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import styles from './index.module.less'
-import { message, Input, Button, Table, Popover, Space } from 'antd'
+import { message, Input, Button, Table, Popover, Space, Empty } from 'antd'
 // import http from '@/utils/http'
 import classNames from 'classnames'
 import { Editor } from '../../editor/Editor'
@@ -52,6 +52,7 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
     console.log('defaultSql', defaultSql)
 
     const [loading, setLoading] = useState(false)
+    const [hasReq, setHasReq] = useState(false)
     const [code, setCode] = useState(defaultSql)
     const [code2, setCode2] = useState(defaultSql)
     const [table, setTable] = useState({
@@ -170,6 +171,7 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
                 list: res.data
             })
             setLoading(false)
+            setHasReq(true)
         } else {
             message.error('执行失败')
         }
@@ -202,25 +204,35 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
                 </div>
             </div>
             <div className={styles.resultBox}>
-                <Table
-                    loading={loading}
-                    dataSource={table.list}
-                    pagination={false}
-                    columns={table.columns}
-                    bordered
-                    style={{
-                        // width: 600,
-                        // height: '300px',
-                        // border: '1px solid #09c',
-                    }}
-                    // size="middle"
-                    size="small"
-                    scroll={{
-                        x: true,
-                        // x: 2000,
-                        // y: document.body.clientHeight - 396,
-                    }}
-                />
+                {loading ?
+                    <div className={styles.emptyFullBox}>
+                        <div>Loading...</div>
+                    </div>
+                : hasReq ?
+                    <Table
+                        loading={loading}
+                        dataSource={table.list}
+                        pagination={false}
+                        columns={table.columns}
+                        bordered
+                        style={{
+                            // width: 600,
+                            // height: '300px',
+                            // border: '1px solid #09c',
+                        }}
+                        // size="middle"
+                        size="small"
+                        scroll={{
+                            x: true,
+                            // x: 2000,
+                            // y: document.body.clientHeight - 396,
+                        }}
+                    />
+                :
+                    <div className={styles.emptyFullBox}>
+                        <Empty description="No Request"></Empty>
+                    </div>
+                }
             </div>
         </div>
     )
