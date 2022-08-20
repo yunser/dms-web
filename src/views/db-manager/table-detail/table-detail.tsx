@@ -1,4 +1,4 @@
-import { Table, Tabs } from 'antd';
+import { Descriptions, Table, Tabs } from 'antd';
 import React from 'react';
 import { VFC, useRef, useState, useEffect } from 'react';
 import { request } from '../utils/http';
@@ -9,8 +9,9 @@ const { TabPane } = Tabs
 
 export function TableDetail({ config, dbName, tableName }) {
 
-    const [tableInfo, setTableInfo] = useState([])
+    const [tableColumns, setTableColumns] = useState([])
     const [indexes, setIndexes] = useState([])
+    const [tableInfo, setTableInfo] = useState({})
     const [modelVisible, setModalVisible] = useState(false)
     const [modelCode, setModalCode] = useState('')
     const [fields, setFields] = useState([])
@@ -80,7 +81,7 @@ export function TableDetail({ config, dbName, tableName }) {
             })
             console.log('loadTableInfo', res)
             if (res.status == 200) {
-                setTableInfo(res.data.columns)
+                setTableColumns(res.data.columns)
                 
                 const groupMap = _.groupBy(res.data.indexes, 'INDEX_NAME')
                 console.log('groups2', groupMap)
@@ -110,6 +111,7 @@ export function TableDetail({ config, dbName, tableName }) {
                     })
                 }
                 setIndexes(indexes)
+                setTableInfo(res.data.table)
             }
         }
     }
@@ -124,10 +126,36 @@ export function TableDetail({ config, dbName, tableName }) {
                 tabPosition="left"
                 type="card"
             >
+                <TabPane tab="基本信息" key="basic">
+                    <Descriptions column={1}>
+                        {/* <Descriptions.Item label="label">{tableInfo.AUTO_INCREMENT}</Descriptions.Item> */}
+                        <Descriptions.Item label="表名称">{tableInfo.TABLE_NAME}</Descriptions.Item>
+                        <Descriptions.Item label="排序规则">{tableInfo.TABLE_COLLATION}</Descriptions.Item>
+                        <Descriptions.Item label="行">{tableInfo.DATA_LENGTH}</Descriptions.Item>
+                        <Descriptions.Item label="引擎">{tableInfo.ENGINE}</Descriptions.Item>
+                        <Descriptions.Item label="注释">{tableInfo.TABLE_COMMENT}</Descriptions.Item>
+                        {/* : null
+                        AVG_ROW_LENGTH: 2048
+                        CHECKSUM: null
+                        CHECK_TIME: null
+                        CREATE_OPTIONS: "row_format=DYNAMIC"
+                        CREATE_TIME: "2022-07-28T08:20:02.000Z"
+                        DATA_FREE: 0
+                        INDEX_LENGTH: 0
+                        MAX_DATA_LENGTH: 0
+                        ROW_FORMAT: "Dynamic"
+                        TABLE_CATALOG: "def"
+                        TABLE_ROWS: 8
+                        TABLE_SCHEMA: "linxot"
+                        TABLE_TYPE: "BASE TABLE"
+                        UPDATE_TIME: "2022-08-20T14:18:58.000Z"
+                        VERSION: 10 */}
+                    </Descriptions>
+                </TabPane>
                 <TabPane tab="列信息" key="columns">
                     <Table
                         columns={columns}
-                        dataSource={tableInfo}
+                        dataSource={tableColumns}
                         bordered
                         pagination={false}
                         size="small"
