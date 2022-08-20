@@ -175,9 +175,9 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
                 idx++
             }
             const list = []
-            idx = 0
             for (let result of results) {
                 let item = {}
+                idx = 0
                 for (let field of fields) {
                     const key = '' + idx
                     item[key] = result[idx]
