@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import styles from './index.module.less'
-import { message, Input, Button, Table, Popover, Space, Empty } from 'antd'
+import { message, Input, Button, Table, Popover, Space, Empty, Result } from 'antd'
 // import http from '@/utils/http'
 import classNames from 'classnames'
 import { Editor } from '../../editor/Editor'
@@ -54,6 +54,7 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
 
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
+    const [result, setResult] = useState({})
     const [hasReq, setHasReq] = useState(false)
     const [code, setCode] = useState(defaultSql)
     const [code2, setCode2] = useState(defaultSql)
@@ -129,6 +130,7 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
     async function _run(execCode) {
         setLoading(true)
         setError('')
+        setResult(null)
         let res = await request.post(`${config.host}/mysql/execSql`, {
             sql: execCode,
         }, {
@@ -214,6 +216,7 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
             })
             setLoading(false)
             setHasReq(true)
+            setResult(res.data)
         }
         else {
             setLoading(false)
@@ -261,25 +264,34 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
                         <div className={styles.errorBox}>{error}</div>
                     </div>
                 : hasReq ?
-                    <Table
-                        loading={loading}
-                        dataSource={table.list}
-                        pagination={false}
-                        columns={table.columns}
-                        bordered
-                        style={{
-                            // width: 600,
-                            // height: '300px',
-                            // border: '1px solid #09c',
-                        }}
-                        // size="middle"
-                        size="small"
-                        scroll={{
-                            x: true,
-                            // x: 2000,
-                            // y: document.body.clientHeight - 396,
-                        }}
-                    />
+                    <>
+                        <div className={styles.tableBox}>
+                            <Table
+                                loading={loading}
+                                dataSource={table.list}
+                                pagination={false}
+                                columns={table.columns}
+                                bordered
+                                style={{
+                                    // width: 600,
+                                    // height: '300px',
+                                    // border: '1px solid #09c',
+                                }}
+                                // size="middle"
+                                size="small"
+                                scroll={{
+                                    x: true,
+                                    // x: 2000,
+                                    // y: document.body.clientHeight - 396,
+                                }}
+                            />
+                        </div>
+                        {!!result &&
+                            <div className={styles.status}>
+                                Time: {result.time} ms
+                            </div>
+                        }
+                    </>
                 :
                     <div className={styles.emptyFullBox}>
                         <Empty description="No Request"></Empty>

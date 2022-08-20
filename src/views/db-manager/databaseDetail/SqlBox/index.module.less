@@ -28,9 +28,10 @@
         
     }
     .resultBox {
+        position: relative;
         flex: 1 0 auto;
         height: 0;
-        overflow: auto;
+        overflow: hidden;
         // border: 1px solid #f00;
         border-top: 1px solid rgba(0, 0, 0, .12);
         :global {
@@ -56,6 +57,26 @@
                 // height: 300px;
                 // overflow: auto;
             }
+        }
+        .tableBox {
+            width: 100%;
+            height: 100%;
+            padding-bottom: 48px;
+            overflow: auto;
+        }
+        .status {
+            position: absolute;
+            border-top: 1px solid rgba(0, 0, 0, .12);
+            left: 0;
+            right: 0;
+            bottom: 0;
+            // top: 90%;
+            z-index: 10000;
+            height: 48px;
+            padding: 0 16px;
+            background-color: #fff;
+            display: flex;
+            align-items: center;
         }
     }
 }
