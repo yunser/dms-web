@@ -17,6 +17,7 @@ import SqlBox from './SqlBox'
 import Item from 'antd/lib/list/Item'
 // import type { DataNode, TreeProps } from 'antd/es/tree';
 import axios from 'axios'
+import { TableDetail } from '../table-detail/table-detail'
 
 const { TabPane } = Tabs
 
@@ -171,9 +172,10 @@ export function DataBaseDetail({ dbName, config }) {
         setTabs([
             ...tabs,
             {
-                title: tableName,
+                title: tableName + ' - Table',
                 key: tabKey,
-                defaultSql: `SELECT * FROM \`${dbName}\`.\`${tableName}\` LIMIT 20;`,
+                type: 'tableDetail',
+                // defaultSql: `SELECT * FROM \`${dbName}\`.\`${tableName}\` LIMIT 20;`,
                 data: {
                     dbName,
                     tableName,
@@ -271,13 +273,14 @@ export function DataBaseDetail({ dbName, config }) {
                         // defaultSelectedKeys={['0-0-0', '0-0-1']}
                         // defaultCheckedKeys={['0-0-0', '0-0-1']}
                         titleRender={nodeData => {
-                            console.log('nodeData', nodeData)
+                            // console.log('nodeData', nodeData)
 
                             return (
                                 <div className={styles.treeTitle}>
                                     <div className={styles.label}>{nodeData.title}</div>
                                     {nodeData.key != 'root' &&
                                         <a
+                                            className={styles.btns}
                                             onClick={(e) => {
                                                 e.stopPropagation()
                                                 e.preventDefault()
@@ -327,6 +330,23 @@ export function DataBaseDetail({ dbName, config }) {
                 </div>
                 <div className={styles.body}>
                     {tabs.map(item => {
+                        if (item.type == 'tableDetail') {
+                            return (
+                                <div
+                                    key={item.key}
+                                    style={{
+                                        // visibility: item.key == activeKey ? 'visible' : 'hidden',
+                                        display: item.key == activeKey ? undefined : 'none',
+                                    }}
+                                >
+                                    <TableDetail
+                                        config={config}
+                                        dbName={dbName}
+                                        tableName={item.data?.tableName}
+                                    />
+                                </div>
+                            )
+                        }
                         return (
                             <SqlBox
                                 config={config}
