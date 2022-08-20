@@ -40,9 +40,11 @@ function getDBSuggest() {
     }))
 }
 
+console.log('monaco.registerCompletionItemProvider', )
 monaco.languages.registerCompletionItemProvider('sql', {
-    triggerCharacters: ['.', ...keywords],
+    triggerCharacters: [':', '.', ...keywords],
     provideCompletionItems: (model, position) => {
+        console.log('monaco.provideCompletionItems', )
         let suggestions: any[] = []
 
         const { lineNumber, column } = position

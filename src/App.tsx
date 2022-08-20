@@ -13,6 +13,7 @@ import 'antd/dist/antd.css';
 // import '~antd/es/style/themes/dark.less';
 // import '~antd/dist/antd.less'; // 引入官方提供的 less 样式入口文件
 // @import 'your-theme-file.less'; // 用于覆盖上面定义的变量
+import './userWorker';
 
 import storage from '@/utils/storage'
 import clssses from './app.module.less'
@@ -25,7 +26,7 @@ import {
 import { HomePage } from './views/home'
 storage.set('asd', 'asd2')
 // import "./i18n";
-import './userWorker';
+
 
 export default function App() {
     // const [count, setCount] = useState(0)
