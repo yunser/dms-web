@@ -138,6 +138,7 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
         if (res.status === 200) {
             // message.success('执行成功')
             console.log(res)
+            const { results, fields } = res.data
             let columns = [
                 {
                     title: '#',
@@ -151,30 +152,65 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
                     }
                 }
             ]
-            if (res.data[0]) {
-                for (let key in res.data[0]) {
-                    columns.push({
-                        title: key,
-                        dataIndex: key,
-                        key,
-                        // width: 120,  
-                        render(value: any) {
-                            return (
-                                <Cell text={value} />
-                                // <div
-                                //     className={styles.cell}
-                                //     style={{
-                                //         // minWidth: 120,
-                                //     }}
-                                // >{value}</div>
-                            )
-                        },
-                    })
-                }
+            let idx = 0
+            for (let field of fields) {
+                const key = '' + idx
+                columns.push({
+                    title: field.name,
+                    dataIndex: key,
+                    key,
+                    // width: 120,
+                    render(value: any) {
+                        return (
+                            <Cell text={value} />
+                            // <div
+                            //     className={styles.cell}
+                            //     style={{
+                            //         // minWidth: 120,
+                            //     }}
+                            // >{value}</div>
+                        )
+                    },
+                })
+                idx++
             }
+            const list = []
+            idx = 0
+            for (let result of results) {
+                let item = {}
+                for (let field of fields) {
+                    const key = '' + idx
+                    item[key] = result[idx]
+                    idx++
+                }
+                list.push(item)
+            }
+            console.log('list', list)
+
+            // if (res.data[0]) {
+            //     for (let key in res.data[0]) {
+            //         columns.push({
+            //             title: key,
+            //             dataIndex: key,
+            //             key,
+            //             // width: 120,  
+            //             render(value: any) {
+            //                 return (
+            //                     <Cell text={value} />
+            //                     // <div
+            //                     //     className={styles.cell}
+            //                     //     style={{
+            //                     //         // minWidth: 120,
+            //                     //     }}
+            //                     // >{value}</div>
+            //                 )
+            //             },
+            //         })
+            //     }
+            // }
             setTable({
                 columns,
-                list: res.data
+                list,
             })
             setLoading(false)
             setHasReq(true)
