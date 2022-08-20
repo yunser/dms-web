@@ -12,10 +12,13 @@ export interface Props {
     style: any
 }
 
-function Cell({ text }) {
+function Cell({ text, color }) {
     return (
         <div
             className={styles.cell}
+            style={{
+                color,
+            }}
         >
             {text}
             <div className={styles.tool}>
@@ -124,7 +127,7 @@ function SqlBox({ config, className, defaultSql, style }: Props) {
                     // width: 120,
                     render(_value, _item, _idx) {
                         return (
-                            <Cell text={_idx} />
+                            <Cell text={_idx} color="#999" />
                         )
                     }
                 }
