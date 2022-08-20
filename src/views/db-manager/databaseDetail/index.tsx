@@ -116,7 +116,9 @@ export function DataBaseDetail({ dbName, config }) {
         // dispatch({
         //   type: 'user/fetchUserList',
         // });
-        let res = await axios.get(`${config.host}/mysql/databases/${dbName}/tables`)
+        let res = await axios.post(`${config.host}/mysql/tables`, {
+            dbName,
+        })
         if (res.status === 200) {
             // message.info('连接成功')
             const list = res.data

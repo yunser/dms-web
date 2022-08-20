@@ -4,7 +4,7 @@ import { message, Input, Modal, Button, Table, Popover, Space, Empty, Result } f
 // import http from '@/utils/http'
 import classNames from 'classnames'
 import { Editor } from '../../editor/Editor'
-import axios from 'axios'
+// import axios from 'axios'
 import copy from 'copy-to-clipboard';
 import { request } from '../../utils/http'
 
@@ -152,7 +152,10 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
 
     async function loadTableInfo() {
         if (dbName && tableName) {
-            let res = await request.get(`${config.host}/mysql/databases/${dbName}/tables/${tableName}`, {
+            let res = await request.post(`${config.host}/mysql/tableInfo`, {
+                dbName,
+                tableName,
+            }, {
                 noMessage: true,
             })
             console.log('loadTableInfo', res)
@@ -308,7 +311,8 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
                         className={styles.textarea} 
                         value={code}
                         rows={4} 
-                        onChange={e => setCode(e.target.value)} /> */}
+                        // onChange={e => setCode(e.target.value)} />
+                        onChange={e => setCode2(e.target.value)} /> */}
                 </div>
             </div>
             <div className={styles.resultBox}>

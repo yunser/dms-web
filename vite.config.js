@@ -17,16 +17,16 @@ export default defineConfig({
     server: {
         port: 3001,
     },
-    css: {
-        preprocessorOptions: {
-            less: {
-                modifyVars: {
-                    // hack: `true; @import (reference) "${resolve('src/style/global/config.less')}";`,
-                },
-                javascriptEnabled: true,
-            }
-        }
-    },
+    // css: {
+    //     preprocessorOptions: {
+    //         less: {
+    //             modifyVars: {
+    //                 // hack: `true; @import (reference) "${resolve('src/style/global/config.less')}";`,
+    //             },
+    //             javascriptEnabled: true,
+    //         }
+    //     }
+    // },
     resolve: {
         alias: [
             { find: /^~/, replacement: '' },
@@ -59,37 +59,38 @@ export default defineConfig({
         // }),
     ],
     build: {
-        rollupOptions: {
-            // external: [
-            //     'moment',
-            //     // 'echarts',
-            //     // 'react',
-            //     // 'react-dom'
-            // ],
-            // output: {
-            //     globals: {
-            //         moment: 'moment',
-            //         echarts: 'echarts',
-            //         // 'react': 'React',
-            //         // 'react-dom': 'ReactDOM'
-            //     }
-            // }
-            plugins: [
-                // commonjs(),
-                // externalGlobals({
-                //     moment: 'window.moment',
-                //     // echarts: 'window.echarts',
-                //     // react: 'window.React',
-                //     // 'react-dom': 'ReactDOM',
-                // }),
-            ],
-            // output: {
-            //     manualChunks(id) { // 分包
-            //         if (id.includes('node_modules')) {
-            //             return id.toString().split('node_modules/')[1].split('/')[0].toString();
-            //         }
-            //     }
-            // }
-        },
+        // sourcemap: true,
+        // rollupOptions: {
+        //     // external: [
+        //     //     'moment',
+        //     //     // 'echarts',
+        //     //     // 'react',
+        //     //     // 'react-dom'
+        //     // ],
+        //     // output: {
+        //     //     globals: {
+        //     //         moment: 'moment',
+        //     //         echarts: 'echarts',
+        //     //         // 'react': 'React',
+        //     //         // 'react-dom': 'ReactDOM'
+        //     //     }
+        //     // }
+        //     plugins: [
+        //         // commonjs(),
+        //         // externalGlobals({
+        //         //     moment: 'window.moment',
+        //         //     // echarts: 'window.echarts',
+        //         //     // react: 'window.React',
+        //         //     // 'react-dom': 'ReactDOM',
+        //         // }),
+        //     ],
+        //     // output: {
+        //     //     manualChunks(id) { // 分包
+        //     //         if (id.includes('node_modules')) {
+        //     //             return id.toString().split('node_modules/')[1].split('/')[0].toString();
+        //     //         }
+        //     //     }
+        //     // }
+        // },
     },
 })

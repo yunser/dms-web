@@ -72,7 +72,10 @@ export function TableDetail({ config, dbName, tableName }) {
     ]
     async function loadTableInfo() {
         if (dbName && tableName) {
-            let res = await request.get(`${config.host}/mysql/databases/${dbName}/tables/${tableName}/all`, {
+            let res = await request.post(`${config.host}/mysql/tableDetail`, {
+                dbName,
+                tableName,
+            }, {
                 noMessage: true,
             })
             console.log('loadTableInfo', res)

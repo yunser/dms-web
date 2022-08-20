@@ -24,7 +24,7 @@ import {
 } from "react-router-dom";
 import { HomePage } from './views/home'
 storage.set('asd', 'asd2')
-import "./i18n";
+// import "./i18n";
 import './userWorker';
 
 export default function App() {

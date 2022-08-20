@@ -11,7 +11,7 @@ export default function DatabaseList({ config, onSelectDatabase }) {
     const [list, setList] = useState([])
 
     async function loadData() {
-        let ret = await axios.get(`${config.host}/mysql/databases`)
+        let ret = await axios.post(`${config.host}/mysql/databases`)
         console.log('ret', ret)
         if (ret.status === 200) {
             // message.info('连接成功')
@@ -65,7 +65,11 @@ export default function DatabaseList({ config, onSelectDatabase }) {
                     <Table
                         dataSource={list}
                         pagination={false}
-                        columns={columns} />
+                        columns={columns}
+                        scroll={{
+                            y: 400,
+                        }}
+                    />
                 </div>
             </Card>
         </div>
