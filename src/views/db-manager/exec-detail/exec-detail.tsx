@@ -488,6 +488,7 @@ export function ExecDetail({ config, data, }) {
                     {!!result &&
                         <div className={styles.footer}>
                             <div>Time: {(result.time / 1000).toFixed(3)} s</div>
+                            <div>{_list.length} rows</div>
                             <div>{sql}</div>
                         </div>
                     }

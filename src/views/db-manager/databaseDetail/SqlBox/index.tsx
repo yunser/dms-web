@@ -30,7 +30,7 @@ export interface Props {
 }
 
 
-function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Props) {
+function SqlBox({ config, tableName, dbName, className, defaultSql = '', style }: Props) {
 
     const defaultDbName = dbName
     console.log('defaultSql', defaultSql)
@@ -107,7 +107,7 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
         _run(code2)
     }
 
-    async function _run(execCode, { explain = false } = {}) {
+    async function _run(execCode: string, { explain = false } = {}) {
         let newTabs: any = []
         setExecResults(newTabs)
         setLoading(true)
