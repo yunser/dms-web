@@ -156,7 +156,7 @@ export function ExecDetail({ config, data, }) {
     }
 
     function resetSubmit() {
-        
+
     }
 
     useEffect(() => {
@@ -487,7 +487,7 @@ export function ExecDetail({ config, data, }) {
                     </div>
                     {!!result &&
                         <div className={styles.footer}>
-                            <div>Time: {result.time} ms</div>
+                            <div>Time: {(result.time / 1000).toFixed(3)} s</div>
                             <div>{sql}</div>
                         </div>
                     }
