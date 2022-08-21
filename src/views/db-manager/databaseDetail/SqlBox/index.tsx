@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import styles from './index.module.less'
-import { message, Input, Modal, Button, Table, Popover, Space, Empty, Result, Tabs } from 'antd'
+import { message, Input, Modal, Button, Table, Popover, Space, Empty, Result, Tabs, Select } from 'antd'
 // import http from '@/utils/http'
 import classNames from 'classnames'
 import { Editor } from '../../editor/Editor'
@@ -29,12 +29,14 @@ export interface Props {
     style: any
 }
 
+const limits = [10, 20, 50, 100, 200, 500, 1000]
 
 function SqlBox({ config, tableName, dbName, className, defaultSql = '', style }: Props) {
 
     const defaultDbName = dbName
     console.log('defaultSql', defaultSql)
 
+    const [limit, setLimit] = useState(100)
     const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
     const [code, setCode] = useState(defaultSql)
     const [code2, setCode2] = useState(defaultSql)
@@ -118,7 +120,10 @@ function SqlBox({ config, tableName, dbName, className, defaultSql = '', style }
         const lines = execCode.split(';').filter(item => item.trim())
         let lineIdx = 0
         for (let line of lines) {
-            const lineCode = explain ? ('EXPLAIN ' + line) : line
+            let lineCode = explain ? ('EXPLAIN ' + line) : line
+            if (lineCode.toLowerCase().includes('select') && !lineCode.toLowerCase().includes('limit')) {
+                lineCode += ` limit ${limit}`
+            }
             const tabKey = uid(16)
             const tabTitle = `执行结果 ${lineIdx + 1}`
             newTabs = [
@@ -296,6 +301,30 @@ function SqlBox({ config, tableName, dbName, className, defaultSql = '', style }
                         <Button type="primary" size="small" onClick={run}>执行</Button>
                         <Button size="small" onClick={runPlain}>执行计划</Button>
                         <Button size="small" onClick={formatSql}>格式化</Button>
+                        <Select
+                            size="small"
+                            value={limit}
+                            options={limits.map(num => {
+                                return {
+                                    label: `Limit ${num}`,
+                                    value: num,
+                                }
+                            })}
+                            onChange={value => {
+                                setLimit(value)
+                            }}
+                            // options={[
+                            //     {
+                            //         label: 'Limit 1000',
+                            //         value: 100,
+                            //     },
+                            // ]}
+                            style={{
+                                width: 110
+                            }}
+                        >
+
+                        </Select>
                     </Space>
                 </div>
                 <div className={styles.codeBox}>

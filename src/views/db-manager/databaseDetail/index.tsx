@@ -72,6 +72,8 @@ const tabs_default: Array<TabProps> = [
     // },
 ]
 
+
+
 export function DataBaseDetail({ dbName, config }) {
     const [activeKey, setActiveKey] = useState(tabs_default[0].key)
     // const
@@ -169,7 +171,7 @@ export function DataBaseDetail({ dbName, config }) {
             {
                 title: tableName,
                 key: tabKey,
-                defaultSql: `SELECT * FROM \`${dbName}\`.\`${tableName}\` LIMIT 20;`,
+                defaultSql: `SELECT *\nFROM \`${dbName}\`.\`${tableName}\`\nLIMIT 20;`,
                 data: {
                     dbName,
                     tableName,
