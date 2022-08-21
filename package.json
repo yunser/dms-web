@@ -7,6 +7,7 @@
     "serve": "vite preview"
   },
   "dependencies": {
+    "@ant-design/icons": "^4.7.0",
     "@formily/antd": "^2.0.0-rc.18",
     "@formily/core": "^2.0.0-rc.18",
     "@formily/react": "^2.0.0-rc.18",

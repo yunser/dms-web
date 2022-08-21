@@ -40,7 +40,7 @@ function getDBSuggest() {
     }))
 }
 
-console.log('monaco.registerCompletionItemProvider',)
+// console.log('monaco.registerCompletionItemProvider',)
 monaco.languages.registerCompletionItemProvider('sql', {
     triggerCharacters: [':', '.', ...keywords],
     provideCompletionItems: (model, position) => {
@@ -81,6 +81,6 @@ export function suggestionInit() {
 }
 
 export function suggestionAdd(dbName, tables) {
-    console.log('suggestionAdd', dbName, tables)
+    // console.log('suggestionAdd', dbName, tables)
     hintData[dbName] = tables
 }

@@ -4,6 +4,7 @@ import {
     Input,
     message,
     Tabs,
+    Tooltip,
     Tree,
 } from 'antd'
 import React, { Component, Fragment, useEffect, useMemo, useState } from 'react'
@@ -19,6 +20,7 @@ import Item from 'antd/lib/list/Item'
 import axios from 'axios'
 import { TableDetail } from '../table-detail/table-detail'
 import { suggestionAdd } from '../suggestion'
+import { ReloadOutlined } from '@ant-design/icons';
 
 const { TabPane } = Tabs
 
@@ -73,6 +75,7 @@ const tabs_default: Array<TabProps> = [
 export function DataBaseDetail({ dbName, config }) {
     const [activeKey, setActiveKey] = useState(tabs_default[0].key)
     // const
+    const [loading, setLoading] = useState(false)
     const [keyword, setKeyword] = useState('')
     const [list, setList] = useState([])
     const [tabs, setTabs] = useState(tabs_default)
@@ -117,6 +120,7 @@ export function DataBaseDetail({ dbName, config }) {
         // dispatch({
         //   type: 'user/fetchUserList',
         // });
+        setLoading(true)
         let res = await axios.post(`${config.host}/mysql/tables`, {
             dbName,
         })
@@ -151,6 +155,7 @@ export function DataBaseDetail({ dbName, config }) {
         } else {
             message.error('连接失败')
         }
+        setLoading(false)
     }
 
     useEffect(() => {
@@ -271,44 +276,61 @@ export function DataBaseDetail({ dbName, config }) {
                         allowClear
                         placeholder="Search..."
                     />
+
+                    <Tooltip title="刷新" mouseEnterDelay={1}>
+                        <Button 
+                            className={styles.refresh}
+                            type="link"
+                            onClick={() => {
+                                loadData()
+                            }}
+                            icon={
+                                <ReloadOutlined />
+                            }
+                        />
+                    </Tooltip>
                 </div>
                 <div className={styles.body}>
-                    <Tree
-                        // checkable
-                        defaultExpandedKeys={['root']}
-                        selectedKeys={[]}
-                        // defaultSelectedKeys={['0-0-0', '0-0-1']}
-                        // defaultCheckedKeys={['0-0-0', '0-0-1']}
-                        titleRender={nodeData => {
-                            // console.log('nodeData', nodeData)
+                    {loading ?
+                        <div className={styles.loading}>Loading...</div>
+                    :
+                        <Tree
+                            // checkable
+                            defaultExpandedKeys={['root']}
+                            selectedKeys={[]}
+                            // defaultSelectedKeys={['0-0-0', '0-0-1']}
+                            // defaultCheckedKeys={['0-0-0', '0-0-1']}
+                            titleRender={nodeData => {
+                                // console.log('nodeData', nodeData)
 
-                            return (
-                                <div className={styles.treeTitle}>
-                                    <div className={styles.label}>{nodeData.title}</div>
-                                    {nodeData.key != 'root' &&
-                                        <a
-                                            className={styles.btns}
-                                            onClick={(e) => {
-                                                e.stopPropagation()
-                                                e.preventDefault()
-                                                queryTableStruct(nodeData.key)
-                                            }}
-                                        >
-                                            查看结构
-                                        </a>
-                                    }
-                                </div>
-                            )
-                        }}
-                        onSelect={(selectedKeys, info) => {
-                            console.log('selected', selectedKeys, info);
-                            const tableName = selectedKeys[0]
-                            queryTable(tableName)
+                                return (
+                                    <div className={styles.treeTitle}>
+                                        <div className={styles.label}>{nodeData.title}</div>
+                                        {nodeData.key != 'root' &&
+                                            <a
+                                                className={styles.btns}
+                                                onClick={(e) => {
+                                                    e.stopPropagation()
+                                                    e.preventDefault()
+                                                    queryTableStruct(nodeData.key)
+                                                }}
+                                            >
+                                                查看结构
+                                            </a>
+                                        }
+                                    </div>
+                                )
+                            }}
+                            onSelect={(selectedKeys, info) => {
+                                console.log('selected', selectedKeys, info);
+                                const tableName = selectedKeys[0]
+                                queryTable(tableName)
 
-                        }}
-                        // onCheck={onCheck}
-                        treeData={filterTreeData}
-                    />
+                            }}
+                            // onCheck={onCheck}
+                            treeData={filterTreeData}
+                        />
+                    }
                     {/* <Card bordered={false}>
                         <div className={styles.tableList}>
                             <Table
