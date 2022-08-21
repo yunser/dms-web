@@ -157,7 +157,7 @@ export function ExecDetail({ config, data }) {
 
     useEffect(() => {
         loadTableInfo()
-    }, [])
+    }, [dbName, tableName])
 
     function submitModify() {
         let pkField: string | number

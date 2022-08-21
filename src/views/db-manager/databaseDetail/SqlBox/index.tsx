@@ -174,6 +174,8 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
 
             let res = await request.post(`${config.host}/mysql/execSql`, {
                 sql: line,
+                tableName,
+                dbName,
             }, {
                 noMessage: true,
             })
@@ -181,7 +183,7 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
             if (res.status === 200) {
                 // message.success('执行成功')
                 console.log(res)
-                const { results, fields } = res.data
+                const { results, fields, columns: rawColumns } = res.data
                 const list = results.map((result, rowIdx) => {
                     let item = {
                         _idx: rowIdx,
@@ -223,6 +225,7 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
                         results,
                         tableName,
                         dbName,
+                        rawColumns,
                     }
                 }
                 setExecResults([...newTabs])
