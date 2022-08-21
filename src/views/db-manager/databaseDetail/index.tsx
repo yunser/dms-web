@@ -54,12 +54,12 @@ const tabs: Array<TabProps> = [
 ]
 const tabs_default: Array<TabProps> = [
     {
-        title: '测试 SQL',
+        title: '新建查询',
         key: '0',
         defaultSql: '',
         data: {
-            dbName: 'linxot',
-            tableName: 'bak_sim',
+            dbName: '',
+            tableName: '',
         }
     },
     // {

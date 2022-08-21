@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import styles from './index.module.less'
 import { message, Input, Modal, Button, Table, Popover, Space, Empty, Result } from 'antd'
 // import http from '@/utils/http'
@@ -33,35 +33,79 @@ function SimpleCell({ text, color }) {
     )
 }
 
-function Cell({ text, color }) {
+function Cell({ item, onChange }) {
+    const [isEdit, setIsEdit] = useState(false)
+    const text = item.newValue || item.value
+    const [value, setValue] = useState(text)
+    const inputRef = useRef(null)
+    
+    useEffect(() => {
+        if (isEdit) {
+            inputRef.current!.focus();
+        }
+    }, [isEdit]);
+
     return (
         <div
-            className={styles.cell}
-            style={{
-                color,
-            }}
+            className={classNames(styles.cell, {
+                [styles.edited]: !!item.newValue
+            })}
+            // style={{
+            //     color,
+            // }}
         >
-            {text == null ?
-                <span className={styles.null}>NULL</span>
-            :
-                <span className={styles.text}>{text}</span>
-            }
-            <div className={styles.tool}>
-                <a
+            {isEdit ?
+                <div>
+                    <Input
+                        ref={inputRef}
+                        value={value}
+                        onChange={e => {
+                            setValue(e.target.value)
+                        }}
+                        onBlur={() => {
+                            setIsEdit(false)
+                            if (value != item.value) {
+                                onChange && onChange({
+                                    ...item,
+                                    newValue: value,
+                                })
+                            }
+                        }}
+                    />
+                </div>
+            : text == null ?
+                <span className={styles.null}
                     onClick={() => {
-                        copy(text == null ? 'null' : text)
-                        message.success('Copied')
+                        setIsEdit(true)
                     }}
-                >复制</a>
-                <Popover
-                    title="Content"
-                    content={
-                        <div className={styles.content}>{text}</div>
-                    }
-                >
-                    <a>查看</a>
-                </Popover>
-            </div>
+                >NULL</span>
+            :
+                <span className={classNames(styles.text, {
+                    
+                })}
+                    onClick={() => {
+                        setIsEdit(true)
+                    }}
+                >{text}</span>
+            }
+            {!isEdit &&
+                <div className={styles.tool}>
+                    <a
+                        onClick={() => {
+                            copy(text == null ? 'null' : text)
+                            message.success('Copied')
+                        }}
+                    >复制</a>
+                    <Popover
+                        title="Content"
+                        content={
+                            <div className={styles.content}>{text}</div>
+                        }
+                    >
+                        <a>查看</a>
+                    </Popover>
+                </div>
+            }
         </div>
     )
 }
@@ -76,13 +120,12 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
     const [selectedRows, setSelectedRows] = useState([])
     const [loading, setLoading] = useState(false)
     const [result, setResult] = useState({})
+    const [cellUpdated, setCellUpdated] = useState(false)
     const [hasReq, setHasReq] = useState(false)
     const [code, setCode] = useState(defaultSql)
     const [code2, setCode2] = useState(defaultSql)
-    const [table, setTable] = useState({
-        columns: [],
-        list: [],
-    })
+    const [list, setList] = useState([])
+    const [columns, setColumns] = useState([])
     const [tableInfo, setTableInfo] = useState([])
     const [modelVisible, setModalVisible] = useState(false)
     const [modelCode, setModalCode] = useState('')
@@ -95,6 +138,72 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
         // run()
     }, [])
 
+    function submitModify() {
+        let pkField: string | number
+        for (let field of tableInfo) {
+            // Default: null
+            // Extra: ""
+            // Field: "id_"
+            // Key: "PRI"
+            // Null: "NO"
+            // Type: "bigint(20)"
+            if (field.Key == 'PRI') {
+                pkField = field.Field
+                break
+            }
+        }
+        console.log('fields', fields)
+        console.log('pkField', pkField)
+        console.log('selectedRows', selectedRows)
+        const pkColIdx = fields.findIndex(item => item.name == pkField)
+        console.log('pkColIdx', pkColIdx)
+        if (pkColIdx == -1) {
+            message.error('找不到表格主键')
+            return
+        }
+
+        
+        console.log('list', list)
+        const results = list.map(row => {
+            // let 
+            const updatedFields = []
+            for (let rowKey in row) {
+                if (rowKey != '_idx') { // TODO
+                    const cell = row[rowKey]
+                    if (cell.newValue) {
+                        updatedFields.push(`\`${cell.fieldName}\` = '${cell.newValue}'`)
+                    }
+                }
+
+            }
+            // row.map(cell => {
+            //     // let 
+            // })
+            if (updatedFields.length) {
+                let sql = `UPDATE \`${dbName}\`.\`${tableName}\` SET ${updatedFields.join(', ')} WHERE \`${pkField}\` = '${row[pkColIdx].value}';`
+                return sql
+            }
+        })
+        .filter(item => item)
+        .join('\n')
+        console.log('results', results)
+
+        setModalCode(results)
+        setModalVisible(true)
+    }
+
+    function addRow() {
+        let newRow = {}
+        fields.forEach((field, idx) => {
+            newRow[idx] = {
+                value: null,
+            }
+        })
+        setList([
+            newRow,
+            ...list,
+        ])
+    }
     async function removeSelection() {
         // if 
         let pkField: string | number
@@ -120,7 +229,7 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
             return
         }
         const codes = selectedRows.map(row => {
-            return `DELETE FROM \`${dbName}\`.\`${tableName}\` WHERE \`${pkField}\` = '${row[pkColIdx]}';`
+            return `DELETE FROM \`${dbName}\`.\`${tableName}\` WHERE \`${pkField}\` = '${row[pkColIdx].value}';`
         }).join('\n')
         setModalCode(codes)
         setModalVisible(true)
@@ -144,7 +253,7 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
             // noMessage: true,
         })
         if (res.status == 200) {
-            message.success('删除成功')
+            message.success('提交成功')
             setModalVisible(false)
             run()
         }
@@ -176,6 +285,10 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
     }, [])
 
     function runPlain() {
+        if (!code2) {
+            message.warn('没有要执行的 SQL')
+            return
+        }
         _run('explain ' + code2)
     }
 
@@ -190,6 +303,10 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
     }
 
     async function run() {
+        if (!code2) {
+            message.warn('没有要执行的 SQL')
+            return
+        }
         _run(code2)
     }
 
@@ -199,6 +316,7 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
         setResult(null)
         setSelectedRows([])
         setSelectedRowKeys([])
+        setCellUpdated(false)
         let res = await request.post(`${config.host}/mysql/execSql`, {
             sql: execCode,
         }, {
@@ -230,9 +348,20 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
                     dataIndex: key,
                     key,
                     // width: 120,
-                    render(value: any) {
+                    render(value: any, item) {
                         return (
-                            <Cell text={value} />
+                            <Cell
+                                item={value}
+                                onChange={newItem => {
+                                    console.log('change', item)
+                                    console.log('change.newItem', newItem)
+                                    list[item._idx][key] = newItem
+                                    setList([
+                                        ...list,
+                                    ])
+                                    setCellUpdated(true)
+                                }}
+                            />
                             // <div
                             //     className={styles.cell}
                             //     style={{
@@ -248,12 +377,18 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
                 let item = {
                     _idx: rowIdx,
                 }
-                idx = 0
-                for (let field of fields) {
+                // idx = 0
+                fields.forEach((field, idx) => {
                     const key = '' + idx
-                    item[key] = result[idx]
-                    idx++
-                }
+                    item[key] = {
+                        fieldName: field.name,
+                        value: result[idx],
+                        index: idx,
+                    }
+                })
+                // for (let field of fields) {
+                //     idx++
+                // }
                 return item
             })
 
@@ -282,10 +417,8 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
             //         })
             //     }
             // }
-            setTable({
-                columns,
-                list,
-            })
+            setList(list)
+            setColumns(columns)
             setLoading(false)
             setHasReq(true)
             setResult(res.data)
@@ -347,6 +480,20 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
                             <div className={styles.header}>
                                 <Space>
                                     <Button
+                                        size="small"
+                                        type="primary"
+                                        disabled={!(tableName && dbName && cellUpdated)}
+                                        onClick={() => {
+                                            submitModify()
+                                        }}
+                                    >提交修改</Button>
+                                    <Button
+                                        size="small"
+                                        onClick={() => {
+                                            addRow()
+                                        }}
+                                    >新增</Button>
+                                    <Button
                                         danger
                                         size="small"
                                         disabled={!(selectedRowKeys.length > 0)}
@@ -360,9 +507,9 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
                         <div className={styles.tableBox}>
                             <Table
                                 loading={loading}
-                                dataSource={table.list}
+                                dataSource={list}
                                 pagination={false}
-                                columns={table.columns}
+                                columns={columns}
                                 bordered
                                 style={{
                                     // width: 600,
@@ -400,8 +547,9 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
             </div>
             {modelVisible &&
                 <Modal
-                    title="删除" 
+                    title="提交修改" 
                     visible={true}
+                    width={800  }
                     // onOk={handleOk}
                     okButtonProps={{
                         children: '执行',

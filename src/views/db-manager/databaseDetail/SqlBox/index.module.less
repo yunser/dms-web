@@ -117,7 +117,10 @@
     text-overflow: ellipsis;
     min-width: 64px;
     // border: 1px solid #f00;
-    padding: 8px;
+    // padding: 8px;
+    padding: 0;
+    // height: 100%;
+    height: 40px;
     font-size: 12px;
     &:hover {
         .tool {
@@ -144,9 +147,18 @@
     }
     .null {
         color: #999;
+        padding: 8px;
+        height: 100%;
+        line-height: 40px;
     }
     .text {
         // min-width: 40px;
+        height: 100%;
+        padding: 8px;
+        line-height: 40px;
+    }
+    &.edited {
+        border: 1px solid #09c;
     }
 }
 
