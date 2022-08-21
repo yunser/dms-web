@@ -6,6 +6,7 @@ import styles from './exec-detail.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
 console.log('lodash', _)
+import copy from 'copy-to-clipboard';
 
 const { TabPane } = Tabs
 const { TextArea } = Input
@@ -133,6 +134,9 @@ export function ExecDetail({ config, data, }) {
     const [list, setList] = useState([])
     useEffect(() => {
         setList(_list)
+        setEditing(false)
+        setSelectedRowKeys([])
+        setSelectedRows([])
     }, [_list])
     const [selectedRowKeys, setSelectedRowKeys] = useState([])
     const [selectedRows, setSelectedRows] = useState([])
@@ -272,6 +276,28 @@ export function ExecDetail({ config, data, }) {
         ])
         setEditing(true)
     }
+
+    function exportData() {
+        const results = list.map(row => {
+            // let 
+            const rowObj: any = {}
+            const updatedFields = []
+            for (let rowKey in row) {
+                if (rowKey != '_idx') { // TODO
+                    const cell = row[rowKey]
+                    rowObj[cell.fieldName] = cell.value
+                }
+            }
+            return rowObj
+        })
+            // .filter(item => item)
+            // .join('\n')
+        console.log('results', results)
+        const content = JSON.stringify(results, null, 4)
+        copy(content)
+        message.success('Copied')
+    }
+
     async function removeSelection() {
         // if 
         let pkField: string | number
@@ -453,6 +479,13 @@ export function ExecDetail({ config, data, }) {
                                         }}
                                     >编辑模式</Button>
                                 }
+                                <Button
+                                    size="small"
+                                    // disabled={!(selectedRowKeys.length > 0)}
+                                    onClick={() => {
+                                        exportData()
+                                    }}
+                                >导出</Button>
                             </Space>
                         </div>
                     }

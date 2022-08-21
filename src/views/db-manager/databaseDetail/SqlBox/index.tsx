@@ -34,20 +34,12 @@ const limits = [10, 20, 50, 100, 200, 500, 1000]
 function SqlBox({ config, tableName, dbName, className, defaultSql = '', style }: Props) {
 
     const defaultDbName = dbName
-    console.log('defaultSql', defaultSql)
+    // console.log('defaultSql', defaultSql)
 
     const [limit, setLimit] = useState(100)
     const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
     const [code, setCode] = useState(defaultSql)
     const [code2, setCode2] = useState(defaultSql)
-
-    const [error, setError] = useState('')
-    
-    const [loading, setLoading] = useState(false)
-    const [result, setResult] = useState({})
-    const [hasReq, setHasReq] = useState(false)
-    const [list, setList] = useState([])
-    
 
     const [execResults, setExecResults] = useState([
         // {
@@ -112,11 +104,6 @@ function SqlBox({ config, tableName, dbName, className, defaultSql = '', style }
     async function _run(execCode: string, { explain = false } = {}) {
         let newTabs: any = []
         setExecResults(newTabs)
-        setLoading(true)
-        setError('')
-        setResult(null)
-        // setSelectedRows([])
-        // setSelectedRowKeys([])
         const lines = execCode.split(';').filter(item => item.trim())
         let lineIdx = 0
         for (let line of lines) {
@@ -213,8 +200,6 @@ function SqlBox({ config, tableName, dbName, className, defaultSql = '', style }
                 })
 
                 // setList(list)
-                setHasReq(true)
-                // setResult(res.data)
                 // setFields(fields)
 
                 const tabKey = uid(16)
@@ -241,9 +226,6 @@ function SqlBox({ config, tableName, dbName, className, defaultSql = '', style }
                 setActiveKey(tabKey)
             }
             else {
-                // setLoading(false)
-                // setHasReq(true)
-                // setError(res.data.message || 'Unknown Error')
 
                 const tabKey = uid(16)
                 newTabs[lineIdx] = {
@@ -256,7 +238,7 @@ function SqlBox({ config, tableName, dbName, className, defaultSql = '', style }
                         loading: false,
                         fields: [],
                         result: res.data,
-                        list,
+                        list: [],
                         error: res.data.message || 'Unknown Error',
                         hasReq: true,
                         results: [],
@@ -279,7 +261,7 @@ function SqlBox({ config, tableName, dbName, className, defaultSql = '', style }
     // let columns = [
 
     // ]
-    console.log('render.list.length', list.length)
+    // console.log('render.list.length', list.length)
     console.log('render.execResults', execResults)
 
     function TabItem(item: TabProps) {
