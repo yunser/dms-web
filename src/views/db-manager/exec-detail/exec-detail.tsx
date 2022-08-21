@@ -108,7 +108,7 @@ function Cell({ item, editing, onChange }) {
 }
 
 
-export function ExecDetail({ config, data }) {
+export function ExecDetail({ config, data, }) {
     const { 
         sql,
         loading, 
@@ -153,6 +153,10 @@ export function ExecDetail({ config, data }) {
 
             }
         }
+    }
+
+    function resetSubmit() {
+        
     }
 
     useEffect(() => {
@@ -310,7 +314,7 @@ export function ExecDetail({ config, data }) {
         // })
     }
 
-    async function doRemove() {
+    async function doSubmit() {
         let res = await request.post(`${config.host}/mysql/execSql`, {
             sql: modelCode,
         }, {
@@ -320,6 +324,7 @@ export function ExecDetail({ config, data }) {
             message.success('提交成功')
             setModalVisible(false)
             // run()
+            resetSubmit()
         }
         console.log('res', res)
 
@@ -505,7 +510,7 @@ export function ExecDetail({ config, data }) {
                         setModalVisible(false)
                     }}
                     onOk={() => {
-                        doRemove()
+                        doSubmit()
                     }}
                 >
                     <div>以下是待执行 SQL，请确认</div>

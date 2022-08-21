@@ -272,6 +272,7 @@ export function DataBaseDetail({ dbName, config }) {
                     <Tree
                         // checkable
                         defaultExpandedKeys={['root']}
+                        selectedKeys={[]}
                         // defaultSelectedKeys={['0-0-0', '0-0-1']}
                         // defaultCheckedKeys={['0-0-0', '0-0-1']}
                         titleRender={nodeData => {
