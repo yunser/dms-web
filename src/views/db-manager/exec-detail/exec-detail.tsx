@@ -128,6 +128,7 @@ export function ExecDetail({ config, data, }) {
     const [tableInfo, setTableInfo] = useState([])
     const [modelVisible, setModalVisible] = useState(false)
     const [modelCode, setModalCode] = useState('')
+    const tableBoxRef = useRef(null)
     // const [fields, setFields] = useState([])
     // const [results, setResults] = useState([])
     const [editing, setEditing] = useState(false)
@@ -275,6 +276,14 @@ export function ExecDetail({ config, data, }) {
             newRow,
         ])
         setEditing(true)
+
+        // var div = document.getElementById('wenti-body-div');
+        setTimeout(() => {
+            const tableBox = tableBoxRef.current
+            if (tableBox) {
+                tableBox.scrollTop = tableBox.scrollHeight
+            }
+        }, 1)
     }
 
     function exportData() {
@@ -489,7 +498,10 @@ export function ExecDetail({ config, data, }) {
                             </Space>
                         </div>
                     }
-                    <div className={styles.tableBox}>
+                    <div
+                        className={styles.tableBox}
+                        ref={tableBoxRef}
+                    >
                         <Table
                             loading={loading}
                             dataSource={list}
