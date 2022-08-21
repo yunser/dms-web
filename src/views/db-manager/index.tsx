@@ -276,7 +276,7 @@ export function DbManager({ config }) {
                                             setTabs([
                                                 ...tabs,
                                                 {
-                                                    title: `DB ${name}`,
+                                                    title: `${name} - DB`,
                                                     key,
                                                     type: 'database',
                                                     data: {
@@ -285,6 +285,14 @@ export function DbManager({ config }) {
                                                 }
                                             ])
                                             setActiveKey(key)
+
+                                            request.post(`${config.host}/mysql/execSql`, {
+                                                sql: `use ${name}`,
+                                                // tableName,
+                                                // dbName,
+                                            }, {
+                                                // noMessage: true,
+                                            })
                                         }}
                                     />
                                 }

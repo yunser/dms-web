@@ -32,6 +32,7 @@ export interface Props {
 
 function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Props) {
 
+    const defaultDbName = dbName
     console.log('defaultSql', defaultSql)
 
     const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
@@ -83,7 +84,9 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
             message.warn('没有要执行的 SQL')
             return
         }
-        _run('explain ' + code2)
+        _run(code2, {
+            explain: true,
+        })
     }
 
     function formatSql() {
@@ -104,7 +107,7 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
         _run(code2)
     }
 
-    async function _run(execCode) {
+    async function _run(execCode, { explain = false } = {}) {
         let newTabs: any = []
         setExecResults(newTabs)
         setLoading(true)
@@ -115,6 +118,7 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
         const lines = execCode.split(';').filter(item => item.trim())
         let lineIdx = 0
         for (let line of lines) {
+            const lineCode = explain ? ('EXPLAIN ' + line) : line
             const tabKey = uid(16)
             const tabTitle = `执行结果 ${lineIdx + 1}`
             newTabs = [
@@ -125,7 +129,7 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
                     title: tabTitle,
                     // key: 'result-2',
                     data: {
-                        sql: line,
+                        sql: lineCode,
                         loading: true,
                         // fields,
                         // result: res.data,
@@ -142,7 +146,7 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
             setActiveKey(tabKey)
             // return
 
-            console.log('line', line)
+            // console.log('line', line)
             let tableName = null
             let dbName = null
             try {
@@ -173,7 +177,7 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
             
 
             let res = await request.post(`${config.host}/mysql/execSql`, {
-                sql: line,
+                sql: lineCode,
                 tableName,
                 dbName,
             }, {
@@ -215,7 +219,7 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
                     title: tabTitle,
                     // key: 'result-2',
                     data: {
-                        sql: line,
+                        sql: lineCode,
                         loading: false,
                         fields,
                         result: res.data,
@@ -224,7 +228,7 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
                         hasReq: true,
                         results,
                         tableName,
-                        dbName,
+                        dbName: dbName || defaultDbName,
                         rawColumns,
                     }
                 }
@@ -243,7 +247,7 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
                     title: tabTitle,
                     // key: 'result-2',
                     data: {
-                        sql: line,
+                        sql: lineCode,
                         loading: false,
                         fields: [],
                         result: res.data,
@@ -347,6 +351,7 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
                                     data={item.data}
                                     config={config}
                                     // tableName, dbName
+                                    // defaultDbName={dbName}
                                 />
                             }
                         </div>   

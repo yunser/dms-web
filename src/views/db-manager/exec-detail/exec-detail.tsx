@@ -74,7 +74,7 @@ function Cell({ item, editing, onChange }) {
                         onClick={() => {
                             setIsEdit(true)
                         }}
-                    >NULL({item.newValue})</span>
+                    >NULL</span>
                     :
                     <span className={classNames(styles.text, {
 
@@ -193,20 +193,28 @@ export function ExecDetail({ config, data }) {
                 const values = []
                 for (let field of fields) {
                     const fieldName = field.name
-                    fieldNames.push(fieldName)
+
+                    // fieldNames.push(fieldName)
                     let value = null
                     for (let rowKey in row) {
                         if (rowKey != '_idx') { // TODO
                             const cell = row[rowKey]
                             if (cell.fieldName == fieldName) {
-                                value = cell.newValue || cell.value
-                                break // TODO 重名
+                                if (cell.newValue) {
+                                    fieldNames.push(fieldName)
+                                    // value = cell.newValue || cell.value
+                                    value = cell.newValue
+                                    values.push(value)
+                                    break // TODO 重名
+                                }
                             }
                         }
                     }
                     // for (let cell of row) {
                     // }
-                    values.push(value)
+                    // values.push(value)
+                    // if (fieldName.newValue) {
+                    // }
                 }
                 const fieldNamesText = fieldNames.map(fieldName => {
                     return `\`${fieldName}\``
@@ -474,7 +482,8 @@ export function ExecDetail({ config, data }) {
                     </div>
                     {!!result &&
                         <div className={styles.footer}>
-                            Time: {result.time} ms
+                            <div>Time: {result.time} ms</div>
+                            <div>{sql}</div>
                         </div>
                     }
                 </>
