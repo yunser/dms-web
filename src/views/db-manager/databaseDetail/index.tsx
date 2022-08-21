@@ -18,6 +18,7 @@ import Item from 'antd/lib/list/Item'
 // import type { DataNode, TreeProps } from 'antd/es/tree';
 import axios from 'axios'
 import { TableDetail } from '../table-detail/table-detail'
+import { suggestionAdd } from '../suggestion'
 
 const { TabPane } = Tabs
 
@@ -144,6 +145,9 @@ export function DataBaseDetail({ dbName, config }) {
                     itemData: Item,
                 },
             ])
+            // adbs: ,
+            // suggestionAdd('adbs', ['dim_realtime_recharge_paycfg_range', 'dim_realtime_recharge_range'])
+            suggestionAdd(dbName, list.map(item => item.TABLE_NAME))
         } else {
             message.error('连接失败')
         }
