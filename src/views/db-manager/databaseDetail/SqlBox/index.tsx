@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useMemo } from 'react'
 import styles from './index.module.less'
 import { message, Input, Modal, Button, Table, Popover, Space, Empty, Result } from 'antd'
 // import http from '@/utils/http'
@@ -33,7 +33,7 @@ function SimpleCell({ text, color }) {
     )
 }
 
-function Cell({ item, onChange }) {
+function Cell({ item, editing, onChange }) {
     const [isEdit, setIsEdit] = useState(false)
     const text = item.newValue || item.value
     const [value, setValue] = useState(text)
@@ -70,6 +70,12 @@ function Cell({ item, onChange }) {
                                     newValue: value,
                                 })
                             }
+                            if (value == item.value && item.newValue) {
+                                onChange && onChange({
+                                    ...item,
+                                    newValue: undefined,
+                                })
+                            }
                         }}
                     />
                 </div>
@@ -78,7 +84,7 @@ function Cell({ item, onChange }) {
                     onClick={() => {
                         setIsEdit(true)
                     }}
-                >NULL</span>
+                >NULL({item.newValue})</span>
             :
                 <span className={classNames(styles.text, {
                     
@@ -88,6 +94,7 @@ function Cell({ item, onChange }) {
                     }}
                 >{text}</span>
             }
+            {/* {!isEdit && !editing && */}
             {!isEdit &&
                 <div className={styles.tool}>
                     <a
@@ -120,16 +127,91 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
     const [selectedRows, setSelectedRows] = useState([])
     const [loading, setLoading] = useState(false)
     const [result, setResult] = useState({})
-    const [cellUpdated, setCellUpdated] = useState(false)
+    const [editing, setEditing] = useState(false)
+    // const [editing, setEditing] = useState(false)
     const [hasReq, setHasReq] = useState(false)
     const [code, setCode] = useState(defaultSql)
     const [code2, setCode2] = useState(defaultSql)
     const [list, setList] = useState([])
-    const [columns, setColumns] = useState([])
+    // const [columns, setColumns] = useState([])
     const [tableInfo, setTableInfo] = useState([])
     const [modelVisible, setModalVisible] = useState(false)
     const [modelCode, setModalCode] = useState('')
     const [fields, setFields] = useState([])
+    const [results, setResults] = useState([])
+
+
+    const columns = useMemo(() => {
+        let columns = [
+            {
+                title: '#',
+                key: '__idx',
+                fixed: 'left',
+                // width: 120,
+                render(_value, _item, _idx) {
+                    return (
+                        <SimpleCell text={_idx + 1} color="#999" />
+                    )
+                }
+            }
+        ]
+        let idx = 0
+        for (let field of fields) {
+            const key = '' + idx
+            columns.push({
+                title: field.name,
+                dataIndex: key,
+                key,
+                // width: 120,
+                render(value: any, item) {
+                    return (
+                        <Cell
+                            editing={editing}
+                            item={value}
+                            onChange={newItem => {
+                                console.log('change', item)
+                                console.log('change.newItem', newItem)
+                                console.log('change.key', key)
+                                console.log('change.list', list)
+                                console.log('change.item._idx', item._idx)
+                                list[item._idx][key] = newItem
+                                setList([
+                                    ...list,
+                                ])
+                                setEditing(true)
+                            }}
+                        />
+                        // <div
+                        //     className={styles.cell}
+                        //     style={{
+                        //         // minWidth: 120,
+                        //     }}
+                        // >{value}</div>
+                    )
+                },
+            })
+            idx++
+        }
+        return columns
+        // return results.map((result, rowIdx) => {
+        //     let item = {
+        //         _idx: rowIdx,
+        //     }
+        //     // idx = 0
+        //     fields.forEach((field, idx) => {
+        //         const key = '' + idx
+        //         item[key] = {
+        //             fieldName: field.name,
+        //             value: result[idx],
+        //             index: idx,
+        //         }
+        //     })
+        //     // for (let field of fields) {
+        //     //     idx++
+        //     // }
+        //     return item
+        // })
+    }, [results, fields, list])
 
     useEffect(() => {
         // console.log('onMouneed', storage.get('dbInfo', ''))
@@ -166,6 +248,36 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
         console.log('list', list)
         const results = list.map(row => {
             // let 
+            if (row.isNew) {
+                const updatedFields = []
+                const fieldNames = []
+                const values = []
+                for (let field of fields) {
+                    const fieldName = field.name
+                    fieldNames.push(fieldName)
+                    let value = null
+                    for (let rowKey in row) {
+                        if (rowKey != '_idx') { // TODO
+                            const cell = row[rowKey]
+                            if (cell.fieldName == fieldName) {
+                                value = cell.newValue || cell.value
+                                break // TODO 重名
+                            }
+                        }
+                    }
+                    // for (let cell of row) {
+                    // }
+                    values.push(value)
+                }
+                const fieldNamesText = fieldNames.map(fieldName => {
+                    return `\`${fieldName}\``
+                }).join(', ')
+                const valuesText = values.map(value => {
+                    return `'${value}'`
+                }).join(', ')
+                const sql = `INSERT INTO \`${dbName}\`.\`${tableName}\` (${fieldNamesText}) VALUES (${valuesText});`
+                return sql
+            }
             const updatedFields = []
             for (let rowKey in row) {
                 if (rowKey != '_idx') { // TODO
@@ -193,16 +305,21 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
     }
 
     function addRow() {
-        let newRow = {}
+        let newRow = {
+            _idx: list.length,
+            isNew: true,
+        }
         fields.forEach((field, idx) => {
             newRow[idx] = {
+                fieldName: field.name,
                 value: null,
             }
         })
         setList([
-            newRow,
             ...list,
+            newRow,
         ])
+        setEditing(true)
     }
     async function removeSelection() {
         // if 
@@ -316,7 +433,7 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
         setResult(null)
         setSelectedRows([])
         setSelectedRowKeys([])
-        setCellUpdated(false)
+        setEditing(false)
         let res = await request.post(`${config.host}/mysql/execSql`, {
             sql: execCode,
         }, {
@@ -327,52 +444,57 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
             // message.success('执行成功')
             console.log(res)
             const { results, fields } = res.data
-            let columns = [
-                {
-                    title: '#',
-                    key: '__idx',
-                    fixed: 'left',
-                    // width: 120,
-                    render(_value, _item, _idx) {
-                        return (
-                            <SimpleCell text={_idx + 1} color="#999" />
-                        )
-                    }
-                }
-            ]
-            let idx = 0
-            for (let field of fields) {
-                const key = '' + idx
-                columns.push({
-                    title: field.name,
-                    dataIndex: key,
-                    key,
-                    // width: 120,
-                    render(value: any, item) {
-                        return (
-                            <Cell
-                                item={value}
-                                onChange={newItem => {
-                                    console.log('change', item)
-                                    console.log('change.newItem', newItem)
-                                    list[item._idx][key] = newItem
-                                    setList([
-                                        ...list,
-                                    ])
-                                    setCellUpdated(true)
-                                }}
-                            />
-                            // <div
-                            //     className={styles.cell}
-                            //     style={{
-                            //         // minWidth: 120,
-                            //     }}
-                            // >{value}</div>
-                        )
-                    },
-                })
-                idx++
-            }
+            setResults(results)
+            // let columns = [
+            //     {
+            //         title: '#',
+            //         key: '__idx',
+            //         fixed: 'left',
+            //         // width: 120,
+            //         render(_value, _item, _idx) {
+            //             return (
+            //                 <SimpleCell text={_idx + 1} color="#999" />
+            //             )
+            //         }
+            //     }
+            // ]
+            // let idx = 0
+            // for (let field of fields) {
+            //     const key = '' + idx
+            //     columns.push({
+            //         title: field.name,
+            //         dataIndex: key,
+            //         key,
+            //         // width: 120,
+            //         render(value: any, item) {
+            //             return (
+            //                 <Cell
+            //                     editing={editing}
+            //                     item={value}
+            //                     onChange={newItem => {
+            //                         console.log('change', item)
+            //                         console.log('change.newItem', newItem)
+            //                         console.log('change.key', key)
+            //                         console.log('change.list', list)
+            //                         console.log('change.item._idx', item._idx)
+            //                         list[item._idx][key] = newItem
+            //                         setList([
+            //                             ...list,
+            //                         ])
+            //                         setEditing(true)
+            //                     }}
+            //                 />
+            //                 // <div
+            //                 //     className={styles.cell}
+            //                 //     style={{
+            //                 //         // minWidth: 120,
+            //                 //     }}
+            //                 // >{value}</div>
+            //             )
+            //         },
+            //     })
+            //     idx++
+            // }
             const list = results.map((result, rowIdx) => {
                 let item = {
                     _idx: rowIdx,
@@ -418,7 +540,7 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
             //     }
             // }
             setList(list)
-            setColumns(columns)
+            // setColumns(columns)
             setLoading(false)
             setHasReq(true)
             setResult(res.data)
@@ -438,6 +560,7 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
     // let columns = [
 
     // ]
+    console.log('render.list.length', list.length)
 
     return (
         <div className={classNames(styles.sqlBox, className)} style={style}>
@@ -482,7 +605,7 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
                                     <Button
                                         size="small"
                                         type="primary"
-                                        disabled={!(tableName && dbName && cellUpdated)}
+                                        disabled={!(tableName && dbName && editing)}
                                         onClick={() => {
                                             submitModify()
                                         }}
@@ -501,6 +624,16 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
                                             removeSelection()
                                         }}
                                     >删除</Button>
+                                    {!editing &&
+                                        <Button
+                                            // danger
+                                            size="small"
+                                            // disabled={!(selectedRowKeys.length > 0)}
+                                            onClick={() => {
+                                                setEditing(true)
+                                            }}
+                                        >编辑模式</Button>
+                                    }
                                 </Space>
                             </div>
                         }
@@ -561,6 +694,8 @@ function SqlBox({ config, tableName, dbName, className, defaultSql, style }: Pro
                         doRemove()
                     }}
                 >
+                    <div>以下是待执行 SQL，请确认</div>
+
                     <TextArea 
                         // className={styles.textarea} 
                         value={modelCode}
