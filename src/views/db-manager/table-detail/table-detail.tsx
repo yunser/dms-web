@@ -11,11 +11,30 @@ export function TableDetail({ config, dbName, tableName }) {
 
     const [tableColumns, setTableColumns] = useState([])
     const [indexes, setIndexes] = useState([])
+    const [partitions, setPartitions] = useState([])
     const [tableInfo, setTableInfo] = useState({})
     const [modelVisible, setModalVisible] = useState(false)
     const [modelCode, setModalCode] = useState('')
     const [fields, setFields] = useState([])
 
+    const partitionColumns = [
+        {
+            title: '分区名',
+            dataIndex: 'PARTITION_NAME',
+        },
+        {
+            title: '表达式',
+            dataIndex: 'PARTITION_EXPRESSION',
+        },
+        {
+            title: '数据长度',
+            dataIndex: 'DATA_LENGTH',
+        },
+        {
+            title: '描述',
+            dataIndex: 'PARTITION_DESCRIPTION',
+        },
+    ]
     const columns = [
         {
             title: '列名',
@@ -82,6 +101,7 @@ export function TableDetail({ config, dbName, tableName }) {
             console.log('loadTableInfo', res)
             if (res.status == 200) {
                 setTableColumns(res.data.columns)
+                setPartitions(res.data.partitions)
                 
                 const groupMap = _.groupBy(res.data.indexes, 'INDEX_NAME')
                 console.log('groups2', groupMap)
@@ -165,6 +185,15 @@ export function TableDetail({ config, dbName, tableName }) {
                     <Table
                         columns={indexColumns}
                         dataSource={indexes}
+                        bordered
+                        pagination={false}
+                        size="small"
+                    />
+                </TabPane>
+                <TabPane tab="分区信息" key="partition">
+                    <Table
+                        columns={partitionColumns}
+                        dataSource={partitions}
                         bordered
                         pagination={false}
                         size="small"
