@@ -1,0 +1,26 @@
+{
+  "name": "sql-parse",
+  "version": "0.1.3",
+  "author": {
+    "name": "Andriy Ermolenko",
+    "email": "andriy.ermolenko@gmail.com"
+  },
+  "description": "SQL parsing utility",
+  "keywords": [
+    "sql",
+    "parser"
+  ],
+  "dependencies": {},
+  "engines": {
+    "node": ">=0.10"
+  },
+  "main": "lib/sqlParser.js",
+  "devDependencies": {
+    "should": ">=0.4.2",
+    "mocha": ">=0.9.0"
+  },
+  "scripts": {
+    "test": "make test"
+  },
+  "license": "MIT"
+}

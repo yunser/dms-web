@@ -39,8 +39,10 @@
     "slate": "^0.82.0",
     "slate-react": "^0.82.0",
     "sql-formatter": "^9.2.0",
+    "sql-parse": "^0.1.5",
     "svg-path-bounding-box": "^1.0.4",
     "svg-pathdata": "^6.0.3",
+    "typescript-sql": "^0.0.2",
     "uid": "^2.0.0",
     "webworkify-webpack": "^2.1.5",
     "xtend": "^4.0.2"

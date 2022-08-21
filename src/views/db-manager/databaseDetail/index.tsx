@@ -198,10 +198,10 @@ export function DataBaseDetail({ dbName, config }) {
     //     },
     // ]
 
-    function handleTabChange(key: string) {
-        console.log('set key', key)
-        setActiveKey(key)
-    }
+    // function handleTabChange(key: string) {
+    //     console.log('set key', key)
+    //     setActiveKey(key)
+    // }
 
     function TabItem(item: TabProps) {
         return (
@@ -321,7 +321,9 @@ export function DataBaseDetail({ dbName, config }) {
                     <Tabs
                         onEdit={onEdit}
                         activeKey={activeKey}
-                        onChange={handleTabChange}
+                        onChange={key => {
+                            setActiveKey(key)
+                        }}
                         type="editable-card"
                         style={{
                             height: '100%',
