@@ -3,6 +3,7 @@ import {
     Form,
     Input,
     message,
+    Space,
     Tabs,
     Tooltip,
     Tree,
@@ -41,6 +42,8 @@ interface TabProps {
     title: string,
     key: string,
     defaultSql: string,
+    closable?: boolean
+    data?: object
 }
 
 const tabs: Array<TabProps> = [
@@ -55,11 +58,13 @@ const tabs: Array<TabProps> = [
     //     defaultSql: 'SELECT * FROM target.user LIMIT 20;'
     // },
 ]
+const first_key = 'key-zero'
 const tabs_default: Array<TabProps> = [
     {
         title: '新建查询',
-        key: '0',
+        key: first_key,
         defaultSql: '',
+        closable: false,
         data: {
             dbName: '',
             tableName: '',
@@ -219,7 +224,7 @@ export function DataBaseDetail({ dbName, config }) {
             <TabPane
                 tab={item.title}
                 key={item.key}
-                closable={true}>
+                closable={item.closable !== false}>
             </TabPane>
             // <SqlBox defaultSql={item.defaultSql} />
         )
@@ -234,7 +239,7 @@ export function DataBaseDetail({ dbName, config }) {
             setTabs([
                 ...tabs,
                 {
-                    title: 'SQL',
+                    title: 'Untitled Query',
                     key: tabKey,
                     defaultSql: '',
                 }
@@ -356,6 +361,19 @@ export function DataBaseDetail({ dbName, config }) {
                         type="editable-card"
                         style={{
                             height: '100%',
+                        }}
+                        tabBarExtraContent={{
+                            right: (
+                                <Space>
+                                    <Button size="small"
+                                        onClick={() => {
+                                            console.log('tabs', tabs)
+                                            setTabs(tabs.filter(item => item.closable === false))
+                                            setActiveKey(first_key)
+                                        }}
+                                    >关闭所有</Button>
+                                </Space>
+                            )
                         }}
                     >
                         {tabs.map(TabItem)}

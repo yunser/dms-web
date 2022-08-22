@@ -7,6 +7,7 @@ import _ from 'lodash';
 import classNames from 'classnames'
 console.log('lodash', _)
 import copy from 'copy-to-clipboard';
+import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 
 const { TabPane } = Tabs
 const { TextArea } = Input
@@ -123,6 +124,8 @@ export function ExecDetail({ config, data, }) {
         dbName
     } = data || {}
 
+    const rawExecResult = result?.result
+    console.log('ExecDetail/rawExecResult', rawExecResult)
     console.log('ExecDetail/results.length', results.length)
 
     const [tableInfo, setTableInfo] = useState([])
@@ -134,13 +137,26 @@ export function ExecDetail({ config, data, }) {
     const [editing, setEditing] = useState(false)
     const [list, setList] = useState([])
     useEffect(() => {
+        if (loading) {
+            return
+        }
+        console.log('ExecDetail/useEffect/_list')
         setList(_list)
         setEditing(false)
         setSelectedRowKeys([])
         setSelectedRows([])
-    }, [_list])
+    }, [_list, loading])
     const [selectedRowKeys, setSelectedRowKeys] = useState([])
     const [selectedRows, setSelectedRows] = useState([])
+    // 执行状态弹窗
+    const [resultModelVisible, setResultModalVisible] = useState(false)
+    const [resultActiveKey, setResultActiveKey] = useState('')
+    const [resultTabs, setResultTabs] = useState([
+        // {
+        //     title: '执行结果1',
+        //     key: '0',
+        // }
+    ])
 
     async function loadTableInfo() {
         if (dbName && tableName) {
@@ -165,8 +181,12 @@ export function ExecDetail({ config, data, }) {
     }
 
     useEffect(() => {
+        if (loading) {
+            return
+        }
+        console.log('ExecDetail/useEffect/loadTableInfo')
         loadTableInfo()
-    }, [dbName, tableName])
+    }, [dbName, tableName, loading])
 
     function submitModify() {
         let pkField: string | number
@@ -350,19 +370,52 @@ export function ExecDetail({ config, data, }) {
     }
 
     async function doSubmit() {
-        let res = await request.post(`${config.host}/mysql/execSql`, {
-            sql: modelCode,
-        }, {
-            // noMessage: true,
-        })
-        if (res.status == 200) {
-            message.success('提交成功')
-            setModalVisible(false)
-            // run()
-            resetSubmit()
-        }
-        console.log('res', res)
+        setModalVisible(false)
+        setResultModalVisible(true)
 
+        const lines = modelCode.split(';').map(item => item.trim()).filter(item => item)
+        let lineIdx = 0
+        let newTabs = []
+        console.log('lines', lines)
+        for (let line of lines) {
+            console.log('line', line)
+            let res = await request.post(`${config.host}/mysql/execSql`, {
+                sql: line,
+            }, {
+                noMessage: true,
+            })
+            let error = ''
+            if (res.status == 200) {
+                // message.success('提交成功')
+                
+                // run()
+                
+            }
+            else {
+                error = res.data.message || 'Unknown Error'
+            }
+            console.log('res', res)
+            const key = `tab-${lineIdx}`
+            newTabs = [
+                ...newTabs,
+                {
+                    title: `执行结果 ${lineIdx + 1}`,
+                    key,
+                    data: {
+                        sql: line,
+                        resData: res.data,
+                        error,
+                    }
+                }
+            ]
+            setResultTabs(newTabs)
+            setResultActiveKey(key)
+
+            lineIdx++
+        }
+
+
+        resetSubmit()
 
     }
 
@@ -438,6 +491,45 @@ export function ExecDetail({ config, data, }) {
         // })
     }, [results, fields, list])
 
+    function TabItem(item: any) {
+        return (
+            <TabPane
+                tab={(
+                    <span>
+                        {item.data.error ?
+                            <CloseCircleOutlined className={styles.failIcon} />
+                        :
+                            <CheckCircleOutlined className={styles.successIcon} />
+                        }
+                        {item.title}
+                    </span>
+                )}
+                key={item.key}
+                closable={true}
+            >
+                <div className={styles.modalResultBox}>
+                    <div className={styles.sqlBox}>
+                        <div>SQL:</div>
+                        <div><code>{item.data.sql}</code></div>
+                    </div>
+                    {!!item.data.error ?
+                        <div>
+                            <div>Error</div>
+                            <div className={styles.errMsg}>{item.data.error}</div>
+                        </div>
+                    :
+                        <div>
+                            <div>Info:</div>
+                            <div className={styles.info}>
+                                {!!item.data.resData.result?.info ? item.data.resData.result?.info : `影响行数：${rawExecResult.affectedRows}`}</div>
+                        </div>
+                    }
+                </div>
+            </TabPane>
+            // <SqlBox defaultSql={item.defaultSql} />
+        )
+    }
+
 	return (
         <div className={styles.resultBox}>
             {/* ExecDetail */}
@@ -453,7 +545,7 @@ export function ExecDetail({ config, data, }) {
             </div>
             : hasReq ?
                 <>
-                    {!!result &&
+                    {!!result && !rawExecResult &&
                         <div className={styles.header}>
                             <Space>
                                 <Button
@@ -498,42 +590,48 @@ export function ExecDetail({ config, data, }) {
                             </Space>
                         </div>
                     }
-                    <div
-                        className={styles.tableBox}
-                        ref={tableBoxRef}
-                    >
-                        <Table
-                            loading={loading}
-                            dataSource={list}
-                            pagination={false}
-                            columns={columns}
-                            bordered
-                            style={{
-                                // width: 600,
-                                // height: '300px',
-                                // border: '1px solid #09c',
-                            }}
-                            // size="middle"
-                            size="small"
-                            rowSelection={{
-                                selectedRowKeys,
-                                onChange(selectedRowKeys, selectedRows) {
-                                    setSelectedRowKeys(selectedRowKeys)
-                                    setSelectedRows(selectedRows)
-                                }
-                            }}
-                            rowKey="_idx"
-                            scroll={{
-                                x: true,
-                                // x: 2000,
-                                // y: document.body.clientHeight - 396,
-                            }}
-                        />
-                    </div>
+                    {!rawExecResult &&
+                        <div
+                            className={styles.tableBox}
+                            ref={tableBoxRef}
+                        >
+                            <Table
+                                loading={loading}
+                                dataSource={list}
+                                pagination={false}
+                                columns={columns}
+                                bordered
+                                style={{
+                                    // width: 600,
+                                    // height: '300px',
+                                    // border: '1px solid #09c',
+                                }}
+                                // size="middle"
+                                size="small"
+                                rowSelection={{
+                                    selectedRowKeys,
+                                    onChange(selectedRowKeys, selectedRows) {
+                                        setSelectedRowKeys(selectedRowKeys)
+                                        setSelectedRows(selectedRows)
+                                    }
+                                }}
+                                rowKey="_idx"
+                                scroll={{
+                                    x: true,
+                                    // x: 2000,
+                                    // y: document.body.clientHeight - 396,
+                                }}
+                            />
+                        </div>
+                    }
                     {!!result &&
                         <div className={styles.footer}>
                             <div>Time: {(result.time / 1000).toFixed(3)} s</div>
-                            <div>{_list.length} rows</div>
+                            {!!rawExecResult ?
+                                <div>{!!rawExecResult.info ? rawExecResult.info : `影响行数：${rawExecResult.affectedRows}`}</div>
+                            :
+                                <div>{_list.length} rows</div>
+                            }
                             <div>{sql}</div>
                         </div>
                     }
@@ -546,8 +644,10 @@ export function ExecDetail({ config, data, }) {
             {modelVisible &&
                 <Modal
                     title="提交修改"
+                    maskClosable={false}
                     visible={true}
                     width={800}
+                    okText="执行"
                     // onOk={handleOk}
                     okButtonProps={{
                         children: '执行',
@@ -559,18 +659,52 @@ export function ExecDetail({ config, data, }) {
                         doSubmit()
                     }}
                 >
-                    <div>以下是待执行 SQL，请确认</div>
+                    <div className={styles.safeTip}>以下是待执行 SQL，请确认</div>
 
                     <TextArea
                         // className={styles.textarea} 
                         value={modelCode}
                         rows={4}
                     // disabled
-                    // onChange={e => setCode(e.target.value)}
+                        onChange={e => setModalCode(e.target.value)}
                     />
                     {/* <p>Some contents...</p>
                     <p>Some contents...</p>
                     <p>Some contents...</p> */}
+                </Modal>
+            }
+            {resultModelVisible &&
+                <Modal
+                    title="执行状态"
+                    visible={true}
+                    width={800}
+                    // onOk={handleOk}
+                    // okButtonProps={{
+                    //     children: '执行',
+                    // }}
+                    onCancel={() => {
+                        setResultModalVisible(false)
+                    }}
+                    // onOk={() => {
+                    //     doSubmit()
+                    // }}
+                    footer={null}
+                >
+                    <Tabs
+                        // onEdit={onEdit}
+                        activeKey={resultActiveKey}
+                        hideAdd={true}
+                        onChange={key => {
+                            setResultActiveKey(key)
+                        }}
+                        type="card"
+                        style={{
+                            // height: '100%',
+                        }}
+                    >
+                        {resultTabs.map(TabItem)}
+                    </Tabs>
+
                 </Modal>
             }
         </div>

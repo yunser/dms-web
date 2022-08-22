@@ -165,6 +165,7 @@ function SqlBox({ config, tableName, dbName, className, defaultSql = '', style }
             }
             console.log('tableName', tableName)
             console.log('dbName', dbName)
+            // return
 // => [{"tag":"select","columns": [...],"from":[...],"where":null,"group_by":null,"having":null}]
             
 
@@ -275,6 +276,33 @@ function SqlBox({ config, tableName, dbName, className, defaultSql = '', style }
         )
     }
 
+    const onEdit = (targetKey: string, action: string) => {
+        console.log('targetKey, action', targetKey, action)
+        // this[action](targetKey);
+        if (action === 'add') {
+        }
+        else if (action === 'remove') {
+            for (let i = 0; i < execResults.length; i++) {
+                if (execResults[i].key === targetKey) {
+                    execResults.splice(i, 1)
+                    break
+                }
+            }
+            setExecResults([
+                ...execResults,
+            ])
+            if (execResults.length) {
+                setActiveKey(execResults[execResults.length - 1].key)
+            }
+            else {
+                setActiveKey('')
+            }
+            // _this.setState({
+            //     tabs
+            // })
+        }
+    }
+
     return (
         <div className={classNames(styles.sqlBox, className)} style={style}>
             <div className={styles.editorBox}>
@@ -328,7 +356,7 @@ function SqlBox({ config, tableName, dbName, className, defaultSql = '', style }
             <div className={styles.resultBox}>
                 <div className={styles.resultTabs}>
                     <Tabs
-                        // onEdit={onEdit}
+                        onEdit={onEdit}
                         activeKey={activeKey}
                         hideAdd={true}
                         onChange={key => {
