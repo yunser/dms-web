@@ -542,8 +542,19 @@ export function ExecDetail({ config, data, }) {
                     <div>Loading...</div>
                 </div>
         : !!error ?
-            <div className={styles.emptyFullBox}>
-                <div className={styles.errorBox}>{error}</div>
+            <div className={styles.resultFullBox}>
+                <div className={styles.titleContentBox}>
+                    <div className={styles.title}>SQL</div>
+                    <div className={styles.content}>
+                        <code><pre>{sql}</pre></code>
+                    </div>
+                </div>
+                <div className={styles.titleContentBox}>
+                    <div className={styles.title}>Error</div>
+                    <div className={styles.content}>
+                        <div className={styles.errorBox}>{error}</div>
+                    </div>
+                </div>
             </div>
             : hasReq ?
                 <>
