@@ -16,6 +16,14 @@ import { useTranslation, Trans } from "react-i18next";
 // var parse = require('sql-parse').parse;
 // console.log('asd')
 
+function removeComment(sql: string) {
+    return sql.split('\n').map(item => {
+        if (item.includes('--')) {
+            return item.split('--')[0]
+        }
+        return item
+    }).join('\n')
+}
 // var result = SqlParser.parse('SELECT id,name FROM users u left join asd a on u.id = a.id');
 // console.log('result', JSON.stringify(result, null, 4))
 // import * as sqlParser from 'typescript-sql';
@@ -107,10 +115,13 @@ function SqlBox({ config, tableName, dbName, className, defaultSql = '', style }
     async function _run(execCode: string, { explain = false } = {}) {
         let newTabs: any = []
         setExecResults(newTabs)
-        const lines = execCode.split(';').filter(item => item.trim())
+        const removedCommentCode = removeComment(execCode)
+        const lines = removedCommentCode.split(';').filter(item => item.trim())
         let lineIdx = 0
-        for (let line of lines) {
-            let lineCode = explain ? ('EXPLAIN ' + line) : line
+        for (let rawLine of lines) {
+            // const noCommentLine = removeComment(rawLine)
+            // console.log('noCommentLine', noCommentLine)
+            let lineCode = explain ? ('EXPLAIN ' + rawLine) : rawLine
             if (lineCode.toLowerCase().includes('select') && !lineCode.toLowerCase().includes('limit')) {
                 lineCode += ` limit ${limit}`
             }
@@ -145,7 +156,7 @@ function SqlBox({ config, tableName, dbName, className, defaultSql = '', style }
             let tableName = null
             let dbName = null
             try {
-                const ast = SqlParser.parse(line.replace(/`/g, ''));
+                const ast = SqlParser.parse(rawLine.replace(/`/g, ''));
                 console.log('ast', ast)
                 if (ast[0]) {
                     if (!ast[0].joinmap) {
