@@ -27,6 +27,11 @@ function SimpleCell({ text, color }) {
 }
 
 function Cell({ item, editing, onChange }) {
+    console.log('Cell.item', item)
+    // TODO 先 run 再 explain item 就会为空，不清楚原因
+    if (!item) {
+        return null
+    }
     const [isEdit, setIsEdit] = useState(false)
     const text = item.newValue || item.value
     const [value, setValue] = useState(text)
@@ -422,6 +427,7 @@ export function ExecDetail({ config, data, }) {
     }
 
     const columns = useMemo(() => {
+        console.log('useMemo', results, fields, list)
         let columns = [
             {
                 title: '#',
@@ -444,6 +450,7 @@ export function ExecDetail({ config, data, }) {
                 key,
                 // width: 120,
                 render(value: any, item) {
+                    console.log('Cell.value?', value)
                     return (
                         <Cell
                             editing={editing}
