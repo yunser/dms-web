@@ -23,6 +23,7 @@ import { TableDetail } from '../table-detail/table-detail'
 import { suggestionAdd } from '../suggestion'
 import { ReloadOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next'
+import { IconButton } from '../icon-button'
 
 const { TabPane } = Tabs
 
@@ -290,7 +291,15 @@ export function DataBaseDetail({ dbName, config }) {
                     />
 
                     <Tooltip title={t('refresh')} mouseEnterDelay={1}>
-                        <Button 
+                        <IconButton
+                            className={styles.refresh}
+                            onClick={() => {
+                                loadData()
+                            }}
+                        >
+                            <ReloadOutlined />
+                        </IconButton>
+                        {/* <Button 
                             className={styles.refresh}
                             type="link"
                             onClick={() => {
@@ -299,7 +308,7 @@ export function DataBaseDetail({ dbName, config }) {
                             icon={
                                 <ReloadOutlined />
                             }
-                        />
+                        /> */}
                     </Tooltip>
                 </div>
                 <div className={styles.body}>
