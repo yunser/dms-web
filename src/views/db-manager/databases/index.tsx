@@ -5,9 +5,11 @@ import {
 } from 'antd'
 import React, { Component, Fragment, useEffect, useState } from 'react';
 import axios from 'axios'
+import { useTranslation } from 'react-i18next';
 
 export default function DatabaseList({ config, onSelectDatabase }) {
 
+    const { t } = useTranslation()
     const [list, setList] = useState([])
 
     async function loadData() {
@@ -29,7 +31,7 @@ export default function DatabaseList({ config, onSelectDatabase }) {
     
     const columns = [
         {
-            title: '数据库名称',
+            title: t('db_name'),
             dataIndex: 'name',
             key: 'name',
             render(value: string, item) {

@@ -8,6 +8,7 @@ import classNames from 'classnames'
 console.log('lodash', _)
 import copy from 'copy-to-clipboard';
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 
 const { TabPane } = Tabs
 const { TextArea } = Input
@@ -111,6 +112,7 @@ function Cell({ item, editing, onChange }) {
 
 
 export function ExecDetail({ config, data, }) {
+    const { t } = useTranslation()
     const { 
         sql,
         loading, 
@@ -548,6 +550,7 @@ export function ExecDetail({ config, data, }) {
                     {!!result && !rawExecResult &&
                         <div className={styles.header}>
                             <Space>
+                                {/* 提交修改 */}
                                 <Button
                                     size="small"
                                     type="primary"
@@ -555,13 +558,15 @@ export function ExecDetail({ config, data, }) {
                                     onClick={() => {
                                         submitModify()
                                     }}
-                                >提交修改</Button>
+                                >{t('submit_modify')}</Button>
+                                {/* 新增 */}
                                 <Button
                                     size="small"
                                     onClick={() => {
                                         addRow()
                                     }}
-                                >新增</Button>
+                                >{t('add')}</Button>
+                                {/* 删除 */}
                                 <Button
                                     danger
                                     size="small"
@@ -569,8 +574,8 @@ export function ExecDetail({ config, data, }) {
                                     onClick={() => {
                                         removeSelection()
                                     }}
-                                >删除</Button>
-                                {!editing &&
+                                >{t('delete')}</Button>
+                                {/* {!editing &&
                                     <Button
                                         // danger
                                         size="small"
@@ -579,14 +584,14 @@ export function ExecDetail({ config, data, }) {
                                             setEditing(true)
                                         }}
                                     >编辑模式</Button>
-                                }
+                                } */}
                                 <Button
                                     size="small"
                                     // disabled={!(selectedRowKeys.length > 0)}
                                     onClick={() => {
                                         exportData()
                                     }}
-                                >导出</Button>
+                                >{t('export')}</Button>
                             </Space>
                         </div>
                     }
@@ -643,7 +648,7 @@ export function ExecDetail({ config, data, }) {
             }
             {modelVisible &&
                 <Modal
-                    title="提交修改"
+                    title={t('submit_modify')}
                     maskClosable={false}
                     visible={true}
                     width={800}

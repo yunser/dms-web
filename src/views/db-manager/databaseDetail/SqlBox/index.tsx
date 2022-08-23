@@ -12,6 +12,7 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import {  SqlParser } from '../../sql-parse-lib/sqlParser'
 import { ExecDetail } from '../../exec-detail/exec-detail'
 import { uid } from 'uid'
+import { useTranslation, Trans } from "react-i18next";
 // var parse = require('sql-parse').parse;
 // console.log('asd')
 
@@ -32,6 +33,8 @@ export interface Props {
 const limits = [10, 20, 50, 100, 200, 500, 1000]
 
 function SqlBox({ config, tableName, dbName, className, defaultSql = '', style }: Props) {
+
+    const { t, i18n } = useTranslation()
 
     const defaultDbName = dbName
     // console.log('defaultSql', defaultSql)
@@ -112,7 +115,7 @@ function SqlBox({ config, tableName, dbName, className, defaultSql = '', style }
                 lineCode += ` limit ${limit}`
             }
             const tabKey = uid(16)
-            const tabTitle = `执行结果 ${lineIdx + 1}`
+            const tabTitle = `${t('exec_result')} ${lineIdx + 1}`
             newTabs = [
                 ...newTabs,
                 {
@@ -308,9 +311,10 @@ function SqlBox({ config, tableName, dbName, className, defaultSql = '', style }
             <div className={styles.editorBox}>
                 <div className={styles.toolBox}>
                     <Space>
-                        <Button type="primary" size="small" onClick={run}>执行</Button>
-                        <Button size="small" onClick={runPlain}>执行计划</Button>
-                        <Button size="small" onClick={formatSql}>格式化</Button>
+                        <Button type="primary" size="small" onClick={run}>{t('run')}</Button>
+                        {/* 执行计划 */}
+                        <Button size="small" onClick={runPlain}>{t('explain')}</Button>
+                        <Button size="small" onClick={formatSql}>{t('format')}</Button>
                         <Select
                             size="small"
                             value={limit}

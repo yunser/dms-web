@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ReactNode } from 'react'
+import React, { useState, useEffect, ReactNode, useMemo } from 'react'
 import styles from './index.module.less'
 import { message, Input, Button, Tabs, Space, Form, Checkbox, InputNumber } from 'antd'
 import storage from './storage'
@@ -6,12 +6,16 @@ import axios from 'axios'
 import DatabaseList from './databases'
 import { DataBaseDetail } from './databaseDetail'
 import { request } from './utils/http'
+import { useTranslation } from 'react-i18next'
 
 console.log('styles', styles)
 const { TextArea } = Input
 const { TabPane } = Tabs
 
 function Connnector({ config, onConnnect }) {
+    const { t } = useTranslation()
+
+    const [loading, setLoading] = useState(false)
     const [form] = Form.useForm()
     const [code, setCode] = useState(`{
     "host": "",
@@ -41,6 +45,7 @@ function Connnector({ config, onConnnect }) {
     }, [])
 
     async function  connect() {
+        setLoading(true)
         const values = await form.validateFields()
         const reqData = {
             host: values.host,
@@ -55,9 +60,10 @@ function Connnector({ config, onConnnect }) {
         let ret = await request.post(`${config.host}/mysql/connect`, reqData)
         console.log('ret', ret)
         if (ret.status === 200) {
-            message.success('连接成功')
+            // message.success('连接成功')
             onConnnect && onConnnect()
         }
+        setLoading(false)
         // else {
         //     message.error('连接失败')
         // }
@@ -126,7 +132,10 @@ function Connnector({ config, onConnnect }) {
                         // rules={[{ required: true, },]}
                     >
                         <Space>
-                            <Button type="primary" onClick={connect}>连接数据库</Button>
+                            <Button
+                                loading={loading}
+                                type="primary"
+                                onClick={connect}>{t('connect')}</Button>
                             {/* <Button onClick={save}>保存</Button> */}
                         </Space>
                     </Form.Item>
@@ -163,6 +172,19 @@ const tabs_default = [
 ]
 
 export function DbManager({ config }) {
+
+    const { t, i18n } = useTranslation();
+    // console.log('i18n', i18n)
+    // const [lang, setLang] = useState('en')
+    const lang = useMemo(() => {
+        if (i18n.language.includes('zh')) {
+            return 'zh'
+        }
+        else {
+            return 'en'
+        }
+    }, [i18n.language])
+
     const [tabs, setTabs] = useState(tabs_default)
     const [activeKey, setActiveKey] = useState(tabs[0].key)
 
@@ -230,6 +252,17 @@ export function DbManager({ config }) {
                     onChange={handleTabChange}
                     type="editable-card"
                     hideAdd={true}
+                    tabBarExtraContent={{
+                        right: (
+                            <div className={styles.langBox}>
+                                <div className={styles.lang}
+                                    onClick={() => {
+                                        i18n.changeLanguage(lang == 'zh' ? 'en' : 'zh')
+                                    }}
+                                >{lang == 'zh' ? 'English' : '中文'}</div>
+                            </div>
+                        )
+                    }}
                 >
                     {tabs.map(TabItem)}
                     

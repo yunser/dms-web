@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import classes from './layout.module.less'
 // import classNames from 'classnames'
 // import rough from 'roughjs';
-// import { useTranslation, Trans } from "react-i18next";
+import { useTranslation, Trans } from "react-i18next";
 import { DbManager } from '../db-manager';
 
 const initialValue = [

@@ -22,6 +22,7 @@ import axios from 'axios'
 import { TableDetail } from '../table-detail/table-detail'
 import { suggestionAdd } from '../suggestion'
 import { ReloadOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next'
 
 const { TabPane } = Tabs
 
@@ -46,40 +47,44 @@ interface TabProps {
     data?: object
 }
 
-const tabs: Array<TabProps> = [
-    {
-        title: 'SQL',
-        key: '0',
-        defaultSql: '',
-    },
-    // {
-    //     title: 'Tab 1',
-    //     key: '1',
-    //     defaultSql: 'SELECT * FROM target.user LIMIT 20;'
-    // },
-]
-const first_key = 'key-zero'
-const tabs_default: Array<TabProps> = [
-    {
-        title: '新建查询',
-        key: first_key,
-        defaultSql: '',
-        closable: false,
-        data: {
-            dbName: '',
-            tableName: '',
-        }
-    },
-    // {
-    //     title: 'Tab 1',
-    //     key: '1',
-    //     defaultSql: 'SELECT * FROM target.user LIMIT 20;'
-    // },
-]
+// const tabs: Array<TabProps> = [
+//     {
+//         title: 'SQL',
+//         key: '0',
+//         defaultSql: '',
+//     },
+//     // {
+//     //     title: 'Tab 1',
+//     //     key: '1',
+//     //     defaultSql: 'SELECT * FROM target.user LIMIT 20;'
+//     // },
+// ]
 
 
 
 export function DataBaseDetail({ dbName, config }) {
+    const { t } = useTranslation()
+
+    const first_key = 'key-zero'
+    const tabs_default: Array<TabProps> = [
+        {
+            title: t('new_query'),
+            key: first_key,
+            defaultSql: '',
+            closable: false,
+            data: {
+                dbName: '',
+                tableName: '',
+            }
+        },
+        // {
+        //     title: 'Tab 1',
+        //     key: '1',
+        //     defaultSql: 'SELECT * FROM target.user LIMIT 20;'
+        // },
+    ]
+
+
     const [activeKey, setActiveKey] = useState(tabs_default[0].key)
     // const
     const [loading, setLoading] = useState(false)
@@ -284,7 +289,7 @@ export function DataBaseDetail({ dbName, config }) {
                         placeholder="Search..."
                     />
 
-                    <Tooltip title="刷新" mouseEnterDelay={1}>
+                    <Tooltip title={t('refresh')} mouseEnterDelay={1}>
                         <Button 
                             className={styles.refresh}
                             type="link"
@@ -365,13 +370,14 @@ export function DataBaseDetail({ dbName, config }) {
                         tabBarExtraContent={{
                             right: (
                                 <Space>
+                                    {/* 关闭所有 */}
                                     <Button size="small"
                                         onClick={() => {
                                             console.log('tabs', tabs)
                                             setTabs(tabs.filter(item => item.closable === false))
                                             setActiveKey(first_key)
                                         }}
-                                    >关闭所有</Button>
+                                    >{t('close_all')}</Button>
                                 </Space>
                             )
                         }}

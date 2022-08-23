@@ -25,7 +25,7 @@ import {
 } from "react-router-dom";
 import { HomePage } from './views/home'
 storage.set('asd', 'asd2')
-// import "./i18n";
+import "./i18n";
 
 
 export default function App() {
@@ -33,6 +33,8 @@ export default function App() {
 
     return (
         <Router>
+            {/* 小区抄表率 */}
+            {/* 小区抄表率 */}
             {/* <App /> */}
             <div className="App">
                 <Routes>
