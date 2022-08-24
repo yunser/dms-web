@@ -445,7 +445,19 @@ export function ExecDetail({ config, data, }) {
         for (let field of fields) {
             const key = '' + idx
             columns.push({
-                title: field.name,
+                title: (
+                    <div className={styles.titleCell}>
+                        {field.name}
+                        <div className={styles.tool}>
+                            <a
+                                onClick={() => {
+                                    copy(field.name)
+                                    message.success('Copied')
+                                }}
+                            >复制</a>
+                        </div>
+                    </div>
+                ),
                 dataIndex: key,
                 key,
                 // width: 120,
