@@ -1,7 +1,9 @@
 import {
     Card,
+    Dropdown,
     Form,
     Input,
+    Menu,
     message,
     Space,
     Tabs,
@@ -24,6 +26,7 @@ import { suggestionAdd } from '../suggestion'
 import { DatabaseOutlined, ReloadOutlined, TableOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next'
 import { IconButton } from '../icon-button'
+import { ExecModal } from '../exec-modal/exec-modal'
 
 const { TabPane } = Tabs
 
@@ -66,6 +69,7 @@ interface TabProps {
 export function DataBaseDetail({ dbName, config }) {
     const { t } = useTranslation()
 
+    const [sql, setSql] = useState('')
     const first_key = 'key-zero'
     const tabs_default: Array<TabProps> = [
         {
@@ -275,7 +279,15 @@ export function DataBaseDetail({ dbName, config }) {
         }
     }
 
+    
     console.log('tabs', tabs)
+
+    async function truncate(nodeData) {
+        console.log('nodeData', nodeData)
+        const tableName = nodeData.key // TODO @p2
+        const sql = `TRUNCATE TABLE \`${tableName}\`;`
+        setSql(sql)
+    }
 
     return (
         <div className={styles.layout}>
@@ -326,28 +338,66 @@ export function DataBaseDetail({ dbName, config }) {
                                 // console.log('nodeData', nodeData)
 
                                 return (
-                                    <div className={styles.treeTitle}>
-                                        <div className={styles.label}>
-                                            {nodeData.key == 'root' ?
-                                                <DatabaseOutlined className={styles.icon} />
-                                            :
-                                                <TableOutlined className={styles.icon} />
+                                    <Dropdown
+                                        overlay={(
+                                            <Menu>
+                                                <Menu.Item
+                                                    onClick={() => {
+                                                        truncate(nodeData)
+                                                    }}
+                                                >清空表</Menu.Item>
+                                                {/* <Menu.Item>2</Menu.Item> */}
+                                            </Menu>
+                                            // <Menu
+                                            //     items={[
+                                            //     {
+                                            //         label: '1st menu item',
+                                            //         key: '1',
+                                            //     },
+                                            //     {
+                                            //         label: '2nd menu item',
+                                            //         key: '2',
+                                            //     },
+                                            //     {
+                                            //         label: '3rd menu item',
+                                            //         key: '3',
+                                            //     },
+                                            //     ]}
+                                            // />
+                                        )}
+                                        trigger={['contextMenu']}
+                                    >
+                                        {/* <div
+                                        className="site-dropdown-context-menu"
+                                        style={{
+                                            textAlign: 'center',
+                                            height: 200,
+                                            lineHeight: '200px',
+                                        }} */}
+                                        {/* Right Click on here */}
+                                        <div className={styles.treeTitle}>
+                                            <div className={styles.label}>
+                                                {nodeData.key == 'root' ?
+                                                    <DatabaseOutlined className={styles.icon} />
+                                                :
+                                                    <TableOutlined className={styles.icon} />
+                                                }
+                                                {nodeData.title}
+                                            </div>
+                                            {nodeData.key != 'root' &&
+                                                <a
+                                                    className={styles.btns}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation()
+                                                        e.preventDefault()
+                                                        queryTableStruct(nodeData.key)
+                                                    }}
+                                                >
+                                                    查看结构
+                                                </a>
                                             }
-                                            {nodeData.title}
                                         </div>
-                                        {nodeData.key != 'root' &&
-                                            <a
-                                                className={styles.btns}
-                                                onClick={(e) => {
-                                                    e.stopPropagation()
-                                                    e.preventDefault()
-                                                    queryTableStruct(nodeData.key)
-                                                }}
-                                            >
-                                                查看结构
-                                            </a>
-                                        }
-                                    </div>
+                                    </Dropdown>
                                 )
                             }}
                             onSelect={(selectedKeys, info) => {
@@ -438,6 +488,15 @@ export function DataBaseDetail({ dbName, config }) {
                     })}
                 </div>
             </div>
+
+            {!!sql &&
+                <ExecModal
+                    config={config}
+                    sql={sql}
+                    tableName={null}
+                    dbName={dbName}
+                />
+            }
         </div>
     )
 }

@@ -1,11 +1,82 @@
-import { Descriptions, Table, Tabs } from 'antd';
+import { Button, Descriptions, Form, Input, Space, Table, Tabs } from 'antd';
 import React from 'react';
 import { VFC, useRef, useState, useEffect } from 'react';
 import { request } from '../utils/http';
 import styles from './table-detail.module.less';
 import _ from 'lodash';
+import { ExecModal } from '../exec-modal/exec-modal';
 console.log('lodash', _)
 const { TabPane } = Tabs
+
+function TableInfoEditor({ config, tableInfo, tableName, dbName }) {
+    const [form] = Form.useForm()
+    const [sql, setSql] = useState('')
+
+    useEffect(() => {
+        form.setFieldsValue({
+            ...tableInfo,
+        })
+    }, [tableInfo])
+
+    async function update() {
+        // setLoading(true)
+        const values = await form.validateFields()
+        if (values.TABLE_NAME != tableInfo.TABLE_NAME) {
+            const sql = `ALTER TABLE \`${tableInfo.TABLE_NAME}\`
+    RENAME TO \`${values.TABLE_NAME}\`
+;`
+            console.log('sql', sql)
+            setSql(sql)
+        }
+    }
+
+    return (
+        <div>
+            <Form
+                form={form}
+                labelCol={{ span: 8 }}
+                wrapperCol={{ span: 16 }}
+                initialValues={{
+                    port: 3306,
+                }}
+                // layout={{
+                //     labelCol: { span: 0 },
+                //     wrapperCol: { span: 24 },
+                // }}
+            >
+                <Form.Item
+                    name="TABLE_NAME"
+                    label="表名称"
+                    rules={[ { required: true, }, ]}
+                >
+                    <Input />
+                </Form.Item>
+                <Form.Item
+                        wrapperCol={{ offset: 8, span: 16 }}
+                        // name="passowrd"
+                        // label="Passowrd"
+                        // rules={[{ required: true, },]}
+                    >
+                        <Space>
+                            <Button
+                                // loading={loading}
+                                type="primary"
+                                onClick={update}>提交</Button>
+                            {/* <Button onClick={save}>保存</Button> */}
+                        </Space>
+                    </Form.Item>
+            </Form>
+            {!!sql &&
+                <ExecModal
+                    config={config}
+                    sql={sql}
+                    tableName={tableName}
+                    dbName={dbName}
+                />
+            }
+        </div>
+    )
+}
 
 export function TableDetail({ config, dbName, tableName }) {
 
@@ -147,6 +218,12 @@ export function TableDetail({ config, dbName, tableName }) {
                 type="card"
             >
                 <TabPane tab="基本信息" key="basic">
+                    <TableInfoEditor
+                        config={config}
+                        tableInfo={tableInfo}
+                        tableName={tableName}
+                        dbName={dbName}
+                    />
                     <Descriptions column={1}>
                         {/* <Descriptions.Item label="label">{tableInfo.AUTO_INCREMENT}</Descriptions.Item> */}
                         <Descriptions.Item label="表名称">{tableInfo.TABLE_NAME}</Descriptions.Item>
@@ -154,8 +231,10 @@ export function TableDetail({ config, dbName, tableName }) {
                         <Descriptions.Item label="行">{tableInfo.DATA_LENGTH}</Descriptions.Item>
                         <Descriptions.Item label="引擎">{tableInfo.ENGINE}</Descriptions.Item>
                         <Descriptions.Item label="注释">{tableInfo.TABLE_COMMENT}</Descriptions.Item>
+                        <Descriptions.Item label="平均行长度">{tableInfo.AVG_ROW_LENGTH}</Descriptions.Item>
+                        <Descriptions.Item label="当前值">{tableInfo.AUTO_INCREMENT}</Descriptions.Item>
+                        <Descriptions.Item label="行格式">{tableInfo.ROW_FORMAT}</Descriptions.Item>
                         {/* : null
-                        AVG_ROW_LENGTH: 2048
                         CHECKSUM: null
                         CHECK_TIME: null
                         CREATE_OPTIONS: "row_format=DYNAMIC"
@@ -163,7 +242,6 @@ export function TableDetail({ config, dbName, tableName }) {
                         DATA_FREE: 0
                         INDEX_LENGTH: 0
                         MAX_DATA_LENGTH: 0
-                        ROW_FORMAT: "Dynamic"
                         TABLE_CATALOG: "def"
                         TABLE_ROWS: 8
                         TABLE_SCHEMA: "linxot"

@@ -13,6 +13,7 @@ import {  SqlParser } from '../../sql-parse-lib/sqlParser'
 import { ExecDetail } from '../../exec-detail/exec-detail'
 import { uid } from 'uid'
 import { useTranslation, Trans } from "react-i18next";
+import { History } from '../../history'
 // var parse = require('sql-parse').parse;
 // console.log('asd')
 
@@ -40,6 +41,13 @@ export interface Props {
 
 const limits = [10, 20, 50, 100, 200, 500, 1000]
 
+const history_tab = {
+    type: 'all',
+    title: '历史记录',
+    key: 'all',
+    closable: false,
+}
+
 function SqlBox({ config, tableName, dbName, className, defaultSql = '', style }: Props) {
 
     const { t, i18n } = useTranslation()
@@ -53,10 +61,12 @@ function SqlBox({ config, tableName, dbName, className, defaultSql = '', style }
     const [code2, setCode2] = useState(defaultSql)
 
     const [execResults, setExecResults] = useState([
+        history_tab,
         // {
         //     type: 'all',
         //     title: '历史记录',
         //     key: 'all',
+        //     closable: false,
         // },
         // {
         //     type: 'single',
@@ -113,7 +123,9 @@ function SqlBox({ config, tableName, dbName, className, defaultSql = '', style }
     }
 
     async function _run(execCode: string, { explain = false } = {}) {
-        let newTabs: any = []
+        let newTabs: any = [
+            // history_tab,
+        ]
         setExecResults(newTabs)
         const removedCommentCode = removeComment(execCode)
         const lines = removedCommentCode.split(';').filter(item => item.trim())
@@ -284,7 +296,8 @@ function SqlBox({ config, tableName, dbName, className, defaultSql = '', style }
             <TabPane
                 tab={item.title}
                 key={item.key}
-                closable={true}>
+                closable={item.closable !== false}
+            >
             </TabPane>
             // <SqlBox defaultSql={item.defaultSql} />
         )
@@ -398,7 +411,7 @@ function SqlBox({ config, tableName, dbName, className, defaultSql = '', style }
                             }}
                         >
                             {item.type == 'all' &&
-                                <div>ALL</div>
+                                <History config={config} />
                             }
                             {item.type == 'single' &&
                                 <ExecDetail
