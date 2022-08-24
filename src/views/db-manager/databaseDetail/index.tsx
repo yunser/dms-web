@@ -21,7 +21,7 @@ import Item from 'antd/lib/list/Item'
 import axios from 'axios'
 import { TableDetail } from '../table-detail/table-detail'
 import { suggestionAdd } from '../suggestion'
-import { ReloadOutlined } from '@ant-design/icons';
+import { DatabaseOutlined, ReloadOutlined, TableOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next'
 import { IconButton } from '../icon-button'
 
@@ -230,7 +230,8 @@ export function DataBaseDetail({ dbName, config }) {
             <TabPane
                 tab={item.title}
                 key={item.key}
-                closable={item.closable !== false}>
+                closable={item.closable !== false}
+            >
             </TabPane>
             // <SqlBox defaultSql={item.defaultSql} />
         )
@@ -326,7 +327,14 @@ export function DataBaseDetail({ dbName, config }) {
 
                                 return (
                                     <div className={styles.treeTitle}>
-                                        <div className={styles.label}>{nodeData.title}</div>
+                                        <div className={styles.label}>
+                                            {nodeData.key == 'root' ?
+                                                <DatabaseOutlined className={styles.icon} />
+                                            :
+                                                <TableOutlined className={styles.icon} />
+                                            }
+                                            {nodeData.title}
+                                        </div>
                                         {nodeData.key != 'root' &&
                                             <a
                                                 className={styles.btns}
