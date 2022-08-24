@@ -15,9 +15,10 @@ import { CopyButton } from '../copy-button';
 const { TabPane } = Tabs
 const { TextArea } = Input
 
-function SimpleCell({ text, color }) {
+function SimpleCell({ onClick, text, color }) {
     return (
         <div
+        onClick={onClick}
             className={styles.idxCell}
         // style={{
         //     color,
@@ -29,7 +30,7 @@ function SimpleCell({ text, color }) {
 }
 
 function Cell({ item, editing, onChange }) {
-    console.log('Cell.item', item)
+    // console.log('Cell.item', item)
     // TODO 先 run 再 explain item 就会为空，不清楚原因
     if (!item) {
         return null
@@ -157,10 +158,9 @@ export function ExecDetail({ config, data, }) {
         setList(_list)
         setEditing(false)
         setSelectedRowKeys([])
-        setSelectedRows([])
     }, [_list, loading])
     const [selectedRowKeys, setSelectedRowKeys] = useState([])
-    const [selectedRows, setSelectedRows] = useState([])
+    const [selectedRows_will, setSelectedRows] = useState([])
     // 执行状态弹窗
     const [resultModelVisible, setResultModalVisible] = useState(false)
     const [resultActiveKey, setResultActiveKey] = useState('')
@@ -217,7 +217,6 @@ export function ExecDetail({ config, data, }) {
         }
         console.log('fields', fields)
         console.log('pkField', pkField)
-        console.log('selectedRows', selectedRows)
         const pkColIdx = fields.findIndex(item => item.name == pkField)
         console.log('pkColIdx', pkColIdx)
         if (pkColIdx == -1) {
@@ -342,6 +341,7 @@ export function ExecDetail({ config, data, }) {
 
     async function removeSelection() {
         // if 
+        console.log('tableInfo', tableInfo)
         let pkField: string | number
         for (let field of tableInfo) {
             // Default: null
@@ -357,16 +357,17 @@ export function ExecDetail({ config, data, }) {
         }
         console.log('fields', fields)
         console.log('pkField', pkField)
-        console.log('selectedRows', selectedRows)
         const pkColIdx = fields.findIndex(item => item.name == pkField)
         console.log('pkColIdx', pkColIdx)
         if (pkColIdx == -1) {
             message.error('找不到表格主键')
             return
         }
-        const codes = selectedRows.map(row => {
-            return `DELETE FROM \`${dbName}\`.\`${tableName}\` WHERE \`${pkField}\` = '${row[pkColIdx].value}';`
+        
+        const codes = selectedRowKeys.map(rowKey => {
+            return `DELETE FROM \`${dbName}\`.\`${tableName}\` WHERE \`${pkField}\` = '${list[rowKey][pkColIdx].value}';`
         }).join('\n')
+        console.log('codes', codes)
         setModalCode(codes)
         setModalVisible(true)
 
@@ -435,17 +436,58 @@ export function ExecDetail({ config, data, }) {
     const columns = useMemo(() => {
         console.log('useMemo', results, fields, list)
         let columns = [
-            {
-                title: '#',
-                key: '__idx',
-                fixed: 'left',
-                // width: 120,
-                render(_value, _item, _idx) {
-                    return (
-                        <SimpleCell text={_idx + 1} color="#999" />
-                    )
-                }
-            }
+            // {
+            //     title: '#',
+            //     key: '__idx',
+            //     fixed: 'left',
+            //     width: 48,
+            //     render(_value, _item, _idx) {
+            //         return (
+            //             <SimpleCell
+            //                 onClick={(e) => {
+            //                     console.log('_value', _value)
+            //                     console.log('e', e)
+                                
+            //                     const itemKey = _item._idx
+            //                     console.log('itemKey', itemKey)
+            //                     // 多选
+            //                     if (e.metaKey) {
+            //                         console.log('metaKey')
+            //                         if (selectedRowKeys.includes(itemKey)) {
+            //                             console.log('又了')
+            //                             setSelectedRowKeys(selectedRowKeys.filter(it => it != itemKey))
+            //                         }
+            //                         else {
+            //                             console.log('没有')
+            //                             setSelectedRowKeys([...selectedRowKeys, itemKey])
+            //                         }
+            //                     }
+            //                     else if (e.shiftKey) {
+            //                         if (selectedRowKeys.length) {
+            //                             const fromIdx = selectedRowKeys[0]
+            //                             const min = Math.min(fromIdx, itemKey)
+            //                             const max = Math.max(fromIdx, itemKey)
+            //                             const newKeys = []
+            //                             for (let i = min; i <= max; i++) {
+            //                                 newKeys.push(i)
+            //                             }
+            //                             setSelectedRowKeys(newKeys)
+            //                         }
+            //                         else {
+            //                             setSelectedRowKeys([itemKey])
+            //                         }
+            //                     }
+            //                     else {
+            //                         console.log('单选')
+            //                         // 单选
+                                    
+            //                         setSelectedRowKeys([itemKey])
+            //                     }
+            //                 }}
+            //                 text={_idx + 1} color="#999" />
+            //         )
+            //     }
+            // }
         ]
         let idx = 0
         for (let field of fields) {
@@ -526,7 +568,7 @@ export function ExecDetail({ config, data, }) {
         //     // }
         //     return item
         // })
-    }, [results, fields, list])
+    }, [results, fields, list, selectedRowKeys])
 
     function TabItem(item: any) {
         return (
@@ -661,9 +703,62 @@ export function ExecDetail({ config, data, }) {
                                 size="small"
                                 rowSelection={{
                                     selectedRowKeys,
+                                    hideSelectAll: true,
+                                    renderCell(_value, _item, _idx) {
+                                        // return (
+                                        //     <div>
+                                        //         <Button>1</Button>
+                                        //     </div>
+                                        // )
+                                        return (
+                                            <SimpleCell
+                                                onClick={(e) => {
+                                                    // console.log('_value', _value)
+                                                    console.log('e', e)
+                                                    
+                                                    const itemKey = _item._idx
+                                                    console.log('itemKey', itemKey)
+                                                    // 多选
+
+                                                    if (e.metaKey) {
+                                                        console.log('metaKey')
+                                                        if (selectedRowKeys.includes(itemKey)) {
+                                                            console.log('又了')
+                                                            setSelectedRowKeys(selectedRowKeys.filter(it => it != itemKey))
+                                                        }
+                                                        else {
+                                                            console.log('没有')
+                                                            setSelectedRowKeys([...selectedRowKeys, itemKey])
+                                                        }
+                                                    }
+                                                    else if (e.shiftKey) {
+                                                        if (selectedRowKeys.length) {
+                                                            const fromIdx = selectedRowKeys[0]
+                                                            const min = Math.min(fromIdx, itemKey)
+                                                            const max = Math.max(fromIdx, itemKey)
+                                                            const newKeys = []
+                                                            for (let i = min; i <= max; i++) {
+                                                                newKeys.push(i)
+                                                            }
+                                                            setSelectedRowKeys(newKeys)
+                                                        }
+                                                        else {
+                                                            setSelectedRowKeys([itemKey])
+                                                        }
+                                                    }
+                                                    else {
+                                                        console.log('单选')
+                                                        // 单选
+                                                        
+                                                        setSelectedRowKeys([itemKey])
+                                                    }
+                                                }}
+                                                text={_idx + 1} color="#999" />
+                                        )
+                                    },
+                                    columnWidth: 0,
                                     onChange(selectedRowKeys, selectedRows) {
                                         setSelectedRowKeys(selectedRowKeys)
-                                        setSelectedRows(selectedRows)
                                     }
                                 }}
                                 rowKey="_idx"
