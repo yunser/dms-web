@@ -310,7 +310,7 @@ export function DataBaseDetail({ dbName, config }) {
         const sql = `show create table \`${tableName}\`;`
         // setSql(sql)
         showSqlInNewtab({
-            title: 'show create table',
+            title: 'show create table...',
             sql,
         })
     }
@@ -319,13 +319,22 @@ export function DataBaseDetail({ dbName, config }) {
         // console.log('nodeData', nodeData)
         const tableName = nodeData.key // TODO @p2
         const sql = `TRUNCATE TABLE \`${tableName}\`;`
-        setSql(sql)
+        console.log('truncate', sql)
+        // setSql(sql)
+        showSqlInNewtab({
+            title: 'TRUNCATE TABLE',
+            sql,
+        })
     }
 
     async function drop(nodeData) {
         const tableName = nodeData.key // TODO @p2
         const sql = `DROP TABLE \`${tableName}\`;`
-        setSql(sql)
+        // setSql(sql)
+        showSqlInNewtab({
+            title: 'DROP TABLE',
+            sql,
+        })
     }
 
     return (

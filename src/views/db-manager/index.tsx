@@ -154,6 +154,7 @@ const tabs_default = [
         key: '0',
         type: 'connnect',
         data: {},
+        closable: false,
     },
     // {
     //     title: 'DB linxot',
@@ -198,7 +199,8 @@ export function DbManager({ config }) {
             <TabPane
                 tab={item.title}
                 key={item.key}
-                closable={true}
+                // closable={true}
+                closable={item.closable !== false}
             >
                 
             </TabPane>
