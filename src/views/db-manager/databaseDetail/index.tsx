@@ -23,7 +23,7 @@ import Item from 'antd/lib/list/Item'
 import axios from 'axios'
 import { TableDetail } from '../table-detail/table-detail'
 import { suggestionAdd } from '../suggestion'
-import { DatabaseOutlined, ReloadOutlined, TableOutlined } from '@ant-design/icons';
+import { CloseOutlined, DatabaseOutlined, ReloadOutlined, TableOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next'
 import { IconButton } from '../icon-button'
 import { ExecModal } from '../exec-modal/exec-modal'
@@ -258,6 +258,13 @@ export function DataBaseDetail({ dbName, config }) {
                 tab={item.title}
                 key={item.key}
                 closable={item.closable !== false}
+                closeIcon={
+                    <IconButton
+                        size="small"
+                    >
+                        <CloseOutlined style={{ color: '#999' }} />
+                    </IconButton>
+                }
             >
             </TabPane>
             // <SqlBox defaultSql={item.defaultSql} />

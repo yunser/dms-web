@@ -7,6 +7,8 @@ import DatabaseList from './databases'
 import { DataBaseDetail } from './databaseDetail'
 import { request } from './utils/http'
 import { useTranslation } from 'react-i18next'
+import { IconButton } from './icon-button'
+import { CloseOutlined } from '@ant-design/icons'
 
 console.log('styles', styles)
 const { TextArea } = Input
@@ -201,6 +203,13 @@ export function DbManager({ config }) {
                 key={item.key}
                 // closable={true}
                 closable={item.closable !== false}
+                closeIcon={
+                    <IconButton
+                        size="small"
+                    >
+                        <CloseOutlined style={{ color: '#999' }} />
+                    </IconButton>
+                }
             >
                 
             </TabPane>

@@ -14,6 +14,8 @@ import { ExecDetail } from '../../exec-detail/exec-detail'
 import { uid } from 'uid'
 import { useTranslation, Trans } from "react-i18next";
 import { HistoryList } from '../../history'
+import { CloseOutlined } from '@ant-design/icons'
+import { IconButton } from '../../icon-button'
 // var parse = require('sql-parse').parse;
 // console.log('asd')
 
@@ -297,6 +299,13 @@ function SqlBox({ config, tableName, dbName, className, defaultSql = '', style }
                 tab={item.title}
                 key={item.key}
                 closable={item.closable !== false}
+                closeIcon={
+                    <IconButton
+                        size="small"
+                    >
+                        <CloseOutlined style={{ color: '#999' }} />
+                    </IconButton>
+                }
             >
             </TabPane>
             // <SqlBox defaultSql={item.defaultSql} />
