@@ -284,7 +284,7 @@ export function DbManager({ config }) {
                     return (
                         <div
                             className={styles.tabContent}
-                            key={item.id}
+                            key={item.key}
                             style={{
                                 display: item.key == activeKey ? undefined : 'none',
                             }}

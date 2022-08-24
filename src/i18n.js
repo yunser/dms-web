@@ -1,3 +1,4 @@
+// @i18n
 import i18n from "i18next";
 // import LanguageDetector from "i18next-browser-languagedetector";
 import { initReactI18next } from "react-i18next";
@@ -18,7 +19,7 @@ i18n
                     submit_modify: 'Submit Modify',
                     add: 'Add',
                     delete: 'Delete',
-                    export: 'Export',
+                    export: 'Export JSON',
                     db_name: 'Database Name',
                     new_query: 'New Query',
                     refresh: 'Refresh',
@@ -44,7 +45,7 @@ i18n
                     submit_modify: '提交修改',
                     add: '新增',
                     delete: '删除',
-                    export: '导出',
+                    export: '导出 JSON',
                     db_name: '数据库名称',
                     new_query: '新建查询',
                     refresh: '刷新',

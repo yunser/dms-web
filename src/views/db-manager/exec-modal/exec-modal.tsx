@@ -5,7 +5,7 @@ import { request } from '../utils/http';
 import styles from './exec-modal.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
-console.log('lodash', _)
+// console.log('lodash', _)
 import copy from 'copy-to-clipboard';
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
@@ -64,7 +64,7 @@ export function ExecModal({ config, sql, tableName, dbName }) {
             else {
                 error = res.data.message || 'Unknown Error'
             }
-            console.log('res', res)
+            // console.log('res', res)
             const key = `tab-${lineIdx}`
             newTabs = [
                 ...newTabs,

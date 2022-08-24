@@ -5,7 +5,7 @@ import { request } from '../utils/http';
 import styles from './exec-detail.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
-console.log('lodash', _)
+// console.log('lodash', _)
 import copy from 'copy-to-clipboard';
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
@@ -57,12 +57,12 @@ export function HistoryList({ config, }) {
         if (res.status === 200) {
             // message.info('连接成功')
             const list = res.data
-            console.log('res', list)
+            // console.log('res', list)
             setList(list)
         }
     }
 
-    useState(() => {
+    useEffect(() => {
         loadData()
     }, [])
 

@@ -145,7 +145,7 @@ export function DataBaseDetail({ dbName, config }) {
         if (res.status === 200) {
             // message.info('连接成功')
             const list = res.data
-            console.log('res', list)
+            // console.log('res', list)
             setList(res.list)
 
             const children = list
@@ -317,7 +317,7 @@ export function DataBaseDetail({ dbName, config }) {
         const sql = `show create table \`${tableName}\`;`
         // setSql(sql)
         showSqlInNewtab({
-            title: 'show create table...',
+            title: 'Show create table',
             sql,
         })
     }

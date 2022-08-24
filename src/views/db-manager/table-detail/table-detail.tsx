@@ -5,7 +5,7 @@ import { request } from '../utils/http';
 import styles from './table-detail.module.less';
 import _ from 'lodash';
 import { ExecModal } from '../exec-modal/exec-modal';
-console.log('lodash', _)
+// console.log('lodash', _)
 const { TabPane } = Tabs
 
 function TableInfoEditor({ config, tableInfo, tableName, dbName }) {

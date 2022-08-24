@@ -5,10 +5,12 @@ import { request } from '../utils/http';
 import styles from './exec-detail.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
-console.log('lodash', _)
+// console.log('lodash', _)
 import copy from 'copy-to-clipboard';
-import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, CloseCircleOutlined, CopyOutlined, EyeOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
+import { IconButton } from '../icon-button';
+import { CopyButton } from '../copy-button';
 
 const { TabPane } = Tabs
 const { TextArea } = Input
@@ -95,19 +97,23 @@ function Cell({ item, editing, onChange }) {
             {/* {!isEdit && !editing && */}
             {!isEdit &&
                 <div className={styles.tool}>
-                    <a
-                        onClick={() => {
-                            copy(text == null ? 'null' : text)
-                            message.success('Copied')
-                        }}
-                    >复制</a>
+                    <CopyButton
+                        text={text == null ? 'null' : text}
+                    >
+                        <IconButton title="复制">
+                            <CopyOutlined />
+                        </IconButton>
+                    </CopyButton>
                     <Popover
                         title="Content"
                         content={
                             <div className={styles.content}>{text}</div>
                         }
                     >
-                        <a>查看</a>
+                        {/* <a>查看</a> */}
+                        <IconButton>
+                            <EyeOutlined />
+                        </IconButton>
                     </Popover>
                 </div>
             }
@@ -401,7 +407,7 @@ export function ExecDetail({ config, data, }) {
             else {
                 error = res.data.message || 'Unknown Error'
             }
-            console.log('res', res)
+            // console.log('res', res)
             const key = `tab-${lineIdx}`
             newTabs = [
                 ...newTabs,
@@ -449,12 +455,22 @@ export function ExecDetail({ config, data, }) {
                     <div className={styles.titleCell}>
                         {field.name}
                         <div className={styles.tool}>
-                            <a
+                            <CopyButton
+                                text={field.name}
+                            >
+                                <IconButton title="复制">
+                                    <CopyOutlined />
+                                </IconButton>
+                            </CopyButton>
+                            {/* <IconButton
+                                title="复制"
                                 onClick={() => {
                                     copy(field.name)
                                     message.success('Copied')
                                 }}
-                            >复制</a>
+                            >
+                                <CopyOutlined />
+                            </IconButton> */}
                         </div>
                     </div>
                 ),
@@ -462,7 +478,7 @@ export function ExecDetail({ config, data, }) {
                 key,
                 // width: 120,
                 render(value: any, item) {
-                    console.log('Cell.value?', value)
+                    // console.log('Cell.value?', value)
                     return (
                         <Cell
                             editing={editing}

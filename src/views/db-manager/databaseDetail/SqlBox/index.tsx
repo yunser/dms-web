@@ -204,7 +204,7 @@ function SqlBox({ config, tableName, dbName, className, defaultSql = '', style }
             }, {
                 noMessage: true,
             })
-            console.log('res', res)
+            // console.log('res', res)
             if (res.status === 200) {
                 // message.success('执行成功')
                 console.log(res)
