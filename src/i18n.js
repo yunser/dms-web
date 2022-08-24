@@ -23,6 +23,7 @@ i18n
                     new_query: 'New Query',
                     refresh: 'Refresh',
                     exec_result: 'Result',
+                    history: 'History',
 
                     siteName: 'Design Plugin',
                     'slogon': 'Make Design Simple',
@@ -48,6 +49,7 @@ i18n
                     new_query: '新建查询',
                     refresh: '刷新',
                     exec_result: '执行结果',
+                    history: '历史记录',
 
                     siteName: '设计插件',
                     'slogon': '让设计更简单',

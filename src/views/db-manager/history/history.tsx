@@ -14,7 +14,7 @@ import axios from 'axios'
 const { TabPane } = Tabs
 const { TextArea } = Input
 
-export function History({ config, }) {
+export function HistoryList({ config, }) {
     const { t } = useTranslation()
     const [list, setList] = useState([])
 

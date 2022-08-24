@@ -27,6 +27,7 @@ import { DatabaseOutlined, ReloadOutlined, TableOutlined } from '@ant-design/ico
 import { useTranslation } from 'react-i18next'
 import { IconButton } from '../icon-button'
 import { ExecModal } from '../exec-modal/exec-modal'
+import { HistoryList } from '../history'
 
 const { TabPane } = Tabs
 
@@ -178,21 +179,43 @@ export function DataBaseDetail({ dbName, config }) {
     useEffect(() => {
         loadData()
     }, [])
-    function queryTable(tableName: string) {
+
+    async function showSqlInNewtab({ title = 'New Query', sql }) {
         let tabKey = '' + new Date().getTime()
         setActiveKey(tabKey)
         setTabs([
             ...tabs,
             {
-                title: tableName,
+                title,
                 key: tabKey,
-                defaultSql: `SELECT *\nFROM \`${dbName}\`.\`${tableName}\`\nLIMIT 20;`,
+                defaultSql: sql,
                 data: {
                     dbName,
-                    tableName,
+                    tableName: null,
                 },
             }
         ])
+    }
+
+    function queryTable(tableName: string) {
+        // let tabKey = '' + new Date().getTime()
+        // setActiveKey(tabKey)
+        // setTabs([
+        //     ...tabs,
+        //     {
+        //         title: tableName,
+        //         key: tabKey,
+        //         defaultSql: `SELECT *\nFROM \`${dbName}\`.\`${tableName}\`\nLIMIT 20;`,
+        //         data: {
+        //             dbName,
+        //             tableName,
+        //         },
+        //     }
+        // ])
+        showSqlInNewtab({
+            title: tableName,
+            sql: `SELECT *\nFROM \`${dbName}\`.\`${tableName}\`\nLIMIT 20;`,
+        })
     }
     function queryTableStruct(tableName: string) {
         let tabKey = '' + new Date().getTime()
@@ -282,10 +305,26 @@ export function DataBaseDetail({ dbName, config }) {
     
     console.log('tabs', tabs)
 
+    async function showCreateTable(nodeData) {
+        const tableName = nodeData.key // TODO @p2
+        const sql = `show create table \`${tableName}\`;`
+        // setSql(sql)
+        showSqlInNewtab({
+            title: 'show create table',
+            sql,
+        })
+    }
+
     async function truncate(nodeData) {
-        console.log('nodeData', nodeData)
+        // console.log('nodeData', nodeData)
         const tableName = nodeData.key // TODO @p2
         const sql = `TRUNCATE TABLE \`${tableName}\`;`
+        setSql(sql)
+    }
+
+    async function drop(nodeData) {
+        const tableName = nodeData.key // TODO @p2
+        const sql = `DROP TABLE \`${tableName}\`;`
         setSql(sql)
     }
 
@@ -342,11 +381,22 @@ export function DataBaseDetail({ dbName, config }) {
                                         overlay={(
                                             <Menu>
                                                 <Menu.Item
+                                                    onClick={(e) => {
+                                                        // e.stopPropagation()
+                                                        // e.preventDefault()
+                                                        showCreateTable(nodeData)
+                                                    }}
+                                                >导出建表语句</Menu.Item>
+                                                <Menu.Item
                                                     onClick={() => {
                                                         truncate(nodeData)
                                                     }}
                                                 >清空表</Menu.Item>
-                                                {/* <Menu.Item>2</Menu.Item> */}
+                                                <Menu.Item
+                                                    onClick={() => {
+                                                        drop(nodeData)
+                                                    }}
+                                                >删除表</Menu.Item>
                                             </Menu>
                                             // <Menu
                                             //     items={[
@@ -385,25 +435,37 @@ export function DataBaseDetail({ dbName, config }) {
                                                 {nodeData.title}
                                             </div>
                                             {nodeData.key != 'root' &&
-                                                <a
-                                                    className={styles.btns}
-                                                    onClick={(e) => {
-                                                        e.stopPropagation()
-                                                        e.preventDefault()
-                                                        queryTableStruct(nodeData.key)
-                                                    }}
-                                                >
-                                                    查看结构
-                                                </a>
+                                                <Space>
+                                                    <a
+                                                        className={styles.btns}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation()
+                                                            e.preventDefault()
+                                                            queryTable(nodeData.key)
+                                                        }}
+                                                    >
+                                                        查询
+                                                    </a>
+                                                    <a
+                                                        className={styles.btns}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation()
+                                                            e.preventDefault()
+                                                            queryTableStruct(nodeData.key)
+                                                        }}
+                                                    >
+                                                        查看结构
+                                                    </a>
+                                                </Space>
                                             }
                                         </div>
                                     </Dropdown>
                                 )
                             }}
                             onSelect={(selectedKeys, info) => {
-                                console.log('selected', selectedKeys, info);
-                                const tableName = selectedKeys[0]
-                                queryTable(tableName)
+                                // console.log('selected', selectedKeys, info);
+                                // const tableName = selectedKeys[0]
+                                // queryTable(tableName)
 
                             }}
                             // onCheck={onCheck}
@@ -445,6 +507,22 @@ export function DataBaseDetail({ dbName, config }) {
                                             setActiveKey(first_key)
                                         }}
                                     >{t('close_all')}</Button>
+                                    <Button size="small"
+                                        onClick={() => {
+                                            console.log('tabs', tabs)
+                                            const history_tab = {
+                                                type: 'history',
+                                                title: t('history'),
+                                                key: 'history',
+                                                // closable: false,
+                                            }
+                                            setTabs([
+                                                ...tabs,
+                                                history_tab,
+                                            ])
+                                            setActiveKey('history')
+                                        }}
+                                    >{t('history')}</Button>
                                 </Space>
                             )
                         }}
@@ -454,37 +532,41 @@ export function DataBaseDetail({ dbName, config }) {
                 </div>
                 <div className={styles.body}>
                     {tabs.map(item => {
-                        if (item.type == 'tableDetail') {
-                            return (
-                                <div
-                                    key={item.key}
-                                    style={{
-                                        // visibility: item.key == activeKey ? 'visible' : 'hidden',
-                                        display: item.key == activeKey ? undefined : 'none',
-                                    }}
-                                >
+                        return (
+                            <div
+                                className={styles.tabContent}
+                                key={item.key}
+                                style={{
+                                    // visibility: item.key == activeKey ? 'visible' : 'hidden',
+                                    display: item.key == activeKey ? undefined : 'none',
+                                }}
+                            >
+                                {item.type == 'history' ?
+                                    <HistoryList config={config} />
+                                : item.type == 'tableDetail' ?
                                     <TableDetail
                                         config={config}
                                         dbName={dbName}
                                         tableName={item.data?.tableName}
                                     />
-                                </div>
-                            )
-                        }
-                        return (
-                            <SqlBox
-                                config={config}
-                                dbName={dbName}
-                                tableName={item.data?.tableName}
-                                // className={item.key == activeKey ? styles.visibleTab : styles.hiddenTab}
-                                key={item.key}
-                                defaultSql={item.defaultSql}
-                                style={{
-                                    // visibility: item.key == activeKey ? 'visible' : 'hidden',
-                                    display: item.key == activeKey ? undefined : 'none',
-                                }}
-                            />
+                                :
+                                    <SqlBox
+                                        config={config}
+                                        dbName={dbName}
+                                        tableName={item.data?.tableName}
+                                        // className={item.key == activeKey ? styles.visibleTab : styles.hiddenTab}
+                                        key={item.key}
+                                        defaultSql={item.defaultSql}
+                                        style={{
+                                            // visibility: item.key == activeKey ? 'visible' : 'hidden',
+                                            display: item.key == activeKey ? undefined : 'none',
+                                        }}
+                                    />
+                                }
+                            </div>
                         )
+                        // return (
+                        // )
                     })}
                 </div>
             </div>

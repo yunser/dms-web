@@ -13,7 +13,7 @@ import {  SqlParser } from '../../sql-parse-lib/sqlParser'
 import { ExecDetail } from '../../exec-detail/exec-detail'
 import { uid } from 'uid'
 import { useTranslation, Trans } from "react-i18next";
-import { History } from '../../history'
+import { HistoryList } from '../../history'
 // var parse = require('sql-parse').parse;
 // console.log('asd')
 
@@ -61,7 +61,7 @@ function SqlBox({ config, tableName, dbName, className, defaultSql = '', style }
     const [code2, setCode2] = useState(defaultSql)
 
     const [execResults, setExecResults] = useState([
-        history_tab,
+        // history_tab,
         // {
         //     type: 'all',
         //     title: '历史记录',
@@ -411,7 +411,7 @@ function SqlBox({ config, tableName, dbName, className, defaultSql = '', style }
                             }}
                         >
                             {item.type == 'all' &&
-                                <History config={config} />
+                                <HistoryList config={config} />
                             }
                             {item.type == 'single' &&
                                 <ExecDetail
