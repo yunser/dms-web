@@ -272,6 +272,13 @@ export function DbManager({ config }) {
                             right: (
                                 <div className={styles.langBox}>
                                     <Space>
+                                        {/* <Button
+                                            type="text"
+                                            onClick={() => {
+                                            }}
+                                        >
+                                            帮助
+                                        </Button> */}
                                         <Button
                                             type="text"
                                             onClick={() => {

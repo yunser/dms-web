@@ -457,6 +457,7 @@ export function DataBaseDetail({ dbName, config }) {
                                                     clearTimeout(timerRef.current)
                                                 }
                                                 console.log('双击')
+                                                queryTableStruct(nodeData.key)
                                             }}
                                             onClick={() => {
                                                 console.log('onClick')
