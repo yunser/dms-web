@@ -271,11 +271,16 @@ export function DbManager({ config }) {
                         tabBarExtraContent={{
                             right: (
                                 <div className={styles.langBox}>
-                                    <div className={styles.lang}
-                                        onClick={() => {
-                                            i18n.changeLanguage(lang == 'zh' ? 'en' : 'zh')
-                                        }}
-                                    >{lang == 'zh' ? 'English' : '中文'}</div>
+                                    <Space>
+                                        <Button
+                                            type="text"
+                                            onClick={() => {
+                                                i18n.changeLanguage(lang == 'zh' ? 'en' : 'zh')
+                                            }}
+                                        >
+                                            {lang == 'zh' ? 'English' : '中文'}
+                                        </Button>
+                                    </Space>
                                 </div>
                             )
                         }}
