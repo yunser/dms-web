@@ -10,7 +10,7 @@ import {
     Tooltip,
     Tree,
 } from 'antd'
-import React, { Component, Fragment, useEffect, useMemo, useState } from 'react'
+import React, { Component, Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import { Table, Button } from 'antd'
 // import { Dispatch } from 'redux'
 // import { FormComponentProps } from 'antd/es/form'
@@ -89,6 +89,7 @@ export function DataBaseDetail({ dbName, config }) {
         //     defaultSql: 'SELECT * FROM target.user LIMIT 20;'
         // },
     ]
+    const timerRef = useRef(null)
 
 
     const [activeKey, setActiveKey] = useState(tabs_default[0].key)
@@ -400,6 +401,13 @@ export function DataBaseDetail({ dbName, config }) {
                                                     onClick={(e) => {
                                                         // e.stopPropagation()
                                                         // e.preventDefault()
+                                                        queryTableStruct(nodeData.key)
+                                                    }}
+                                                >查看结构</Menu.Item>
+                                                <Menu.Item
+                                                    onClick={(e) => {
+                                                        // e.stopPropagation()
+                                                        // e.preventDefault()
                                                         showCreateTable(nodeData)
                                                     }}
                                                 >导出建表语句</Menu.Item>
@@ -441,7 +449,27 @@ export function DataBaseDetail({ dbName, config }) {
                                             lineHeight: '200px',
                                         }} */}
                                         {/* Right Click on here */}
-                                        <div className={styles.treeTitle}>
+                                        <div className={styles.treeTitle}
+                                            onDoubleClick={() => {
+                                                console.log('onDoubleClick')
+                                                // queryTable(nodeData.key)
+                                                if (timerRef.current) {
+                                                    clearTimeout(timerRef.current)
+                                                }
+                                                console.log('双击')
+                                            }}
+                                            onClick={() => {
+                                                console.log('onClick')
+                                                //先清除一次
+                                                if (timerRef.current) {
+                                                    clearTimeout(timerRef.current)
+                                                }
+                                                timerRef.current = window.setTimeout(() => {
+                                                    console.log('单机')
+                                                    queryTable(nodeData.key)
+                                                }, 250)
+                                            }}
+                                        >
                                             <div className={styles.label}>
                                                 {nodeData.key == 'root' ?
                                                     <DatabaseOutlined className={styles.icon} />
@@ -452,7 +480,7 @@ export function DataBaseDetail({ dbName, config }) {
                                             </div>
                                             {nodeData.key != 'root' &&
                                                 <Space>
-                                                    <a
+                                                    {/* <a
                                                         className={styles.btns}
                                                         onClick={(e) => {
                                                             e.stopPropagation()
@@ -460,9 +488,9 @@ export function DataBaseDetail({ dbName, config }) {
                                                             queryTable(nodeData.key)
                                                         }}
                                                     >
-                                                        查询
-                                                    </a>
-                                                    <a
+                                                        快速查询
+                                                    </a> */}
+                                                    {/* <a
                                                         className={styles.btns}
                                                         onClick={(e) => {
                                                             e.stopPropagation()
@@ -471,7 +499,7 @@ export function DataBaseDetail({ dbName, config }) {
                                                         }}
                                                     >
                                                         查看结构
-                                                    </a>
+                                                    </a> */}
                                                 </Space>
                                             }
                                         </div>

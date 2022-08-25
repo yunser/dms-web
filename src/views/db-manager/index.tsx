@@ -1,6 +1,6 @@
 import React, { useState, useEffect, ReactNode, useMemo } from 'react'
 import styles from './index.module.less'
-import { message, Input, Button, Tabs, Space, Form, Checkbox, InputNumber } from 'antd'
+import { message, Input, Button, Tabs, Space, Form, Checkbox, InputNumber, ConfigProvider } from 'antd'
 import storage from './storage'
 import axios from 'axios'
 import DatabaseList from './databases'
@@ -9,6 +9,8 @@ import { request } from './utils/http'
 import { useTranslation } from 'react-i18next'
 import { IconButton } from './icon-button'
 import { CloseOutlined } from '@ant-design/icons'
+import enUS from 'antd/es/locale/en_US';
+import zhCN from 'antd/es/locale/zh_CN';
 
 console.log('styles', styles)
 const { TextArea } = Input
@@ -255,95 +257,99 @@ export function DbManager({ config }) {
     }
 
     return (
-        <div className={styles.app}>
-            <div className={styles.appHeader}>
-                <Tabs
-                    onEdit={onEdit}
-                    activeKey={activeKey}
-                    onChange={handleTabChange}
-                    type="editable-card"
-                    hideAdd={true}
-                    tabBarExtraContent={{
-                        right: (
-                            <div className={styles.langBox}>
-                                <div className={styles.lang}
-                                    onClick={() => {
-                                        i18n.changeLanguage(lang == 'zh' ? 'en' : 'zh')
-                                    }}
-                                >{lang == 'zh' ? 'English' : '中文'}</div>
+        <ConfigProvider
+            locale={lang == 'en' ? enUS : zhCN}
+        >
+            <div className={styles.app}>
+                <div className={styles.appHeader}>
+                    <Tabs
+                        onEdit={onEdit}
+                        activeKey={activeKey}
+                        onChange={handleTabChange}
+                        type="editable-card"
+                        hideAdd={true}
+                        tabBarExtraContent={{
+                            right: (
+                                <div className={styles.langBox}>
+                                    <div className={styles.lang}
+                                        onClick={() => {
+                                            i18n.changeLanguage(lang == 'zh' ? 'en' : 'zh')
+                                        }}
+                                    >{lang == 'zh' ? 'English' : '中文'}</div>
+                                </div>
+                            )
+                        }}
+                    >
+                        {tabs.map(TabItem)}
+                        
+                    </Tabs>
+                </div>
+                <div className={styles.appBody}>
+                    {tabs.map(item => {
+                        return (
+                            <div
+                                className={styles.tabContent}
+                                key={item.key}
+                                style={{
+                                    display: item.key == activeKey ? undefined : 'none',
+                                }}
+                            >
+                                    {item.type == 'connnect' &&
+                                        <Connnector
+                                            config={config}
+                                            onConnnect={() => {
+                                                setTabs([
+                                                    ...tabs,
+                                                    {
+                                                        title: 'Databases',
+                                                        key: '1',
+                                                        type: 'databases',
+                                                        data: {},
+                                                    },
+                                                ])
+                                                setActiveKey('1')
+                                            }}
+                                        />
+                                    }
+                                    {item.type == 'database' &&
+                                        <DataBaseDetail
+                                            config={config}
+                                            dbName={item.data.name}
+                                        />
+                                    }
+                                    {item.type == 'databases' &&
+                                        <DatabaseList
+                                            config={config}
+                                            onSelectDatabase={({name}) => {
+                                                const key = '' + new Date().getTime()
+                                                setTabs([
+                                                    ...tabs,
+                                                    {
+                                                        title: `${name} - DB`,
+                                                        key,
+                                                        type: 'database',
+                                                        data: {
+                                                            name,
+                                                        }
+                                                    }
+                                                ])
+                                                setActiveKey(key)
+
+                                                request.post(`${config.host}/mysql/execSql`, {
+                                                    sql: `use ${name}`,
+                                                    // tableName,
+                                                    // dbName,
+                                                }, {
+                                                    // noMessage: true,
+                                                })
+                                            }}
+                                        />
+                                    }
                             </div>
                         )
-                    }}
-                >
-                    {tabs.map(TabItem)}
-                    
-                </Tabs>
+                    })}
+                </div>
             </div>
-            <div className={styles.appBody}>
-                {tabs.map(item => {
-                    return (
-                        <div
-                            className={styles.tabContent}
-                            key={item.key}
-                            style={{
-                                display: item.key == activeKey ? undefined : 'none',
-                            }}
-                        >
-                                {item.type == 'connnect' &&
-                                    <Connnector
-                                        config={config}
-                                        onConnnect={() => {
-                                            setTabs([
-                                                ...tabs,
-                                                {
-                                                    title: 'Databases',
-                                                    key: '1',
-                                                    type: 'databases',
-                                                    data: {},
-                                                },
-                                            ])
-                                            setActiveKey('1')
-                                        }}
-                                    />
-                                }
-                                {item.type == 'database' &&
-                                    <DataBaseDetail
-                                        config={config}
-                                        dbName={item.data.name}
-                                    />
-                                }
-                                {item.type == 'databases' &&
-                                    <DatabaseList
-                                        config={config}
-                                        onSelectDatabase={({name}) => {
-                                            const key = '' + new Date().getTime()
-                                            setTabs([
-                                                ...tabs,
-                                                {
-                                                    title: `${name} - DB`,
-                                                    key,
-                                                    type: 'database',
-                                                    data: {
-                                                        name,
-                                                    }
-                                                }
-                                            ])
-                                            setActiveKey(key)
-
-                                            request.post(`${config.host}/mysql/execSql`, {
-                                                sql: `use ${name}`,
-                                                // tableName,
-                                                // dbName,
-                                            }, {
-                                                // noMessage: true,
-                                            })
-                                        }}
-                                    />
-                                }
-                        </div>
-                    )
-                })}
-            </div>
-        </div>
+        </ConfigProvider>
     );
 }
