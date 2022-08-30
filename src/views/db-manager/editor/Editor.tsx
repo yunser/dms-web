@@ -6,7 +6,7 @@ import { suggestionInit } from '../suggestion';
 
 suggestionInit()
 
-export const Editor: VFC = ({ value, onChange, onEditor }) => {
+export const Editor: VFC = ({ lang = 'sql', value, onChange, onEditor }) => {
 	const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
 	const monacoEl = useRef(null);
 
@@ -19,7 +19,7 @@ export const Editor: VFC = ({ value, onChange, onEditor }) => {
             _editor = monaco.editor.create(monacoEl.current!, {
                 value: `{}`,
                 // language: 'json',
-                language: 'sql',
+                language: lang,
                 minimap: {
                     enabled: false,
                 },

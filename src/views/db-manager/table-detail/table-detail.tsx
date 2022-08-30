@@ -52,6 +52,13 @@ function TableInfoEditor({ config, tableInfo, tableName, dbName }) {
                     <Input />
                 </Form.Item>
                 <Form.Item
+                    name="TABLE_COMMENT"
+                    label="注释"
+                    rules={[]}
+                >
+                    <Input />
+                </Form.Item>
+                <Form.Item
                         wrapperCol={{ offset: 8, span: 16 }}
                         // name="passowrd"
                         // label="Passowrd"

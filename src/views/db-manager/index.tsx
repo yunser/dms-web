@@ -11,6 +11,8 @@ import { IconButton } from './icon-button'
 import { CloseOutlined } from '@ant-design/icons'
 import enUS from 'antd/es/locale/en_US';
 import zhCN from 'antd/es/locale/zh_CN';
+import { EsConnnector } from './es-connectot'
+import { EsDetail } from './es-detail'
 
 console.log('styles', styles)
 const { TextArea } = Input
@@ -154,9 +156,16 @@ function Connnector({ config, onConnnect }) {
 
 const tabs_default = [
     {
-        title: 'Connect',
+        title: 'MySQL',
         key: '0',
         type: 'connnect',
+        data: {},
+        closable: false,
+    },
+    {
+        title: 'Elasticsearch',
+        key: 'key-es',
+        type: 'elasticsearch',
         data: {},
         closable: false,
     },
@@ -306,6 +315,24 @@ export function DbManager({ config }) {
                                     display: item.key == activeKey ? undefined : 'none',
                                 }}
                             >
+                                    {item.type == 'elasticsearch' &&
+                                        <EsConnnector
+                                            onConnnect={({ url }) => {
+                                                setTabs([
+                                                    ...tabs,
+                                                    {
+                                                        title: 'ES Indexs',
+                                                        key: 'es-indexs',
+                                                        type: 'es-index',
+                                                        data: {
+                                                            url,
+                                                        },
+                                                    },
+                                                ])
+                                                setActiveKey('es-indexs')
+                                            }}
+                                        />
+                                    }
                                     {item.type == 'connnect' &&
                                         <Connnector
                                             config={config}
@@ -321,6 +348,15 @@ export function DbManager({ config }) {
                                                 ])
                                                 setActiveKey('1')
                                             }}
+                                        />
+                                    }
+                                    {item.type == 'es-index' &&
+                                        <EsDetail
+                                            config={{
+                                                url: item.data.url,
+                                            }}
+                                            // url={item.data.url}
+                                            // dbName={item.data.name}
                                         />
                                     }
                                     {item.type == 'database' &&
