@@ -62,6 +62,14 @@ function SqlBox({ config, tableName, dbName, className, defaultSql = '', style }
     const [code, setCode] = useState(defaultSql)
     const [code2, setCode2] = useState(defaultSql)
 
+    function getCode() {
+        return code2
+    }
+
+    function setCodeASD(code) {
+        setCode2(code)
+    }
+    
     const [execResults, setExecResults] = useState([
         // history_tab,
         // {
@@ -97,31 +105,31 @@ function SqlBox({ config, tableName, dbName, className, defaultSql = '', style }
     
 
     function runPlain() {
-        if (!code2) {
+        if (!getCode()) {
             message.warn('没有要执行的 SQL')
             return
         }
-        _run(code2, {
+        _run(getCode(), {
             explain: true,
         })
     }
 
     function formatSql() {
-        // console.log('ff', format(code2))
+        // console.log('ff', format(getCode()))
         // setCode('1212 format' + new Date().getTime())
-        // setCode(format(code2))
+        // setCode(format(getCode()))
         // editor?.setValue('1212 format' + new Date().getTime())
-        editor?.setValue(format(code2, {
+        editor?.setValue(format(getCode(), {
             tabWidth: 4,
         }))
     }
 
     async function run() {
-        if (!code2) {
+        if (!getCode()) {
             message.warn('没有要执行的 SQL')
             return
         }
-        _run(code2)
+        _run(getCode())
     }
 
     async function _run(execCode: string, { explain = false } = {}) {
@@ -377,7 +385,7 @@ function SqlBox({ config, tableName, dbName, className, defaultSql = '', style }
                 <div className={styles.codeBox}>
                     <Editor
                         value={code}
-                        onChange={value => setCode2(value)}
+                        onChange={value => setCodeASD(value)}
                         onEditor={editor => {
                             setEditor(editor)
                         }}
@@ -387,7 +395,7 @@ function SqlBox({ config, tableName, dbName, className, defaultSql = '', style }
                         value={code}
                         rows={4} 
                         // onChange={e => setCode(e.target.value)} />
-                        onChange={e => setCode2(e.target.value)} /> */}
+                        onChange={e => setgetCode()(e.target.value)} /> */}
                 </div>
             </div>
             <div className={styles.resultBox}>
