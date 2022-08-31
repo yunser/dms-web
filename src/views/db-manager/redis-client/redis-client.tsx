@@ -8,6 +8,8 @@ import { useTranslation } from 'react-i18next';
 import { Editor } from '../editor/Editor';
 import storage from '../storage'
 import { request } from '../utils/http'
+import { IconButton } from '../icon-button';
+import { ReloadOutlined } from '@ant-design/icons';
 
 export function RedisClient({ config, }) {
     const { t } = useTranslation()
@@ -62,27 +64,43 @@ export function RedisClient({ config, }) {
     return (
         <div className={styles.redisLayout}>
             <div className={styles.layoutLeft}>
-                <div>
-                    {/* <Input
-                        value={keyword}
-                    /> */}
-                    <div className={styles.list}>
-                        {list.map(item => {
-                            return (
-                                <div className={styles.item}
-                                    onClick={async () => {
-                                        let res = await request.post(`${config.host}/redis/get`, {
-                                            key: item,
-                                            // dbName,
-                                        })
-                                        console.log('get/res', res.data)
-                                        if (res.status === 200) {
-                                            setResult(res.data)
-                                        }
-                                    }}
-                                >{item}</div>
-                            )
-                        })}
+                <div className={styles.header}>
+                    <IconButton
+                        className={styles.refresh}
+                        onClick={() => {
+                            loadKeys()
+                        }}
+                    >
+                        <ReloadOutlined />
+                    </IconButton>
+                </div>
+                <div className={styles.body}>
+                    <div>
+                        {/* <Input
+                            value={keyword}
+                        /> */}
+                        {loading ?
+                            <div>Loading</div>
+                        :
+                            <div className={styles.list}>
+                                {list.map(item => {
+                                    return (
+                                        <div className={styles.item}
+                                            onClick={async () => {
+                                                let res = await request.post(`${config.host}/redis/get`, {
+                                                    key: item,
+                                                    // dbName,
+                                                })
+                                                console.log('get/res', res.data)
+                                                if (res.status === 200) {
+                                                    setResult(res.data)
+                                                }
+                                            }}
+                                        >{item}</div>
+                                    )
+                                })}
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
