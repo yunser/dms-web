@@ -32,7 +32,8 @@ i18n
                     "To get started, edit <1>src/App.js</1> and save to reload.":
                         "To get started, edit <1>src/App.js</1> and save to reload.",
                     "Welcome to React": "Welcome to React and react-i18next",
-                    welcome: "Hello <br/> <strong>World</strong>"
+                    welcome: "Hello <br/> <strong>World</strong>",
+                    help: 'Help',
                 }
             },
             zh: {
@@ -57,7 +58,8 @@ i18n
 
                     "To get started, edit <1>src/App.js</1> and save to reload.":
                         "Starte in dem du, <1>src/App.js</1> editierst und speicherst.",
-                    "Welcome to React": "欢迎"
+                    "Welcome to React": "欢迎",
+                    help: '帮助',
                 }
             }
         },

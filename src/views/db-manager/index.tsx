@@ -13,6 +13,8 @@ import enUS from 'antd/es/locale/en_US';
 import zhCN from 'antd/es/locale/zh_CN';
 import { EsConnnector } from './es-connectot'
 import { EsDetail } from './es-detail'
+import { uid } from 'uid'
+import { Help } from './help'
 
 console.log('styles', styles)
 const { TextArea } = Input
@@ -202,6 +204,14 @@ export function DbManager({ config }) {
     const [tabs, setTabs] = useState(tabs_default)
     const [activeKey, setActiveKey] = useState(tabs[0].key)
 
+    function addAndActiveTab(tab) {
+        setTabs([
+            ...tabs,
+            tab,
+        ])
+        setActiveKey(tab.key)
+    }
+
     function handleTabChange(key: string) {
         console.log('set key', key)
         setActiveKey(key)
@@ -281,13 +291,21 @@ export function DbManager({ config }) {
                             right: (
                                 <div className={styles.langBox}>
                                     <Space>
-                                        {/* <Button
+                                        <Button
                                             type="text"
                                             onClick={() => {
+                                                addAndActiveTab({
+                                                    title: t('help'),
+                                                    key: 'help-' + uid(16),
+                                                    type: 'help',
+                                                    data: {
+                                                        // url,
+                                                    },
+                                                })
                                             }}
                                         >
-                                            帮助
-                                        </Button> */}
+                                            {t('help')}
+                                        </Button>
                                         <Button
                                             type="text"
                                             onClick={() => {
@@ -296,6 +314,14 @@ export function DbManager({ config }) {
                                         >
                                             {lang == 'zh' ? 'English' : '中文'}
                                         </Button>
+                                        {/* <Button
+                                            type="text"
+                                            onClick={() => {
+                                                i18n.changeLanguage(lang == 'zh' ? 'en' : 'zh')
+                                            }}
+                                        >
+                                            {lang == 'zh' ? 'English' : '中文'}
+                                        </Button> */}
                                     </Space>
                                 </div>
                             )
@@ -363,6 +389,11 @@ export function DbManager({ config }) {
                                         <DataBaseDetail
                                             config={config}
                                             dbName={item.data.name}
+                                        />
+                                    }
+                                    {item.type == 'help' &&
+                                        <Help
+                                            config={config}
                                         />
                                     }
                                     {item.type == 'databases' &&
