@@ -157,26 +157,58 @@ export function RedisClient({ config, }) {
                         />
                         <div>
                             {editType == 'update' ?
-                                <Button
-                                    onClick={async () => {
-                                        let res = await request.post(`${config.host}/redis/set`, {
-                                            key: result.key,
-                                            value: inputValue,
-                                            // dbName,
-                                        })
-                                        console.log('get/res', res.data)
-                                        if (res.status === 200) {
-                                            message.success('修改成功')
-                                            // setResult({
-                                            //     key: item,
-                                            //     ...res.data,
-                                            // })
-                                            // setInputValue(res.data.value)
-                                        }
-                                    }}
-                                >
-                                    修改
-                                </Button>
+                                <Space>
+                                    <Button
+                                        onClick={async () => {
+                                            let res = await request.post(`${config.host}/redis/set`, {
+                                                key: result.key,
+                                                value: inputValue,
+                                                // dbName,
+                                            })
+                                            console.log('get/res', res.data)
+                                            if (res.status === 200) {
+                                                message.success('修改成功')
+                                                // setResult({
+                                                //     key: item,
+                                                //     ...res.data,
+                                                // })
+                                                // setInputValue(res.data.value)
+                                            }
+                                        }}
+                                    >
+                                        修改
+                                    </Button>
+                                    <Button
+                                        danger
+                                        onClick={async () => {
+                                            Modal.confirm({
+                                                // title: 'Confirm',
+                                                // icon: <ExclamationCircleOutlined />,
+                                                content: `删除「${result.key}」`,
+                                                okText: '确认',
+                                                cancelText: '取消',
+                                                async onOk() {
+                                                    let res = await request.post(`${config.host}/redis/delete`, {
+                                                        key: result.key,
+                                                    })
+                                                    console.log('get/res', res.data)
+                                                    if (res.status === 200) {
+                                                        message.success('删除成功')
+                                                        loadKeys()
+                                                        setResult(null)
+                                                        // setResult({
+                                                        //     key: item,
+                                                        //     ...res.data,
+                                                        // })
+                                                        // setInputValue(res.data.value)
+                                                    }
+                                                }
+                                            })
+                                        }}
+                                    >
+                                        删除
+                                    </Button>
+                                </Space>
                             :
                                 <Button
                                     onClick={async () => {
