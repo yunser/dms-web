@@ -10,7 +10,7 @@ import {
     Tooltip,
     Tree,
 } from 'antd'
-import React, { Component, Fragment, useEffect, useMemo, useRef, useState } from 'react'
+import React, { Component, Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Table, Button } from 'antd'
 // import { Dispatch } from 'redux'
 // import { FormComponentProps } from 'antd/es/form'
@@ -28,6 +28,15 @@ import { useTranslation } from 'react-i18next'
 import { IconButton } from '../icon-button'
 import { ExecModal } from '../exec-modal/exec-modal'
 import { HistoryList } from '../history'
+// import _ from 'lodash'
+import debounce from 'lodash/debounce'
+
+// console.log('ddd.0')
+// _.debounce(() => {
+//     console.log('ddd.1')
+// }, 800, {
+//     'maxWait': 1000
+// })
 
 const { TabPane } = Tabs
 
@@ -96,6 +105,14 @@ export function DataBaseDetail({ dbName, config }) {
     // const
     const [loading, setLoading] = useState(false)
     const [keyword, setKeyword] = useState('')
+    const [filterKeyword, setFilterKeyword] = useState('')
+    // const refreshByKeyword = 
+    const refreshByKeyword = useMemo(() => {
+        return debounce((_keyword) => {
+            console.log('ddd.2', _keyword)
+            setFilterKeyword(_keyword)
+        })
+    }, [])
     const [list, setList] = useState([])
     const [tabs, setTabs] = useState(tabs_default)
     const [treeData, setTreeData] = useState([
@@ -115,18 +132,18 @@ export function DataBaseDetail({ dbName, config }) {
         },
     ])
     const filterTreeData = useMemo(() => {
-        if (!keyword) {
+        if (!filterKeyword) {
             return treeData
         }
         return [
             {
                 ...treeData[0],
                 children: treeData[0].children.filter(item => {
-                    return item.title.includes(keyword)
+                    return item.title.includes(filterKeyword)
                 })
             }
         ]
-    }, [treeData, keyword])
+    }, [treeData, filterKeyword])
     // const treeData: any[] = [
         
     // ]
@@ -345,6 +362,7 @@ export function DataBaseDetail({ dbName, config }) {
         })
     }
 
+    
     return (
         <div className={styles.layout}>
             <div className={styles.layoutLeft}>
@@ -353,7 +371,16 @@ export function DataBaseDetail({ dbName, config }) {
                     <Input
                         value={keyword}
                         onChange={e => {
-                            setKeyword(e.target.value)
+                            console.log('change', refreshByKeyword)
+                            const kw = e.target.value
+                            setKeyword(kw)
+                            // setFilterKeyword(kw)
+                            refreshByKeyword(kw)
+                            // debounce(() => {
+                            //     console.log('set')
+                            // }, 150, {
+                            //     'maxWait': 1000
+                            // })
                         }}
                         allowClear
                         placeholder="Search..."
