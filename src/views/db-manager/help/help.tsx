@@ -14,7 +14,8 @@ export function Help({ config, }) {
         <div>
             <article className={styles.article}>
                 <h1>帮助</h1>
-                <p>功能正在开发中...</p>
+                <p>目前功能以查询为主，更多功能正在开发中...</p>
+                <p>开发目标以满足自用为主，如有建议，请联系我。</p>
             </article>
         </div>
     )

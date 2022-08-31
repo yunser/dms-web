@@ -15,6 +15,7 @@ import { EsConnnector } from './es-connectot'
 import { EsDetail } from './es-detail'
 import { uid } from 'uid'
 import { Help } from './help'
+import { Json } from './json'
 
 console.log('styles', styles)
 const { TextArea } = Input
@@ -164,13 +165,20 @@ const tabs_default = [
         data: {},
         closable: false,
     },
-    {
-        title: 'Elasticsearch',
-        key: 'key-es',
-        type: 'elasticsearch',
-        data: {},
-        closable: false,
-    },
+    // {
+    //     title: 'Elasticsearch',
+    //     key: 'key-es',
+    //     type: 'elasticsearch',
+    //     data: {},
+    //     closable: false,
+    // },
+    // {
+    //     title: 'JSON',
+    //     key: 'key-json',
+    //     type: 'json',
+    //     data: {},
+    //     closable: false,
+    // },
     // {
     //     title: 'DB linxot',
     //     key: '2',
@@ -295,6 +303,36 @@ export function DbManager({ config }) {
                                             type="text"
                                             onClick={() => {
                                                 addAndActiveTab({
+                                                    title: t('json'),
+                                                    key: 'json-' + uid(16),
+                                                    type: 'json',
+                                                    data: {
+                                                        // url,
+                                                    },
+                                                })
+                                            }}
+                                        >
+                                            {t('json')}
+                                        </Button>
+                                        <Button
+                                            type="text"
+                                            onClick={() => {
+                                                addAndActiveTab({
+                                                    title: 'Elasticsearch',
+                                                    key: 'key-es',
+                                                    type: 'elasticsearch',
+                                                    data: {},
+                                                    // closable: false,
+                                                })
+                                            }}
+                                        >
+                                            {/* {t('json')} */}
+                                            Elasticsearch
+                                        </Button>
+                                        <Button
+                                            type="text"
+                                            onClick={() => {
+                                                addAndActiveTab({
                                                     title: t('help'),
                                                     key: 'help-' + uid(16),
                                                     type: 'help',
@@ -393,6 +431,11 @@ export function DbManager({ config }) {
                                     }
                                     {item.type == 'help' &&
                                         <Help
+                                            config={config}
+                                        />
+                                    }
+                                    {item.type == 'json' &&
+                                        <Json
                                             config={config}
                                         />
                                     }

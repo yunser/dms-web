@@ -34,6 +34,7 @@ i18n
                     "Welcome to React": "Welcome to React and react-i18next",
                     welcome: "Hello <br/> <strong>World</strong>",
                     help: 'Help',
+                    json: 'JSON',
                 }
             },
             zh: {
@@ -60,6 +61,7 @@ i18n
                         "Starte in dem du, <1>src/App.js</1> editierst und speicherst.",
                     "Welcome to React": "欢迎",
                     help: '帮助',
+                    json: 'JSON',
                 }
             }
         },

@@ -8,6 +8,8 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 // 支持 SQL
 console.log('monaco', 'import sql')
 import 'monaco-editor/esm/vs/basic-languages/sql/sql.contribution';
+// 支持 JSON
+import 'monaco-editor/esm/vs/language/json/monaco.contribution.js';
 
 // 代码提示必不可少
 import 'monaco-editor/esm/vs/editor/contrib/suggest/browser/suggestController.js';
@@ -91,7 +93,7 @@ import 'monaco-editor/esm/vs/editor/contrib/comment/browser/comment.js';
 
 
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
-// import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
+import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
 // import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker';
 // import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker';
 // import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker';
@@ -109,9 +111,9 @@ self.MonacoEnvironment = {
         // if (label === 'sql') {
         //     return new sqlWorker();
         // }
-		// if (label === 'json') {
-		// 	return new jsonWorker();
-		// }
+		if (label === 'json') {
+			return new jsonWorker();
+		}
 		// if (label === 'css' || label === 'scss' || label === 'less') {
 		// 	return new cssWorker();
 		// }

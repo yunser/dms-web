@@ -32,6 +32,9 @@ export const Editor: VFC = ({ lang = 'sql', value, onChange, onEditor }) => {
             });
 			setEditor(_editor);
             onEditor && onEditor(_editor)
+            setTimeout(() => {
+                _editor?.focus()
+            }, 0)
 		}
         // if (monacoEl) {
         //     console.log('monacoEl', monacoEl.current.getValue)
