@@ -39,7 +39,7 @@ import 'monaco-editor/esm/vs/editor/contrib/comment/browser/comment.js';
 // import 'monaco-editor/esm/vs/editor/contrib/cursorUndo/browser/cursorUndo.js';
 // import 'monaco-editor/esm/vs/editor/contrib/dnd/browser/dnd.js';
 // import 'monaco-editor/esm/vs/editor/contrib/dropIntoEditor/browser/dropIntoEditorContribution.js';
-// import 'monaco-editor/esm/vs/editor/contrib/find/browser/findController.js';
+import 'monaco-editor/esm/vs/editor/contrib/find/browser/findController.js';
 // import 'monaco-editor/esm/vs/editor/contrib/folding/browser/folding.js';
 // import 'monaco-editor/esm/vs/editor/contrib/fontZoom/browser/fontZoom.js';
 // import 'monaco-editor/esm/vs/editor/contrib/format/browser/formatActions.js';
