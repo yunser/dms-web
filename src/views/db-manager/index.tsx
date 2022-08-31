@@ -16,6 +16,8 @@ import { EsDetail } from './es-detail'
 import { uid } from 'uid'
 import { Help } from './help'
 import { Json } from './json'
+import { RedisConnect } from './redis-connect'
+import { RedisClient } from './redis-client'
 
 console.log('styles', styles)
 const { TextArea } = Input
@@ -212,11 +214,19 @@ export function DbManager({ config }) {
     const [tabs, setTabs] = useState(tabs_default)
     const [activeKey, setActiveKey] = useState(tabs[0].key)
 
-    function addAndActiveTab(tab) {
-        setTabs([
-            ...tabs,
-            tab,
-        ])
+    function closeTabByKey(key) {
+        console.log('closeTabByKey', key)
+        setTabs(tabs.filter(item => item.key != key))
+    }
+
+    function addOrActiveTab(tab) {
+        const exists = tabs.find(t => t.key == tab.key)
+        if (!exists) {
+            setTabs([
+                ...tabs,
+                tab,
+            ])
+        }
         setActiveKey(tab.key)
     }
 
@@ -302,7 +312,7 @@ export function DbManager({ config }) {
                                         <Button
                                             type="text"
                                             onClick={() => {
-                                                addAndActiveTab({
+                                                addOrActiveTab({
                                                     title: t('json'),
                                                     key: 'json-' + uid(16),
                                                     type: 'json',
@@ -317,7 +327,24 @@ export function DbManager({ config }) {
                                         <Button
                                             type="text"
                                             onClick={() => {
-                                                addAndActiveTab({
+                                                addOrActiveTab({
+                                                    title: 'Redis Connect',
+                                                    // key: 'redis-' + uid(16),
+                                                    key: 'redis-connect',
+                                                    type: 'redis-connect',
+                                                    data: {
+                                                        // url,
+                                                    },
+                                                })
+                                            }}
+                                        >
+                                            Redis
+                                            {/* {t('json')} */}
+                                        </Button>
+                                        <Button
+                                            type="text"
+                                            onClick={() => {
+                                                addOrActiveTab({
                                                     title: 'Elasticsearch',
                                                     key: 'key-es',
                                                     type: 'elasticsearch',
@@ -332,9 +359,9 @@ export function DbManager({ config }) {
                                         <Button
                                             type="text"
                                             onClick={() => {
-                                                addAndActiveTab({
+                                                addOrActiveTab({
                                                     title: t('help'),
-                                                    key: 'help-' + uid(16),
+                                                    key: 'help',
                                                     type: 'help',
                                                     data: {
                                                         // url,
@@ -436,6 +463,25 @@ export function DbManager({ config }) {
                                     }
                                     {item.type == 'json' &&
                                         <Json
+                                            config={config}
+                                        />
+                                    }
+                                    {item.type == 'redis-connect' &&
+                                        <RedisConnect
+                                            config={config}
+                                            onConnnect={() => {
+                                                closeTabByKey(item.key)
+                                                addOrActiveTab({
+                                                    title: 'Redis',
+                                                    key: 'redis-' + uid(16),
+                                                    type: 'redis-client',
+                                                    data: {},
+                                                })
+                                            }}
+                                        />
+                                    }
+                                    {item.type == 'redis-client' &&
+                                        <RedisClient
                                             config={config}
                                         />
                                     }
