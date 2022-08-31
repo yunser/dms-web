@@ -219,13 +219,17 @@ export function DbManager({ config }) {
         setTabs(tabs.filter(item => item.key != key))
     }
 
-    function addOrActiveTab(tab) {
+    function addOrActiveTab(tab, { closeCurrentTab = false,} = {}) {
         const exists = tabs.find(t => t.key == tab.key)
         if (!exists) {
-            setTabs([
+            let newTabs = [
                 ...tabs,
                 tab,
-            ])
+            ]
+            if (closeCurrentTab) {
+                newTabs = newTabs.filter(item => item.key != activeKey)
+            }
+            setTabs(newTabs)
         }
         setActiveKey(tab.key)
     }
@@ -432,12 +436,12 @@ export function DbManager({ config }) {
                                                     ...tabs,
                                                     {
                                                         title: 'Databases',
-                                                        key: '1',
+                                                        key: '11111',
                                                         type: 'databases',
                                                         data: {},
                                                     },
                                                 ])
-                                                setActiveKey('1')
+                                                setActiveKey('11111')
                                             }}
                                         />
                                     }
@@ -470,12 +474,14 @@ export function DbManager({ config }) {
                                         <RedisConnect
                                             config={config}
                                             onConnnect={() => {
-                                                closeTabByKey(item.key)
+                                                // closeTabByKey(item.key)
                                                 addOrActiveTab({
                                                     title: 'Redis',
                                                     key: 'redis-' + uid(16),
                                                     type: 'redis-client',
                                                     data: {},
+                                                }, {
+                                                    closeCurrentTab: true,
                                                 })
                                             }}
                                         />
