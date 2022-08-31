@@ -17,6 +17,7 @@ export function RedisClient({ config, }) {
     const [keyword, setKeyword] = useState('')
     const [list, setList] = useState([])
     const [result, setResult] = useState(null)
+    const [inputValue, setInputValue] = useState('')
 
     async function loadKeys() {
         setLoading(true)
@@ -93,7 +94,11 @@ export function RedisClient({ config, }) {
                                                 })
                                                 console.log('get/res', res.data)
                                                 if (res.status === 200) {
-                                                    setResult(res.data)
+                                                    setResult({
+                                                        key: item,
+                                                        ...res.data,
+                                                    })
+                                                    setInputValue(res.data.value)
                                                 }
                                             }}
                                         >{item}</div>
@@ -106,7 +111,44 @@ export function RedisClient({ config, }) {
             </div>
             <div className={styles.layoutRight}>
                 {!!result &&
-                    <div>{result.value}</div>
+                    <div>
+                        <div>Key:</div>
+                        <div>{result.key}</div>
+                        <div>Value:</div>
+                        <Input.TextArea
+                            value={inputValue}
+                            onChange={e => {
+                                setInputValue(e.target.value)
+                            }}
+                            rows={8}
+                            style={{
+                                width: 400,
+                            }}
+                        />
+                        <div>
+                            <Button
+                                onClick={async () => {
+                                    let res = await request.post(`${config.host}/redis/set`, {
+                                        key: result.key,
+                                        value: inputValue,
+                                        // dbName,
+                                    })
+                                    console.log('get/res', res.data)
+                                    if (res.status === 200) {
+                                        message.success('修改成功')
+                                        // setResult({
+                                        //     key: item,
+                                        //     ...res.data,
+                                        // })
+                                        // setInputValue(res.data.value)
+                                    }
+                                }}
+                            >
+                                修改
+                            </Button>
+                        </div>
+                        {/* <div>{result.value}</div> */}
+                    </div>
                 }
             </div>
         </div>
