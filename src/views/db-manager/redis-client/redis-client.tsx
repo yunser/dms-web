@@ -9,14 +9,16 @@ import { Editor } from '../editor/Editor';
 import storage from '../storage'
 import { request } from '../utils/http'
 import { IconButton } from '../icon-button';
-import { ReloadOutlined } from '@ant-design/icons';
+import { PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 
 export function RedisClient({ config, }) {
     const { t } = useTranslation()
     const [loading, setLoading] = useState(false)
+    const [editType, setEditType] = useState('update')
     const [keyword, setKeyword] = useState('')
     const [list, setList] = useState([])
     const [result, setResult] = useState(null)
+    const [inputKey, setInputKey] = useState('')
     const [inputValue, setInputValue] = useState('')
 
     async function loadKeys() {
@@ -66,14 +68,30 @@ export function RedisClient({ config, }) {
         <div className={styles.redisLayout}>
             <div className={styles.layoutLeft}>
                 <div className={styles.header}>
-                    <IconButton
-                        className={styles.refresh}
-                        onClick={() => {
-                            loadKeys()
-                        }}
-                    >
-                        <ReloadOutlined />
-                    </IconButton>
+                    <Space>
+                        <IconButton
+                            className={styles.refresh}
+                            onClick={() => {
+                                loadKeys()
+                            }}
+                        >
+                            <ReloadOutlined />
+                        </IconButton>
+                        <IconButton
+                            className={styles.refresh}
+                            onClick={() => {
+                                setResult({
+                                    key: '',
+                                    value: '',
+                                })
+                                setInputKey('')
+                                setInputValue('')
+                                setEditType('create')
+                            }}
+                        >
+                            <PlusOutlined />
+                        </IconButton>
+                    </Space>
                 </div>
                 <div className={styles.body}>
                     <div>
@@ -99,6 +117,7 @@ export function RedisClient({ config, }) {
                                                         ...res.data,
                                                     })
                                                     setInputValue(res.data.value)
+                                                    setEditType('update')
                                                 }
                                             }}
                                         >{item}</div>
@@ -113,7 +132,18 @@ export function RedisClient({ config, }) {
                 {!!result &&
                     <div>
                         <div>Key:</div>
-                        <div>{result.key}</div>
+                        {editType == 'update' ?
+                            <div>{result.key}</div>
+                        :
+                            <div>
+                                <Input
+                                    value={inputKey}
+                                    onChange={e => {
+                                        setInputKey(e.target.value)
+                                    }}
+                                />
+                            </div>
+                        }
                         <div>Value:</div>
                         <Input.TextArea
                             value={inputValue}
@@ -126,26 +156,49 @@ export function RedisClient({ config, }) {
                             }}
                         />
                         <div>
-                            <Button
-                                onClick={async () => {
-                                    let res = await request.post(`${config.host}/redis/set`, {
-                                        key: result.key,
-                                        value: inputValue,
-                                        // dbName,
-                                    })
-                                    console.log('get/res', res.data)
-                                    if (res.status === 200) {
-                                        message.success('修改成功')
-                                        // setResult({
-                                        //     key: item,
-                                        //     ...res.data,
-                                        // })
-                                        // setInputValue(res.data.value)
-                                    }
-                                }}
-                            >
-                                修改
-                            </Button>
+                            {editType == 'update' ?
+                                <Button
+                                    onClick={async () => {
+                                        let res = await request.post(`${config.host}/redis/set`, {
+                                            key: result.key,
+                                            value: inputValue,
+                                            // dbName,
+                                        })
+                                        console.log('get/res', res.data)
+                                        if (res.status === 200) {
+                                            message.success('修改成功')
+                                            // setResult({
+                                            //     key: item,
+                                            //     ...res.data,
+                                            // })
+                                            // setInputValue(res.data.value)
+                                        }
+                                    }}
+                                >
+                                    修改
+                                </Button>
+                            :
+                                <Button
+                                    onClick={async () => {
+                                        let res = await request.post(`${config.host}/redis/set`, {
+                                            key: inputKey,
+                                            value: inputValue,
+                                            // dbName,
+                                        })
+                                        console.log('get/res', res.data)
+                                        if (res.status === 200) {
+                                            message.success('新增成功')
+                                            // setResult({
+                                            //     key: item,
+                                            //     ...res.data,
+                                            // })
+                                            // setInputValue(res.data.value)
+                                        }
+                                    }}
+                                >
+                                    新增
+                                </Button>
+                            }
                         </div>
                         {/* <div>{result.value}</div> */}
                     </div>
