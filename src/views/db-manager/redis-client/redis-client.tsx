@@ -14,6 +14,7 @@ export function RedisClient({ config, }) {
     const [loading, setLoading] = useState(false)
     const [keyword, setKeyword] = useState('')
     const [list, setList] = useState([])
+    const [result, setResult] = useState(null)
 
     async function loadKeys() {
         setLoading(true)
@@ -59,22 +60,37 @@ export function RedisClient({ config, }) {
     }, [])
 
     return (
-        <div className={styles.box}>
-            Redis Client
-
-            
-            <div>
-                {/* <Input
-                    value={keyword}
-                /> */}
-                <div className={styles.list}>
-                    {list.map(item => {
-                        return (
-                            <div className={styles.item}>{item}</div>
-                        )
-                    })}
+        <div className={styles.redisLayout}>
+            <div className={styles.layoutLeft}>
+                <div>
+                    {/* <Input
+                        value={keyword}
+                    /> */}
+                    <div className={styles.list}>
+                        {list.map(item => {
+                            return (
+                                <div className={styles.item}
+                                    onClick={async () => {
+                                        let res = await request.post(`${config.host}/redis/get`, {
+                                            key: item,
+                                            // dbName,
+                                        })
+                                        console.log('get/res', res.data)
+                                        if (res.status === 200) {
+                                            setResult(res.data)
+                                        }
+                                    }}
+                                >{item}</div>
+                            )
+                        })}
+                    </div>
                 </div>
             </div>
+            <div className={styles.layoutRight}>
+                {!!result &&
+                    <div>{result.value}</div>
+                }
+            </div>
         </div>
-    );
+    )
 }

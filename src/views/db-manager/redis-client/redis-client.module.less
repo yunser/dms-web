@@ -1,11 +1,23 @@
 
-.box {
+.redisLayout {
     height: 100%;
-    padding: 16px;
-    // display: flex;
-    // justify-content: center;
-    // align-items: center;
-    // .content {
-    //     height: 400px;
-    // }
+    display: flex;
+    .layoutLeft {
+        padding: 16px;
+        border-right: 1px solid rgba(0, 0, 0, .12);
+        overflow: auto;
+        // height: 100px;
+    }
+    .layoutRight {
+        padding: 16px;
+    }
+}
+.list {
+    .item {
+        cursor: pointer;
+        margin-bottom: 8px;
+        &:hover {
+            background-color: #f1f1f1;
+        }
+    }
 }
