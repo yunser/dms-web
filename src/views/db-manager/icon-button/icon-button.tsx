@@ -1,5 +1,5 @@
 
-import { Button } from 'antd'
+import { Button, Tooltip } from 'antd'
 import { ButtonProps } from 'antd/es/button'
 import React from 'react'
 // import styles from './icon-button.less'
@@ -23,9 +23,11 @@ export function IconButton(props: Props) {
     const {
         children,
         className,
+        tooltip,
         ...otherProps
     } = props
-    return (
+
+    const content = (
         <Button
             className={classnames(className, 'ant-icon-button')}
             // shape="circle"
@@ -35,7 +37,13 @@ export function IconButton(props: Props) {
         >
             {children}
         </Button>
-        // <div>
-        // </div>
     )
+    if (tooltip) {
+        return (
+            <Tooltip title={tooltip} mouseEnterDelay={1}>
+                {content}
+            </Tooltip>
+        )
+    }
+    return content
 }

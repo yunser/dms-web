@@ -23,7 +23,7 @@ import Item from 'antd/lib/list/Item'
 import axios from 'axios'
 import { TableDetail } from '../table-detail/table-detail'
 import { suggestionAdd } from '../suggestion'
-import { CloseOutlined, DatabaseOutlined, ReloadOutlined, TableOutlined } from '@ant-design/icons';
+import { CloseOutlined, DatabaseOutlined, DownOutlined, HistoryOutlined, MenuOutlined, ReloadOutlined, TableOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next'
 import { IconButton } from '../icon-button'
 import { ExecModal } from '../exec-modal/exec-modal'
@@ -571,25 +571,10 @@ export function DataBaseDetail({ dbName, config }) {
                         tabBarExtraContent={{
                             right: (
                                 <Space>
-                                    {/* 关闭所有 */}
-                                    <Button size="small"
-                                        onClick={() => {
-                                            // console.log('tabs', tabs)
-                                            setTabs(tabs.filter(item => item.closable === false))
-                                            setActiveKey(first_key)
-                                        }}
-                                    >{t('close_all')}</Button>
-                                    <Button size="small"
-                                        onClick={() => {
-                                            // console.log('tabs', tabs)
-                                            setTabs(tabs.filter(item => item.closable === false || item.key == activeKey))
-                                            // setActiveKey(first_key)
-                                        }}
-                                    >
-                                        {/* {t('close_all')} */}
-                                        Close Other
-                                    </Button>
-                                    <Button size="small"
+                                    {/* <Button size="small"
+                                    >{t('history')}</Button> */}
+                                    <IconButton
+                                        tooltip={t('history')}
                                         onClick={() => {
                                             console.log('tabs', tabs)
                                             const history_tab = {
@@ -604,7 +589,57 @@ export function DataBaseDetail({ dbName, config }) {
                                             ])
                                             setActiveKey('history')
                                         }}
-                                    >{t('history')}</Button>
+                                    >
+                                        <HistoryOutlined />
+                                    </IconButton>
+                                    <Dropdown
+                                        overlay={
+                                            <Menu
+                                                onClick={({ key }) => {
+                                                    if (key == 'close_other') {
+                                                        setTabs(tabs.filter(item => item.closable === false || item.key == activeKey))
+                                                    }
+                                                    else if (key == 'close_all') {
+                                                        setTabs(tabs.filter(item => item.closable === false))
+                                                        setActiveKey(first_key)
+                                                    }
+                                                    else if (key == 'close_current') {
+                                                        const curTab = tabs.find(item => item.key == activeKey)
+                                                        if (curTab) {
+                                                            if (curTab.closable !== false) {
+                                                                setTabs(tabs.filter(item => item.key != activeKey))
+                                                                setActiveKey(first_key)
+                                                            }
+
+                                                        }
+                                                    }
+                                                }}
+                                                items={[
+                                                    {
+                                                        label: 'Close',
+                                                        key: 'close_current',
+                                                    },
+                                                    {
+                                                        label: 'Close Other',
+                                                        key: 'close_other',
+                                                    },
+                                                    {
+                                                        label: t('close_all'),
+                                                        key: 'close_all',
+                                                    },
+                                                ]}
+                                            />
+                                        }
+                                    >
+                                        <IconButton
+                                            onClick={e => e.preventDefault()}
+                                        >
+                                            <MenuOutlined />
+                                        </IconButton>
+                                        {/* <a
+                                        >
+                                        </a> */}
+                                    </Dropdown>
                                 </Space>
                             )
                         }}
