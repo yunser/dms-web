@@ -57,8 +57,8 @@ function Connnector({ config, onConnnect }) {
     }, [])
 
     async function  connect() {
-        setLoading(true)
         const values = await form.validateFields()
+        setLoading(true)
         const reqData = {
             host: values.host,
             port: values.port,
@@ -108,34 +108,34 @@ function Connnector({ config, onConnnect }) {
                 >
                     <Form.Item
                         name="host"
-                        label="Host"
+                        label={t('host')}
                         rules={[ { required: true, }, ]}
                     >
                         <Input />
                     </Form.Item>
                     <Form.Item
                         name="port"
-                        label="Port"
+                        label={t('port')}
                         rules={[{ required: true, },]}
                     >
                         <InputNumber />
                     </Form.Item>
                     <Form.Item
                         name="user"
-                        label="User"
+                        label={t('user')}
                         rules={[{ required: true, },]}
                     >
                         <Input />
                     </Form.Item>
                     <Form.Item
                         name="password"
-                        label="Password"
+                        label={t('password')}
                         rules={[{ required: true, },]}
                     >
                         <Input />
                     </Form.Item>
                     <Form.Item name="remember" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>
-                        <Checkbox>Remember me</Checkbox>
+                        <Checkbox>{t('remember_me')}</Checkbox>
                     </Form.Item>
                     <Form.Item
                         wrapperCol={{ offset: 8, span: 16 }}
@@ -499,6 +499,18 @@ export function DbManager({ config }) {
                                         <DataBaseDetail
                                             config={config}
                                             dbName={item.data.name}
+                                            onJson={json => {
+                                                console.log('onJson/2')
+                                                addOrActiveTab({
+                                                    title: t('json'),
+                                                    key: 'json-' + uid(16),
+                                                    type: 'json',
+                                                    data: {
+                                                        // url,
+                                                        defaultJson: json,
+                                                    },
+                                                })
+                                            }}
                                         />
                                     }
                                     {item.type == 'help' &&
@@ -509,6 +521,7 @@ export function DbManager({ config }) {
                                     {item.type == 'json' &&
                                         <Json
                                             config={config}
+                                            data={item.data}
                                         />
                                     }
                                     {item.type == 'workbench' &&

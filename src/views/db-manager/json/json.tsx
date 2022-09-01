@@ -10,10 +10,11 @@ import { IconButton } from '../icon-button';
 import { FormatPainterOutlined } from '@ant-design/icons';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
-export function Json({ config, }) {
+export function Json({ config, data = {} }) {
+    const { defaultJson = '' } = data
     const { t } = useTranslation()
 
-    const [code] = useState('')
+    const [code] = useState(defaultJson)
     const [code2, setCode2] = useState('')
     const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
     
@@ -42,7 +43,7 @@ export function Json({ config, }) {
                             editor?.setValue(formatedCode)
                         }}
                     >
-                        Format
+                        {t('format')}
                     </Button>
                     <Button
                         size="small"
@@ -52,7 +53,7 @@ export function Json({ config, }) {
                             editor?.setValue(formatedCode)
                         }}
                     >
-                        Compress
+                        {t('compress')}
                     </Button>
                 </Space>
             </div>

@@ -1,10 +1,10 @@
 // @i18n
 import i18n from "i18next";
-// import LanguageDetector from "i18next-browser-languagedetector";
+import LanguageDetector from "i18next-browser-languagedetector";
 import { initReactI18next } from "react-i18next";
 
 i18n
-    // .use(LanguageDetector)
+    .use(LanguageDetector)
     .use(initReactI18next)
     .init({
         // we init with resources
@@ -15,7 +15,9 @@ i18n
                     connect: 'Connect',
                     explain: 'Explain',
                     format: 'Format',
+                    close: 'Close',
                     close_all: 'Close All',
+                    close_other: 'Close Other',
                     submit_modify: 'Submit Modify',
                     add: 'Add',
                     delete: 'Delete',
@@ -35,6 +37,16 @@ i18n
                     welcome: "Hello <br/> <strong>World</strong>",
                     help: 'Help',
                     json: 'JSON',
+                    compress: 'Compress',
+                    password: 'Password',
+                    port: 'Port',
+                    user: 'User',
+                    host: 'Host',
+                    remember_me: 'Remember me',
+                    no_sql: 'No SQL',
+                    search: 'Search',
+                    time: 'Time',
+                    rows: 'rows',
                 }
             },
             zh: {
@@ -43,7 +55,9 @@ i18n
                     connect: '连接',
                     explain: '执行计划',
                     format: '格式化',
+                    close: '关闭',
                     close_all: '关闭所有',
+                    close_other: '关闭其他',
                     submit_modify: '提交修改',
                     add: '新增',
                     delete: '删除',
@@ -62,6 +76,16 @@ i18n
                     "Welcome to React": "欢迎",
                     help: '帮助',
                     json: 'JSON',
+                    compress: '压缩',
+                    password: '密码',
+                    port: '端口',
+                    user: '用户名',
+                    host: '主机',
+                    remember_me: '记住密码',
+                    no_sql: '没有要执行的 SQL',
+                    search: '搜索',
+                    time: '时间',
+                    rows: '行',
                 }
             }
         },

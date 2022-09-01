@@ -23,7 +23,7 @@ import Item from 'antd/lib/list/Item'
 import axios from 'axios'
 import { TableDetail } from '../table-detail/table-detail'
 import { suggestionAdd } from '../suggestion'
-import { CloseOutlined, DatabaseOutlined, DownOutlined, HistoryOutlined, MenuOutlined, ReloadOutlined, TableOutlined } from '@ant-design/icons';
+import { CloseOutlined, DatabaseOutlined, DownOutlined, EllipsisOutlined, HistoryOutlined, MenuOutlined, ReloadOutlined, TableOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next'
 import { IconButton } from '../icon-button'
 import { ExecModal } from '../exec-modal/exec-modal'
@@ -76,7 +76,7 @@ interface TabProps {
 
 
 
-export function DataBaseDetail({ dbName, config }) {
+export function DataBaseDetail({ dbName, config, onJson }) {
     const { t } = useTranslation()
 
     const [sql, setSql] = useState('')
@@ -383,7 +383,7 @@ export function DataBaseDetail({ dbName, config }) {
                             // })
                         }}
                         allowClear
-                        placeholder="Search..."
+                        placeholder={t('search') + '...'}
                     />
 
                     <Tooltip title={t('refresh')} mouseEnterDelay={1}>
@@ -568,6 +568,9 @@ export function DataBaseDetail({ dbName, config }) {
                         style={{
                             height: '100%',
                         }}
+                        // addIcon={
+                        //     <HistoryOutlined />
+                        // }
                         tabBarExtraContent={{
                             right: (
                                 <Space>
@@ -616,11 +619,11 @@ export function DataBaseDetail({ dbName, config }) {
                                                 }}
                                                 items={[
                                                     {
-                                                        label: 'Close',
+                                                        label: t('close'),
                                                         key: 'close_current',
                                                     },
                                                     {
-                                                        label: 'Close Other',
+                                                        label: t('close_other'),
                                                         key: 'close_other',
                                                     },
                                                     {
@@ -678,6 +681,7 @@ export function DataBaseDetail({ dbName, config }) {
                                             // visibility: item.key == activeKey ? 'visible' : 'hidden',
                                             display: item.key == activeKey ? undefined : 'none',
                                         }}
+                                        onJson={onJson}
                                     />
                                 }
                             </div>

@@ -123,7 +123,7 @@ function Cell({ item, editing, onChange }) {
 }
 
 
-export function ExecDetail({ config, data, }) {
+export function ExecDetail({ config, onJson, data, }) {
     const { t } = useTranslation()
     const { 
         sql,
@@ -135,7 +135,8 @@ export function ExecDetail({ config, data, }) {
         error,
         hasReq,
         tableName,
-        dbName
+        dbName,
+        
     } = data || {}
 
     const rawExecResult = result?.result
@@ -335,8 +336,9 @@ export function ExecDetail({ config, data, }) {
             // .join('\n')
         console.log('results', results)
         const content = JSON.stringify(results, null, 4)
-        copy(content)
-        message.success('Copied')
+        onJson && onJson(content)
+        // copy(content)
+        // message.success('Copied')
     }
 
     async function removeSelection() {
@@ -772,11 +774,11 @@ export function ExecDetail({ config, data, }) {
                     }
                     {!!result &&
                         <div className={styles.footer}>
-                            <div>Time: {(result.time / 1000).toFixed(3)} s</div>
+                            <div>{t('time')}: {(result.time / 1000).toFixed(3)} s</div>
                             {!!rawExecResult ?
                                 <div>{!!rawExecResult.info ? rawExecResult.info : `影响行数：${rawExecResult.affectedRows}`}</div>
                             :
-                                <div>{_list.length} rows</div>
+                                <div>{_list.length} {t('rows')}</div>
                             }
                             <div>{sql}</div>
                         </div>

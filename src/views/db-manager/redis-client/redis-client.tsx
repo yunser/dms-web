@@ -68,30 +68,39 @@ export function RedisClient({ config, }) {
         <div className={styles.redisLayout}>
             <div className={styles.layoutLeft}>
                 <div className={styles.header}>
-                    <Space>
-                        <IconButton
-                            className={styles.refresh}
-                            onClick={() => {
-                                loadKeys()
-                            }}
-                        >
-                            <ReloadOutlined />
-                        </IconButton>
-                        <IconButton
-                            className={styles.refresh}
-                            onClick={() => {
-                                setResult({
-                                    key: '',
-                                    value: '',
-                                })
-                                setInputKey('')
-                                setInputValue('')
-                                setEditType('create')
-                            }}
-                        >
-                            <PlusOutlined />
-                        </IconButton>
-                    </Space>
+                    <Input
+                        className={styles.searchInput}
+                        value={keyword}
+                        onChange={e => {
+                            setKeyword(e.target.value)
+                        }}
+                        allowClear
+                        placeholder="Search..."
+                    />
+                    <IconButton
+                        className={styles.refresh}
+                        onClick={() => {
+                            loadKeys()
+                        }}
+                    >
+                        <ReloadOutlined />
+                    </IconButton>
+                    <IconButton
+                        className={styles.refresh}
+                        onClick={() => {
+                            setResult({
+                                key: '',
+                                value: '',
+                            })
+                            setInputKey('')
+                            setInputValue('')
+                            setEditType('create')
+                        }}
+                    >
+                        <PlusOutlined />
+                    </IconButton>
+                    {/* <Space>
+                    </Space> */}
                 </div>
                 <div className={styles.body}>
                     <div>

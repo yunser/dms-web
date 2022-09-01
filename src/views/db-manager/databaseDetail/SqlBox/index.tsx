@@ -50,7 +50,7 @@ const history_tab = {
     closable: false,
 }
 
-function SqlBox({ config, tableName, dbName, className, defaultSql = '', style }: Props) {
+function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '', style }: Props) {
 
     const { t, i18n } = useTranslation()
 
@@ -106,7 +106,7 @@ function SqlBox({ config, tableName, dbName, className, defaultSql = '', style }
 
     function runPlain() {
         if (!getCode()) {
-            message.warn('没有要执行的 SQL')
+            message.warn(t('no_sql'))
             return
         }
         _run(getCode(), {
@@ -126,7 +126,7 @@ function SqlBox({ config, tableName, dbName, className, defaultSql = '', style }
 
     async function run() {
         if (!getCode()) {
-            message.warn('没有要执行的 SQL')
+            message.warn(t('no_sql'))
             return
         }
         _run(getCode())
@@ -434,6 +434,7 @@ function SqlBox({ config, tableName, dbName, className, defaultSql = '', style }
                                 <ExecDetail
                                     data={item.data}
                                     config={config}
+                                    onJson={onJson}
                                     // tableName, dbName
                                     // defaultDbName={dbName}
                                 />
