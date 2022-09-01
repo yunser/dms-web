@@ -18,6 +18,7 @@ import { Help } from './help'
 import { Json } from './json'
 import { RedisConnect } from './redis-connect'
 import { RedisClient } from './redis-client'
+import { Workbench } from './workbench'
 
 console.log('styles', styles)
 const { TextArea } = Input
@@ -159,14 +160,23 @@ function Connnector({ config, onConnnect }) {
     );
 }
 
+const tab_mySql = {
+    title: 'MySQL',
+    key: 'mysql-connect-0',
+    type: 'connnect',
+    data: {},
+    // closable: false,
+}
+const tab_workbench = {
+    title: 'Workbench',
+    key: 'workbench',
+    type: 'workbench',
+    data: {},
+    closable: false,
+}
 const tabs_default = [
-    {
-        title: 'MySQL',
-        key: '0',
-        type: 'connnect',
-        data: {},
-        closable: false,
-    },
+    tab_workbench,
+    tab_mySql,
     // {
     //     title: 'Elasticsearch',
     //     key: 'key-es',
@@ -212,7 +222,9 @@ export function DbManager({ config }) {
     }, [i18n.language])
 
     const [tabs, setTabs] = useState(tabs_default)
-    const [activeKey, setActiveKey] = useState(tabs[0].key)
+    const [activeKey, setActiveKey] = useState(() => {
+        return tabs[1].key
+    })
 
     function closeTabByKey(key) {
         console.log('closeTabByKey', key)
@@ -287,6 +299,9 @@ export function DbManager({ config }) {
                     break
                 }
             }
+            if (tabs.length == 0) {
+                tabs.push(tab_workbench)
+            }
             setTabs([
                 ...tabs,
             ])
@@ -313,6 +328,14 @@ export function DbManager({ config }) {
                             right: (
                                 <div className={styles.langBox}>
                                     <Space>
+                                        <Button
+                                            type="text"
+                                            onClick={() => {
+                                                addOrActiveTab(tab_mySql)
+                                            }}
+                                        >
+                                            MySQL
+                                        </Button>
                                         <Button
                                             type="text"
                                             onClick={() => {
@@ -467,6 +490,11 @@ export function DbManager({ config }) {
                                     }
                                     {item.type == 'json' &&
                                         <Json
+                                            config={config}
+                                        />
+                                    }
+                                    {item.type == 'workbench' &&
+                                        <Workbench
                                             config={config}
                                         />
                                     }
