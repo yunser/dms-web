@@ -49,15 +49,32 @@
 
 .connectBox {
     height: 100%;
-    padding: 16px;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    // justify-content: center;
+    // align-items: center;
+    .layoutLeft {
+        padding: 16px;
+        width: 300px;
+        border-right: 1px solid rgba(0, 0, 0, .12);
+    }
+    .layoutRight {
+        flex: 1 0 auto;
+        padding: 16px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
     .content {
         height: 400px;
     }
+    
 }
 
 .langBox {
     padding-right: 16px;
+}
+
+
+.connections {
+
 }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, ReactNode, useMemo } from 'react'
 import styles from './index.module.less'
-import { message, Input, Button, Tabs, Space, Form, Checkbox, InputNumber, ConfigProvider } from 'antd'
+import { message, Input, Button, Tabs, Space, Form, Checkbox, InputNumber, ConfigProvider, Tree } from 'antd'
 import storage from './storage'
 import axios from 'axios'
 import DatabaseList from './databases'
@@ -8,7 +8,7 @@ import { DataBaseDetail } from './databaseDetail'
 import { request } from './utils/http'
 import { useTranslation } from 'react-i18next'
 import { IconButton } from './icon-button'
-import { CloseOutlined } from '@ant-design/icons'
+import { CloseOutlined, DatabaseOutlined } from '@ant-design/icons'
 import enUS from 'antd/es/locale/en_US';
 import zhCN from 'antd/es/locale/zh_CN';
 import { EsConnnector } from './es-connectot'
@@ -27,34 +27,71 @@ const { TabPane } = Tabs
 function Connnector({ config, onConnnect }) {
     const { t } = useTranslation()
 
-    const [loading, setLoading] = useState(false)
-    const [form] = Form.useForm()
-    const [code, setCode] = useState(`{
-    "host": "",
-    "user": "",
-    "password": ""
-}`)
+    const [curConnect, setCurConnect] = useState(null)
+    const [connections, setConnections] = useState([
+        {
+            id: '1',
+            name: 'first',
+            host: 'HHH',
+            port: 3306,
+            user: 'UUU',
+            password: 'PPP',
+        },
+        {
+            id: '2',
+            name: 'second',
+            host: 'HHH2',
+            port: 3306,
+            user: 'UUU',
+            password: 'PPP',
+        },
+    ])
+
+    function loadConnect(data) {
+        form.setFieldsValue({
+            ...data,
+        })
+        setCurConnect(data)
+        setEditType('update')
+    }
 
     useEffect(() => {
-//         console.log('onMouneed', storage.get('dbInfo', `{
+        const connections = storage.get('connections', [])
+        if (connections.length) {
+            setConnections(connections)
+            loadConnect(connections[0])
+        }   
+    }, [])
+
+    const [loading, setLoading] = useState(false)
+    const [form] = Form.useForm()
+//     const [code, setCode] = useState(`{
 //     "host": "",
 //     "user": "",
 //     "password": ""
-// }`))
-        const dbInfo = storage.get('dbInfo', {
-            "host": "",
-            "user": "",
-            "password": "",
-            port: 3306,
-            remember: true,
-        })
-        // setCode(storage.get('dbInfo', `{
-        //     "host": "",
-        //     "user": "",
-        //     "password": ""
-        // }`))
-        form.setFieldsValue(dbInfo)
-    }, [])
+// }`)
+    const [editType, setEditType] = useState('create')
+
+//     useEffect(() => {
+// //         console.log('onMouneed', storage.get('dbInfo', `{
+// //     "host": "",
+// //     "user": "",
+// //     "password": ""
+// // }`))
+//         const dbInfo = storage.get('dbInfo', {
+//             "host": "",
+//             "user": "",
+//             "password": "",
+//             port: 3306,
+//             remember: true,
+//         })
+//         // setCode(storage.get('dbInfo', `{
+//         //     "host": "",
+//         //     "user": "",
+//         //     "password": ""
+//         // }`))
+//         form.setFieldsValue(dbInfo)
+//     }, [])
 
     async function  connect() {
         const values = await form.validateFields()
@@ -64,11 +101,11 @@ function Connnector({ config, onConnnect }) {
             port: values.port,
             user: values.user,
             password: values.password,
-            remember: values.remember,
+            // remember: values.remember,
         }
-        if (values.remember) {
-            storage.set('dbInfo', reqData)
-        }
+        // if (values.remember) {
+        //     storage.set('dbInfo', reqData)
+        // }
         let ret = await request.post(`${config.host}/mysql/connect`, reqData)
         console.log('ret', ret)
         if (ret.status === 200) {
@@ -81,77 +118,196 @@ function Connnector({ config, onConnnect }) {
         // }
     }
 
-    function save() {
-        storage.set('dbInfo', code)
-        message.success('保存成功')
+    function add() {
+        const newItem = {
+            id: uid(32),
+            name: 'Unnamed',
+            host: '',
+            port: '',
+            user: '',
+            password: '',
+        }
+        const newConnects = [
+            newItem,
+            ...connections,
+        ]
+        setConnections(newConnects)
+        storage.set('connections', newConnects)
+        loadConnect(newItem)
+    }
+
+    function remove() {
+        let newConnects = connections.filter(item => item.id != curConnect.id)
+        setConnections(newConnects)
+        if (newConnects.length) {
+            loadConnect(newConnects[0])
+        }
+    }
+
+    async function save() {
+        // storage.set('dbInfo', code)
+        // message.success('保存成功')
+        const values = await form.validateFields()
+        let newConnects
+        if (editType == 'create') {
+            newConnects = [
+                {
+                    id: uid(32),
+                    name: values.name || 'Unnamed',
+                    host: values.host,
+                    port: values.port,
+                    user: values.user,
+                    password: values.password,
+                },
+                ...connections,
+            ]
+        }
+        else {
+            const idx = connections.findIndex(item => item.id == curConnect.id)
+            console.log('idx', idx)
+            const newConnect = {
+                ...curConnect,
+                name: values.name || 'Unnamed',
+                host: values.host,
+                port: values.port,
+                user: values.user,
+                password: values.password,
+            }
+            connections[idx] = newConnect
+            newConnects = [
+                ...connections,
+            ]
+            setCurConnect(newConnect)
+        }
+        setConnections(newConnects)
+        storage.set('connections', newConnects)
     }
 
     function help() {
         window.open('https://project.yunser.com/products/167b35305d3311eaa6a6a10dd443ff08', '_blank')
     }
 
+    function ConnectionItem(item) {
+        return (
+            <div
+                className={styles.item}
+                key={item.id}
+            >
+                122
+            </div>
+        )
+    }
+
+    const treeData = connections.map(item => {
+        return {
+            title: item.name,
+            key: `dbkey-${item.id}`,
+            icon: (
+                <DatabaseOutlined />
+            ),
+            data: item,
+        }
+    })
+
     return (
         <div className={styles.connectBox}>
-            {/* <Test asd={Asd} /> */}
-            <div className={styles.content}>
-                <Form
-                    form={form}
-                    labelCol={{ span: 8 }}
-                    wrapperCol={{ span: 16 }}
-                    initialValues={{
-                        port: 3306,
-                    }}
-                    // layout={{
-                    //     labelCol: { span: 0 },
-                    //     wrapperCol: { span: 24 },
-                    // }}
-                >
-                    <Form.Item
-                        name="host"
-                        label={t('host')}
-                        rules={[ { required: true, }, ]}
+            <div className={styles.layoutLeft}>
+                {/* {curConnect.id} */}
+                <Button
+                    onClick={add}>新增</Button>
+                <div className={styles.connections}>
+                    {/* {connections.map(ConnectionItem)} */}
+                    <Tree
+                        treeData={treeData}
+                        // checkable
+                        // defaultExpandedKeys={['0-0-0', '0-0-1']}
+                        selectedKeys={curConnect ? [`dbkey-${curConnect.id}`] : []}
+                        // defaultCheckedKeys={['0-0-0', '0-0-1']}
+                        onSelect={(selectKeys, info) => {
+                            console.log('onSelect', info)
+                            const data = info.node.data
+                            loadConnect(data)
+                        }}
+                        // onCheck={onCheck}
+                    />
+                </div>
+            </div>
+            <div className={styles.layoutRight}>
+
+                <div className={styles.content}>
+                    <Form
+                        form={form}
+                        labelCol={{ span: 8 }}
+                        wrapperCol={{ span: 16 }}
+                        initialValues={{
+                            port: 3306,
+                        }}
+                        // layout={{
+                        //     labelCol: { span: 0 },
+                        //     wrapperCol: { span: 24 },
+                        // }}
                     >
-                        <Input />
-                    </Form.Item>
-                    <Form.Item
-                        name="port"
-                        label={t('port')}
-                        rules={[{ required: true, },]}
-                    >
-                        <InputNumber />
-                    </Form.Item>
-                    <Form.Item
-                        name="user"
-                        label={t('user')}
-                        rules={[{ required: true, },]}
-                    >
-                        <Input />
-                    </Form.Item>
-                    <Form.Item
-                        name="password"
-                        label={t('password')}
-                        rules={[{ required: true, },]}
-                    >
-                        <Input />
-                    </Form.Item>
-                    <Form.Item name="remember" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>
-                        <Checkbox>{t('remember_me')}</Checkbox>
-                    </Form.Item>
-                    <Form.Item
-                        wrapperCol={{ offset: 8, span: 16 }}
-                        // name="passowrd"
-                        // label="Passowrd"
-                        // rules={[{ required: true, },]}
-                    >
-                        <Space>
-                            <Button
-                                loading={loading}
-                                type="primary"
-                                onClick={connect}>{t('connect')}</Button>
-                            {/* <Button onClick={save}>保存</Button> */}
-                        </Space>
-                    </Form.Item>
-                </Form>
+                        <Form.Item
+                            name="name"
+                            label={t('name')}
+                            rules={[]}
+                        >
+                            <Input />
+                        </Form.Item>
+                        <Form.Item
+                            name="host"
+                            label={t('host')}
+                            rules={[ { required: true, }, ]}
+                        >
+                            <Input />
+                        </Form.Item>
+                        <Form.Item
+                            name="port"
+                            label={t('port')}
+                            rules={[{ required: true, },]}
+                        >
+                            <InputNumber />
+                        </Form.Item>
+                        <Form.Item
+                            name="user"
+                            label={t('user')}
+                            rules={[{ required: true, },]}
+                        >
+                            <Input />
+                        </Form.Item>
+                        <Form.Item
+                            name="password"
+                            label={t('password')}
+                            rules={[{ required: true, },]}
+                        >
+                            <Input />
+                        </Form.Item>
+                        {/* <Form.Item name="remember" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>
+                            <Checkbox>{t('remember_me')}</Checkbox>
+                        </Form.Item> */}
+                        <Form.Item
+                            wrapperCol={{ offset: 8, span: 16 }}
+                            // name="passowrd"
+                            // label="Passowrd"
+                            // rules={[{ required: true, },]}
+                        >
+                            <Space>
+                                <Button
+                                    type="primary"
+                                    onClick={connect}
+                                >
+                                    {t('connect')}
+                                </Button>
+                                <Button onClick={save}>保存</Button>
+                                {editType == 'update' &&
+                                    <Button
+                                        danger
+                                        onClick={remove}>删除</Button>
+                                }
+                            </Space>
+                        </Form.Item>
+                    </Form>
+                </div>
             </div>
             {/* <TextArea className={styles.textarea} value={code} rows={4} 
                 onChange={e => setCode(e.target.value)} /> */}

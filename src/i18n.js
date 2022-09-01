@@ -48,6 +48,7 @@ i18n
                     time: 'Time',
                     rows: 'rows',
                     workbench: 'Workbench',
+                    name: 'Name',
                 }
             },
             zh: {
@@ -88,6 +89,7 @@ i18n
                     time: '时间',
                     rows: '行',
                     workbench: '工作台',
+                    name: '名称',
                 }
             }
         },
