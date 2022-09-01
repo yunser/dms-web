@@ -436,18 +436,28 @@ export function DbManager({ config }) {
                                     {item.type == 'elasticsearch' &&
                                         <EsConnnector
                                             onConnnect={({ url }) => {
-                                                setTabs([
-                                                    ...tabs,
-                                                    {
-                                                        title: 'ES Indexs',
-                                                        key: 'es-indexs',
-                                                        type: 'es-index',
-                                                        data: {
-                                                            url,
-                                                        },
+                                                addOrActiveTab({
+                                                    title: 'ES Indexs',
+                                                    key: 'es-indexs',
+                                                    type: 'es-index',
+                                                    data: {
+                                                        url,
                                                     },
-                                                ])
-                                                setActiveKey('es-indexs')
+                                                }, {
+                                                    closeCurrentTab: true,
+                                                })
+                                                // setTabs([
+                                                //     ...tabs,
+                                                //     {
+                                                //         title: 'ES Indexs',
+                                                //         key: 'es-indexs',
+                                                //         type: 'es-index',
+                                                //         data: {
+                                                //             url,
+                                                //         },
+                                                //     },
+                                                // ])
+                                                // setActiveKey('es-indexs')
                                             }}
                                         />
                                     }
@@ -455,16 +465,24 @@ export function DbManager({ config }) {
                                         <Connnector
                                             config={config}
                                             onConnnect={() => {
-                                                setTabs([
-                                                    ...tabs,
-                                                    {
-                                                        title: 'Databases',
-                                                        key: '11111',
-                                                        type: 'databases',
-                                                        data: {},
-                                                    },
-                                                ])
-                                                setActiveKey('11111')
+                                                addOrActiveTab({
+                                                    title: 'MySQL Databases',
+                                                    key: 'mysql-database-0',
+                                                    type: 'databases',
+                                                    data: {},
+                                                }, {
+                                                    closeCurrentTab: true,
+                                                })
+                                                // setTabs([
+                                                //     ...tabs,
+                                                //     {
+                                                //         title: 'MySQL Databases',
+                                                //         key: '11111',
+                                                //         type: 'databases',
+                                                //         data: {},
+                                                //     },
+                                                // ])
+                                                // setActiveKey('11111')
                                             }}
                                         />
                                     }
@@ -524,18 +542,28 @@ export function DbManager({ config }) {
                                             config={config}
                                             onSelectDatabase={({name}) => {
                                                 const key = '' + new Date().getTime()
-                                                setTabs([
-                                                    ...tabs,
-                                                    {
-                                                        title: `${name} - DB`,
-                                                        key,
-                                                        type: 'database',
-                                                        data: {
-                                                            name,
-                                                        }
+                                                addOrActiveTab({
+                                                    title: `${name} - DB`,
+                                                    key,
+                                                    type: 'database',
+                                                    data: {
+                                                        name,
                                                     }
-                                                ])
-                                                setActiveKey(key)
+                                                }, {
+                                                    closeCurrentTab: true,
+                                                })
+                                                // setTabs([
+                                                //     ...tabs,
+                                                //     {
+                                                //         title: `${name} - DB`,
+                                                //         key,
+                                                //         type: 'database',
+                                                //         data: {
+                                                //             name,
+                                                //         }
+                                                //     }
+                                                // ])
+                                                // setActiveKey(key)
 
                                                 request.post(`${config.host}/mysql/execSql`, {
                                                     sql: `use ${name}`,
