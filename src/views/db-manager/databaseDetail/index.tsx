@@ -574,11 +574,21 @@ export function DataBaseDetail({ dbName, config }) {
                                     {/* 关闭所有 */}
                                     <Button size="small"
                                         onClick={() => {
-                                            console.log('tabs', tabs)
+                                            // console.log('tabs', tabs)
                                             setTabs(tabs.filter(item => item.closable === false))
                                             setActiveKey(first_key)
                                         }}
                                     >{t('close_all')}</Button>
+                                    <Button size="small"
+                                        onClick={() => {
+                                            // console.log('tabs', tabs)
+                                            setTabs(tabs.filter(item => item.closable === false || item.key == activeKey))
+                                            // setActiveKey(first_key)
+                                        }}
+                                    >
+                                        {/* {t('close_all')} */}
+                                        Close Other
+                                    </Button>
                                     <Button size="small"
                                         onClick={() => {
                                             console.log('tabs', tabs)
