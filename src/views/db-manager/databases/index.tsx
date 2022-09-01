@@ -6,7 +6,7 @@ import {
 import React, { Component, Fragment, useEffect, useState } from 'react';
 import axios from 'axios'
 import { useTranslation } from 'react-i18next';
-
+import styles from './databases.module.less'
 export default function DatabaseList({ config, onSelectDatabase }) {
 
     const { t } = useTranslation()
@@ -61,20 +61,19 @@ export default function DatabaseList({ config, onSelectDatabase }) {
     ]
 
     return (
-        <div>
-            <Card bordered={false}>
-                <div>
-                    <Table
-                        dataSource={list}
-                        pagination={false}
-                        columns={columns}
-                        rowKey="name"
-                        scroll={{
-                            y: 400,
-                        }}
-                    />
-                </div>
-            </Card>
+        <div className={styles.databasesBox}>
+            <Table
+                className={styles.table}
+                dataSource={list}
+                pagination={false}
+                columns={columns}
+                rowKey="name"
+                // scroll={{
+                //     y: 400,
+                // }}
+            />
+            {/* <div>
+            </div> */}
         </div>
     )
 }

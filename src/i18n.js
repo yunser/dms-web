@@ -47,6 +47,7 @@ i18n
                     search: 'Search',
                     time: 'Time',
                     rows: 'rows',
+                    workbench: 'Workbench',
                 }
             },
             zh: {
@@ -86,6 +87,7 @@ i18n
                     search: '搜索',
                     time: '时间',
                     rows: '行',
+                    workbench: '工作台',
                 }
             }
         },

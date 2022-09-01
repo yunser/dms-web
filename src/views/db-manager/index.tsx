@@ -167,49 +167,12 @@ const tab_mySql = {
     data: {},
     // closable: false,
 }
-const tab_workbench = {
-    title: 'Workbench',
-    key: 'workbench',
-    type: 'workbench',
-    data: {},
-    closable: false,
-}
-const tabs_default = [
-    tab_workbench,
-    tab_mySql,
-    // {
-    //     title: 'Elasticsearch',
-    //     key: 'key-es',
-    //     type: 'elasticsearch',
-    //     data: {},
-    //     closable: false,
-    // },
-    // {
-    //     title: 'JSON',
-    //     key: 'key-json',
-    //     type: 'json',
-    //     data: {},
-    //     closable: false,
-    // },
-    // {
-    //     title: 'DB linxot',
-    //     key: '2',
-    //     type: 'database',
-    //     data: {
-    //         name: 'linxot',
-    //     },
-    // },
-    // {
-    //     title: 'Databases',
-    //     key: '1',
-    //     type: 'databases',
-    //     data: {},
-    // },
-]
+
+
 
 export function DbManager({ config }) {
 
-    const { t, i18n } = useTranslation();
+    const { t, i18n } = useTranslation()
     // console.log('i18n', i18n)
     // const [lang, setLang] = useState('en')
     const lang = useMemo(() => {
@@ -221,10 +184,53 @@ export function DbManager({ config }) {
         }
     }, [i18n.language])
 
+    const tab_workbench = {
+        title: t('workbench'),
+        key: 'workbench',
+        type: 'workbench',
+        data: {},
+        closable: false,
+    }
+
+    const tabs_default = [
+        tab_workbench,
+        tab_mySql,
+        // {
+        //     title: 'Elasticsearch',
+        //     key: 'key-es',
+        //     type: 'elasticsearch',
+        //     data: {},
+        //     closable: false,
+        // },
+        // {
+        //     title: 'JSON',
+        //     key: 'key-json',
+        //     type: 'json',
+        //     data: {},
+        //     closable: false,
+        // },
+        // {
+        //     title: 'DB linxot',
+        //     key: '2',
+        //     type: 'database',
+        //     data: {
+        //         name: 'linxot',
+        //     },
+        // },
+        // {
+        //     title: 'Databases',
+        //     key: '1',
+        //     type: 'databases',
+        //     data: {},
+        // },
+    ]
+    
     const [tabs, setTabs] = useState(tabs_default)
     const [activeKey, setActiveKey] = useState(() => {
         return tabs[1].key
     })
+
+    
 
     function closeTabByKey(key) {
         console.log('closeTabByKey', key)
