@@ -140,7 +140,17 @@ function Connnector({ config, onConnnect, onJson }) {
         const connections = storage.get('connections', [])
         if (connections.length) {
             setConnections(connections)
-            loadConnect(connections[0])
+            const curConneId = storage.get('current_connection_id')
+            let curConn
+            if (curConneId) {
+                curConn = connections.find(item => item.id === curConneId)
+            }
+            if (curConn) {
+                loadConnect(curConn)
+            }
+            else {
+                loadConnect(connections[0])
+            }
         }   
     }, [])
 
@@ -355,6 +365,8 @@ function Connnector({ config, onConnnect, onJson }) {
                             onSelect={(selectKeys, info) => {
                                 // console.log('onSelect', info)
                                 const data = info.node.data
+                                const { id } = info.node.data
+                                storage.set('current_connection_id', id)
                                 loadConnect(data)
                             }}
                             // onCheck={onCheck}
