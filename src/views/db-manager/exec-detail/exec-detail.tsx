@@ -122,22 +122,22 @@ function Cell({ item, editing, onChange }) {
     )
 }
 
-let g_last
+// let g_last
+// export function ExecDetail(props) {
+//     console.warn('ExecDetail/render', props)
+//     console.log('ExecDetail/g_last', g_last)
+//     if (!g_last) {
+//         g_last = props.data
+//         console.log('ExecDetail/same_init')
+//     }
+//     else {
+//         console.log('ExecDetail/same', g_last === props.data)
+//     }
+//     return (
+//         <div>1212</div>
+//     )
+// }
 export function ExecDetail(props) {
-    console.log('ExecDetail/render', props)
-    console.log('ExecDetail/g_last', g_last)
-    if (!g_last) {
-        g_last = props.data
-        console.log('ExecDetail/same_init')
-    }
-    else {
-        console.log('ExecDetail/same', g_last === props.data)
-    }
-    return (
-        <div>1212</div>
-    )
-}
-export function ExecDetail2(props) {
     const { config, onJson, data, } = props
     const { t } = useTranslation()
     const { 
@@ -157,7 +157,7 @@ export function ExecDetail2(props) {
     // console.timeEnd()
     const rawExecResult = result?.result
     // console.log('ExecDetail/render', JSON.stringify(props))
-    console.log('ExecDetail/render')
+    // console.warn('ExecDetail/render')
     if (window._startTime) {
         console.log('ExecDetail/time', new Date().getTime() - window._startTime.getTime())
     }
@@ -453,7 +453,7 @@ export function ExecDetail2(props) {
     }
 
     const columns = useMemo(() => {
-        console.log('ExecDetail/useMemo')
+        // console.warn('ExecDetail/useMemo')
         const startTime = new Date()
         // console.log('useMemo', results, fields, list)
         let columns = []
@@ -659,12 +659,18 @@ export function ExecDetail2(props) {
                             className={styles.tableBox}
                             ref={tableBoxRef}
                         >
-                            TTT
-                            {/* <Table
+                            {/* TTT */}
+                            <Table
                                 // loading={loading}
                                 dataSource={list}
                                 pagination={false}
                                 columns={columns}
+                                // columns={[
+                                //     {
+                                //         title: 'Name',
+                                //         dataIndex: '_idx',
+                                //     }
+                                // ]}
                                 bordered
                                 style={{
                                     // width: 600,
@@ -740,7 +746,7 @@ export function ExecDetail2(props) {
                                     // x: 2000,
                                     // y: document.body.clientHeight - 396,
                                 }}
-                            /> */}
+                            />
                         </div>
                     }
                     {!!result &&

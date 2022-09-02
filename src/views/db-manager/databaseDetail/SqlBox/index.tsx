@@ -62,35 +62,55 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
     const [code, setCode] = useState(defaultSql)
     const [code2, setCode2] = useState(defaultSql)
 
+    const [tab, setTab] = useState({
+        // activeKey: execResults[0]?.key,
+        activeKey: null,
+        execResults: []
+    })
+    const { activeKey, execResults } = tab
+
     function getCode() {
         return code2
     }
 
     function setCodeASD(code) {
-        console.warn('ExecDetail/setCodeASD')
         setCode2(code)
     }
     
-    const [execResults, setExecResults] = useState([
-        // history_tab,
-        // {
-        //     type: 'all',
-        //     title: '历史记录',
-        //     key: 'all',
-        //     closable: false,
-        // },
-        // {
-        //     type: 'single',
-        //     title: '执行结果1',
-        //     key: 'result-1',
-        // },
-        // {
-        //     type: 'single',
-        //     title: '执行结果2',
-        //     key: 'result-2',
-        // },
-    ])
-    const [activeKey, setActiveKey] = useState(execResults[0]?.key)
+    
+    // const [execResults, setExecResults] = useState([
+    //     // history_tab,
+    //     // {
+    //     //     type: 'all',
+    //     //     title: '历史记录',
+    //     //     key: 'all',
+    //     //     closable: false,
+    //     // },
+    //     // {
+    //     //     type: 'single',
+    //     //     title: '执行结果1',
+    //     //     key: 'result-1',
+    //     // },
+    //     // {
+    //     //     type: 'single',
+    //     //     title: '执行结果2',
+    //     //     key: 'result-2',
+    //     // },
+    // ])
+    function setExecResults(results) {
+        setTab({
+            ...tab,
+            execResults: results,
+        })
+    }
+    function setActiveKey(at) {
+        setTab({
+            ...tab,
+            // execResults: results,
+            activeKey: at,
+        })
+    }
+    // const [activeKey, setActiveKey] = useState(execResults[0]?.key)
 
     
 
@@ -138,7 +158,7 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
             // history_tab,
         ]
         setExecResults(newTabs)
-        console.log('ExecDetail/setExecResults1')
+        // console.log('ExecDetail/setExecResults1')
         const removedCommentCode = removeComment(execCode)
         const lines = removedCommentCode.split(';').filter(item => item.trim())
         let lineIdx = 0
@@ -172,10 +192,14 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
                     }
                 }
             ]
-            setExecResults(newTabs)
-            console.log('ExecDetail/setExecResults2')
+            setTab({
+                activeKey: tabKey,
+                execResults: newTabs,
+            })
+            // setExecResults(newTabs)
+            // console.log('ExecDetail/setExecResults2')
             // return
-            setActiveKey(tabKey)
+            // setActiveKey(tabKey)
             // return
 
             // console.log('line', line)
@@ -268,8 +292,12 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
                 }
                 console.log('ExecDetail/setExecResults3')
                 // return
-                setExecResults([...newTabs])
-                setActiveKey(tabKey)
+                setTab({
+                    activeKey: tabKey,
+                    execResults: [...newTabs],
+                })
+                // setExecResults([...newTabs])
+                // setActiveKey(tabKey)
             }
             else {
 
@@ -292,9 +320,13 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
                         dbName,
                     }
                 }
-                setExecResults([...newTabs])
-                console.log('ExecDetail/setExecResults4')
-                setActiveKey(tabKey)
+                setTab({
+                    activeKey: tabKey,
+                    execResults: [...newTabs],
+                })
+                // setExecResults([...newTabs])
+                // // console.log('ExecDetail/setExecResults4')
+                // setActiveKey(tabKey)
             }
             lineIdx++
         }
@@ -399,7 +431,7 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
                         value={code}
                         onChange={value => setCodeASD(value)}
                         onEditor={editor => {
-                            console.warn('ExecDetail/setEditor')
+                            // console.warn('ExecDetail/setEditor')
                             setEditor(editor)
                         }}
                     />
