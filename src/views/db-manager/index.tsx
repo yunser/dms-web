@@ -1,6 +1,6 @@
 import React, { useState, useEffect, ReactNode, useMemo } from 'react'
 import styles from './index.module.less'
-import { message, Input, Button, Tabs, Space, Form, Checkbox, InputNumber, ConfigProvider, Tree } from 'antd'
+import { message, Input, Button, Tabs, Space, Form, Checkbox, InputNumber, ConfigProvider, Tree, Empty } from 'antd'
 import storage from './storage'
 import axios from 'axios'
 import DatabaseList from './databases'
@@ -204,7 +204,7 @@ function Connnector({ config, onConnnect, onJson }) {
             id: uid(32),
             name: 'Unnamed',
             host: '',
-            port: '',
+            port: 3306,
             user: '',
             password: '',
         }
@@ -331,21 +331,27 @@ function Connnector({ config, onConnnect, onJson }) {
                 </div>
                 <div className={styles.connections}>
                     {/* {connections.map(ConnectionItem)} */}
-                    <Tree
-                        treeData={treeData}
-                        // checkable
-                        defaultExpandAll
-                        // defaultExpandedKeys={['root']}
-                        expandedKeys={treeData.map(item => item.key)}
-                        selectedKeys={curConnect ? [`dbkey-${curConnect.id}`] : []}
-                        // defaultCheckedKeys={['0-0-0', '0-0-1']}
-                        onSelect={(selectKeys, info) => {
-                            console.log('onSelect', info)
-                            const data = info.node.data
-                            loadConnect(data)
-                        }}
-                        // onCheck={onCheck}
-                    />
+                    {connections.length ?
+                        <Tree
+                            treeData={treeData}
+                            // checkable
+                            defaultExpandAll
+                            // defaultExpandedKeys={['root']}
+                            expandedKeys={treeData.map(item => item.key)}
+                            selectedKeys={curConnect ? [`dbkey-${curConnect.id}`] : []}
+                            // defaultCheckedKeys={['0-0-0', '0-0-1']}
+                            onSelect={(selectKeys, info) => {
+                                console.log('onSelect', info)
+                                const data = info.node.data
+                                loadConnect(data)
+                            }}
+                            // onCheck={onCheck}
+                        />
+                    :
+                        <div className={styles.emptyBox}>
+                            <Empty description="No Connects"></Empty>
+                        </div>
+                    }
                 </div>
             </div>
             <div className={styles.layoutRight}>
