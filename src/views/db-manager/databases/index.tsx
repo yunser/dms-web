@@ -68,6 +68,7 @@ export default function DatabaseList({ config, onSelectDatabase }) {
                 pagination={false}
                 columns={columns}
                 rowKey="name"
+                size="small"
                 // scroll={{
                 //     y: 400,
                 // }}

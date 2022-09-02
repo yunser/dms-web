@@ -8,7 +8,7 @@ import { DataBaseDetail } from './databaseDetail'
 import { request } from './utils/http'
 import { useTranslation } from 'react-i18next'
 import { IconButton } from './icon-button'
-import { CloseOutlined, DatabaseOutlined } from '@ant-design/icons'
+import { CloseOutlined, DatabaseOutlined, FolderOutlined, PlusOutlined } from '@ant-design/icons'
 import enUS from 'antd/es/locale/en_US';
 import zhCN from 'antd/es/locale/zh_CN';
 import { EsConnnector } from './es-connectot'
@@ -24,27 +24,108 @@ console.log('styles', styles)
 const { TextArea } = Input
 const { TabPane } = Tabs
 
+function lastSplit(text: string, sep: string) {
+    const idx = text.lastIndexOf(sep)
+    if (idx == -1) {
+        return [text]
+    }
+    return [
+        text.substring(0, idx),
+        text.substring(idx + 1),
+    ]
+}
+
+
+function list2Tree(list) {
+    const unGroupList = []
+    const map = {}
+    for (let item of list) {
+        // let _name = item.name
+        function getNode(name) {
+            return {
+                title: (
+                    <Space>
+                        <DatabaseOutlined />
+                        {name}
+                    </Space>
+                ),
+                key: `dbkey-${item.id}`,
+                icon() {
+                    return (
+                        <PlusOutlined />
+                    )
+                },
+                data: item,
+            }
+        }
+        
+        if (item.name.includes('/')) {
+            const [key, name] = lastSplit(item.name, '/')
+            if (!map[key]) {
+                map[key] = []
+            }
+            const node = getNode(name)
+            map[key].push(node)
+        }
+        else {
+            const node = getNode(item.name)
+            unGroupList.push(node)
+        }
+    }
+    const treeData = [
+        // {
+        //     title: 'UnGroup',
+        //     key: 'root',
+        //     children: unGroupList,
+        // }
+    ]
+    for (let key of Object.keys(map)) {
+        treeData.push({
+            title: (
+                <Space>
+                    <FolderOutlined />
+                    {key}
+                </Space>
+            ),
+            key: `group-${key}`,
+            children: map[key],
+        })
+    }
+    // treeData.push({
+    //     title: (
+    //         <Space>
+    //             <FolderOutlined />
+    //             UnGroup
+    //         </Space>
+    //     ),
+    //     key: `group-default-0`,
+    //     children: unGroupList,
+    // })
+    treeData.push(...unGroupList)
+    return treeData
+}
+
 function Connnector({ config, onConnnect }) {
     const { t } = useTranslation()
 
     const [curConnect, setCurConnect] = useState(null)
     const [connections, setConnections] = useState([
-        {
-            id: '1',
-            name: 'first',
-            host: 'HHH',
-            port: 3306,
-            user: 'UUU',
-            password: 'PPP',
-        },
-        {
-            id: '2',
-            name: 'second',
-            host: 'HHH2',
-            port: 3306,
-            user: 'UUU',
-            password: 'PPP',
-        },
+        // {
+        //     id: '1',
+        //     name: 'first',
+        //     host: 'HHH',
+        //     port: 3306,
+        //     user: 'UUU',
+        //     password: 'PPP',
+        // },
+        // {
+        //     id: '2',
+        //     name: 'second',
+        //     host: 'HHH2',
+        //     port: 3306,
+        //     user: 'UUU',
+        //     password: 'PPP',
+        // },
     ])
 
     function loadConnect(data) {
@@ -198,29 +279,54 @@ function Connnector({ config, onConnnect }) {
         )
     }
 
-    const treeData = connections.map(item => {
-        return {
-            title: item.name,
-            key: `dbkey-${item.id}`,
-            icon: (
-                <DatabaseOutlined />
-            ),
-            data: item,
-        }
-    })
+
+    const treeData = list2Tree(connections)
+    // const treeData = [
+    //     {
+    //         title: 'root',
+    //         key: 'root',
+    //         children: connections.map(item => {
+    //             return {
+    //                 title: (
+    //                     <Space>
+    //                         <DatabaseOutlined />
+    //                         {item.name}
+    //                     </Space>
+    //                 ),
+    //                 key: `dbkey-${item.id}`,
+    //                 icon() {
+    //                     return (
+    //                         <PlusOutlined />
+    //                     )
+    //                 },
+    //                 data: item,
+    //             }
+    //         })
+    //     }
+    // ]
+    // const treeData = 
 
     return (
         <div className={styles.connectBox}>
             <div className={styles.layoutLeft}>
                 {/* {curConnect.id} */}
-                <Button
-                    onClick={add}>新增</Button>
+                <div className={styles.header}>
+                    <IconButton
+                        onClick={add}
+                    >
+                        <PlusOutlined />
+                    </IconButton>
+                    {/* <Button
+                    >新增</Button> */}
+                </div>
                 <div className={styles.connections}>
                     {/* {connections.map(ConnectionItem)} */}
                     <Tree
                         treeData={treeData}
                         // checkable
-                        // defaultExpandedKeys={['0-0-0', '0-0-1']}
+                        defaultExpandAll
+                        // defaultExpandedKeys={['root']}
+                        expandedKeys={treeData.map(item => item.key)}
                         selectedKeys={curConnect ? [`dbkey-${curConnect.id}`] : []}
                         // defaultCheckedKeys={['0-0-0', '0-0-1']}
                         onSelect={(selectKeys, info) => {
