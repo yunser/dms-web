@@ -1,6 +1,6 @@
-import React, { useState, useEffect, ReactNode, useMemo } from 'react'
+import React, { useState, useId, useEffect, ReactNode, useMemo } from 'react'
 import styles from './index.module.less'
-import { message, Input, Button, Tabs, Space, Form, Checkbox, InputNumber, ConfigProvider, Tree, Empty } from 'antd'
+import { message, Input, Button, Tabs, Space, Form, Checkbox, InputNumber, ConfigProvider, Tree, Empty, Modal } from 'antd'
 import storage from './storage'
 import axios from 'axios'
 import DatabaseList from './databases'
@@ -218,12 +218,20 @@ function Connnector({ config, onConnnect, onJson }) {
     }
 
     function remove() {
-        let newConnects = connections.filter(item => item.id != curConnect.id)
-        setConnections(newConnects)
-        storage.set('connections', newConnects)
-        if (newConnects.length) {
-            loadConnect(newConnects[0])
-        }
+        Modal.confirm({
+            content: `确认删除？`,
+            okText: '确认',
+            cancelText: '取消',
+            onOk() {
+                console.log('删除', )
+                let newConnects = connections.filter(item => item.id != curConnect.id)
+                setConnections(newConnects)
+                storage.set('connections', newConnects)
+                if (newConnects.length) {
+                    loadConnect(newConnects[0])
+                }
+            }
+        })
     }
 
     async function save() {
@@ -305,7 +313,11 @@ function Connnector({ config, onConnnect, onJson }) {
     //         })
     //     }
     // ]
-    // const treeData = 
+    // const treeData =
+    
+    // console.log('useId', useId)
+    // const ida = useId()
+    // console.log('ida', ida)
 
     return (
         <div className={styles.connectBox}>

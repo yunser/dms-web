@@ -27,7 +27,7 @@ export const Editor: VFC = ({ lang = 'sql', value, onChange, onEditor }) => {
             })
             _editor.getModel().onDidChangeContent((event) => {
                 const newValue = _editor?.getValue()
-                console.log('onDidChangeContent', newValue)
+                // console.log('onDidChangeContent', newValue)
                 onChange && onChange(newValue)
             });
 			setEditor(_editor);
@@ -42,8 +42,8 @@ export const Editor: VFC = ({ lang = 'sql', value, onChange, onEditor }) => {
         if (_editor && (value || value === '')) {
             // console.log('editor', _editor.getValue)
             if (value != _editor?.getValue()) {
-                console.log('compare', value, _editor?.getValue())
-                console.log('setValue', value)
+                // console.log('compare', value, _editor?.getValue())
+                // console.log('setValue', value)
                 _editor.setValue(value)
             }
         }
@@ -51,7 +51,7 @@ export const Editor: VFC = ({ lang = 'sql', value, onChange, onEditor }) => {
         //     monacoEl.setValue(value)
         // }
 		return () => {
-            console.log('editor.dispose')
+            // console.log('editor.dispose')
             editor?.dispose();
             setEditor(null)
         }
