@@ -238,13 +238,13 @@ function SqlBox({ config, esIndex, esType, dbName, className, defaultSql = '', s
                 tab={item.title}
                 key={item.key}
                 closable={item.closable !== false}
-                closeIcon={
-                    <IconButton
-                        size="small"
-                    >
-                        <CloseOutlined style={{ color: '#999' }} />
-                    </IconButton>
-                }
+                // closeIcon={
+                //     <IconButton
+                //         size="small"
+                //     >
+                //         <CloseOutlined style={{ color: '#999' }} />
+                //     </IconButton>
+                // }
             >
             </TabPane>
             // <SqlBox defaultSql={item.defaultSql} />

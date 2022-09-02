@@ -553,13 +553,13 @@ export function DbManager({ config }) {
                 key={item.key}
                 // closable={true}
                 closable={item.closable !== false}
-                closeIcon={
-                    <IconButton
-                        size="small"
-                    >
-                        <CloseOutlined style={{ color: '#999' }} />
-                    </IconButton>
-                }
+                // closeIcon={
+                //     <IconButton
+                //         size="small"
+                //     >
+                //         <CloseOutlined style={{ color: '#999' }} />
+                //     </IconButton>
+                // }
             >
                 
             </TabPane>
