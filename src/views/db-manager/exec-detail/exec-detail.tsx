@@ -29,6 +29,42 @@ function SimpleCell({ onClick, text, color }) {
     )
 }
 
+function HeaderCell({ name }) {
+    const [isHover, setIsHover] = useState(false)
+    return (
+        <div
+            className={styles.titleCell}
+            onMouseEnter={() => {
+                setIsHover(true)
+            }}
+            onMouseLeave={() => {
+                setIsHover(false)
+            }}
+        >
+            {name}
+            {isHover &&
+                <div className={styles.tool}>
+                    <CopyButton
+                        text={name}
+                    >
+                        <IconButton title="复制">
+                            <CopyOutlined />
+                        </IconButton>
+                    </CopyButton>
+                    {/* <IconButton
+                        title="复制"
+                        onClick={() => {
+                            copy(name)
+                            message.success('Copied')
+                        }}
+                    >
+                        <CopyOutlined />
+                    </IconButton> */}
+                </div>
+            }
+        </div>
+    )
+}
 function Cell({ item, editing, onChange }) {
     // console.log('Cell.item', item)
     // TODO 先 run 再 explain item 就会为空，不清楚原因
@@ -39,7 +75,7 @@ function Cell({ item, editing, onChange }) {
     const text = item.newValue || item.value
     const [value, setValue] = useState(text)
     const inputRef = useRef(null)
-
+    const [isHover, setIsHover] = useState(false)
     useEffect(() => {
         if (isEdit) {
             inputRef.current!.focus();
@@ -51,6 +87,12 @@ function Cell({ item, editing, onChange }) {
             className={classNames(styles.cell, {
                 [styles.edited]: !!item.newValue
             })}
+            onMouseEnter={() => {
+                setIsHover(true)
+            }}
+            onMouseLeave={() => {
+                setIsHover(false)
+            }}
         // style={{
         //     color,
         // }}
@@ -96,7 +138,7 @@ function Cell({ item, editing, onChange }) {
                     >{text}</span>
             }
             {/* {!isEdit && !editing && */}
-            {!isEdit &&
+            {!isEdit && isHover &&
                 <div className={styles.tool}>
                     <CopyButton
                         text={text == null ? 'null' : text}
@@ -111,8 +153,7 @@ function Cell({ item, editing, onChange }) {
                             <div className={styles.content}>{text}</div>
                         }
                     >
-                        {/* <a>查看</a> */}
-                        <IconButton>
+                        <IconButton title="查看">
                             <EyeOutlined />
                         </IconButton>
                     </Popover>
@@ -461,34 +502,19 @@ export function ExecDetail(props) {
         for (let field of fields) {
             const key = '' + idx
             columns.push({
+                // title: <div>{field.name}</div>,
+                // title: '' + field.name,
                 title: (
-                    <div className={styles.titleCell}>
-                        {field.name}
-                        <div className={styles.tool}>
-                            <CopyButton
-                                text={field.name}
-                            >
-                                <IconButton title="复制">
-                                    <CopyOutlined />
-                                </IconButton>
-                            </CopyButton>
-                            {/* <IconButton
-                                title="复制"
-                                onClick={() => {
-                                    copy(field.name)
-                                    message.success('Copied')
-                                }}
-                            >
-                                <CopyOutlined />
-                            </IconButton> */}
-                        </div>
-                    </div>
+                    <HeaderCell name={field.name} />
                 ),
                 dataIndex: key,
                 key,
                 // width: 120,
                 render(value: any, item) {
                     // console.log('Cell.value?', value)
+                    // return (
+                    //     <div>{value.value}</div>
+                    // )
                     return (
                         <Cell
                             editing={editing}
