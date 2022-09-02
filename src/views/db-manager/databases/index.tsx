@@ -14,10 +14,10 @@ export default function DatabaseList({ config, onSelectDatabase }) {
 
     async function loadData() {
         let ret = await axios.post(`${config.host}/mysql/databases`)
-        console.log('ret', ret)
+        // console.log('ret', ret)
         if (ret.status === 200) {
             // message.info('连接成功')
-            console.log('ret', ret.data)
+            // console.log('ret', ret.data)
             // storage.set('connectId', 'ret.data')
             setList(ret.data)
         } else {

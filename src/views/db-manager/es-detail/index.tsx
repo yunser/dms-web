@@ -345,7 +345,7 @@ export function EsDetail({ dbName, config }) {
     }
 
     
-    console.log('tabs', tabs)
+    // console.log('tabs', tabs)
 
     async function showCreateTable(nodeData) {
         const tableName = nodeData.key // TODO @p2
@@ -490,17 +490,17 @@ export function EsDetail({ dbName, config }) {
                                                 if (timerRef.current) {
                                                     clearTimeout(timerRef.current)
                                                 }
-                                                console.log('双击')
+                                                // console.log('双击')
                                                 queryTableStruct(nodeData.key)
                                             }}
                                             onClick={() => {
-                                                console.log('onClick')
+                                                // console.log('onClick')
                                                 //先清除一次
                                                 if (timerRef.current) {
                                                     clearTimeout(timerRef.current)
                                                 }
                                                 timerRef.current = window.setTimeout(() => {
-                                                    console.log('单机', nodeData)
+                                                    // console.log('单机', nodeData)
                                                     if (nodeData.type == 'type') {
                                                         queryTable(nodeData.data)
                                                     }
@@ -583,14 +583,14 @@ export function EsDetail({ dbName, config }) {
                                     {/* 关闭所有 */}
                                     <Button size="small"
                                         onClick={() => {
-                                            console.log('tabs', tabs)
+                                            // console.log('tabs', tabs)
                                             setTabs(tabs.filter(item => item.closable === false))
                                             setActiveKey(first_key)
                                         }}
                                     >{t('close_all')}</Button>
                                     <Button size="small"
                                         onClick={() => {
-                                            console.log('tabs', tabs)
+                                            // console.log('tabs', tabs)
                                             const history_tab = {
                                                 type: 'history',
                                                 title: t('history'),

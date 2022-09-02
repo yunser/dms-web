@@ -207,7 +207,7 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
             let dbName = null
             try {
                 const ast = SqlParser.parse(rawLine.replace(/`/g, ''));
-                console.log('ast', ast)
+                // console.log('ast', ast)
                 if (ast[0]) {
                     if (!ast[0].joinmap) {
                         if (ast[0].source) {
@@ -227,8 +227,8 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
             catch (err) {
                 console.error(err)
             }
-            console.log('tableName', tableName)
-            console.log('dbName', dbName)
+            // console.log('tableName', tableName)
+            // console.log('dbName', dbName)
             // return
 // => [{"tag":"select","columns": [...],"from":[...],"where":null,"group_by":null,"having":null}]
             
@@ -243,10 +243,10 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
             // console.log('res', res)
             if (res.status === 200) {
                 // message.success('执行成功')
-                console.log('ExecDetail/runOk')
+                // console.log('ExecDetail/runOk')
                 // return
                 window._startTime = new Date()
-                console.log(res)
+                // console.log(res)
                 const { results, fields, columns: rawColumns } = res.data
                 const list = results.map((result, rowIdx) => {
                     let item = {
@@ -290,7 +290,7 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
                         rawColumns,
                     }
                 }
-                console.log('ExecDetail/setExecResults3')
+                // console.log('ExecDetail/setExecResults3')
                 // return
                 setTab({
                     activeKey: tabKey,
@@ -341,7 +341,7 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
 
     // ]
     // console.log('render.list.length', list.length)
-    console.log('render.execResults', execResults)
+    // console.log('render.execResults', execResults)
 
     function TabItem(item: TabProps) {
         return (
@@ -389,7 +389,7 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
         }
     }
 
-    console.log('ExecDetail/main_render')
+    // console.log('ExecDetail/main_render')
 
     return (
         <div className={classNames(styles.sqlBox, className)} style={style}>

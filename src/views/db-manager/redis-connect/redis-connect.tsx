@@ -56,7 +56,7 @@ export function RedisConnect({ config, onConnnect, }) {
             storage.set('redisInfo', reqData)
         }
         let ret = await request.post(`${config.host}/redis/connect`, reqData)
-        console.log('ret', ret)
+        // console.log('ret', ret)
         if (ret.status === 200) {
             // message.success('连接成功')
             onConnnect && onConnnect()

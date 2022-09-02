@@ -230,7 +230,7 @@ function SqlBox({ config, esIndex, esType, dbName, className, defaultSql = '', s
 
     // ]
     // console.log('render.list.length', list.length)
-    console.log('render.execResults', execResults)
+    // console.log('render.execResults', execResults)
 
     function TabItem(item: TabProps) {
         return (

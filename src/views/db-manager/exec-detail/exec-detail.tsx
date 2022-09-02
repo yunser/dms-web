@@ -200,10 +200,10 @@ export function ExecDetail(props) {
     // console.log('ExecDetail/render', JSON.stringify(props))
     // console.warn('ExecDetail/render')
     if (window._startTime) {
-        console.log('ExecDetail/time', new Date().getTime() - window._startTime.getTime())
+        // console.log('ExecDetail/time', new Date().getTime() - window._startTime.getTime())
     }
     else {
-        console.log('ExecDetail/time')
+        // console.log('ExecDetail/time')
     }
     // console.log('ExecDetail/rawExecResult', rawExecResult)
     // console.log('ExecDetail/results.length', results.length)
@@ -520,11 +520,11 @@ export function ExecDetail(props) {
                             editing={editing}
                             item={value}
                             onChange={newItem => {
-                                console.log('change', item)
-                                console.log('change.newItem', newItem)
-                                console.log('change.key', key)
-                                console.log('change.list', list)
-                                console.log('change.item._idx', item._idx)
+                                // console.log('change', item)
+                                // console.log('change.newItem', newItem)
+                                // console.log('change.key', key)
+                                // console.log('change.list', list)
+                                // console.log('change.item._idx', item._idx)
                                 list[item._idx][key] = newItem
                                 setList([
                                     ...list,
@@ -543,7 +543,7 @@ export function ExecDetail(props) {
             })
             idx++
         }
-        console.log('ExecDetail/useMemo/End', new Date().getTime() - startTime.getTime())
+        // console.log('ExecDetail/useMemo/End', new Date().getTime() - startTime.getTime())
         return columns
         // return results.map((result, rowIdx) => {
         //     let item = {

@@ -12,7 +12,7 @@ import { CloseOutlined } from '@ant-design/icons'
 import enUS from 'antd/es/locale/en_US';
 import zhCN from 'antd/es/locale/zh_CN';
 
-console.log('styles', styles)
+// console.log('styles', styles)
 const { TextArea } = Input
 const { TabPane } = Tabs
 
@@ -60,7 +60,7 @@ export function EsConnnector({ config, onConnnect }) {
             storage.set('esInfo', reqData)
         }
         let ret = await request.get(pureUrl + '/', reqData)
-        console.log('ret', ret)
+        // console.log('ret', ret)
         if (ret.status === 200) {
             // message.success('连接成功')
             onConnnect && onConnnect({

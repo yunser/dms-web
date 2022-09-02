@@ -20,7 +20,7 @@ import { RedisConnect } from './redis-connect'
 import { RedisClient } from './redis-client'
 import { Workbench } from './workbench'
 
-console.log('styles', styles)
+// console.log('styles', styles)
 const { TextArea } = Input
 const { TabPane } = Tabs
 
@@ -188,7 +188,7 @@ function Connnector({ config, onConnnect, onJson }) {
         //     storage.set('dbInfo', reqData)
         // }
         let ret = await request.post(`${config.host}/mysql/connect`, reqData)
-        console.log('ret', ret)
+        // console.log('ret', ret)
         if (ret.status === 200) {
             // message.success('连接成功')
             onConnnect && onConnnect()
@@ -353,7 +353,7 @@ function Connnector({ config, onConnnect, onJson }) {
                             selectedKeys={curConnect ? [`dbkey-${curConnect.id}`] : []}
                             // defaultCheckedKeys={['0-0-0', '0-0-1']}
                             onSelect={(selectKeys, info) => {
-                                console.log('onSelect', info)
+                                // console.log('onSelect', info)
                                 const data = info.node.data
                                 loadConnect(data)
                             }}

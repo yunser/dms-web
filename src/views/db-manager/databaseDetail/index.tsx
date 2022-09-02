@@ -74,6 +74,135 @@ interface TabProps {
 //     // },
 // ]
 
+function Tester() {
+    console.error('Tester')
+    return <div>12</div>
+}
+
+function TreeTitle({ nodeData, onAction, onClick, onDoubleClick }) {
+
+    const timerRef = useRef(null)
+    const [isHover, setIsHover] = useState(false)
+
+    let _content = (
+        <div className={styles.treeTitle}
+            onDoubleClick={() => {
+                // console.log('onDoubleClick')
+                // queryTable(nodeData.key)
+                if (timerRef.current) {
+                    clearTimeout(timerRef.current)
+                }
+                // console.log('双击')
+                onDoubleClick && onDoubleClick()
+                // queryTableStruct(nodeData.key)
+            }}
+            onClick={() => {
+                // console.log('onClick')
+                //先清除一次
+                if (timerRef.current) {
+                    clearTimeout(timerRef.current)
+                }
+                timerRef.current = window.setTimeout(() => {
+                    // console.log('单机')
+                    onClick && onClick()
+                }, 250)
+            }}
+        >
+            <div className={styles.label}>
+                {nodeData.key == 'root' ?
+                    <DatabaseOutlined className={styles.icon} />
+                :
+                    <TableOutlined className={styles.icon} />
+                }
+                {nodeData.title}
+            </div>
+            {nodeData.key != 'root' &&
+                <Space>
+                    {/* <a
+                        className={styles.btns}
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            e.preventDefault()
+                            queryTable(nodeData.key)
+                        }}
+                    >
+                        快速查询
+                    </a> */}
+                    {/* <a
+                        className={styles.btns}
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            e.preventDefault()
+                            queryTableStruct(nodeData.key)
+                        }}
+                    >
+                        查看结构
+                    </a> */}
+                </Space>
+            }
+        </div>
+    )
+
+    let content = _content
+    if (isHover) {
+        content = (
+            <Dropdown
+                overlay={(
+                    // <Tester />
+                    <Menu
+                        items={[
+                            {
+                                label: '查看结构',
+                                key: 'view_struct',
+                            },
+                            {
+                                label: '导出建表语句',
+                                key: 'export_struct',
+                            },
+                            {
+                                label: '清空表',
+                                key: 'truncate',
+                            },
+                            {
+                                label: '删除表',
+                                key: 'drop',
+                            },
+                        ]}
+                        onClick={({ item, key, keyPath, domEvent }) => {
+                            onAction && onAction(key)
+                        }}
+                    >
+                    </Menu>
+                )}
+                trigger={['contextMenu']}
+            >
+                {/* <div
+                className="site-dropdown-context-menu"
+                style={{
+                    textAlign: 'center',
+                    height: 200,
+                    lineHeight: '200px',
+                }} */}
+                {/* Right Click on here */}
+                {_content}
+            </Dropdown>
+        )
+    }
+
+    return (
+        <div
+            className={styles.treeTitleBox}
+            onMouseEnter={() => {
+                setIsHover(true)
+            }}
+            onMouseLeave={() => {
+                setIsHover(false)
+            }}
+        >
+            {content}
+        </div>
+    )
+}
 
 
 export function DataBaseDetail({ dbName, config, onJson }) {
@@ -98,8 +227,6 @@ export function DataBaseDetail({ dbName, config, onJson }) {
         //     defaultSql: 'SELECT * FROM target.user LIMIT 20;'
         // },
     ]
-    const timerRef = useRef(null)
-
 
     const [activeKey, setActiveKey] = useState(tabs_default[0].key)
     // const
@@ -109,7 +236,7 @@ export function DataBaseDetail({ dbName, config, onJson }) {
     // const refreshByKeyword = 
     const refreshByKeyword = useMemo(() => {
         return debounce((_keyword) => {
-            console.log('ddd.2', _keyword)
+            // console.log('ddd.2', _keyword)
             setFilterKeyword(_keyword)
         })
     }, [])
@@ -328,7 +455,7 @@ export function DataBaseDetail({ dbName, config, onJson }) {
     }
 
     
-    console.log('tabs', tabs)
+    // console.log('tabs', tabs)
 
     async function showCreateTable(nodeData) {
         const tableName = nodeData.key // TODO @p2
@@ -371,7 +498,7 @@ export function DataBaseDetail({ dbName, config, onJson }) {
                     <Input
                         value={keyword}
                         onChange={e => {
-                            console.log('change', refreshByKeyword)
+                            // console.log('change', refreshByKeyword)
                             const kw = e.target.value
                             setKeyword(kw)
                             // setFilterKeyword(kw)
@@ -419,119 +546,30 @@ export function DataBaseDetail({ dbName, config, onJson }) {
                             // defaultCheckedKeys={['0-0-0', '0-0-1']}
                             titleRender={nodeData => {
                                 // console.log('nodeData', nodeData)
-
                                 return (
-                                    <Dropdown
-                                        overlay={(
-                                            <Menu>
-                                                <Menu.Item
-                                                    onClick={(e) => {
-                                                        // e.stopPropagation()
-                                                        // e.preventDefault()
-                                                        queryTableStruct(nodeData.key)
-                                                    }}
-                                                >查看结构</Menu.Item>
-                                                <Menu.Item
-                                                    onClick={(e) => {
-                                                        // e.stopPropagation()
-                                                        // e.preventDefault()
-                                                        showCreateTable(nodeData)
-                                                    }}
-                                                >导出建表语句</Menu.Item>
-                                                <Menu.Item
-                                                    onClick={() => {
-                                                        truncate(nodeData)
-                                                    }}
-                                                >清空表</Menu.Item>
-                                                <Menu.Item
-                                                    onClick={() => {
-                                                        drop(nodeData)
-                                                    }}
-                                                >删除表</Menu.Item>
-                                            </Menu>
-                                            // <Menu
-                                            //     items={[
-                                            //     {
-                                            //         label: '1st menu item',
-                                            //         key: '1',
-                                            //     },
-                                            //     {
-                                            //         label: '2nd menu item',
-                                            //         key: '2',
-                                            //     },
-                                            //     {
-                                            //         label: '3rd menu item',
-                                            //         key: '3',
-                                            //     },
-                                            //     ]}
-                                            // />
-                                        )}
-                                        trigger={['contextMenu']}
-                                    >
-                                        {/* <div
-                                        className="site-dropdown-context-menu"
-                                        style={{
-                                            textAlign: 'center',
-                                            height: 200,
-                                            lineHeight: '200px',
-                                        }} */}
-                                        {/* Right Click on here */}
-                                        <div className={styles.treeTitle}
-                                            onDoubleClick={() => {
-                                                console.log('onDoubleClick')
-                                                // queryTable(nodeData.key)
-                                                if (timerRef.current) {
-                                                    clearTimeout(timerRef.current)
-                                                }
-                                                console.log('双击')
+                                    <TreeTitle
+                                        nodeData={nodeData}
+                                        onClick={() => {
+                                            queryTable(nodeData.key)
+                                        }}
+                                        onDoubleClick={() => {
+                                            queryTableStruct(nodeData.key)
+                                        }}
+                                        onAction={(key) => {
+                                            if (key == 'view_struct') {
                                                 queryTableStruct(nodeData.key)
-                                            }}
-                                            onClick={() => {
-                                                console.log('onClick')
-                                                //先清除一次
-                                                if (timerRef.current) {
-                                                    clearTimeout(timerRef.current)
-                                                }
-                                                timerRef.current = window.setTimeout(() => {
-                                                    console.log('单机')
-                                                    queryTable(nodeData.key)
-                                                }, 250)
-                                            }}
-                                        >
-                                            <div className={styles.label}>
-                                                {nodeData.key == 'root' ?
-                                                    <DatabaseOutlined className={styles.icon} />
-                                                :
-                                                    <TableOutlined className={styles.icon} />
-                                                }
-                                                {nodeData.title}
-                                            </div>
-                                            {nodeData.key != 'root' &&
-                                                <Space>
-                                                    {/* <a
-                                                        className={styles.btns}
-                                                        onClick={(e) => {
-                                                            e.stopPropagation()
-                                                            e.preventDefault()
-                                                            queryTable(nodeData.key)
-                                                        }}
-                                                    >
-                                                        快速查询
-                                                    </a> */}
-                                                    {/* <a
-                                                        className={styles.btns}
-                                                        onClick={(e) => {
-                                                            e.stopPropagation()
-                                                            e.preventDefault()
-                                                            queryTableStruct(nodeData.key)
-                                                        }}
-                                                    >
-                                                        查看结构
-                                                    </a> */}
-                                                </Space>
                                             }
-                                        </div>
-                                    </Dropdown>
+                                            else if (key == 'export_struct') {
+                                                showCreateTable(nodeData)
+                                            }
+                                            else if (key == 'truncate') {
+                                                truncate(nodeData)
+                                            }
+                                            else if (key == 'drop') {
+                                                drop(nodeData)
+                                            }
+                                        }}
+                                    />
                                 )
                             }}
                             onSelect={(selectedKeys, info) => {
@@ -579,7 +617,7 @@ export function DataBaseDetail({ dbName, config, onJson }) {
                                     <IconButton
                                         tooltip={t('history')}
                                         onClick={() => {
-                                            console.log('tabs', tabs)
+                                            // console.log('tabs', tabs)
                                             const history_tab = {
                                                 type: 'history',
                                                 title: t('history'),
