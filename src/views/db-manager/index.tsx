@@ -8,7 +8,7 @@ import { DataBaseDetail } from './databaseDetail'
 import { request } from './utils/http'
 import { useTranslation } from 'react-i18next'
 import { IconButton } from './icon-button'
-import { CloseOutlined, DatabaseOutlined, FolderOutlined, PlusOutlined } from '@ant-design/icons'
+import { CloseOutlined, DatabaseOutlined, ExportOutlined, FolderOutlined, PlusOutlined } from '@ant-design/icons'
 import enUS from 'antd/es/locale/en_US';
 import zhCN from 'antd/es/locale/zh_CN';
 import { EsConnnector } from './es-connectot'
@@ -105,7 +105,7 @@ function list2Tree(list) {
     return treeData
 }
 
-function Connnector({ config, onConnnect }) {
+function Connnector({ config, onConnnect, onJson }) {
     const { t } = useTranslation()
 
     const [curConnect, setCurConnect] = useState(null)
@@ -220,6 +220,7 @@ function Connnector({ config, onConnnect }) {
     function remove() {
         let newConnects = connections.filter(item => item.id != curConnect.id)
         setConnections(newConnects)
+        storage.set('connections', newConnects)
         if (newConnects.length) {
             loadConnect(newConnects[0])
         }
@@ -311,13 +312,22 @@ function Connnector({ config, onConnnect }) {
             <div className={styles.layoutLeft}>
                 {/* {curConnect.id} */}
                 <div className={styles.header}>
-                    <IconButton
-                        onClick={add}
-                    >
-                        <PlusOutlined />
-                    </IconButton>
-                    {/* <Button
-                    >新增</Button> */}
+                    <Space>
+                        <IconButton
+                            onClick={add}
+                            tooltip="新增"
+                        >
+                            <PlusOutlined />
+                        </IconButton>
+                        <IconButton
+                            onClick={() => {
+                                onJson && onJson(JSON.stringify(connections, null, 4))
+                            }}
+                            tooltip="导出"
+                        >
+                            <ExportOutlined />
+                        </IconButton>
+                    </Space>
                 </div>
                 <div className={styles.connections}>
                     {/* {connections.map(ConnectionItem)} */}
@@ -493,6 +503,17 @@ export function DbManager({ config }) {
     })
 
     
+    function addJsonTab(json: string) {
+        addOrActiveTab({
+            title: t('json'),
+            key: 'json-' + uid(16),
+            type: 'json',
+            data: {
+                // url,
+                defaultJson: json,
+            },
+        })
+    }
 
     function closeTabByKey(key) {
         console.log('closeTabByKey', key)
@@ -732,6 +753,7 @@ export function DbManager({ config }) {
                                     {item.type == 'connnect' &&
                                         <Connnector
                                             config={config}
+                                            onJson={json => addJsonTab(json)}
                                             onConnnect={() => {
                                                 addOrActiveTab({
                                                     title: 'MySQL Databases',
@@ -768,16 +790,7 @@ export function DbManager({ config }) {
                                             config={config}
                                             dbName={item.data.name}
                                             onJson={json => {
-                                                console.log('onJson/2')
-                                                addOrActiveTab({
-                                                    title: t('json'),
-                                                    key: 'json-' + uid(16),
-                                                    type: 'json',
-                                                    data: {
-                                                        // url,
-                                                        defaultJson: json,
-                                                    },
-                                                })
+                                                addJsonTab(json)
                                             }}
                                         />
                                     }
