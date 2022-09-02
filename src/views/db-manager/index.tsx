@@ -229,11 +229,11 @@ function Connnector({ config, onConnnect, onJson }) {
 
     function remove() {
         Modal.confirm({
-            content: `确认删除？`,
-            okText: '确认',
-            cancelText: '取消',
+            content: t('delete_confirm'),
+            // okText: '确认',
+            // cancelText: '取消',
             onOk() {
-                console.log('删除', )
+                // console.log('删除', )
                 let newConnects = connections.filter(item => item.id != curConnect.id)
                 setConnections(newConnects)
                 storage.set('connections', newConnects)
@@ -444,11 +444,16 @@ function Connnector({ config, onConnnect, onJson }) {
                                 >
                                     {t('connect')}
                                 </Button>
-                                <Button onClick={save}>保存</Button>
+                                <Button onClick={save}>
+                                    {t('save')}
+                                </Button>
                                 {editType == 'update' &&
                                     <Button
                                         danger
-                                        onClick={remove}>删除</Button>
+                                        onClick={remove}
+                                    >
+                                        {t('delete')}
+                                    </Button>
                                 }
                             </Space>
                         </Form.Item>

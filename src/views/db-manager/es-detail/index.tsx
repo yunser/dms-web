@@ -431,47 +431,7 @@ export function EsDetail({ dbName, config }) {
                                     <Dropdown
                                         overlay={(
                                             <Menu>
-                                                <Menu.Item
-                                                    onClick={(e) => {
-                                                        // e.stopPropagation()
-                                                        // e.preventDefault()
-                                                        queryTableStruct(nodeData.key)
-                                                    }}
-                                                >查看结构</Menu.Item>
-                                                <Menu.Item
-                                                    onClick={(e) => {
-                                                        // e.stopPropagation()
-                                                        // e.preventDefault()
-                                                        showCreateTable(nodeData)
-                                                    }}
-                                                >导出建表语句</Menu.Item>
-                                                <Menu.Item
-                                                    onClick={() => {
-                                                        truncate(nodeData)
-                                                    }}
-                                                >清空表</Menu.Item>
-                                                <Menu.Item
-                                                    onClick={() => {
-                                                        drop(nodeData)
-                                                    }}
-                                                >删除表</Menu.Item>
                                             </Menu>
-                                            // <Menu
-                                            //     items={[
-                                            //     {
-                                            //         label: '1st menu item',
-                                            //         key: '1',
-                                            //     },
-                                            //     {
-                                            //         label: '2nd menu item',
-                                            //         key: '2',
-                                            //     },
-                                            //     {
-                                            //         label: '3rd menu item',
-                                            //         key: '3',
-                                            //     },
-                                            //     ]}
-                                            // />
                                         )}
                                         trigger={['contextMenu']}
                                     >

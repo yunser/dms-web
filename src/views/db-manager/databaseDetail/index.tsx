@@ -80,6 +80,7 @@ function Tester() {
 }
 
 function TreeTitle({ nodeData, onAction, onClick, onDoubleClick }) {
+    const { t } = useTranslation()
 
     const timerRef = useRef(null)
     const [isHover, setIsHover] = useState(false)
@@ -152,19 +153,19 @@ function TreeTitle({ nodeData, onAction, onClick, onDoubleClick }) {
                     <Menu
                         items={[
                             {
-                                label: '查看结构',
+                                label: t('view_struct'),
                                 key: 'view_struct',
                             },
                             {
-                                label: '导出建表语句',
+                                label: t('export_struct'),
                                 key: 'export_struct',
                             },
                             {
-                                label: '清空表',
+                                label: t('table_truncate'),
                                 key: 'truncate',
                             },
                             {
-                                label: '删除表',
+                                label: t('table_drop'),
                                 key: 'drop',
                             },
                         ]}

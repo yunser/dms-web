@@ -21,6 +21,7 @@ i18n
                     submit_modify: 'Submit Modify',
                     add: 'Add',
                     delete: 'Delete',
+                    delete_confirm: 'Confirm delete?',
                     export: 'Export JSON',
                     db_name: 'Database Name',
                     new_query: 'New Query',
@@ -49,6 +50,11 @@ i18n
                     rows: 'rows',
                     workbench: 'Workbench',
                     name: 'Name',
+                    save: 'Save',
+                    table_drop: 'Drop table',
+                    table_truncate: 'Truncate table',
+                    view_struct: 'View Struct',
+                    export_struct: 'Export Struct',
                 }
             },
             zh: {
@@ -63,6 +69,7 @@ i18n
                     submit_modify: '提交修改',
                     add: '新增',
                     delete: '删除',
+                    delete_confirm: '确认删除？',
                     export: '导出 JSON',
                     db_name: '数据库名称',
                     new_query: '新建查询',
@@ -90,6 +97,11 @@ i18n
                     rows: '行',
                     workbench: '工作台',
                     name: '名称',
+                    save: '保存',
+                    table_drop: '删除表',
+                    table_truncate: '清空表',
+                    view_struct: '查看结构',
+                    export_struct: '导出建表语句',
                 }
             }
         },
