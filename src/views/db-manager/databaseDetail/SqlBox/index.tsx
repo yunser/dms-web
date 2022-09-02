@@ -67,6 +67,7 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
     }
 
     function setCodeASD(code) {
+        console.warn('ExecDetail/setCodeASD')
         setCode2(code)
     }
     
@@ -93,12 +94,12 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
 
     
 
-    useEffect(() => {
-        // console.log('onMouneed', storage.get('dbInfo', ''))
-        // setCode(storage.get('dbInfo', ''))
+    // useEffect(() => {
+    //     // console.log('onMouneed', storage.get('dbInfo', ''))
+    //     // setCode(storage.get('dbInfo', ''))
 
-        // run()
-    }, [])
+    //     // run()
+    // }, [])
 
     
 
@@ -137,6 +138,7 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
             // history_tab,
         ]
         setExecResults(newTabs)
+        console.log('ExecDetail/setExecResults1')
         const removedCommentCode = removeComment(execCode)
         const lines = removedCommentCode.split(';').filter(item => item.trim())
         let lineIdx = 0
@@ -171,6 +173,8 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
                 }
             ]
             setExecResults(newTabs)
+            console.log('ExecDetail/setExecResults2')
+            // return
             setActiveKey(tabKey)
             // return
 
@@ -215,6 +219,9 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
             // console.log('res', res)
             if (res.status === 200) {
                 // message.success('执行成功')
+                console.log('ExecDetail/runOk')
+                // return
+                window._startTime = new Date()
                 console.log(res)
                 const { results, fields, columns: rawColumns } = res.data
                 const list = results.map((result, rowIdx) => {
@@ -259,6 +266,8 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
                         rawColumns,
                     }
                 }
+                console.log('ExecDetail/setExecResults3')
+                // return
                 setExecResults([...newTabs])
                 setActiveKey(tabKey)
             }
@@ -284,6 +293,7 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
                     }
                 }
                 setExecResults([...newTabs])
+                console.log('ExecDetail/setExecResults4')
                 setActiveKey(tabKey)
             }
             lineIdx++
@@ -347,6 +357,8 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
         }
     }
 
+    console.log('ExecDetail/main_render')
+
     return (
         <div className={classNames(styles.sqlBox, className)} style={style}>
             <div className={styles.editorBox}>
@@ -387,6 +399,7 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
                         value={code}
                         onChange={value => setCodeASD(value)}
                         onEditor={editor => {
+                            console.warn('ExecDetail/setEditor')
                             setEditor(editor)
                         }}
                     />
@@ -421,7 +434,9 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
                 </div>
                 {execResults.map(item => {
                     return (
-                        <div className={styles.resultTabContent}
+                        <div
+                            className={styles.resultTabContent}
+                            key={item.key}
                             style={{
                                 // visibility: item.key == activeKey ? 'visible' : 'hidden',
                                 display: item.key == activeKey ? undefined : 'none',
@@ -431,13 +446,19 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
                                 <HistoryList config={config} />
                             }
                             {item.type == 'single' &&
-                                <ExecDetail
-                                    data={item.data}
-                                    config={config}
-                                    onJson={onJson}
-                                    // tableName, dbName
-                                    // defaultDbName={dbName}
-                                />
+                                <>
+                                {!!item.data.loading ?
+                                    <div className={styles.loadingBox}>Loding...</div>
+                                :
+                                    <ExecDetail
+                                        data={item.data}
+                                        config={config}
+                                        onJson={onJson}
+                                        // tableName, dbName
+                                        // defaultDbName={dbName}
+                                    />
+                                }
+                                </>
                             }
                         </div>   
                     )

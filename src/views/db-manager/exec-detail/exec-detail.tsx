@@ -122,12 +122,27 @@ function Cell({ item, editing, onChange }) {
     )
 }
 
-
-export function ExecDetail({ config, onJson, data, }) {
+let g_last
+export function ExecDetail(props) {
+    console.log('ExecDetail/render', props)
+    console.log('ExecDetail/g_last', g_last)
+    if (!g_last) {
+        g_last = props.data
+        console.log('ExecDetail/same_init')
+    }
+    else {
+        console.log('ExecDetail/same', g_last === props.data)
+    }
+    return (
+        <div>1212</div>
+    )
+}
+export function ExecDetail2(props) {
+    const { config, onJson, data, } = props
     const { t } = useTranslation()
     const { 
         sql,
-        loading, 
+        // loading, 
         results = [],
         fields = [],
         result, 
@@ -139,29 +154,37 @@ export function ExecDetail({ config, onJson, data, }) {
         
     } = data || {}
 
+    // console.timeEnd()
     const rawExecResult = result?.result
-    console.log('ExecDetail/rawExecResult', rawExecResult)
-    console.log('ExecDetail/results.length', results.length)
+    // console.log('ExecDetail/render', JSON.stringify(props))
+    console.log('ExecDetail/render')
+    if (window._startTime) {
+        console.log('ExecDetail/time', new Date().getTime() - window._startTime.getTime())
+    }
+    else {
+        console.log('ExecDetail/time')
+    }
+    // console.log('ExecDetail/rawExecResult', rawExecResult)
+    // console.log('ExecDetail/results.length', results.length)
 
-    const [tableInfo, setTableInfo] = useState([])
+    const tableInfoList = useRef([])
+    // console.log('tableInfo_will', tableInfoList)
+
     const [modelVisible, setModalVisible] = useState(false)
     const [modelCode, setModalCode] = useState('')
     const tableBoxRef = useRef(null)
     // const [fields, setFields] = useState([])
     // const [results, setResults] = useState([])
     const [editing, setEditing] = useState(false)
-    const [list, setList] = useState([])
-    useEffect(() => {
-        if (loading) {
-            return
-        }
-        console.log('ExecDetail/useEffect/_list')
-        setList(_list)
-        setEditing(false)
-        setSelectedRowKeys([])
-    }, [_list, loading])
+    const [list, setList] = useState(_list)
+    // useEffect(() => {
+    //     console.log('ExecDetail/useEffect/_list')
+    //     setList(_list)
+    //     setEditing(false)
+    //     setSelectedRowKeys([])
+    // }, [_list])
     const [selectedRowKeys, setSelectedRowKeys] = useState([])
-    const [selectedRows_will, setSelectedRows] = useState([])
+    // const [selectedRows_will, setSelectedRows] = useState([])
     // 执行状态弹窗
     const [resultModelVisible, setResultModalVisible] = useState(false)
     const [resultActiveKey, setResultActiveKey] = useState('')
@@ -180,12 +203,9 @@ export function ExecDetail({ config, onJson, data, }) {
             }, {
                 noMessage: true,
             })
-            console.log('loadTableInfo', res)
+            // console.log('loadTableInfo', res)
             if (res.status == 200) {
-                setTableInfo(res.data)
-
-
-
+                tableInfoList.current = res.data
             }
         }
     }
@@ -195,16 +215,13 @@ export function ExecDetail({ config, onJson, data, }) {
     }
 
     useEffect(() => {
-        if (loading) {
-            return
-        }
-        console.log('ExecDetail/useEffect/loadTableInfo')
+        // console.log('ExecDetail/useEffect/loadTableInfo')
         loadTableInfo()
-    }, [dbName, tableName, loading])
+    }, [dbName, tableName])
 
     function submitModify() {
         let pkField: string | number
-        for (let field of tableInfo) {
+        for (let field of tableInfoList) {
             // Default: null
             // Extra: ""
             // Field: "id_"
@@ -343,9 +360,9 @@ export function ExecDetail({ config, onJson, data, }) {
 
     async function removeSelection() {
         // if 
-        console.log('tableInfo', tableInfo)
+        console.log('tableInfo', tableInfoList)
         let pkField: string | number
-        for (let field of tableInfo) {
+        for (let field of tableInfoList) {
             // Default: null
             // Extra: ""
             // Field: "id_"
@@ -436,61 +453,10 @@ export function ExecDetail({ config, onJson, data, }) {
     }
 
     const columns = useMemo(() => {
-        console.log('useMemo', results, fields, list)
-        let columns = [
-            // {
-            //     title: '#',
-            //     key: '__idx',
-            //     fixed: 'left',
-            //     width: 48,
-            //     render(_value, _item, _idx) {
-            //         return (
-            //             <SimpleCell
-            //                 onClick={(e) => {
-            //                     console.log('_value', _value)
-            //                     console.log('e', e)
-                                
-            //                     const itemKey = _item._idx
-            //                     console.log('itemKey', itemKey)
-            //                     // 多选
-            //                     if (e.metaKey) {
-            //                         console.log('metaKey')
-            //                         if (selectedRowKeys.includes(itemKey)) {
-            //                             console.log('又了')
-            //                             setSelectedRowKeys(selectedRowKeys.filter(it => it != itemKey))
-            //                         }
-            //                         else {
-            //                             console.log('没有')
-            //                             setSelectedRowKeys([...selectedRowKeys, itemKey])
-            //                         }
-            //                     }
-            //                     else if (e.shiftKey) {
-            //                         if (selectedRowKeys.length) {
-            //                             const fromIdx = selectedRowKeys[0]
-            //                             const min = Math.min(fromIdx, itemKey)
-            //                             const max = Math.max(fromIdx, itemKey)
-            //                             const newKeys = []
-            //                             for (let i = min; i <= max; i++) {
-            //                                 newKeys.push(i)
-            //                             }
-            //                             setSelectedRowKeys(newKeys)
-            //                         }
-            //                         else {
-            //                             setSelectedRowKeys([itemKey])
-            //                         }
-            //                     }
-            //                     else {
-            //                         console.log('单选')
-            //                         // 单选
-                                    
-            //                         setSelectedRowKeys([itemKey])
-            //                     }
-            //                 }}
-            //                 text={_idx + 1} color="#999" />
-            //         )
-            //     }
-            // }
-        ]
+        console.log('ExecDetail/useMemo')
+        const startTime = new Date()
+        // console.log('useMemo', results, fields, list)
+        let columns = []
         let idx = 0
         for (let field of fields) {
             const key = '' + idx
@@ -551,6 +517,7 @@ export function ExecDetail({ config, onJson, data, }) {
             })
             idx++
         }
+        console.log('ExecDetail/useMemo/End', new Date().getTime() - startTime.getTime())
         return columns
         // return results.map((result, rowIdx) => {
         //     let item = {
@@ -570,7 +537,8 @@ export function ExecDetail({ config, onJson, data, }) {
         //     // }
         //     return item
         // })
-    }, [results, fields, list, selectedRowKeys])
+        
+    }, [results, fields, list])
 
     function TabItem(item: any) {
         return (
@@ -616,11 +584,12 @@ export function ExecDetail({ config, onJson, data, }) {
             {/* ExecDetail */}
             {/* <div>
             </div> */}
-            {loading ?
-                <div className={styles.emptyFullBox}>
-                    <div>Loading...</div>
-                </div>
-        : !!error ?
+            {
+            // loading ?
+            //     <div className={styles.emptyFullBox}>
+            //         <div>Loading...</div>
+            //     </div>
+        !!error ?
             <div className={styles.resultFullBox}>
                 <div className={styles.titleContentBox}>
                     <div className={styles.title}>SQL</div>
@@ -690,8 +659,9 @@ export function ExecDetail({ config, onJson, data, }) {
                             className={styles.tableBox}
                             ref={tableBoxRef}
                         >
-                            <Table
-                                loading={loading}
+                            TTT
+                            {/* <Table
+                                // loading={loading}
                                 dataSource={list}
                                 pagination={false}
                                 columns={columns}
@@ -706,6 +676,7 @@ export function ExecDetail({ config, onJson, data, }) {
                                 rowSelection={{
                                     selectedRowKeys,
                                     hideSelectAll: true,
+                                    fixed: true,
                                     renderCell(_value, _item, _idx) {
                                         // return (
                                         //     <div>
@@ -769,7 +740,7 @@ export function ExecDetail({ config, onJson, data, }) {
                                     // x: 2000,
                                     // y: document.body.clientHeight - 396,
                                 }}
-                            />
+                            /> */}
                         </div>
                     }
                     {!!result &&
