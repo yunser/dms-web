@@ -63,6 +63,7 @@ i18n
                     exec_time: 'Time(ms)',
                     actions: 'Actions',
                     use: 'Use',
+                    no_content: 'No Content',
                 }
             },
             zh: {
@@ -118,6 +119,7 @@ i18n
                     exec_time: '执行时间(毫秒)',
                     actions: '操作',
                     use: '使用',
+                    no_content: '没有内容',
                 }
             }
         },

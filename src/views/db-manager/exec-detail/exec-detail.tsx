@@ -542,21 +542,21 @@ export function ExecDetail(props) {
             //     <div className={styles.emptyFullBox}>
             //         <div>Loading...</div>
             //     </div>
-        !!error ?
-            <div className={styles.resultFullBox}>
-                <div className={styles.titleContentBox}>
-                    <div className={styles.title}>SQL</div>
-                    <div className={styles.content}>
-                        <code><pre>{sql}</pre></code>
+            !!error ?
+                <div className={styles.resultFullBox}>
+                    <div className={styles.titleContentBox}>
+                        <div className={styles.title}>SQL</div>
+                        <div className={styles.content}>
+                            <code><pre>{sql}</pre></code>
+                        </div>
+                    </div>
+                    <div className={styles.titleContentBox}>
+                        <div className={styles.title}>Error</div>
+                        <div className={styles.content}>
+                            <div className={styles.errorBox}>{error}</div>
+                        </div>
                     </div>
                 </div>
-                <div className={styles.titleContentBox}>
-                    <div className={styles.title}>Error</div>
-                    <div className={styles.content}>
-                        <div className={styles.errorBox}>{error}</div>
-                    </div>
-                </div>
-            </div>
             : hasReq ?
                 <>
                     {!!result && !rawExecResult &&
@@ -607,7 +607,7 @@ export function ExecDetail(props) {
                             </Space>
                         </div>
                     }
-                    {!rawExecResult &&
+                    {!rawExecResult ?
                         <div
                             className={styles.tableBox}
                             ref={tableBoxRef}
@@ -701,12 +701,16 @@ export function ExecDetail(props) {
                                 }}
                             />
                         </div>
+                    :
+                        <div className={styles.emptyFullBox}>
+                            {t('no_content')}
+                        </div>
                     }
                     {!!result &&
                         <div className={styles.footer}>
                             <div>{t('time')}: {(result.time / 1000).toFixed(3)} s</div>
                             {!!rawExecResult ?
-                                <div>{!!rawExecResult.info ? rawExecResult.info : `影响行数：${rawExecResult.affectedRows}`}</div>
+                                <div style={{ color: 'green' }}>{!!rawExecResult.info ? rawExecResult.info : `影响行数：${rawExecResult.affectedRows}`}</div>
                             :
                                 <div>{_list.length} {t('rows')}</div>
                             }

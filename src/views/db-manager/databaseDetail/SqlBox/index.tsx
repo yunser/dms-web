@@ -405,7 +405,6 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
                 <div className={styles.toolBox}>
                     <Space>
                         <Button type="primary" size="small" onClick={run}>{t('run')}</Button>
-                        {/* 执行计划 */}
                         <Button size="small" onClick={runPlain}>{t('explain')}</Button>
                         <Button size="small" onClick={formatSql}>{t('format')}</Button>
                         <Select
@@ -420,12 +419,6 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
                             onChange={value => {
                                 setLimit(value)
                             }}
-                            // options={[
-                            //     {
-                            //         label: 'Limit 1000',
-                            //         value: 100,
-                            //     },
-                            // ]}
                             style={{
                                 width: 110
                             }}
