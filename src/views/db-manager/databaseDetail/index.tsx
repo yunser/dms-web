@@ -318,6 +318,13 @@ export function DataBaseDetail({ dbName, config, onJson }) {
                                     <TableList
                                         config={config}
                                         dbName={dbName}
+                                        onTab={tab => {
+                                            setActiveKey(tab.key)
+                                            setTabs([
+                                                ...tabs,
+                                                tab,
+                                            ])
+                                        }}
                                     />
                                 }
                                 {item.type == 'history' &&

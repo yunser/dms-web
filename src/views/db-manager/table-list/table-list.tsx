@@ -10,6 +10,7 @@ import { IconButton } from '../icon-button';
 import { DatabaseOutlined, FormatPainterOutlined, ReloadOutlined, TableOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { suggestionAdd } from '../suggestion';
+import { SorterResult } from 'antd/lib/table/interface';
 
 function getHightlight(title: string, keyword: string) {
     const index = title.toLocaleLowerCase().indexOf(keyword.toLowerCase())
@@ -222,6 +223,7 @@ export function TableList({ config, onTab, dbName, data = {} }: any) {
     const { defaultJson = '' } = data
     const { t } = useTranslation()
 
+    const [sortedInfo, setSortedInfo] = useState({});
     const [loading, setLoading] = useState(false)
     const [keyword, setKeyword] = useState('')
     // const [filterKeyword] = useState('')
@@ -271,6 +273,7 @@ export function TableList({ config, onTab, dbName, data = {} }: any) {
         //   type: 'user/fetchUserList',
         // });
         setLoading(true)
+        setSortedInfo({})
         let res = await axios.post(`${config.host}/mysql/tables`, {
             dbName,
         })
@@ -336,9 +339,9 @@ export function TableList({ config, onTab, dbName, data = {} }: any) {
         })
     }
 
-    async function truncate(nodeData) {
+    async function truncate(tableName) {
         // console.log('nodeData', nodeData)
-        const tableName = nodeData.key // TODO @p2
+        // const tableName = nodeData.key // TODO @p2
         const sql = `TRUNCATE TABLE \`${tableName}\`;`
         console.log('truncate', sql)
         // setSql(sql)
@@ -398,10 +401,14 @@ export function TableList({ config, onTab, dbName, data = {} }: any) {
         {
             title: 'TABLE_NAME',
             dataIndex: 'TABLE_NAME',
-        },
-        {
-            title: 'TABLE_COMMENT',
-            dataIndex: 'TABLE_COMMENT',
+            key: 'TABLE_NAME',
+            sorter: (a, b) => a.TABLE_NAME.localeCompare(b.TABLE_ROWS),
+            sortOrder: sortedInfo.columnKey === 'TABLE_NAME' ? sortedInfo.order : null,
+            // sortDirections: ['descend', 'ascend'],
+            width: 160,
+            maxWidth: 160,
+            ellipsis: true,
+            fixed: 'left',
         },
         {
             title: 'ENGINE',
@@ -410,27 +417,112 @@ export function TableList({ config, onTab, dbName, data = {} }: any) {
         {
             title: 'TABLE_ROWS',
             dataIndex: 'TABLE_ROWS',
+            key: 'TABLE_ROWS',
+            sorter: (a, b) => a.TABLE_ROWS - b.TABLE_ROWS,
+            sortOrder: sortedInfo.columnKey === 'TABLE_ROWS' ? sortedInfo.order : null,
+            sortDirections: ['descend', 'ascend'],
+            ellipsis: true,
         },
         {
             title: 'DATA_LENGTH',
             dataIndex: 'DATA_LENGTH',
+            key: 'DATA_LENGTH',
+            sorter: (a, b) => a.DATA_LENGTH - b.DATA_LENGTH,
+            sortOrder: sortedInfo.columnKey === 'DATA_LENGTH' ? sortedInfo.order : null,
+            sortDirections: ['descend', 'ascend'],
         },
         {
             title: 'INDEX_LENGTH',
             dataIndex: 'INDEX_LENGTH',
+            key: 'INDEX_LENGTH',
+            sorter: (a, b) => a.INDEX_LENGTH - b.INDEX_LENGTH,
+            sortOrder: sortedInfo.columnKey === 'INDEX_LENGTH' ? sortedInfo.order : null,
+            sortDirections: ['descend', 'ascend'],
         },
         {
             title: 'DATA_FREE',
             dataIndex: 'DATA_FREE',
+            key: 'DATA_FREE',
+            sorter: (a, b) => a.DATA_FREE - b.DATA_FREE,
+            sortOrder: sortedInfo.columnKey === 'DATA_FREE' ? sortedInfo.order : null,
+            sortDirections: ['descend', 'ascend'],
         },
         {
             title: 'TABLE_COLLATION',
             dataIndex: 'TABLE_COLLATION',
         },
+        {
+            title: 'TABLE_COMMENT',
+            dataIndex: 'TABLE_COMMENT',
+            width: 240,
+            ellipsis: true,
+        },
+        {
+            title: '操作',
+            dataIndex: 'op',
+            fixed: 'right',
+            render(_value, item) {
+                return (
+                    <Space>
+                        <Button
+                            type="link"
+                            size="small"
+                            onClick={() => {
+                                showSqlInNewtab({
+                                    title: item.TABLE_NAME,
+                                    sql: `SELECT * FROM \`${item.TABLE_NAME}\`
+LIMIT 20`,
+                                })
+                            }}
+                        >
+                            查询
+                        </Button>
+                        <Button
+                            type="link"
+                            size="small"
+                            onClick={() => {
+                                showSqlInNewtab({
+                                    title: item.TABLE_NAME,
+                                    sql: `SELECT PARTITION_NAME,TABLE_ROWS,PARTITION_EXPRESSION,PARTITION_DESCRIPTION 
+FROM INFORMATION_SCHEMA.PARTITIONS 
+WHERE TABLE_SCHEMA='${dbName}' AND TABLE_NAME = '${item.TABLE_NAME}'
+ORDER BY TABLE_ROWS DESC`
+                                })
+                            }}
+                        >
+                            查询分区信息
+                        </Button>
+                        <Button
+                            type="link"
+                            size="small"
+                            onClick={() => {
+                                truncate(item.TABLE_NAME)
+                            }}
+                        >
+                            清空
+                        </Button>
+                    </Space>
+                )
+            }
+        },
     ]
 
     return (
         <div className={styles.tablesBox}>
+            <div style={{
+                marginBottom: 8
+            }}>
+                <Space>
+                    <IconButton
+                        tooltip={t('refresh')}
+                        onClick={() => {
+                            loadData()
+                        }}
+                    >
+                        <ReloadOutlined />
+                    </IconButton>
+                </Space>
+            </div>
             {/* <div className={styles.header}>
                 <DebounceInput
                     value={keyword}
@@ -527,6 +619,15 @@ export function TableList({ config, onTab, dbName, data = {} }: any) {
                 rowKey="TABLE_NAME"
                 columns={columns}
                 bordered
+                onChange={(pagination, filters, sorter) => {
+                    console.log('Various parameters', pagination, filters, sorter);
+                    // setFilteredInfo(filters);
+                    console.log('sorter', sorter)
+                    setSortedInfo(sorter)
+                }}
+                scroll={{
+                    x: true,
+                }}
             />
             {/* <Card bordered={false}>
                 <div className={styles.tableList}>

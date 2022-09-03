@@ -113,7 +113,6 @@ export function HistoryList({ config, onSql }) {
 
     return (
         <div className={styles.historyBox}>
-            {/* History */}
             <div style={{
                 marginBottom: 8
             }}>
@@ -140,6 +139,9 @@ export function HistoryList({ config, onSql }) {
                 // {...restProps}
                 // columns={columns}
                 columns={columns}
+                scroll={{
+                    x: true,
+                }}
             />
         </div>
     )
