@@ -9,6 +9,9 @@ import { Editor } from '../editor/Editor';
 import { IconButton } from '../icon-button';
 import { FormatPainterOutlined } from '@ant-design/icons';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import { DownloadOutlined } from '@ant-design/icons';
+import saveAs from 'file-saver';
+// import { saveAs } from 'file-saver'
 
 export function Json({ config, data = {} }) {
     const { defaultJson = '' } = data
@@ -55,6 +58,30 @@ export function Json({ config, data = {} }) {
                     >
                         {t('compress')}
                     </Button>
+                    <IconButton
+                        size="small"
+                        tooltip={t('download')}
+                        onClick={() => {
+                            const code = getCode()
+                            // const formatedCode = JSON.stringify(JSON.parse(code))
+                            // editor?.setValue(formatedCode)
+                            const blob = new Blob([code], {type: 'application/json;charset=utf-8'});
+                            saveAs(blob, 'unnamed.json')
+                        }}
+                    >
+                        <DownloadOutlined />   
+                    </IconButton>
+                    {/* <Button
+                        size="small"
+                        onClick={() => {
+                            const code = getCode()
+                            const formatedCode = JSON.stringify(JSON.parse(code))
+                            editor?.setValue(formatedCode)
+                        }}
+                    >
+                        <DownloadOutlined />
+                        {t('download')}
+                    </Button> */}
                 </Space>
             </div>
             <div className={styles.editorBox}>

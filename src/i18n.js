@@ -55,6 +55,7 @@ i18n
                     table_truncate: 'Truncate table',
                     view_struct: 'View Struct',
                     export_struct: 'Export Struct',
+                    download: 'Download',
                 }
             },
             zh: {
@@ -102,6 +103,7 @@ i18n
                     table_truncate: '清空表',
                     view_struct: '查看结构',
                     export_struct: '导出建表语句',
+                    download: '下载',
                 }
             }
         },

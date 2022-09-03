@@ -245,7 +245,7 @@ export function suggestionInit() {
                     if (tokens[tokens.length - 2]?.toLowerCase() == 'from') {
                         // suggestions = list2Suggest(['WHERE'])
                         return {
-                            suggestions: list2Suggest(['WHERE'])
+                            suggestions: list2Suggest(['WHERE', 'AS'])
                         }
                     }
                     else if (tokens.length >= 3) {
