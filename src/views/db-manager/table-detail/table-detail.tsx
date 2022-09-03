@@ -264,6 +264,9 @@ export function TableDetail({ config, dbName, tableName }) {
                         bordered
                         pagination={false}
                         size="small"
+                        rowKey={(_item, index) => {
+                            return '' + index
+                        }}
                     />
                 </TabPane>
                 <TabPane tab="索引信息" key="index">
@@ -273,6 +276,9 @@ export function TableDetail({ config, dbName, tableName }) {
                         bordered
                         pagination={false}
                         size="small"
+                        rowKey={(_item, index) => {
+                            return '' + index
+                        }}
                     />
                 </TabPane>
                 <TabPane tab="分区信息" key="partition">
@@ -282,6 +288,9 @@ export function TableDetail({ config, dbName, tableName }) {
                         bordered
                         pagination={false}
                         size="small"
+                        rowKey={(_item, index) => {
+                            return '' + index
+                        }}
                     />
                 </TabPane>
             </Tabs>

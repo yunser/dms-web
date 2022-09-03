@@ -18,11 +18,11 @@ import { Table, Button } from 'antd'
 import styles from './index.module.less'
 // import http from '../../../utils/http'
 import SqlBox from './SqlBox'
-import Item from 'antd/lib/list/Item'
+// import Item from 'antd/lib/list/Item'
 // import type { DataNode, TreeProps } from 'antd/es/tree';
-import axios from 'axios'
+// import axios from 'axios'
 import { TableDetail } from '../table-detail/table-detail'
-import { suggestionAdd } from '../suggestion'
+// import { suggestionAdd } from '../suggestion'
 import { CloseOutlined, DatabaseOutlined, DownOutlined, EllipsisOutlined, HistoryOutlined, MenuOutlined, ReloadOutlined, TableOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next'
 import { IconButton } from '../icon-button'
@@ -30,6 +30,7 @@ import { ExecModal } from '../exec-modal/exec-modal'
 import { HistoryList } from '../history'
 // import _ from 'lodash'
 import debounce from 'lodash/debounce'
+import { SqlTree } from '../sql-tree'
 
 // console.log('ddd.0')
 // _.debounce(() => {
@@ -61,154 +62,11 @@ interface TabProps {
     data?: object
 }
 
-// const tabs: Array<TabProps> = [
-//     {
-//         title: 'SQL',
-//         key: '0',
-//         defaultSql: '',
-//     },
-//     // {
-//     //     title: 'Tab 1',
-//     //     key: '1',
-//     //     defaultSql: 'SELECT * FROM target.user LIMIT 20;'
-//     // },
-// ]
-
-function Tester() {
-    console.error('Tester')
-    return <div>12</div>
-}
-
-function TreeTitle({ nodeData, onAction, onClick, onDoubleClick }) {
-    const { t } = useTranslation()
-
-    const timerRef = useRef(null)
-    const [isHover, setIsHover] = useState(false)
-
-    let _content = (
-        <div className={styles.treeTitle}
-            onDoubleClick={() => {
-                // console.log('onDoubleClick')
-                // queryTable(nodeData.key)
-                if (timerRef.current) {
-                    clearTimeout(timerRef.current)
-                }
-                // console.log('双击')
-                onDoubleClick && onDoubleClick()
-                // queryTableStruct(nodeData.key)
-            }}
-            onClick={() => {
-                // console.log('onClick')
-                //先清除一次
-                if (timerRef.current) {
-                    clearTimeout(timerRef.current)
-                }
-                timerRef.current = window.setTimeout(() => {
-                    // console.log('单机')
-                    onClick && onClick()
-                }, 250)
-            }}
-        >
-            <div className={styles.label}>
-                {nodeData.key == 'root' ?
-                    <DatabaseOutlined className={styles.icon} />
-                :
-                    <TableOutlined className={styles.icon} />
-                }
-                {nodeData.title}
-            </div>
-            {nodeData.key != 'root' &&
-                <Space>
-                    {/* <a
-                        className={styles.btns}
-                        onClick={(e) => {
-                            e.stopPropagation()
-                            e.preventDefault()
-                            queryTable(nodeData.key)
-                        }}
-                    >
-                        快速查询
-                    </a> */}
-                    {/* <a
-                        className={styles.btns}
-                        onClick={(e) => {
-                            e.stopPropagation()
-                            e.preventDefault()
-                            queryTableStruct(nodeData.key)
-                        }}
-                    >
-                        查看结构
-                    </a> */}
-                </Space>
-            }
-        </div>
-    )
-
-    let content = _content
-    if (isHover) {
-        content = (
-            <Dropdown
-                overlay={(
-                    // <Tester />
-                    <Menu
-                        items={[
-                            {
-                                label: t('view_struct'),
-                                key: 'view_struct',
-                            },
-                            {
-                                label: t('export_struct'),
-                                key: 'export_struct',
-                            },
-                            {
-                                label: t('table_truncate'),
-                                key: 'truncate',
-                            },
-                            {
-                                label: t('table_drop'),
-                                key: 'drop',
-                            },
-                        ]}
-                        onClick={({ item, key, keyPath, domEvent }) => {
-                            onAction && onAction(key)
-                        }}
-                    >
-                    </Menu>
-                )}
-                trigger={['contextMenu']}
-            >
-                {/* <div
-                className="site-dropdown-context-menu"
-                style={{
-                    textAlign: 'center',
-                    height: 200,
-                    lineHeight: '200px',
-                }} */}
-                {/* Right Click on here */}
-                {_content}
-            </Dropdown>
-        )
-    }
-
-    return (
-        <div
-            className={styles.treeTitleBox}
-            onMouseEnter={() => {
-                setIsHover(true)
-            }}
-            onMouseLeave={() => {
-                setIsHover(false)
-            }}
-        >
-            {content}
-        </div>
-    )
-}
 
 
 export function DataBaseDetail({ dbName, config, onJson }) {
     console.warn('DataBaseDetail/render')
-    
+
     const { t } = useTranslation()
 
     const [sql, setSql] = useState('')
@@ -230,158 +88,12 @@ export function DataBaseDetail({ dbName, config, onJson }) {
         //     defaultSql: 'SELECT * FROM target.user LIMIT 20;'
         // },
     ]
-
     const [activeKey, setActiveKey] = useState(tabs_default[0].key)
-    // const
-    const [loading, setLoading] = useState(false)
-    const [keyword, setKeyword] = useState('')
-    const [filterKeyword, setFilterKeyword] = useState('')
-    // const refreshByKeyword = 
-    const refreshByKeyword = useMemo(() => {
-        return debounce((_keyword) => {
-            // console.log('ddd.2', _keyword)
-            setFilterKeyword(_keyword)
-        })
-    }, [])
-    const [list, setList] = useState([])
     const [tabs, setTabs] = useState(tabs_default)
-    const [treeData, setTreeData] = useState([
-        {
-            title: dbName,
-            key: 'root',
-            children: [
-                // {
-                //     title: 'parent 1-0',
-                //     key: '0-0-0',
-                // },
-                // {
-                //     title: 'parent 1-1',
-                //     key: '0-0-1',
-                // },
-            ],
-        },
-    ])
-    const filterTreeData = useMemo(() => {
-        if (!filterKeyword) {
-            return treeData
-        }
-        return [
-            {
-                ...treeData[0],
-                children: treeData[0].children.filter(item => {
-                    return item.title.includes(filterKeyword)
-                })
-            }
-        ]
-    }, [treeData, filterKeyword])
-    // const treeData: any[] = [
-        
-    // ]
+    
 
-    async function loadData() {
-        // console.log('props', this.props.match.params.name)
-        // let dbName = this.props.match.params.name
-        // this.dbName = dbName
-        // const { dispatch } = this.props;
-        // dispatch({
-        //   type: 'user/fetchUserList',
-        // });
-        setLoading(true)
-        let res = await axios.post(`${config.host}/mysql/tables`, {
-            dbName,
-        })
-        if (res.status === 200) {
-            // message.info('连接成功')
-            const list = res.data
-            // console.log('res', list)
-            setList(res.list)
-
-            const children = list
-                .map(item => {
-                    const tableName = item.TABLE_NAME
-                    return {
-                        title: tableName,
-                        key: tableName,
-                    }
-                })
-                .sort((a, b) => {
-                    return a.title.localeCompare(b.title)
-                })
-            setTreeData([
-                {
-                    title: dbName,
-                    key: 'root',
-                    children,
-                    itemData: Item,
-                },
-            ])
-            // adbs: ,
-            // suggestionAdd('adbs', ['dim_realtime_recharge_paycfg_range', 'dim_realtime_recharge_range'])
-            suggestionAdd(dbName, list.map(item => item.TABLE_NAME))
-        } else {
-            message.error('连接失败')
-        }
-        setLoading(false)
-    }
-
-    useEffect(() => {
-        loadData()
-    }, [])
-
-    async function showSqlInNewtab({ title = 'New Query', sql }) {
-        let tabKey = '' + new Date().getTime()
-        setActiveKey(tabKey)
-        setTabs([
-            ...tabs,
-            {
-                title,
-                key: tabKey,
-                defaultSql: sql,
-                data: {
-                    dbName,
-                    tableName: null,
-                },
-            }
-        ])
-    }
-
-    function queryTable(tableName: string) {
-        // let tabKey = '' + new Date().getTime()
-        // setActiveKey(tabKey)
-        // setTabs([
-        //     ...tabs,
-        //     {
-        //         title: tableName,
-        //         key: tabKey,
-        //         defaultSql: `SELECT *\nFROM \`${dbName}\`.\`${tableName}\`\nLIMIT 20;`,
-        //         data: {
-        //             dbName,
-        //             tableName,
-        //         },
-        //     }
-        // ])
-        showSqlInNewtab({
-            title: tableName,
-            sql: `SELECT *\nFROM \`${dbName}\`.\`${tableName}\`\nLIMIT 20;`,
-        })
-    }
-    function queryTableStruct(tableName: string) {
-        let tabKey = '' + new Date().getTime()
-        setActiveKey(tabKey)
-        setTabs([
-            ...tabs,
-            {
-                title: tableName + ' - Table',
-                key: tabKey,
-                type: 'tableDetail',
-                // defaultSql: `SELECT * FROM \`${dbName}\`.\`${tableName}\` LIMIT 20;`,
-                data: {
-                    dbName,
-                    tableName,
-                },
-            }
-        ])
-    }
+    
+    
 
 
     // const columns = [
@@ -460,142 +172,25 @@ export function DataBaseDetail({ dbName, config, onJson }) {
     
     // console.log('tabs', tabs)
 
-    async function showCreateTable(nodeData) {
-        const tableName = nodeData.key // TODO @p2
-        const sql = `show create table \`${tableName}\`;`
-        // setSql(sql)
-        showSqlInNewtab({
-            title: 'Show create table',
-            sql,
-        })
-    }
-
-    async function truncate(nodeData) {
-        // console.log('nodeData', nodeData)
-        const tableName = nodeData.key // TODO @p2
-        const sql = `TRUNCATE TABLE \`${tableName}\`;`
-        console.log('truncate', sql)
-        // setSql(sql)
-        showSqlInNewtab({
-            title: 'TRUNCATE TABLE',
-            sql,
-        })
-    }
-
-    async function drop(nodeData) {
-        const tableName = nodeData.key // TODO @p2
-        const sql = `DROP TABLE \`${tableName}\`;`
-        // setSql(sql)
-        showSqlInNewtab({
-            title: 'DROP TABLE',
-            sql,
-        })
-    }
+    
 
     
     return (
         <div className={styles.layout}>
-            <div className={styles.layoutLeft}>
-                <div className={styles.header}>
-                    {/* Header */}
-                    <Input
-                        value={keyword}
-                        onChange={e => {
-                            // console.log('change', refreshByKeyword)
-                            const kw = e.target.value
-                            setKeyword(kw)
-                            // setFilterKeyword(kw)
-                            refreshByKeyword(kw)
-                            // debounce(() => {
-                            //     console.log('set')
-                            // }, 150, {
-                            //     'maxWait': 1000
-                            // })
-                        }}
-                        allowClear
-                        placeholder={t('search') + '...'}
-                    />
-
-                    <Tooltip title={t('refresh')} mouseEnterDelay={1}>
-                        <IconButton
-                            className={styles.refresh}
-                            onClick={() => {
-                                loadData()
-                            }}
-                        >
-                            <ReloadOutlined />
-                        </IconButton>
-                        {/* <Button 
-                            className={styles.refresh}
-                            type="link"
-                            onClick={() => {
-                                loadData()
-                            }}
-                            icon={
-                                <ReloadOutlined />
-                            }
-                        /> */}
-                    </Tooltip>
-                </div>
-                <div className={styles.body}>
-                    {loading ?
-                        <div className={styles.loading}>Loading...</div>
-                    :
-                        <Tree
-                            // checkable
-                            defaultExpandedKeys={['root']}
-                            selectedKeys={[]}
-                            // defaultSelectedKeys={['0-0-0', '0-0-1']}
-                            // defaultCheckedKeys={['0-0-0', '0-0-1']}
-                            titleRender={nodeData => {
-                                // console.log('nodeData', nodeData)
-                                return (
-                                    <TreeTitle
-                                        nodeData={nodeData}
-                                        onClick={() => {
-                                            queryTable(nodeData.key)
-                                        }}
-                                        onDoubleClick={() => {
-                                            queryTableStruct(nodeData.key)
-                                        }}
-                                        onAction={(key) => {
-                                            if (key == 'view_struct') {
-                                                queryTableStruct(nodeData.key)
-                                            }
-                                            else if (key == 'export_struct') {
-                                                showCreateTable(nodeData)
-                                            }
-                                            else if (key == 'truncate') {
-                                                truncate(nodeData)
-                                            }
-                                            else if (key == 'drop') {
-                                                drop(nodeData)
-                                            }
-                                        }}
-                                    />
-                                )
-                            }}
-                            onSelect={(selectedKeys, info) => {
-                                // console.log('selected', selectedKeys, info);
-                                // const tableName = selectedKeys[0]
-                                // queryTable(tableName)
-
-                            }}
-                            // onCheck={onCheck}
-                            treeData={filterTreeData}
-                        />
-                    }
-                    {/* <Card bordered={false}>
-                        <div className={styles.tableList}>
-                            <Table
-                                dataSource={list}
-                                pagination={false}
-                                rowKey="TABLE_NAME"
-                                columns={columns} />
-                        </div>
-                    </Card> */}
-                </div>
-            </div>
+            <SqlTree
+                config={config}
+                dbName={dbName}
+                onTab={tab => {
+                    setActiveKey(tab.key)
+                    setTabs([
+                        ...tabs,
+                        tab,
+                    ])
+                }}
+            />
+            {/* <div className={styles.layoutLeft}>
+                
+            </div> */}
             <div className={styles.layoutRight}>
                 {/* <Button type="primary" onClick={update}>更新</Button> */}
                 <div className={styles.header}>
