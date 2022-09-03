@@ -11,7 +11,17 @@ import { DatabaseOutlined, FormatPainterOutlined, ReloadOutlined, TableOutlined 
 import axios from 'axios';
 import { suggestionAdd } from '../suggestion';
 
-function TreeTitle({ nodeData, onAction, onClick, onDoubleClick }: any) {
+function getHightlight(title, keyword) {
+    return (
+        <span
+            dangerouslySetInnerHTML={{
+                __html: title.replace(keyword, `<span style="color: red">${keyword}</span>`),
+            }}
+        ></span>
+    )
+}
+
+function TreeTitle({ keyword, nodeData, onAction, onClick, onDoubleClick }: any) {
     const { t } = useTranslation()
 
     const timerRef = useRef<number | null>(null)
@@ -47,7 +57,11 @@ function TreeTitle({ nodeData, onAction, onClick, onDoubleClick }: any) {
                 :
                     <TableOutlined className={styles.icon} />
                 }
-                {nodeData.title}
+                {!!keyword ?
+                    getHightlight(nodeData.title, keyword)
+                :
+                    nodeData.title
+                }
             </div>
             {nodeData.key != 'root' &&
                 <Space>
@@ -414,6 +428,7 @@ export function SqlTree({ config, onTab, dbName, data = {} }: any) {
                             return (
                                 <TreeTitle
                                     nodeData={nodeData}
+                                    keyword={keyword}
                                     onClick={() => {
                                         queryTable(nodeData.key)
                                     }}

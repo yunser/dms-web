@@ -28,6 +28,8 @@ function Tester() {
 }
 
 export function Help({ config, }) {
+    console.warn('Help/render')
+    
     const { t } = useTranslation()
 
     return (

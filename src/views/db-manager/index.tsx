@@ -487,6 +487,8 @@ const tab_mySql = {
 
 export function DbManager({ config }) {
 
+    console.warn('DbManager/render')
+    
     const { t, i18n } = useTranslation()
     // console.log('i18n', i18n)
     // const [lang, setLang] = useState('en')
