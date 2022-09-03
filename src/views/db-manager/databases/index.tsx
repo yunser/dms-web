@@ -32,23 +32,33 @@ export default function DatabaseList({ config, onSelectDatabase }) {
     const columns = [
         {
             title: t('db_name'),
-            dataIndex: 'name',
-            key: 'name',
+            dataIndex: 'SCHEMA_NAME',
+            key: 'SCHEMA_NAME',
             render(value: string, item) {
                 return (
                     <div
                         onClick={() => {
-                            onSelectDatabase && onSelectDatabase(item)
+                            onSelectDatabase && onSelectDatabase({
+                                name: item.SCHEMA_NAME,
+                            })
                         }}
                         style={{
                             cursor: 'pointer',
                         }}
                     >
-                        {value}
+                        <a>{value}</a>
                     </div>
                 )
                 // return <a href={`/databases/${value}`}>{value}</a>
             },
+        },
+        {
+            title: 'DEFAULT_CHARACTER_SET_NAME',
+            dataIndex: 'DEFAULT_CHARACTER_SET_NAME',
+        },
+        {
+            title: 'DEFAULT_COLLATION_NAME',
+            dataIndex: 'DEFAULT_COLLATION_NAME',
         },
         // {
         //     title: '操作',
@@ -63,6 +73,7 @@ export default function DatabaseList({ config, onSelectDatabase }) {
     return (
         <div className={styles.databasesBox}>
             <Table
+                bordered
                 className={styles.table}
                 dataSource={list}
                 pagination={false}
