@@ -244,20 +244,32 @@ export function suggestionInit() {
                     console.log('monaco/match', 'where')
                     suggestions = [...getFieldSuggest()]
                 }
-                
+                // order ?
                 else if (lastTokenLowerCase == 'order') {
                     suggestions = [
                         ...list2Suggest(['BY'])
                     ]
                 }
+                // group ?
                 else if (lastTokenLowerCase == 'group') {
                     suggestions = [
                         ...list2Suggest(['BY'])
                     ]
                 }
+                // by ?
                 else if (lastTokenLowerCase == 'by') {
                     suggestions = [...getFieldSuggest()]
                 }
+                // want to select
+                else if (tokens.length == 1 && 'select'.startsWith(lastTokenLowerCase)) {
+                    suggestions = [
+                        ...list2Suggest([
+                            'SELECT',
+                            'SELECT * FROM',
+                        ]),
+                    ]
+                }
+                // select ?
                 else if (lastTokenLowerCase == 'select') {
                     suggestions = [
                         ...list2Suggest(['*', 'ALL']),
@@ -286,26 +298,60 @@ export function suggestionInit() {
                         ...getFieldSuggest()
                     ]
                 }
+                // delete ?
+                else if (lastTokenLowerCase == 'delete') {
+                    suggestions = [
+                        ...list2Suggest(['FROM']),
+                    ]
+                }
+                // want to delete
+                else if (tokens.length == 1 && 'delete'.startsWith(lastTokenLowerCase)) {
+                    console.log('monaco/match', 'want to delete')
+                    // else if (tokens.length == 1 && tokens[0] == 'i') {
+                    suggestions = [
+                        ...list2Suggest(['DELETE FROM']),
+                    ]
+                }
                 // delete from xx
                 else if (tokens[tokens.length - 3]?.toLowerCase() == 'delete' && tokens[tokens.length - 2]?.toLowerCase() == 'from') {
                     suggestions = [
                         ...list2Suggest(['WHERE']),
                     ]
                 }
-                // want into insert
-                else if (tokens.length == 1 && tokens[0] == 'i') {
+                // insert ? (must before 「want to insert」)
+                else if (lastTokenLowerCase == 'insert') {
+                    console.log('monaco/match', 'nsert ? (must before 「want to insert」)')
+                    suggestions = [
+                        ...list2Suggest(['INTO']),
+                    ]
+                }
+                // want to insert
+                else if (tokens.length == 1 && 'insert'.startsWith(lastTokenLowerCase)) {
+                    console.log('monaco/match', 'want to insert')
+                    // else if (tokens.length == 1 && tokens[0] == 'i') {
                     suggestions = [
                         ...list2Suggest(['INSERT INTO']),
                     ]
                 }
                 // insert into ?
                 else if (tokens[tokens.length - 2]?.toLowerCase() == 'insert' && tokens[tokens.length - 1]?.toLowerCase() == 'into') {
+                    console.log('monaco/match', 'insert into ?')
                     suggestions = [
+                        ...getDBSuggest(),
                         ...getAllTableSuggest(),
+                    ]
+                }
+                // insert into xx ?
+                else if (tokens[tokens.length - 3]?.toLowerCase() == 'insert' && tokens[tokens.length - 2]?.toLowerCase() == 'into') {
+                    console.log('monaco/match', 'insert into xx ?')
+                    suggestions = [
+                        ...list2Suggest(['()']),
+                        ...list2Suggest(['VALUES']),
                     ]
                 }
                 // insert into xx (?)
                 else if (lastTokenLowerCase.includes('(')) {
+                    console.log('monaco/match', 'insert into xx (?)')
                     suggestions = [
                         ...getFieldSuggest(),
                     ]
@@ -328,12 +374,12 @@ export function suggestionInit() {
                         ...getAllTableSuggest(),
                     ]
                 }
-                else if (lastTokenLowerCase == 'from' || tokens[tokens.length - 2]?.toLowerCase() == 'from') {
+                else if (lastTokenLowerCase == 'from') {
                     console.log('monaco/match', 'from')
                     suggestions = [
                         ...getDBSuggest(),
                         ...getAllTableSuggest(),
-                        ...getSQLSuggest(),
+                        // ...getSQLSuggest(),
                     ]
                 }
                 else if (lastTokenLowerCase == '*') {
@@ -386,7 +432,11 @@ export function suggestionInit() {
                 }
                 else {
                     console.log('monaco/match', 'unknown')
-                    suggestions = [...getDBSuggest(), ...getSQLSuggest()]
+                    suggestions = [
+                        ...getDBSuggest(),
+                        // ...getSQLSuggest()
+                        ...list2Suggest(all_keyword),
+                    ]
                 }
         
                 return {
