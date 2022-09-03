@@ -14,7 +14,7 @@ const { TabPane } = Tabs
 const { TextArea } = Input
 
 
-export function ExecModal({ config, sql, tableName, dbName }) {
+export function ExecModal({ config, sql, onClose, tableName, dbName }) {
     const { t } = useTranslation()
 
     const [modelVisible, setModalVisible] = useState(true)
@@ -41,6 +41,7 @@ export function ExecModal({ config, sql, tableName, dbName }) {
 
     async function doSubmit() {
         setModalVisible(false)
+        
         setResultModalVisible(true)
 
         const lines = modelCode.split(';').map(item => item.trim()).filter(item => item)
@@ -136,13 +137,14 @@ export function ExecModal({ config, sql, tableName, dbName }) {
                     maskClosable={false}
                     visible={true}
                     width={800}
-                    okText="执行"
+                    okText={t('run')}
                     // onOk={handleOk}
-                    okButtonProps={{
-                        children: '执行',
-                    }}
+                    // okButtonProps={{
+                    //     children: t('run'),
+                    // }}
                     onCancel={() => {
                         setModalVisible(false)
+                        onClose && onClose()
                     }}
                     onOk={() => {
                         doSubmit()
@@ -173,6 +175,7 @@ export function ExecModal({ config, sql, tableName, dbName }) {
                     // }}
                     onCancel={() => {
                         setResultModalVisible(false)
+                        onClose && onClose()
                     }}
                     // onOk={() => {
                     //     doSubmit()
