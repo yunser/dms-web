@@ -260,6 +260,14 @@ export function suggestionInit() {
                 else if (lastTokenLowerCase == 'by') {
                     suggestions = [...getFieldSuggest()]
                 }
+                // select ?（before 「want to select」）
+                else if (lastTokenLowerCase == 'select') {
+                    suggestions = [
+                        ...list2Suggest(['*', 'ALL']),
+                        ...getFunctionSuggest(),
+                        ...getFieldSuggest()
+                    ]
+                }
                 // want to select
                 else if (tokens.length == 1 && 'select'.startsWith(lastTokenLowerCase)) {
                     suggestions = [
@@ -267,14 +275,6 @@ export function suggestionInit() {
                             'SELECT',
                             'SELECT * FROM',
                         ]),
-                    ]
-                }
-                // select ?
-                else if (lastTokenLowerCase == 'select') {
-                    suggestions = [
-                        ...list2Suggest(['*', 'ALL']),
-                        ...getFunctionSuggest(),
-                        ...getFieldSuggest()
                     ]
                 }
                 // update ?

@@ -16,6 +16,7 @@ import { useTranslation, Trans } from "react-i18next";
 import { HistoryList } from '../../history'
 import { CloseOutlined } from '@ant-design/icons'
 import { IconButton } from '../../icon-button'
+import storage from '@/utils/storage'
 // var parse = require('sql-parse').parse;
 // console.log('asd')
 
@@ -58,7 +59,13 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
     const defaultDbName = dbName
     // console.log('defaultSql', defaultSql)
 
-    const [limit, setLimit] = useState(100)
+    const [limit, _setLimit] = useState(() => {
+        return storage.get('default_limit', 100)
+    })
+    function setLimit(limit: number) {
+        _setLimit(limit)
+        storage.set('default_limit', limit)
+    }
     const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
     const [code, setCode] = useState(defaultSql)
     const code_ref = useRef(defaultSql)
