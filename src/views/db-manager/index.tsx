@@ -19,6 +19,7 @@ import { Json } from './json'
 import { RedisConnect } from './redis-connect'
 import { RedisClient } from './redis-client'
 import { Workbench } from './workbench'
+import { setAllFields } from './suggestion'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -35,6 +36,9 @@ function lastSplit(text: string, sep: string) {
     ]
 }
 
+async function loadDbFields(dbName) {
+
+}
 
 function list2Tree(list) {
     const unGroupList = []
@@ -869,7 +873,7 @@ export function DbManager({ config }) {
                                     {item.type == 'databases' &&
                                         <DatabaseList
                                             config={config}
-                                            onSelectDatabase={({name}) => {
+                                            onSelectDatabase={async ({name}) => {
                                                 const key = '' + new Date().getTime()
                                                 addOrActiveTab({
                                                     title: `${name} - DB`,
@@ -895,12 +899,27 @@ export function DbManager({ config }) {
                                                 // setActiveKey(key)
 
                                                 request.post(`${config.host}/mysql/execSql`, {
-                                                    sql: `use ${name}`,
+                                                    sql: `USE ${name}`,
                                                     // tableName,
                                                     // dbName,
                                                 }, {
                                                     // noMessage: true,
                                                 })
+
+                                                const fieldNamesSql = `SELECT DISTINCT(COLUMN_NAME)
+                                                FROM information_schema.COLUMNS
+                                                WHERE TABLE_SCHEMA = '${name}'
+                                                LIMIT 1000;`
+                                                // loadDbFields()
+                                                const res = await request.post(`${config.host}/mysql/execSql`, {
+                                                    sql: fieldNamesSql,
+                                                    // tableName,
+                                                    // dbName,
+                                                }, {
+                                                    // noMessage: true,
+                                                })
+                                                console.log('字段', res.data)
+                                                setAllFields(name, res.data.results.map(item => item[0]))
                                             }}
                                         />
                                     }

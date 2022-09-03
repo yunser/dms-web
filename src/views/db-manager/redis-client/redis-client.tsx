@@ -52,8 +52,6 @@ export function RedisClient({ config, }) {
             //     },
             // ])
             // adbs: ,
-            // suggestionAdd('adbs', ['dim_realtime_recharge_paycfg_range', 'dim_realtime_recharge_range'])
-            // suggestionAdd(dbName, list.map(item => item.TABLE_NAME))
         } else {
             message.error('连接失败')
         }
