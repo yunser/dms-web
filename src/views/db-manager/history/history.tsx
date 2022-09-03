@@ -11,12 +11,15 @@ import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios'
 import moment from 'moment'
+import { IconButton } from '../icon-button';
+import { ReloadOutlined } from '@ant-design/icons';
 
 const { TabPane } = Tabs
 const { TextArea } = Input
 
 export function HistoryList({ config, onSql }) {
     const { t } = useTranslation()
+    const [loading, setLoading] = useState(false)
     const [list, setList] = useState([])
 
     const columns = [
@@ -91,7 +94,7 @@ export function HistoryList({ config, onSql }) {
     ]
 
     async function loadData() {
-        // setLoading(true)
+        setLoading(true)
         let res = await axios.post(`${config.host}/mysql/history/list`, {
             // dbName,
         })
@@ -101,6 +104,7 @@ export function HistoryList({ config, onSql }) {
             // console.log('res', list)
             setList(list)
         }
+        setLoading(false)
     }
 
     useEffect(() => {
@@ -110,7 +114,22 @@ export function HistoryList({ config, onSql }) {
     return (
         <div className={styles.historyBox}>
             {/* History */}
+            <div style={{
+                marginBottom: 8
+            }}>
+                <Space>
+                    <IconButton
+                        tooltip={t('refresh')}
+                        onClick={() => {
+                            loadData()
+                        }}
+                    >
+                        <ReloadOutlined />
+                    </IconButton>
+                </Space>
+            </div>
             <Table
+                loading={loading}
                 // showTotal={}
                 bordered
                 dataSource={list}

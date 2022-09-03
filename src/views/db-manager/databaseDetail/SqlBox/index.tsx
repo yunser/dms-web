@@ -19,6 +19,7 @@ import { IconButton } from '../../icon-button'
 import storage from '@/utils/storage'
 import { CloseCircleOutlined } from '@ant-design/icons'
 import { CheckCircleOutlined } from '@ant-design/icons'
+import { SaveOutlined } from '@ant-design/icons'
 // var parse = require('sql-parse').parse;
 // console.log('asd')
 
@@ -444,6 +445,14 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
                         >
 
                         </Select>
+                        <IconButton
+                            size="small"
+                            onClick={() => {
+                                message.info('正在开发...')
+                            }}
+                        >
+                            <SaveOutlined />
+                        </IconButton>
                     </Space>
                 </div>
                 <div className={styles.codeBox}>
