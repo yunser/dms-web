@@ -16,7 +16,11 @@ const keywords = [
     // 组合关键词
     "ORDER BY",
     'GROUP BY',
-    'SELECT * FROM'
+    'SELECT * FROM',
+    'DELETE FROM',
+    'INSERT INTO',
+    'LEFT JOIN',
+    'INNER JOIN',
 ]
 
 const hintData = {
@@ -240,23 +244,7 @@ export function suggestionInit() {
                     console.log('monaco/match', 'where')
                     suggestions = [...getFieldSuggest()]
                 }
-                else if (lastToken.endsWith('`') || lastToken.endsWith(',')) {
-                    console.log('monaco/match', 'field')
-                    if (tokens[tokens.length - 2]?.toLowerCase() == 'from') {
-                        // suggestions = list2Suggest(['WHERE'])
-                        return {
-                            suggestions: list2Suggest(['WHERE', 'AS'])
-                        }
-                    }
-                    else if (tokens.length >= 3) {
-                        if (tokens[tokens.length - 3].toLowerCase() == 'order' && tokens[tokens.length - 2].toLowerCase() == 'by') {
-                            return {
-                                suggestions: list2Suggest(['ASC', 'DESC'])
-                            }
-                        }
-                    }
-                    suggestions = [...getSymbolSuggest()]
-                }
+                
                 else if (lastTokenLowerCase == 'order') {
                     suggestions = [
                         ...list2Suggest(['BY'])
@@ -277,11 +265,75 @@ export function suggestionInit() {
                         ...getFieldSuggest()
                     ]
                 }
+                // update ?
+                else if (lastTokenLowerCase == 'update') {
+                    suggestions = [
+                        // ...list2Suggest(['*', 'ALL']),
+                        // ...getFunctionSuggest(),
+                        // ...getFieldSuggest()
+                        ...getAllTableSuggest(),
+                    ]
+                }
+                // update xx ?
+                else if (tokens[tokens.length - 2]?.toLowerCase() == 'update') {
+                    suggestions = [
+                        ...list2Suggest(['SET']),
+                    ]
+                }
+                // update xx set ?
+                else if (lastTokenLowerCase == 'set') {
+                    suggestions = [
+                        ...getFieldSuggest()
+                    ]
+                }
+                // delete from xx
+                else if (tokens[tokens.length - 3]?.toLowerCase() == 'delete' && tokens[tokens.length - 2]?.toLowerCase() == 'from') {
+                    suggestions = [
+                        ...list2Suggest(['WHERE']),
+                    ]
+                }
+                // want into insert
+                else if (tokens.length == 1 && tokens[0] == 'i') {
+                    suggestions = [
+                        ...list2Suggest(['INSERT INTO']),
+                    ]
+                }
+                // insert into ?
+                else if (tokens[tokens.length - 2]?.toLowerCase() == 'insert' && tokens[tokens.length - 1]?.toLowerCase() == 'into') {
+                    suggestions = [
+                        ...getAllTableSuggest(),
+                    ]
+                }
+                // insert into xx (?)
+                else if (lastTokenLowerCase.includes('(')) {
+                    suggestions = [
+                        ...getFieldSuggest(),
+                    ]
+                }
+                // left ?
+                else if (lastTokenLowerCase == 'left') {
+                    suggestions = [
+                        ...list2Suggest(['JOIN']),
+                    ]
+                }
+                // inner ?
+                else if (lastTokenLowerCase == 'inner') {
+                    suggestions = [
+                        ...list2Suggest(['JOIN']),
+                    ]
+                }
+                // join?
+                else if (lastTokenLowerCase == 'join') {
+                    suggestions = [
+                        ...getAllTableSuggest(),
+                    ]
+                }
                 else if (lastTokenLowerCase == 'from' || tokens[tokens.length - 2]?.toLowerCase() == 'from') {
                     console.log('monaco/match', 'from')
                     suggestions = [
                         ...getDBSuggest(),
                         ...getAllTableSuggest(),
+                        ...getSQLSuggest(),
                     ]
                 }
                 else if (lastTokenLowerCase == '*') {
@@ -292,7 +344,41 @@ export function suggestionInit() {
                 }
                 else if (lastToken === '.') {
                     console.log('monaco/match', '.')
-                    suggestions = []
+                    suggestions = [
+                        ...getFieldSuggest(),
+                    ]
+                }
+                else if (lastToken.endsWith(',')) {
+                    console.log('monaco/match', 'field_more')
+                    suggestions = [
+                        ...getFieldSuggest(),
+                    ]
+                }
+                else if (lastToken.endsWith('`')) {
+                    console.log('monaco/match', 'field_after')
+                    if (tokens[tokens.length - 2]?.toLowerCase() == 'from') {
+                        // suggestions = list2Suggest(['WHERE'])
+                        return {
+                            suggestions: list2Suggest(['WHERE', 'AS', 'ORDER BY', 'GROUP BY', 'LEFT JOIN', 'INNER JOIN'])
+                        }
+                    }
+                    else if (tokens.length >= 3) {
+                        console.log('??', tokens[tokens.length - 2])
+                        // ORDER BY xx 
+                        if (tokens[tokens.length - 3].toLowerCase() == 'order' && tokens[tokens.length - 2].toLowerCase() == 'by') {
+                            return {
+                                suggestions: list2Suggest(['ASC', 'DESC'])
+                            }
+                        }
+                        // ORDER BY xx d
+                        else if (tokens[tokens.length - 4].toLowerCase() == 'order' && tokens[tokens.length - 3].toLowerCase() == 'by'
+                            && tokens[tokens.length - 2] && !mysqlAllKeywordMap[tokens[tokens.length - 2]]) {
+                            return {
+                                suggestions: list2Suggest(['ASC', 'DESC'])
+                            }
+                        }
+                    }
+                    suggestions = [...getSymbolSuggest()]
                 }
                 else if (mysqlAllKeywordMap[lastToken.toUpperCase()]) {
                     console.log('monaco/match', 'other keyword')
