@@ -39,6 +39,26 @@ export function HistoryList({ config, onSql }) {
         {
             title: t('sql'),
             dataIndex: 'sql',
+            with: 240,
+            ellipsis: true,
+            render(value) {
+                return (
+                    <div className={styles.sqlCell}>
+                        <Popover
+                            title="SQL"
+                            content={
+                                <div className={styles.content}>
+                                    {/* {sql} */}
+                                    <code><pre>{value}</pre></code>
+                                </div>
+                            }
+                        >
+                            {/* <div className={styles.sql}>{sql}</div> */}
+                            {value}
+                        </Popover>
+                    </div>
+                )
+            }
         },
         {
             title: t('status'),
@@ -77,6 +97,7 @@ export function HistoryList({ config, onSql }) {
         {
             title: t('actions'),
             dataIndex: 'actions',
+            fixed: 'right',
             render(value, item) {
                 return (
                     <Space>

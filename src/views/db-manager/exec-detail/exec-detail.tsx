@@ -797,7 +797,17 @@ export function ExecDetail(props) {
                             :
                                 <div>{_list.length} {t('rows')}</div>
                             }
-                            <div>{sql}</div>
+                            <Popover
+                                title="SQL"
+                                content={
+                                    <div className={styles.content}>
+                                        {/* {sql} */}
+                                        <code><pre>{sql}</pre></code>
+                                    </div>
+                                }
+                            >
+                                <div className={styles.sql}>{sql}</div>
+                            </Popover>
                         </div>
                     }
                 </>
