@@ -15,7 +15,7 @@ import moment from 'moment'
 const { TabPane } = Tabs
 const { TextArea } = Input
 
-export function HistoryList({ config, }) {
+export function HistoryList({ config, onSql }) {
     const { t } = useTranslation()
     const [list, setList] = useState([])
 
@@ -61,6 +61,32 @@ export function HistoryList({ config, }) {
         {
             title: t('message'),
             dataIndex: 'message',
+            render(value) {
+                return (
+                    <div
+                        style={{
+                            color: 'red',
+                        }}
+                    >{value}</div>
+                )
+            }
+        },
+        {
+            title: t('actions'),
+            dataIndex: 'actions',
+            render(value, item) {
+                return (
+                    <Space>
+                        <Button
+                            type="link"
+                            size="small"
+                            onClick={() => {
+                                onSql && onSql(item.sql)
+                            }}
+                        >{t('use')}</Button>
+                    </Space>
+                )
+            }
         },
     ]
 

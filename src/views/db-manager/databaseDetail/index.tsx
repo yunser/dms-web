@@ -92,8 +92,29 @@ export function DataBaseDetail({ dbName, config, onJson }) {
     const [tabs, setTabs] = useState(tabs_default)
     
 
+    function addOrActiveTab(tab, { closeCurrentTab = false,} = {}) {
+        const exists = tabs.find(t => t.key == tab.key)
+        if (!exists) {
+            let newTabs = [
+                ...tabs,
+                tab,
+            ]
+            if (closeCurrentTab) {
+                newTabs = newTabs.filter(item => item.key != activeKey)
+            }
+            setTabs(newTabs)
+        }
+        setActiveKey(tab.key)
+    }
     
-    
+    function onSql(sql) {
+        let tabKey = '' + new Date().getTime()
+        addOrActiveTab({
+            title: 'Untitled Query',
+            key: tabKey,
+            defaultSql: sql,
+        })
+    }
 
 
     // const columns = [
@@ -210,23 +231,15 @@ export function DataBaseDetail({ dbName, config, onJson }) {
                         tabBarExtraContent={{
                             right: (
                                 <Space>
-                                    {/* <Button size="small"
-                                    >{t('history')}</Button> */}
                                     <IconButton
                                         tooltip={t('history')}
                                         onClick={() => {
-                                            // console.log('tabs', tabs)
                                             const history_tab = {
                                                 type: 'history',
                                                 title: t('history'),
-                                                key: 'history',
-                                                // closable: false,
+                                                key: 'history-0-0',
                                             }
-                                            setTabs([
-                                                ...tabs,
-                                                history_tab,
-                                            ])
-                                            setActiveKey('history')
+                                            addOrActiveTab(history_tab)
                                         }}
                                     >
                                         <HistoryOutlined />
@@ -298,7 +311,10 @@ export function DataBaseDetail({ dbName, config, onJson }) {
                                 }}
                             >
                                 {item.type == 'history' ?
-                                    <HistoryList config={config} />
+                                    <HistoryList
+                                        config={config}
+                                        onSql={onSql}
+                                    />
                                 : item.type == 'tableDetail' ?
                                     <TableDetail
                                         config={config}

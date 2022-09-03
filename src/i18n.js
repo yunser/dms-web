@@ -61,6 +61,8 @@ i18n
                     status: 'Status',
                     message: 'Message',
                     exec_time: 'Time(ms)',
+                    actions: 'Actions',
+                    use: 'Use',
                 }
             },
             zh: {
@@ -114,6 +116,8 @@ i18n
                     status: '状态',
                     message: '信息',
                     exec_time: '执行时间(毫秒)',
+                    actions: '操作',
+                    use: '使用',
                 }
             }
         },

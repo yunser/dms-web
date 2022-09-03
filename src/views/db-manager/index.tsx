@@ -913,9 +913,9 @@ export function DbManager({ config }) {
                                                 })
 
                                                 const fieldNamesSql = `SELECT DISTINCT(COLUMN_NAME)
-                                                FROM information_schema.COLUMNS
-                                                WHERE TABLE_SCHEMA = '${name}'
-                                                LIMIT 1000;`
+FROM information_schema.COLUMNS
+WHERE TABLE_SCHEMA = '${name}'
+LIMIT 1000;`
                                                 // loadDbFields()
                                                 const res = await request.post(`${config.host}/mysql/execSql`, {
                                                     sql: fieldNamesSql,
