@@ -1,4 +1,4 @@
-import { Button, Descriptions, Empty, Input, message, Modal, Popover, Space, Table, Tabs } from 'antd';
+import { Button, Descriptions, Dropdown, Empty, Input, Menu, message, Modal, Popover, Space, Table, Tabs } from 'antd';
 import React, { useMemo } from 'react';
 import { VFC, useRef, useState, useEffect } from 'react';
 import { request } from '../utils/http';
@@ -12,6 +12,8 @@ import { useTranslation } from 'react-i18next';
 import { IconButton } from '../icon-button';
 import { CopyButton } from '../copy-button';
 import { ExecModal } from '../exec-modal/exec-modal';
+import saveAs from 'file-saver';
+import { DownloadOutlined } from '@ant-design/icons';
 
 const { TabPane } = Tabs
 const { TextArea } = Input
@@ -392,7 +394,7 @@ export function ExecDetail(props) {
         }, 1)
     }
 
-    function exportData() {
+    function exportJson() {
         const results = list.map(row => {
             // let 
             const rowObj: any = {}
@@ -412,6 +414,43 @@ export function ExecDetail(props) {
         onJson && onJson(content)
         // copy(content)
         // message.success('Copied')
+    }
+
+    function exportCsv() {
+        const headers = fields.map(item => item.name)
+        // console.log('exportCsv', fields)
+        // for (let field of fields) {
+        //     headers.push(field.name)
+        // }
+        const results = list.map((row, rowIdx) => {
+            const rows = []
+            for (let rowKey in row) {
+                if (rowIdx == 0 && rowKey == '_idx') {
+                    const cell = row[rowKey]
+                    // console.log('header_cell', cell)
+                }
+                if (rowKey != '_idx') { // TODO
+                    const cell = row[rowKey]
+                    rows.push(cell.value)
+                }
+            }
+            return rows
+        })
+            // .filter(item => item)
+            // .join('\n')
+        // console.log('results', results)
+        const table = [
+            headers,
+            ...results,
+        ]
+        // console.log('table', table)
+        const content = table.map(row => row.join(',')).join('\n')
+        // console.log('content', content)
+        // onJson && onJson(content)
+        // copy(content)
+        // message.success('Copied')
+        const blob = new Blob([content], {type: 'text/csv;charset=utf-8'});
+        saveAs(blob, 'unnamed.csv')
     }
 
     async function removeSelection() {
@@ -597,13 +636,57 @@ export function ExecDetail(props) {
                                         }}
                                     >编辑模式</Button>
                                 } */}
-                                <Button
+                                <Dropdown
+                                    overlay={
+                                        <Menu
+                                            onClick={info => {
+                                                console.log('info', info)
+                                                if (info.key == 'export_csv') {
+                                                    exportCsv()
+                                                }
+                                                else if (info.key == 'export_json') {
+                                                    exportJson()
+                                                }
+                                            }}
+                                            items={[
+                                                {
+                                                    label: t('export_csv'),
+                                                    key: 'export_csv',
+                                                },
+                                                {
+                                                    label: t('export_json'),
+                                                    key: 'export_json',
+                                                },
+                                            ]}
+                                        />
+                                    }
+                                >
+                                    {/* <Button>
+                                        <Space>
+                                        Button
+                                        <DownOutlined />
+                                        </Space>
+                                    </Button> */}
+                                    <IconButton
+                                        size="small"
+                                    >
+                                        <DownloadOutlined />   
+                                    </IconButton>
+                                </Dropdown>
+                                {/* <Button
                                     size="small"
-                                    // disabled={!(selectedRowKeys.length > 0)}
                                     onClick={() => {
-                                        exportData()
+                                        exportJson()
                                     }}
-                                >{t('export')}</Button>
+                                >{t('export')}</Button> */}
+                                {/* <Button
+                                    size="small"
+                                    onClick={() => {
+                                        exportCsv()
+                                    }}
+                                >
+                                    Export CSV
+                                </Button> */}
                             </Space>
                         </div>
                     }
