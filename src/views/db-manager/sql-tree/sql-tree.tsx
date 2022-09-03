@@ -1,4 +1,4 @@
-import { Button, Descriptions, Dropdown, Input, Menu, message, Modal, Popover, Space, Table, Tabs, Tooltip, Tree } from 'antd';
+import { Button, Descriptions, Dropdown, Input, InputProps, Menu, message, Modal, Popover, Space, Table, Tabs, Tooltip, Tree } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './sql-tree.module.less';
 import _, { debounce } from 'lodash';
@@ -136,6 +136,57 @@ function TreeTitle({ nodeData, onAction, onClick, onDoubleClick }: any) {
     )
 }
 
+function DebounceInput(props: InputProps) {
+
+    const { value, onChange } = props
+    const [_value, setValue ] = useState('')
+
+    const refreshByKeyword = useMemo(() => {
+        return debounce((_keyword) => {
+            // console.log('ddd.2', _keyword)
+            onChange && onChange(_keyword)
+        }, 500)
+    }, [])
+    useEffect(() => {
+        setValue(value)
+    }, [value])
+
+    return (
+        <Input
+            {...props}
+            value={_value}
+            onChange={e => {
+                // console.log('change', refreshByKeyword)
+                const kw = e.target.value
+                setValue(kw)
+                // setFilterKeyword(kw)
+                refreshByKeyword(kw)
+                
+                // debounce(() => {
+                //     console.log('set')
+                // }, 150, {
+                //     'maxWait': 1000
+                // })
+            }}
+            // value={keyword}
+            // onChange={e => {
+            //     // console.log('change', refreshByKeyword)
+            //     const kw = e.target.value
+            //     setKeyword(kw)
+            //     // setFilterKeyword(kw)
+            //     refreshByKeyword(kw)
+            //     // debounce(() => {
+            //     //     console.log('set')
+            //     // }, 150, {
+            //     //     'maxWait': 1000
+            //     // })
+            // }}
+            // allowClear
+            // placeholder={t('search') + '...'}
+        />
+    )
+}
+
 
 export function SqlTree({ config, onTab, dbName, data = {} }: any) {
     console.warn('SqlTree/render')
@@ -145,14 +196,9 @@ export function SqlTree({ config, onTab, dbName, data = {} }: any) {
 
     const [loading, setLoading] = useState(false)
     const [keyword, setKeyword] = useState('')
-    const [filterKeyword, setFilterKeyword] = useState('')
+    // const [filterKeyword] = useState('')
     // const refreshByKeyword = 
-    const refreshByKeyword = useMemo(() => {
-        return debounce((_keyword) => {
-            // console.log('ddd.2', _keyword)
-            setFilterKeyword(_keyword)
-        })
-    }, [])
+    
     const [list, setList] = useState([])
     
     const [treeData, setTreeData] = useState([
@@ -172,18 +218,18 @@ export function SqlTree({ config, onTab, dbName, data = {} }: any) {
         },
     ])
     const filterTreeData = useMemo(() => {
-        if (!filterKeyword) {
+        if (!keyword) {
             return treeData
         }
         return [
             {
                 ...treeData[0],
                 children: treeData[0].children.filter(item => {
-                    return item.title.includes(filterKeyword)
+                    return item.title.includes(keyword)
                 })
             }
         ]
-    }, [treeData, filterKeyword])
+    }, [treeData, keyword])
     // const treeData: any[] = [
         
     // ]
@@ -323,19 +369,10 @@ export function SqlTree({ config, onTab, dbName, data = {} }: any) {
         <div className={styles.layoutLeft}>
             <div className={styles.header}>
                 {/* Header */}
-                <Input
+                <DebounceInput
                     value={keyword}
-                    onChange={e => {
-                        // console.log('change', refreshByKeyword)
-                        const kw = e.target.value
-                        setKeyword(kw)
-                        // setFilterKeyword(kw)
-                        refreshByKeyword(kw)
-                        // debounce(() => {
-                        //     console.log('set')
-                        // }, 150, {
-                        //     'maxWait': 1000
-                        // })
+                    onChange={value => {
+                        setKeyword(value)
                     }}
                     allowClear
                     placeholder={t('search') + '...'}
