@@ -31,14 +31,31 @@ function SimpleCell({ onClick, text, color }) {
 
 function HeaderCell({ name }) {
     const [isHover, setIsHover] = useState(false)
+
+    const timer_ref = useRef(0)
+
+    useEffect(() => {
+        return () => {
+            if (timer_ref.current) {
+                clearTimeout(timer_ref.current)
+            }
+        }
+    }, [])
+
     return (
         <div
             className={styles.titleCell}
             onMouseEnter={() => {
-                setIsHover(true)
+                timer_ref.current = setTimeout(() => {
+                    timer_ref.current = 0
+                    setIsHover(true)
+                }, 1000)
             }}
             onMouseLeave={() => {
                 setIsHover(false)
+                if (timer_ref.current) {
+                    clearTimeout(timer_ref.current)
+                }
             }}
         >
             {name}
@@ -76,11 +93,21 @@ function Cell({ item, editing, onChange }) {
     const [value, setValue] = useState(text)
     const inputRef = useRef(null)
     const [isHover, setIsHover] = useState(false)
+    const timer_ref = useRef(0)
+
     useEffect(() => {
         if (isEdit) {
             inputRef.current!.focus();
         }
     }, [isEdit]);
+
+    useEffect(() => {
+        return () => {
+            if (timer_ref.current) {
+                clearTimeout(timer_ref.current)
+            }
+        }
+    }, [])
 
     return (
         <div
@@ -88,10 +115,16 @@ function Cell({ item, editing, onChange }) {
                 [styles.edited]: !!item.newValue
             })}
             onMouseEnter={() => {
-                setIsHover(true)
+                timer_ref.current = setTimeout(() => {
+                    timer_ref.current = 0
+                    setIsHover(true)
+                }, 1000)
             }}
             onMouseLeave={() => {
                 setIsHover(false)
+                if (timer_ref.current) {
+                    clearTimeout(timer_ref.current)
+                }
             }}
         // style={{
         //     color,
