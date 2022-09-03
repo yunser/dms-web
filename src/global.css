@@ -77,3 +77,8 @@
 .ant-tabs-tab-remove:hover {
     background-color: #eee !important;   
 }
+
+.ant-btn-primary {
+    /* border-color: transparent !important; */
+    /* border-color: #f00 !important; */
+}

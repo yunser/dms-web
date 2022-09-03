@@ -176,7 +176,7 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
             // const noCommentLine = removeComment(rawLine)
             // console.log('noCommentLine', noCommentLine)
             let lineCode = explain ? ('EXPLAIN ' + rawLine) : rawLine
-            if (lineCode.toLowerCase().includes('select') && !lineCode.toLowerCase().includes('limit')) {
+            if (lineCode.toLowerCase().includes('select') && !lineCode.toLowerCase().includes('limit') && limit != -1) {
                 lineCode += ` limit ${limit}`
             }
             // 移除空行
@@ -423,12 +423,18 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
                         <Select
                             size="small"
                             value={limit}
-                            options={limits.map(num => {
-                                return {
-                                    label: `Limit ${num}`,
-                                    value: num,
-                                }
-                            })}
+                            options={[
+                                {
+                                    label: t('no_limit'),
+                                    value: -1,
+                                },
+                                ...limits.map(num => {
+                                    return {
+                                        label: `${t('limit')} ${num}`,
+                                        value: num,
+                                    }
+                                })
+                            ]}
                             onChange={value => {
                                 setLimit(value)
                             }}

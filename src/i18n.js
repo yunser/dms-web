@@ -64,6 +64,8 @@ i18n
                     actions: 'Actions',
                     use: 'Use',
                     no_content: 'No Content',
+                    limit: 'Limit',
+                    no_limit: 'Don\'t limit',
                 }
             },
             zh: {
@@ -120,6 +122,8 @@ i18n
                     actions: '操作',
                     use: '使用',
                     no_content: '没有内容',
+                    limit: '限制',
+                    no_limit: '不限制',
                 }
             }
         },
