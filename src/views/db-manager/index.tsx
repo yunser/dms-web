@@ -140,7 +140,7 @@ function Connnector({ config, onConnnect, onJson }) {
         setEditType('update')
     }
 
-    useEffect(() => {
+    async function init() {
         const connections = storage.get('connections', [])
         if (connections.length) {
             setConnections(connections)
@@ -156,6 +156,10 @@ function Connnector({ config, onConnnect, onJson }) {
                 loadConnect(connections[0])
             }
         }   
+    }
+
+    useEffect(() => {
+        init()
     }, [])
 
     const [loading, setLoading] = useState(false)

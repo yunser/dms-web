@@ -51,7 +51,8 @@ const history_tab = {
 }
 
 function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '', style }: Props) {
-
+    console.warn('SqlBox/render')
+    
     const { t, i18n } = useTranslation()
 
     const defaultDbName = dbName
@@ -60,7 +61,7 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
     const [limit, setLimit] = useState(100)
     const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
     const [code, setCode] = useState(defaultSql)
-    const [code2, setCode2] = useState(defaultSql)
+    const code_ref = useRef(defaultSql)
 
     const [tab, setTab] = useState({
         // activeKey: execResults[0]?.key,
@@ -70,11 +71,11 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
     const { activeKey, execResults } = tab
 
     function getCode() {
-        return code2
+        return code_ref.current
     }
 
     function setCodeASD(code) {
-        setCode2(code)
+        code_ref.current = code
     }
     
     

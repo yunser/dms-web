@@ -207,6 +207,8 @@ function TreeTitle({ nodeData, onAction, onClick, onDoubleClick }) {
 
 
 export function DataBaseDetail({ dbName, config, onJson }) {
+    console.warn('DataBaseDetail/render')
+    
     const { t } = useTranslation()
 
     const [sql, setSql] = useState('')
