@@ -21,6 +21,7 @@ import { RedisClient } from './redis-client'
 import { Workbench } from './workbench'
 import { setAllFields } from './suggestion'
 import { SqlConnector } from './sql-connect'
+import { UserList } from './user-list'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -436,6 +437,18 @@ export function DbManager({ config }) {
                                     {item.type == 'databases' &&
                                         <DatabaseList
                                             config={config}
+                                            onUseManager={() => {
+                                                addOrActiveTab({
+                                                    title: `Users`,
+                                                    key: 'user-manager-0',
+                                                    type: 'user-manager',
+                                                    data: {
+                                                        // name,
+                                                    }
+                                                }, {
+                                                    // closeCurrentTab: true,
+                                                })
+                                            }}
                                             onSelectDatabase={async ({name}) => {
                                                 const key = '' + new Date().getTime()
                                                 addOrActiveTab({
@@ -485,6 +498,12 @@ LIMIT 1000;`
                                             }}
                                         />
                                     }
+                                    {item.type == 'user-manager' &&
+                                        <UserList
+                                            config={config}
+                                        />
+                                    }
+                                    
                             </div>
                         )
                     })}

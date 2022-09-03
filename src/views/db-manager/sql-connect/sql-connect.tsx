@@ -10,6 +10,7 @@ import storage from '../storage'
 import { request } from '../utils/http'
 import { IconButton } from '../icon-button';
 import { DatabaseOutlined, ExportOutlined, FolderOutlined, PlusOutlined } from '@ant-design/icons';
+import { uid } from 'uid';
 
 
 function lastSplit(text: string, sep: string) {

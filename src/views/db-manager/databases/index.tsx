@@ -2,12 +2,14 @@ import {
     Card,
     Table,
     message,
+    Button,
 } from 'antd'
 import React, { Component, Fragment, useEffect, useState } from 'react';
 import axios from 'axios'
 import { useTranslation } from 'react-i18next';
 import styles from './databases.module.less'
-export default function DatabaseList({ config, onSelectDatabase }) {
+
+export default function DatabaseList({ config, onSelectDatabase, onUseManager }) {
 
     const { t } = useTranslation()
     const [list, setList] = useState([])
@@ -72,6 +74,18 @@ export default function DatabaseList({ config, onSelectDatabase }) {
 
     return (
         <div className={styles.databasesBox}>
+            <div style={{
+                marginBottom: 8,
+            }}>
+                <Button
+                    size="small"
+                    onClick={() => {
+                        onUseManager && onUseManager()
+                    }}
+                >
+                    用户管理
+                </Button>
+            </div>
             <Table
                 bordered
                 className={styles.table}
