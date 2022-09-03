@@ -31,6 +31,7 @@ import { HistoryList } from '../history'
 // import _ from 'lodash'
 import debounce from 'lodash/debounce'
 import { SqlTree } from '../sql-tree'
+import { TableList } from '../table-list'
 
 // console.log('ddd.0')
 // _.debounce(() => {
@@ -55,6 +56,7 @@ const { TabPane } = Tabs
 // }
 
 interface TabProps {
+    type: string,
     title: string,
     key: string,
     defaultSql: string,
@@ -73,6 +75,7 @@ export function DataBaseDetail({ dbName, config, onJson }) {
     const first_key = 'key-zero'
     const tabs_default: Array<TabProps> = [
         {
+            type: 'sql-query',
             title: t('new_query'),
             key: first_key,
             defaultSql: '',
@@ -161,6 +164,7 @@ export function DataBaseDetail({ dbName, config, onJson }) {
             setTabs([
                 ...tabs,
                 {
+                    type: 'sql-query',
                     title: 'Untitled Query',
                     key: tabKey,
                     defaultSql: '',
@@ -310,18 +314,26 @@ export function DataBaseDetail({ dbName, config, onJson }) {
                                     display: item.key == activeKey ? undefined : 'none',
                                 }}
                             >
-                                {item.type == 'history' ?
+                                {item.type == 'table_list' &&
+                                    <TableList
+                                        config={config}
+                                        dbName={dbName}
+                                    />
+                                }
+                                {item.type == 'history' &&
                                     <HistoryList
                                         config={config}
                                         onSql={onSql}
                                     />
-                                : item.type == 'tableDetail' ?
+                                }
+                                {item.type == 'tableDetail' &&
                                     <TableDetail
                                         config={config}
                                         dbName={dbName}
                                         tableName={item.data?.tableName}
                                     />
-                                :
+                                }
+                                {item.type == 'sql-query' &&
                                     <SqlBox
                                         config={config}
                                         dbName={dbName}

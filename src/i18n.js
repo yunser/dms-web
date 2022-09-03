@@ -68,6 +68,7 @@ i18n
                     no_content: 'No Content',
                     limit: 'Limit',
                     no_limit: 'Don\'t limit',
+                    list_view: 'List view',
                 }
             },
             zh: {
@@ -128,6 +129,7 @@ i18n
                     no_content: '没有内容',
                     limit: '限制',
                     no_limit: '不限制',
+                    list_view: '列表视图',
                 }
             }
         },

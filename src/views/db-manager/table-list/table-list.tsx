@@ -1,6 +1,6 @@
 import { Button, Descriptions, Dropdown, Input, InputProps, Menu, message, Modal, Popover, Space, Table, Tabs, Tooltip, Tree } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import styles from './sql-tree.module.less';
+import styles from './table-list.module.less';
 import _, { debounce } from 'lodash';
 import classNames from 'classnames'
 // console.log('lodash', _)
@@ -216,7 +216,7 @@ function DebounceInput(props: InputProps) {
 }
 
 
-export function SqlTree({ config, onTab, dbName, data = {} }: any) {
+export function TableList({ config, onTab, dbName, data = {} }: any) {
     console.warn('SqlTree/render')
     
     const { defaultJson = '' } = data
@@ -278,30 +278,30 @@ export function SqlTree({ config, onTab, dbName, data = {} }: any) {
             // message.info('连接成功')
             const list = res.data
             // console.log('res', list)
-            setList(res.list)
+            setList(list)
 
-            const children = list
-                .map(item => {
-                    const tableName = item.TABLE_NAME
-                    return {
-                        title: tableName,
-                        key: tableName,
-                    }
-                })
-                .sort((a, b) => {
-                    return a.title.localeCompare(b.title)
-                })
-            setTreeData([
-                {
-                    title: dbName,
-                    key: 'root',
-                    children,
-                    // itemData: item,
-                },
-            ])
+            // const children = list
+            //     .map(item => {
+            //         const tableName = item.TABLE_NAME
+            //         return {
+            //             title: tableName,
+            //             key: tableName,
+            //         }
+            //     })
+            //     .sort((a, b) => {
+            //         return a.title.localeCompare(b.title)
+            //     })
+            // setTreeData([
+            //     {
+            //         title: dbName,
+            //         key: 'root',
+            //         children,
+            //         // itemData: item,
+            //     },
+            // ])
             // adbs: ,
             // suggestionAdd('adbs', ['dim_realtime_recharge_paycfg_range', 'dim_realtime_recharge_range'])
-            suggestionAdd(dbName, list.map(item => item.TABLE_NAME))
+            // suggestionAdd(dbName, list.map(item => item.TABLE_NAME))
         } else {
             message.error('连接失败')
         }
@@ -394,10 +394,44 @@ export function SqlTree({ config, onTab, dbName, data = {} }: any) {
         })
     }
     
+    const columns = [
+        {
+            title: 'TABLE_NAME',
+            dataIndex: 'TABLE_NAME',
+        },
+        {
+            title: 'TABLE_COMMENT',
+            dataIndex: 'TABLE_COMMENT',
+        },
+        {
+            title: 'ENGINE',
+            dataIndex: 'ENGINE',
+        },
+        {
+            title: 'TABLE_ROWS',
+            dataIndex: 'TABLE_ROWS',
+        },
+        {
+            title: 'DATA_LENGTH',
+            dataIndex: 'DATA_LENGTH',
+        },
+        {
+            title: 'INDEX_LENGTH',
+            dataIndex: 'INDEX_LENGTH',
+        },
+        {
+            title: 'DATA_FREE',
+            dataIndex: 'DATA_FREE',
+        },
+        {
+            title: 'TABLE_COLLATION',
+            dataIndex: 'TABLE_COLLATION',
+        },
+    ]
+
     return (
-        <div className={styles.layoutLeft}>
-            <div className={styles.header}>
-                {/* Header */}
+        <div className={styles.tablesBox}>
+            {/* <div className={styles.header}>
                 <DebounceInput
                     value={keyword}
                     onChange={value => {
@@ -435,8 +469,8 @@ export function SqlTree({ config, onTab, dbName, data = {} }: any) {
                 >
                     <UnorderedListOutlined />
                 </IconButton>
-            </div>
-            <div className={styles.body}>
+            </div> */}
+            {/* <div className={styles.body}>
                 {loading ?
                     <div className={styles.loading}>Loading...</div>
                 :
@@ -485,16 +519,19 @@ export function SqlTree({ config, onTab, dbName, data = {} }: any) {
                         treeData={filterTreeData}
                     />
                 }
-                {/* <Card bordered={false}>
-                    <div className={styles.tableList}>
-                        <Table
-                            dataSource={list}
-                            pagination={false}
-                            rowKey="TABLE_NAME"
-                            columns={columns} />
-                    </div>
-                </Card> */}
-            </div>
+            </div> */}
+            <Table
+                dataSource={list}
+                pagination={false}
+                size="small"
+                rowKey="TABLE_NAME"
+                columns={columns}
+                bordered
+            />
+            {/* <Card bordered={false}>
+                <div className={styles.tableList}>
+                </div>
+            </Card> */}
         </div>
     )
 }
