@@ -17,6 +17,8 @@ import { HistoryList } from '../../history'
 import { CloseOutlined } from '@ant-design/icons'
 import { IconButton } from '../../icon-button'
 import storage from '@/utils/storage'
+import { CloseCircleOutlined } from '@ant-design/icons'
+import { CheckCircleOutlined } from '@ant-design/icons'
 // var parse = require('sql-parse').parse;
 // console.log('asd')
 
@@ -177,6 +179,8 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
             if (lineCode.toLowerCase().includes('select') && !lineCode.toLowerCase().includes('limit')) {
                 lineCode += ` limit ${limit}`
             }
+            // 移除空行
+            lineCode = lineCode.split('\n').map(item => item.trim()).filter(item => item).join('\n')
             const tabKey = uid(16)
             const tabTitle = `${t('exec_result')} ${lineIdx + 1}`
             newTabs = [
@@ -354,7 +358,16 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
     function TabItem(item: TabProps) {
         return (
             <TabPane
-                tab={item.title}
+                tab={(
+                    <div>
+                        {item.data.error ?
+                            <CloseCircleOutlined className={styles.failIcon} />
+                        :
+                            <CheckCircleOutlined className={styles.successIcon} />
+                        }
+                        {item.title}
+                    </div>
+                )}
                 key={item.key}
                 closable={item.closable !== false}
                 // closeIcon={
