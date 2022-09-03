@@ -11,14 +11,28 @@ import { DatabaseOutlined, FormatPainterOutlined, ReloadOutlined, TableOutlined 
 import axios from 'axios';
 import { suggestionAdd } from '../suggestion';
 
-function getHightlight(title, keyword) {
+function getHightlight(title: string, keyword: string) {
+    const index = title.toLocaleLowerCase().indexOf(keyword.toLowerCase())
+    if (index == -1) {
+        return <span>{title}</span>
+    }
+    const before = title.substring(0, index)
+    const center = title.substring(index, index + keyword.length)
+    const after = title.substring(index + keyword.length)
     return (
-        <span
-            dangerouslySetInnerHTML={{
-                __html: title.replace(keyword, `<span style="color: red">${keyword}</span>`),
-            }}
-        ></span>
+        <span>
+            {before}
+            <span style={{ color: 'red'}}>{center}</span>
+            {after}
+        </span>
     )
+    // return (
+    //     <span
+    //         dangerouslySetInnerHTML={{
+    //             __html: title.replace(keyword, `<span style="color: red">${keyword}</span>`),
+    //         }}
+    //     ></span>
+    // )
 }
 
 function TreeTitle({ keyword, nodeData, onAction, onClick, onDoubleClick }: any) {
@@ -239,7 +253,7 @@ export function SqlTree({ config, onTab, dbName, data = {} }: any) {
             {
                 ...treeData[0],
                 children: treeData[0].children.filter(item => {
-                    return item.title.includes(keyword)
+                    return item.title.toLowerCase().includes(keyword.toLowerCase())
                 })
             }
         ]
