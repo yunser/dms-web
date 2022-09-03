@@ -2,7 +2,7 @@ import { Button, Descriptions, Input, message, Modal, Popover, Space, Table, Tab
 import React, { useMemo } from 'react';
 import { VFC, useRef, useState, useEffect } from 'react';
 import { request } from '../utils/http';
-import styles from './exec-detail.module.less';
+import styles from './history.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
 // console.log('lodash', _)
@@ -10,6 +10,7 @@ import copy from 'copy-to-clipboard';
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios'
+import moment from 'moment'
 
 const { TabPane } = Tabs
 const { TextArea } = Input
@@ -20,31 +21,45 @@ export function HistoryList({ config, }) {
 
     const columns = [
         {
-            title: 'Time',
+            title: t('time'),
             dataIndex: 'time',
+            render(value) {
+                return (
+                    <div>{moment(value).format('YYYY-MM-DD HH:mm:ss')}</div>
+                )
+            }
         },
         {
-            title: 'Schema',
+            title: t('schema'),
             dataIndex: 'schema',
         },
         {
-            title: 'SQL',
+            title: t('sql'),
             dataIndex: 'sql',
         },
         {
-            title: 'Status',
+            title: t('status'),
             dataIndex: 'status',
+            render(value) {
+                return (
+                    <div
+                        style={{
+                            color: value == 'success' ? 'green' : 'red',
+                        }}
+                    >{value}</div>
+                )
+            }
         },
         {
-            title: 'Rows',
+            title: t('rows'),
             dataIndex: 'rows',
         },
         {
-            title: 'Time(ms)',
+            title: t('exec_time'),
             dataIndex: 'execTime',
         },
         {
-            title: 'Message',
+            title: t('message'),
             dataIndex: 'message',
         },
     ]
@@ -67,12 +82,13 @@ export function HistoryList({ config, }) {
     }, [])
 
     return (
-        <div>
+        <div className={styles.historyBox}>
             {/* History */}
             <Table
                 // showTotal={}
                 bordered
                 dataSource={list}
+                size="small"
                 // pagination={{
                 //     showTotal: total => `共 ${total} 条`
                 // }}

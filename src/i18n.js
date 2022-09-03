@@ -47,7 +47,7 @@ i18n
                     no_sql: 'No SQL',
                     search: 'Search',
                     time: 'Time',
-                    rows: 'rows',
+                    rows: 'Rows',
                     workbench: 'Workbench',
                     name: 'Name',
                     save: 'Save',
@@ -56,6 +56,11 @@ i18n
                     view_struct: 'View Struct',
                     export_struct: 'Export Struct',
                     download: 'Download',
+                    schema: 'Schema',
+                    sql: 'SQL',
+                    status: 'Status',
+                    message: 'Message',
+                    exec_time: 'Time(ms)',
                 }
             },
             zh: {
@@ -104,6 +109,11 @@ i18n
                     view_struct: '查看结构',
                     export_struct: '导出建表语句',
                     download: '下载',
+                    schema: '数据库',
+                    sql: 'SQL',
+                    status: '状态',
+                    message: '信息',
+                    exec_time: '执行时间(毫秒)',
                 }
             }
         },
