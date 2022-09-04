@@ -184,7 +184,22 @@ function Cell({ value, index, dataIndex, onChange }) {
                                 }}
                             />
                         </div>
+                    : dataIndex == 'COLUMN_KEY' ?
+                        <div>
+                            <Checkbox
+                                checked={inputValue == 'PRI'}
+                                onChange={(e) => {
+                                    console.log('check', e.target.checked)
+                                    const newValue = e.target.checked ? 'PRI' : 'NOT_PRI'
+                                    setInputValue(newValue)
+                                    onChange && onChange({
+                                        ...value,
+                                        newValue,
+                                    })
 
+                                }}
+                            />
+                        </div>
                     :
                         <div
                             className={styles.text}
@@ -285,9 +300,17 @@ export function TableDetail({ config, dbName, tableName }) {
             let rowChanged = false
             for (let field in row) {
                 // console.log('field', field)
-                if (hasValue(row[field].newValue)) {
+                const checkFields = [
+                    'COLUMN_NAME',
+                    'COLUMN_TYPE',
+                    'IS_NULLABLE',
+                    // 'COLUMN_KEY',
+                    'EXTRA',
+                    'COLUMN_DEFAULT',
+                    'COLUMN_COMMENT',
+                ]
+                if (hasValue(row[field].newValue) && checkFields.includes(field)) {
                     rowChanged = true
-
                 }
             }
             if (rowChanged) {
@@ -313,11 +336,35 @@ export function TableDetail({ config, dbName, tableName }) {
                 rowSqls.push(rowSql)
             }
         }
+        // 删除逻辑
         if (removedRows.length) {
             for (let removedRow of removedRows) {
                 rowSqls.push(`DROP COLUMN \`${removedRow.COLUMN_NAME.value}\``)
             }
         }
+        // 主键逻辑
+        const oldKeyColumns = tableColumns.filter(item => item.COLUMN_KEY.value == 'PRI')
+        const newKeyColumns = tableColumns.filter(item => (item.COLUMN_KEY.newValue || item.COLUMN_KEY.value) == 'PRI')
+        const oldKeys = oldKeyColumns.map(item => item.COLUMN_NAME.value).join(',')
+        const newKeys = newKeyColumns.map(item => (item.COLUMN_NAME.newValue || item.COLUMN_NAME.value)).join(',')
+
+        const isKeyChanged = oldKeys != newKeys
+        console.log('oldKeyColumns', oldKeyColumns)
+        console.log('newKeyColumns', newKeyColumns)
+        console.log('oldKeys', oldKeys)
+        console.log('newKeys', newKeys)
+
+        if (isKeyChanged && oldKeyColumns.length) {
+            rowSqls.push(`DROP PRIMARY KEY`)
+        }
+        if (isKeyChanged && newKeyColumns.length) {
+            let keySql = newKeyColumns.map(item => (item.COLUMN_NAME.newValue || item.COLUMN_NAME.value))
+                .map(item => `\`${item}\``)
+                .join(',')
+            rowSqls.push(`ADD PRIMARY KEY(${keySql})`)
+        }
+        // return
+
         if (!rowSqls.length) {
             message.info('No changed')
             return
@@ -353,13 +400,17 @@ export function TableDetail({ config, dbName, tableName }) {
             }),
         },
         {
-            title: '键',
+            title: '主键',
             dataIndex: 'COLUMN_KEY',
-            render(value) {
-                return (
-                    <div>{value.value}</div>
-                )
-            }
+            // render(value) {
+            //     return (
+            //         <div>{value.value}</div>
+            //     )
+            // }
+            render: EditableCellRender({
+                dataIndex: 'COLUMN_KEY',
+                onChange: onColumnCellChange,
+            }),
         },
         {
             title: '自增',
