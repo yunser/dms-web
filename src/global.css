@@ -77,7 +77,24 @@
 .ant-tabs-tab-remove:hover {
     background-color: #eee !important;   
 }
-
+.ant-modal-close-x {
+    
+} 
+.ant-modal-close-x .anticon {
+    width: 24px !important;
+    height: 24px !important;
+    border-radius: 4px !important;
+    padding-top: 4px !important;
+    /* display: flex !important;
+    justify-content: center !important;
+    align-items: center !important; */
+}
+.ant-modal-close-x .anticon:hover {
+    background-color: #eee !important;   
+}
+.ant-modal-close-x .anticon svg {
+    /* margin-top: 2px; */
+}
 .ant-btn-primary {
     /* border-color: transparent !important; */
     /* border-color: #f00 !important; */
