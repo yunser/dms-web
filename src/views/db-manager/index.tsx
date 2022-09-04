@@ -437,6 +437,7 @@ export function DbManager({ config }) {
                                     {item.type == 'databases' &&
                                         <DatabaseList
                                             config={config}
+                                            onJson={json => addJsonTab(json)}
                                             onUseManager={() => {
                                                 addOrActiveTab({
                                                     title: `Users`,

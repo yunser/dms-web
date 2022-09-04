@@ -10,11 +10,11 @@ import axios from 'axios'
 import { useTranslation } from 'react-i18next';
 import styles from './databases.module.less'
 import { IconButton } from '../icon-button';
-import { ReloadOutlined } from '@ant-design/icons';
+import { ExportOutlined, ReloadOutlined } from '@ant-design/icons';
 import { DatabaseEditHandler } from '../db-edit';
 import { DatabaseRemoveHandler } from '../db-remove';
 
-export default function DatabaseList({ config, onSelectDatabase, onUseManager }) {
+export default function DatabaseList({ config, onJson, onSelectDatabase, onUseManager }) {
 
     const { t } = useTranslation()
     const [list, setList] = useState([])
@@ -102,6 +102,15 @@ export default function DatabaseList({ config, onSelectDatabase, onUseManager })
                         }}
                     >
                         <ReloadOutlined />
+                    </IconButton>
+                    <IconButton
+                        tooltip={t('export_json')}
+                        onClick={() => {
+                            const content = JSON.stringify(list, null, 4)
+                            onJson && onJson(content)
+                        }}
+                    >
+                        <ExportOutlined />
                     </IconButton>
                     <DatabaseEditHandler
                         config={config}
