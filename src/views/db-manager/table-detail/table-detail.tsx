@@ -1,4 +1,4 @@
-import { Button, Checkbox, Descriptions, Form, Input, message, Space, Table, Tabs } from 'antd';
+import { Button, Checkbox, Descriptions, Form, Input, message, Select, Space, Table, Tabs } from 'antd';
 import React, { useMemo } from 'react';
 import { VFC, useRef, useState, useEffect } from 'react';
 import { request } from '../utils/http';
@@ -200,12 +200,55 @@ export function TableDetail({ config, dbName, tableName }) {
     
     const [form] = Form.useForm()
     const [sql, setSql] = useState('')
-
+    const [nginxs, setNginxs] = useState([])
     useEffect(() => {
         form.setFieldsValue({
             ...tableInfo,
         })
     }, [tableInfo])
+
+    async function loadNginx() {
+        let res = await request.post(`${config.host}/mysql/execSqlSimple`, {
+            sql: `SELECT *
+    FROM \`information_schema\`.\`ENGINES\``,
+        })
+        if (res.status === 200) {
+            console.log('res.data', res.data)
+            const nginxs = res.data
+                .filter(item => item.SUPPORT != 'NO')
+                .map(item => {
+                    return {
+                        label: item.ENGINE,
+                        value: item.ENGINE,
+                    }
+                })
+            setNginxs(nginxs)
+
+            // const characterSetMap = {}
+            // const characterSets = []
+            // for (let item of res.data) {
+            //     if (!characterSetMap[item.CHARACTER_SET_NAME]) {
+            //         characterSetMap[item.CHARACTER_SET_NAME] = []
+            //         characterSets.push({
+            //             label: item.CHARACTER_SET_NAME,
+            //             value: item.CHARACTER_SET_NAME
+            //         })
+            //     }
+            //     characterSetMap[item.CHARACTER_SET_NAME].push(item.COLLATION_NAME)
+            // }
+            // console.log('set', characterSetMap)
+            // characterSets.sort((a, b) => a.label.localeCompare(b.label))
+            // setCharacterSets(characterSets)
+            // setCharacterSetMap(characterSetMap)
+            // CHARACTER_SET_NAME: "ucs2"
+            // COLLATION_NAME: "ucs2_esperanto_ci"
+        }
+    }
+
+    useEffect(() => {
+        loadNginx()
+    }, [])
+
 
     async function update() {
         // setLoading(true)
@@ -216,6 +259,9 @@ export function TableDetail({ config, dbName, tableName }) {
         }
         if (values.TABLE_COMMENT != tableInfo.TABLE_COMMENT) {
             rowSqls.push(`COMMENT='${values.TABLE_COMMENT}'`)
+        }
+        if (values.ENGINE != tableInfo.ENGINE) {
+            rowSqls.push(`ENGINE=${values.ENGINE}`)
         }
         if (!rowSqls.length) {
             message.info('No changed')
@@ -526,47 +572,58 @@ ${rowSqls.join(' ,\n')}`
                 type="card"
             >
                 <TabPane tab="基本信息" key="basic">
-                    <Form
-                        form={form}
-                        labelCol={{ span: 8 }}
-                        wrapperCol={{ span: 16 }}
-                        initialValues={{
-                            port: 3306,
-                        }}
-                        // layout={{
-                        //     labelCol: { span: 0 },
-                        //     wrapperCol: { span: 24 },
-                        // }}
-                    >
-                        <Form.Item
-                            name="TABLE_NAME"
-                            label="表名称"
-                            rules={[ { required: true, }, ]}
+                    <div className={styles.formBox}>
+                        <Form
+                            form={form}
+                            labelCol={{ span: 8 }}
+                            wrapperCol={{ span: 16 }}
+                            initialValues={{
+                                port: 3306,
+                            }}
+                            // layout={{
+                            //     labelCol: { span: 0 },
+                            //     wrapperCol: { span: 24 },
+                            // }}
                         >
-                            <Input />
-                        </Form.Item>
-                        <Form.Item
-                            name="TABLE_COMMENT"
-                            label="注释"
-                            rules={[]}
-                        >
-                            <Input />
-                        </Form.Item>
-                        <Form.Item
-                                wrapperCol={{ offset: 8, span: 16 }}
-                                // name="passowrd"
-                                // label="Passowrd"
-                                // rules={[{ required: true, },]}
+                            <Form.Item
+                                name="TABLE_NAME"
+                                label="表名称"
+                                rules={[ { required: true, }, ]}
                             >
-                                <Space>
-                                    <Button
-                                        // loading={loading}
-                                        type="primary"
-                                        onClick={update}>提交</Button>
-                                    {/* <Button onClick={save}>保存</Button> */}
-                                </Space>
+                                <Input />
                             </Form.Item>
-                    </Form>
+                            <Form.Item
+                                name="TABLE_COMMENT"
+                                label="注释"
+                                rules={[]}
+                            >
+                                <Input.TextArea rows={4} />
+                            </Form.Item>
+                            <Form.Item
+                                name="ENGINE"
+                                label="引擎"
+                                rules={[]}
+                            >
+                                <Select
+                                    options={nginxs}
+                                />
+                            </Form.Item>
+                            <Form.Item
+                                    wrapperCol={{ offset: 8, span: 16 }}
+                                    // name="passowrd"
+                                    // label="Passowrd"
+                                    // rules={[{ required: true, },]}
+                                >
+                                    <Space>
+                                        <Button
+                                            // loading={loading}
+                                            type="primary"
+                                            onClick={update}>提交</Button>
+                                        {/* <Button onClick={save}>保存</Button> */}
+                                    </Space>
+                                </Form.Item>
+                        </Form>
+                    </div>
                     {!!sql &&
                         <ExecModal
                             config={config}
@@ -580,14 +637,10 @@ ${rowSqls.join(' ,\n')}`
                         />
                     }
                     <Descriptions column={1}>
-                        {/* <Descriptions.Item label="label">{tableInfo.AUTO_INCREMENT}</Descriptions.Item> */}
-                        <Descriptions.Item label="表名称">{tableInfo.TABLE_NAME}</Descriptions.Item>
                         <Descriptions.Item label="排序规则">{tableInfo.TABLE_COLLATION}</Descriptions.Item>
                         <Descriptions.Item label="行">{tableInfo.DATA_LENGTH}</Descriptions.Item>
-                        <Descriptions.Item label="引擎">{tableInfo.ENGINE}</Descriptions.Item>
-                        <Descriptions.Item label="注释">{tableInfo.TABLE_COMMENT}</Descriptions.Item>
                         <Descriptions.Item label="平均行长度">{tableInfo.AVG_ROW_LENGTH}</Descriptions.Item>
-                        <Descriptions.Item label="当前值">{tableInfo.AUTO_INCREMENT}</Descriptions.Item>
+                        <Descriptions.Item label="当前自增值">{tableInfo.AUTO_INCREMENT}</Descriptions.Item>
                         <Descriptions.Item label="行格式">{tableInfo.ROW_FORMAT}</Descriptions.Item>
                         {/* : null
                         CHECKSUM: null

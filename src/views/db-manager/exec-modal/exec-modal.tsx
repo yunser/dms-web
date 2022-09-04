@@ -169,6 +169,7 @@ export function ExecModal({ config, sql, onClose, tableName, dbName }) {
                     title="执行状态"
                     visible={true}
                     width={800}
+                    // maskClosable={false}
                     // onOk={handleOk}
                     // okButtonProps={{
                     //     children: '执行',
