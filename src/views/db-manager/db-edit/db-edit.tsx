@@ -12,7 +12,7 @@ import axios from 'axios';
 
 
 export function DatabaseEditHandler(props) {
-    const { children, config, device, id, ids, onSuccess, asd = false } = props
+    const { children, config, item, id, ids, onSuccess, asd = false } = props
     // const { id: deviceId } = item
     // //console.log('children', children)
     // children.props.onClick = () => {
@@ -43,6 +43,7 @@ export function DatabaseEditHandler(props) {
             {modalVisible &&
                 <DatabaseModal
                     config={config}
+                    item={item}
                     onSuccess={onSuccess}
                     onClose={() => {
                         setModalVisible(false)
@@ -55,7 +56,7 @@ export function DatabaseEditHandler(props) {
 }
 
 
-export function DatabaseModal({ config, onClose, onSuccess, onConnnect, }) {
+export function DatabaseModal({ config, item, onClose, onSuccess, onConnnect, }) {
     const { t } = useTranslation()
 
     const [loading, setLoading] = useState(false)
@@ -63,7 +64,7 @@ export function DatabaseModal({ config, onClose, onSuccess, onConnnect, }) {
     const [form] = Form.useForm()
     const characterSet = Form.useWatch('characterSet', form)
     const [characterSets, setCharacterSets] = useState([])
-
+    const editType = item ? 'update' : 'create'
     const collations = useMemo(() => {
         if (!characterSet) {
             return []
@@ -80,10 +81,19 @@ export function DatabaseModal({ config, onClose, onSuccess, onConnnect, }) {
     }, [characterSet, characterSetMap])
 
     useEffect(() => {
-        form.setFieldsValue({
-            collation: null,
-        })
-    }, [characterSet])
+        if (item) {
+            form.setFieldsValue({
+                name: item.SCHEMA_NAME,
+                characterSet: item.DEFAULT_CHARACTER_SET_NAME,
+                collation: item.DEFAULT_COLLATION_NAME,
+            })
+        }
+    }, [])
+    // useEffect(() => {
+    //     form.setFieldsValue({
+    //         collation: null,
+    //     })
+    // }, [characterSet])
     
 
 //     useEffect(() => {
@@ -142,31 +152,54 @@ export function DatabaseModal({ config, onClose, onSuccess, onConnnect, }) {
 
     return (
         <Modal
-            title="新增数据库"
+            title={`${editType == 'create' ? '新增' : '编辑'}数据库`}
             visible={true}
             onCancel={onClose}
             onOk={async () => {
                 const values = await form.validateFields()
-
-                let sql = `CREATE SCHEMA \`${values.name}\``
-                if (values.characterSet) {
-                    sql += ` DEFAULT CHARACTER SET ${values.characterSet}`
+                if (editType == 'create') {
+                    let sql = `CREATE SCHEMA \`${values.name}\``
+                    if (values.characterSet) {
+                        sql += ` DEFAULT CHARACTER SET ${values.characterSet}`
+                    }
+                    if (values.collation) {
+                        sql += ` COLLATE ${values.collation}`
+                    }
+                    console.log('sql', sql)
+                    // return
+                    let ret = await request.post(`${config.host}/mysql/execSql`, {
+                        sql,
+                    })
+                    // console.log('ret', ret)
+                    if (ret.status === 200) {
+                        // message.success('连接成功')
+                        // onConnnect && onConnnect()
+                        message.success('Success')
+                        onClose && onClose()
+                        onSuccess && onSuccess()
+                    }
                 }
-                if (values.collation) {
-                    sql += ` COLLATE ${values.collation}`
-                }
-                console.log('sql', sql)
-                // return
-                let ret = await request.post(`${config.host}/mysql/execSql`, {
-                    sql,
-                })
-                // console.log('ret', ret)
-                if (ret.status === 200) {
-                    // message.success('连接成功')
-                    // onConnnect && onConnnect()
-                    message.success('Success')
-                    onClose && onClose()
-                    onSuccess && onSuccess()
+                else {
+                    let sql = `ALTER SCHEMA \`${item.SCHEMA_NAME}\``
+                    if (values.characterSet) {
+                        sql += ` DEFAULT CHARACTER SET ${values.characterSet}`
+                    }
+                    if (values.collation) {
+                        sql += ` COLLATE ${values.collation}`
+                    }
+                    console.log('sql', sql)
+                    // return
+                    let ret = await request.post(`${config.host}/mysql/execSql`, {
+                        sql,
+                    })
+                    // console.log('ret', ret)
+                    if (ret.status === 200) {
+                        // message.success('连接成功')
+                        // onConnnect && onConnnect()
+                        message.success('Success')
+                        onClose && onClose()
+                        onSuccess && onSuccess()
+                    }
                 }
                 // else {
                 //     message.error('Fail')
@@ -191,15 +224,23 @@ export function DatabaseModal({ config, onClose, onSuccess, onConnnect, }) {
                     label="Schema name"
                     rules={[ { required: true, }, ]}
                 >
-                    <Input />
+                    <Input
+                        disabled={!(editType == 'create')}
+                    />
                 </Form.Item>
                 <Form.Item
                     name="characterSet"
                     label="Character Set"
-                    // rules={[ { required: true, }, ]}
+                    // rules={editType == 'create' ? [] : [ { required: true, }, ]}
                 >
                     <Select
                         options={characterSets}
+                        onChange={() => {
+                            console.log('change')
+                            form.setFieldsValue({
+                                collation: null,
+                            })
+                        }}
                         // onChange={}
                     />
                 </Form.Item>

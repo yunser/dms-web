@@ -74,6 +74,15 @@ export default function DatabaseList({ config, onJson, onSelectDatabase, onUseMa
             render(value, item) {
                 return (
                     <Space>
+                        <DatabaseEditHandler
+                            config={config}
+                            item={item}
+                            onSuccess={() => {
+                                loadData()
+                            }}
+                        >
+                            <a>编辑</a>
+                        </DatabaseEditHandler>
                         <DatabaseRemoveHandler
                             item={item}
                             config={config}
