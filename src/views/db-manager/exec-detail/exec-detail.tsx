@@ -18,6 +18,13 @@ import { DownloadOutlined } from '@ant-design/icons';
 const { TabPane } = Tabs
 const { TextArea } = Input
 
+function getMaxWidth(columnNum) {
+    if (columnNum <= 4) {
+        return columnNum * 320
+    }
+    return undefined
+}
+
 function SimpleCell({ onClick, text, color }) {
     return (
         <div
@@ -709,6 +716,7 @@ export function ExecDetail(props) {
                                 // ]}
                                 bordered
                                 style={{
+                                    maxWidth: getMaxWidth(columns.length),
                                     // width: 600,
                                     // height: '300px',
                                     // border: '1px solid #09c',
