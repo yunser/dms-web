@@ -337,7 +337,11 @@ export function TableDetail({ config, dbName, tableName }) {
         {
             title: '键',
             dataIndex: 'COLUMN_KEY',
-            // render: EditableCellRender(),
+            render(value) {
+                return (
+                    <div>{value.value}</div>
+                )
+            }
         },
         {
             title: '默认值',
@@ -547,6 +551,9 @@ export function TableDetail({ config, dbName, tableName }) {
                                         COLUMN_COMMENT: {
                                             value: '',
                                         },
+                                        COLUMN_KEY: {
+                                            value: '',
+                                        }
                                         // CHARACTER_MAXIMUM_LENGTH: 32
                                         // CHARACTER_OCTET_LENGTH: 96
                                         // CHARACTER_SET_NAME: "utf8"
