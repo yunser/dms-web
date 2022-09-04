@@ -168,6 +168,23 @@ function Cell({ value, index, dataIndex, onChange }) {
                                 }}
                             />
                         </div>
+                    : dataIndex == 'EXTRA' ?
+                        <div>
+                            <Checkbox
+                                checked={inputValue == 'auto_increment'}
+                                onChange={(e) => {
+                                    console.log('check', e.target.checked)
+                                    const newValue = e.target.checked ? 'auto_increment' : 'no_increment'
+                                    setInputValue(newValue)
+                                    onChange && onChange({
+                                        ...value,
+                                        newValue,
+                                    })
+
+                                }}
+                            />
+                        </div>
+
                     :
                         <div
                             className={styles.text}
@@ -286,10 +303,11 @@ export function TableDetail({ config, dbName, tableName }) {
                 }
                 const typeSql = row.COLUMN_TYPE.newValue || row.COLUMN_TYPE.value
                 const nullSql = (row.IS_NULLABLE.newValue || row.IS_NULLABLE.value) == 'YES' ? 'NULL' : 'NOT NULL'
+                const autoIncrementSql = (row.EXTRA.newValue || row.EXTRA.value) == 'auto_increment' ? 'AUTO_INCREMENT' : ''
                 const defaultSql = hasValue(row.COLUMN_DEFAULT.newValue || row.COLUMN_DEFAULT.value) ? `DEFAULT '${row.COLUMN_DEFAULT.newValue || row.COLUMN_DEFAULT.value}'` : ''
                 const commentSql = hasValue(row.COLUMN_COMMENT.newValue || row.COLUMN_COMMENT.value) ? `COMMENT '${row.COLUMN_COMMENT.newValue || row.COLUMN_COMMENT.value}'` : ''
                 // const commentSql = hasValue(row.COLUMN_COMMENT.newValue) ? `COMMENT '${row.COLUMN_COMMENT.newValue}'` : ''
-                const rowSql = `${changeType} COLUMN ${nameSql} ${typeSql} ${nullSql} ${defaultSql} ${commentSql}`
+                const rowSql = `${changeType} COLUMN ${nameSql} ${typeSql} ${nullSql} ${autoIncrementSql} ${defaultSql} ${commentSql}`
                 //  int(11) NULL AFTER \`content\`
                 
                 rowSqls.push(rowSql)
@@ -342,6 +360,19 @@ export function TableDetail({ config, dbName, tableName }) {
                     <div>{value.value}</div>
                 )
             }
+        },
+        {
+            title: '自增',
+            dataIndex: 'EXTRA',
+            // render(value) {
+            //     return (
+            //         <div>{value.value}</div>
+            //     )
+            // }
+            render: EditableCellRender({
+                dataIndex: 'EXTRA',
+                onChange: onColumnCellChange,
+            }),
         },
         {
             title: '默认值',
@@ -553,7 +584,10 @@ export function TableDetail({ config, dbName, tableName }) {
                                         },
                                         COLUMN_KEY: {
                                             value: '',
-                                        }
+                                        },
+                                        EXTRA: {
+                                            value: '',
+                                        },
                                         // CHARACTER_MAXIMUM_LENGTH: 32
                                         // CHARACTER_OCTET_LENGTH: 96
                                         // CHARACTER_SET_NAME: "utf8"
