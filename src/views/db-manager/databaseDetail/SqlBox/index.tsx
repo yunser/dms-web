@@ -137,8 +137,13 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
     
 
     function runPlain() {
-        if (!getCode()) {
+        const code = getCode()
+        if (!code) {
             message.warn(t('no_sql'))
+            return
+        }
+        if (!code.toLowerCase().includes('select')) {
+            message.warn(t('explain_must_select'))
             return
         }
         _run(getCode(), {
