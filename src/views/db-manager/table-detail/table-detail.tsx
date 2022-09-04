@@ -13,82 +13,15 @@ function hasValue(value) {
     return !!value || value === 0
 }
 
-function TableInfoEditor({ config, tableInfo, tableName, dbName }) {
-    const [form] = Form.useForm()
-    const [sql, setSql] = useState('')
+// function TableInfoEditor({ config, tableInfo, tableName, dbName }) {
+    
 
-    useEffect(() => {
-        form.setFieldsValue({
-            ...tableInfo,
-        })
-    }, [tableInfo])
-
-    async function update() {
-        // setLoading(true)
-        const values = await form.validateFields()
-        if (values.TABLE_NAME != tableInfo.TABLE_NAME) {
-            const sql = `ALTER TABLE \`${tableInfo.TABLE_NAME}\`
-    RENAME TO \`${values.TABLE_NAME}\`
-;`
-            console.log('sql', sql)
-            setSql(sql)
-        }
-    }
-
-    return (
-        <div>
-            <Form
-                form={form}
-                labelCol={{ span: 8 }}
-                wrapperCol={{ span: 16 }}
-                initialValues={{
-                    port: 3306,
-                }}
-                // layout={{
-                //     labelCol: { span: 0 },
-                //     wrapperCol: { span: 24 },
-                // }}
-            >
-                <Form.Item
-                    name="TABLE_NAME"
-                    label="表名称"
-                    rules={[ { required: true, }, ]}
-                >
-                    <Input />
-                </Form.Item>
-                <Form.Item
-                    name="TABLE_COMMENT"
-                    label="注释"
-                    rules={[]}
-                >
-                    <Input />
-                </Form.Item>
-                <Form.Item
-                        wrapperCol={{ offset: 8, span: 16 }}
-                        // name="passowrd"
-                        // label="Passowrd"
-                        // rules={[{ required: true, },]}
-                    >
-                        <Space>
-                            <Button
-                                // loading={loading}
-                                type="primary"
-                                onClick={update}>提交</Button>
-                            {/* <Button onClick={save}>保存</Button> */}
-                        </Space>
-                    </Form.Item>
-            </Form>
-            {!!sql &&
-                <ExecModal
-                    config={config}
-                    sql={sql}
-                    tableName={tableName}
-                    dbName={dbName}
-                />
-            }
-        </div>
-    )
-}
+//     return (
+//         <div>
+            
+//         </div>
+//     )
+// }
 
 
 function Cell({ value, index, dataIndex, onChange }) {
@@ -265,6 +198,35 @@ export function TableDetail({ config, dbName, tableName }) {
     const [fields, setFields] = useState([])
     const [execSql, setExecSql] = useState('')
     
+    const [form] = Form.useForm()
+    const [sql, setSql] = useState('')
+
+    useEffect(() => {
+        form.setFieldsValue({
+            ...tableInfo,
+        })
+    }, [tableInfo])
+
+    async function update() {
+        // setLoading(true)
+        const values = await form.validateFields()
+        const rowSqls = []
+        if (values.TABLE_NAME != tableInfo.TABLE_NAME) {
+            rowSqls.push(`RENAME TO \`${values.TABLE_NAME}\``)
+        }
+        if (values.TABLE_COMMENT != tableInfo.TABLE_COMMENT) {
+            rowSqls.push(`COMMENT='${values.TABLE_COMMENT}'`)
+        }
+        if (!rowSqls.length) {
+            message.info('No changed')
+            return
+        }
+        const sql = `ALTER TABLE \`${tableInfo.TABLE_NAME}\`
+${rowSqls.join(' ,\n')}`
+            console.log('sql', sql)
+            setSql(sql)
+    }
+
     const partitionColumns = [
         {
             title: '分区名',
@@ -564,12 +526,59 @@ export function TableDetail({ config, dbName, tableName }) {
                 type="card"
             >
                 <TabPane tab="基本信息" key="basic">
-                    <TableInfoEditor
-                        config={config}
-                        tableInfo={tableInfo}
-                        tableName={tableName}
-                        dbName={dbName}
-                    />
+                    <Form
+                        form={form}
+                        labelCol={{ span: 8 }}
+                        wrapperCol={{ span: 16 }}
+                        initialValues={{
+                            port: 3306,
+                        }}
+                        // layout={{
+                        //     labelCol: { span: 0 },
+                        //     wrapperCol: { span: 24 },
+                        // }}
+                    >
+                        <Form.Item
+                            name="TABLE_NAME"
+                            label="表名称"
+                            rules={[ { required: true, }, ]}
+                        >
+                            <Input />
+                        </Form.Item>
+                        <Form.Item
+                            name="TABLE_COMMENT"
+                            label="注释"
+                            rules={[]}
+                        >
+                            <Input />
+                        </Form.Item>
+                        <Form.Item
+                                wrapperCol={{ offset: 8, span: 16 }}
+                                // name="passowrd"
+                                // label="Passowrd"
+                                // rules={[{ required: true, },]}
+                            >
+                                <Space>
+                                    <Button
+                                        // loading={loading}
+                                        type="primary"
+                                        onClick={update}>提交</Button>
+                                    {/* <Button onClick={save}>保存</Button> */}
+                                </Space>
+                            </Form.Item>
+                    </Form>
+                    {!!sql &&
+                        <ExecModal
+                            config={config}
+                            sql={sql}
+                            tableName={tableName}
+                            dbName={dbName}
+                            onClose={() => {
+                                setSql('')
+                                loadTableInfo()
+                            }}
+                        />
+                    }
                     <Descriptions column={1}>
                         {/* <Descriptions.Item label="label">{tableInfo.AUTO_INCREMENT}</Descriptions.Item> */}
                         <Descriptions.Item label="表名称">{tableInfo.TABLE_NAME}</Descriptions.Item>
