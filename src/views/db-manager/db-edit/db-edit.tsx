@@ -117,8 +117,8 @@ export function DatabaseModal({ config, item, onClose, onSuccess, onConnnect, })
 //         form.setFieldsValue(redisInfo)
 //     }, [])
 
-    async function loadData() {
-        let res = await axios.post(`${config.host}/mysql/execSqlSimple`, {
+    async function loadCharData() {
+        let res = await request.post(`${config.host}/mysql/execSqlSimple`, {
             sql: `SELECT *
     FROM \`information_schema\`.\`COLLATION_CHARACTER_SET_APPLICABILITY\``,
         })
@@ -146,7 +146,7 @@ export function DatabaseModal({ config, item, onClose, onSuccess, onConnnect, })
     }
 
     useEffect(() => {
-        loadData()
+        loadCharData()
     }, [])
 
 

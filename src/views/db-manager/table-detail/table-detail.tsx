@@ -42,6 +42,8 @@ function Cell({ value, index, dataIndex, onChange }) {
         setInputValue(value.value)
     }, [value.value])
     
+    
+
     useEffect(() => {
         const clickHandler = () => {
             // console.log('document click', )
@@ -201,11 +203,84 @@ export function TableDetail({ config, dbName, tableName }) {
     const [form] = Form.useForm()
     const [sql, setSql] = useState('')
     const [nginxs, setNginxs] = useState([])
-    useEffect(() => {
-        form.setFieldsValue({
-            ...tableInfo,
+    // useEffect(() => {
+    //     form.setFieldsValue({
+    //         ...tableInfo,
+    //     })
+    // }, [tableInfo])
+
+    const [characterSets, setCharacterSets] = useState([])
+    const [characterSetMap, setCharacterSetMap] = useState({})
+    const characterSet = Form.useWatch('characterSet', form)
+    const _old_characterSet_ref = useRef(null)
+    const collations = useMemo(() => {
+        if (!characterSet) {
+            return []
+        }
+        if (!characterSetMap[characterSet]) {
+            return []
+        }
+        return characterSetMap[characterSet].map(item => {
+            return {
+                label: item,
+                value: item,
+            }
         })
+    }, [characterSet, characterSetMap])
+
+    async function loadCharData() {
+        let res = await request.post(`${config.host}/mysql/execSqlSimple`, {
+            sql: `SELECT *
+    FROM \`information_schema\`.\`COLLATION_CHARACTER_SET_APPLICABILITY\``,
+        })
+        if (res.status === 200) {
+            console.log('res.data', res.data)
+            const characterSetMap: any = {}
+            const characterSets = []
+            for (let item of res.data) {
+                if (!characterSetMap[item.CHARACTER_SET_NAME]) {
+                    characterSetMap[item.CHARACTER_SET_NAME] = []
+                    characterSets.push({
+                        label: item.CHARACTER_SET_NAME,
+                        value: item.CHARACTER_SET_NAME
+                    })
+                }
+                characterSetMap[item.CHARACTER_SET_NAME].push(item.COLLATION_NAME)
+            }
+            console.log('set', characterSetMap)
+            characterSets.sort((a, b) => a.label.localeCompare(b.label))
+            setCharacterSets(characterSets)
+            setCharacterSetMap(characterSetMap)
+            // CHARACTER_SET_NAME: "ucs2"
+            // COLLATION_NAME: "ucs2_esperanto_ci"
+            let tableColl = res.data.find(item => item.COLLATION_NAME == tableInfo.TABLE_COLLATION)
+            console.log('tableColl', tableColl)
+            let values = {
+                characterSet: null,
+                collation: null,
+            }
+            if (tableColl) {
+                _old_characterSet_ref.current = tableColl.CHARACTER_SET_NAME
+                values = {
+                    characterSet: tableColl.CHARACTER_SET_NAME,
+                    collation: tableColl.COLLATION_NAME,
+                }
+            }
+            form.setFieldsValue({
+                ...tableInfo,
+                ...values,
+            })
+        }
+    }
+    // tableInfo
+
+    useEffect(() => {
+        if (!tableInfo.TABLE_NAME) {
+            return
+        }
+        loadCharData()
     }, [tableInfo])
+
 
     async function loadNginx() {
         let res = await request.post(`${config.host}/mysql/execSqlSimple`, {
@@ -263,6 +338,15 @@ export function TableDetail({ config, dbName, tableName }) {
         if (values.ENGINE != tableInfo.ENGINE) {
             rowSqls.push(`ENGINE=${values.ENGINE}`)
         }
+        if (values.collation != tableInfo.TABLE_COLLATION) {
+            if (values.characterSet != _old_characterSet_ref.current) {
+                rowSqls.push(`DEFAULT CHARACTER SET=${values.characterSet}`)
+            }
+            if (values.collation != tableInfo.TABLE_COLLATION && values.collation) {
+                rowSqls.push(`COLLATE=${values.collation}`)
+            }
+        }
+
         if (!rowSqls.length) {
             message.info('No changed')
             return
@@ -609,6 +693,32 @@ ${rowSqls.join(' ,\n')}`
                                 />
                             </Form.Item>
                             <Form.Item
+                                name="characterSet"
+                                label="Character Set"
+                                // rules={editType == 'create' ? [] : [ { required: true, }, ]}
+                            >
+                                <Select
+                                    options={characterSets}
+                                    onChange={() => {
+                                        console.log('change')
+                                        form.setFieldsValue({
+                                            collation: null,
+                                        })
+                                    }}
+                                    // onChange={}
+                                />
+                            </Form.Item>
+                            <Form.Item
+                                name="collation"
+                                label="Collation"
+                                // rules={[ { required: true, }, ]}
+                            >
+                                <Select
+                                    options={collations}
+                                    // onChange={}
+                                />
+                            </Form.Item>
+                            <Form.Item
                                     wrapperCol={{ offset: 8, span: 16 }}
                                     // name="passowrd"
                                     // label="Passowrd"
@@ -642,6 +752,8 @@ ${rowSqls.join(' ,\n')}`
                         <Descriptions.Item label="平均行长度">{tableInfo.AVG_ROW_LENGTH}</Descriptions.Item>
                         <Descriptions.Item label="当前自增值">{tableInfo.AUTO_INCREMENT}</Descriptions.Item>
                         <Descriptions.Item label="行格式">{tableInfo.ROW_FORMAT}</Descriptions.Item>
+                        <Descriptions.Item label="CREATE_TIME">{tableInfo.CREATE_TIME}</Descriptions.Item>
+                        <Descriptions.Item label="UPDATE_TIME">{tableInfo.UPDATE_TIME}</Descriptions.Item>
                         {/* : null
                         CHECKSUM: null
                         CHECK_TIME: null
