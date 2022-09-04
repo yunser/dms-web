@@ -318,6 +318,7 @@ export function DataBaseDetail({ dbName, config, onJson }) {
                                     <TableList
                                         config={config}
                                         dbName={dbName}
+                                        onJson={onJson}
                                         onTab={tab => {
                                             setActiveKey(tab.key)
                                             setTabs([

@@ -217,7 +217,7 @@ function DebounceInput(props: InputProps) {
 }
 
 
-export function TableList({ config, onTab, dbName, data = {} }: any) {
+export function TableList({ config, onJson, onTab, dbName, data = {} }: any) {
     console.warn('SqlTree/render')
     
     const { defaultJson = '' } = data
@@ -468,6 +468,15 @@ export function TableList({ config, onTab, dbName, data = {} }: any) {
                             type="link"
                             size="small"
                             onClick={() => {
+                                queryTableStruct(item.TABLE_NAME)
+                            }}
+                        >
+                            详情
+                        </Button>
+                        <Button
+                            type="link"
+                            size="small"
+                            onClick={() => {
                                 showSqlInNewtab({
                                     title: item.TABLE_NAME,
                                     sql: `SELECT * FROM \`${item.TABLE_NAME}\`
@@ -521,6 +530,15 @@ ORDER BY TABLE_ROWS DESC`
                     >
                         <ReloadOutlined />
                     </IconButton>
+                    <Button
+                        // type="link"
+                        size="small"
+                        onClick={() => {
+                            onJson && onJson(JSON.stringify(list, null, 4))
+                        }}
+                    >
+                        导出 JSON
+                    </Button>
                 </Space>
             </div>
             {/* <div className={styles.header}>
