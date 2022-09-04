@@ -12,6 +12,7 @@ import styles from './databases.module.less'
 import { IconButton } from '../icon-button';
 import { ReloadOutlined } from '@ant-design/icons';
 import { DatabaseEditHandler } from '../db-edit';
+import { DatabaseRemoveHandler } from '../db-remove';
 
 export default function DatabaseList({ config, onSelectDatabase, onUseManager }) {
 
@@ -66,14 +67,26 @@ export default function DatabaseList({ config, onSelectDatabase, onUseManager })
             title: 'DEFAULT_COLLATION_NAME',
             dataIndex: 'DEFAULT_COLLATION_NAME',
         },
-        // {
-        //     title: '操作',
-        //     dataIndex: 'op',
-        //     key: 'op',
-        //     // render(value) {
-        //     //     return <a href={`/databases/${value}`}>{value}</a>
-        //     // },
-        // },
+        {
+            title: '操作',
+            dataIndex: 'op',
+            key: 'op',
+            render(value, item) {
+                return (
+                    <Space>
+                        <DatabaseRemoveHandler
+                            item={item}
+                            config={config}
+                            onSuccess={() => {
+                                loadData()
+                            }}
+                        >
+                            <a>删除</a>
+                        </DatabaseRemoveHandler>
+                    </Space>
+                )
+            },
+        },
     ]
 
     return (
