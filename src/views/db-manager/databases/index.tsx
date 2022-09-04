@@ -3,11 +3,15 @@ import {
     Table,
     message,
     Button,
+    Space,
 } from 'antd'
 import React, { Component, Fragment, useEffect, useState } from 'react';
 import axios from 'axios'
 import { useTranslation } from 'react-i18next';
 import styles from './databases.module.less'
+import { IconButton } from '../icon-button';
+import { ReloadOutlined } from '@ant-design/icons';
+import { DatabaseEditHandler } from '../db-edit';
 
 export default function DatabaseList({ config, onSelectDatabase, onUseManager }) {
 
@@ -77,14 +81,34 @@ export default function DatabaseList({ config, onSelectDatabase, onUseManager })
             <div style={{
                 marginBottom: 8,
             }}>
-                <Button
-                    size="small"
-                    onClick={() => {
-                        onUseManager && onUseManager()
-                    }}
-                >
-                    用户管理
-                </Button>
+                <Space>
+                    <IconButton
+                        tooltip={t('refresh')}
+                        onClick={() => {
+                            loadData()
+                        }}
+                    >
+                        <ReloadOutlined />
+                    </IconButton>
+                    <DatabaseEditHandler
+                        config={config}
+                        onSuccess={() => {
+                            loadData()
+                        }}
+                    >
+                        <Button size="small">
+                            新增数据库
+                        </Button>
+                    </DatabaseEditHandler>
+                    <Button
+                        size="small"
+                        onClick={() => {
+                            onUseManager && onUseManager()
+                        }}
+                    >
+                        用户管理
+                    </Button>
+                </Space>
             </div>
             <Table
                 bordered
