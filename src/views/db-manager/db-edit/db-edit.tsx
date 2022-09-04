@@ -1,4 +1,4 @@
-import { Button, Checkbox, Descriptions, Form, Input, InputNumber, message, Modal, Popover, Space, Table, Tabs } from 'antd';
+import { Button, Checkbox, Descriptions, Form, Input, InputNumber, message, Modal, Popover, Select, Space, Table, Tabs } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import styles from './db-edit.module.less';
 import _ from 'lodash';
@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { Editor } from '../editor/Editor';
 import storage from '../storage'
 import { request } from '../utils/http'
+import axios from 'axios';
 
 
 export function DatabaseEditHandler(props) {
@@ -18,7 +19,7 @@ export function DatabaseEditHandler(props) {
     //     alert(1)
     // }
     const [modalVisible, setModalVisible] = useState(false)
-
+    
 
     const [ loading, setLoading ] = useState(false)
 
@@ -33,6 +34,9 @@ export function DatabaseEditHandler(props) {
         },
         children.props.children
     )
+
+    
+
     return (
         <>
             {NewElem}
@@ -55,12 +59,32 @@ export function DatabaseModal({ config, onClose, onSuccess, onConnnect, }) {
     const { t } = useTranslation()
 
     const [loading, setLoading] = useState(false)
+    const [characterSetMap, setCharacterSetMap] = useState({})
     const [form] = Form.useForm()
-    const [code, setCode] = useState(`{
-    "host": "",
-    "user": "",
-    "password": ""
-}`)
+    const characterSet = Form.useWatch('characterSet', form)
+    const [characterSets, setCharacterSets] = useState([])
+
+    const collations = useMemo(() => {
+        if (!characterSet) {
+            return []
+        }
+        if (!characterSetMap[characterSet]) {
+            return []
+        }
+        return characterSetMap[characterSet].map(item => {
+            return {
+                label: item,
+                value: item,
+            }
+        })
+    }, [characterSet, characterSetMap])
+
+    useEffect(() => {
+        form.setFieldsValue({
+            collation: null,
+        })
+    }, [characterSet])
+    
 
 //     useEffect(() => {
 // //         console.log('onMouneed', storage.get('redisInfo', `{
@@ -83,31 +107,38 @@ export function DatabaseModal({ config, onClose, onSuccess, onConnnect, }) {
 //         form.setFieldsValue(redisInfo)
 //     }, [])
 
-    async function  connect() {
-        setLoading(true)
-        const values = await form.validateFields()
-        const reqData = {
-            host: values.host,
-            port: values.port,
-            user: values.user,
-            password: values.password,
-            db: values.db,
-            remember: values.remember,
+    async function loadData() {
+        let res = await axios.post(`${config.host}/mysql/execSqlSimple`, {
+            sql: `SELECT *
+    FROM \`information_schema\`.\`COLLATION_CHARACTER_SET_APPLICABILITY\``,
+        })
+        if (res.status === 200) {
+            console.log('res.data', res.data)
+            const characterSetMap = {}
+            const characterSets = []
+            for (let item of res.data) {
+                if (!characterSetMap[item.CHARACTER_SET_NAME]) {
+                    characterSetMap[item.CHARACTER_SET_NAME] = []
+                    characterSets.push({
+                        label: item.CHARACTER_SET_NAME,
+                        value: item.CHARACTER_SET_NAME
+                    })
+                }
+                characterSetMap[item.CHARACTER_SET_NAME].push(item.COLLATION_NAME)
+            }
+            console.log('set', characterSetMap)
+            characterSets.sort((a, b) => a.label.localeCompare(b.label))
+            setCharacterSets(characterSets)
+            setCharacterSetMap(characterSetMap)
+            // CHARACTER_SET_NAME: "ucs2"
+            // COLLATION_NAME: "ucs2_esperanto_ci"
         }
-        if (values.remember) {
-            storage.set('redisInfo', reqData)
-        }
-        let ret = await request.post(`${config.host}/redis/connect`, reqData)
-        // console.log('ret', ret)
-        if (ret.status === 200) {
-            // message.success('连接成功')
-            onConnnect && onConnnect()
-        }
-        setLoading(false)
-        // else {
-        //     message.error('连接失败')
-        // }
     }
+
+    useEffect(() => {
+        loadData()
+    }, [])
+
 
     return (
         <Modal
@@ -116,8 +147,18 @@ export function DatabaseModal({ config, onClose, onSuccess, onConnnect, }) {
             onCancel={onClose}
             onOk={async () => {
                 const values = await form.validateFields()
+
+                let sql = `CREATE SCHEMA \`${values.name}\``
+                if (values.characterSet) {
+                    sql += ` DEFAULT CHARACTER SET ${values.characterSet}`
+                }
+                if (values.collation) {
+                    sql += ` COLLATE ${values.collation}`
+                }
+                console.log('sql', sql)
+                // return
                 let ret = await request.post(`${config.host}/mysql/execSql`, {
-                    sql: `CREATE SCHEMA \`${values.name}\` ;`
+                    sql,
                 })
                 // console.log('ret', ret)
                 if (ret.status === 200) {
@@ -152,6 +193,28 @@ export function DatabaseModal({ config, onClose, onSuccess, onConnnect, }) {
                 >
                     <Input />
                 </Form.Item>
+                <Form.Item
+                    name="characterSet"
+                    label="Character Set"
+                    // rules={[ { required: true, }, ]}
+                >
+                    <Select
+                        options={characterSets}
+                        // onChange={}
+                    />
+                </Form.Item>
+                <Form.Item
+                    name="collation"
+                    label="Collation"
+                    // rules={[ { required: true, }, ]}
+                >
+                    <Select
+                        options={collations}
+                        // onChange={}
+                    />
+                </Form.Item>
+                
+                
             </Form>
         </Modal>
     );
