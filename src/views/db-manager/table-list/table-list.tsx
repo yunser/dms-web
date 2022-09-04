@@ -351,10 +351,8 @@ export function TableList({ config, onJson, onTab, dbName, data = {} }: any) {
         })
     }
 
-    async function drop(nodeData) {
-        const tableName = nodeData.key // TODO @p2
+    async function drop(tableName) {
         const sql = `DROP TABLE \`${tableName}\`;`
-        // setSql(sql)
         showSqlInNewtab({
             title: 'DROP TABLE',
             sql,
@@ -509,6 +507,15 @@ ORDER BY TABLE_ROWS DESC`
                             }}
                         >
                             清空
+                        </Button>
+                        <Button
+                            type="link"
+                            size="small"
+                            onClick={() => {
+                                drop(item.TABLE_NAME)
+                            }}
+                        >
+                            删除
                         </Button>
                     </Space>
                 )
