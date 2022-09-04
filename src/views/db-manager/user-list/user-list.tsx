@@ -11,6 +11,7 @@ import { DatabaseOutlined, FormatPainterOutlined, ReloadOutlined, TableOutlined,
 import axios from 'axios';
 import { suggestionAdd } from '../suggestion';
 import { SorterResult } from 'antd/lib/table/interface';
+import { request } from '../utils/http';
 
 export function UserList({ config, onTab, data = {} }: any) {
     console.warn('SqlTree/render')
@@ -37,7 +38,7 @@ export function UserList({ config, onTab, data = {} }: any) {
         // });
         setLoading(true)
         setSortedInfo({})
-        let res = await axios.post(`${config.host}/mysql/execSqlSimple`, {
+        let res = await request.post(`${config.host}/mysql/execSqlSimple`, {
             sql: `SELECT *
 FROM \`mysql\`.\`user\``,
         })
@@ -69,9 +70,10 @@ FROM \`mysql\`.\`user\``,
             // adbs: ,
             // suggestionAdd('adbs', ['dim_realtime_recharge_paycfg_range', 'dim_realtime_recharge_range'])
             // suggestionAdd(dbName, list.map(item => item.TABLE_NAME))
-        } else {
-            message.error('连接失败')
         }
+        //  else {
+        //     message.error('连接失败')
+        // }
         setLoading(false)
     }
 
