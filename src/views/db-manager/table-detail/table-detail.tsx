@@ -190,6 +190,8 @@ function EditableCellRender({ dataIndex, onChange } = {}) {
 
 export function TableDetail({ config, dbName, tableName }) {
 
+    const editType = tableName ? 'update' : 'create'
+
     const [tableColumns, setTableColumns] = useState([])
     const [indexes, setIndexes] = useState([])
     const [removedRows, setRemovedRows] = useState([])
@@ -329,7 +331,7 @@ export function TableDetail({ config, dbName, tableName }) {
         // setLoading(true)
         const values = await form.validateFields()
         const rowSqls = []
-        if (values.TABLE_NAME != tableInfo.TABLE_NAME) {
+        if (editType == 'update' && values.TABLE_NAME != tableInfo.TABLE_NAME) {
             rowSqls.push(`RENAME TO \`${values.TABLE_NAME}\``)
         }
         if (values.TABLE_COMMENT != tableInfo.TABLE_COMMENT) {
@@ -351,10 +353,18 @@ export function TableDetail({ config, dbName, tableName }) {
             message.info('No changed')
             return
         }
-        const sql = `ALTER TABLE \`${tableInfo.TABLE_NAME}\`
+        let sql
+        if (editType == 'update') {
+            sql = `ALTER TABLE \`${tableInfo.TABLE_NAME}\`
 ${rowSqls.join(' ,\n')}`
-            console.log('sql', sql)
-            setSql(sql)
+        }
+        else {
+            sql = `CREATE TABLE \`${values.TABLE_NAME}\` (
+\`id\` int(11) NULL
+) ${rowSqls.join(' ,\n')}`
+        }
+        console.log('sql', sql)
+        setSql(sql)
     }
 
     const partitionColumns = [
@@ -746,30 +756,33 @@ ${rowSqls.join(' ,\n')}`
                             }}
                         />
                     }
-                    <Descriptions column={1}>
-                        <Descriptions.Item label="排序规则">{tableInfo.TABLE_COLLATION}</Descriptions.Item>
-                        <Descriptions.Item label="行">{tableInfo.DATA_LENGTH}</Descriptions.Item>
-                        <Descriptions.Item label="平均行长度">{tableInfo.AVG_ROW_LENGTH}</Descriptions.Item>
-                        <Descriptions.Item label="当前自增值">{tableInfo.AUTO_INCREMENT}</Descriptions.Item>
-                        <Descriptions.Item label="行格式">{tableInfo.ROW_FORMAT}</Descriptions.Item>
-                        <Descriptions.Item label="CREATE_TIME">{tableInfo.CREATE_TIME}</Descriptions.Item>
-                        <Descriptions.Item label="UPDATE_TIME">{tableInfo.UPDATE_TIME}</Descriptions.Item>
-                        {/* : null
-                        CHECKSUM: null
-                        CHECK_TIME: null
-                        CREATE_OPTIONS: "row_format=DYNAMIC"
-                        CREATE_TIME: "2022-07-28T08:20:02.000Z"
-                        DATA_FREE: 0
-                        INDEX_LENGTH: 0
-                        MAX_DATA_LENGTH: 0
-                        TABLE_CATALOG: "def"
-                        TABLE_ROWS: 8
-                        TABLE_SCHEMA: "linxot"
-                        TABLE_TYPE: "BASE TABLE"
-                        UPDATE_TIME: "2022-08-20T14:18:58.000Z"
-                        VERSION: 10 */}
-                    </Descriptions>
+                    {editType == 'update' &&
+                        <Descriptions column={1}>
+                            {/* <Descriptions.Item label="排序规则">{tableInfo.TABLE_COLLATION}</Descriptions.Item> */}
+                            <Descriptions.Item label="行">{tableInfo.DATA_LENGTH}</Descriptions.Item>
+                            <Descriptions.Item label="平均行长度">{tableInfo.AVG_ROW_LENGTH}</Descriptions.Item>
+                            <Descriptions.Item label="当前自增值">{tableInfo.AUTO_INCREMENT}</Descriptions.Item>
+                            <Descriptions.Item label="行格式">{tableInfo.ROW_FORMAT}</Descriptions.Item>
+                            <Descriptions.Item label="CREATE_TIME">{tableInfo.CREATE_TIME}</Descriptions.Item>
+                            <Descriptions.Item label="UPDATE_TIME">{tableInfo.UPDATE_TIME}</Descriptions.Item>
+                            {/* : null
+                            CHECKSUM: null
+                            CHECK_TIME: null
+                            CREATE_OPTIONS: "row_format=DYNAMIC"
+                            CREATE_TIME: "2022-07-28T08:20:02.000Z"
+                            DATA_FREE: 0
+                            INDEX_LENGTH: 0
+                            MAX_DATA_LENGTH: 0
+                            TABLE_CATALOG: "def"
+                            TABLE_ROWS: 8
+                            TABLE_SCHEMA: "linxot"
+                            TABLE_TYPE: "BASE TABLE"
+                            UPDATE_TIME: "2022-08-20T14:18:58.000Z"
+                            VERSION: 10 */}
+                        </Descriptions>
+                    }
                 </TabPane>
+                
                 <TabPane tab="列信息" key="columns">
                     <div style={{
                         marginBottom: 8,
@@ -780,12 +793,14 @@ ${rowSqls.join(' ,\n')}`
                                     console.log('Bour OK')
                                 }}
                             /> */}
-                            <Button
-                                size="small"
-                                onClick={loadTableInfo}
-                            >
-                                刷新
-                            </Button>
+                            {editType == 'update' &&
+                                <Button
+                                    size="small"
+                                    onClick={loadTableInfo}
+                                >
+                                    刷新
+                                </Button>
+                            }
                             <Button
                                 size="small"
                                 onClick={() => {
@@ -852,26 +867,30 @@ ${rowSqls.join(' ,\n')}`
                         rowKey="__id"
                     />
                 </TabPane>
-                <TabPane tab="索引信息" key="index">
-                    <Table
-                        columns={indexColumns}
-                        dataSource={indexes}
-                        bordered
-                        pagination={false}
-                        size="small"
-                        rowKey="__id"
-                    />
-                </TabPane>
-                <TabPane tab="分区信息" key="partition">
-                    <Table
-                        columns={partitionColumns}
-                        dataSource={partitions}
-                        bordered
-                        pagination={false}
-                        size="small"
-                        rowKey="__id"
-                    />
-                </TabPane>
+                {editType == 'update' &&
+                    <>
+                        <TabPane tab="索引信息" key="index">
+                            <Table
+                                columns={indexColumns}
+                                dataSource={indexes}
+                                bordered
+                                pagination={false}
+                                size="small"
+                                rowKey="__id"
+                            />
+                        </TabPane>
+                        <TabPane tab="分区信息" key="partition">
+                            <Table
+                                columns={partitionColumns}
+                                dataSource={partitions}
+                                bordered
+                                pagination={false}
+                                size="small"
+                                rowKey="__id"
+                            />
+                        </TabPane>
+                    </>
+                }
             </Tabs>
             {!!execSql &&
                 <ExecModal

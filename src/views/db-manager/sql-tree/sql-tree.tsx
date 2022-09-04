@@ -7,7 +7,7 @@ import classNames from 'classnames'
 import { useTranslation } from 'react-i18next';
 import { Editor } from '../editor/Editor';
 import { IconButton } from '../icon-button';
-import { DatabaseOutlined, FormatPainterOutlined, ReloadOutlined, TableOutlined, UnorderedListOutlined } from '@ant-design/icons';
+import { DatabaseOutlined, FormatPainterOutlined, PlusOutlined, ReloadOutlined, TableOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { suggestionAdd } from '../suggestion';
 
@@ -415,6 +415,25 @@ export function SqlTree({ config, onTab, dbName, data = {} }: any) {
                     }}
                 >
                     <ReloadOutlined />
+                </IconButton>
+                <IconButton
+                    className={styles.refresh}
+                    // tooltip={t('refresh')}
+                    onClick={() => {
+                        let tabKey = '' + new Date().getTime()
+                        onTab && onTab({
+                            title: 'New Table',
+                            key: tabKey,
+                            type: 'tableDetail',
+                            // defaultSql: `SELECT * FROM \`${dbName}\`.\`${tableName}\` LIMIT 20;`,
+                            data: {
+                                dbName,
+                                tableName: null,
+                            },
+                        })
+                    }}
+                >
+                    <PlusOutlined />
                 </IconButton>
                 <IconButton
                     className={styles.refresh}
