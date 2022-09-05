@@ -6,6 +6,7 @@ import styles from './table-detail.module.less';
 import _ from 'lodash';
 import { ExecModal } from '../exec-modal/exec-modal';
 import { uid } from 'uid';
+import { useTranslation } from 'react-i18next';
 // console.log('lodash', _)
 const { TabPane } = Tabs
 
@@ -43,26 +44,31 @@ function Cell({ value, index, dataIndex, onChange }) {
     }, [value.value])
     
     
+    
 
-    useEffect(() => {
-        const clickHandler = () => {
-            // console.log('document click', )
-            // setIsEdit(false)
-            if (isEdit) {
-                console.log('document click isEdit')
-                onChange && onChange({
-                    ...value,
-                    newValue: inputValue,
-                })
-                setIsEdit(false)
+    // useEffect(() => {
+    //     const clickHandler = () => {
+    //         // console.log('document click', )
+    //         // setIsEdit(false)
+    //         if (isEdit) {
+    //             const notInput = index == 'type2'
+    //             if (notInput) {
+    //                 return
+    //             }
+    //             console.log('document click isEdit')
+    //             onChange && onChange({
+    //                 ...value,
+    //                 newValue: inputValue,
+    //             })
+    //             setIsEdit(false)
 
-            }
-        }
-        document.addEventListener('click', clickHandler)
-        return () => {
-            document.removeEventListener('click', clickHandler)
-        }
-    }, [isEdit, value, inputValue])
+    //         }
+    //     }
+    //     document.addEventListener('click', clickHandler)
+    //     return () => {
+    //         document.removeEventListener('click', clickHandler)
+    //     }
+    // }, [isEdit, value, inputValue, dataIndex])
     return (
         <div
             className={styles.cell}
@@ -72,6 +78,7 @@ function Cell({ value, index, dataIndex, onChange }) {
         >
             
             {isEdit ?
+                // <SimpleInput
                 <SimpleInput
                     inputId={id}
                     // ref={inputRef}
@@ -79,11 +86,15 @@ function Cell({ value, index, dataIndex, onChange }) {
                     onChange={e => {
                         setInputValue(e.target.value)
                     }}
-                    // onBlur={() => {
-                    //     console.log('onBlur')
-                    //     // console.log('change', index, dataIndex, inputValue)
-                        
-                    // }}
+                    onBlur={() => {
+                        console.log('onBlur')
+                        // console.log('change', index, dataIndex, inputValue)
+                        onChange && onChange({
+                            ...value,
+                            newValue: inputValue,
+                        })
+                        setIsEdit(false)    
+                    }}
                 />
             :
                 <>
@@ -127,13 +138,57 @@ function Cell({ value, index, dataIndex, onChange }) {
                                     console.log('check', e.target.checked)
                                     const newValue = e.target.checked ? 'PRI' : 'NOT_PRI'
                                     setInputValue(newValue)
+                                    // onChange && onChange({
+                                    //     ...value,
+                                    //     newValue,
+                                    // })
+
+                                }}
+                            />
+                        </div>
+                    : dataIndex == 'type2' ?
+                        <div>
+                            {/* {inputValue} */}
+                            <Select
+                                size="small"
+                                // key={value}
+                                value={inputValue}
+                                onChange={v => {
+                                    console.log('Select.value', v)
+                                    const newValue = v
+                                    setInputValue(newValue)
+                                    onChange && onChange({
+                                        value: value.value,
+                                        newValue,
+                                    })
+                                }}
+                                options={[
+                                    {
+                                        label: 'Normal',
+                                        value: 'Normal',
+                                    },
+                                    {
+                                        label: 'Unique',
+                                        value: 'Unique',
+                                    },
+                                ]}
+                                style={{
+                                    width: 160,
+                                }}
+                            />
+                            {/* <Checkbox
+                                checked={inputValue == 'PRI'}
+                                onChange={(e) => {
+                                    console.log('check', e.target.checked)
+                                    const newValue = e.target.checked ? 'PRI' : 'NOT_PRI'
+                                    setInputValue(newValue)
                                     onChange && onChange({
                                         ...value,
                                         newValue,
                                     })
 
                                 }}
-                            />
+                            /> */}
                         </div>
                     :
                         <div
@@ -190,6 +245,8 @@ function EditableCellRender({ dataIndex, onChange } = {}) {
 
 export function TableDetail({ config, dbName, tableName }) {
 
+    const { t } = useTranslation()
+    
     const editType = tableName ? 'update' : 'create'
 
     const [tableColumns, setTableColumns] = useState([])
@@ -449,7 +506,9 @@ export function TableDetail({ config, dbName, tableName }) {
                     .map(item => `\`${item}\``)
                     .join('')
                 const commentSql = hasValue(idxRow.comment.newValue || idxRow.comment.value) ? `COMMENT '${idxRow.comment.newValue || idxRow.comment.value}'` : ''
-                idxSqls.push(`ADD INDEX \`${idxRow['name'].newValue || idxRow['name'].value}\` (${columnsSql}) ${commentSql}`)
+                const idxSql = (idxRow.type2.newValue || idxRow.type2.value) == 'Unique' ? 'UNIQUE INDEX' : 'INDEX'
+                console.log('idxRow.type2', idxRow.type2)
+                idxSqls.push(`ADD ${idxSql} \`${idxRow['name'].newValue || idxRow['name'].value}\` (${columnsSql}) ${commentSql}`)
             }
             if (idxRow.__new) {
                 addIndex()
@@ -623,18 +682,47 @@ ${rowSqls.join(' ,\n')}
         {
             title: '索引名',
             dataIndex: 'name',
-            render: EditableCellRender({
-                dataIndex: 'name',
-                onChange: onIndexCellChange,
-            }),
+            render(value, _item, index) {
+                return (
+                    <Cell
+                        value={value}
+                        dataIndex="name"
+                        index={index}
+                        onChange={value => {
+                            onIndexCellChange && onIndexCellChange({
+                                index,
+                                dataIndex: 'name',
+                                value,
+                            })
+                        }}
+                    />
+                )
+            }
         },
         {
             title: '类型',
             dataIndex: 'type2',
-            render: EditableCellRender({
-                dataIndex: 'type2',
-                onChange: onIndexCellChange,
-            }),
+            // render: EditableCellRender({
+            //     dataIndex: 'type2',
+            //     onChange: onIndexCellChange,
+            // }),
+            render(value, _item, index) {
+                return (
+                    <Cell
+                        value={value}
+                        dataIndex="type2"
+                        index={index}
+                        onChange={value2 => {
+                            console.log('type2.change', value2)
+                            onIndexCellChange && onIndexCellChange({
+                                index,
+                                dataIndex: 'type2',
+                                value: value2,
+                            })
+                        }}
+                    />
+                )
+            }
         },
         // {
         //     title: '类型',
@@ -660,10 +748,10 @@ ${rowSqls.join(' ,\n')}
                 onChange: onIndexCellChange,
             }),
         },
-        {
-            title: '不唯一',
-            dataIndex: 'NON_UNIQUE',
-        },
+        // {
+        //     title: '不唯一',
+        //     dataIndex: 'NON_UNIQUE',
+        // },
         {
             title: '操作',
             dataIndex: 'op',
@@ -723,6 +811,7 @@ ${rowSqls.join(' ,\n')}
                     const columns = groupMap[key]
                     indexes.push({
                         __id: uid(32),
+                        __INDEX_NAME: item0.INDEX_NAME,
                         name: {
                             value: item0.INDEX_NAME,
                         },
@@ -730,7 +819,7 @@ ${rowSqls.join(' ,\n')}
                             value: item0.INDEX_COMMENT,
                         },
                         type2: {
-                            value: item0.NON_UNIQUE == 1 ? 'UNIQUE' : 'NON_UNIQUE',
+                            value: item0.NON_UNIQUE == 1 ? 'Normal' : 'Unique',
                         },
                         type: item0.INDEX_TYPE,
                         NON_UNIQUE: item0.NON_UNIQUE,
@@ -752,7 +841,7 @@ ${rowSqls.join(' ,\n')}
                         // },
                     })
                 }
-                setIndexes(indexes)
+                setIndexes(indexes.filter(item => item.__INDEX_NAME != "PRIMARY"))
                 setTableInfo(res.data.table)
             }
         }
@@ -762,6 +851,8 @@ ${rowSqls.join(' ,\n')}
         loadTableInfo()
     }, [])
     
+    console.log('render/indexes', indexes)
+
 	return (
         <div className={styles.detailBox}>
             <div className={styles.header}>
@@ -792,7 +883,7 @@ ${rowSqls.join(' ,\n')}
                     tabPosition="left"
                     type="card"
                 >
-                    <TabPane tab="基本信息" key="basic">
+                    <TabPane tab={'options'} key="basic">
                         <div className={styles.formBox}>
                             <Form
                                 form={form}
@@ -801,6 +892,7 @@ ${rowSqls.join(' ,\n')}
                                 initialValues={{
                                     port: 3306,
                                 }}
+                                size="small"
                                 // layout={{
                                 //     labelCol: { span: 0 },
                                 //     wrapperCol: { span: 24 },
@@ -855,7 +947,7 @@ ${rowSqls.join(' ,\n')}
                                         // onChange={}
                                     />
                                 </Form.Item>
-                                <Form.Item
+                                {/* <Form.Item
                                         wrapperCol={{ offset: 8, span: 16 }}
                                         // name="passowrd"
                                         // label="Passowrd"
@@ -864,18 +956,29 @@ ${rowSqls.join(' ,\n')}
                                         <Space>
                                             
                                         </Space>
-                                    </Form.Item>
+                                    </Form.Item> */}
+                                <Form.Item label="行">
+                                    {tableInfo.DATA_LENGTH}
+                                </Form.Item>
+                                <Form.Item label="平均行长度">
+                                    {tableInfo.AVG_ROW_LENGTH}
+                                </Form.Item>
+                                <Form.Item label="当前自增值">
+                                    {tableInfo.AUTO_INCREMENT}
+                                </Form.Item>
+                                <Form.Item label="行格式">
+                                    {tableInfo.ROW_FORMAT}
+                                </Form.Item>
+                                <Form.Item label="CREATE_TIME">
+                                    {tableInfo.CREATE_TIME}
+                                </Form.Item>
+                                <Form.Item label="UPDATE_TIME">
+                                    {tableInfo.UPDATE_TIME}
+                                </Form.Item>
                             </Form>
                         </div>
                         {editType == 'update' &&
                             <Descriptions column={1}>
-                                {/* <Descriptions.Item label="排序规则">{tableInfo.TABLE_COLLATION}</Descriptions.Item> */}
-                                <Descriptions.Item label="行">{tableInfo.DATA_LENGTH}</Descriptions.Item>
-                                <Descriptions.Item label="平均行长度">{tableInfo.AVG_ROW_LENGTH}</Descriptions.Item>
-                                <Descriptions.Item label="当前自增值">{tableInfo.AUTO_INCREMENT}</Descriptions.Item>
-                                <Descriptions.Item label="行格式">{tableInfo.ROW_FORMAT}</Descriptions.Item>
-                                <Descriptions.Item label="CREATE_TIME">{tableInfo.CREATE_TIME}</Descriptions.Item>
-                                <Descriptions.Item label="UPDATE_TIME">{tableInfo.UPDATE_TIME}</Descriptions.Item>
                                 {/* : null
                                 CHECKSUM: null
                                 CHECK_TIME: null
@@ -894,7 +997,7 @@ ${rowSqls.join(' ,\n')}
                         }
                     </TabPane>
                     
-                    <TabPane tab="列信息" key="columns">
+                    <TabPane tab={t('columns')} key="columns">
                         <div style={{
                             marginBottom: 8,
                         }}>
@@ -968,7 +1071,7 @@ ${rowSqls.join(' ,\n')}
                     </TabPane>
                     {editType == 'update' &&
                         <>
-                            <TabPane tab="索引信息" key="index">
+                            <TabPane tab={t('indexes')} key="index">
                                 <div style={{
                                     marginBottom: 8,
                                 }}>
@@ -989,7 +1092,7 @@ ${rowSqls.join(' ,\n')}
                                                         value: '',
                                                     },
                                                     type2: {
-                                                        value: 'NON_UNIQUE',
+                                                        value: 'Normal',
                                                     },
                                                     type: '',
                                                     NON_UNIQUE: '',
@@ -1010,7 +1113,7 @@ ${rowSqls.join(' ,\n')}
                                     rowKey="__id"
                                 />
                             </TabPane>
-                            <TabPane tab="分区信息" key="partition">
+                            <TabPane tab={t('partition')} key="partition">
                                 <Table
                                     columns={partitionColumns}
                                     dataSource={partitions}

@@ -70,6 +70,11 @@ i18n
                     limit: 'Limit',
                     no_limit: 'Don\'t limit',
                     list_view: 'List view',
+                    index: 'Index',
+                    indexes: 'Indexes',
+                    columns: 'Columns',
+                    partition: 'Partitioning',
+                    options: 'Options',
                 }
             },
             zh: {
@@ -132,6 +137,11 @@ i18n
                     limit: '限制',
                     no_limit: '不限制',
                     list_view: '列表视图',
+                    index: '索引',
+                    indexes: '索引',
+                    columns: '字段',
+                    partition: '分区',
+                    options: '配置',
                 }
             }
         },
