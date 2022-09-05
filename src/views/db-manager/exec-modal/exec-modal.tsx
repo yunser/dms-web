@@ -14,7 +14,7 @@ const { TabPane } = Tabs
 const { TextArea } = Input
 
 
-export function ExecModal({ config, sql, onClose, tableName, dbName }) {
+export function ExecModal({ config, sql, onClose, onSuccess, tableName, dbName }) {
     const { t } = useTranslation()
 
     const [modelVisible, setModalVisible] = useState(true)
@@ -177,6 +177,11 @@ export function ExecModal({ config, sql, onClose, tableName, dbName }) {
                     onCancel={() => {
                         setResultModalVisible(false)
                         onClose && onClose()
+                        
+                        const isSomeSuccess = resultTabs.find(item => !item.data.error)
+                        if (isSomeSuccess) {
+                            onSuccess && onSuccess()
+                        }
                     }}
                     // onOk={() => {
                     //     doSubmit()

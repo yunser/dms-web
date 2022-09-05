@@ -203,7 +203,6 @@ export function TableDetail({ config, dbName, tableName }) {
     const [execSql, setExecSql] = useState('')
     
     const [form] = Form.useForm()
-    const [sql, setSql] = useState('')
     const [nginxs, setNginxs] = useState([])
     // useEffect(() => {
     //     form.setFieldsValue({
@@ -421,7 +420,11 @@ export function TableDetail({ config, dbName, tableName }) {
         }
         // return
 
-
+        // must before 「No changed」check
+        if (editType == 'create' && !rowSqls.length) {
+            message.info('No columns')
+            return
+        }
         if (!attrSqls.length && !rowSqls.length) {
             message.info('No changed')
             return
@@ -765,18 +768,6 @@ ${rowSqls.join(' ,\n')}
                                     </Form.Item>
                             </Form>
                         </div>
-                        {!!sql &&
-                            <ExecModal
-                                config={config}
-                                sql={sql}
-                                tableName={tableName}
-                                dbName={dbName}
-                                onClose={() => {
-                                    setSql('')
-                                    loadTableInfo()
-                                }}
-                            />
-                        }
                         {editType == 'update' &&
                             <Descriptions column={1}>
                                 {/* <Descriptions.Item label="排序规则">{tableInfo.TABLE_COLLATION}</Descriptions.Item> */}
@@ -910,6 +901,8 @@ ${rowSqls.join(' ,\n')}
                     dbName={dbName}
                     onClose={() => {
                         setExecSql('')
+                    }}
+                    onSuccess={() => {
                         loadTableInfo()
                     }}
                 />
