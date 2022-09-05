@@ -146,7 +146,7 @@ function Cell({ value, index, dataIndex, onChange }) {
                             }}
                         >
                             {inputValue || value.value}
-                            {/* （->{value.newValue}） */}
+                            （->{value.newValue}）
                             </div>
                     }
                 </>
@@ -195,6 +195,7 @@ export function TableDetail({ config, dbName, tableName }) {
     const [tableColumns, setTableColumns] = useState([])
     const [indexes, setIndexes] = useState([])
     const [removedRows, setRemovedRows] = useState([])
+    const [removedIndexes, setRemovedIndexes] = useState([])
     const [partitions, setPartitions] = useState([])
     const [tableInfo, setTableInfo] = useState({})
     const [modelVisible, setModalVisible] = useState(false)
@@ -391,7 +392,7 @@ export function TableDetail({ config, dbName, tableName }) {
                 rowSqls.push(rowSql)
             }
         }
-        // 删除逻辑
+        // 列删除逻辑
         if (removedRows.length) {
             for (let removedRow of removedRows) {
                 rowSqls.push(`DROP COLUMN \`${removedRow.COLUMN_NAME.value}\``)
@@ -419,6 +420,13 @@ export function TableDetail({ config, dbName, tableName }) {
             rowSqls.push(`ADD PRIMARY KEY(${keySql})`)
         }
         // return
+
+        // 索引删除逻辑
+        if (removedIndexes.length) {
+            for (let removedIndex of removedIndexes) {
+                rowSqls.push(`DROP INDEX \`${removedIndex.name.value}\``)
+            }
+        }
 
         // must before 「No changed」check
         if (editType == 'create' && !rowSqls.length) {
@@ -476,6 +484,12 @@ ${rowSqls.join(' ,\n')}
         console.log('onColumnCellChange', index, dataIndex, value)
         tableColumns[index][dataIndex] = value
         setTableColumns([...tableColumns])
+    }
+
+    function onIndexCellChange({ index, dataIndex, value,}) {
+        console.log('onColumnCellChange', index, dataIndex, value)
+        indexes[index][dataIndex] = value
+        setIndexes([...indexes])
     }
 
     
@@ -540,7 +554,7 @@ ${rowSqls.join(' ,\n')}
             }),
         },
         {
-            title: '备注',
+            title: '注释',
             dataIndex: 'COLUMN_COMMENT',
             render: EditableCellRender({
                 dataIndex: 'COLUMN_COMMENT',
@@ -571,33 +585,71 @@ ${rowSqls.join(' ,\n')}
         {
             title: '索引名',
             dataIndex: 'name',
+            render: EditableCellRender({
+                dataIndex: 'name',
+                onChange: onIndexCellChange,
+            }),
         },
+        {
+            title: '类型',
+            dataIndex: 'type2',
+            render: EditableCellRender({
+                dataIndex: 'type2',
+                onChange: onIndexCellChange,
+            }),
+        },
+        // {
+        //     title: '类型',
+        //     dataIndex: 'type',
+        // },
         {
             title: '包含列',
             dataIndex: 'columns',
+            render: EditableCellRender({
+                dataIndex: 'columns',
+                onChange: onIndexCellChange,
+            }),
         },
         // {
         //     title: 'COLUMN_NAME',
         //     dataIndex: 'COLUMN_NAME',
         // },
         {
-            title: '备注',
+            title: '注释',
             dataIndex: 'comment',
-        },
-        {
-            title: '类型',
-            dataIndex: 'type',
+            render: EditableCellRender({
+                dataIndex: 'comment',
+                onChange: onIndexCellChange,
+            }),
         },
         {
             title: '不唯一',
             dataIndex: 'NON_UNIQUE',
         },
-        
-        
+        {
+            title: '操作',
+            dataIndex: 'op',
+            render(_value, item) {
+                return (
+                    <a
+                        onClick={() => {
+                            setIndexes(indexes.filter(_item => _item.__id != item.__id))
+                            if (!item.__new) {
+                                setRemovedIndexes([
+                                    ...removedIndexes,
+                                    item,
+                                ])
+                            }
+                        }}
+                    >删除</a>
+                )
+            }
+        },
         
     ]
     async function loadTableInfo() {
         setRemovedRows([])
+        setRemovedIndexes([])
         if (dbName && tableName) {
             let res = await request.post(`${config.host}/mysql/tableDetail`, {
                 dbName,
@@ -633,16 +685,25 @@ ${rowSqls.join(' ,\n')}
                     const columns = groupMap[key]
                     indexes.push({
                         __id: uid(32),
-                        name: item0.INDEX_NAME,
-                        comment: item0.INDEX_COMMENT,
+                        name: {
+                            value: item0.INDEX_NAME,
+                        },
+                        comment: {
+                            value: item0.INDEX_COMMENT,
+                        },
+                        type2: {
+                            value: item0.NON_UNIQUE == 1 ? 'UNIQUE' : 'NON_UNIQUE',
+                        },
                         type: item0.INDEX_TYPE,
                         NON_UNIQUE: item0.NON_UNIQUE,
-                        columns: columns
-                            .sort((a, b) => {
-                                return a.SEQ_IN_INDEX - b.SEQ_IN_INDEX
-                            })
-                            .map(item => item.COLUMN_NAME)
-                            .join(', ')
+                        columns: {
+                            value: columns
+                                .sort((a, b) => {
+                                    return a.SEQ_IN_INDEX - b.SEQ_IN_INDEX
+                                })
+                                .map(item => item.COLUMN_NAME)
+                                .join(', ')
+                        }
                         // {
                         //     title: 'SEQ_IN_INDEX',
                         //     dataIndex: 'SEQ_IN_INDEX',
@@ -870,6 +931,38 @@ ${rowSqls.join(' ,\n')}
                     {editType == 'update' &&
                         <>
                             <TabPane tab="索引信息" key="index">
+                                <div style={{
+                                    marginBottom: 8,
+                                }}>
+                                    <Space>
+                                        <Button
+                                            size="small"
+                                            onClick={() => {
+                                                indexes.push({
+                                                    __id: uid(32),
+                                                    __new: true,
+                                                    name: {
+                                                        value: '',
+                                                    },
+                                                    comment: {
+                                                        value: '',
+                                                    },
+                                                    columns: {
+                                                        value: '',
+                                                    },
+                                                    type2: {
+                                                        value: 'NON_UNIQUE',
+                                                    },
+                                                    type: '',
+                                                    NON_UNIQUE: '',
+                                                })
+                                                setIndexes([...indexes])
+                                            }}
+                                        >
+                                            新增
+                                        </Button>
+                                    </Space>
+                                </div>
                                 <Table
                                     columns={indexColumns}
                                     dataSource={indexes}
