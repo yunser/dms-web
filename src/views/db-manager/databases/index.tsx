@@ -81,7 +81,7 @@ export default function DatabaseList({ config, onJson, onSelectDatabase, onUseMa
                                 loadData()
                             }}
                         >
-                            <a>编辑</a>
+                            <a>{t('edit')}</a>
                         </DatabaseEditHandler>
                         <DatabaseRemoveHandler
                             item={item}
@@ -90,7 +90,7 @@ export default function DatabaseList({ config, onJson, onSelectDatabase, onUseMa
                                 loadData()
                             }}
                         >
-                            <a>删除</a>
+                            <a>{t('delete')}</a>
                         </DatabaseRemoveHandler>
                     </Space>
                 )
@@ -128,7 +128,7 @@ export default function DatabaseList({ config, onJson, onSelectDatabase, onUseMa
                         }}
                     >
                         <Button size="small">
-                            新增数据库
+                            {t('db_create')}
                         </Button>
                     </DatabaseEditHandler>
                     <Button
@@ -137,7 +137,7 @@ export default function DatabaseList({ config, onJson, onSelectDatabase, onUseMa
                             onUseManager && onUseManager()
                         }}
                     >
-                        用户管理
+                        {t('user_manager')}
                     </Button>
                 </Space>
             </div>

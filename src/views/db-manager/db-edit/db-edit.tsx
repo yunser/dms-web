@@ -152,9 +152,10 @@ export function DatabaseModal({ config, item, onClose, onSuccess, onConnnect, })
 
     return (
         <Modal
-            title={`${editType == 'create' ? '新增' : '编辑'}数据库`}
+            title={editType == 'create' ? t('db_create') : t('db_edit')}
             visible={true}
             onCancel={onClose}
+            maskClosable={false}
             onOk={async () => {
                 const values = await form.validateFields()
                 if (editType == 'create') {

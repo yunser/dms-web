@@ -344,7 +344,7 @@ export function TableDetail({ config, dbName, tableName }) {
     // tableInfo
 
     useEffect(() => {
-        if (!tableInfo.TABLE_NAME) {
+        if (editType == 'update' && !tableInfo.TABLE_NAME) {
             return
         }
         loadCharData()
@@ -918,7 +918,7 @@ ${rowSqls.join(' ,\n')}
                     tabPosition="left"
                     type="card"
                 >
-                    <TabPane tab={'options'} key="basic">
+                    <TabPane tab={t('options')} key="basic">
                         <div className={styles.formBox}>
                             <Form
                                 form={form}
@@ -935,21 +935,21 @@ ${rowSqls.join(' ,\n')}
                             >
                                 <Form.Item
                                     name="TABLE_NAME"
-                                    label="表名称"
+                                    label={t('name')}
                                     rules={[ { required: true, }, ]}
                                 >
                                     <Input />
                                 </Form.Item>
                                 <Form.Item
                                     name="TABLE_COMMENT"
-                                    label="注释"
+                                    label={t('comment')}
                                     rules={[]}
                                 >
                                     <Input.TextArea rows={4} />
                                 </Form.Item>
                                 <Form.Item
                                     name="ENGINE"
-                                    label="引擎"
+                                    label={t('nginx')}
                                     rules={[]}
                                 >
                                     <Select
@@ -958,7 +958,7 @@ ${rowSqls.join(' ,\n')}
                                 </Form.Item>
                                 <Form.Item
                                     name="characterSet"
-                                    label="Character Set"
+                                    label={t('character_set')}
                                     // rules={editType == 'create' ? [] : [ { required: true, }, ]}
                                 >
                                     <Select
@@ -974,7 +974,7 @@ ${rowSqls.join(' ,\n')}
                                 </Form.Item>
                                 <Form.Item
                                     name="collation"
-                                    label="Collation"
+                                    label={t('collation')}
                                     // rules={[ { required: true, }, ]}
                                 >
                                     <Select
@@ -992,24 +992,28 @@ ${rowSqls.join(' ,\n')}
                                             
                                         </Space>
                                     </Form.Item> */}
-                                <Form.Item label="行">
-                                    {tableInfo.DATA_LENGTH}
-                                </Form.Item>
-                                <Form.Item label="平均行长度">
-                                    {tableInfo.AVG_ROW_LENGTH}
-                                </Form.Item>
-                                <Form.Item label="当前自增值">
-                                    {tableInfo.AUTO_INCREMENT}
-                                </Form.Item>
-                                <Form.Item label="行格式">
-                                    {tableInfo.ROW_FORMAT}
-                                </Form.Item>
-                                <Form.Item label="CREATE_TIME">
-                                    {tableInfo.CREATE_TIME}
-                                </Form.Item>
-                                <Form.Item label="UPDATE_TIME">
-                                    {tableInfo.UPDATE_TIME}
-                                </Form.Item>
+                                {editType == 'update' &&
+                                    <>
+                                        <Form.Item label="行">
+                                            {tableInfo.DATA_LENGTH}
+                                        </Form.Item>
+                                        <Form.Item label="平均行长度">
+                                            {tableInfo.AVG_ROW_LENGTH}
+                                        </Form.Item>
+                                        <Form.Item label="当前自增值">
+                                            {tableInfo.AUTO_INCREMENT}
+                                        </Form.Item>
+                                        <Form.Item label="行格式">
+                                            {tableInfo.ROW_FORMAT}
+                                        </Form.Item>
+                                        <Form.Item label="CREATE_TIME">
+                                            {tableInfo.CREATE_TIME}
+                                        </Form.Item>
+                                        <Form.Item label="UPDATE_TIME">
+                                            {tableInfo.UPDATE_TIME}
+                                        </Form.Item>
+                                    </>
+                                }
                             </Form>
                         </div>
                         {editType == 'update' &&

@@ -418,7 +418,7 @@ export function SqlTree({ config, onTab, dbName, data = {} }: any) {
                 </IconButton>
                 <IconButton
                     className={styles.refresh}
-                    // tooltip={t('refresh')}
+                    tooltip={t('table_create')}
                     onClick={() => {
                         let tabKey = '' + new Date().getTime()
                         onTab && onTab({

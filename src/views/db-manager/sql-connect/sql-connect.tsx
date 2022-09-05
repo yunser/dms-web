@@ -330,7 +330,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
                     <Space>
                         <IconButton
                             onClick={add}
-                            tooltip="新增"
+                            tooltip={t('connection_create')}
                         >
                             <PlusOutlined />
                         </IconButton>
@@ -338,7 +338,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
                             onClick={() => {
                                 onJson && onJson(JSON.stringify(connections, null, 4))
                             }}
-                            tooltip="导出"
+                            tooltip={t('connection_export')}
                         >
                             <ExportOutlined />
                         </IconButton>
