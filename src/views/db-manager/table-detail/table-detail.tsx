@@ -25,7 +25,7 @@ function hasValue(value) {
 // }
 
 
-function Cell({ value, index, dataIndex, onChange }) {
+function Cell({ value, selectOptions, index, dataIndex, onChange }) {
     // console.log('Cell/value', value)
     // const inputRef = useRef(null)
     const id = useMemo(() => {
@@ -176,19 +176,29 @@ function Cell({ value, index, dataIndex, onChange }) {
                                     width: 160,
                                 }}
                             />
-                            {/* <Checkbox
-                                checked={inputValue == 'PRI'}
-                                onChange={(e) => {
-                                    console.log('check', e.target.checked)
-                                    const newValue = e.target.checked ? 'PRI' : 'NOT_PRI'
+                        </div>
+                    : dataIndex == 'columns' ?
+                        <div>
+                            {/* {inputValue} */}
+                            <Select
+                                size="small"
+                                mode="multiple"
+                                // key={value}
+                                value={inputValue}
+                                onChange={v => {
+                                    console.log('Select.value', v)
+                                    const newValue = v
                                     setInputValue(newValue)
                                     onChange && onChange({
-                                        ...value,
+                                        value: value.value,
                                         newValue,
                                     })
-
                                 }}
-                            /> */}
+                                options={selectOptions}
+                                style={{
+                                    width: 240,
+                                }}
+                            />
                         </div>
                     :
                         <div
@@ -501,8 +511,9 @@ export function TableDetail({ config, dbName, tableName }) {
             }
             // if (rowChanged) {
             function addIndex() {
-                const columnsSql = (idxRow['columns'].newValue || idxRow['columns'].value).trim()
-                    .split(', ')
+                const columnsSql = (idxRow['columns'].newValue || idxRow['columns'].value)
+                    // .trim()
+                    // .split(', ')
                     .map(item => `\`${item}\``)
                     .join('')
                 const commentSql = hasValue(idxRow.comment.newValue || idxRow.comment.value) ? `COMMENT '${idxRow.comment.newValue || idxRow.comment.value}'` : ''
@@ -731,10 +742,34 @@ ${rowSqls.join(' ,\n')}
         {
             title: '包含列',
             dataIndex: 'columns',
-            render: EditableCellRender({
-                dataIndex: 'columns',
-                onChange: onIndexCellChange,
-            }),
+            // render: EditableCellRender({
+            //     dataIndex: 'columns',
+            //     onChange: onIndexCellChange,
+            // }),
+            render(value, _item, index) {
+                return (
+                    <Cell
+                        value={value}
+                        dataIndex="columns"
+                        selectOptions={tableColumns.map(item => {
+                            const value = item['COLUMN_NAME'].newValue || item['COLUMN_NAME'].value
+                            return {
+                                label: value,
+                                value,
+                            }
+                        })}
+                        index={index}
+                        onChange={value2 => {
+                            // console.log('type2.change', value2)
+                            onIndexCellChange && onIndexCellChange({
+                                index,
+                                dataIndex: 'columns',
+                                value: value2,
+                            })
+                        }}
+                    />
+                )
+            }
         },
         // {
         //     title: 'COLUMN_NAME',
@@ -829,7 +864,7 @@ ${rowSqls.join(' ,\n')}
                                     return a.SEQ_IN_INDEX - b.SEQ_IN_INDEX
                                 })
                                 .map(item => item.COLUMN_NAME)
-                                .join(', ')
+                                // .join(', ')
                         }
                         // {
                         //     title: 'SEQ_IN_INDEX',
@@ -1089,7 +1124,7 @@ ${rowSqls.join(' ,\n')}
                                                         value: '',
                                                     },
                                                     columns: {
-                                                        value: '',
+                                                        value: [],
                                                     },
                                                     type2: {
                                                         value: 'Normal',
