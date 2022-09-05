@@ -330,72 +330,26 @@ export function TableDetail({ config, dbName, tableName }) {
     async function update() {
         // setLoading(true)
         const values = await form.validateFields()
-        const rowSqls = []
+        const attrSqls = []
         if (editType == 'update' && values.TABLE_NAME != tableInfo.TABLE_NAME) {
-            rowSqls.push(`RENAME TO \`${values.TABLE_NAME}\``)
+            attrSqls.push(`RENAME TO \`${values.TABLE_NAME}\``)
         }
         if (values.TABLE_COMMENT != tableInfo.TABLE_COMMENT) {
-            rowSqls.push(`COMMENT='${values.TABLE_COMMENT}'`)
+            attrSqls.push(`COMMENT='${values.TABLE_COMMENT}'`)
         }
         if (values.ENGINE != tableInfo.ENGINE) {
-            rowSqls.push(`ENGINE=${values.ENGINE}`)
+            attrSqls.push(`ENGINE=${values.ENGINE}`)
         }
         if (values.collation != tableInfo.TABLE_COLLATION) {
             if (values.characterSet != _old_characterSet_ref.current) {
-                rowSqls.push(`DEFAULT CHARACTER SET=${values.characterSet}`)
+                attrSqls.push(`DEFAULT CHARACTER SET=${values.characterSet}`)
             }
             if (values.collation != tableInfo.TABLE_COLLATION && values.collation) {
-                rowSqls.push(`COLLATE=${values.collation}`)
+                attrSqls.push(`COLLATE=${values.collation}`)
             }
         }
 
-        if (!rowSqls.length) {
-            message.info('No changed')
-            return
-        }
-        let sql
-        if (editType == 'update') {
-            sql = `ALTER TABLE \`${tableInfo.TABLE_NAME}\`
-${rowSqls.join(' ,\n')}`
-        }
-        else {
-            sql = `CREATE TABLE \`${values.TABLE_NAME}\` (
-\`id\` int(11) NULL
-) ${rowSqls.join(' ,\n')}`
-        }
-        console.log('sql', sql)
-        setSql(sql)
-    }
-
-    const partitionColumns = [
-        {
-            title: '分区名',
-            dataIndex: 'PARTITION_NAME',
-        },
-        {
-            title: '表达式',
-            dataIndex: 'PARTITION_EXPRESSION',
-        },
-        {
-            title: '数据长度',
-            dataIndex: 'DATA_LENGTH',
-        },
-        {
-            title: '描述',
-            dataIndex: 'PARTITION_DESCRIPTION',
-        },
-    ]
-
-    function onColumnCellChange({ index, dataIndex, value,}) {
-        console.log('onColumnCellChange', index, dataIndex, value)
-        tableColumns[index][dataIndex] = value
-        setTableColumns([...tableColumns])
-    }
-
-    async function submitChange() {
-        let sql = `ALTER TABLE \`${tableName}\``
-        
-        let changed = false
+        // let changed = false
         const rowSqls = []
         for (let row of tableColumns) {
             // console.log('row', row)
@@ -416,8 +370,8 @@ ${rowSqls.join(' ,\n')}`
                 }
             }
             if (rowChanged) {
-                changed = true
-                const changeType = row.__new ? 'ADD' : row.COLUMN_NAME.newValue ? 'CHANGE' : 'MODIFY'
+                // changed = true
+                const changeType = editType == 'create' ? '' : row.__new ? 'ADD COLUMN' : row.COLUMN_NAME.newValue ? 'CHANGE COLUMN' : 'MODIFY COLUMN'
                 let _nameSql = hasValue(row.COLUMN_NAME.newValue) ? `\`${row.COLUMN_NAME.newValue}\`` : ''
                 let nameSql
                 if (row.__new) {
@@ -432,7 +386,7 @@ ${rowSqls.join(' ,\n')}`
                 const defaultSql = hasValue(row.COLUMN_DEFAULT.newValue || row.COLUMN_DEFAULT.value) ? `DEFAULT '${row.COLUMN_DEFAULT.newValue || row.COLUMN_DEFAULT.value}'` : ''
                 const commentSql = hasValue(row.COLUMN_COMMENT.newValue || row.COLUMN_COMMENT.value) ? `COMMENT '${row.COLUMN_COMMENT.newValue || row.COLUMN_COMMENT.value}'` : ''
                 // const commentSql = hasValue(row.COLUMN_COMMENT.newValue) ? `COMMENT '${row.COLUMN_COMMENT.newValue}'` : ''
-                const rowSql = `${changeType} COLUMN ${nameSql} ${typeSql} ${nullSql} ${autoIncrementSql} ${defaultSql} ${commentSql}`
+                const rowSql = `${changeType} ${nameSql} ${typeSql} ${nullSql} ${autoIncrementSql} ${defaultSql} ${commentSql}`
                 //  int(11) NULL AFTER \`content\`
                 
                 rowSqls.push(rowSql)
@@ -467,14 +421,61 @@ ${rowSqls.join(' ,\n')}`
         }
         // return
 
-        if (!rowSqls.length) {
+
+        if (!attrSqls.length && !rowSqls.length) {
             message.info('No changed')
             return
         }
-        sql += '\n' + rowSqls.join(' ,\n')
+        let sql
+        if (editType == 'update') {
+            sql = `ALTER TABLE \`${tableInfo.TABLE_NAME}\`
+${[...attrSqls, ...rowSqls].join(' ,\n')}`
+        }
+        else {
+            sql = `CREATE TABLE \`${values.TABLE_NAME}\` (
+${rowSqls.join(' ,\n')}
+) ${attrSqls.join(' ,\n')}`
+        }
         console.log('sql', sql)
+        // setSql(sql)
         setExecSql(sql)
     }
+
+    // async function submitChange() {
+    //     let sql = `ALTER TABLE \`${tableName}\``
+        
+        
+    //     sql += '\n' + rowSqls.join(' ,\n')
+    //     console.log('sql', sql)
+    //     setExecSql(sql)
+    // }
+
+    const partitionColumns = [
+        {
+            title: '分区名',
+            dataIndex: 'PARTITION_NAME',
+        },
+        {
+            title: '表达式',
+            dataIndex: 'PARTITION_EXPRESSION',
+        },
+        {
+            title: '数据长度',
+            dataIndex: 'DATA_LENGTH',
+        },
+        {
+            title: '描述',
+            dataIndex: 'PARTITION_DESCRIPTION',
+        },
+    ]
+
+    function onColumnCellChange({ index, dataIndex, value,}) {
+        console.log('onColumnCellChange', index, dataIndex, value)
+        tableColumns[index][dataIndex] = value
+        setTableColumns([...tableColumns])
+    }
+
+    
 
     const columns = [
         {
@@ -661,237 +662,246 @@ ${rowSqls.join(' ,\n')}`
     
 	return (
         <div className={styles.detailBox}>
-            <Tabs
-                tabPosition="left"
-                type="card"
-            >
-                <TabPane tab="基本信息" key="basic">
-                    <div className={styles.formBox}>
-                        <Form
-                            form={form}
-                            labelCol={{ span: 8 }}
-                            wrapperCol={{ span: 16 }}
-                            initialValues={{
-                                port: 3306,
-                            }}
-                            // layout={{
-                            //     labelCol: { span: 0 },
-                            //     wrapperCol: { span: 24 },
-                            // }}
-                        >
-                            <Form.Item
-                                name="TABLE_NAME"
-                                label="表名称"
-                                rules={[ { required: true, }, ]}
-                            >
-                                <Input />
-                            </Form.Item>
-                            <Form.Item
-                                name="TABLE_COMMENT"
-                                label="注释"
-                                rules={[]}
-                            >
-                                <Input.TextArea rows={4} />
-                            </Form.Item>
-                            <Form.Item
-                                name="ENGINE"
-                                label="引擎"
-                                rules={[]}
-                            >
-                                <Select
-                                    options={nginxs}
-                                />
-                            </Form.Item>
-                            <Form.Item
-                                name="characterSet"
-                                label="Character Set"
-                                // rules={editType == 'create' ? [] : [ { required: true, }, ]}
-                            >
-                                <Select
-                                    options={characterSets}
-                                    onChange={() => {
-                                        console.log('change')
-                                        form.setFieldsValue({
-                                            collation: null,
-                                        })
-                                    }}
-                                    // onChange={}
-                                />
-                            </Form.Item>
-                            <Form.Item
-                                name="collation"
-                                label="Collation"
-                                // rules={[ { required: true, }, ]}
-                            >
-                                <Select
-                                    options={collations}
-                                    // onChange={}
-                                />
-                            </Form.Item>
-                            <Form.Item
-                                    wrapperCol={{ offset: 8, span: 16 }}
-                                    // name="passowrd"
-                                    // label="Passowrd"
-                                    // rules={[{ required: true, },]}
-                                >
-                                    <Space>
-                                        <Button
-                                            // loading={loading}
-                                            type="primary"
-                                            onClick={update}>提交</Button>
-                                        {/* <Button onClick={save}>保存</Button> */}
-                                    </Space>
-                                </Form.Item>
-                        </Form>
-                    </div>
-                    {!!sql &&
-                        <ExecModal
-                            config={config}
-                            sql={sql}
-                            tableName={tableName}
-                            dbName={dbName}
-                            onClose={() => {
-                                setSql('')
-                                loadTableInfo()
-                            }}
-                        />
-                    }
+            <div className={styles.header}>
+                <Space>
                     {editType == 'update' &&
-                        <Descriptions column={1}>
-                            {/* <Descriptions.Item label="排序规则">{tableInfo.TABLE_COLLATION}</Descriptions.Item> */}
-                            <Descriptions.Item label="行">{tableInfo.DATA_LENGTH}</Descriptions.Item>
-                            <Descriptions.Item label="平均行长度">{tableInfo.AVG_ROW_LENGTH}</Descriptions.Item>
-                            <Descriptions.Item label="当前自增值">{tableInfo.AUTO_INCREMENT}</Descriptions.Item>
-                            <Descriptions.Item label="行格式">{tableInfo.ROW_FORMAT}</Descriptions.Item>
-                            <Descriptions.Item label="CREATE_TIME">{tableInfo.CREATE_TIME}</Descriptions.Item>
-                            <Descriptions.Item label="UPDATE_TIME">{tableInfo.UPDATE_TIME}</Descriptions.Item>
-                            {/* : null
-                            CHECKSUM: null
-                            CHECK_TIME: null
-                            CREATE_OPTIONS: "row_format=DYNAMIC"
-                            CREATE_TIME: "2022-07-28T08:20:02.000Z"
-                            DATA_FREE: 0
-                            INDEX_LENGTH: 0
-                            MAX_DATA_LENGTH: 0
-                            TABLE_CATALOG: "def"
-                            TABLE_ROWS: 8
-                            TABLE_SCHEMA: "linxot"
-                            TABLE_TYPE: "BASE TABLE"
-                            UPDATE_TIME: "2022-08-20T14:18:58.000Z"
-                            VERSION: 10 */}
-                        </Descriptions>
+                        <Button
+                            size="small"
+                            onClick={loadTableInfo}
+                        >
+                            刷新
+                        </Button>
                     }
-                </TabPane>
-                
-                <TabPane tab="列信息" key="columns">
-                    <div style={{
-                        marginBottom: 8,
-                    }}>
-                        <Space>
-                            {/* <input
-                                onBlur={() => {
-                                    console.log('Bour OK')
+                    <Button
+                        // loading={loading}
+                        size="small"
+                        type="primary"
+                        onClick={update}>提交</Button>
+                    {/* <Button
+                            size="small"
+                            onClick={submitChange}
+                        >
+                            提交修改
+                        </Button> */}
+                </Space>
+            </div>
+            <div className={styles.body}>
+                <Tabs
+                    tabPosition="left"
+                    type="card"
+                >
+                    <TabPane tab="基本信息" key="basic">
+                        <div className={styles.formBox}>
+                            <Form
+                                form={form}
+                                labelCol={{ span: 8 }}
+                                wrapperCol={{ span: 16 }}
+                                initialValues={{
+                                    port: 3306,
                                 }}
-                            /> */}
-                            {editType == 'update' &&
+                                // layout={{
+                                //     labelCol: { span: 0 },
+                                //     wrapperCol: { span: 24 },
+                                // }}
+                            >
+                                <Form.Item
+                                    name="TABLE_NAME"
+                                    label="表名称"
+                                    rules={[ { required: true, }, ]}
+                                >
+                                    <Input />
+                                </Form.Item>
+                                <Form.Item
+                                    name="TABLE_COMMENT"
+                                    label="注释"
+                                    rules={[]}
+                                >
+                                    <Input.TextArea rows={4} />
+                                </Form.Item>
+                                <Form.Item
+                                    name="ENGINE"
+                                    label="引擎"
+                                    rules={[]}
+                                >
+                                    <Select
+                                        options={nginxs}
+                                    />
+                                </Form.Item>
+                                <Form.Item
+                                    name="characterSet"
+                                    label="Character Set"
+                                    // rules={editType == 'create' ? [] : [ { required: true, }, ]}
+                                >
+                                    <Select
+                                        options={characterSets}
+                                        onChange={() => {
+                                            console.log('change')
+                                            form.setFieldsValue({
+                                                collation: null,
+                                            })
+                                        }}
+                                        // onChange={}
+                                    />
+                                </Form.Item>
+                                <Form.Item
+                                    name="collation"
+                                    label="Collation"
+                                    // rules={[ { required: true, }, ]}
+                                >
+                                    <Select
+                                        options={collations}
+                                        // onChange={}
+                                    />
+                                </Form.Item>
+                                <Form.Item
+                                        wrapperCol={{ offset: 8, span: 16 }}
+                                        // name="passowrd"
+                                        // label="Passowrd"
+                                        // rules={[{ required: true, },]}
+                                    >
+                                        <Space>
+                                            
+                                        </Space>
+                                    </Form.Item>
+                            </Form>
+                        </div>
+                        {!!sql &&
+                            <ExecModal
+                                config={config}
+                                sql={sql}
+                                tableName={tableName}
+                                dbName={dbName}
+                                onClose={() => {
+                                    setSql('')
+                                    loadTableInfo()
+                                }}
+                            />
+                        }
+                        {editType == 'update' &&
+                            <Descriptions column={1}>
+                                {/* <Descriptions.Item label="排序规则">{tableInfo.TABLE_COLLATION}</Descriptions.Item> */}
+                                <Descriptions.Item label="行">{tableInfo.DATA_LENGTH}</Descriptions.Item>
+                                <Descriptions.Item label="平均行长度">{tableInfo.AVG_ROW_LENGTH}</Descriptions.Item>
+                                <Descriptions.Item label="当前自增值">{tableInfo.AUTO_INCREMENT}</Descriptions.Item>
+                                <Descriptions.Item label="行格式">{tableInfo.ROW_FORMAT}</Descriptions.Item>
+                                <Descriptions.Item label="CREATE_TIME">{tableInfo.CREATE_TIME}</Descriptions.Item>
+                                <Descriptions.Item label="UPDATE_TIME">{tableInfo.UPDATE_TIME}</Descriptions.Item>
+                                {/* : null
+                                CHECKSUM: null
+                                CHECK_TIME: null
+                                CREATE_OPTIONS: "row_format=DYNAMIC"
+                                CREATE_TIME: "2022-07-28T08:20:02.000Z"
+                                DATA_FREE: 0
+                                INDEX_LENGTH: 0
+                                MAX_DATA_LENGTH: 0
+                                TABLE_CATALOG: "def"
+                                TABLE_ROWS: 8
+                                TABLE_SCHEMA: "linxot"
+                                TABLE_TYPE: "BASE TABLE"
+                                UPDATE_TIME: "2022-08-20T14:18:58.000Z"
+                                VERSION: 10 */}
+                            </Descriptions>
+                        }
+                    </TabPane>
+                    
+                    <TabPane tab="列信息" key="columns">
+                        <div style={{
+                            marginBottom: 8,
+                        }}>
+                            <Space>
+                                {/* <input
+                                    onBlur={() => {
+                                        console.log('Bour OK')
+                                    }}
+                                /> */}
+                                
                                 <Button
                                     size="small"
-                                    onClick={loadTableInfo}
+                                    onClick={() => {
+                                        tableColumns.push({
+                                            __id: uid(32),
+                                            __new: true,
+                                            COLUMN_NAME: {
+                                                value: '',
+                                            },
+                                            COLUMN_TYPE: {
+                                                value: '',
+                                            },
+                                            IS_NULLABLE: {
+                                                value: 'YES',
+                                            },
+                                            COLUMN_DEFAULT: {
+                                                value: null,
+                                            },
+                                            COLUMN_COMMENT: {
+                                                value: '',
+                                            },
+                                            COLUMN_KEY: {
+                                                value: '',
+                                            },
+                                            EXTRA: {
+                                                value: '',
+                                            },
+                                            // CHARACTER_MAXIMUM_LENGTH: 32
+                                            // CHARACTER_OCTET_LENGTH: 96
+                                            // CHARACTER_SET_NAME: "utf8"
+                                            // COLLATION_NAME: "utf8_general_ci"
+                                            // COLUMN_KEY: ""
+                                            // DATA_TYPE: "varchar"
+                                            // DATETIME_PRECISION: null
+                                            // EXTRA: ""
+                                            // GENERATION_EXPRESSION: ""
+                                            // NUMERIC_PRECISION: null
+                                            // NUMERIC_SCALE: null
+                                            // ORDINAL_POSITION: 2
+                                            // PRIVILEGES: "select,insert,update,references"
+                                            // TABLE_CATALOG: "def"
+                                            // TABLE_NAME: "a_test5"
+                                            // TABLE_SCHEMA: "linxot"
+                                        })
+                                        setTableColumns([...tableColumns])
+                                    }}
                                 >
-                                    刷新
+                                    新增
                                 </Button>
-                            }
-                            <Button
-                                size="small"
-                                onClick={() => {
-                                    tableColumns.push({
-                                        __id: uid(32),
-                                        __new: true,
-                                        COLUMN_NAME: {
-                                            value: '',
-                                        },
-                                        COLUMN_TYPE: {
-                                            value: '',
-                                        },
-                                        IS_NULLABLE: {
-                                            value: 'YES',
-                                        },
-                                        COLUMN_DEFAULT: {
-                                            value: null,
-                                        },
-                                        COLUMN_COMMENT: {
-                                            value: '',
-                                        },
-                                        COLUMN_KEY: {
-                                            value: '',
-                                        },
-                                        EXTRA: {
-                                            value: '',
-                                        },
-                                        // CHARACTER_MAXIMUM_LENGTH: 32
-                                        // CHARACTER_OCTET_LENGTH: 96
-                                        // CHARACTER_SET_NAME: "utf8"
-                                        // COLLATION_NAME: "utf8_general_ci"
-                                        // COLUMN_KEY: ""
-                                        // DATA_TYPE: "varchar"
-                                        // DATETIME_PRECISION: null
-                                        // EXTRA: ""
-                                        // GENERATION_EXPRESSION: ""
-                                        // NUMERIC_PRECISION: null
-                                        // NUMERIC_SCALE: null
-                                        // ORDINAL_POSITION: 2
-                                        // PRIVILEGES: "select,insert,update,references"
-                                        // TABLE_CATALOG: "def"
-                                        // TABLE_NAME: "a_test5"
-                                        // TABLE_SCHEMA: "linxot"
-                                    })
-                                    setTableColumns([...tableColumns])
-                                }}
-                            >
-                                新增
-                            </Button>
-                            <Button
-                                size="small"
-                                onClick={submitChange}
-                            >
-                                提交修改
-                            </Button>
-                        </Space>
-                    </div>
-                    <Table
-                        columns={columns}
-                        dataSource={tableColumns}
-                        bordered
-                        pagination={false}
-                        size="small"
-                        rowKey="__id"
-                    />
-                </TabPane>
-                {editType == 'update' &&
-                    <>
-                        <TabPane tab="索引信息" key="index">
-                            <Table
-                                columns={indexColumns}
-                                dataSource={indexes}
-                                bordered
-                                pagination={false}
-                                size="small"
-                                rowKey="__id"
-                            />
-                        </TabPane>
-                        <TabPane tab="分区信息" key="partition">
-                            <Table
-                                columns={partitionColumns}
-                                dataSource={partitions}
-                                bordered
-                                pagination={false}
-                                size="small"
-                                rowKey="__id"
-                            />
-                        </TabPane>
-                    </>
-                }
-            </Tabs>
+                                
+                            </Space>
+                        </div>
+                        <Table
+                            columns={columns}
+                            dataSource={tableColumns}
+                            bordered
+                            pagination={false}
+                            size="small"
+                            rowKey="__id"
+                        />
+                    </TabPane>
+                    {editType == 'update' &&
+                        <>
+                            <TabPane tab="索引信息" key="index">
+                                <Table
+                                    columns={indexColumns}
+                                    dataSource={indexes}
+                                    bordered
+                                    pagination={false}
+                                    size="small"
+                                    rowKey="__id"
+                                />
+                            </TabPane>
+                            <TabPane tab="分区信息" key="partition">
+                                <Table
+                                    columns={partitionColumns}
+                                    dataSource={partitions}
+                                    bordered
+                                    pagination={false}
+                                    size="small"
+                                    rowKey="__id"
+                                />
+                            </TabPane>
+                        </>
+                    }
+                </Tabs>
+            </div>
             {!!execSql &&
                 <ExecModal
                     config={config}
