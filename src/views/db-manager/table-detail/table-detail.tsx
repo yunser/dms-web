@@ -146,7 +146,7 @@ function Cell({ value, index, dataIndex, onChange }) {
                             }}
                         >
                             {inputValue || value.value}
-                            （->{value.newValue}）
+                            {/* （->{value.newValue}） */}
                             </div>
                     }
                 </>
@@ -422,25 +422,55 @@ export function TableDetail({ config, dbName, tableName }) {
         // return
 
         // 索引删除逻辑
+        const idxSqls = []
         if (removedIndexes.length) {
             for (let removedIndex of removedIndexes) {
-                rowSqls.push(`DROP INDEX \`${removedIndex.name.value}\``)
+                idxSqls.push(`DROP INDEX \`${removedIndex.name.value}\``)
             }
         }
+        // 新增索引逻辑
+        for (let idxRow of indexes) {
+            const checkFields = [
+                'name',
+                'type2',
+                'columns',
+                'comment',
+            ]
+            let rowChanged = false
+            for (let field in idxRow) {
+                if (hasValue(idxRow[field].newValue) && checkFields.includes(field)) {
+                    rowChanged = true
+                }
+            }
+            // if (rowChanged) {
+            if (idxRow.__new) {
+                const columnsSql = idxRow['columns'].newValue.trim()
+                    .split(',')
+                    .map(item => `\`${item}\``)
+                    .join('')
+                idxSqls.push(`ADD KEY \`${idxRow['name'].newValue}\`(${columnsSql})`)
+            }
+        }
+
 
         // must before 「No changed」check
         if (editType == 'create' && !rowSqls.length) {
             message.info('No columns')
             return
         }
-        if (!attrSqls.length && !rowSqls.length) {
+        const allSqls = [
+            ...attrSqls,
+            ...rowSqls,
+            ...idxSqls,
+        ]
+        if (!allSqls.length) {
             message.info('No changed')
             return
         }
         let sql
         if (editType == 'update') {
             sql = `ALTER TABLE \`${tableInfo.TABLE_NAME}\`
-${[...attrSqls, ...rowSqls].join(' ,\n')}`
+${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')}`
         }
         else {
             sql = `CREATE TABLE \`${values.TABLE_NAME}\` (
