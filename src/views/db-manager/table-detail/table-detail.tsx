@@ -443,12 +443,20 @@ export function TableDetail({ config, dbName, tableName }) {
                 }
             }
             // if (rowChanged) {
-            if (idxRow.__new) {
-                const columnsSql = idxRow['columns'].newValue.trim()
-                    .split(',')
+            function addIndex() {
+                const columnsSql = (idxRow['columns'].newValue || idxRow['columns'].value).trim()
+                    .split(', ')
                     .map(item => `\`${item}\``)
                     .join('')
-                idxSqls.push(`ADD KEY \`${idxRow['name'].newValue}\`(${columnsSql})`)
+                const commentSql = hasValue(idxRow.comment.newValue || idxRow.comment.value) ? `COMMENT '${idxRow.comment.newValue || idxRow.comment.value}'` : ''
+                idxSqls.push(`ADD INDEX \`${idxRow['name'].newValue || idxRow['name'].value}\` (${columnsSql}) ${commentSql}`)
+            }
+            if (idxRow.__new) {
+                addIndex()
+            }
+            else if (rowChanged) {
+                idxSqls.push(`DROP INDEX \`${idxRow['name'].value}\``)
+                addIndex()
             }
         }
 
