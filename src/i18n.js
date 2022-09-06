@@ -88,6 +88,9 @@ i18n
                     character_set: 'Character Set',
                     collation: 'Collation',
                     create_time: 'Create time',
+                    avg_row_length: 'Avg Row Length',
+                    auto_increment: 'Auto increment',
+                    data_length: 'Data Length',
                 }
             },
             zh: {
@@ -168,6 +171,10 @@ i18n
                     character_set: '字符集',
                     collation: '字符排序',
                     create_time: '创建时间',
+                    avg_row_length: '平均行长度',
+                    auto_increment: '自增',
+                    row_format: '行格式',
+                    data_length: '行大小',
                 }
             }
         },

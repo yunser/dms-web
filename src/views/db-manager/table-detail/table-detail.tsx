@@ -925,8 +925,8 @@ ${rowSqls.join(' ,\n')}
                         <div className={styles.formBox}>
                             <Form
                                 form={form}
-                                labelCol={{ span: 6 }}
-                                wrapperCol={{ span: 18 }}
+                                labelCol={{ span: 10 }}
+                                wrapperCol={{ span: 16 }}
                                 initialValues={{
                                     port: 3306,
                                 }}
@@ -997,16 +997,16 @@ ${rowSqls.join(' ,\n')}
                                     </Form.Item> */}
                                 {editType == 'update' &&
                                     <>
-                                        <Form.Item label="行">
+                                        <Form.Item label={t('data_length')}>
                                             {tableInfo.DATA_LENGTH}
                                         </Form.Item>
-                                        <Form.Item label="平均行长度">
+                                        <Form.Item label={t('avg_row_length')}>
                                             {tableInfo.AVG_ROW_LENGTH}
                                         </Form.Item>
-                                        <Form.Item label="当前自增值">
+                                        <Form.Item label={t('auto_increment')}>
                                             {tableInfo.AUTO_INCREMENT}
                                         </Form.Item>
-                                        <Form.Item label="行格式">
+                                        <Form.Item label={t('row_format')}>
                                             {tableInfo.ROW_FORMAT}
                                         </Form.Item>
                                         <Form.Item label={t('create_time')}>
