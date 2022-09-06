@@ -460,7 +460,7 @@ export function SqlTree({ config, onTab, dbName, data = {} }: any) {
                     <div className={styles.loading}>Loading...</div>
                 :
                     <Tree
-                        height={document.body.clientHeight - 42 - 40}
+                        height={document.body.clientHeight - 42 - 40 - 40}
                         // checkable
                         defaultExpandedKeys={['root']}
                         selectedKeys={[]}

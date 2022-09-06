@@ -14,7 +14,7 @@ import { ExportOutlined, ReloadOutlined } from '@ant-design/icons';
 import { DatabaseEditHandler } from '../db-edit';
 import { DatabaseRemoveHandler } from '../db-remove';
 
-export default function DatabaseList({ config, onJson, onSelectDatabase, onUseManager }) {
+export default function DatabaseList({ connectionId, config, onJson, onSelectDatabase, onUseManager }) {
 
     const { t } = useTranslation()
     const [list, setList] = useState([])
@@ -47,6 +47,7 @@ export default function DatabaseList({ config, onJson, onSelectDatabase, onUseMa
                         onClick={() => {
                             onSelectDatabase && onSelectDatabase({
                                 name: item.SCHEMA_NAME,
+                                connectionId,
                             })
                         }}
                         style={{

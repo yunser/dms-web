@@ -194,7 +194,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
         // console.log('ret', ret)
         if (ret.status === 200) {
             // message.success('连接成功')
-            onConnnect && onConnnect()
+            onConnnect && onConnnect(ret.data)
         }
         setLoading(false)
         // else {

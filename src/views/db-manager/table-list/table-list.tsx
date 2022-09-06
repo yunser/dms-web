@@ -7,10 +7,11 @@ import classNames from 'classnames'
 import { useTranslation } from 'react-i18next';
 import { Editor } from '../editor/Editor';
 import { IconButton } from '../icon-button';
-import { DatabaseOutlined, FormatPainterOutlined, ReloadOutlined, TableOutlined, UnorderedListOutlined } from '@ant-design/icons';
+import { DatabaseOutlined, ExportOutlined, FormatPainterOutlined, ReloadOutlined, TableOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { suggestionAdd } from '../suggestion';
 import { SorterResult } from 'antd/lib/table/interface';
+import { useEventEmitter } from 'ahooks';
 
 function getHightlight(title: string, keyword: string) {
     const index = title.toLocaleLowerCase().indexOf(keyword.toLowerCase())
@@ -222,7 +223,8 @@ export function TableList({ config, onJson, onTab, dbName, data = {} }: any) {
     
     const { defaultJson = '' } = data
     const { t } = useTranslation()
-
+    const event$ = useEventEmitter()
+    
     const [sortedInfo, setSortedInfo] = useState({});
     const [loading, setLoading] = useState(false)
     const [keyword, setKeyword] = useState('')
@@ -397,23 +399,28 @@ export function TableList({ config, onJson, onTab, dbName, data = {} }: any) {
     
     const columns = [
         {
-            title: 'TABLE_NAME',
+            title: t('name'),
             dataIndex: 'TABLE_NAME',
             key: 'TABLE_NAME',
             sorter: (a, b) => a.TABLE_NAME.localeCompare(b.TABLE_ROWS),
             sortOrder: sortedInfo.columnKey === 'TABLE_NAME' ? sortedInfo.order : null,
             // sortDirections: ['descend', 'ascend'],
-            width: 160,
-            maxWidth: 160,
+            width: 320,
+            // maxWidth: 80,
             ellipsis: true,
             fixed: 'left',
+            render(value) {
+                return (
+                    <div className={styles.cell}>{value}</div>
+                )
+            }
         },
         {
-            title: 'ENGINE',
+            title: t('nginx'),
             dataIndex: 'ENGINE',
         },
         {
-            title: 'TABLE_ROWS',
+            title: t('rows'),
             dataIndex: 'TABLE_ROWS',
             key: 'TABLE_ROWS',
             sorter: (a, b) => a.TABLE_ROWS - b.TABLE_ROWS,
@@ -422,7 +429,7 @@ export function TableList({ config, onJson, onTab, dbName, data = {} }: any) {
             ellipsis: true,
         },
         {
-            title: 'DATA_LENGTH',
+            title: t('data_length'),
             dataIndex: 'DATA_LENGTH',
             key: 'DATA_LENGTH',
             sorter: (a, b) => a.DATA_LENGTH - b.DATA_LENGTH,
@@ -430,15 +437,16 @@ export function TableList({ config, onJson, onTab, dbName, data = {} }: any) {
             sortDirections: ['descend', 'ascend'],
         },
         {
-            title: 'INDEX_LENGTH',
+            title: t('index_length'),
             dataIndex: 'INDEX_LENGTH',
             key: 'INDEX_LENGTH',
+            width: 400,
             sorter: (a, b) => a.INDEX_LENGTH - b.INDEX_LENGTH,
             sortOrder: sortedInfo.columnKey === 'INDEX_LENGTH' ? sortedInfo.order : null,
             sortDirections: ['descend', 'ascend'],
         },
         {
-            title: 'DATA_FREE',
+            title: t('data_free'),
             dataIndex: 'DATA_FREE',
             key: 'DATA_FREE',
             sorter: (a, b) => a.DATA_FREE - b.DATA_FREE,
@@ -446,11 +454,11 @@ export function TableList({ config, onJson, onTab, dbName, data = {} }: any) {
             sortDirections: ['descend', 'ascend'],
         },
         {
-            title: 'TABLE_COLLATION',
+            title: t('collation'),
             dataIndex: 'TABLE_COLLATION',
         },
         {
-            title: 'TABLE_COMMENT',
+            title: t('comment'),
             dataIndex: 'TABLE_COMMENT',
             width: 240,
             ellipsis: true,
@@ -523,6 +531,11 @@ ORDER BY TABLE_ROWS DESC`
         },
     ]
 
+    event$.useSubscription(val => {
+        console.log('onmessage2', val)
+        // console.log(val);
+    })
+
     return (
         <div className={styles.tablesBox}>
             <div style={{
@@ -537,7 +550,20 @@ ORDER BY TABLE_ROWS DESC`
                     >
                         <ReloadOutlined />
                     </IconButton>
-                    <Button
+                    <IconButton
+                        tooltip={t('export_json')}
+                        onClick={() => {
+                            event$.emit('hello')
+                            // event$.emit({
+                            //     type: 'open_json',
+                            //     data: '123',
+                            // })
+                            // onJson && onJson(JSON.stringify(list, null, 4))
+                        }}
+                    >
+                        <ExportOutlined />
+                    </IconButton>
+                    {/* <Button
                         // type="link"
                         size="small"
                         onClick={() => {
@@ -545,7 +571,7 @@ ORDER BY TABLE_ROWS DESC`
                         }}
                     >
                         导出 JSON
-                    </Button>
+                    </Button> */}
                 </Space>
             </div>
             {/* <div className={styles.header}>

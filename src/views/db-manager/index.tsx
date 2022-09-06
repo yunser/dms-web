@@ -23,6 +23,7 @@ import { setAllFields } from './suggestion'
 import { SqlConnector } from './sql-connect'
 import { UserList } from './user-list'
 import { TextEditor } from './text'
+import { useEventEmitter } from 'ahooks'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -43,7 +44,7 @@ const tab_mySql = {
 export function DbManager({ config }) {
 
     console.warn('DbManager/render')
-    
+    const event$ = useEventEmitter()
     const { t, i18n } = useTranslation()
     // console.log('i18n', i18n)
     // const [lang, setLang] = useState('en')
@@ -103,6 +104,7 @@ export function DbManager({ config }) {
     })
 
     
+    
     function addJsonTab(json: string) {
         addOrActiveTab({
             title: t('json'),
@@ -114,6 +116,11 @@ export function DbManager({ config }) {
             },
         })
     }
+
+    event$.useSubscription(val => {
+        console.log('onmessage', val)
+        // console.log(val);
+    })
 
     function closeTabByKey(key) {
         console.log('closeTabByKey', key)
@@ -361,7 +368,7 @@ export function DbManager({ config }) {
                                         <SqlConnector
                                             config={config}
                                             onJson={json => addJsonTab(json)}
-                                            onConnnect={() => {
+                                            onConnnect={({ id }) => {
                                                 // TODO 通过 setTimeout 解决这个问题，原因未知
                                                 // Can't perform a React state update on an unmounted component. This is a no-op, but it indicates a memory leak in your application. To fix, cancel all subscriptions and asynchronous tasks in a useEffect cleanup function
                                                 setTimeout(() => {
@@ -369,7 +376,9 @@ export function DbManager({ config }) {
                                                         title: 'MySQL Databases',
                                                         key: 'mysql-database-0',
                                                         type: 'databases',
-                                                        data: {},
+                                                        data: {
+                                                            connectionId: id,
+                                                        },
                                                     }, {
                                                         closeCurrentTab: true,
                                                     })
@@ -400,6 +409,7 @@ export function DbManager({ config }) {
                                         <DataBaseDetail
                                             config={config}
                                             dbName={item.data.name}
+                                            connectionId={item.data.connectionId}
                                             onJson={json => {
                                                 addJsonTab(json)
                                             }}
@@ -452,6 +462,7 @@ export function DbManager({ config }) {
                                         <DatabaseList
                                             config={config}
                                             onJson={json => addJsonTab(json)}
+                                            connectionId={item.data.connectionId}
                                             onUseManager={() => {
                                                 addOrActiveTab({
                                                     title: `Users`,
@@ -464,7 +475,7 @@ export function DbManager({ config }) {
                                                     // closeCurrentTab: true,
                                                 })
                                             }}
-                                            onSelectDatabase={async ({name}) => {
+                                            onSelectDatabase={async ({name, connectionId}) => {
                                                 const key = '' + new Date().getTime()
                                                 addOrActiveTab({
                                                     title: `${name} - DB`,
@@ -472,6 +483,7 @@ export function DbManager({ config }) {
                                                     type: 'database',
                                                     data: {
                                                         name,
+                                                        connectionId,
                                                     }
                                                 }, {
                                                     closeCurrentTab: true,

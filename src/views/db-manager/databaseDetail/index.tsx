@@ -34,6 +34,7 @@ import { SqlTree } from '../sql-tree'
 import { TableList } from '../table-list'
 import { request } from '../utils/http'
 import { useInterval } from 'ahooks'
+import { t } from 'i18next'
 
 // console.log('ddd.0')
 // _.debounce(() => {
@@ -66,9 +67,65 @@ interface TabProps {
     data?: object
 }
 
+function Status({ config, connectionId }) {
+    const [err, setErr] = useState('')
+    async function heartBeat() {
+        let res = await request.post(`${config.host}/mysql/execSqlSimple`, {
+            sql: `SELECT 1`,
+        }, {
+            noMessage: true,
+            timeout: 2000,
+        })
+        if (res.status === 200) {
 
+        }
+        else {
+            setErr('Connect rrror')
+        }
+    }
 
-export function DataBaseDetail({ dbName, config, onJson }) {
+    async function reconnect() {
+        let res = await request.post(`${config.host}/mysql/reconnect`, {
+            connectionId,
+        }, {
+            noMessage: true,
+            timeout: 2000,
+        })
+        if (res.status === 200) {
+            setErr('')
+        }
+        else {
+            setErr('Connect rrror')
+        }
+    }
+
+    useInterval(() => {
+        heartBeat()
+    }, 60 * 1000)
+    
+    return (
+        <div className={styles.statusBox}>
+            {/* {connectionId} */}
+            {!!err ?
+                <div className={styles.error}>
+                    <div>{t('connect_error')}</div>
+                    <Button
+                        size="small"
+                        onClick={reconnect}
+                    >
+                        {t('reconnect')}
+                    </Button>
+                </div>
+            :
+                <div className={styles.success}>
+                    {t('connected')}
+                </div>
+            }
+        </div>
+    )
+}
+
+export function DataBaseDetail({ dbName, connectionId, config, onJson }) {
     console.warn('DataBaseDetail/render')
 
     const { t } = useTranslation()
@@ -121,16 +178,6 @@ export function DataBaseDetail({ dbName, config, onJson }) {
         })
     }
 
-    async function heartBeat() {
-        let res = await request.post(`${config.host}/mysql/execSqlSimple`, {
-            sql: `SELECT 1`,
-        })
-        if (res.status === 200) {}
-    }
-
-    useInterval(() => {
-        heartBeat()
-    }, 60 * 1000)
     
     // const columns = [
     //     {
@@ -214,20 +261,25 @@ export function DataBaseDetail({ dbName, config, onJson }) {
     
     return (
         <div className={styles.layout}>
-            <SqlTree
-                config={config}
-                dbName={dbName}
-                onTab={tab => {
-                    setActiveKey(tab.key)
-                    setTabs([
-                        ...tabs,
-                        tab,
-                    ])
-                }}
-            />
-            {/* <div className={styles.layoutLeft}>
-                
-            </div> */}
+            <div className={styles.layoutLeft}>
+                <SqlTree
+                    config={config}
+                    dbName={dbName}
+                    onTab={tab => {
+                        setActiveKey(tab.key)
+                        setTabs([
+                            ...tabs,
+                            tab,
+                        ])
+                    }}
+                />
+                <div className={styles.status}>
+                    <Status
+                        config={config}
+                        connectionId={connectionId}
+                    />
+                </div>
+            </div>
             <div className={styles.layoutRight}>
                 {/* <Button type="primary" onClick={update}>更新</Button> */}
                 <div className={styles.header}>
