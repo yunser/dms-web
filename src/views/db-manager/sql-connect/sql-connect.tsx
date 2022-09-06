@@ -192,7 +192,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
         // }
         let ret = await request.post(`${config.host}/mysql/connect`, reqData)
         // console.log('ret', ret)
-        if (ret.status === 200) {
+        if (ret.success) {
             // message.success('连接成功')
             onConnnect && onConnnect(ret.data)
         }

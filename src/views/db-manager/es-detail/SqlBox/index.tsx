@@ -4,7 +4,6 @@ import { message, Input, Modal, Button, Table, Popover, Space, Empty, Result, Ta
 // import http from '@/utils/http'
 import classNames from 'classnames'
 import { Editor } from '../../editor/Editor'
-// import axios from 'axios'
 import copy from 'copy-to-clipboard';
 import { request } from '../../utils/http'
 import { format } from 'sql-formatter'
@@ -169,7 +168,7 @@ function SqlBox({ config, esIndex, esType, dbName, className, defaultSql = '', s
                 noMessage: true,
             })
             console.log('res?', res)
-            if (res.status == 200 || res.status == 201) {
+            if (res.success) {
                 // message.success('执行成功')
                 console.log('success', res)
 

@@ -6,13 +6,13 @@ import {
     Space,
 } from 'antd'
 import React, { Component, Fragment, useEffect, useState } from 'react';
-import axios from 'axios'
 import { useTranslation } from 'react-i18next';
 import styles from './databases.module.less'
 import { IconButton } from '../icon-button';
 import { ExportOutlined, ReloadOutlined } from '@ant-design/icons';
 import { DatabaseEditHandler } from '../db-edit';
 import { DatabaseRemoveHandler } from '../db-remove';
+import { request } from '../utils/http';
 
 export default function DatabaseList({ connectionId, config, onJson, onSelectDatabase, onUseManager }) {
 
@@ -20,9 +20,9 @@ export default function DatabaseList({ connectionId, config, onJson, onSelectDat
     const [list, setList] = useState([])
 
     async function loadData() {
-        let ret = await axios.post(`${config.host}/mysql/databases`)
+        let ret = await request.post(`${config.host}/mysql/databases`)
         // console.log('ret', ret)
-        if (ret.status === 200) {
+        if (ret.success) {
             // message.info('连接成功')
             // console.log('ret', ret.data)
             // storage.set('connectId', 'ret.data')

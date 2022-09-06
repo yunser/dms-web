@@ -26,7 +26,7 @@ export function RedisClient({ config, }) {
         let res = await request.post(`${config.host}/redis/keys`, {
             // dbName,
         })
-        if (res.status === 200) {
+        if (res.success) {
             // message.info('连接成功')
             const list = res.data
             // console.log('res', list)
@@ -118,7 +118,7 @@ export function RedisClient({ config, }) {
                                                     // dbName,
                                                 })
                                                 console.log('get/res', res.data)
-                                                if (res.status === 200) {
+                                                if (res.success) {
                                                     setResult({
                                                         key: item,
                                                         ...res.data,
@@ -173,7 +173,7 @@ export function RedisClient({ config, }) {
                                                 // dbName,
                                             })
                                             console.log('get/res', res.data)
-                                            if (res.status === 200) {
+                                            if (res.success) {
                                                 message.success('修改成功')
                                                 // setResult({
                                                 //     key: item,
@@ -199,7 +199,7 @@ export function RedisClient({ config, }) {
                                                         key: result.key,
                                                     })
                                                     console.log('get/res', res.data)
-                                                    if (res.status === 200) {
+                                                    if (res.success) {
                                                         message.success('删除成功')
                                                         loadKeys()
                                                         setResult(null)
@@ -225,7 +225,7 @@ export function RedisClient({ config, }) {
                                             // dbName,
                                         })
                                         console.log('get/res', res.data)
-                                        if (res.status === 200) {
+                                        if (res.success) {
                                             message.success('新增成功')
                                             // setResult({
                                             //     key: item,

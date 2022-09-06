@@ -8,7 +8,6 @@ import { useTranslation } from 'react-i18next';
 import { Editor } from '../editor/Editor';
 import storage from '../storage'
 import { request } from '../utils/http'
-import axios from 'axios';
 
 
 export function DatabaseEditHandler(props) {
@@ -122,7 +121,7 @@ export function DatabaseModal({ config, item, onClose, onSuccess, onConnnect, })
             sql: `SELECT *
     FROM \`information_schema\`.\`COLLATION_CHARACTER_SET_APPLICABILITY\``,
         })
-        if (res.status === 200) {
+        if (res.success) {
             console.log('res.data', res.data)
             const characterSetMap = {}
             const characterSets = []
@@ -172,7 +171,7 @@ export function DatabaseModal({ config, item, onClose, onSuccess, onConnnect, })
                         sql,
                     })
                     // console.log('ret', ret)
-                    if (ret.status === 200) {
+                    if (ret.success) {
                         // message.success('连接成功')
                         // onConnnect && onConnnect()
                         message.success('Success')
@@ -194,7 +193,7 @@ export function DatabaseModal({ config, item, onClose, onSuccess, onConnnect, })
                         sql,
                     })
                     // console.log('ret', ret)
-                    if (ret.status === 200) {
+                    if (ret.success) {
                         // message.success('连接成功')
                         // onConnnect && onConnnect()
                         message.success('Success')

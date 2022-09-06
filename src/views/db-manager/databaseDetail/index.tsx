@@ -20,7 +20,6 @@ import styles from './index.module.less'
 import SqlBox from './SqlBox'
 // import Item from 'antd/lib/list/Item'
 // import type { DataNode, TreeProps } from 'antd/es/tree';
-// import axios from 'axios'
 import { TableDetail } from '../table-detail/table-detail'
 // import { suggestionAdd } from '../suggestion'
 import { CloseOutlined, DatabaseOutlined, DownOutlined, EllipsisOutlined, HistoryOutlined, MenuOutlined, ReloadOutlined, TableOutlined } from '@ant-design/icons';
@@ -76,7 +75,7 @@ function Status({ config, connectionId }) {
             noMessage: true,
             timeout: 2000,
         })
-        if (res.status === 200) {
+        if (res.success) {
 
         }
         else {
@@ -91,7 +90,7 @@ function Status({ config, connectionId }) {
             noMessage: true,
             timeout: 2000,
         })
-        if (res.status === 200) {
+        if (res.success) {
             setErr('')
         }
         else {

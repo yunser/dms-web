@@ -8,8 +8,8 @@ import { useTranslation } from 'react-i18next';
 import { Editor } from '../editor/Editor';
 import { IconButton } from '../icon-button';
 import { DatabaseOutlined, FormatPainterOutlined, PlusOutlined, ReloadOutlined, TableOutlined, UnorderedListOutlined } from '@ant-design/icons';
-import axios from 'axios';
 import { suggestionAdd } from '../suggestion';
+import { request } from '../utils/http';
 
 function getHightlight(title: string, keyword: string) {
     const index = title.toLocaleLowerCase().indexOf(keyword.toLowerCase())
@@ -271,10 +271,11 @@ export function SqlTree({ config, onTab, dbName, data = {} }: any) {
         //   type: 'user/fetchUserList',
         // });
         setLoading(true)
-        let res = await axios.post(`${config.host}/mysql/tables`, {
+        let res = await request.post(`${config.host}/mysql/tables`, {
             dbName,
         })
-        if (res.status === 200) {
+        console.log('res', res)
+        if (res.success) {
             // message.info('连接成功')
             const list = res.data
             // console.log('res', list)

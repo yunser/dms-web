@@ -302,7 +302,7 @@ export function TableDetail({ config, dbName, tableName }) {
             sql: `SELECT *
     FROM \`information_schema\`.\`COLLATION_CHARACTER_SET_APPLICABILITY\``,
         })
-        if (res.status === 200) {
+        if (res.success) {
             console.log('res.data', res.data)
             const characterSetMap: any = {}
             const characterSets = []
@@ -356,7 +356,7 @@ export function TableDetail({ config, dbName, tableName }) {
             sql: `SELECT *
     FROM \`information_schema\`.\`ENGINES\``,
         })
-        if (res.status === 200) {
+        if (res.success) {
             console.log('res.data', res.data)
             const nginxs = res.data
                 .filter(item => item.SUPPORT != 'NO')
@@ -819,7 +819,7 @@ ${rowSqls.join(' ,\n')}
                 noMessage: true,
             })
             // console.log('loadTableInfo', res)
-            if (res.status == 200) {
+            if (res.success) {
                 setTableColumns(res.data.columns.map(col => {
                     const newCol = {}
                     newCol.__id = uid(32)

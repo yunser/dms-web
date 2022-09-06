@@ -9,7 +9,6 @@ import classNames from 'classnames'
 import copy from 'copy-to-clipboard';
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
-import axios from 'axios'
 import moment from 'moment'
 import { IconButton } from '../icon-button';
 import { ReloadOutlined } from '@ant-design/icons';
@@ -116,10 +115,10 @@ export function HistoryList({ config, onSql }) {
 
     async function loadData() {
         setLoading(true)
-        let res = await axios.post(`${config.host}/mysql/history/list`, {
+        let res = await request.post(`${config.host}/mysql/history/list`, {
             // dbName,
         })
-        if (res.status === 200) {
+        if (res.success) {
             // message.info('连接成功')
             const list = res.data
             // console.log('res', list)

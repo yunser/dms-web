@@ -39,7 +39,7 @@ export function DatabaseRemoveHandler(props) {
                             sql: `DROP DATABASE \`${item.SCHEMA_NAME}\``,
                         })
                         console.log('get/res', res.data)
-                        if (res.status === 200) {
+                        if (res.success) {
                             message.success('删除成功')
                             onSuccess && onSuccess()
                             // loadKeys()
@@ -122,7 +122,7 @@ export function DatabaseModal({ config, onClose, onSuccess, onConnnect, }) {
         }
         let ret = await request.post(`${config.host}/redis/connect`, reqData)
         // console.log('ret', ret)
-        if (ret.status === 200) {
+        if (ret.success) {
             // message.success('连接成功')
             onConnnect && onConnnect()
         }
@@ -143,7 +143,7 @@ export function DatabaseModal({ config, onClose, onSuccess, onConnnect, }) {
                     sql: `CREATE SCHEMA \`${values.name}\` ;`
                 })
                 // console.log('ret', ret)
-                if (ret.status === 200) {
+                if (ret.success) {
                     // message.success('连接成功')
                     // onConnnect && onConnnect()
                     message.success('Success')

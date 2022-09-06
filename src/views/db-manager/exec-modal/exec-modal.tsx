@@ -56,7 +56,7 @@ export function ExecModal({ config, sql, onClose, onSuccess, tableName, dbName }
                 noMessage: true,
             })
             let error = ''
-            if (res.status == 200) {
+            if (res.success) {
                 // message.success('提交成功')
                 
                 // run()

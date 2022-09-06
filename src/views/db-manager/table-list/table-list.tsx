@@ -8,10 +8,10 @@ import { useTranslation } from 'react-i18next';
 import { Editor } from '../editor/Editor';
 import { IconButton } from '../icon-button';
 import { DatabaseOutlined, ExportOutlined, FormatPainterOutlined, ReloadOutlined, TableOutlined, UnorderedListOutlined } from '@ant-design/icons';
-import axios from 'axios';
 import { suggestionAdd } from '../suggestion';
 import { SorterResult } from 'antd/lib/table/interface';
 import { useEventEmitter } from 'ahooks';
+import { request } from '../utils/http';
 
 function getHightlight(title: string, keyword: string) {
     const index = title.toLocaleLowerCase().indexOf(keyword.toLowerCase())
@@ -276,10 +276,10 @@ export function TableList({ config, onJson, onTab, dbName, data = {} }: any) {
         // });
         setLoading(true)
         setSortedInfo({})
-        let res = await axios.post(`${config.host}/mysql/tables`, {
+        let res = await request.post(`${config.host}/mysql/tables`, {
             dbName,
         })
-        if (res.status === 200) {
+        if (res.success) {
             // message.info('连接成功')
             const list = res.data
             // console.log('res', list)

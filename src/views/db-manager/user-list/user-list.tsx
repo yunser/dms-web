@@ -8,7 +8,6 @@ import { useTranslation } from 'react-i18next';
 import { Editor } from '../editor/Editor';
 import { IconButton } from '../icon-button';
 import { DatabaseOutlined, FormatPainterOutlined, ReloadOutlined, TableOutlined, UnorderedListOutlined } from '@ant-design/icons';
-import axios from 'axios';
 import { suggestionAdd } from '../suggestion';
 import { SorterResult } from 'antd/lib/table/interface';
 import { request } from '../utils/http';
@@ -42,7 +41,7 @@ export function UserList({ config, onTab, data = {} }: any) {
             sql: `SELECT *
 FROM \`mysql\`.\`user\``,
         })
-        if (res.status === 200) {
+        if (res.success) {
             // message.info('连接成功')
             const list = res.data
             console.log('res', list)

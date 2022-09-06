@@ -4,6 +4,9 @@ import axios from 'axios'
 
 // axios.defaults.withCredentials = true
 
+function isSuccess(res) {
+    return res.status >= 200 && res.status < 300
+}
 const instance = axios.create({
     // baseURL: apiDomain
 })
@@ -11,28 +14,40 @@ const instance = axios.create({
 // export default instance
 
 export const request = {
-    async get(url, opts) {
+    async get(url, opts = {}) {
         try {
             const res = await instance.get(url, opts)
-            return res
+            return {
+                ...res,
+                success: isSuccess(res),
+            }
         }
         catch (err) {
             if (opts?.noMessage !== true) {
                 message.error(err.response.data.message)
             }
-            return err.response
+            return {
+                ...err.response,
+                success: isSuccess(err.response),
+            }
         }
     },
-    async post(url, data, opts?: any) {
+    async post(url, data = {}, opts?: any) {
         try {
             const res = await instance.post(url, data, opts)
-            return res
+            return {
+                ...res,
+                success: isSuccess(res),
+            }
         }
         catch (err) {
             if (opts?.noMessage !== true) {
                 message.error(err.response.data.message)
             }
-            return err.response
+            return {
+                ...err.response,
+                success: isSuccess(err.response),
+            }
         }
     }
 }

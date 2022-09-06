@@ -270,7 +270,7 @@ export function ExecDetail(props) {
                 noMessage: true,
             })
             // console.log('loadTableInfo', res)
-            if (res.status == 200) {
+            if (res.success) {
                 tableInfoList.current = res.data
             }
         }

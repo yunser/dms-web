@@ -20,13 +20,13 @@ import styles from './index.module.less'
 import SqlBox from './SqlBox'
 import Item from 'antd/lib/list/Item'
 // import type { DataNode, TreeProps } from 'antd/es/tree';
-import axios from 'axios'
 import { TableDetail } from '../table-detail/table-detail'
 import { CloseOutlined, DatabaseOutlined, ReloadOutlined, TableOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next'
 import { IconButton } from '../icon-button'
 import { ExecModal } from '../exec-modal/exec-modal'
 import { HistoryList } from '../history'
+import { request } from '../utils/http'
 
 const { TabPane } = Tabs
 
@@ -145,8 +145,8 @@ export function EsDetail({ dbName, config }) {
         //   type: 'user/fetchUserList',
         // });
         setLoading(true)
-        let res = await axios.get(`${config.url}/_all/_mapping`)
-        if (res.status === 200) {
+        let res = await request.get(`${config.url}/_all/_mapping`)
+        if (res.success) {
             // message.info('连接成功')
             // const list = res.data
             // console.log('res.list', list)

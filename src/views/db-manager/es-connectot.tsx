@@ -2,7 +2,6 @@ import React, { useState, useEffect, ReactNode, useMemo } from 'react'
 import styles from './index.module.less'
 import { message, Input, Button, Tabs, Space, Form, Checkbox, InputNumber, ConfigProvider } from 'antd'
 import storage from './storage'
-import axios from 'axios'
 import DatabaseList from './databases'
 import { DataBaseDetail } from './databaseDetail'
 import { request } from './utils/http'
@@ -61,7 +60,7 @@ export function EsConnnector({ config, onConnnect }) {
         }
         let ret = await request.get(pureUrl + '/', reqData)
         // console.log('ret', ret)
-        if (ret.status === 200) {
+        if (ret.success) {
             // message.success('连接成功')
             onConnnect && onConnnect({
                 url: pureUrl,
