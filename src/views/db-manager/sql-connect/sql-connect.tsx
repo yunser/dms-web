@@ -222,7 +222,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
 
     function remove() {
         Modal.confirm({
-            content: t('delete_confirm'),
+            content: `${t('delete_confirm')} ${curConnect.name}?`,
             // okText: '确认',
             // cancelText: '取消',
             onOk() {
