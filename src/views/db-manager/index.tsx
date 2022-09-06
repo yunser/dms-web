@@ -22,6 +22,7 @@ import { Workbench } from './workbench'
 import { setAllFields } from './suggestion'
 import { SqlConnector } from './sql-connect'
 import { UserList } from './user-list'
+import { TextEditor } from './text'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -243,6 +244,21 @@ export function DbManager({ config }) {
                                             type="text"
                                             onClick={() => {
                                                 addOrActiveTab({
+                                                    title: t('text'),
+                                                    key: 'text-' + uid(16),
+                                                    type: 'text',
+                                                    data: {
+                                                        // url,
+                                                    },
+                                                })
+                                            }}
+                                        >
+                                            {t('text')}
+                                        </Button>
+                                        <Button
+                                            type="text"
+                                            onClick={() => {
+                                                addOrActiveTab({
                                                     title: 'Redis Connect',
                                                     // key: 'redis-' + uid(16),
                                                     key: 'redis-connect',
@@ -294,14 +310,6 @@ export function DbManager({ config }) {
                                         >
                                             {lang == 'zh' ? 'English' : '中文'}
                                         </Button>
-                                        {/* <Button
-                                            type="text"
-                                            onClick={() => {
-                                                i18n.changeLanguage(lang == 'zh' ? 'en' : 'zh')
-                                            }}
-                                        >
-                                            {lang == 'zh' ? 'English' : '中文'}
-                                        </Button> */}
                                     </Space>
                                 </div>
                             )
@@ -404,6 +412,12 @@ export function DbManager({ config }) {
                                     }
                                     {item.type == 'json' &&
                                         <Json
+                                            config={config}
+                                            data={item.data}
+                                        />
+                                    }
+                                    {item.type == 'text' &&
+                                        <TextEditor
                                             config={config}
                                             data={item.data}
                                         />
