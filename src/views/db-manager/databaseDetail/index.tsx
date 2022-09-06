@@ -32,6 +32,8 @@ import { HistoryList } from '../history'
 import debounce from 'lodash/debounce'
 import { SqlTree } from '../sql-tree'
 import { TableList } from '../table-list'
+import { request } from '../utils/http'
+import { useInterval } from 'ahooks'
 
 // console.log('ddd.0')
 // _.debounce(() => {
@@ -119,7 +121,17 @@ export function DataBaseDetail({ dbName, config, onJson }) {
         })
     }
 
+    async function heartBeat() {
+        let res = await request.post(`${config.host}/mysql/execSqlSimple`, {
+            sql: `SELECT 1`,
+        })
+        if (res.status === 200) {}
+    }
 
+    useInterval(() => {
+        heartBeat()
+    }, 60 * 1000)
+    
     // const columns = [
     //     {
     //         title: '表名',

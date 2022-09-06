@@ -13,6 +13,7 @@
     "@yunser/style-reset": "0.0.2",
     "@yunser/tree-lib": "0.0.5",
     "@yunser/ui-std": "^0.0.29",
+    "ahooks": "^3.7.0",
     "antd": "4.22.8",
     "axios": "^0.27.2",
     "classnames": "^2.3.1",
