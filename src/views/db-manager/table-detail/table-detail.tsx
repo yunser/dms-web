@@ -897,14 +897,17 @@ ${rowSqls.join(' ,\n')}
                             size="small"
                             onClick={loadTableInfo}
                         >
-                            刷新
+                            {t('refresh')}
                         </Button>
                     }
                     <Button
                         // loading={loading}
                         size="small"
                         type="primary"
-                        onClick={update}>提交</Button>
+                        onClick={update}
+                    >
+                        {t('save')}
+                    </Button>
                     {/* <Button
                             size="small"
                             onClick={submitChange}
@@ -922,8 +925,8 @@ ${rowSqls.join(' ,\n')}
                         <div className={styles.formBox}>
                             <Form
                                 form={form}
-                                labelCol={{ span: 8 }}
-                                wrapperCol={{ span: 16 }}
+                                labelCol={{ span: 6 }}
+                                wrapperCol={{ span: 18 }}
                                 initialValues={{
                                     port: 3306,
                                 }}
@@ -1006,12 +1009,12 @@ ${rowSqls.join(' ,\n')}
                                         <Form.Item label="行格式">
                                             {tableInfo.ROW_FORMAT}
                                         </Form.Item>
-                                        <Form.Item label="CREATE_TIME">
+                                        <Form.Item label={t('create_time')}>
                                             {tableInfo.CREATE_TIME}
                                         </Form.Item>
-                                        <Form.Item label="UPDATE_TIME">
+                                        {/* <Form.Item label="UPDATE_TIME">
                                             {tableInfo.UPDATE_TIME}
-                                        </Form.Item>
+                                        </Form.Item> */}
                                     </>
                                 }
                             </Form>

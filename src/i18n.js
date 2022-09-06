@@ -86,6 +86,7 @@ i18n
                     nginx: 'Nginx',
                     character_set: 'Character Set',
                     collation: 'Collation',
+                    create_time: 'Create time',
                 }
             },
             zh: {
@@ -164,6 +165,7 @@ i18n
                     nginx: '引擎',
                     character_set: '字符集',
                     collation: '字符排序',
+                    create_time: '创建时间',
                 }
             }
         },
