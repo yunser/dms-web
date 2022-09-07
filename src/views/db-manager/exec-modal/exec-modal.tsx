@@ -109,7 +109,7 @@ export function ExecModal({ config, sql, onClose, onSuccess, tableName, dbName }
                 <div className={styles.modalResultBox}>
                     <div className={styles.sqlBox}>
                         <div>SQL:</div>
-                        <div><code>{item.data.sql}</code></div>
+                        <div><code><pre>{item.data.sql}</pre></code></div>
                     </div>
                     {!!item.data.error ?
                         <div>

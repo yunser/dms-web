@@ -552,7 +552,7 @@ export function TableDetail({ config, dbName, tableName }) {
 ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')}`
         }
         else {
-            sql = `CREATE TABLE \`${values.TABLE_NAME}\` (
+            sql = `CREATE TABLE \`${dbName}\`.\`${values.TABLE_NAME}\` (
 ${rowSqls.join(' ,\n')}
 ) ${attrSqls.join(' ,\n')}`
         }
