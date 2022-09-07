@@ -14,6 +14,7 @@ import { CopyButton } from '../copy-button';
 import { ExecModal } from '../exec-modal/exec-modal';
 import saveAs from 'file-saver';
 import { DownloadOutlined } from '@ant-design/icons';
+import { t } from 'i18next';
 
 const { TabPane } = Tabs
 const { TextArea } = Input
@@ -191,9 +192,11 @@ function Cell({ item, editing, onChange }) {
                         </IconButton>
                     </CopyButton>
                     <Popover
-                        title="Content"
+                        title={t('content')}
                         content={
-                            <div className={styles.content}>{text}</div>
+                            <div className={styles.popoverContent}>
+                                <pre>{text}</pre>
+                            </div>
                         }
                     >
                         <IconButton title="查看">

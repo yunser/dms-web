@@ -516,7 +516,7 @@ export function SqlTree({ config, connectionId, onTab, data = {} }: any) {
             </div>
             <div className={styles.body}>
                 {loading ?
-                    <div className={styles.loading}>Loading...</div>
+                    <div className={styles.loading}>{t('loading')}</div>
                 :
                     <Tree
                         height={document.body.clientHeight - 42 - 40 - 40}

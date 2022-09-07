@@ -38,38 +38,39 @@ export default function DatabaseList({ connectionId, config, onJson, onSelectDat
     
     const columns = [
         {
-            title: t('db_name'),
+            title: t('schema_name'),
             dataIndex: 'SCHEMA_NAME',
             key: 'SCHEMA_NAME',
-            render(value: string, item) {
-                return (
-                    <div
-                        onClick={() => {
-                            onSelectDatabase && onSelectDatabase({
-                                name: item.SCHEMA_NAME,
-                                connectionId,
-                            })
-                        }}
-                        style={{
-                            cursor: 'pointer',
-                        }}
-                    >
-                        <a>{value}</a>
-                    </div>
-                )
-                // return <a href={`/databases/${value}`}>{value}</a>
-            },
+            // render(value: string, item) {
+            //     return (
+            //         <div
+            //             onClick={() => {
+            //                 onSelectDatabase && onSelectDatabase({
+            //                     name: item.SCHEMA_NAME,
+            //                     connectionId,
+            //                 })
+            //             }}
+            //             style={{
+            //                 cursor: 'pointer',
+            //             }}
+            //         >
+            //             <a>{value}</a>
+            //         </div>
+            //     )
+            //     // return <a href={`/databases/${value}`}>{value}</a>
+            // },
         },
         {
-            title: 'DEFAULT_CHARACTER_SET_NAME',
+            // title: 'DEFAULT_CHARACTER_SET_NAME',
+            title: t('character_set'),
             dataIndex: 'DEFAULT_CHARACTER_SET_NAME',
         },
         {
-            title: 'DEFAULT_COLLATION_NAME',
+            title: t('collation'),
             dataIndex: 'DEFAULT_COLLATION_NAME',
         },
         {
-            title: '操作',
+            title: t('actions'),
             dataIndex: 'op',
             key: 'op',
             render(value, item) {

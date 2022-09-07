@@ -260,6 +260,7 @@ export function TableDetail({ config, dbName, tableName }) {
     const editType = tableName ? 'update' : 'create'
 
     const [tableColumns, setTableColumns] = useState([])
+    const [loading, setLoading] = useState(false)
     const [indexes, setIndexes] = useState([])
     const [removedRows, setRemovedRows] = useState([])
     const [removedIndexes, setRemovedIndexes] = useState([])
@@ -809,9 +810,11 @@ ${rowSqls.join(' ,\n')}
         
     ]
     async function loadTableInfo() {
+        
         setRemovedRows([])
         setRemovedIndexes([])
         if (dbName && tableName) {
+            setLoading(true)
             let res = await request.post(`${config.host}/mysql/tableDetail`, {
                 dbName,
                 tableName,
@@ -879,6 +882,7 @@ ${rowSqls.join(' ,\n')}
                 setIndexes(indexes.filter(item => item.__INDEX_NAME != "PRIMARY"))
                 setTableInfo(res.data.table)
             }
+            setLoading(false)
         }
     }
 
@@ -890,287 +894,293 @@ ${rowSqls.join(' ,\n')}
 
 	return (
         <div className={styles.detailBox}>
-            <div className={styles.header}>
-                <Space>
-                {/* {tableName}@{dbName} */}
-                    
-                    {editType == 'update' &&
-                        <Button
-                            size="small"
-                            onClick={loadTableInfo}
-                        >
-                            {t('refresh')}
-                        </Button>
-                    }
-                    <Button
-                        // loading={loading}
-                        size="small"
-                        type="primary"
-                        onClick={update}
-                    >
-                        {t('save')}
-                    </Button>
-                    {/* <Button
-                            size="small"
-                            onClick={submitChange}
-                        >
-                            提交修改
-                        </Button> */}
-                </Space>
-            </div>
-            <div className={styles.body}>
-                <Tabs
-                    tabPosition="left"
-                    type="card"
-                >
-                    <TabPane tab={t('options')} key="basic">
-                        <div className={styles.formBox}>
-                            <Form
-                                form={form}
-                                labelCol={{ span: 10 }}
-                                wrapperCol={{ span: 16 }}
-                                initialValues={{
-                                    port: 3306,
-                                }}
-                                size="small"
-                                // layout={{
-                                //     labelCol: { span: 0 },
-                                //     wrapperCol: { span: 24 },
-                                // }}
-                            >
-                                <Form.Item
-                                    name="TABLE_NAME"
-                                    label={t('name')}
-                                    rules={[ { required: true, }, ]}
-                                >
-                                    <Input />
-                                </Form.Item>
-                                <Form.Item
-                                    name="TABLE_COMMENT"
-                                    label={t('comment')}
-                                    rules={[]}
-                                >
-                                    <Input.TextArea rows={4} />
-                                </Form.Item>
-                                <Form.Item
-                                    name="ENGINE"
-                                    label={t('nginx')}
-                                    rules={[]}
-                                >
-                                    <Select
-                                        options={nginxs}
-                                    />
-                                </Form.Item>
-                                <Form.Item
-                                    name="characterSet"
-                                    label={t('character_set')}
-                                    // rules={editType == 'create' ? [] : [ { required: true, }, ]}
-                                >
-                                    <Select
-                                        options={characterSets}
-                                        onChange={() => {
-                                            console.log('change')
-                                            form.setFieldsValue({
-                                                collation: null,
-                                            })
-                                        }}
-                                        // onChange={}
-                                    />
-                                </Form.Item>
-                                <Form.Item
-                                    name="collation"
-                                    label={t('collation')}
-                                    // rules={[ { required: true, }, ]}
-                                >
-                                    <Select
-                                        options={collations}
-                                        // onChange={}
-                                    />
-                                </Form.Item>
-                                {/* <Form.Item
-                                        wrapperCol={{ offset: 8, span: 16 }}
-                                        // name="passowrd"
-                                        // label="Passowrd"
-                                        // rules={[{ required: true, },]}
-                                    >
-                                        <Space>
-                                            
-                                        </Space>
-                                    </Form.Item> */}
-                                {editType == 'update' &&
-                                    <>
-                                        <Form.Item label={t('data_length')}>
-                                            {tableInfo.DATA_LENGTH}
-                                        </Form.Item>
-                                        <Form.Item label={t('avg_row_length')}>
-                                            {tableInfo.AVG_ROW_LENGTH}
-                                        </Form.Item>
-                                        <Form.Item label={t('auto_increment')}>
-                                            {tableInfo.AUTO_INCREMENT}
-                                        </Form.Item>
-                                        <Form.Item label={t('row_format')}>
-                                            {tableInfo.ROW_FORMAT}
-                                        </Form.Item>
-                                        <Form.Item label={t('create_time')}>
-                                            {tableInfo.CREATE_TIME}
-                                        </Form.Item>
-                                        {/* <Form.Item label="UPDATE_TIME">
-                                            {tableInfo.UPDATE_TIME}
-                                        </Form.Item> */}
-                                    </>
-                                }
-                            </Form>
-                        </div>
-                        {editType == 'update' &&
-                            <Descriptions column={1}>
-                                {/* : null
-                                CHECKSUM: null
-                                CHECK_TIME: null
-                                CREATE_OPTIONS: "row_format=DYNAMIC"
-                                CREATE_TIME: "2022-07-28T08:20:02.000Z"
-                                DATA_FREE: 0
-                                INDEX_LENGTH: 0
-                                MAX_DATA_LENGTH: 0
-                                TABLE_CATALOG: "def"
-                                TABLE_ROWS: 8
-                                TABLE_SCHEMA: "linxot"
-                                TABLE_TYPE: "BASE TABLE"
-                                UPDATE_TIME: "2022-08-20T14:18:58.000Z"
-                                VERSION: 10 */}
-                            </Descriptions>
-                        }
-                    </TabPane>
-                    
-                    <TabPane tab={t('columns')} key="columns">
-                        <div style={{
-                            marginBottom: 8,
-                        }}>
-                            <Space>
-                                {/* <input
-                                    onBlur={() => {
-                                        console.log('Bour OK')
-                                    }}
-                                /> */}
-                                
+            {loading ?
+                <div>{t('loading')}</div>
+            :
+                <>
+                    <div className={styles.header}>
+                        <Space>
+                        {/* {tableName}@{dbName} */}
+                            
+                            {editType == 'update' &&
                                 <Button
                                     size="small"
-                                    onClick={() => {
-                                        tableColumns.push({
-                                            __id: uid(32),
-                                            __new: true,
-                                            COLUMN_NAME: {
-                                                value: '',
-                                            },
-                                            COLUMN_TYPE: {
-                                                value: '',
-                                            },
-                                            IS_NULLABLE: {
-                                                value: 'YES',
-                                            },
-                                            COLUMN_DEFAULT: {
-                                                value: null,
-                                            },
-                                            COLUMN_COMMENT: {
-                                                value: '',
-                                            },
-                                            COLUMN_KEY: {
-                                                value: '',
-                                            },
-                                            EXTRA: {
-                                                value: '',
-                                            },
-                                            // CHARACTER_MAXIMUM_LENGTH: 32
-                                            // CHARACTER_OCTET_LENGTH: 96
-                                            // CHARACTER_SET_NAME: "utf8"
-                                            // COLLATION_NAME: "utf8_general_ci"
-                                            // COLUMN_KEY: ""
-                                            // DATA_TYPE: "varchar"
-                                            // DATETIME_PRECISION: null
-                                            // EXTRA: ""
-                                            // GENERATION_EXPRESSION: ""
-                                            // NUMERIC_PRECISION: null
-                                            // NUMERIC_SCALE: null
-                                            // ORDINAL_POSITION: 2
-                                            // PRIVILEGES: "select,insert,update,references"
-                                            // TABLE_CATALOG: "def"
-                                            // TABLE_NAME: "a_test5"
-                                            // TABLE_SCHEMA: "linxot"
-                                        })
-                                        setTableColumns([...tableColumns])
-                                    }}
+                                    onClick={loadTableInfo}
                                 >
-                                    新增
+                                    {t('refresh')}
                                 </Button>
-                                
-                            </Space>
-                        </div>
-                        <Table
-                            columns={columns}
-                            dataSource={tableColumns}
-                            bordered
-                            pagination={false}
-                            size="small"
-                            rowKey="__id"
-                        />
-                    </TabPane>
-                    {editType == 'update' &&
-                        <>
-                            <TabPane tab={t('indexes')} key="index">
+                            }
+                            <Button
+                                // loading={loading}
+                                size="small"
+                                type="primary"
+                                onClick={update}
+                            >
+                                {t('save')}
+                            </Button>
+                            {/* <Button
+                                    size="small"
+                                    onClick={submitChange}
+                                >
+                                    提交修改
+                                </Button> */}
+                        </Space>
+                    </div>
+                    <div className={styles.body}>
+                        <Tabs
+                            tabPosition="left"
+                            type="card"
+                        >
+                            <TabPane tab={t('options')} key="basic">
+                                <div className={styles.formBox}>
+                                    <Form
+                                        form={form}
+                                        labelCol={{ span: 10 }}
+                                        wrapperCol={{ span: 16 }}
+                                        initialValues={{
+                                            port: 3306,
+                                        }}
+                                        size="small"
+                                        // layout={{
+                                        //     labelCol: { span: 0 },
+                                        //     wrapperCol: { span: 24 },
+                                        // }}
+                                    >
+                                        <Form.Item
+                                            name="TABLE_NAME"
+                                            label={t('name')}
+                                            rules={[ { required: true, }, ]}
+                                        >
+                                            <Input />
+                                        </Form.Item>
+                                        <Form.Item
+                                            name="TABLE_COMMENT"
+                                            label={t('comment')}
+                                            rules={[]}
+                                        >
+                                            <Input.TextArea rows={4} />
+                                        </Form.Item>
+                                        <Form.Item
+                                            name="ENGINE"
+                                            label={t('nginx')}
+                                            rules={[]}
+                                        >
+                                            <Select
+                                                options={nginxs}
+                                            />
+                                        </Form.Item>
+                                        <Form.Item
+                                            name="characterSet"
+                                            label={t('character_set')}
+                                            // rules={editType == 'create' ? [] : [ { required: true, }, ]}
+                                        >
+                                            <Select
+                                                options={characterSets}
+                                                onChange={() => {
+                                                    console.log('change')
+                                                    form.setFieldsValue({
+                                                        collation: null,
+                                                    })
+                                                }}
+                                                // onChange={}
+                                            />
+                                        </Form.Item>
+                                        <Form.Item
+                                            name="collation"
+                                            label={t('collation')}
+                                            // rules={[ { required: true, }, ]}
+                                        >
+                                            <Select
+                                                options={collations}
+                                                // onChange={}
+                                            />
+                                        </Form.Item>
+                                        {/* <Form.Item
+                                                wrapperCol={{ offset: 8, span: 16 }}
+                                                // name="passowrd"
+                                                // label="Passowrd"
+                                                // rules={[{ required: true, },]}
+                                            >
+                                                <Space>
+                                                    
+                                                </Space>
+                                            </Form.Item> */}
+                                        {editType == 'update' &&
+                                            <>
+                                                <Form.Item label={t('data_length')}>
+                                                    {tableInfo.DATA_LENGTH}
+                                                </Form.Item>
+                                                <Form.Item label={t('avg_row_length')}>
+                                                    {tableInfo.AVG_ROW_LENGTH}
+                                                </Form.Item>
+                                                <Form.Item label={t('auto_increment')}>
+                                                    {tableInfo.AUTO_INCREMENT}
+                                                </Form.Item>
+                                                <Form.Item label={t('row_format')}>
+                                                    {tableInfo.ROW_FORMAT}
+                                                </Form.Item>
+                                                <Form.Item label={t('create_time')}>
+                                                    {tableInfo.CREATE_TIME}
+                                                </Form.Item>
+                                                {/* <Form.Item label="UPDATE_TIME">
+                                                    {tableInfo.UPDATE_TIME}
+                                                </Form.Item> */}
+                                            </>
+                                        }
+                                    </Form>
+                                </div>
+                                {editType == 'update' &&
+                                    <Descriptions column={1}>
+                                        {/* : null
+                                        CHECKSUM: null
+                                        CHECK_TIME: null
+                                        CREATE_OPTIONS: "row_format=DYNAMIC"
+                                        CREATE_TIME: "2022-07-28T08:20:02.000Z"
+                                        DATA_FREE: 0
+                                        INDEX_LENGTH: 0
+                                        MAX_DATA_LENGTH: 0
+                                        TABLE_CATALOG: "def"
+                                        TABLE_ROWS: 8
+                                        TABLE_SCHEMA: "linxot"
+                                        TABLE_TYPE: "BASE TABLE"
+                                        UPDATE_TIME: "2022-08-20T14:18:58.000Z"
+                                        VERSION: 10 */}
+                                    </Descriptions>
+                                }
+                            </TabPane>
+                            
+                            <TabPane tab={t('columns')} key="columns">
                                 <div style={{
                                     marginBottom: 8,
                                 }}>
                                     <Space>
+                                        {/* <input
+                                            onBlur={() => {
+                                                console.log('Bour OK')
+                                            }}
+                                        /> */}
+                                        
                                         <Button
                                             size="small"
                                             onClick={() => {
-                                                indexes.push({
+                                                tableColumns.push({
                                                     __id: uid(32),
                                                     __new: true,
-                                                    name: {
+                                                    COLUMN_NAME: {
                                                         value: '',
                                                     },
-                                                    comment: {
+                                                    COLUMN_TYPE: {
                                                         value: '',
                                                     },
-                                                    columns: {
-                                                        value: [],
+                                                    IS_NULLABLE: {
+                                                        value: 'YES',
                                                     },
-                                                    type2: {
-                                                        value: 'Normal',
+                                                    COLUMN_DEFAULT: {
+                                                        value: null,
                                                     },
-                                                    type: '',
-                                                    NON_UNIQUE: '',
+                                                    COLUMN_COMMENT: {
+                                                        value: '',
+                                                    },
+                                                    COLUMN_KEY: {
+                                                        value: '',
+                                                    },
+                                                    EXTRA: {
+                                                        value: '',
+                                                    },
+                                                    // CHARACTER_MAXIMUM_LENGTH: 32
+                                                    // CHARACTER_OCTET_LENGTH: 96
+                                                    // CHARACTER_SET_NAME: "utf8"
+                                                    // COLLATION_NAME: "utf8_general_ci"
+                                                    // COLUMN_KEY: ""
+                                                    // DATA_TYPE: "varchar"
+                                                    // DATETIME_PRECISION: null
+                                                    // EXTRA: ""
+                                                    // GENERATION_EXPRESSION: ""
+                                                    // NUMERIC_PRECISION: null
+                                                    // NUMERIC_SCALE: null
+                                                    // ORDINAL_POSITION: 2
+                                                    // PRIVILEGES: "select,insert,update,references"
+                                                    // TABLE_CATALOG: "def"
+                                                    // TABLE_NAME: "a_test5"
+                                                    // TABLE_SCHEMA: "linxot"
                                                 })
-                                                setIndexes([...indexes])
+                                                setTableColumns([...tableColumns])
                                             }}
                                         >
                                             新增
                                         </Button>
+                                        
                                     </Space>
                                 </div>
                                 <Table
-                                    columns={indexColumns}
-                                    dataSource={indexes}
+                                    columns={columns}
+                                    dataSource={tableColumns}
                                     bordered
                                     pagination={false}
                                     size="small"
                                     rowKey="__id"
                                 />
                             </TabPane>
-                            <TabPane tab={t('partition')} key="partition">
-                                <Table
-                                    columns={partitionColumns}
-                                    dataSource={partitions}
-                                    bordered
-                                    pagination={false}
-                                    size="small"
-                                    rowKey="__id"
-                                />
-                            </TabPane>
-                        </>
-                    }
-                </Tabs>
-            </div>
+                            {editType == 'update' &&
+                                <>
+                                    <TabPane tab={t('indexes')} key="index">
+                                        <div style={{
+                                            marginBottom: 8,
+                                        }}>
+                                            <Space>
+                                                <Button
+                                                    size="small"
+                                                    onClick={() => {
+                                                        indexes.push({
+                                                            __id: uid(32),
+                                                            __new: true,
+                                                            name: {
+                                                                value: '',
+                                                            },
+                                                            comment: {
+                                                                value: '',
+                                                            },
+                                                            columns: {
+                                                                value: [],
+                                                            },
+                                                            type2: {
+                                                                value: 'Normal',
+                                                            },
+                                                            type: '',
+                                                            NON_UNIQUE: '',
+                                                        })
+                                                        setIndexes([...indexes])
+                                                    }}
+                                                >
+                                                    新增
+                                                </Button>
+                                            </Space>
+                                        </div>
+                                        <Table
+                                            columns={indexColumns}
+                                            dataSource={indexes}
+                                            bordered
+                                            pagination={false}
+                                            size="small"
+                                            rowKey="__id"
+                                        />
+                                    </TabPane>
+                                    <TabPane tab={t('partition')} key="partition">
+                                        <Table
+                                            columns={partitionColumns}
+                                            dataSource={partitions}
+                                            bordered
+                                            pagination={false}
+                                            size="small"
+                                            rowKey="__id"
+                                        />
+                                    </TabPane>
+                                </>
+                            }
+                        </Tabs>
+                    </div>
+                </>
+            }
             {!!execSql &&
                 <ExecModal
                     config={config}
