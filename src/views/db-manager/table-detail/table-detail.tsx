@@ -7,6 +7,8 @@ import _ from 'lodash';
 import { ExecModal } from '../exec-modal/exec-modal';
 import { uid } from 'uid';
 import { useTranslation } from 'react-i18next';
+import { IconButton } from '../icon-button';
+import { ReloadOutlined } from '@ant-design/icons';
 // console.log('lodash', _)
 const { TabPane } = Tabs
 
@@ -548,7 +550,7 @@ export function TableDetail({ config, dbName, tableName }) {
         }
         let sql
         if (editType == 'update') {
-            sql = `ALTER TABLE \`${tableInfo.TABLE_NAME}\`
+            sql = `ALTER TABLE \`${dbName}\`.\`${tableInfo.TABLE_NAME}\`
 ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')}`
         }
         else {
@@ -605,7 +607,7 @@ ${rowSqls.join(' ,\n')}
 
     const columns = [
         {
-            title: '列名',
+            title: t('column_name'),
             dataIndex: 'COLUMN_NAME',
             render: EditableCellRender({
                 dataIndex: 'COLUMN_NAME',
@@ -613,7 +615,7 @@ ${rowSqls.join(' ,\n')}
             }),
         },
         {
-            title: '类型',
+            title: t('type'),
             dataIndex: 'COLUMN_TYPE',
             render: EditableCellRender({
                 dataIndex: 'COLUMN_TYPE',
@@ -621,7 +623,7 @@ ${rowSqls.join(' ,\n')}
             }),
         },
         {
-            title: '可空',
+            title: t('nullable'),
             dataIndex: 'IS_NULLABLE',
             render: EditableCellRender({
                 dataIndex: 'IS_NULLABLE',
@@ -629,7 +631,7 @@ ${rowSqls.join(' ,\n')}
             }),
         },
         {
-            title: '主键',
+            title: t('primary_key'),
             dataIndex: 'COLUMN_KEY',
             // render(value) {
             //     return (
@@ -642,7 +644,7 @@ ${rowSqls.join(' ,\n')}
             }),
         },
         {
-            title: '自增',
+            title: t('auto_increment'),
             dataIndex: 'EXTRA',
             // render(value) {
             //     return (
@@ -655,7 +657,7 @@ ${rowSqls.join(' ,\n')}
             }),
         },
         {
-            title: '默认值',
+            title: t('default'),
             dataIndex: 'COLUMN_DEFAULT',
             render: EditableCellRender({
                 dataIndex: 'COLUMN_DEFAULT',
@@ -663,7 +665,7 @@ ${rowSqls.join(' ,\n')}
             }),
         },
         {
-            title: '注释',
+            title: t('comment'),
             dataIndex: 'COLUMN_COMMENT',
             render: EditableCellRender({
                 dataIndex: 'COLUMN_COMMENT',
@@ -671,7 +673,7 @@ ${rowSqls.join(' ,\n')}
             }),
         },
         {
-            title: '操作',
+            title: t('actions'),
             dataIndex: 'op',
             render(_value, item) {
                 return (
@@ -685,14 +687,14 @@ ${rowSqls.join(' ,\n')}
                                 ])
                             }
                         }}
-                    >删除</a>
+                    >{t('delete')}</a>
                 )
             }
         },
     ]
     const indexColumns = [
         {
-            title: '索引名',
+            title: t('index_name'),
             dataIndex: 'name',
             render(value, _item, index) {
                 return (
@@ -712,7 +714,7 @@ ${rowSqls.join(' ,\n')}
             }
         },
         {
-            title: '类型',
+            title: t('type'),
             dataIndex: 'type2',
             // render: EditableCellRender({
             //     dataIndex: 'type2',
@@ -741,7 +743,7 @@ ${rowSqls.join(' ,\n')}
         //     dataIndex: 'type',
         // },
         {
-            title: '包含列',
+            title: t('index_columns'),
             dataIndex: 'columns',
             // render: EditableCellRender({
             //     dataIndex: 'columns',
@@ -777,7 +779,7 @@ ${rowSqls.join(' ,\n')}
         //     dataIndex: 'COLUMN_NAME',
         // },
         {
-            title: '注释',
+            title: t('comment'),
             dataIndex: 'comment',
             render: EditableCellRender({
                 dataIndex: 'comment',
@@ -789,7 +791,7 @@ ${rowSqls.join(' ,\n')}
         //     dataIndex: 'NON_UNIQUE',
         // },
         {
-            title: '操作',
+            title: t('actions'),
             dataIndex: 'op',
             render(_value, item) {
                 return (
@@ -899,32 +901,38 @@ ${rowSqls.join(' ,\n')}
             :
                 <>
                     <div className={styles.header}>
-                        <Space>
                         {/* {tableName}@{dbName} */}
                             
-                            {editType == 'update' &&
-                                <Button
-                                    size="small"
-                                    onClick={loadTableInfo}
-                                >
-                                    {t('refresh')}
-                                </Button>
-                            }
                             <Button
                                 // loading={loading}
                                 size="small"
                                 type="primary"
                                 onClick={update}
-                            >
+                                >
                                 {t('save')}
                             </Button>
+                            {editType == 'update' &&
+                                <IconButton
+                                    tooltip={t('refresh')}
+                                    onClick={loadTableInfo}
+                                >
+                                    <ReloadOutlined />
+                                </IconButton>
+                                // <Button
+                                //     size="small"
+                                    
+                                // >
+                                //     {t('refresh')}
+                                // </Button>
+                            }
                             {/* <Button
                                     size="small"
                                     onClick={submitChange}
                                 >
                                     提交修改
                                 </Button> */}
-                        </Space>
+                        {/* <Space>
+                        </Space> */}
                     </div>
                     <div className={styles.body}>
                         <Tabs
@@ -1107,7 +1115,7 @@ ${rowSqls.join(' ,\n')}
                                                 setTableColumns([...tableColumns])
                                             }}
                                         >
-                                            新增
+                                            {t('add')}
                                         </Button>
                                         
                                     </Space>
@@ -1152,7 +1160,7 @@ ${rowSqls.join(' ,\n')}
                                                         setIndexes([...indexes])
                                                     }}
                                                 >
-                                                    新增
+                                                    {t('add')}
                                                 </Button>
                                             </Space>
                                         </div>

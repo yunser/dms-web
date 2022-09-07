@@ -70,7 +70,7 @@ export function ExecModal({ config, sql, onClose, onSuccess, tableName, dbName }
             newTabs = [
                 ...newTabs,
                 {
-                    title: `执行结果 ${lineIdx + 1}`,
+                    title: `${t('result')} ${lineIdx + 1}`,
                     key,
                     data: {
                         sql: line,
@@ -150,7 +150,7 @@ export function ExecModal({ config, sql, onClose, onSuccess, tableName, dbName }
                         doSubmit()
                     }}
                 >
-                    <div className={styles.safeTip}>以下是待执行 SQL，请确认</div>
+                    <div className={styles.safeTip}>{t('confirm_sql')}</div>
 
                     <TextArea
                         // className={styles.textarea} 
@@ -166,7 +166,7 @@ export function ExecModal({ config, sql, onClose, onSuccess, tableName, dbName }
             }
             {resultModelVisible &&
                 <Modal
-                    title="执行状态"
+                    title={t('exec_result')}
                     visible={true}
                     width={800}
                     // maskClosable={false}
