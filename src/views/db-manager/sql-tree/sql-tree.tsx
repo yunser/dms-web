@@ -35,7 +35,7 @@ function getHightlight(title: string, keyword: string) {
     // )
 }
 
-function TreeTitle({ keyword, nodeData, onAction, onClick, onDoubleClick }: any) {
+function TreeTitle({ keyword, loading = false, nodeData, onAction, onClick, onDoubleClick }: any) {
     const { t } = useTranslation()
 
     const timerRef = useRef<number | null>(null)
@@ -51,7 +51,6 @@ function TreeTitle({ keyword, nodeData, onAction, onClick, onDoubleClick }: any)
                 }
                 // console.log('双击')
                 onDoubleClick && onDoubleClick()
-                // queryTableStruct(nodeData.key)
             }}
             onClick={() => {
                 // console.log('onClick')
@@ -66,7 +65,12 @@ function TreeTitle({ keyword, nodeData, onAction, onClick, onDoubleClick }: any)
             }}
         >
             <div className={styles.label}>
-                {nodeData.key == 'root' ?
+                {loading &&
+                    <span>Loading</span>
+                // :
+                //     <span>No</span>
+                }
+                {nodeData.key == 'schema' ?
                     <DatabaseOutlined className={styles.icon} />
                 :
                     <TableOutlined className={styles.icon} />
@@ -77,7 +81,7 @@ function TreeTitle({ keyword, nodeData, onAction, onClick, onDoubleClick }: any)
                     nodeData.title
                 }
             </div>
-            {nodeData.key != 'root' &&
+            {nodeData.type != 'schema' &&
                 <Space>
                     {/* <a
                         className={styles.btns}
@@ -110,24 +114,37 @@ function TreeTitle({ keyword, nodeData, onAction, onClick, onDoubleClick }: any)
             <Dropdown
                 overlay={(
                     <Menu
-                        items={[
-                            {
-                                label: t('view_struct'),
-                                key: 'view_struct',
-                            },
-                            {
-                                label: t('export_struct'),
-                                key: 'export_struct',
-                            },
-                            {
-                                label: t('table_truncate'),
-                                key: 'truncate',
-                            },
-                            {
-                                label: t('table_drop'),
-                                key: 'drop',
-                            },
-                        ]}
+                        items={nodeData.type == 'schema' ? 
+                            [
+                                {
+                                    label: '查看表',
+                                    key: 'table_list',
+                                },
+                                {
+                                    label: '新建表',
+                                    key: 'table_create',
+                                },
+                            ]
+                        :
+                            [
+                                {
+                                    label: t('view_struct'),
+                                    key: 'view_struct',
+                                },
+                                {
+                                    label: t('export_struct'),
+                                    key: 'export_struct',
+                                },
+                                {
+                                    label: t('table_truncate'),
+                                    key: 'truncate',
+                                },
+                                {
+                                    label: t('table_drop'),
+                                    key: 'drop',
+                                },
+                            ]
+                        }
                         onClick={({ item, key, keyPath, domEvent }) => {
                             onAction && onAction(key)
                         }}
@@ -216,7 +233,7 @@ function DebounceInput(props: InputProps) {
 }
 
 
-export function SqlTree({ config, onTab, dbName, data = {} }: any) {
+export function SqlTree({ config, connectionId, onTab, data = {} }: any) {
     console.warn('SqlTree/render')
     
     const { defaultJson = '' } = data
@@ -227,24 +244,9 @@ export function SqlTree({ config, onTab, dbName, data = {} }: any) {
     // const [filterKeyword] = useState('')
     // const refreshByKeyword = 
     
-    const [list, setList] = useState([])
-    
-    const [treeData, setTreeData] = useState([
-        {
-            title: dbName,
-            key: 'root',
-            children: [
-                // {
-                //     title: 'parent 1-0',
-                //     key: '0-0-0',
-                // },
-                // {
-                //     title: 'parent 1-1',
-                //     key: '0-0-1',
-                // },
-            ],
-        },
-    ])
+    const [selectedKeys, setSelectedKeys] = useState([])
+    const [expandedKeys, setExpandedKeys] = useState([])
+    const [treeData, setTreeData] = useState([])
     const filterTreeData = useMemo(() => {
         if (!keyword) {
             return treeData
@@ -262,24 +264,27 @@ export function SqlTree({ config, onTab, dbName, data = {} }: any) {
         
     // ]
 
-    async function loadData() {
+    async function loadTables(schemaName) {
         // console.log('props', this.props.match.params.name)
-        // let dbName = this.props.match.params.name
-        // this.dbName = dbName
         // const { dispatch } = this.props;
         // dispatch({
         //   type: 'user/fetchUserList',
         // });
         setLoading(true)
         let res = await request.post(`${config.host}/mysql/tables`, {
-            dbName,
+            dbName: schemaName,
         })
         console.log('res', res)
         if (res.success) {
             // message.info('连接成功')
             const list = res.data
             // console.log('res', list)
-            setList(res.list)
+            // setList(res.list)
+
+            console.log('treeData', treeData)
+            
+            const dbIdx = treeData.findIndex(node => node.itemData.SCHEMA_NAME == schemaName)
+            // return
 
             const children = list
                 .map(item => {
@@ -287,31 +292,60 @@ export function SqlTree({ config, onTab, dbName, data = {} }: any) {
                     return {
                         title: tableName,
                         key: tableName,
+                        itemData: item,
                     }
                 })
                 .sort((a, b) => {
                     return a.title.localeCompare(b.title)
                 })
-            setTreeData([
-                {
-                    title: dbName,
-                    key: 'root',
-                    children,
-                    // itemData: item,
-                },
-            ])
+            treeData[dbIdx].loading = false
+            treeData[dbIdx].children = children
+            // console.log('treeData[dbIdx]', treeData[dbIdx])
+            setExpandedKeys([treeData[dbIdx].key])
+            setTreeData([...treeData])
             // adbs: ,
             // suggestionAdd('adbs', ['dim_realtime_recharge_paycfg_range', 'dim_realtime_recharge_range'])
-            suggestionAdd(dbName, list.map(item => item.TABLE_NAME))
+            suggestionAdd(schemaName, list.map(item => item.TABLE_NAME))
         } else {
             message.error('连接失败')
         }
         setLoading(false)
     }
 
+    async function loadDbList() {
+        let ret = await request.post(`${config.host}/mysql/databases`)
+        // console.log('ret', ret)
+        if (ret.success) {
+            // message.info('连接成功')
+            // console.log('ret', ret.data)
+            // storage.set('connectId', 'ret.data')
+            const dbs = ret.data
+            setTreeData(dbs.map(item => {
+                return {
+                    title: item.SCHEMA_NAME,
+                    key: item.SCHEMA_NAME,
+                    type: 'schema',
+                    children: [],
+                    // data: 
+                    itemData: item,
+                    loading: false,
+                }
+            }))
+            // setTreeData([
+            //     ,
+            // ])
+        } else {
+            message.error('连接失败')
+        }
+    }
+
     useEffect(() => {
-        loadData()
+        loadDbList()
     }, [])
+
+    // useEffect(() => {
+    //     loadTables()
+    // }, [])
 
     function showSqlInNewtab({ title = 'New Query', sql }) {
         let tabKey = '' + new Date().getTime()
@@ -321,7 +355,7 @@ export function SqlTree({ config, onTab, dbName, data = {} }: any) {
             key: tabKey,
             defaultSql: sql,
             data: {
-                dbName,
+                dbName: null,
                 tableName: null,
             },
         })
@@ -329,7 +363,8 @@ export function SqlTree({ config, onTab, dbName, data = {} }: any) {
 
     async function showCreateTable(nodeData) {
         const tableName = nodeData.key // TODO @p2
-        const sql = `show create table \`${tableName}\`;`
+        const dbName = nodeData.itemData.TABLE_SCHEMA
+        const sql = `show create table \`${dbName}\`.\`${tableName}\`;`
         // setSql(sql)
         showSqlInNewtab({
             title: 'Show create table',
@@ -340,7 +375,8 @@ export function SqlTree({ config, onTab, dbName, data = {} }: any) {
     async function truncate(nodeData) {
         // console.log('nodeData', nodeData)
         const tableName = nodeData.key // TODO @p2
-        const sql = `TRUNCATE TABLE \`${tableName}\`;`
+        const dbName = nodeData.itemData.TABLE_SCHEMA
+        const sql = `TRUNCATE TABLE \`${dbName}\`.\`${tableName}\`;`
         console.log('truncate', sql)
         // setSql(sql)
         showSqlInNewtab({
@@ -350,8 +386,11 @@ export function SqlTree({ config, onTab, dbName, data = {} }: any) {
     }
 
     async function drop(nodeData) {
+        console.log('drop/nodeData', nodeData)
+        
+        // return
         const tableName = nodeData.key // TODO @p2
-        const sql = `DROP TABLE \`${tableName}\`;`
+        const sql = `DROP TABLE \`${nodeData.itemData.TABLE_SCHEMA}\`.\`${tableName}\`;`
         // setSql(sql)
         showSqlInNewtab({
             title: 'DROP TABLE',
@@ -359,13 +398,16 @@ export function SqlTree({ config, onTab, dbName, data = {} }: any) {
         })
     }
 
-    function queryTableStruct(tableName: string) {
+    function queryTableStruct(nodeData) {
+        console.log('nodeData', nodeData)
+        // return
+        const tableName = nodeData.key // TODO @p2
+        const dbName = nodeData.itemData.TABLE_SCHEMA
         let tabKey = '' + new Date().getTime()
         onTab && onTab({
-            title: tableName + ' - Table',
+            title: `${tableName}@${dbName} - Table`,
             key: tabKey,
             type: 'tableDetail',
-            // defaultSql: `SELECT * FROM \`${dbName}\`.\`${tableName}\` LIMIT 20;`,
             data: {
                 dbName,
                 tableName,
@@ -374,7 +416,10 @@ export function SqlTree({ config, onTab, dbName, data = {} }: any) {
     }
     
 
-    function queryTable(tableName: string) {
+    function queryTable(nodeData) {
+        const tableName = nodeData.key // TODO @p2
+        const dbName = nodeData.itemData.TABLE_SCHEMA
+
         // let tabKey = '' + new Date().getTime()
         // setActiveKey(tabKey)
         // setTabs([
@@ -412,12 +457,13 @@ export function SqlTree({ config, onTab, dbName, data = {} }: any) {
                     className={styles.refresh}
                     tooltip={t('refresh')}
                     onClick={() => {
-                        loadData()
+                        // loadTables()
+                        loadDbList()
                     }}
                 >
                     <ReloadOutlined />
                 </IconButton>
-                <IconButton
+                {/* <IconButton
                     className={styles.refresh}
                     tooltip={t('table_create')}
                     onClick={() => {
@@ -435,22 +481,31 @@ export function SqlTree({ config, onTab, dbName, data = {} }: any) {
                     }}
                 >
                     <PlusOutlined />
-                </IconButton>
+                </IconButton> */}
                 <IconButton
                     className={styles.refresh}
                     tooltip={t('list_view')}
                     onClick={() => {
                         let tabKey = '' + new Date().getTime()
                         onTab && onTab({
-                            title: 'Tables',
-                            key: tabKey,
-                            type: 'table_list',
-                            // defaultSql: `SELECT * FROM \`${dbName}\`.\`${tableName}\` LIMIT 20;`,
+                            title: 'MySQL Databases',
+                            key: 'mysql-database-0',
+                            type: 'databases',
                             data: {
-                                dbName,
-                                // tableName,
+                                connectionId,
                             },
                         })
+                        // onTab && onTab({
+                        //     title: 'Tables',
+                        //     key: tabKey,
+                        //     type: 'table_list',
+                        //     // defaultSql: `SELECT * FROM \`${dbName}\`.\`${tableName}\` LIMIT 20;`,
+                        //     data: {
+                        //         dbName,
+                        //         // tableName,
+                        //     },
+                        // })
+
                     }}
                 >
                     <UnorderedListOutlined />
@@ -463,25 +518,46 @@ export function SqlTree({ config, onTab, dbName, data = {} }: any) {
                     <Tree
                         height={document.body.clientHeight - 42 - 40 - 40}
                         // checkable
-                        defaultExpandedKeys={['root']}
-                        selectedKeys={[]}
+                        // defaultExpandedKeys={['root']}
+                        selectedKeys={selectedKeys}
+                        expandedKeys={expandedKeys}
+                        onExpand={(expandedKeys, info) => {
+                            setExpandedKeys(expandedKeys)
+                        }}
                         // defaultSelectedKeys={['0-0-0', '0-0-1']}
                         // defaultCheckedKeys={['0-0-0', '0-0-1']}
                         titleRender={nodeData => {
                             // console.log('nodeData', nodeData)
+                            // console.log('nodeData.loading', nodeData.loading, nodeData)
+                            if (loading) {
+                                return <div>Loading</div>
+                            }
                             return (
                                 <TreeTitle
+                                    // key={'' + loading}
+                                    loading={nodeData.loading}
                                     nodeData={nodeData}
                                     keyword={keyword}
                                     onClick={() => {
-                                        queryTable(nodeData.key)
+                                        // queryTable(nodeData.key)
                                     }}
                                     onDoubleClick={() => {
-                                        queryTableStruct(nodeData.key)
+                                        console.log('onDoubleClick', nodeData)
+                                        if (nodeData.type == 'schema') {
+                                            const idx = treeData.findIndex(node => node.key == nodeData.key)
+                                            console.log('idx', idx)
+                                            treeData[idx].loading = true
+                                            setTreeData([...treeData])
+                                            setSelectedKeys(nodeData.key)
+                                            loadTables(nodeData.itemData.SCHEMA_NAME)
+                                        }
+                                        else {
+                                            queryTable(nodeData)
+                                        }
                                     }}
                                     onAction={(key) => {
                                         if (key == 'view_struct') {
-                                            queryTableStruct(nodeData.key)
+                                            queryTableStruct(nodeData)
                                         }
                                         else if (key == 'export_struct') {
                                             showCreateTable(nodeData)
@@ -491,6 +567,36 @@ export function SqlTree({ config, onTab, dbName, data = {} }: any) {
                                         }
                                         else if (key == 'drop') {
                                             drop(nodeData)
+                                        }
+                                        else if (key == 'table_list') {
+                                            console.log('nodeData', nodeData)
+                                            // return
+                                            let tabKey = '' + new Date().getTime()
+                                            onTab && onTab({
+                                                title: 'Tables',
+                                                key: tabKey,
+                                                type: 'table_list',
+                                                // defaultSql: `SELECT * FROM \`${dbName}\`.\`${tableName}\` LIMIT 20;`,
+                                                data: {
+                                                    dbName: nodeData.itemData.SCHEMA_NAME,
+                                                    // tableName,
+                                                },
+                                            })
+                                        }
+                                        else if (key == 'table_create') {
+                                            console.log('nodeData', nodeData)
+                                            // return
+                                            let tabKey = '' + new Date().getTime()
+                                            onTab && onTab({
+                                                title: 'New Table',
+                                                key: tabKey,
+                                                type: 'tableDetail',
+                                                // defaultSql: `SELECT * FROM \`${dbName}\`.\`${tableName}\` LIMIT 20;`,
+                                                data: {
+                                                    dbName: nodeData.itemData.SCHEMA_NAME,
+                                                    tableName: null,
+                                                },
+                                            })
                                         }
                                     }}
                                 />

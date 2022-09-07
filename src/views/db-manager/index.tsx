@@ -367,17 +367,29 @@ export function DbManager({ config }) {
                                         <SqlConnector
                                             config={config}
                                             onJson={json => addJsonTab(json)}
-                                            onConnnect={({ id }) => {
+                                            onConnnect={({ id, curConnect }) => {
                                                 // TODO 通过 setTimeout 解决这个问题，原因未知
                                                 // Can't perform a React state update on an unmounted component. This is a no-op, but it indicates a memory leak in your application. To fix, cancel all subscriptions and asynchronous tasks in a useEffect cleanup function
                                                 setTimeout(() => {
+                                                    // addOrActiveTab({
+                                                    //     title: 'MySQL Databases',
+                                                    //     key: 'mysql-database-0',
+                                                    //     type: 'databases',
+                                                    //     data: {
+                                                    //         connectionId: id,
+                                                    //     },
+                                                    // }, {
+                                                    //     closeCurrentTab: true,
+                                                    // })
+                                                    const key = '' + new Date().getTime()
                                                     addOrActiveTab({
-                                                        title: 'MySQL Databases',
-                                                        key: 'mysql-database-0',
-                                                        type: 'databases',
+                                                        title: `${curConnect.name || 'Unnamed'} - DB`,
+                                                        key,
+                                                        type: 'database',
                                                         data: {
+                                                            name: null,
                                                             connectionId: id,
-                                                        },
+                                                        }
                                                     }, {
                                                         closeCurrentTab: true,
                                                     })
@@ -407,7 +419,7 @@ export function DbManager({ config }) {
                                     {item.type == 'database' &&
                                         <DataBaseDetail
                                             config={config}
-                                            dbName={item.data.name}
+                                            // dbName={item.data.name}
                                             connectionId={item.data.connectionId}
                                             onJson={json => {
                                                 addJsonTab(json)

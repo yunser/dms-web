@@ -892,6 +892,8 @@ ${rowSqls.join(' ,\n')}
         <div className={styles.detailBox}>
             <div className={styles.header}>
                 <Space>
+                {/* {tableName}@{dbName} */}
+                    
                     {editType == 'update' &&
                         <Button
                             size="small"

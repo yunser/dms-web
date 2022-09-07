@@ -451,6 +451,7 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
                         </Select>
                         <IconButton
                             size="small"
+                            tooltip={t('save')}
                             onClick={() => {
                                 message.info('正在开发...')
                             }}

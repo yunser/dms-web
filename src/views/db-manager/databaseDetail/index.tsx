@@ -34,6 +34,8 @@ import { TableList } from '../table-list'
 import { request } from '../utils/http'
 import { useInterval } from 'ahooks'
 import { t } from 'i18next'
+import DatabaseList from '../databases'
+import { UserList } from '../user-list'
 
 // console.log('ddd.0')
 // _.debounce(() => {
@@ -124,7 +126,7 @@ function Status({ config, connectionId }) {
     )
 }
 
-export function DataBaseDetail({ dbName, connectionId, config, onJson }) {
+export function DataBaseDetail({ connectionId, config, onJson }) {
     console.warn('DataBaseDetail/render')
 
     const { t } = useTranslation()
@@ -263,7 +265,7 @@ export function DataBaseDetail({ dbName, connectionId, config, onJson }) {
             <div className={styles.layoutLeft}>
                 <SqlTree
                     config={config}
-                    dbName={dbName}
+                    connectionId={connectionId}
                     onTab={tab => {
                         setActiveKey(tab.key)
                         setTabs([
@@ -377,10 +379,83 @@ export function DataBaseDetail({ dbName, connectionId, config, onJson }) {
                                     display: item.key == activeKey ? undefined : 'none',
                                 }}
                             >
+                                {item.type == 'user-manager' &&
+                                    <UserList
+                                        config={config}
+                                    />
+                                }
+                                {item.type == 'databases' &&
+                                    <DatabaseList
+                                        config={config}
+                                        onJson={onJson}
+                                        connectionId={connectionId}
+                                        onUseManager={() => {
+                                            addOrActiveTab({
+                                                title: `Users`,
+                                                key: 'user-manager-0',
+                                                type: 'user-manager',
+                                                data: {
+                                                    // name,
+                                                }
+                                            }, {
+                                                // closeCurrentTab: true,
+                                            })
+                                        }}
+                                        onSelectDatabase={async ({name, connectionId}) => {
+                                            return
+                                            const key = '' + new Date().getTime()
+                                            addOrActiveTab({
+                                                title: `${name} - DB`,
+                                                key,
+                                                type: 'database',
+                                                data: {
+                                                    name,
+                                                    connectionId,
+                                                }
+                                            }, {
+                                                closeCurrentTab: true,
+                                            })
+                                            // setTabs([
+                                            //     ...tabs,
+                                            //     {
+                                            //         title: `${name} - DB`,
+                                            //         key,
+                                            //         type: 'database',
+                                            //         data: {
+                                            //             name,
+                                            //         }
+                                            //     }
+                                            // ])
+                                            // setActiveKey(key)
+
+                                            request.post(`${config.host}/mysql/execSql`, {
+                                                sql: `USE ${name}`,
+                                                // tableName,
+                                                // dbName,
+                                            }, {
+                                                // noMessage: true,
+                                            })
+
+                                            const fieldNamesSql = `SELECT DISTINCT(COLUMN_NAME)
+FROM information_schema.COLUMNS
+WHERE TABLE_SCHEMA = '${name}'
+LIMIT 1000;`
+                                            const res = await request.post(`${config.host}/mysql/execSql`, {
+                                                sql: fieldNamesSql,
+                                                // tableName,
+                                                // dbName,
+                                            }, {
+                                                // noMessage: true,
+                                            })
+                                            console.log('字段', res.data)
+                                            setAllFields(name, res.data.results.map(item => item[0]))
+                                        }}
+                                    />
+                                }
                                 {item.type == 'table_list' &&
                                     <TableList
                                         config={config}
-                                        dbName={dbName}
+                                        dbName={item.data.dbName}
                                         onJson={onJson}
                                         onTab={tab => {
                                             setActiveKey(tab.key)
@@ -400,14 +475,14 @@ export function DataBaseDetail({ dbName, connectionId, config, onJson }) {
                                 {item.type == 'tableDetail' &&
                                     <TableDetail
                                         config={config}
-                                        dbName={dbName}
+                                        dbName={item.data?.dbName}
                                         tableName={item.data?.tableName}
                                     />
                                 }
                                 {item.type == 'sql-query' &&
                                     <SqlBox
                                         config={config}
-                                        dbName={dbName}
+                                        dbName={null}
                                         tableName={item.data?.tableName}
                                         // className={item.key == activeKey ? styles.visibleTab : styles.hiddenTab}
                                         key={item.key}
@@ -432,7 +507,7 @@ export function DataBaseDetail({ dbName, connectionId, config, onJson }) {
                     config={config}
                     sql={sql}
                     tableName={null}
-                    dbName={dbName}
+                    dbName={null}
                 />
             }
         </div>

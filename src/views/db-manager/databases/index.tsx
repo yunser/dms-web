@@ -19,7 +19,7 @@ export default function DatabaseList({ connectionId, config, onJson, onSelectDat
     const { t } = useTranslation()
     const [list, setList] = useState([])
 
-    async function loadData() {
+    async function loadDbList() {
         let ret = await request.post(`${config.host}/mysql/databases`)
         // console.log('ret', ret)
         if (ret.success) {
@@ -33,7 +33,7 @@ export default function DatabaseList({ connectionId, config, onJson, onSelectDat
     }
 
     useEffect(() => {
-        loadData()
+        loadDbList()
     }, [])
     
     const columns = [
@@ -79,7 +79,7 @@ export default function DatabaseList({ connectionId, config, onJson, onSelectDat
                             config={config}
                             item={item}
                             onSuccess={() => {
-                                loadData()
+                                loadDbList()
                             }}
                         >
                             <a>{t('edit')}</a>
@@ -88,7 +88,7 @@ export default function DatabaseList({ connectionId, config, onJson, onSelectDat
                             item={item}
                             config={config}
                             onSuccess={() => {
-                                loadData()
+                                loadDbList()
                             }}
                         >
                             <a>{t('delete')}</a>
@@ -108,7 +108,7 @@ export default function DatabaseList({ connectionId, config, onJson, onSelectDat
                     <IconButton
                         tooltip={t('refresh')}
                         onClick={() => {
-                            loadData()
+                            loadDbList()
                         }}
                     >
                         <ReloadOutlined />
@@ -125,7 +125,7 @@ export default function DatabaseList({ connectionId, config, onJson, onSelectDat
                     <DatabaseEditHandler
                         config={config}
                         onSuccess={() => {
-                            loadData()
+                            loadDbList()
                         }}
                     >
                         <Button size="small">
