@@ -316,6 +316,13 @@ function SqlBox({ config, event$, onJson, className, defaultSql = '', style }: P
                 })
                 // setExecResults([...newTabs])
                 // setActiveKey(tabKey)
+
+                if (lineCode.toLowerCase().startsWith('use')) {
+                    event$.emit({
+                        type: 'reload_use',
+                        data: {}
+                    })
+                }
             }
             else {
 

@@ -69,40 +69,40 @@ interface TabProps {
 }
 
 
-function CurrentSchema({ config, curSchema = '' }) {
-    // const [curSchema, setCurSchema] = useState('')
+// function CurrentSchema({ config, curSchema = '' }) {
+//     // const [curSchema, setCurSchema] = useState('')
 
-    async function loadCurrentSchema() {
-        let res = await request.post(`${config.host}/mysql/execSqlSimple`, {
-            sql: `select database()`,
-        }, {
-            noMessage: true,
-        })
-        console.log('loadCurrentSchema/res', res.data)
-        if (res.success) {
-            // setCurSchema(res.data[0]['database()'])
-        }
-        // else {
-        //     setErr('Connect rrror')
-        // }
-    }
+//     async function loadCurrentSchema() {
+//         let res = await request.post(`${config.host}/mysql/execSqlSimple`, {
+//             sql: `select database()`,
+//         }, {
+//             noMessage: true,
+//         })
+//         console.log('loadCurrentSchema/res', res.data)
+//         if (res.success) {
+//             // setCurSchema(res.data[0]['database()'])
+//         }
+//         // else {
+//         //     setErr('Connect rrror')
+//         // }
+//     }
 
-    useEffect(() => {
-        loadCurrentSchema()
-    }, [])
+//     useEffect(() => {
+//         loadCurrentSchema()
+//     }, [])
 
-    return (
-        <div className={styles.curSchemaBox}>
-            {!!curSchema ?
-                <Tooltip title="Current Selected Schema">
-                    <div>{curSchema}</div>
-                </Tooltip>
-            :
-                <div>No database selected.</div>
-            }
-        </div>
-    )
-}
+//     return (
+//         <div className={styles.curSchemaBox}>
+//             {!!curSchema ?
+//                 <Tooltip title="Current Selected Schema">
+//                     <div>{curSchema}</div>
+//                 </Tooltip>
+//             :
+//                 <div>No database selected.</div>
+//             }
+//         </div>
+//     )
+// }
 
 function Status({ config, event$, connectionId }) {
     const [err, setErr] = useState('')
@@ -129,6 +129,11 @@ function Status({ config, event$, connectionId }) {
             const { schemaName } = msg.data
             setCurSchema(schemaName)
         }
+        else if (msg.type == 'reload_use') {
+            // const { schemaName } = msg.data
+            // setCurSchema(schemaName)
+            heartBeat()
+        }
     })
 
     async function reconnect() {
@@ -148,7 +153,11 @@ function Status({ config, event$, connectionId }) {
 
     useInterval(() => {
         heartBeat()
-    }, 30 * 1000)
+    }, 30 * 1000, {
+        immediate: true,
+    })
+
+
     
     return (
         <div className={styles.statusBox}>
@@ -169,10 +178,19 @@ function Status({ config, event$, connectionId }) {
                 </div>
             }
 
-            <CurrentSchema
+            {/* <CurrentSchema
                 config={config}
                 curSchema={curSchema}
-            />
+            /> */}
+            <div className={styles.curSchemaBox}>
+                {!!curSchema ?
+                    <Tooltip title="Current Selected Schema">
+                        <div>{curSchema}</div>
+                    </Tooltip>
+                :
+                    <div>No database selected.</div>
+                }
+            </div>
         </div>
     )
 }

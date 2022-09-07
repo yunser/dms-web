@@ -121,6 +121,11 @@ function TreeTitle({ keyword, loading = false, nodeData, onAction, onClick, onDo
                                     key: 'refresh_table',
                                 },
                                 {
+                                    // label: t('refresh'),
+                                    label: 'Use',
+                                    key: 'schema_use',
+                                },
+                                {
                                     label: t('table_list'),
                                     key: 'table_list',
                                 },
@@ -428,6 +433,16 @@ export function SqlTree({ config, event$, connectionId, onTab, data = {} }: any)
         })
     }
 
+    function schemaUse(nodeData) {
+        console.log('nodeData', nodeData)
+        // return
+        const sql = `USE \`${nodeData.itemData.SCHEMA_NAME}\`;`
+        showSqlInNewtab({
+            title: 'USE',
+            sql,
+        })
+    }
+
     function queryTableStruct(nodeData) {
         console.log('nodeData', nodeData)
         // return
@@ -595,6 +610,10 @@ export function SqlTree({ config, event$, connectionId, onTab, data = {} }: any)
                                         else if (key == 'refresh_table') {
                                             // queryTable(nodeData)
                                             refreshTables(nodeData)
+                                        }
+                                        else if (key == 'schema_use') {
+                                            // queryTable(nodeData)
+                                            schemaUse(nodeData)
                                         }
                                         else if (key == 'export_struct') {
                                             showCreateTable(nodeData)
