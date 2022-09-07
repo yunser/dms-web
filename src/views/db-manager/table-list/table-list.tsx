@@ -664,6 +664,7 @@ ORDER BY TABLE_ROWS DESC`
                 }
             </div> */}
             <Table
+                loading={loading}
                 dataSource={list}
                 pagination={false}
                 size="small"

@@ -7,7 +7,7 @@ import classNames from 'classnames'
 import { useTranslation } from 'react-i18next';
 import { Editor } from '../editor/Editor';
 import { IconButton } from '../icon-button';
-import { DatabaseOutlined, FormatPainterOutlined, PlusOutlined, ReloadOutlined, TableOutlined, UnorderedListOutlined } from '@ant-design/icons';
+import { DatabaseOutlined, FormatPainterOutlined, PlusOutlined, ReloadOutlined, SyncOutlined, TableOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import { suggestionAdd } from '../suggestion';
 import { request } from '../utils/http';
 
@@ -65,12 +65,12 @@ function TreeTitle({ keyword, loading = false, nodeData, onAction, onClick, onDo
             }}
         >
             <div className={styles.label}>
-                {loading &&
-                    <span>Loading</span>
+                {loading ?
+                     <SyncOutlined className={styles.icon} spin />
+                    // <span>Loading</span>
                 // :
                 //     <span>No</span>
-                }
-                {nodeData.key == 'schema' ?
+                : nodeData.type == 'schema' ?
                     <DatabaseOutlined className={styles.icon} />
                 :
                     <TableOutlined className={styles.icon} />
@@ -270,7 +270,7 @@ export function SqlTree({ config, connectionId, onTab, data = {} }: any) {
         // dispatch({
         //   type: 'user/fetchUserList',
         // });
-        setLoading(true)
+        // setLoading(true)
         let res = await request.post(`${config.host}/mysql/tables`, {
             dbName: schemaName,
         })
@@ -309,10 +309,11 @@ export function SqlTree({ config, connectionId, onTab, data = {} }: any) {
         } else {
             message.error('连接失败')
         }
-        setLoading(false)
+        // setLoading(false)
     }
 
     async function loadDbList() {
+        setLoading(true)
         let ret = await request.post(`${config.host}/mysql/databases`)
         // console.log('ret', ret)
         if (ret.success) {
@@ -334,9 +335,11 @@ export function SqlTree({ config, connectionId, onTab, data = {} }: any) {
             // setTreeData([
             //     ,
             // ])
-        } else {
-            message.error('连接失败')
         }
+        // else {
+        //     message.error('连接失败')
+        // }
+        setLoading(false)
     }
 
     useEffect(() => {
