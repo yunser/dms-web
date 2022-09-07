@@ -54,57 +54,8 @@ const history_tab = {
 }
 
 
-function CurrentSchema({ config }) {
-    const [curSchema, setCurSchema] = useState('')
 
-    async function loadCurrentSchema() {
-        let res = await request.post(`${config.host}/mysql/execSqlSimple`, {
-            sql: `select database()`,
-        }, {
-            noMessage: true,
-        })
-        console.log('loadCurrentSchema/res', res.data)
-        if (res.success) {
-            setCurSchema(res.data[0]['database()'])
-        }
-        // else {
-        //     setErr('Connect rrror')
-        // }
-    }
-
-    useEffect(() => {
-        loadCurrentSchema()
-    }, [])
-
-    return (
-        <div className={styles.curSchemaBox}>
-            {!!curSchema ?
-                <Tooltip title="Current Selected Schema">
-                    <div>{curSchema}</div>
-                </Tooltip>
-            :
-                <div>No database selected.</div>
-            }
-            {/* {!!err ?
-                <div className={styles.error}>
-                    <div>{t('connect_error')}</div>
-                    <Button
-                        size="small"
-                        onClick={reconnect}
-                    >
-                        {t('reconnect')}
-                    </Button>
-                </div>
-            :
-                <div className={styles.success}>
-                    {t('connected')}
-                </div>
-            } */}
-        </div>
-    )
-}
-
-function SqlBox({ config, onJson, className, defaultSql = '', style }: Props) {
+function SqlBox({ config, event$, onJson, className, defaultSql = '', style }: Props) {
     console.warn('SqlBox/render')
     
     const { t, i18n } = useTranslation()
@@ -510,9 +461,7 @@ function SqlBox({ config, onJson, className, defaultSql = '', style }: Props) {
                         </IconButton>
                     </Space>
 
-                    <CurrentSchema
-                        config={config}
-                    />
+                    
                 </div>
                 <div className={styles.codeBox}>
                     <Editor

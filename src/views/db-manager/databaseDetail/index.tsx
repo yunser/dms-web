@@ -68,22 +68,68 @@ interface TabProps {
     data?: object
 }
 
-function Status({ config, connectionId }) {
+
+function CurrentSchema({ config, curSchema = '' }) {
+    // const [curSchema, setCurSchema] = useState('')
+
+    async function loadCurrentSchema() {
+        let res = await request.post(`${config.host}/mysql/execSqlSimple`, {
+            sql: `select database()`,
+        }, {
+            noMessage: true,
+        })
+        console.log('loadCurrentSchema/res', res.data)
+        if (res.success) {
+            // setCurSchema(res.data[0]['database()'])
+        }
+        // else {
+        //     setErr('Connect rrror')
+        // }
+    }
+
+    useEffect(() => {
+        loadCurrentSchema()
+    }, [])
+
+    return (
+        <div className={styles.curSchemaBox}>
+            {!!curSchema ?
+                <Tooltip title="Current Selected Schema">
+                    <div>{curSchema}</div>
+                </Tooltip>
+            :
+                <div>No database selected.</div>
+            }
+        </div>
+    )
+}
+
+function Status({ config, event$, connectionId }) {
     const [err, setErr] = useState('')
+    const [curSchema, setCurSchema] = useState('')
     async function heartBeat() {
         let res = await request.post(`${config.host}/mysql/execSqlSimple`, {
-            sql: `SELECT 1`,
+            sql: `select database()`,
         }, {
             noMessage: true,
             timeout: 2000,
         })
         if (res.success) {
-
+            setCurSchema(res.data[0]['database()'])
         }
         else {
             setErr('Connect rrror')
         }
     }
+
+    event$.useSubscription(msg => {
+        console.log('Status/onmessage', msg)
+        // console.log(val);
+        if (msg.type == 'update_use') {
+            const { schemaName } = msg.data
+            setCurSchema(schemaName)
+        }
+    })
 
     async function reconnect() {
         let res = await request.post(`${config.host}/mysql/reconnect`, {
@@ -102,7 +148,7 @@ function Status({ config, connectionId }) {
 
     useInterval(() => {
         heartBeat()
-    }, 60 * 1000)
+    }, 30 * 1000)
     
     return (
         <div className={styles.statusBox}>
@@ -122,11 +168,16 @@ function Status({ config, connectionId }) {
                     {t('connected')}
                 </div>
             }
+
+            <CurrentSchema
+                config={config}
+                curSchema={curSchema}
+            />
         </div>
     )
 }
 
-export function DataBaseDetail({ connectionId, config, onJson }) {
+export function DataBaseDetail({ connectionId, event$, config, onJson }) {
     console.warn('DataBaseDetail/render')
 
     const { t } = useTranslation()
@@ -265,6 +316,7 @@ export function DataBaseDetail({ connectionId, config, onJson }) {
         <div className={styles.layout}>
             <div className={styles.layoutLeft}>
                 <SqlTree
+                    event$={event$}
                     config={config}
                     connectionId={connectionId}
                     onTab={tab => {
@@ -277,6 +329,7 @@ export function DataBaseDetail({ connectionId, config, onJson }) {
                 />
                 <div className={styles.status}>
                     <Status
+                        event$={event$}
                         config={config}
                         connectionId={connectionId}
                     />
@@ -490,6 +543,7 @@ LIMIT 1000;`
                                 }
                                 {item.type == 'sql-query' &&
                                     <SqlBox
+                                        event$={event$}
                                         config={config}
                                         // className={item.key == activeKey ? styles.visibleTab : styles.hiddenTab}
                                         key={item.key}

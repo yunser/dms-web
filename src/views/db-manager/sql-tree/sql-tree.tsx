@@ -237,7 +237,7 @@ function DebounceInput(props: InputProps) {
 }
 
 
-export function SqlTree({ config, connectionId, onTab, data = {} }: any) {
+export function SqlTree({ config, event$, connectionId, onTab, data = {} }: any) {
     console.warn('SqlTree/render')
     
     const { defaultJson = '' } = data
@@ -284,6 +284,20 @@ export function SqlTree({ config, connectionId, onTab, data = {} }: any) {
         //   type: 'user/fetchUserList',
         // });
         // setLoading(true)
+        request.post(`${config.host}/mysql/execSql`, {
+            sql: `USE ${schemaName}`,
+            // tableName,
+            // dbName,
+        }, {
+            // noMessage: true,
+        })
+        event$.emit({
+            type: 'update_use',
+            data: {
+                schemaName,   
+            }
+        })
+
         let res = await request.post(`${config.host}/mysql/tables`, {
             dbName: schemaName,
         })

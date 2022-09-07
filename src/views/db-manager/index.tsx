@@ -418,6 +418,7 @@ export function DbManager({ config }) {
                                     }
                                     {item.type == 'database' &&
                                         <DataBaseDetail
+                                            event$={event$}
                                             config={config}
                                             // dbName={item.data.name}
                                             connectionId={item.data.connectionId}
