@@ -117,11 +117,15 @@ function TreeTitle({ keyword, loading = false, nodeData, onAction, onClick, onDo
                         items={nodeData.type == 'schema' ? 
                             [
                                 {
-                                    label: '查看表',
+                                    label: t('refresh'),
+                                    key: 'refresh_table',
+                                },
+                                {
+                                    label: t('table_list'),
                                     key: 'table_list',
                                 },
                                 {
-                                    label: '新建表',
+                                    label: t('table_create'),
                                     key: 'table_create',
                                 },
                             ]
@@ -418,6 +422,14 @@ export function SqlTree({ config, connectionId, onTab, data = {} }: any) {
         })
     }
     
+    function refreshTables(nodeData) {
+        const idx = treeData.findIndex(node => node.key == nodeData.key)
+        console.log('idx', idx)
+        treeData[idx].loading = true
+        setTreeData([...treeData])
+        setSelectedKeys(nodeData.key)
+        loadTables(nodeData.itemData.SCHEMA_NAME)
+    }
 
     function queryTable(nodeData) {
         const tableName = nodeData.key // TODO @p2
@@ -547,12 +559,7 @@ export function SqlTree({ config, connectionId, onTab, data = {} }: any) {
                                     onDoubleClick={() => {
                                         console.log('onDoubleClick', nodeData)
                                         if (nodeData.type == 'schema') {
-                                            const idx = treeData.findIndex(node => node.key == nodeData.key)
-                                            console.log('idx', idx)
-                                            treeData[idx].loading = true
-                                            setTreeData([...treeData])
-                                            setSelectedKeys(nodeData.key)
-                                            loadTables(nodeData.itemData.SCHEMA_NAME)
+                                            refreshTables(nodeData)
                                         }
                                         else {
                                             queryTable(nodeData)
@@ -561,6 +568,10 @@ export function SqlTree({ config, connectionId, onTab, data = {} }: any) {
                                     onAction={(key) => {
                                         if (key == 'view_struct') {
                                             queryTableStruct(nodeData)
+                                        }
+                                        else if (key == 'refresh_table') {
+                                            // queryTable(nodeData)
+                                            refreshTables(nodeData)
                                         }
                                         else if (key == 'export_struct') {
                                             showCreateTable(nodeData)
