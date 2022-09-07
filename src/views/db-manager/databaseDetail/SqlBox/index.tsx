@@ -104,12 +104,11 @@ function CurrentSchema({ config }) {
     )
 }
 
-function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '', style }: Props) {
+function SqlBox({ config, onJson, className, defaultSql = '', style }: Props) {
     console.warn('SqlBox/render')
     
     const { t, i18n } = useTranslation()
 
-    const defaultDbName = dbName
     // console.log('defaultSql', defaultSql)
 
     const [limit, _setLimit] = useState(() => {
@@ -354,7 +353,7 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
                         hasReq: true,
                         results,
                         tableName,
-                        dbName: dbName || defaultDbName,
+                        dbName: dbName,
                         rawColumns,
                     }
                 }
@@ -576,7 +575,6 @@ function SqlBox({ config, onJson, tableName, dbName, className, defaultSql = '',
                                         config={config}
                                         onJson={onJson}
                                         // tableName, dbName
-                                        // defaultDbName={dbName}
                                     />
                                 }
                                 </>

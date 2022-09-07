@@ -134,24 +134,25 @@ export function DataBaseDetail({ connectionId, config, onJson }) {
     const [sql, setSql] = useState('')
     const first_key = 'key-zero'
     const tabs_default: Array<TabProps> = [
-        {
-            type: 'sql-query',
-            title: t('new_query'),
-            key: first_key,
-            defaultSql: '',
-            closable: false,
-            data: {
-                dbName: '',
-                tableName: '',
-            }
-        },
+        // {
+        //     type: 'sql-query',
+        //     title: t('new_query'),
+        //     key: first_key,
+        //     defaultSql: '',
+        //     closable: false,
+        //     data: {
+        //         dbName: '',
+        //         tableName: '',
+        //     }
+        // },
         // {
         //     title: 'Tab 1',
         //     key: '1',
         //     defaultSql: 'SELECT * FROM target.user LIMIT 20;'
         // },
     ]
-    const [activeKey, setActiveKey] = useState(tabs_default[0].key)
+    // const [activeKey, setActiveKey] = useState(tabs_default[0].key)
+    const [activeKey, setActiveKey] = useState('')
     const [tabs, setTabs] = useState(tabs_default)
     
 
@@ -321,15 +322,23 @@ export function DataBaseDetail({ connectionId, config, onJson }) {
                                                         setTabs(tabs.filter(item => item.closable === false || item.key == activeKey))
                                                     }
                                                     else if (key == 'close_all') {
-                                                        setTabs(tabs.filter(item => item.closable === false))
-                                                        setActiveKey(first_key)
+                                                        // setTabs(tabs.filter(item => item.closable === false))
+                                                        // setActiveKey(first_key)
+                                                        setTabs([])
+                                                        setActiveKey('')
                                                     }
                                                     else if (key == 'close_current') {
                                                         const curTab = tabs.find(item => item.key == activeKey)
                                                         if (curTab) {
                                                             if (curTab.closable !== false) {
-                                                                setTabs(tabs.filter(item => item.key != activeKey))
-                                                                setActiveKey(first_key)
+                                                                const newTabs = tabs.filter(item => item.key != activeKey)
+                                                                setTabs(newTabs)
+                                                                if (newTabs.length) {
+                                                                    setActiveKey(newTabs[newTabs.length - 1].key)
+                                                                }
+                                                                else {
+                                                                    setActiveKey('')
+                                                                }
                                                             }
 
                                                         }
@@ -482,8 +491,6 @@ LIMIT 1000;`
                                 {item.type == 'sql-query' &&
                                     <SqlBox
                                         config={config}
-                                        dbName={null}
-                                        tableName={item.data?.tableName}
                                         // className={item.key == activeKey ? styles.visibleTab : styles.hiddenTab}
                                         key={item.key}
                                         defaultSql={item.defaultSql}
