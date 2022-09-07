@@ -255,14 +255,23 @@ export function SqlTree({ config, connectionId, onTab, data = {} }: any) {
         if (!keyword) {
             return treeData
         }
-        return [
-            {
-                ...treeData[0],
-                children: treeData[0].children.filter(item => {
-                    return item.title.toLowerCase().includes(keyword.toLowerCase())
+        return treeData.map(schemaNode => {
+            console.log('schemaNode', schemaNode)
+            return {
+                ...schemaNode,
+                children: (schemaNode.children || []).filter(tableNode => {
+                    return tableNode.title.toLowerCase().includes(keyword.toLowerCase())
                 })
             }
-        ]
+        })
+        // return [
+        //     {
+        //         ...treeData[0],
+        //         children: treeData[0].children.filter(item => {
+        //             return item.title.toLowerCase().includes(keyword.toLowerCase())
+        //         })
+        //     }
+        // ]
     }, [treeData, keyword])
     // const treeData: any[] = [
         
