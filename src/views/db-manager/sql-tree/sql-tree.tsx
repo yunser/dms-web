@@ -7,7 +7,7 @@ import classNames from 'classnames'
 import { useTranslation } from 'react-i18next';
 import { Editor } from '../editor/Editor';
 import { IconButton } from '../icon-button';
-import { DatabaseOutlined, FormatPainterOutlined, InfoCircleOutlined, PlusOutlined, QuestionCircleOutlined, ReloadOutlined, SyncOutlined, TableOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
+import { DatabaseOutlined, FormatPainterOutlined, HistoryOutlined, InfoCircleOutlined, PlusOutlined, QuestionCircleOutlined, ReloadOutlined, SyncOutlined, TableOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
 import { suggestionAdd } from '../suggestion';
 import { request } from '../utils/http';
 
@@ -540,6 +540,86 @@ export function SqlTree({ config, event$, connectionId, onTab, data = {} }: any)
     return (
         <div className={styles.layoutLeft}>
             <div className={styles.header}>
+                <div className={styles.headerTop}>
+                    <IconButton
+                        className={styles.refresh}
+                        tooltip={t('refresh')}
+                        onClick={() => {
+                            // loadTables()
+                            loadDbList()
+                        }}
+                    >
+                        <ReloadOutlined />
+                    </IconButton>
+                    {/* <IconButton
+                        className={styles.refresh}
+                        tooltip={t('table_create')}
+                        onClick={() => {
+                            let tabKey = '' + new Date().getTime()
+                            onTab && onTab({
+                                title: 'New Table',
+                                key: tabKey,
+                                type: 'tableDetail',
+                                // defaultSql: `SELECT * FROM \`${dbName}\`.\`${tableName}\` LIMIT 20;`,
+                                data: {
+                                    dbName,
+                                    tableName: null,
+                                },
+                            })
+                        }}
+                    >
+                        <PlusOutlined />
+                    </IconButton> */}
+                    <IconButton
+                        className={styles.refresh}
+                        tooltip={t('list_view')}
+                        onClick={() => {
+                            let tabKey = '' + new Date().getTime()
+                            onTab && onTab({
+                                title: 'MySQL Databases',
+                                key: 'mysql-database-0',
+                                type: 'databases',
+                                data: {
+                                    connectionId,
+                                },
+                            })
+                            // onTab && onTab({
+                            //     title: 'Tables',
+                            //     key: tabKey,
+                            //     type: 'table_list',
+                            //     // defaultSql: `SELECT * FROM \`${dbName}\`.\`${tableName}\` LIMIT 20;`,
+                            //     data: {
+                            //         dbName,
+                            //         // tableName,
+                            //     },
+                            // })
+
+                        }}
+                    >
+                        <UnorderedListOutlined />
+                    </IconButton>
+                    <IconButton
+                        className={styles.refresh}
+                        tooltip={t('user_manager')}
+                        onClick={() => {
+                            event$.emit({
+                                type: 'event_show_users_tab',
+                            })
+                        }}
+                    >
+                        <UserOutlined />
+                    </IconButton>
+                    <IconButton
+                        tooltip={t('history')}
+                        onClick={() => {
+                            event$.emit({
+                                type: 'event_show_history',
+                            })
+                        }}
+                    >
+                        <HistoryOutlined />
+                    </IconButton>
+                </div>
                 {/* Header */}
                 <DebounceInput
                     value={keyword}
@@ -550,82 +630,14 @@ export function SqlTree({ config, event$, connectionId, onTab, data = {} }: any)
                     placeholder={t('search') + '...'}
                 />
 
-                <IconButton
-                    className={styles.refresh}
-                    tooltip={t('refresh')}
-                    onClick={() => {
-                        // loadTables()
-                        loadDbList()
-                    }}
-                >
-                    <ReloadOutlined />
-                </IconButton>
-                {/* <IconButton
-                    className={styles.refresh}
-                    tooltip={t('table_create')}
-                    onClick={() => {
-                        let tabKey = '' + new Date().getTime()
-                        onTab && onTab({
-                            title: 'New Table',
-                            key: tabKey,
-                            type: 'tableDetail',
-                            // defaultSql: `SELECT * FROM \`${dbName}\`.\`${tableName}\` LIMIT 20;`,
-                            data: {
-                                dbName,
-                                tableName: null,
-                            },
-                        })
-                    }}
-                >
-                    <PlusOutlined />
-                </IconButton> */}
-                <IconButton
-                    className={styles.refresh}
-                    tooltip={t('list_view')}
-                    onClick={() => {
-                        let tabKey = '' + new Date().getTime()
-                        onTab && onTab({
-                            title: 'MySQL Databases',
-                            key: 'mysql-database-0',
-                            type: 'databases',
-                            data: {
-                                connectionId,
-                            },
-                        })
-                        // onTab && onTab({
-                        //     title: 'Tables',
-                        //     key: tabKey,
-                        //     type: 'table_list',
-                        //     // defaultSql: `SELECT * FROM \`${dbName}\`.\`${tableName}\` LIMIT 20;`,
-                        //     data: {
-                        //         dbName,
-                        //         // tableName,
-                        //     },
-                        // })
-
-                    }}
-                >
-                    <UnorderedListOutlined />
-                </IconButton>
-                <IconButton
-                    className={styles.refresh}
-                    tooltip={t('user_manager')}
-                    onClick={() => {
-                        event$.emit({
-                            type: 'show_users_tab',
-                        })
-                    }}
-                >
-                    <UserOutlined />
-                </IconButton>
-
+                
             </div>
             <div className={styles.body}>
                 {loading ?
                     <div className={styles.loading}>{t('loading')}</div>
                 :
                     <Tree
-                        height={document.body.clientHeight - 42 - 40 - 40}
+                        height={document.body.clientHeight - 42 - 80 - 40}
                         // checkable
                         // defaultExpandedKeys={['root']}
                         selectedKeys={selectedKeys}

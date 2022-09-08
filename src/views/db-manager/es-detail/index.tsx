@@ -544,22 +544,6 @@ export function EsDetail({ dbName, config }) {
                                             setActiveKey(first_key)
                                         }}
                                     >{t('close_all')}</Button>
-                                    <Button size="small"
-                                        onClick={() => {
-                                            // console.log('tabs', tabs)
-                                            const history_tab = {
-                                                type: 'history',
-                                                title: t('history'),
-                                                key: 'history',
-                                                // closable: false,
-                                            }
-                                            setTabs([
-                                                ...tabs,
-                                                history_tab,
-                                            ])
-                                            setActiveKey('history')
-                                        }}
-                                    >{t('history')}</Button>
                                 </Space>
                             )
                         }}
@@ -578,9 +562,6 @@ export function EsDetail({ dbName, config }) {
                                     display: item.key == activeKey ? undefined : 'none',
                                 }}
                             >
-                                {item.type == 'history' &&
-                                    <HistoryList config={config} />
-                                }
                                 {item.type == 'tableDetail' &&
                                     <TableDetail
                                         config={config}

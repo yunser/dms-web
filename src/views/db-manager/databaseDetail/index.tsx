@@ -227,7 +227,7 @@ export function DataBaseDetail({ connectionId, event$, config, onJson }) {
     event$.useSubscription(msg => {
         console.log('dbManager/onmessage', msg)
         // console.log(val);
-        if (msg.type == 'show_users_tab') {
+        if (msg.type == 'event_show_users_tab') {
             addOrActiveTab({
                 title: `Users`,
                 key: 'user-manager-0',
@@ -238,6 +238,14 @@ export function DataBaseDetail({ connectionId, event$, config, onJson }) {
             }, {
                 // closeCurrentTab: true,
             })
+        }
+        else if (msg.type == 'event_show_history') {
+            const history_tab = {
+                type: 'history',
+                title: t('history'),
+                key: 'history-0-0',
+            }
+            addOrActiveTab(history_tab)
         }
     })
 
@@ -390,19 +398,6 @@ export function DataBaseDetail({ connectionId, event$, config, onJson }) {
                         tabBarExtraContent={{
                             right: (
                                 <Space>
-                                    <IconButton
-                                        tooltip={t('history')}
-                                        onClick={() => {
-                                            const history_tab = {
-                                                type: 'history',
-                                                title: t('history'),
-                                                key: 'history-0-0',
-                                            }
-                                            addOrActiveTab(history_tab)
-                                        }}
-                                    >
-                                        <HistoryOutlined />
-                                    </IconButton>
                                     <Dropdown
                                         overlay={
                                             <Menu
