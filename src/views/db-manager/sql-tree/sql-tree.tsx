@@ -460,13 +460,38 @@ export function SqlTree({ config, event$, connectionId, onTab, data = {} }: any)
         })
     }
     
-    function refreshTables(nodeData) {
-        const idx = treeData.findIndex(node => node.key == nodeData.key)
+    event$.useSubscription(msg => {
+        console.log('Status/onmessage', msg)
+        // console.log(val);
+        if (msg.type == 'ev_refresh_table') {
+            const { schemaName } = msg.data
+            // setCurSchema(schemaName)
+            refreshSchemaTables(schemaName)
+        }
+        // else if (msg.type == 'reload_use') {
+        //     // const { schemaName } = msg.data
+        //     // setCurSchema(schemaName)
+        //     heartBeat()
+        // }
+    })
+
+    function refreshSchemaTables(schemaName) {
+        const idx = treeData.findIndex(node => node.key == schemaName)
         console.log('idx', idx)
         treeData[idx].loading = true
         setTreeData([...treeData])
-        setSelectedKeys(nodeData.key)
-        loadTables(nodeData.itemData.SCHEMA_NAME)
+        setSelectedKeys([schemaName])
+        loadTables(schemaName)
+    }
+
+    function refreshTables(nodeData) {
+        refreshSchemaTables(nodeData.itemData.SCHEMA_NAME)
+        // const idx = treeData.findIndex(node => node.key == nodeData.key)
+        // console.log('idx', idx)
+        // treeData[idx].loading = true
+        // setTreeData([...treeData])
+        // setSelectedKeys(nodeData.key)
+        // loadTables(nodeData.itemData.SCHEMA_NAME)
     }
 
     function queryTable(nodeData) {

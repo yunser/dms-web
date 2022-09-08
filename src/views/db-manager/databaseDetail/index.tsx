@@ -555,6 +555,7 @@ LIMIT 1000;`
                                 {item.type == 'tableDetail' &&
                                     <TableDetail
                                         config={config}
+                                        event$={event$}
                                         dbName={item.data?.dbName}
                                         tableName={item.data?.tableName}
                                     />

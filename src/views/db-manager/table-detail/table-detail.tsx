@@ -255,12 +255,14 @@ function EditableCellRender({ dataIndex, onChange } = {}) {
     }
 }
 
-export function TableDetail({ config, dbName, tableName }) {
+export function TableDetail({ config, event$, dbName, tableName: oldTableName }) {
 
     const { t } = useTranslation()
+    const [tableName,setTableName] = useState(oldTableName)
+    const [editType,setEditType] = useState(oldTableName ? 'update' : 'create')
+    // const editType = 
+    const newNameRef = useRef(null)
     
-    const editType = tableName ? 'update' : 'create'
-
     const [tableColumns, setTableColumns] = useState([])
     const [loading, setLoading] = useState(false)
     const [indexes, setIndexes] = useState([])
@@ -299,6 +301,26 @@ export function TableDetail({ config, dbName, tableName }) {
             }
         })
     }, [characterSet, characterSetMap])
+
+    async function emitRefresh() {
+        if (execSql.toLowerCase().includes('rename to') || execSql.toLowerCase().includes('create table')) {
+            event$.emit({
+                type: 'ev_refresh_table',
+                data: {
+                    schemaName: dbName,
+                }
+            })
+        }
+    }
+
+    async function debug() {
+        event$.emit({
+            type: 'ev_refresh_table',
+            data: {
+                schemaName: dbName,
+            }
+        })
+    }
 
     async function loadCharData() {
         let res = await request.post(`${config.host}/mysql/execSqlSimple`, {
@@ -401,7 +423,9 @@ export function TableDetail({ config, dbName, tableName }) {
         // setLoading(true)
         const values = await form.validateFields()
         const attrSqls = []
+        newNameRef.current = null
         if (editType == 'update' && values.TABLE_NAME != tableInfo.TABLE_NAME) {
+            newNameRef.current = values.TABLE_NAME
             attrSqls.push(`RENAME TO \`${values.TABLE_NAME}\``)
         }
         if (values.TABLE_COMMENT != tableInfo.TABLE_COMMENT) {
@@ -554,6 +578,7 @@ export function TableDetail({ config, dbName, tableName }) {
 ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')}`
         }
         else {
+            newNameRef.current = values.TABLE_NAME
             sql = `CREATE TABLE \`${dbName}\`.\`${values.TABLE_NAME}\` (
 ${rowSqls.join(' ,\n')}
 ) ${attrSqls.join(' ,\n')}`
@@ -890,7 +915,7 @@ ${rowSqls.join(' ,\n')}
 
     useEffect(() => {
         loadTableInfo()
-    }, [])
+    }, [tableName])
     
     console.log('render/indexes', indexes)
 
@@ -911,6 +936,12 @@ ${rowSqls.join(' ,\n')}
                                 >
                                 {t('save')}
                             </Button>
+                            {/* <Button
+                                size="small"
+                                onClick={debug}
+                                >
+                                调试
+                            </Button> */}
                             {editType == 'update' &&
                                 <IconButton
                                     tooltip={t('refresh')}
@@ -1199,7 +1230,15 @@ ${rowSqls.join(' ,\n')}
                         setExecSql('')
                     }}
                     onSuccess={() => {
-                        loadTableInfo()
+                        emitRefresh()
+                        // if (editType)
+                        if (newNameRef.current) {
+                            setEditType('update')
+                            setTableName(newNameRef.current)
+                        }
+                        else {
+                            loadTableInfo()
+                        }
                     }}
                 />
             }
