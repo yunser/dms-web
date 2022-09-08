@@ -116,9 +116,11 @@ export function DbManager({ config }) {
         })
     }
 
-    event$.useSubscription(val => {
-        console.log('onmessage', val)
+    event$.useSubscription(msg => {
+        console.log('dbManager/onmessage', msg)
         // console.log(val);
+        if (msg.type == 'xxx') {
+        }
     })
 
     function closeTabByKey(key) {
@@ -475,18 +477,6 @@ export function DbManager({ config }) {
                                             config={config}
                                             onJson={json => addJsonTab(json)}
                                             connectionId={item.data.connectionId}
-                                            onUseManager={() => {
-                                                addOrActiveTab({
-                                                    title: `Users`,
-                                                    key: 'user-manager-0',
-                                                    type: 'user-manager',
-                                                    data: {
-                                                        // name,
-                                                    }
-                                                }, {
-                                                    // closeCurrentTab: true,
-                                                })
-                                            }}
                                             onSelectDatabase={async ({name, connectionId}) => {
                                                 const key = '' + new Date().getTime()
                                                 addOrActiveTab({

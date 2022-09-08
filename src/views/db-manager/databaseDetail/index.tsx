@@ -223,7 +223,24 @@ export function DataBaseDetail({ connectionId, event$, config, onJson }) {
     // const [activeKey, setActiveKey] = useState(tabs_default[0].key)
     const [activeKey, setActiveKey] = useState('')
     const [tabs, setTabs] = useState(tabs_default)
-    
+
+    event$.useSubscription(msg => {
+        console.log('dbManager/onmessage', msg)
+        // console.log(val);
+        if (msg.type == 'show_users_tab') {
+            addOrActiveTab({
+                title: `Users`,
+                key: 'user-manager-0',
+                type: 'user-manager',
+                data: {
+                    // name,
+                }
+            }, {
+                // closeCurrentTab: true,
+            })
+        }
+    })
+
 
     function addOrActiveTab(tab, { closeCurrentTab = false,} = {}) {
         const exists = tabs.find(t => t.key == tab.key)

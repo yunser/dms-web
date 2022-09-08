@@ -14,7 +14,7 @@ import { DatabaseEditHandler } from '../db-edit';
 import { DatabaseRemoveHandler } from '../db-remove';
 import { request } from '../utils/http';
 
-export default function DatabaseList({ connectionId, config, onJson, onSelectDatabase, onUseManager }) {
+export default function DatabaseList({ connectionId, config, onJson, onSelectDatabase }) {
 
     const { t } = useTranslation()
     const [list, setList] = useState([])
@@ -133,14 +133,6 @@ export default function DatabaseList({ connectionId, config, onJson, onSelectDat
                             {t('db_create')}
                         </Button>
                     </DatabaseEditHandler>
-                    <Button
-                        size="small"
-                        onClick={() => {
-                            onUseManager && onUseManager()
-                        }}
-                    >
-                        {t('user_manager')}
-                    </Button>
                 </Space>
             </div>
             <Table

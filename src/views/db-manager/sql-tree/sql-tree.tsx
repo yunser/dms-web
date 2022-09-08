@@ -7,7 +7,7 @@ import classNames from 'classnames'
 import { useTranslation } from 'react-i18next';
 import { Editor } from '../editor/Editor';
 import { IconButton } from '../icon-button';
-import { DatabaseOutlined, FormatPainterOutlined, InfoCircleOutlined, PlusOutlined, QuestionCircleOutlined, ReloadOutlined, SyncOutlined, TableOutlined, UnorderedListOutlined } from '@ant-design/icons';
+import { DatabaseOutlined, FormatPainterOutlined, InfoCircleOutlined, PlusOutlined, QuestionCircleOutlined, ReloadOutlined, SyncOutlined, TableOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
 import { suggestionAdd } from '../suggestion';
 import { request } from '../utils/http';
 
@@ -607,6 +607,18 @@ export function SqlTree({ config, event$, connectionId, onTab, data = {} }: any)
                 >
                     <UnorderedListOutlined />
                 </IconButton>
+                <IconButton
+                    className={styles.refresh}
+                    tooltip={t('user_manager')}
+                    onClick={() => {
+                        event$.emit({
+                            type: 'show_users_tab',
+                        })
+                    }}
+                >
+                    <UserOutlined />
+                </IconButton>
+
             </div>
             <div className={styles.body}>
                 {loading ?
