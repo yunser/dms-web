@@ -262,6 +262,8 @@ export function ExecDetail(props) {
     const tableBoxRef = useRef(null)
     const [editing, setEditing] = useState(false)
     const [list, setList] = useState(_list)
+    const [removedRows, setRemovedRows] = useState([])
+
     const [selectedRowKeys, setSelectedRowKeys] = useState([])
 
     async function loadTableInfo() {
@@ -372,10 +374,12 @@ export function ExecDetail(props) {
             }
         })
             .filter(item => item)
-            .join('\n')
-        console.log('results', results)
+        if (removedRows.length) {
+            results.push(...removedRows)
+        }
+        console.log('results', results.join('\n'))
 
-        setModalCode(results)
+        setModalCode(results.join('\n'))
     }
 
     function addRow() {
@@ -490,10 +494,13 @@ export function ExecDetail(props) {
         
         const codes = selectedRowKeys.map(rowKey => {
             return `DELETE FROM \`${dbName}\`.\`${tableName}\` WHERE \`${pkField}\` = '${list[rowKey][pkColIdx].value}';`
-        }).join('\n')
-        console.log('codes', codes)
-        setModalCode(codes)
-
+        })
+        // console.log('codes', codes)
+        // setModalCode(codes.join('\n'))
+        setRemovedRows(codes)
+        setList(list.filter(item => !selectedRowKeys.includes(item._idx)))
+        setSelectedRowKeys([])
+        setEditing(true)
         // Modal.confirm({
         //     title: 'Confirm',
         //     // icon: <ExclamationCircleOutlined />,
