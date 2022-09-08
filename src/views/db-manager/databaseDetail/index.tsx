@@ -36,6 +36,7 @@ import { useInterval } from 'ahooks'
 import { t } from 'i18next'
 import DatabaseList from '../databases'
 import { UserList } from '../user-list'
+import { SqlList } from '../sql-list'
 
 // console.log('ddd.0')
 // _.debounce(() => {
@@ -182,15 +183,17 @@ function Status({ config, event$, connectionId }) {
                 config={config}
                 curSchema={curSchema}
             /> */}
-            <div className={styles.curSchemaBox}>
-                {!!curSchema ?
-                    <Tooltip title="Current Selected Schema">
-                        <div>{curSchema}</div>
-                    </Tooltip>
-                :
-                    <div>No database selected.</div>
-                }
-            </div>
+            {!err &&
+                <div className={styles.curSchemaBox}>
+                    {!!curSchema ?
+                        <Tooltip title="Current Selected Schema">
+                            <div>{curSchema}</div>
+                        </Tooltip>
+                    :
+                        <div>No database selected.</div>
+                    }
+                </div>
+            }
         </div>
     )
 }
@@ -246,6 +249,18 @@ export function DataBaseDetail({ connectionId, event$, config, onJson }) {
                 key: 'history-0-0',
             }
             addOrActiveTab(history_tab)
+        }
+        else if (msg.type == 'event_show_sqls') {
+            const history_tab = {
+                type: 'type_sqls',
+                title: t('sql_manage'),
+                key: 'sqls-0-0',
+            }
+            addOrActiveTab(history_tab)
+        }
+        else if (msg.type == 'event_open_sql') {
+            const { sql } = msg.data
+            onSql(sql)
         }
     })
 
@@ -475,6 +490,12 @@ export function DataBaseDetail({ connectionId, event$, config, onJson }) {
                                 {item.type == 'user-manager' &&
                                     <UserList
                                         config={config}
+                                    />
+                                }
+                                {item.type == 'type_sqls' &&
+                                    <SqlList
+                                        config={config}
+                                        event$={event$}
                                     />
                                 }
                                 {item.type == 'databases' &&

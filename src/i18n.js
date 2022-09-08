@@ -111,6 +111,7 @@ i18n
                     nullable: 'Nullable',
                     index_columns: 'Columns',
                     table_empty: 'NO TABLE',
+                    sql_manage: 'SQLs',
                 }
             },
             zh: {
@@ -215,6 +216,7 @@ i18n
                     nullable: '可空',
                     index_columns: '包含列',
                     table_empty: '没有表格',
+                    sql_manage: 'SQL 代码管理',
                 }
             }
         },

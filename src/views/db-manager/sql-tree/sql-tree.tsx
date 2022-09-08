@@ -7,7 +7,7 @@ import classNames from 'classnames'
 import { useTranslation } from 'react-i18next';
 import { Editor } from '../editor/Editor';
 import { IconButton } from '../icon-button';
-import { DatabaseOutlined, FormatPainterOutlined, HistoryOutlined, InfoCircleOutlined, PlusOutlined, QuestionCircleOutlined, ReloadOutlined, SyncOutlined, TableOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
+import { CodeOutlined, ConsoleSqlOutlined, DatabaseOutlined, FormatPainterOutlined, HistoryOutlined, InfoCircleOutlined, PlusOutlined, QuestionCircleOutlined, ReloadOutlined, SyncOutlined, TableOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
 import { suggestionAdd } from '../suggestion';
 import { request } from '../utils/http';
 
@@ -542,7 +542,6 @@ export function SqlTree({ config, event$, connectionId, onTab, data = {} }: any)
             <div className={styles.header}>
                 <div className={styles.headerTop}>
                     <IconButton
-                        className={styles.refresh}
                         tooltip={t('refresh')}
                         onClick={() => {
                             // loadTables()
@@ -552,7 +551,6 @@ export function SqlTree({ config, event$, connectionId, onTab, data = {} }: any)
                         <ReloadOutlined />
                     </IconButton>
                     {/* <IconButton
-                        className={styles.refresh}
                         tooltip={t('table_create')}
                         onClick={() => {
                             let tabKey = '' + new Date().getTime()
@@ -571,7 +569,6 @@ export function SqlTree({ config, event$, connectionId, onTab, data = {} }: any)
                         <PlusOutlined />
                     </IconButton> */}
                     <IconButton
-                        className={styles.refresh}
                         tooltip={t('list_view')}
                         onClick={() => {
                             let tabKey = '' + new Date().getTime()
@@ -599,7 +596,6 @@ export function SqlTree({ config, event$, connectionId, onTab, data = {} }: any)
                         <UnorderedListOutlined />
                     </IconButton>
                     <IconButton
-                        className={styles.refresh}
                         tooltip={t('user_manager')}
                         onClick={() => {
                             event$.emit({
@@ -618,6 +614,17 @@ export function SqlTree({ config, event$, connectionId, onTab, data = {} }: any)
                         }}
                     >
                         <HistoryOutlined />
+                    </IconButton>
+                    <IconButton
+                        tooltip={t('sql_manage')}
+                        onClick={() => {
+                            event$.emit({
+                                type: 'event_show_sqls',
+                            })
+                        }}
+                    >
+                        {/* <CodeOutlined /> */}
+                        <ConsoleSqlOutlined />
                     </IconButton>
                 </div>
                 {/* Header */}

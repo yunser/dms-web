@@ -19,6 +19,7 @@ import storage from '@/utils/storage'
 import { CloseCircleOutlined } from '@ant-design/icons'
 import { CheckCircleOutlined } from '@ant-design/icons'
 import { SaveOutlined } from '@ant-design/icons'
+import { SqlEditHandler } from '../../sql-edit'
 // var parse = require('sql-parse').parse;
 // console.log('asd')
 
@@ -458,15 +459,28 @@ function SqlBox({ config, event$, onJson, className, defaultSql = '', style }: P
                         >
 
                         </Select>
-                        <IconButton
-                            size="small"
-                            tooltip={t('save')}
-                            onClick={() => {
-                                message.info('正在开发...')
-                            }}
+                        <SqlEditHandler
+                            config={config}
+                            getCode={getCode}
                         >
-                            <SaveOutlined />
-                        </IconButton>
+                            <IconButton
+                                size="small"
+                                tooltip={t('save')}
+                                onClick={async () => {
+                                    // message.info('正在开发...')
+                                    // const code = getCode()
+                                    // let res = await request.post(`${config.host}/mysql/sql/create`, {
+                                    //     name: '123',
+                                    //     sql: code,
+                                    // })
+                                    // if (res.success) {
+                                    //     message.success('保存成功')
+                                    // }
+                                }}
+                            >
+                                <SaveOutlined />
+                            </IconButton>
+                        </SqlEditHandler>
                     </Space>
 
                     
