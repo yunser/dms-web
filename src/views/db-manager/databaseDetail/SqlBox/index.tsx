@@ -255,6 +255,7 @@ function SqlBox({ config, event$, onJson, className, defaultSql = '', style }: P
                 sql: lineCode,
                 tableName,
                 dbName,
+                logger: true,
             }, {
                 noMessage: true,
             })

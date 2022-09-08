@@ -52,6 +52,7 @@ export function ExecModal({ config, sql, onClose, onSuccess, tableName, dbName }
             console.log('line', line)
             let res = await request.post(`${config.host}/mysql/execSql`, {
                 sql: line,
+                logger: true,
             }, {
                 noMessage: true,
             })

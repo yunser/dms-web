@@ -244,6 +244,7 @@ export function DataBaseDetail({ connectionId, event$, config, onJson }) {
         let tabKey = '' + new Date().getTime()
         addOrActiveTab({
             title: 'Untitled Query',
+            type: 'sql-query',
             key: tabKey,
             defaultSql: sql,
         })
