@@ -110,6 +110,7 @@ i18n
                     default: 'Default',
                     nullable: 'Nullable',
                     index_columns: 'Columns',
+                    table_empty: 'NO TABLE',
                 }
             },
             zh: {
@@ -213,6 +214,7 @@ i18n
                     default: '默认值',
                     nullable: '可空',
                     index_columns: '包含列',
+                    table_empty: '没有表格',
                 }
             }
         },

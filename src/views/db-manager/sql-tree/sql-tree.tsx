@@ -7,7 +7,7 @@ import classNames from 'classnames'
 import { useTranslation } from 'react-i18next';
 import { Editor } from '../editor/Editor';
 import { IconButton } from '../icon-button';
-import { DatabaseOutlined, FormatPainterOutlined, PlusOutlined, ReloadOutlined, SyncOutlined, TableOutlined, UnorderedListOutlined } from '@ant-design/icons';
+import { DatabaseOutlined, FormatPainterOutlined, InfoCircleOutlined, PlusOutlined, QuestionCircleOutlined, ReloadOutlined, SyncOutlined, TableOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import { suggestionAdd } from '../suggestion';
 import { request } from '../utils/http';
 
@@ -72,8 +72,12 @@ function TreeTitle({ keyword, loading = false, nodeData, onAction, onClick, onDo
                 //     <span>No</span>
                 : nodeData.type == 'schema' ?
                     <DatabaseOutlined className={styles.icon} />
-                :
+                : nodeData.type == 'table' ?
                     <TableOutlined className={styles.icon} />
+                : nodeData.type == 'emppty' ?
+                    <InfoCircleOutlined className={styles.icon} />
+                :
+                    <QuestionCircleOutlined className={styles.icon} />
                 }
                 {!!keyword ?
                     getHightlight(nodeData.title, keyword)
@@ -313,6 +317,10 @@ export function SqlTree({ config, event$, connectionId, onTab, data = {} }: any)
             // console.log('res', list)
             // setList(res.list)
 
+            // if (!list) {
+                
+            // }
+
             console.log('treeData', treeData)
             
             const dbIdx = treeData.findIndex(node => node.itemData.SCHEMA_NAME == schemaName)
@@ -325,6 +333,7 @@ export function SqlTree({ config, event$, connectionId, onTab, data = {} }: any)
                         title: tableName,
                         key: tableName,
                         itemData: item,
+                        type: 'table',
                     }
                 })
                 .sort((a, b) => {
@@ -333,6 +342,16 @@ export function SqlTree({ config, event$, connectionId, onTab, data = {} }: any)
             treeData[dbIdx].loading = false
             treeData[dbIdx].children = children
             // console.log('treeData[dbIdx]', treeData[dbIdx])
+            if (!list.length) {
+                treeData[dbIdx].children = [
+                    {
+                        title: t('table_empty'),
+                        type: 'emppty',
+                        key: 'no-table' + new Date().getTime(),
+                        itemData: {},
+                    }
+                ]
+            }
             setExpandedKeys([treeData[dbIdx].key])
             setTreeData([...treeData])
             // adbs: ,
@@ -624,8 +643,11 @@ export function SqlTree({ config, event$, connectionId, onTab, data = {} }: any)
                                         if (nodeData.type == 'schema') {
                                             refreshTables(nodeData)
                                         }
-                                        else {
+                                        else if (nodeData.type == 'table') {
                                             queryTable(nodeData)
+                                        }
+                                        else {
+                                            // nothing
                                         }
                                     }}
                                     onAction={(key) => {
