@@ -20,8 +20,11 @@ const { TabPane } = Tabs
 const { TextArea } = Input
 
 function getMaxWidth(columnNum) {
-    if (columnNum <= 4) {
-        return columnNum * 320
+    const layout_left_width = 320
+    const cell_max_width = 320
+    const isNotFull = (columnNum * cell_max_width) < (document.body.clientWidth - layout_left_width)
+    if (isNotFull) {
+        return columnNum * cell_max_width
     }
     return undefined
 }
