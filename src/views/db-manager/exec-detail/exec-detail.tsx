@@ -809,7 +809,13 @@ export function ExecDetail(props) {
                     }
                     {!!result &&
                         <div className={styles.footer}>
-                            <div>{t('time')}: {(result.time / 1000).toFixed(3)} s</div>
+                            <div>{t('time')}: {' '}
+                                <span
+                                    style={{
+                                        color: result.time < 1000 ? 'green': 'red',
+                                    }}
+                                >{(result.time / 1000).toFixed(3)} s</span>
+                            </div>
                             {!!rawExecResult ?
                                 <div style={{ color: 'green' }}>{!!rawExecResult.info ? rawExecResult.info : `影响行数：${rawExecResult.affectedRows}`}</div>
                             :

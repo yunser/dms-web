@@ -13,7 +13,7 @@ import { DownloadOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 // import { saveAs } from 'file-saver'
 
-export function TextEditor({ config, data = {} }) {
+export function TextEditor({ config, event$, data = {} }) {
     const { defaultJson = '' } = data
     const { t } = useTranslation()
 
@@ -72,6 +72,7 @@ export function TextEditor({ config, data = {} }) {
                 <Editor
                     lang="plain"
                     value={code}
+                    event$={event$}
                     onChange={value => setCodeASD(value)}
                     // autoFoucs={true}
                     onEditor={editor => {

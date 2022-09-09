@@ -66,7 +66,7 @@ interface TabProps {
 
 
 
-export function EsDetail({ dbName, config }) {
+export function EsDetail({ dbName, event$, config }) {
     const { t } = useTranslation()
 
     // console.log('es-url', url)
@@ -571,6 +571,7 @@ export function EsDetail({ dbName, config }) {
                                 }
                                 {item.type == 'query' &&
                                     <SqlBox
+                                        event$={event$}
                                         config={config}
                                         esIndex={item.data.index}
                                         esType={item.data.type}

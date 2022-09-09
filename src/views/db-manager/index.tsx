@@ -7,7 +7,7 @@ import { DataBaseDetail } from './databaseDetail'
 import { request } from './utils/http'
 import { useTranslation } from 'react-i18next'
 import { IconButton } from './icon-button'
-import { CloseOutlined, DatabaseOutlined, ExportOutlined, FolderOutlined, PlusOutlined } from '@ant-design/icons'
+import { BulbOutlined, CloseOutlined, DatabaseOutlined, ExportOutlined, FolderOutlined, PlusOutlined } from '@ant-design/icons'
 import enUS from 'antd/es/locale/en_US';
 import zhCN from 'antd/es/locale/zh_CN';
 import { EsConnnector } from './es-connectot'
@@ -23,6 +23,7 @@ import { SqlConnector } from './sql-connect'
 import { UserList } from './user-list'
 import { TextEditor } from './text'
 import { useEventEmitter } from 'ahooks'
+import { getTheme, toggleTheme } from '../../theme'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -318,6 +319,30 @@ export function DbManager({ config }) {
                                         >
                                             {lang == 'zh' ? 'English' : '中文'}
                                         </Button>
+                                        <IconButton
+                                            size="small"
+                                            tooltip={t('toggle_theme')}
+                                            onClick={async () => {
+                                                toggleTheme()
+                                                event$.emit({
+                                                    type: 'type_theme_changed',
+                                                    data: {
+                                                        theme: getTheme(),
+                                                    }
+                                                })
+                                                // message.info('正在开发...')
+                                                // const code = getCode()
+                                                // let res = await request.post(`${config.host}/mysql/sql/create`, {
+                                                    //     name: '123',
+                                                    //     sql: code,
+                                                    // })
+                                                    // if (res.success) {
+                                                        //     message.success('保存成功')
+                                                        // }
+                                            }}
+                                        >
+                                            <BulbOutlined />
+                                        </IconButton>
                                     </Space>
                                 </div>
                             )
@@ -411,6 +436,7 @@ export function DbManager({ config }) {
                                     }
                                     {item.type == 'es-index' &&
                                         <EsDetail
+                                            event$={event$}
                                             config={{
                                                 url: item.data.url,
                                             }}
@@ -437,12 +463,14 @@ export function DbManager({ config }) {
                                     {item.type == 'json' &&
                                         <Json
                                             config={config}
+                                            event$={event$}
                                             data={item.data}
                                         />
                                     }
                                     {item.type == 'text' &&
                                         <TextEditor
                                             config={config}
+                                            event$={event$}
                                             data={item.data}
                                         />
                                     }

@@ -13,7 +13,7 @@ import { DownloadOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 // import { saveAs } from 'file-saver'
 
-export function Json({ config, data = {} }) {
+export function Json({ config, event$, data = {} }) {
     const { defaultJson = '' } = data
     const { t } = useTranslation()
 
@@ -87,6 +87,7 @@ export function Json({ config, data = {} }) {
             <div className={styles.editorBox}>
                 <Editor
                     lang="json"
+                    event$={event$}
                     value={code}
                     onChange={value => setCodeASD(value)}
                     // autoFoucs={true}

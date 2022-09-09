@@ -3,6 +3,18 @@
     --main-color: #09c;
     --primary: #f00;
 }
+.theme-light {
+    --border-color: rgba(0, 0, 0, .12);
+    /* --color-f1: #f1f1f1; */
+    --color-f1: rgba(0, 0, 0, .08);
+    --color-f9: #fafafa;
+}
+.theme-dark {
+    --border-color: rgba(255, 255, 255, .12);
+    /* --color-f1: #000; */
+    --color-f1: rgba(255, 255, 255, .08);
+    --color-f9: #1d1d1d;
+}
 .ui-unSupportEsm {
     position: fixed;
     top: 0;

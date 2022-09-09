@@ -6,18 +6,34 @@ import { suggestionInit } from '../suggestion';
 
 suggestionInit()
 
-export const Editor: VFC = ({ lang = 'sql', value, onChange, onEditor }) => {
+export const Editor: VFC = ({ lang = 'sql', event$, value, onChange, onEditor }) => {
 	const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
+    const editorRef = useRef(null)
 	const monacoEl = useRef(null);
 
     // value = { code }
     //  = { e => setCode(e.target.value)}
     
+    event$.useSubscription(msg => {
+        console.log('dbManager/onmessage', msg)
+        // console.log(val);
+        if (msg.type == 'type_theme_changed') {
+            const { theme } = msg.data
+            console.log('type_theme_changed', msg.data, editorRef)
+            monaco.editor.setTheme(theme == 'light' ? 'vs-light' : 'vs-dark')
+            if (editorRef.current) {
+                console.log('editor', editor)
+                // monaco.editor.
+            }
+        }
+    }, [editor])
+
 	useEffect(() => {
         let _editor = editor
 		if (monacoEl && !editor) {
             _editor = monaco.editor.create(monacoEl.current!, {
                 value: `{}`,
+                theme: 'vs-dark',
                 // language: 'json',
                 language: lang,
                 minimap: {
@@ -31,6 +47,7 @@ export const Editor: VFC = ({ lang = 'sql', value, onChange, onEditor }) => {
                 onChange && onChange(newValue)
             });
 			setEditor(_editor);
+            editorRef.current = _editor
             onEditor && onEditor(_editor)
             setTimeout(() => {
                 _editor?.focus()

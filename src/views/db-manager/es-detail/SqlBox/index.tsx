@@ -49,7 +49,7 @@ const history_tab = {
     closable: false,
 }
 
-function SqlBox({ config, esIndex, esType, dbName, className, defaultSql = '', style }: Props) {
+function SqlBox({ config, event$, esIndex, esType, dbName, className, defaultSql = '', style }: Props) {
 
     const { t, i18n } = useTranslation()
 
@@ -291,6 +291,7 @@ function SqlBox({ config, esIndex, esType, dbName, className, defaultSql = '', s
                     <Editor
                         lang="json"
                         value={code}
+                        event$={event$}
                         onChange={value => setCode2(value)}
                         onEditor={editor => {
                             setEditor(editor)

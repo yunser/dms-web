@@ -112,6 +112,7 @@ i18n
                     index_columns: 'Columns',
                     table_empty: 'NO TABLE',
                     sql_manage: 'SQLs',
+                    toggle_theme: 'Toggle Theme',
                 }
             },
             zh: {
@@ -217,6 +218,7 @@ i18n
                     index_columns: '包含列',
                     table_empty: '没有表格',
                     sql_manage: 'SQL 代码管理',
+                    toggle_theme: '切换主题',
                 }
             }
         },
