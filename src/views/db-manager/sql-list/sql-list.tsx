@@ -12,7 +12,7 @@ import { suggestionAdd } from '../suggestion';
 import { SorterResult } from 'antd/lib/table/interface';
 import { request } from '../utils/http';
 
-export function SqlList({ config, event$ }: any) {
+export function SqlList({ config, connectionId, event$ }: any) {
     const { t } = useTranslation()
     console.warn('SqlList/render')
     const [loading, setLoading] = useState(false)
@@ -141,6 +141,7 @@ export function SqlList({ config, event$ }: any) {
                                 event$.emit({
                                     type: 'event_open_sql',
                                     data: {
+                                        connectionId,
                                         sql: item.sql,
                                     }
                                 })

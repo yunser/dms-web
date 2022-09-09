@@ -302,9 +302,10 @@ export function SqlTree({ config, event$, connectionId, onTab, data = {} }: any)
             // noMessage: true,
         })
         event$.emit({
-            type: 'update_use',
+            type: 'event_update_use',
             data: {
-                schemaName,   
+                schemaName,
+                connectionId,
             }
         })
 
@@ -487,15 +488,11 @@ export function SqlTree({ config, event$, connectionId, onTab, data = {} }: any)
         console.log('Status/onmessage', msg)
         // console.log(val);
         if (msg.type == 'ev_refresh_table') {
-            const { schemaName } = msg.data
-            // setCurSchema(schemaName)
-            refreshSchemaTables(schemaName)
+            const { connectionId: _connectionId, schemaName } = msg.data
+            if (_connectionId == connectionId) {
+                refreshSchemaTables(schemaName)
+            }
         }
-        // else if (msg.type == 'reload_use') {
-        //     // const { schemaName } = msg.data
-        //     // setCurSchema(schemaName)
-        //     heartBeat()
-        // }
     })
 
     function refreshSchemaTables(schemaName) {
@@ -604,6 +601,9 @@ export function SqlTree({ config, event$, connectionId, onTab, data = {} }: any)
                         onClick={() => {
                             event$.emit({
                                 type: 'event_show_users_tab',
+                                data: {
+                                    connectionId,
+                                },
                             })
                         }}
                     >
@@ -614,6 +614,9 @@ export function SqlTree({ config, event$, connectionId, onTab, data = {} }: any)
                         onClick={() => {
                             event$.emit({
                                 type: 'event_show_history',
+                                data: {
+                                    connectionId,
+                                },
                             })
                         }}
                     >
@@ -624,6 +627,9 @@ export function SqlTree({ config, event$, connectionId, onTab, data = {} }: any)
                         onClick={() => {
                             event$.emit({
                                 type: 'event_show_sqls',
+                                data: {
+                                    connectionId,
+                                },
                             })
                         }}
                     >

@@ -307,6 +307,7 @@ export function TableDetail({ config, connectionId, event$, dbName, tableName: o
             event$.emit({
                 type: 'ev_refresh_table',
                 data: {
+                    connectionId,
                     schemaName: dbName,
                 }
             })
@@ -317,6 +318,7 @@ export function TableDetail({ config, connectionId, event$, dbName, tableName: o
         event$.emit({
             type: 'ev_refresh_table',
             data: {
+                connectionId,
                 schemaName: dbName,
             }
         })

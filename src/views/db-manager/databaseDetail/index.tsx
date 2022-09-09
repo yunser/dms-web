@@ -127,14 +127,17 @@ function Status({ config, event$, connectionId }) {
     event$.useSubscription(msg => {
         console.log('Status/onmessage', msg)
         // console.log(val);
-        if (msg.type == 'update_use') {
-            const { schemaName } = msg.data
-            setCurSchema(schemaName)
+        if (msg.type == 'event_update_use') {
+            const { connectionId: _connectionId, schemaName } = msg.data
+            if (_connectionId == connectionId) {
+                setCurSchema(schemaName)
+            }
         }
-        else if (msg.type == 'reload_use') {
-            // const { schemaName } = msg.data
-            // setCurSchema(schemaName)
-            heartBeat()
+        else if (msg.type == 'event_reload_use') {
+            const { connectionId: _connectionId, schemaName } = msg.data
+            if (_connectionId == connectionId) {
+                heartBeat()
+            }
         }
     })
 
@@ -232,36 +235,48 @@ export function DataBaseDetail({ connectionId, event$, config, onJson }) {
         console.log('dbManager/onmessage', msg)
         // console.log(val);
         if (msg.type == 'event_show_users_tab') {
-            addOrActiveTab({
-                title: `Users`,
-                key: 'user-manager-0',
-                type: 'user-manager',
-                data: {
-                    // name,
-                }
-            }, {
-                // closeCurrentTab: true,
-            })
+            const { connectionId: _connectionId, schemaName } = msg.data
+            if (_connectionId == connectionId) {
+                addOrActiveTab({
+                    title: `Users`,
+                    key: 'user-manager-0',
+                    type: 'user-manager',
+                    data: {
+                        // name,
+                    }
+                }, {
+                    // closeCurrentTab: true,
+                })
+            }
         }
         else if (msg.type == 'event_show_history') {
-            const history_tab = {
-                type: 'history',
-                title: t('history'),
-                key: 'history-0-0',
+            const { connectionId: _connectionId, schemaName } = msg.data
+            if (_connectionId == connectionId) {
+                const history_tab = {
+                    type: 'history',
+                    title: t('history'),
+                    key: 'history-0-0',
+                }
+                addOrActiveTab(history_tab)
             }
-            addOrActiveTab(history_tab)
         }
         else if (msg.type == 'event_show_sqls') {
-            const history_tab = {
-                type: 'type_sqls',
-                title: t('sql_manage'),
-                key: 'sqls-0-0',
+            const { connectionId: _connectionId, schemaName } = msg.data
+            if (_connectionId == connectionId) {
+                const history_tab = {
+                    type: 'type_sqls',
+                    title: t('sql_manage'),
+                    key: 'sqls-0-0',
+                }
+                addOrActiveTab(history_tab)
             }
-            addOrActiveTab(history_tab)
         }
         else if (msg.type == 'event_open_sql') {
-            const { sql } = msg.data
-            onSql(sql)
+            const { connectionId: _connectionId, schemaName } = msg.data
+            if (_connectionId == connectionId) {
+                const { sql } = msg.data
+                onSql(sql)
+            }
         }
     })
 

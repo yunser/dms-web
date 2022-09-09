@@ -322,8 +322,10 @@ function SqlBox({ config, event$, connectionId, onJson, className, defaultSql = 
 
                 if (lineCode.toLowerCase().startsWith('use')) {
                     event$.emit({
-                        type: 'reload_use',
-                        data: {}
+                        type: 'event_reload_use',
+                        data: {
+                            connectionId,
+                        }
                     })
                 }
             }
