@@ -14,7 +14,7 @@ const { TabPane } = Tabs
 const { TextArea } = Input
 
 
-export function ExecModal({ config, sql, onClose, onSuccess, tableName, dbName }) {
+export function ExecModal({ config, connectionId, sql, onClose, onSuccess, tableName, dbName }) {
     const { t } = useTranslation()
 
     const [modelVisible, setModalVisible] = useState(true)
@@ -51,6 +51,7 @@ export function ExecModal({ config, sql, onClose, onSuccess, tableName, dbName }
         for (let line of lines) {
             console.log('line', line)
             let res = await request.post(`${config.host}/mysql/execSql`, {
+                connectionId,
                 sql: line,
                 logger: true,
             }, {

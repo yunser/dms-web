@@ -20,7 +20,9 @@ export default function DatabaseList({ connectionId, config, onJson, onSelectDat
     const [list, setList] = useState([])
 
     async function loadDbList() {
-        let ret = await request.post(`${config.host}/mysql/databases`)
+        let ret = await request.post(`${config.host}/mysql/databases`, {
+            connectionId,
+        })
         // console.log('ret', ret)
         if (ret.success) {
             // message.info('连接成功')

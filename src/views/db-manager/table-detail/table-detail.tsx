@@ -324,6 +324,7 @@ export function TableDetail({ config, connectionId, event$, dbName, tableName: o
 
     async function loadCharData() {
         let res = await request.post(`${config.host}/mysql/execSqlSimple`, {
+            connectionId,
             sql: `SELECT *
     FROM \`information_schema\`.\`COLLATION_CHARACTER_SET_APPLICABILITY\``,
         })
@@ -378,6 +379,7 @@ export function TableDetail({ config, connectionId, event$, dbName, tableName: o
 
     async function loadNginx() {
         let res = await request.post(`${config.host}/mysql/execSqlSimple`, {
+            connectionId,
             sql: `SELECT *
     FROM \`information_schema\`.\`ENGINES\``,
         })
@@ -843,6 +845,7 @@ ${rowSqls.join(' ,\n')}
         if (dbName && tableName) {
             setLoading(true)
             let res = await request.post(`${config.host}/mysql/tableDetail`, {
+                connectionId,
                 dbName,
                 tableName,
             }, {

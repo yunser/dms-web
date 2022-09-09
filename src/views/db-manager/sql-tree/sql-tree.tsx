@@ -294,6 +294,7 @@ export function SqlTree({ config, event$, connectionId, onTab, data = {} }: any)
         // });
         // setLoading(true)
         request.post(`${config.host}/mysql/execSql`, {
+            connectionId,
             sql: `USE ${schemaName}`,
             // tableName,
             // dbName,
@@ -308,6 +309,7 @@ export function SqlTree({ config, event$, connectionId, onTab, data = {} }: any)
         })
 
         let res = await request.post(`${config.host}/mysql/tables`, {
+            connectionId,
             dbName: schemaName,
         })
         console.log('res', res)
@@ -365,7 +367,9 @@ export function SqlTree({ config, event$, connectionId, onTab, data = {} }: any)
 
     async function loadDbList() {
         setLoading(true)
-        let ret = await request.post(`${config.host}/mysql/databases`)
+        let ret = await request.post(`${config.host}/mysql/databases`, {
+            connectionId,
+        })
         // console.log('ret', ret)
         if (ret.success) {
             // message.info('连接成功')

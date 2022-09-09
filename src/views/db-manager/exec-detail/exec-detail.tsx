@@ -272,6 +272,7 @@ export function ExecDetail(props) {
     async function loadTableInfo() {
         if (dbName && tableName) {
             let res = await request.post(`${config.host}/mysql/tableInfo`, {
+                connectionId,
                 dbName,
                 tableName,
             }, {

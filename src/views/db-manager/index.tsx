@@ -560,6 +560,7 @@ LIMIT 1000;`
                                     {item.type == 'user-manager' &&
                                         <UserList
                                             config={config}
+                                            connectionId={connectionId}
                                         />
                                     }
                                     

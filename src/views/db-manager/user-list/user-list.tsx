@@ -12,7 +12,7 @@ import { suggestionAdd } from '../suggestion';
 import { SorterResult } from 'antd/lib/table/interface';
 import { request } from '../utils/http';
 
-export function UserList({ config, onTab, data = {} }: any) {
+export function UserList({ config, connectionId, onTab, data = {} }: any) {
     console.warn('SqlTree/render')
     
     const { defaultJson = '' } = data
@@ -38,6 +38,7 @@ export function UserList({ config, onTab, data = {} }: any) {
         setLoading(true)
         setSortedInfo({})
         let res = await request.post(`${config.host}/mysql/execSqlSimple`, {
+            connectionId,
             sql: `SELECT *
 FROM \`mysql\`.\`user\``,
         })
