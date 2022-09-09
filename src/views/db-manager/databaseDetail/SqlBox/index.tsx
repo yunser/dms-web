@@ -463,23 +463,18 @@ function SqlBox({ config, event$, onJson, className, defaultSql = '', style }: P
                             config={config}
                             getCode={getCode}
                         >
-                            <IconButton
+                            <Button
+                                // type="primary"
+                                size="small" 
+                                // onClick={run}
+                                icon={<SaveOutlined />}
+                            ></Button>
+                            {/* <IconButton
                                 size="small"
                                 tooltip={t('save')}
-                                onClick={async () => {
-                                    // message.info('正在开发...')
-                                    // const code = getCode()
-                                    // let res = await request.post(`${config.host}/mysql/sql/create`, {
-                                    //     name: '123',
-                                    //     sql: code,
-                                    // })
-                                    // if (res.success) {
-                                    //     message.success('保存成功')
-                                    // }
-                                }}
                             >
                                 <SaveOutlined />
-                            </IconButton>
+                            </IconButton> */}
                         </SqlEditHandler>
                     </Space>
 

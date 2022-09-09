@@ -3,6 +3,7 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import styles from './Editor.module.css';
 import '../suggestion.ts'
 import { suggestionInit } from '../suggestion';
+import { getTheme } from '../../../theme'
 
 suggestionInit()
 
@@ -31,9 +32,10 @@ export const Editor: VFC = ({ lang = 'sql', event$, value, onChange, onEditor })
 	useEffect(() => {
         let _editor = editor
 		if (monacoEl && !editor) {
+            const theme = getTheme()
             _editor = monaco.editor.create(monacoEl.current!, {
                 value: `{}`,
-                theme: 'vs-dark',
+                theme: theme == 'light' ? 'vs-light' : 'vs-dark',
                 // language: 'json',
                 language: lang,
                 minimap: {
