@@ -110,6 +110,7 @@ function Status({ config, event$, connectionId }) {
     const [curSchema, setCurSchema] = useState('')
     async function heartBeat() {
         let res = await request.post(`${config.host}/mysql/execSqlSimple`, {
+            connectionId,
             sql: `select database()`,
         }, {
             noMessage: true,
@@ -490,11 +491,13 @@ export function DataBaseDetail({ connectionId, event$, config, onJson }) {
                                 {item.type == 'user-manager' &&
                                     <UserList
                                         config={config}
+                                        connectionId={connectionId}
                                     />
                                 }
                                 {item.type == 'type_sqls' &&
                                     <SqlList
                                         config={config}
+                                        connectionId={connectionId}
                                         event$={event$}
                                     />
                                 }
@@ -543,6 +546,7 @@ export function DataBaseDetail({ connectionId, event$, config, onJson }) {
                                             // setActiveKey(key)
 
                                             request.post(`${config.host}/mysql/execSql`, {
+                                                connectionId,
                                                 sql: `USE ${name}`,
                                                 // tableName,
                                                 // dbName,
@@ -555,6 +559,7 @@ FROM information_schema.COLUMNS
 WHERE TABLE_SCHEMA = '${name}'
 LIMIT 1000;`
                                             const res = await request.post(`${config.host}/mysql/execSql`, {
+                                                connectionId,
                                                 sql: fieldNamesSql,
                                                 // tableName,
                                                 // dbName,
@@ -569,6 +574,7 @@ LIMIT 1000;`
                                 {item.type == 'table_list' &&
                                     <TableList
                                         config={config}
+                                        connectionId={connectionId}
                                         dbName={item.data.dbName}
                                         onJson={onJson}
                                         onTab={tab => {
@@ -589,6 +595,7 @@ LIMIT 1000;`
                                 {item.type == 'tableDetail' &&
                                     <TableDetail
                                         config={config}
+                                        connectionId={connectionId}
                                         event$={event$}
                                         dbName={item.data?.dbName}
                                         tableName={item.data?.tableName}
@@ -596,8 +603,10 @@ LIMIT 1000;`
                                 }
                                 {item.type == 'sql-query' &&
                                     <SqlBox
+                                        connectionId={connectionId}
                                         event$={event$}
                                         config={config}
+                                        connectionId={connectionId}
                                         // className={item.key == activeKey ? styles.visibleTab : styles.hiddenTab}
                                         key={item.key}
                                         defaultSql={item.defaultSql}
@@ -619,6 +628,7 @@ LIMIT 1000;`
             {!!sql &&
                 <ExecModal
                     config={config}
+                    connectionId={connectionId}
                     sql={sql}
                     tableName={null}
                     dbName={null}

@@ -255,7 +255,7 @@ function EditableCellRender({ dataIndex, onChange } = {}) {
     }
 }
 
-export function TableDetail({ config, event$, dbName, tableName: oldTableName }) {
+export function TableDetail({ config, connectionId, event$, dbName, tableName: oldTableName }) {
 
     const { t } = useTranslation()
     const [tableName,setTableName] = useState(oldTableName)
@@ -1223,6 +1223,7 @@ ${rowSqls.join(' ,\n')}
             {!!execSql &&
                 <ExecModal
                     config={config}
+                    connectionId={connectionId}
                     sql={execSql}
                     tableName={tableName}
                     dbName={dbName}

@@ -77,7 +77,9 @@ export default function DatabaseList({ connectionId, config, onJson, onSelectDat
                 return (
                     <Space>
                         <DatabaseEditHandler
+                            connectionId={connectionId}
                             config={config}
+                            connectionId={connectionId}
                             item={item}
                             onSuccess={() => {
                                 loadDbList()
@@ -87,6 +89,7 @@ export default function DatabaseList({ connectionId, config, onJson, onSelectDat
                         </DatabaseEditHandler>
                         <DatabaseRemoveHandler
                             item={item}
+                            connectionId={connectionId}
                             config={config}
                             onSuccess={() => {
                                 loadDbList()
@@ -124,6 +127,7 @@ export default function DatabaseList({ connectionId, config, onJson, onSelectDat
                         <ExportOutlined />
                     </IconButton>
                     <DatabaseEditHandler
+                        connectionId={connectionId}
                         config={config}
                         onSuccess={() => {
                             loadDbList()

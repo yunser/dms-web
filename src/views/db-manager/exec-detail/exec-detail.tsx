@@ -229,7 +229,7 @@ function Cell({ item, editing, onChange }) {
 // }
 export function ExecDetail(props) {
     console.warn('ExecDetail/render')
-    const { config, onJson, data, } = props
+    const { config, connectionId, onJson, data, } = props
     const { t } = useTranslation()
     const { 
         sql,
@@ -846,6 +846,7 @@ export function ExecDetail(props) {
             {!!modelCode &&
                 <ExecModal
                     config={config}
+                    connectionId={connectionId}
                     sql={modelCode}
                     tableName={null}
                     dbName={dbName}

@@ -11,7 +11,7 @@ import { request } from '../utils/http'
 
 
 export function DatabaseRemoveHandler(props) {
-    const { children, config, item, id, ids, onSuccess, asd = false } = props
+    const { children, config, connectionId, item, id, ids, onSuccess, asd = false } = props
     // const { id: deviceId } = item
     // //console.log('children', children)
     // children.props.onClick = () => {
@@ -36,6 +36,7 @@ export function DatabaseRemoveHandler(props) {
                     cancelText: '取消',
                     async onOk() {
                         let res = await request.post(`${config.host}/mysql/execSql`, {
+                            connectionId,
                             sql: `DROP DATABASE \`${item.SCHEMA_NAME}\``,
                         })
                         console.log('get/res', res.data)
@@ -62,6 +63,7 @@ export function DatabaseRemoveHandler(props) {
             {modalVisible &&
                 <DatabaseModal
                     config={config}
+                    connectionId={connectionId}
                     onSuccess={onSuccess}
                     onClose={() => {
                         setModalVisible(false)

@@ -6,19 +6,42 @@
 .theme-light {
     --border-color: rgba(0, 0, 0, .12);
     /* --color-f1: #f1f1f1; */
+    --color-bg: #fff;
     --color-f1: rgba(0, 0, 0, .08);
     --color-f9: #fafafa;
     --color-eee: #eee;
     --color-85: rgba(0, 0, 0, 0.85);
+    --color-table-hover: #bee6ff;
+    --color-table-selected: #bbd8f7;
+    /* --color-bg-left: #f00; */
+
+    --color-bg-left2: #fff;
 }
 .theme-dark {
     --border-color: rgba(255, 255, 255, .12);
+    --color-bg: #000;
     /* --color-f1: #000; */
     --color-f1: rgba(255, 255, 255, .08);
     --color-f9: #1d1d1d;
     --color-eee: #1d1d1d;
     --color-85: rgba(255, 255, 255, 0.85);
+    --color-bg-left: #222;
+    --color-table-hover: #333;
+    --color-table-selected: #555;
+
+    --color-bg-left2: #1d1d1d;
 }
+
+.theme-light body {
+    color: rgba(0, 0, 0, 0.85);
+    /* background-color: #f00; */
+}
+.theme-dark body {
+    color: rgba(255, 255, 255, 0.85);
+    background-color: #1d1d1d;
+    /* background-color: #111; */
+}
+
 .ui-unSupportEsm {
     position: fixed;
     top: 0;
@@ -90,8 +113,11 @@
     border-radius: 4px !important;
     /* border: 1px solid #f00 !important; */
 }
-.ant-tabs-tab-remove:hover {
+.theme-light .ant-tabs-tab-remove:hover {
     background-color: #eee !important;   
+}
+.theme-dark .ant-tabs-tab-remove:hover {
+    background-color: #333 !important;   
 }
 .ant-modal-close-x {
     
@@ -105,9 +131,14 @@
     justify-content: center !important;
     align-items: center !important; */
 }
-.ant-modal-close-x .anticon:hover {
+
+.theme-light .ant-modal-close-x .anticon:hover {
     background-color: #eee !important;   
 }
+.theme-dark .ant-modal-close-x .anticon:hover {
+    background-color: #333 !important;   
+}
+
 .ant-modal-close-x .anticon svg {
     /* margin-top: 2px; */
 }
@@ -124,4 +155,8 @@
 .ant-tabs>.ant-tabs-nav .ant-tabs-nav-add, .ant-tabs>div>.ant-tabs-nav .ant-tabs-nav-add {
     background-color: transparent !important;   
     /* border-color: transparent !important;    */
+}
+
+.ant-tabs-bottom>.ant-tabs-nav:before, .ant-tabs-bottom>div>.ant-tabs-nav:before, .ant-tabs-top>.ant-tabs-nav:before, .ant-tabs-top>div>.ant-tabs-nav:before {
+    border-bottom: none !important;
 }

@@ -533,6 +533,7 @@ export function DbManager({ config }) {
 
                                                 request.post(`${config.host}/mysql/execSql`, {
                                                     sql: `USE ${name}`,
+                                                    connectionId,
                                                     // tableName,
                                                     // dbName,
                                                 }, {
@@ -544,6 +545,7 @@ FROM information_schema.COLUMNS
 WHERE TABLE_SCHEMA = '${name}'
 LIMIT 1000;`
                                                 const res = await request.post(`${config.host}/mysql/execSql`, {
+                                                    connectionId,
                                                     sql: fieldNamesSql,
                                                     // tableName,
                                                     // dbName,

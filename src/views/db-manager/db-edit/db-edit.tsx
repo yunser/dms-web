@@ -11,7 +11,7 @@ import { request } from '../utils/http'
 
 
 export function DatabaseEditHandler(props) {
-    const { children, config, item, id, ids, onSuccess, asd = false } = props
+    const { children, config, connectionId, item, id, ids, onSuccess, asd = false } = props
     // const { id: deviceId } = item
     // //console.log('children', children)
     // children.props.onClick = () => {
@@ -41,6 +41,7 @@ export function DatabaseEditHandler(props) {
             {NewElem}
             {modalVisible &&
                 <DatabaseModal
+                    connectionId={connectionId}
                     config={config}
                     item={item}
                     onSuccess={onSuccess}
@@ -55,7 +56,7 @@ export function DatabaseEditHandler(props) {
 }
 
 
-export function DatabaseModal({ config, item, onClose, onSuccess, onConnnect, }) {
+export function DatabaseModal({ config, connectionId, item, onClose, onSuccess, onConnnect, }) {
     const { t } = useTranslation()
 
     const [loading, setLoading] = useState(false)
@@ -118,6 +119,7 @@ export function DatabaseModal({ config, item, onClose, onSuccess, onConnnect, })
 
     async function loadCharData() {
         let res = await request.post(`${config.host}/mysql/execSqlSimple`, {
+            connectionId,
             sql: `SELECT *
     FROM \`information_schema\`.\`COLLATION_CHARACTER_SET_APPLICABILITY\``,
         })
@@ -168,6 +170,7 @@ export function DatabaseModal({ config, item, onClose, onSuccess, onConnnect, })
                     console.log('sql', sql)
                     // return
                     let ret = await request.post(`${config.host}/mysql/execSql`, {
+                        connectionId,
                         sql,
                     })
                     // console.log('ret', ret)
@@ -190,6 +193,7 @@ export function DatabaseModal({ config, item, onClose, onSuccess, onConnnect, })
                     console.log('sql', sql)
                     // return
                     let ret = await request.post(`${config.host}/mysql/execSql`, {
+                        connectionId,
                         sql,
                     })
                     // console.log('ret', ret)

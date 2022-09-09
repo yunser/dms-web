@@ -11,7 +11,7 @@ import { request } from '../utils/http'
 
 
 export function SqlEditHandler(props) {
-    const { children, config, item, getCode, id, ids, onSuccess, asd = false } = props
+    const { children, config, connectionId, item, getCode, id, ids, onSuccess, asd = false } = props
     // const { id: deviceId } = item
     // //console.log('children', children)
     // children.props.onClick = () => {
@@ -42,6 +42,7 @@ export function SqlEditHandler(props) {
             {modalVisible &&
                 <DatabaseModal
                     config={config}
+                    connectionId={connectionId}
                     item={item}
                     getCode={getCode}
                     onSuccess={onSuccess}

@@ -56,7 +56,7 @@ const history_tab = {
 
 
 
-function SqlBox({ config, event$, onJson, className, defaultSql = '', style }: Props) {
+function SqlBox({ config, event$, connectionId, onJson, className, defaultSql = '', style }: Props) {
     console.warn('SqlBox/render')
     
     const { t, i18n } = useTranslation()
@@ -253,6 +253,7 @@ function SqlBox({ config, event$, onJson, className, defaultSql = '', style }: P
             
 
             let res = await request.post(`${config.host}/mysql/execSql`, {
+                connectionId,
                 sql: lineCode,
                 tableName,
                 dbName,
@@ -461,6 +462,7 @@ function SqlBox({ config, event$, onJson, className, defaultSql = '', style }: P
                         </Select>
                         <SqlEditHandler
                             config={config}
+                            connectionId={connectionId}
                             getCode={getCode}
                         >
                             <Button
@@ -540,6 +542,7 @@ function SqlBox({ config, event$, onJson, className, defaultSql = '', style }: P
                                     <ExecDetail
                                         data={item.data}
                                         config={config}
+                                        connectionId={connectionId}
                                         onJson={onJson}
                                         // tableName, dbName
                                     />
