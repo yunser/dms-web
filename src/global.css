@@ -8,12 +8,16 @@
     /* --color-f1: #f1f1f1; */
     --color-f1: rgba(0, 0, 0, .08);
     --color-f9: #fafafa;
+    --color-eee: #eee;
+    --color-85: rgba(0, 0, 0, 0.85);
 }
 .theme-dark {
     --border-color: rgba(255, 255, 255, .12);
     /* --color-f1: #000; */
     --color-f1: rgba(255, 255, 255, .08);
     --color-f9: #1d1d1d;
+    --color-eee: #1d1d1d;
+    --color-85: rgba(255, 255, 255, 0.85);
 }
 .ui-unSupportEsm {
     position: fixed;
@@ -115,4 +119,9 @@
 .ant-table-column-title {
     /* 表头强制不换行 */
     white-space: nowrap;
+}
+
+.ant-tabs>.ant-tabs-nav .ant-tabs-nav-add, .ant-tabs>div>.ant-tabs-nav .ant-tabs-nav-add {
+    background-color: transparent !important;   
+    /* border-color: transparent !important;    */
 }
