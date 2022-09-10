@@ -11,7 +11,7 @@ import { request } from '../utils/http'
 
 
 export function SqlEditHandler(props) {
-    const { children, config, connectionId, item, getCode, id, ids, onSuccess, asd = false } = props
+    const { children, config, event$, connectionId, item, getCode, id, ids, onSuccess, asd = false } = props
     // const { id: deviceId } = item
     // //console.log('children', children)
     // children.props.onClick = () => {
@@ -42,6 +42,7 @@ export function SqlEditHandler(props) {
             {modalVisible &&
                 <DatabaseModal
                     config={config}
+                    event$={event$}
                     connectionId={connectionId}
                     item={item}
                     getCode={getCode}
@@ -57,7 +58,7 @@ export function SqlEditHandler(props) {
 }
 
 
-export function DatabaseModal({ config, item, getCode, onClose, onSuccess, onConnnect, }) {
+export function DatabaseModal({ config, event$, item, getCode, onClose, onSuccess, onConnnect, }) {
     const { t } = useTranslation()
 
     const [loading, setLoading] = useState(false)
@@ -99,7 +100,11 @@ export function DatabaseModal({ config, item, getCode, onClose, onSuccess, onCon
                     if (ret.success) {
                         // message.success('连接成功')
                         // onConnnect && onConnnect()
-                        message.success('Success')
+                        message.success(t('saved'))
+                        event$.emit({
+                            type: 'event_sql_list_refresh',
+                        })
+
                         onClose && onClose()
                         onSuccess && onSuccess()
                     }

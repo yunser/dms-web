@@ -465,6 +465,7 @@ function SqlBox({ config, event$, connectionId, onJson, className, defaultSql = 
                         <SqlEditHandler
                             config={config}
                             connectionId={connectionId}
+                            event$={event$}
                             getCode={getCode}
                         >
                             <Button

@@ -22,6 +22,16 @@ export function SqlList({ config, connectionId, event$ }: any) {
     
     const [list, setList] = useState([])
     
+    event$.useSubscription(msg => {
+        console.log('Status/onmessage', msg)
+        // console.log(val);
+        if (msg.type == 'event_sql_list_refresh') {
+            loadData()
+            // const { connectionId: _connectionId, schemaName } = msg.data
+            // if (_connectionId == connectionId) {
+            // }
+        }
+    })
 
     async function loadData() {
         // console.log('props', this.props.match.params.name)
@@ -160,14 +170,14 @@ export function SqlList({ config, connectionId, event$ }: any) {
                 marginBottom: 8
             }}>
                 <Space>
-                    {/* <IconButton
+                    <IconButton
                         tooltip={t('refresh')}
                         onClick={() => {
                             loadData()
                         }}
                     >
                         <ReloadOutlined />
-                    </IconButton> */}
+                    </IconButton>
                 </Space>
             </div>
             {/* <div className={styles.header}>

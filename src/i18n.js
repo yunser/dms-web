@@ -114,6 +114,7 @@ i18n
                     sql_manage: 'SQLs',
                     toggle_theme: 'Toggle Theme',
                     welcome: 'Welcome to use DMS',
+                    saved: 'Saved',
                 }
             },
             zh: {
@@ -221,6 +222,7 @@ i18n
                     sql_manage: 'SQL 代码管理',
                     toggle_theme: '切换主题',
                     welcome: '这里是工作台，将会放置快捷入口',
+                    saved: '已保存',
                 }
             }
         },
