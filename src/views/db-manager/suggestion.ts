@@ -165,13 +165,6 @@ export function suggestionInit() {
                 insertText: item.keyword,
                 // insertText: item.keyword + ' ',
             }))
-        // return [
-        //     {
-        //         label: 'SELECT * FROM ',
-        //         kind: monaco.languages.CompletionItemKind.Constant,
-        //         insertText: 'SELECT * FROM',
-        //     }
-        // ]
     }
     
     
@@ -201,22 +194,14 @@ export function suggestionInit() {
                     insertText: name,
                 }
             })
-        // results.unshift({
-        //     label: 'SELECT * FROM ',
-        //     kind: monaco.languages.CompletionItemKind.Constant,
-        //     insertText: 'SELECT * FROM',
-        // })
-        // return [
-        //     {
-        //         label: 'SELECT * FROM ',
-        //         kind: monaco.languages.CompletionItemKind.Constant,
-        //         insertText: 'SELECT * FROM',
-        //     }
-        // ]
         return results
     }
     
     // console.log('monaco.registerCompletionItemProvider',)
+    if (window.g_init) {
+        window.g_completionItemProvider && window.g_completionItemProvider.dispose()
+        window.g_init = null
+    }
     if (!window.g_init) {
         window.g_init = true
         console.log('dispose/g_init', 223567)
