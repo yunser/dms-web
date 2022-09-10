@@ -36,8 +36,6 @@ interface TableFieldMap {
 const tableFieldMap: TableFieldMap = {}
 const connectionSchemaMap: TableFieldMap = {}
 
-let g_init = false
-
 export function suggestionInit() {
     
     function getAllTableSuggest() {
@@ -219,8 +217,10 @@ export function suggestionInit() {
     }
     
     // console.log('monaco.registerCompletionItemProvider',)
-    if (!g_init) {
-        monaco.languages.registerCompletionItemProvider('sql', {
+    if (!window.g_init) {
+        window.g_init = true
+        console.log('dispose/g_init', 223567)
+        window.g_completionItemProvider = monaco.languages.registerCompletionItemProvider('sql', {
             triggerCharacters: ['', '\n', ':', '.', ' ', ...all_keyword],
             provideCompletionItems: (model, position, context, token) => {
                 console.log('monaco/provideCompletionItems', model, position, context, token)

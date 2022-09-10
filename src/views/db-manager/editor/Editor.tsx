@@ -31,7 +31,8 @@ export const Editor: VFC = ({ lang = 'sql', event$, connectionId, value, onChang
 
 	useEffect(() => {
         let _editor = editor
-		if (monacoEl && !editor) {
+		if (monacoEl && !editor && !editorRef.current) {
+            console.log('dispose/create')
             const theme = getTheme()
             _editor = monaco.editor.create(monacoEl.current!, {
                 value: `{}`,
@@ -80,7 +81,10 @@ export const Editor: VFC = ({ lang = 'sql', event$, connectionId, value, onChang
         // }
 		return () => {
             // console.log('editor.dispose')
-            editor?.dispose();
+            console.log('dispose/dispose')
+            editor?.dispose()
+            editorRef.current = null
+            // window.g_completionItemProvider && window.g_completionItemProvider.dispose()
             setEditor(null)
         }
     }, [monacoEl.current, value]);
