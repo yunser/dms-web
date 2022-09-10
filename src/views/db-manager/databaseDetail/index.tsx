@@ -510,6 +510,38 @@ export function DataBaseDetail({ connectionId, event$, config, onJson }) {
                                         connectionId={connectionId}
                                     />
                                 }
+                                {item.type == 'databases' &&
+                                    <DatabaseList
+                                        config={config}
+                                        onJson={onJson}
+                                        connectionId={connectionId}
+                                        // onSelectDatabase={async ({name, connectionId}) => {
+                                        //     const key = '' + new Date().getTime()
+                                        //     addOrActiveTab({
+                                        //         title: `${name} - DB`,
+                                        //         key,
+                                        //         type: 'database',
+                                        //         data: {
+                                        //             name,
+                                        //             connectionId,
+                                        //         }
+                                        //     }, {
+                                        //         closeCurrentTab: true,
+                                        //     })
+
+                                        //     request.post(`${config.host}/mysql/execSql`, {
+                                        //         sql: `USE ${name}`,
+                                        //         connectionId,
+                                        //         // tableName,
+                                        //         // dbName,
+                                        //     }, {
+                                        //         // noMessage: true,
+                                        //     })
+
+                                            
+                                        // }}
+                                    />
+                                }
                                 {item.type == 'type_sqls' &&
                                     <SqlList
                                         config={config}

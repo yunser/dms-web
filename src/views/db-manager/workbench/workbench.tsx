@@ -16,7 +16,7 @@ export function Workbench({ config, }) {
 
     return (
         <div className={styles.workbenchBox}>
-            这里是工作台，将会放置快捷入口
+            {t('welcome')}
         </div>
     )
 }

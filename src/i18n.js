@@ -113,6 +113,7 @@ i18n
                     table_empty: 'NO TABLE',
                     sql_manage: 'SQLs',
                     toggle_theme: 'Toggle Theme',
+                    welcome: 'Welcome to use DMS',
                 }
             },
             zh: {
@@ -219,6 +220,7 @@ i18n
                     table_empty: '没有表格',
                     sql_manage: 'SQL 代码管理',
                     toggle_theme: '切换主题',
+                    welcome: '这里是工作台，将会放置快捷入口',
                 }
             }
         },

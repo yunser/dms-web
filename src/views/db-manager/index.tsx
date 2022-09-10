@@ -499,56 +499,7 @@ export function DbManager({ config }) {
                                             config={config}
                                         />
                                     }
-                                    {item.type == 'databases' &&
-                                        <DatabaseList
-                                            config={config}
-                                            onJson={json => addJsonTab(json)}
-                                            connectionId={item.data.connectionId}
-                                            onSelectDatabase={async ({name, connectionId}) => {
-                                                const key = '' + new Date().getTime()
-                                                addOrActiveTab({
-                                                    title: `${name} - DB`,
-                                                    key,
-                                                    type: 'database',
-                                                    data: {
-                                                        name,
-                                                        connectionId,
-                                                    }
-                                                }, {
-                                                    closeCurrentTab: true,
-                                                })
-                                                // setTabs([
-                                                //     ...tabs,
-                                                //     {
-                                                //         title: `${name} - DB`,
-                                                //         key,
-                                                //         type: 'database',
-                                                //         data: {
-                                                //             name,
-                                                //         }
-                                                //     }
-                                                // ])
-                                                // setActiveKey(key)
-
-                                                request.post(`${config.host}/mysql/execSql`, {
-                                                    sql: `USE ${name}`,
-                                                    connectionId,
-                                                    // tableName,
-                                                    // dbName,
-                                                }, {
-                                                    // noMessage: true,
-                                                })
-
-                                                
-                                            }}
-                                        />
-                                    }
-                                    {item.type == 'user-manager' &&
-                                        <UserList
-                                            config={config}
-                                            connectionId={connectionId}
-                                        />
-                                    }
+                                    
                                     
                             </div>
                         )
