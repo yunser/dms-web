@@ -12,6 +12,7 @@ import { suggestionAdd } from '../suggestion';
 import { SorterResult } from 'antd/lib/table/interface';
 import { useEventEmitter } from 'ahooks';
 import { request } from '../utils/http';
+import filesize from 'filesize';
 
 function getHightlight(title: string, keyword: string) {
     const index = title.toLocaleLowerCase().indexOf(keyword.toLowerCase())
@@ -249,19 +250,14 @@ export function TableList({ config, onJson, connectionId, onTab, dbName, data = 
             ],
         },
     ])
-    const filterTreeData = useMemo(() => {
+    const filterList = useMemo(() => {
         if (!keyword) {
-            return treeData
+            return list
         }
-        return [
-            {
-                ...treeData[0],
-                children: treeData[0].children.filter(item => {
-                    return item.title.toLowerCase().includes(keyword.toLowerCase())
-                })
-            }
-        ]
-    }, [treeData, keyword])
+        return list.filter(item => {
+            return item.TABLE_NAME.toLowerCase().includes(keyword.toLowerCase())
+        })
+    }, [list, keyword])
     // const treeData: any[] = [
         
     // ]
@@ -443,6 +439,11 @@ ORDER BY TABLE_ROWS DESC`
             sorter: (a, b) => a.DATA_LENGTH - b.DATA_LENGTH,
             sortOrder: sortedInfo.columnKey === 'DATA_LENGTH' ? sortedInfo.order : null,
             sortDirections: ['descend', 'ascend'],
+            render(value) {
+                return (
+                    <div>{filesize(value)}</div>
+                )
+            },
         },
         {
             title: t('index_length'),
@@ -452,6 +453,11 @@ ORDER BY TABLE_ROWS DESC`
             sorter: (a, b) => a.INDEX_LENGTH - b.INDEX_LENGTH,
             sortOrder: sortedInfo.columnKey === 'INDEX_LENGTH' ? sortedInfo.order : null,
             sortDirections: ['descend', 'ascend'],
+            render(value) {
+                return (
+                    <div>{filesize(value)}</div>
+                )
+            },
         },
         {
             title: t('data_free'),
@@ -460,6 +466,11 @@ ORDER BY TABLE_ROWS DESC`
             sorter: (a, b) => a.DATA_FREE - b.DATA_FREE,
             sortOrder: sortedInfo.columnKey === 'DATA_FREE' ? sortedInfo.order : null,
             sortDirections: ['descend', 'ascend'],
+            render(value) {
+                return (
+                    <div>{filesize(value)}</div>
+                )
+            },
         },
         {
             title: t('collation'),
@@ -578,6 +589,14 @@ LIMIT 20`,
                     >
                         <ExportOutlined />
                     </IconButton>
+                    <DebounceInput
+                        value={keyword}
+                        onChange={value => {
+                            setKeyword(value)
+                        }}
+                        allowClear
+                        placeholder={t('search') + '...'}
+                    />
                     {/* <Button
                         // type="link"
                         size="small"
@@ -680,7 +699,7 @@ LIMIT 20`,
             </div> */}
             <Table
                 loading={loading}
-                dataSource={list}
+                dataSource={filterList}
                 pagination={false}
                 size="small"
                 rowKey="TABLE_NAME"
