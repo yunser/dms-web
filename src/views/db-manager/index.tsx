@@ -540,20 +540,7 @@ export function DbManager({ config }) {
                                                     // noMessage: true,
                                                 })
 
-                                                const fieldNamesSql = `SELECT DISTINCT(COLUMN_NAME)
-FROM information_schema.COLUMNS
-WHERE TABLE_SCHEMA = '${name}'
-LIMIT 1000;`
-                                                const res = await request.post(`${config.host}/mysql/execSql`, {
-                                                    connectionId,
-                                                    sql: fieldNamesSql,
-                                                    // tableName,
-                                                    // dbName,
-                                                }, {
-                                                    // noMessage: true,
-                                                })
-                                                console.log('字段', res.data)
-                                                setAllFields(name, res.data.results.map(item => item[0]))
+                                                
                                             }}
                                         />
                                     }

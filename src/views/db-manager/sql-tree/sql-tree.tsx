@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { Editor } from '../editor/Editor';
 import { IconButton } from '../icon-button';
 import { CodeOutlined, ConsoleSqlOutlined, DatabaseOutlined, FormatPainterOutlined, HistoryOutlined, InfoCircleOutlined, PlusOutlined, QuestionCircleOutlined, ReloadOutlined, SyncOutlined, TableOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
-import { suggestionAdd } from '../suggestion';
+import { setAllFields, suggestionAdd, suggestionAddSchemas } from '../suggestion';
 import { request } from '../utils/http';
 
 function getHightlight(title: string, keyword: string) {
@@ -286,6 +286,23 @@ export function SqlTree({ config, event$, connectionId, onTab, data = {} }: any)
         
     // ]
 
+    async function loadAllFields(schemaName) {
+        const fieldNamesSql = `SELECT DISTINCT(COLUMN_NAME)
+FROM information_schema.COLUMNS
+WHERE TABLE_SCHEMA = '${schemaName}'
+LIMIT 1000;`
+        const res = await request.post(`${config.host}/mysql/execSql`, {
+            connectionId,
+            sql: fieldNamesSql,
+            // tableName,
+            // dbName,
+        }, {
+            // noMessage: true,
+        })
+        console.log('字段', res.data)
+        setAllFields(name, res.data.results.map(item => item[0]))
+    }
+
     async function loadTables(schemaName) {
         // console.log('props', this.props.match.params.name)
         // const { dispatch } = this.props;
@@ -391,6 +408,7 @@ export function SqlTree({ config, event$, connectionId, onTab, data = {} }: any)
             // setTreeData([
             //     ,
             // ])
+            suggestionAddSchemas(dbs.map(item => item.SCHEMA_NAME))
         }
         // else {
         //     message.error('连接失败')
@@ -502,6 +520,7 @@ export function SqlTree({ config, event$, connectionId, onTab, data = {} }: any)
         setTreeData([...treeData])
         setSelectedKeys([schemaName])
         loadTables(schemaName)
+        loadAllFields(schemaName)
     }
 
     function refreshTables(nodeData) {

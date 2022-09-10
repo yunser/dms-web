@@ -145,7 +145,7 @@ function Status({ config, event$, connectionId }) {
         let res = await request.post(`${config.host}/mysql/reconnect`, {
             connectionId,
         }, {
-            noMessage: true,
+            // noMessage: true,
             timeout: 2000,
         })
         if (res.success) {

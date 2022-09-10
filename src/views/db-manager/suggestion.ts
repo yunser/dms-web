@@ -183,7 +183,7 @@ export function suggestionInit() {
             .map((key) => {
                 const name = `\`${key}\``
                 return {
-                    label: name,
+                    label: key,
                     kind: monaco.languages.CompletionItemKind.Constant,
                     insertText: name,
                 }
@@ -234,7 +234,8 @@ export function suggestionInit() {
         
                 if (lastToken.endsWith('.')) {
                     console.log('monaco/match', 'endsWith .')
-                    const tokenNoDot = lastToken.slice(0, lastToken.length - 1)
+                    const tokenNoDot = lastToken.slice(0, lastToken.length - 1).replaceAll('`', '')
+                    console.log('tokenNoDot', tokenNoDot)
                     if (Object.keys(hintData).includes(tokenNoDot)) {
                         suggestions = [...getTableSuggest(tokenNoDot)]
                     }
@@ -450,6 +451,15 @@ export function suggestionInit() {
 export function suggestionAdd(dbName, tables) {
     // console.log('suggestionAdd', dbName, tables)
     hintData[dbName] = tables
+}
+
+export function suggestionAddSchemas(names) {
+    // console.log('suggestionAdd', dbName, tables)
+    for (let name of names) {
+        if (!hintData[name]) {
+            hintData[name] = []
+        }
+    }
 }
 
 export function setAllFields(dbName, fields) {
