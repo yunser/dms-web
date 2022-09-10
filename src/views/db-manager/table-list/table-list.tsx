@@ -218,7 +218,7 @@ function DebounceInput(props: InputProps) {
 }
 
 
-export function TableList({ config, onJson, onTab, dbName, data = {} }: any) {
+export function TableList({ config, onJson, connectionId, onTab, dbName, data = {} }: any) {
     console.warn('SqlTree/render')
     
     const { defaultJson = '' } = data
@@ -278,6 +278,7 @@ export function TableList({ config, onJson, onTab, dbName, data = {} }: any) {
         setSortedInfo({})
         let res = await request.post(`${config.host}/mysql/tables`, {
             dbName,
+            connectionId,
         })
         if (res.success) {
             // message.info('连接成功')
@@ -553,12 +554,12 @@ ORDER BY TABLE_ROWS DESC`
                     <IconButton
                         tooltip={t('export_json')}
                         onClick={() => {
-                            event$.emit('hello')
+                            // event$.emit('hello')
                             // event$.emit({
                             //     type: 'open_json',
                             //     data: '123',
                             // })
-                            // onJson && onJson(JSON.stringify(list, null, 4))
+                            onJson && onJson(JSON.stringify(list, null, 4))
                         }}
                     >
                         <ExportOutlined />
