@@ -9,7 +9,6 @@ let mysqlAllKeywordMap = {}
 all_keyword.forEach(keyword => {
     mysqlAllKeywordMap[keyword] = 1
 })
-// const keywords = ['SELECT', 'FROM', 'WHERE']
 // console.log('keywords', JSON.stringify(keywords))
 const keywords = [
     ...mysql_keywords,
@@ -30,6 +29,11 @@ const hintData = {
 }
 
 let allFieldMap: string[] = []
+// TODO 实例和数据库
+interface TableFieldMap {
+    [key: string]: string[]
+}
+const tableFieldMap: TableFieldMap = {}
 
 let g_init = false
 
@@ -259,7 +263,7 @@ export function suggestionInit() {
                     }
                 }
                 // Before from
-                else if (lastToken === 'WHERE' || lastToken === 'where') {
+                else if (lastTokenLowerCase === 'where' || lastTokenLowerCase === 'and' || lastTokenLowerCase === 'or') {
                     console.log('monaco/match', 'where')
                     // console.log('monaco/match', 'where', tokens)
                     // if (tokens.includes('AS')) {}
@@ -274,11 +278,40 @@ export function suggestionInit() {
                         }
                     }
                     console.log('asList', asList)
+                    
+                    // select xx from xxx where
+                    // select xx from `xxx`.`xxx` where
+
+                    let tableName
+                    tokens.forEach((token, idx) => {
+                        if (token.toLowerCase() == 'from') {
+                            tableName = tokens[idx + 1].split('.')[1].replaceAll('`', '')
+                            console.log('tableName', tableName)
+                        }
+                    })
+                    // for (let token of tokens) {
+                    // }
+                    // if (tokens[tokens.length - 3]?.toLowerCase() == 'from') {
+                    //     tableName = tokens[tokens.length - 2].split('.')[1].replaceAll('`', '')
+                    //     console.log('tableName', tableName)
+                    // }
+
+                    let fields = []
+                    if (tableName && tableFieldMap[tableName]) {
+                        fields = list2Suggest(tableFieldMap[tableName], {
+                            backquote: true,
+                        })
+                    }
+                    else {
+                        fields = getAllFieldSuggest()
+                    }
+                    console.log('fields ', fields, tableFieldMap)
+
                     suggestions = [
                         ...list2Suggest(asList, {
                             backquote: true,
                         }),
-                        ...getAllFieldSuggest()
+                        ...fields,
                     ]
                 }
                 // order ?
@@ -502,4 +535,15 @@ export function setAllFields(dbName, fields) {
     // console.log('suggestionAdd', dbName, tables)
     // allFieldMap[dbName] = fields
     allFieldMap = fields
+}
+
+export function setTabbleAllFields(tableName: string, fields: string[]) {
+    // console.log('suggestionAdd', dbName, tables)
+    // allFieldMap[dbName] = fields
+    tableFieldMap[tableName] = fields
+    // allFieldMap = fields
+}
+
+export function getTableFieldMap() {
+    return tableFieldMap
 }

@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { Editor } from '../editor/Editor';
 import { IconButton } from '../icon-button';
 import { CodeOutlined, ConsoleSqlOutlined, DatabaseOutlined, FormatPainterOutlined, HistoryOutlined, InfoCircleOutlined, PlusOutlined, QuestionCircleOutlined, ReloadOutlined, SyncOutlined, TableOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
-import { setAllFields, suggestionAdd, suggestionAddSchemas } from '../suggestion';
+import { getTableFieldMap, setAllFields, setTabbleAllFields, suggestionAdd, suggestionAddSchemas } from '../suggestion';
 import { request } from '../utils/http';
 
 function getHightlight(title: string, keyword: string) {
@@ -286,22 +286,7 @@ export function SqlTree({ config, event$, connectionId, onTab, data = {} }: any)
         
     // ]
 
-    async function loadAllFields(schemaName) {
-        const fieldNamesSql = `SELECT DISTINCT(COLUMN_NAME)
-FROM information_schema.COLUMNS
-WHERE TABLE_SCHEMA = '${schemaName}'
-LIMIT 1000;`
-        const res = await request.post(`${config.host}/mysql/execSql`, {
-            connectionId,
-            sql: fieldNamesSql,
-            // tableName,
-            // dbName,
-        }, {
-            // noMessage: true,
-        })
-        console.log('字段', res.data)
-        setAllFields(name, res.data.results.map(item => item[0]))
-    }
+    
 
     async function loadTables(schemaName) {
         // console.log('props', this.props.match.params.name)
@@ -424,6 +409,44 @@ LIMIT 1000;`
     //     loadTables()
     // }, [])
 
+    async function loadTableFields({schemaName, tableName}) {
+        if (getTableFieldMap()[tableName]) {
+            return
+        }
+        const fieldNamesSql = `SELECT DISTINCT(COLUMN_NAME)
+FROM information_schema.COLUMNS
+WHERE TABLE_SCHEMA = '${schemaName}'
+AND TABLE_NAME = '${tableName}'
+LIMIT 1000;`
+        const res = await request.post(`${config.host}/mysql/execSqlSimple`, {
+            connectionId,
+            sql: fieldNamesSql,
+            // tableName,
+            // dbName,
+        }, {
+            // noMessage: true,
+        })
+        console.log('表字段', res.data)
+        setTabbleAllFields(tableName, res.data.map(item => item.COLUMN_NAME))
+    }
+
+    async function loadAllFields(schemaName) {
+        const fieldNamesSql = `SELECT DISTINCT(COLUMN_NAME)
+FROM information_schema.COLUMNS
+WHERE TABLE_SCHEMA = '${schemaName}'
+LIMIT 1000;`
+        const res = await request.post(`${config.host}/mysql/execSql`, {
+            connectionId,
+            sql: fieldNamesSql,
+            // tableName,
+            // dbName,
+        }, {
+            // noMessage: true,
+        })
+        console.log('字段', res.data)
+        setAllFields(name, res.data.results.map(item => item[0]))
+    }
+
     function showSqlInNewtab({ title = 'New Query', sql }) {
         let tabKey = '' + new Date().getTime()
         onTab && onTab({
@@ -535,7 +558,7 @@ LIMIT 1000;`
 
     function queryTable(nodeData) {
         const tableName = nodeData.key // TODO @p2
-        const dbName = nodeData.itemData.TABLE_SCHEMA
+        const schemaName = nodeData.itemData.TABLE_SCHEMA
 
         // let tabKey = '' + new Date().getTime()
         // setActiveKey(tabKey)
@@ -553,8 +576,9 @@ LIMIT 1000;`
         // ])
         showSqlInNewtab({
             title: tableName,
-            sql: `SELECT *\nFROM \`${dbName}\`.\`${tableName}\`\nLIMIT 20;`,
+            sql: `SELECT *\nFROM \`${schemaName}\`.\`${tableName}\`\nLIMIT 20;`,
         })
+        loadTableFields({schemaName, tableName})
     }
     
     return (
