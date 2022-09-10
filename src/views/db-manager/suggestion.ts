@@ -4,6 +4,14 @@ import { mysql_keywords } from './mysql/keywords';
 
 const { keywords: all_keyword } = language
 
+function aftersplit(text: string, sep: string) {
+    const idx = text.lastIndexOf(sep)
+    if (idx == -1) {
+        return text
+    }
+    return text.substring(idx + 1)
+}
+
 // 用于判断是否 MySQL 关键词
 let mysqlAllKeywordMap = {}
 all_keyword.forEach(keyword => {
@@ -281,8 +289,8 @@ export function suggestionInit() {
 
                     let tableName
                     tokens.forEach((token, idx) => {
-                        if (token.toLowerCase() == 'from') {
-                            tableName = tokens[idx + 1].split('.')[1].replaceAll('`', '')
+                        if (token.toLowerCase() == 'from' && tokens[idx + 1]) {
+                            tableName = aftersplit(tokens[idx + 1]).replaceAll('`', '')
                             console.log('tableName', tableName)
                         }
                     })
