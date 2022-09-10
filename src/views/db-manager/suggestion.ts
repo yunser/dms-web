@@ -1,15 +1,18 @@
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { language } from 'monaco-editor/esm/vs/basic-languages/sql/sql.js'
 import { mysql_keywords } from './mysql/keywords';
+import { useTranslation } from 'react-i18next'
+import { i18n } from '../../i18n';
+// import i18n from "../i18n";
 
 const { keywords: all_keyword } = language
 
-function aftersplit(text: string, sep: string) {
+function aftersplit(text: string, sep: string = '.') {
     const idx = text.lastIndexOf(sep)
     if (idx == -1) {
-        return text
+        return text.replaceAll('`', '')
     }
-    return text.substring(idx + 1)
+    return text.substring(idx + 1).replaceAll('`', '')
 }
 
 // 用于判断是否 MySQL 关键词
@@ -41,8 +44,11 @@ let allFieldMap: string[] = []
 interface TableFieldMap {
     [key: string]: string[]
 }
-const tableFieldMap: TableFieldMap = {}
-const connectionSchemaMap: TableFieldMap = {}
+window.tableFieldMap = {}
+const tableFieldMap: TableFieldMap = window.tableFieldMap
+
+window.connectionSchemaMap = {}
+const connectionSchemaMap: TableFieldMap = window.connectionSchemaMap
 
 export function suggestionInit() {
     
@@ -65,10 +71,11 @@ export function suggestionInit() {
             label: name,
             kind: monaco.languages.CompletionItemKind.Constant,
             insertText: `\`${name}\``,
+            detail: i18n.t('table'),
         }))
     }
     
-    function list2Suggest(list, { backquote = false } = {}) {
+    function list2Suggest(list, { backquote = false, detail = '' } = {}) {
         return list
             .map((key) => {
                 // let score = 0
@@ -87,6 +94,7 @@ export function suggestionInit() {
                 label: item.keyword,
                 kind: monaco.languages.CompletionItemKind.Enum,
                 insertText: backquote ? `\`${item.keyword}\`` : item.keyword,
+                detail,
             }))
     }
 
@@ -147,6 +155,7 @@ export function suggestionInit() {
                 label: item.keyword,
                 kind: monaco.languages.CompletionItemKind.Enum,
                 insertText: `\`${item.keyword}\``,
+                detail: i18n.t('column'),
             }))
     }
 
@@ -185,7 +194,7 @@ export function suggestionInit() {
     }
 
     function getDBSuggest() {
-        console.log('db?', window.g_editorConnectionId, hintData)
+        console.log('db?', i18n.language, window.g_editorConnectionId, hintData)
         let schemas
         if (window.g_editorConnectionId && connectionSchemaMap[window.g_editorConnectionId]) {
             schemas = connectionSchemaMap[window.g_editorConnectionId]
@@ -200,6 +209,8 @@ export function suggestionInit() {
                     label: key,
                     kind: monaco.languages.CompletionItemKind.Constant,
                     insertText: name,
+                    detail: i18n.t('schema'),
+                    // documentation: '这是文档',
                 }
             })
         return results
@@ -290,7 +301,7 @@ export function suggestionInit() {
                     let tableName
                     tokens.forEach((token, idx) => {
                         if (token.toLowerCase() == 'from' && tokens[idx + 1]) {
-                            tableName = aftersplit(tokens[idx + 1]).replaceAll('`', '')
+                            tableName = aftersplit(tokens[idx + 1])
                             console.log('tableName', tableName)
                         }
                     })
@@ -305,6 +316,7 @@ export function suggestionInit() {
                     if (tableName && tableFieldMap[tableName]) {
                         fields = list2Suggest(tableFieldMap[tableName], {
                             backquote: true,
+                            detail: i18n.t('column'),
                         })
                     }
                     else {

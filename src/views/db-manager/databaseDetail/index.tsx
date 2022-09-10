@@ -37,6 +37,7 @@ import { t } from 'i18next'
 import DatabaseList from '../databases'
 import { UserList } from '../user-list'
 import { SqlList } from '../sql-list'
+import { suggestionAdd } from '../suggestion'
 
 // console.log('ddd.0')
 // _.debounce(() => {
@@ -282,6 +283,46 @@ export function DataBaseDetail({ connectionId, event$, config, onJson }) {
     })
 
 
+    async function loadAllTables() {
+        let res = await request.post(`${config.host}/mysql/execSqlSimple`, {
+            connectionId,
+            sql: `SELECT TABLE_SCHEMA, TABLE_NAME
+    FROM \`information_schema\`.\`TABLES\`
+    LIMIT 1000`,
+    // tableName,
+    // dbName,
+}, {
+    // noMessage: true,
+})
+        // console.log('res', res)
+        if (res.success) {
+            // message.info('连接成功')
+            const list = res.data
+            console.log('loadAllTables/res', list)
+            // setList(res.list)
+            const schemaMap = {}
+            for (let item of list) {
+                const { TABLE_SCHEMA, TABLE_NAME, } = item
+                if (!schemaMap[TABLE_SCHEMA]) {
+                    schemaMap[TABLE_SCHEMA] = []
+                }
+                schemaMap[TABLE_SCHEMA].push(TABLE_NAME)
+            }
+            for (let schemaName in schemaMap) {
+                suggestionAdd(schemaName, schemaMap[schemaName])
+            }
+            // if (!list) {
+                
+            // }
+        } else {
+            message.error('连接失败')
+        }
+        // setLoading(false)
+    }
+
+    useEffect(() => {
+        loadAllTables()
+    }, [])
     function addOrActiveTab(tab, { closeCurrentTab = false,} = {}) {
         const exists = tabs.find(t => t.key == tab.key)
         if (!exists) {

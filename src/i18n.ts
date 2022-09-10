@@ -76,6 +76,7 @@ i18n
                     list_view: 'List view',
                     index: 'Index',
                     indexes: 'Indexes',
+                    column: 'Column',
                     columns: 'Columns',
                     partition: 'Partitioning',
                     options: 'Options',
@@ -84,6 +85,7 @@ i18n
                     db_create: 'New Schema',
                     db_edit: 'Edit Schema',
                     user_manager: 'Users',
+                    table: 'Table',
                     table_list: 'View tables',
                     table_create: 'New table',
                     comment: 'Comment',
@@ -183,6 +185,7 @@ i18n
                     list_view: '列表视图',
                     index: '索引',
                     indexes: '索引',
+                    column: '字段',
                     columns: '字段',
                     partition: '分区',
                     options: '配置',
@@ -191,6 +194,7 @@ i18n
                     db_create: '新增数据库',
                     db_edit: '编辑数据库',
                     user_manager: '用户管理',
+                    table: '表',
                     table_list: '查看表',
                     table_create: '新增表',
                     comment: '注释',
@@ -240,4 +244,5 @@ i18n
         }
     });
 
-export default i18n;
+export { i18n }
+
