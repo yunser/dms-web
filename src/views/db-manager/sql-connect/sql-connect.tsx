@@ -359,11 +359,13 @@ export function SqlConnector({ config, onConnnect, onJson }) {
                             selectedKeys={curConnect ? [`dbkey-${curConnect.id}`] : []}
                             // defaultCheckedKeys={['0-0-0', '0-0-1']}
                             onSelect={(selectKeys, info) => {
-                                // console.log('onSelect', info)
+                                console.log('onSelect', info.node)
                                 const data = info.node.data
-                                const { id } = info.node.data
-                                storage.set('current_connection_id', id)
-                                loadConnect(data)
+                                if (data) {
+                                    const { id } = info.node.data
+                                    storage.set('current_connection_id', id)
+                                    loadConnect(data)
+                                }
                             }}
                             // onCheck={onCheck}
                         />

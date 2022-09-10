@@ -409,7 +409,7 @@ export function DbManager({ config }) {
                                                     // })
                                                     const key = '' + new Date().getTime()
                                                     addOrActiveTab({
-                                                        title: `${curConnect.name || 'Unnamed'} - DB`,
+                                                        title: `${curConnect.name || 'Unnamed'}`,
                                                         key,
                                                         type: 'database',
                                                         data: {

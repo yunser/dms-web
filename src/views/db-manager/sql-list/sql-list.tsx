@@ -158,6 +158,30 @@ export function SqlList({ config, connectionId, event$ }: any) {
                                 // onSql && onSql(item.sql)
                             }}
                         >{t('use')}</Button>
+                        <Button
+                            type="link"
+                            size="small"
+                            onClick={() => {
+                                Modal.confirm({
+                                    content: `${t('delete_confirm')} ${item.name}?`,
+                                    // okText: '确认',
+                                    // cancelText: '取消',
+                                    async onOk() {
+                                        // console.log('删除', )
+                                        let res = await request.post(`${config.host}/mysql/sql/remove`, {
+                                            id: item.id,
+                                        })
+                                        if (res.success) {
+                                            // message.info('连接成功')
+                                            // const list = res.data
+                                            // console.log('res', list)
+                                            // setList(list)
+                                            loadData()
+                                        }
+                                    }
+                                })
+                            }}
+                        >{t('delete')}</Button>
                     </Space>
                 )
             }
@@ -270,11 +294,12 @@ export function SqlList({ config, connectionId, event$ }: any) {
                 }
             </div> */}
             <Table
+                loading={loading}
                 className={styles.table}
                 dataSource={list}
                 pagination={false}
                 size="small"
-                rowKey="TABLE_NAME"
+                rowKey="id"
                 columns={columns}
                 bordered
                 onChange={(pagination, filters, sorter) => {
