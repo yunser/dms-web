@@ -386,7 +386,6 @@ export function DataBaseDetail({ connectionId, event$, config, onJson }) {
 
     const onEdit = (targetKey: string, action: string) => {
         console.log('targetKey, action', targetKey, action)
-        // this[action](targetKey);
         if (action === 'add') {
             let tabKey = '' + new Date().getTime()
             setActiveKey(tabKey)
@@ -399,36 +398,16 @@ export function DataBaseDetail({ connectionId, event$, config, onJson }) {
                     defaultSql: '',
                 }
             ])
-            // _this.setState({
-            //     activeKey: tabKey,
-            //     tabs: tabs.concat([{
-                    
-            //     }]),
-            // })
         }
         if (action === 'remove') {
-            for (let i = 0; i < tabs.length; i++) {
-                if (tabs[i].key === targetKey) {
-                    tabs.splice(i, 1)
-                    break
-                }
+            const newTabs = tabs.filter(item => item.key != targetKey)
+            setTabs([...newTabs])
+            if (newTabs.length) {
+                setActiveKey(newTabs[newTabs.length - 1].key)
             }
-            setTabs([
-                ...tabs,
-            ])
-            setActiveKey(tabs[tabs.length - 1].key)
-            // _this.setState({
-            //     tabs
-            // })
         }
     }
 
-    
-    // console.log('tabs', tabs)
-
-    
-
-    
     return (
         <div className={styles.layout}>
             <div className={styles.layoutLeft}>
