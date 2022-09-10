@@ -33,7 +33,7 @@ export function SqlList({ config, connectionId, event$ }: any) {
         }
     })
 
-    async function loadData() {
+    async function loadData({ keyword } = {}) {
         // console.log('props', this.props.match.params.name)
         // let dbName = this.props.match.params.name
         // this.dbName = dbName
@@ -44,6 +44,7 @@ export function SqlList({ config, connectionId, event$ }: any) {
         setLoading(true)
         // setSortedInfo({})
         let res = await request.post(`${config.host}/mysql/sql/list`, {
+            keyword,
         })
         if (res.success) {
             // message.info('连接成功')
@@ -202,6 +203,16 @@ export function SqlList({ config, connectionId, event$ }: any) {
                     >
                         <ReloadOutlined />
                     </IconButton>
+                    <Input.Search
+                        placeholder={t('search')}
+                        allowClear
+                        onSearch={value => {
+                            loadData({
+                                keyword: value,
+                            })
+                        }}
+                        style={{ width: 200 }}
+                    />
                 </Space>
             </div>
             {/* <div className={styles.header}>
