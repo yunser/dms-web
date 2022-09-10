@@ -11,6 +11,7 @@ import { request } from '../utils/http'
 import { IconButton } from '../icon-button';
 import { DatabaseOutlined, ExportOutlined, FolderOutlined, PlusOutlined } from '@ant-design/icons';
 import { uid } from 'uid';
+import { CodeDebuger } from '../code-debug';
 
 
 function lastSplit(text: string, sep: string) {
@@ -456,6 +457,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
                             </Space>
                         </Form.Item>
                     </Form>
+                    <CodeDebuger path="src/views/db-manager/redis-connect/redis-connect.tsx" />
                 </div>
             </div>
             {/* <TextArea className={styles.textarea} value={code} rows={4} 

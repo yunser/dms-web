@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { Editor } from '../editor/Editor';
 import storage from '../../db-manager/storage'
 import { request } from '../utils/http'
+import { CodeDebuger } from '../code-debug';
 
 export function RedisConnect({ config, onConnnect, }) {
     const { t } = useTranslation()
@@ -80,6 +81,7 @@ export function RedisConnect({ config, onConnnect, }) {
         <div className={styles.connectBox}>
             {/* <Test asd={Asd} /> */}
             <div className={styles.content}>
+                
                 <Form
                     form={form}
                     labelCol={{ span: 8 }}
