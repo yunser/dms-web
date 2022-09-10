@@ -7,7 +7,7 @@ import { getTheme } from '../../../theme'
 
 suggestionInit()
 
-export const Editor: VFC = ({ lang = 'sql', event$, value, onChange, onEditor }) => {
+export const Editor: VFC = ({ lang = 'sql', event$, connectionId, value, onChange, onEditor }) => {
 	const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
     const editorRef = useRef(null)
 	const monacoEl = useRef(null);
@@ -43,11 +43,20 @@ export const Editor: VFC = ({ lang = 'sql', event$, value, onChange, onEditor })
                 },
                 // tabSize: 4,
             })
+            console.log('mmm', _editor.getModel())
             _editor.getModel().onDidChangeContent((event) => {
                 const newValue = _editor?.getValue()
                 // console.log('onDidChangeContent', newValue)
                 onChange && onChange(newValue)
-            });
+            })
+            // https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.IStandaloneCodeEditor.html#onDidFocusEditorText
+            _editor.onDidFocusEditorText((event) => {
+                console.log('onDidFocusEditorText')
+                window.g_editorConnectionId = connectionId
+            })
+            // _editor.onDidBlurEditorText((event) => {
+            //     console.log('onDidBlurEditorText')
+            // })
 			setEditor(_editor);
             editorRef.current = _editor
             onEditor && onEditor(_editor)

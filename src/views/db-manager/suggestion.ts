@@ -34,6 +34,7 @@ interface TableFieldMap {
     [key: string]: string[]
 }
 const tableFieldMap: TableFieldMap = {}
+const connectionSchemaMap: TableFieldMap = {}
 
 let g_init = false
 
@@ -90,6 +91,8 @@ export function suggestionInit() {
             '>',
             '<',
             'IN',
+            'LIKE',
+            'LIKE \'%%\'',
         ]
         return fields
             .map((key) => {
@@ -183,7 +186,15 @@ export function suggestionInit() {
     }
 
     function getDBSuggest() {
-        const results = Object.keys(hintData)
+        console.log('db?', window.g_editorConnectionId, hintData)
+        let schemas
+        if (window.g_editorConnectionId && connectionSchemaMap[window.g_editorConnectionId]) {
+            schemas = connectionSchemaMap[window.g_editorConnectionId]
+        }
+        else {
+            schemas = Object.keys(hintData)
+        }
+        const results = schemas
             .map((key) => {
                 const name = `\`${key}\``
                 return {
@@ -211,8 +222,9 @@ export function suggestionInit() {
     if (!g_init) {
         monaco.languages.registerCompletionItemProvider('sql', {
             triggerCharacters: ['', '\n', ':', '.', ' ', ...all_keyword],
-            provideCompletionItems: (model, position) => {
-                console.log('monaco/provideCompletionItems',)
+            provideCompletionItems: (model, position, context, token) => {
+                console.log('monaco/provideCompletionItems', model, position, context, token)
+                console.log('monaco/provideCompletionItems/context', context)
                 let suggestions: any[] = []
         
                 const { lineNumber, column } = position
@@ -522,13 +534,14 @@ export function suggestionAdd(dbName, tables) {
     hintData[dbName] = tables
 }
 
-export function suggestionAddSchemas(names) {
+export function suggestionAddSchemas(connectionId, names) {
     // console.log('suggestionAdd', dbName, tables)
     for (let name of names) {
         if (!hintData[name]) {
             hintData[name] = []
         }
     }
+    connectionSchemaMap[connectionId] = names
 }
 
 export function setAllFields(dbName, fields) {

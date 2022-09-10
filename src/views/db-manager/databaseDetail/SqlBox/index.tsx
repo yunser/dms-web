@@ -487,6 +487,7 @@ function SqlBox({ config, event$, connectionId, onJson, className, defaultSql = 
                 <div className={styles.codeBox}>
                     <Editor
                         event$={event$}
+                        connectionId={connectionId}
                         value={code}
                         onChange={value => setCodeASD(value)}
                         onEditor={editor => {

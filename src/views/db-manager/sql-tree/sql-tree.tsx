@@ -393,7 +393,7 @@ export function SqlTree({ config, event$, connectionId, onTab, data = {} }: any)
             // setTreeData([
             //     ,
             // ])
-            suggestionAddSchemas(dbs.map(item => item.SCHEMA_NAME))
+            suggestionAddSchemas(connectionId, dbs.map(item => item.SCHEMA_NAME))
         }
         // else {
         //     message.error('连接失败')
