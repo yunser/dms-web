@@ -31,7 +31,9 @@
 
     --color-bg-left2: #1d1d1d;
 }
-
+body {
+    transition: background-color .3s;
+}
 .theme-light body {
     color: rgba(0, 0, 0, 0.85);
     /* background-color: #f00; */
@@ -39,6 +41,7 @@
 .theme-dark body {
     color: rgba(255, 255, 255, 0.85);
     background-color: #1d1d1d;
+    
     /* background-color: #111; */
 }
 
