@@ -7,7 +7,7 @@ import classNames from 'classnames'
 import { useTranslation } from 'react-i18next';
 import { Editor } from '../editor/Editor';
 import { IconButton } from '../icon-button';
-import { DatabaseOutlined, ExportOutlined, FormatPainterOutlined, ReloadOutlined, TableOutlined, UnorderedListOutlined } from '@ant-design/icons';
+import { DatabaseOutlined, DownOutlined, ExportOutlined, FormatPainterOutlined, ReloadOutlined, TableOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import { suggestionAdd } from '../suggestion';
 import { SorterResult } from 'antd/lib/table/interface';
 import { useEventEmitter } from 'ahooks';
@@ -342,23 +342,30 @@ export function TableList({ config, onJson, connectionId, onTab, dbName, data = 
         })
     }
 
-    async function truncate(tableName) {
-        // console.log('nodeData', nodeData)
-        // const tableName = nodeData.key // TODO @p2
-        const sql = `TRUNCATE TABLE \`${tableName}\`;`
+    async function truncate(item) {
+        const sql = `TRUNCATE TABLE \`${item.TABLE_SCHEMA}\`.\`${item.TABLE_NAME}\`;`
         console.log('truncate', sql)
-        // setSql(sql)
         showSqlInNewtab({
             title: 'TRUNCATE TABLE',
             sql,
         })
     }
 
-    async function drop(tableName) {
-        const sql = `DROP TABLE \`${tableName}\`;`
+    async function drop(item) {
+        const sql = `DROP TABLE \`${item.TABLE_SCHEMA}\`.\`${item.TABLE_NAME}\`;`
         showSqlInNewtab({
             title: 'DROP TABLE',
             sql,
+        })
+    }
+
+    async function partInfo(item) {
+        showSqlInNewtab({
+            title: item.TABLE_NAME,
+            sql: `SELECT PARTITION_NAME,TABLE_ROWS,PARTITION_EXPRESSION,PARTITION_DESCRIPTION 
+FROM INFORMATION_SCHEMA.PARTITIONS 
+WHERE TABLE_SCHEMA='${item.TABLE_SCHEMA}' AND TABLE_NAME = '${item.TABLE_NAME}'
+ORDER BY TABLE_ROWS DESC`
         })
     }
 
@@ -465,7 +472,7 @@ export function TableList({ config, onJson, connectionId, onTab, dbName, data = 
             ellipsis: true,
         },
         {
-            title: '操作',
+            title: t('actions'),
             dataIndex: 'op',
             fixed: 'right',
             render(_value, item) {
@@ -478,7 +485,7 @@ export function TableList({ config, onJson, connectionId, onTab, dbName, data = 
                                 queryTableStruct(item.TABLE_NAME)
                             }}
                         >
-                            详情
+                            {t('edit')}
                         </Button>
                         <Button
                             type="link"
@@ -486,46 +493,53 @@ export function TableList({ config, onJson, connectionId, onTab, dbName, data = 
                             onClick={() => {
                                 showSqlInNewtab({
                                     title: item.TABLE_NAME,
-                                    sql: `SELECT * FROM \`${item.TABLE_NAME}\`
+                                    sql: `SELECT * FROM \`${item.TABLE_SCHEMA}\`.\`${item.TABLE_NAME}\`
 LIMIT 20`,
                                 })
                             }}
                         >
-                            查询
+                            {t('query')}
                         </Button>
-                        <Button
-                            type="link"
-                            size="small"
-                            onClick={() => {
-                                showSqlInNewtab({
-                                    title: item.TABLE_NAME,
-                                    sql: `SELECT PARTITION_NAME,TABLE_ROWS,PARTITION_EXPRESSION,PARTITION_DESCRIPTION 
-FROM INFORMATION_SCHEMA.PARTITIONS 
-WHERE TABLE_SCHEMA='${dbName}' AND TABLE_NAME = '${item.TABLE_NAME}'
-ORDER BY TABLE_ROWS DESC`
-                                })
-                            }}
+                        <Dropdown
+                            overlay={
+                                <Menu
+                                    items={[
+                                        {
+                                            key: 'partInfo',
+                                            label: t('partition_info'),
+                                        },
+                                        {
+                                            key: 'truncate',
+                                            label: t('table_truncate'),
+                                        },
+                                        {
+                                            key: 'drop',
+                                            danger: true,
+                                            label: t('delete'),
+                                        },
+                                    ]}
+                                    onClick={({ _item, key, keyPath, domEvent }) => {
+                                        if (key == 'drop') {
+                                            drop(item)
+                                        }
+                                        else if (key == 'truncate') {
+                                            truncate(item)
+                                        }
+                                        else if (key == 'partInfo') {
+                                            partInfo(item)
+                                        }
+                                    }}
+                                />
+                            }
                         >
-                            查询分区信息
-                        </Button>
-                        <Button
-                            type="link"
-                            size="small"
-                            onClick={() => {
-                                truncate(item.TABLE_NAME)
-                            }}
-                        >
-                            清空
-                        </Button>
-                        <Button
-                            type="link"
-                            size="small"
-                            onClick={() => {
-                                drop(item.TABLE_NAME)
-                            }}
-                        >
-                            删除
-                        </Button>
+                            <Button
+                                type="link"
+                                size="small"
+                            >
+                                {t('more')}
+                                <DownOutlined />
+                            </Button>
+                        </Dropdown>
                     </Space>
                 )
             }

@@ -32,14 +32,6 @@ i18n
                     refresh: 'Refresh',
                     exec_result: 'Result',
                     history: 'History',
-
-                    siteName: 'Design Plugin',
-                    'slogon': 'Make Design Simple',
-
-                    "To get started, edit <1>src/App.js</1> and save to reload.":
-                        "To get started, edit <1>src/App.js</1> and save to reload.",
-                    "Welcome to React": "Welcome to React and react-i18next",
-                    welcome: "Hello <br/> <strong>World</strong>",
                     help: 'Help',
                     json: 'JSON',
                     text: 'Text',
@@ -117,6 +109,9 @@ i18n
                     toggle_theme: 'Toggle Theme',
                     welcome: 'Welcome to use DMS',
                     saved: 'Saved',
+                    more: 'More',
+                    query: 'Query',
+                    partition_info: 'Partitions',
                 }
             },
             zh: {
@@ -142,13 +137,6 @@ i18n
                     refresh: '刷新',
                     exec_result: '执行结果',
                     history: '历史记录',
-
-                    siteName: '设计插件',
-                    'slogon': '让设计更简单',
-
-                    "To get started, edit <1>src/App.js</1> and save to reload.":
-                        "Starte in dem du, <1>src/App.js</1> editierst und speicherst.",
-                    "Welcome to React": "欢迎",
                     help: '帮助',
                     json: 'JSON',
                     text: '文本',
@@ -227,6 +215,9 @@ i18n
                     toggle_theme: '切换主题',
                     welcome: '这里是工作台，将会放置快捷入口',
                     saved: '已保存',
+                    more: '更多',
+                    query: '查询',
+                    partition_info: '查询分区信息',
                 }
             }
         },

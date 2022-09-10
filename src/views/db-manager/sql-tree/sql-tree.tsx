@@ -125,8 +125,8 @@ function TreeTitle({ keyword, loading = false, nodeData, onAction, onClick, onDo
                                     key: 'refresh_table',
                                 },
                                 {
-                                    // label: t('refresh'),
-                                    label: 'Use',
+                                    label: t('use'),
+                                    // label: 'Use',
                                     key: 'schema_use',
                                 },
                                 {
