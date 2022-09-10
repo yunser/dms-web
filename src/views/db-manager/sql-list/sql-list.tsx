@@ -20,6 +20,8 @@ export function SqlList({ config, connectionId, event$ }: any) {
     // const [filterKeyword] = useState('')
     // const refreshByKeyword = 
     
+    const [page, setPage] = useState(1)
+    const [total, setTotal] = useState(0)
     const [list, setList] = useState([])
     
     event$.useSubscription(msg => {
@@ -33,7 +35,7 @@ export function SqlList({ config, connectionId, event$ }: any) {
         }
     })
 
-    async function loadData({ keyword } = {}) {
+    async function loadData() {
         // console.log('props', this.props.match.params.name)
         // let dbName = this.props.match.params.name
         // this.dbName = dbName
@@ -44,13 +46,16 @@ export function SqlList({ config, connectionId, event$ }: any) {
         setLoading(true)
         // setSortedInfo({})
         let res = await request.post(`${config.host}/mysql/sql/list`, {
+            page,
+            pageSize: 20,
             keyword,
         })
         if (res.success) {
             // message.info('连接成功')
-            const list = res.data
+            const { list, total } = res.data
             console.log('res', list)
             setList(list)
+            setTotal(total)
 
             // const children = list
             //     .map(item => {
@@ -83,7 +88,7 @@ export function SqlList({ config, connectionId, event$ }: any) {
 
     useEffect(() => {
         loadData()
-    }, [])
+    }, [page, keyword])
 
     
     const columns = [
@@ -207,9 +212,7 @@ export function SqlList({ config, connectionId, event$ }: any) {
                         placeholder={t('search')}
                         allowClear
                         onSearch={value => {
-                            loadData({
-                                keyword: value,
-                            })
+                            setKeyword(value)
                         }}
                         style={{ width: 200 }}
                     />
@@ -308,7 +311,14 @@ export function SqlList({ config, connectionId, event$ }: any) {
                 loading={loading}
                 className={styles.table}
                 dataSource={list}
-                pagination={false}
+                pagination={{
+                    current: page,
+                    pageSize: 20,
+                    total: total,
+                    onChange: (page) => {
+                        setPage(page)
+                    }
+                }}
                 size="small"
                 rowKey="id"
                 columns={columns}
