@@ -150,6 +150,7 @@ function Status({ config, event$, connectionId }) {
         })
         if (res.success) {
             setErr('')
+            setCurSchema('')
         }
         else {
             setErr('Connect rrror')

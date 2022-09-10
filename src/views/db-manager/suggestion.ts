@@ -108,7 +108,7 @@ export function suggestionInit() {
             }))
     }
 
-    function getFieldSuggest() {
+    function getAllFieldSuggest() {
 
         let fields = [
             // 'id',
@@ -236,14 +236,50 @@ export function suggestionInit() {
                     console.log('monaco/match', 'endsWith .')
                     const tokenNoDot = lastToken.slice(0, lastToken.length - 1).replaceAll('`', '')
                     console.log('tokenNoDot', tokenNoDot)
-                    if (Object.keys(hintData).includes(tokenNoDot)) {
-                        suggestions = [...getTableSuggest(tokenNoDot)]
+                    const asList = []
+                    for (let idx = 0; idx < tokens.length; idx++) {
+                        const token = tokens[idx]
+                        if ((token.startsWith('a') || token.startsWith('A')) && token.toLowerCase() == 'as') {
+                            const nextToken = tokens[idx + 1]
+                            if (nextToken) {
+                                asList.push(nextToken.replaceAll('`', ''))
+                            }
+                        }
+                    }
+                    console.log('asList', asList)
+                    if (asList.includes(tokenNoDot)) {
+                        suggestions = [
+                            ...getAllFieldSuggest()
+                        ]
+                    }
+                    else {
+                        if (Object.keys(hintData).includes(tokenNoDot)) {
+                            suggestions = [...getTableSuggest(tokenNoDot)]
+                        }
                     }
                 }
                 // Before from
                 else if (lastToken === 'WHERE' || lastToken === 'where') {
                     console.log('monaco/match', 'where')
-                    suggestions = [...getFieldSuggest()]
+                    // console.log('monaco/match', 'where', tokens)
+                    // if (tokens.includes('AS')) {}
+                    const asList = []
+                    for (let idx = 0; idx < tokens.length; idx++) {
+                        const token = tokens[idx]
+                        if ((token.startsWith('a') || token.startsWith('A')) && token.toLowerCase() == 'as') {
+                            const nextToken = tokens[idx + 1]
+                            if (nextToken) {
+                                asList.push(nextToken.replaceAll('`', ''))
+                            }
+                        }
+                    }
+                    console.log('asList', asList)
+                    suggestions = [
+                        ...list2Suggest(asList, {
+                            backquote: true,
+                        }),
+                        ...getAllFieldSuggest()
+                    ]
                 }
                 // order ?
                 else if (lastTokenLowerCase == 'order') {
@@ -259,14 +295,14 @@ export function suggestionInit() {
                 }
                 // by ?
                 else if (lastTokenLowerCase == 'by') {
-                    suggestions = [...getFieldSuggest()]
+                    suggestions = [...getAllFieldSuggest()]
                 }
                 // select ?（before 「want to select」）
                 else if (lastTokenLowerCase == 'select') {
                     suggestions = [
                         ...list2Suggest(['*', 'ALL']),
                         ...getFunctionSuggest(),
-                        ...getFieldSuggest()
+                        ...getAllFieldSuggest()
                     ]
                 }
                 // want to select
@@ -296,7 +332,7 @@ export function suggestionInit() {
                 // update xx set ?
                 else if (lastTokenLowerCase == 'set') {
                     suggestions = [
-                        ...getFieldSuggest()
+                        ...getAllFieldSuggest()
                     ]
                 }
                 // delete ?
@@ -354,7 +390,7 @@ export function suggestionInit() {
                 else if (lastTokenLowerCase.includes('(')) {
                     console.log('monaco/match', 'insert into xx (?)')
                     suggestions = [
-                        ...getFieldSuggest(),
+                        ...getAllFieldSuggest(),
                     ]
                 }
                 // left ?
@@ -392,13 +428,13 @@ export function suggestionInit() {
                 else if (lastToken === '.') {
                     console.log('monaco/match', '.')
                     suggestions = [
-                        ...getFieldSuggest(),
+                        ...getAllFieldSuggest(),
                     ]
                 }
                 else if (lastToken.endsWith(',')) {
                     console.log('monaco/match', 'field_more')
                     suggestions = [
-                        ...getFieldSuggest(),
+                        ...getAllFieldSuggest(),
                     ]
                 }
                 else if (lastToken.endsWith('`')) {
