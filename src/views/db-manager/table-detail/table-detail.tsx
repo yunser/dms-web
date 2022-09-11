@@ -277,7 +277,7 @@ export function TableDetail({ config, connectionId, event$, dbName, tableName: o
     const [modelCode, setModalCode] = useState('')
     const [fields, setFields] = useState([])
     const [execSql, setExecSql] = useState('')
-    
+    const [curTab, setCurTab] = useState('basic')
     const [form] = Form.useForm()
     const [nginxs, setNginxs] = useState([])
     // useEffect(() => {
@@ -1039,6 +1039,10 @@ ${rowSqls.join(' ,\n')}
                     </div>
                     <div className={styles.body}>
                         <Tabs
+                            activeKey={curTab}
+                            onChange={key => {
+                                setCurTab(key)
+                            }}
                             tabPosition="left"
                             type="card"
                         >
