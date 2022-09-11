@@ -30,7 +30,7 @@ function list2Tree(list) {
     const map = {}
     for (let item of list) {
         // let _name = item.name
-        function getNode(name) {
+        function getNode(name, props) {
             return {
                 title: (
                     <Space>
@@ -45,6 +45,7 @@ function list2Tree(list) {
                     )
                 },
                 data: item,
+                ...props,
             }
         }
         
@@ -53,11 +54,15 @@ function list2Tree(list) {
             if (!map[item.path]) {
                 map[item.path] = []
             }
-            const node = getNode(item.name)
+            const node = getNode(item.name, {
+                type: 'connection',
+            })
             map[item.path].push(node)
         }
         else {
-            const node = getNode(item.name)
+            const node = getNode(item.name, {
+                type: 'connection',
+            })
             unGroupList.push(node)
         }
     }
@@ -78,6 +83,7 @@ function list2Tree(list) {
             ),
             key: `group-${key}`,
             children: map[key],
+            type: 'folder',
         })
     }
     // treeData.push({
@@ -99,6 +105,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
     const { t } = useTranslation()
 
     // TODO clear
+    const [view, setView] = useState('')
     const timerRef = useRef<number | null>(null)
     const [curConnect, setCurConnect] = useState(null)
     const [connections, setConnections] = useState([
@@ -133,17 +140,17 @@ export function SqlConnector({ config, onConnnect, onJson }) {
         const connections = storage.get('connections', [])
         if (connections.length) {
             setConnections(connections)
-            const curConneId = storage.get('current_connection_id')
-            let curConn
-            if (curConneId) {
-                curConn = connections.find(item => item.id === curConneId)
-            }
-            if (curConn) {
-                loadConnect(curConn)
-            }
-            else {
-                loadConnect(connections[0])
-            }
+            // const curConneId = storage.get('current_connection_id')
+            // let curConn
+            // if (curConneId) {
+            //     curConn = connections.find(item => item.id === curConneId)
+            // }
+            // if (curConn) {
+            //     loadConnect(curConn)
+            // }
+            // else {
+            //     loadConnect(connections[0])
+            // }
         }   
     }
 
@@ -230,6 +237,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
         setConnections(newConnects)
         storage.set('connections', newConnects)
         loadConnect(newItem)
+        setView('edit')
     }
 
     function remove() {
@@ -289,16 +297,24 @@ export function SqlConnector({ config, onConnnect, onJson }) {
         storage.set('connections', newConnects)
     }
 
-    function handlerClick(nodeData) {
-        const data = nodeData.data
-        if (data) {
-            const { id } = nodeData.data
-            storage.set('current_connection_id', id)
-            loadConnect(data)
+    function handleClick(nodeData) {
+        console.log('click', nodeData)
+        if (nodeData.type == 'connection') {
+            const data = nodeData.data
+            if (data) {
+                const { id } = nodeData.data
+                storage.set('current_connection_id', id)
+                loadConnect(data)
+                setView('edit')
+            }
+        }
+        else if (nodeData.type == 'folder') {
+            setCurConnect(null)
+            setView('folder')
         }
     }
 
-    function handlerDoubleClick(nodeData) {
+    function handleDoubleClick(nodeData) {
         const data = nodeData.data
         if (data) {
             // const { id } = nodeData.data
@@ -401,7 +417,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
                                                 clearTimeout(timerRef.current)
                                             }
                                             console.log('双击')
-                                            handlerDoubleClick(nodeData)
+                                            handleDoubleClick(nodeData)
                                             // onDoubleClick && onDoubleClick()
                                         }}
                                         onClick={() => {
@@ -412,7 +428,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
                                             }
                                             timerRef.current = window.setTimeout(() => {
                                                 console.log('单机')
-                                                handlerClick(nodeData)
+                                                handleClick(nodeData)
                                                 // onClick && onClick()
                                             }, 200)
                                         }}
@@ -429,94 +445,97 @@ export function SqlConnector({ config, onConnnect, onJson }) {
                 </div>
             </div>
             <div className={styles.layoutRight}>
-
-                <div className={styles.content}>
-                    <Form
-                        form={form}
-                        labelCol={{ span: 8 }}
-                        wrapperCol={{ span: 16 }}
-                        initialValues={{
-                            port: 3306,
-                        }}
-                        // layout={{
-                        //     labelCol: { span: 0 },
-                        //     wrapperCol: { span: 24 },
-                        // }}
-                    >
-                        <Form.Item
-                            name="name"
-                            label={t('name')}
-                            rules={[]}
-                        >
-                            <Input />
-                        </Form.Item>
-                        <Form.Item
-                            name="host"
-                            label={t('host')}
-                            rules={[ { required: true, }, ]}
-                        >
-                            <Input />
-                        </Form.Item>
-                        <Form.Item
-                            name="port"
-                            label={t('port')}
-                            rules={[{ required: true, },]}
-                        >
-                            <InputNumber />
-                        </Form.Item>
-                        <Form.Item
-                            name="user"
-                            label={t('user')}
-                            rules={[{ required: true, },]}
-                        >
-                            <Input />
-                        </Form.Item>
-                        <Form.Item
-                            name="password"
-                            label={t('password')}
-                            rules={[{ required: true, },]}
-                        >
-                            <Input />
-                        </Form.Item>
-                        <Form.Item
-                            name="path"
-                            label={t('folder')}
-                            // rules={[{ required: true, },]}
-                        >
-                            <Input />
-                        </Form.Item>
-                        {/* <Form.Item name="remember" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>
-                            <Checkbox>{t('remember_me')}</Checkbox>
-                        </Form.Item> */}
-                        <Form.Item
-                            wrapperCol={{ offset: 8, span: 16 }}
-                            // name="passowrd"
-                            // label="Passowrd"
-                            // rules={[{ required: true, },]}
-                        >
-                            <Space>
-                                <Button
-                                    type="primary"
-                                    onClick={connect}
+                {view == 'edit' &&
+                    <div className={styles.editView}>
+                        <div className={styles.content}>
+                            <Form
+                                form={form}
+                                labelCol={{ span: 8 }}
+                                wrapperCol={{ span: 16 }}
+                                initialValues={{
+                                    port: 3306,
+                                }}
+                                // layout={{
+                                //     labelCol: { span: 0 },
+                                //     wrapperCol: { span: 24 },
+                                // }}
+                            >
+                                <Form.Item
+                                    name="name"
+                                    label={t('name')}
+                                    rules={[]}
                                 >
-                                    {t('connect')}
-                                </Button>
-                                <Button onClick={save}>
-                                    {t('save')}
-                                </Button>
-                                {editType == 'update' &&
-                                    <Button
-                                        danger
-                                        onClick={remove}
-                                    >
-                                        {t('delete')}
-                                    </Button>
-                                }
-                            </Space>
-                        </Form.Item>
-                    </Form>
-                    <CodeDebuger path="src/views/db-manager/sql-connect/sql-connect.tsx" />
-                </div>
+                                    <Input />
+                                </Form.Item>
+                                <Form.Item
+                                    name="host"
+                                    label={t('host')}
+                                    rules={[ { required: true, }, ]}
+                                >
+                                    <Input />
+                                </Form.Item>
+                                <Form.Item
+                                    name="port"
+                                    label={t('port')}
+                                    rules={[{ required: true, },]}
+                                >
+                                    <InputNumber />
+                                </Form.Item>
+                                <Form.Item
+                                    name="user"
+                                    label={t('user')}
+                                    rules={[{ required: true, },]}
+                                >
+                                    <Input />
+                                </Form.Item>
+                                <Form.Item
+                                    name="password"
+                                    label={t('password')}
+                                    rules={[{ required: true, },]}
+                                >
+                                    <Input />
+                                </Form.Item>
+                                <Form.Item
+                                    name="path"
+                                    label={t('folder')}
+                                    // rules={[{ required: true, },]}
+                                >
+                                    <Input />
+                                </Form.Item>
+                                {/* <Form.Item name="remember" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>
+                                    <Checkbox>{t('remember_me')}</Checkbox>
+                                </Form.Item> */}
+                                <Form.Item
+                                    wrapperCol={{ offset: 8, span: 16 }}
+                                    // name="passowrd"
+                                    // label="Passowrd"
+                                    // rules={[{ required: true, },]}
+                                >
+                                    <Space>
+                                        <Button
+                                            type="primary"
+                                            onClick={connect}
+                                        >
+                                            {t('connect')}
+                                        </Button>
+                                        <Button onClick={save}>
+                                            {t('save')}
+                                        </Button>
+                                        {editType == 'update' &&
+                                            <Button
+                                                danger
+                                                onClick={remove}
+                                            >
+                                                {t('delete')}
+                                            </Button>
+                                        }
+                                    </Space>
+                                </Form.Item>
+                            </Form>
+                            <CodeDebuger path="src/views/db-manager/sql-connect/sql-connect.tsx" />
+                        </div>
+                    </div>
+                }
             </div>
             {/* <TextArea className={styles.textarea} value={code} rows={4} 
                 onChange={e => setCode(e.target.value)} /> */}
