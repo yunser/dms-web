@@ -85,7 +85,7 @@ export function HistoryList({ config, onSql }) {
         {
             title: t('exec_time'),
             dataIndex: 'execTime',
-            width: 120,
+            width: 100,
         },
         {
             title: t('message'),
