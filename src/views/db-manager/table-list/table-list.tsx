@@ -495,8 +495,6 @@ ORDER BY TABLE_ROWS DESC`
         {
             title: '',
             dataIndex: '_empty',
-            // width: 240,
-            // ellipsis: true,
         },
         {
             title: t('actions'),

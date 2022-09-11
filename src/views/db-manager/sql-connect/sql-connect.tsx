@@ -48,13 +48,13 @@ function list2Tree(list) {
             }
         }
         
-        if (item.name.includes('/')) {
-            const [key, name] = lastSplit(item.name, '/')
-            if (!map[key]) {
-                map[key] = []
+        if (item.path) {
+            // const [key, name] = lastSplit(item.name, '/')
+            if (!map[item.path]) {
+                map[item.path] = []
             }
-            const node = getNode(name)
-            map[key].push(node)
+            const node = getNode(item.name)
+            map[item.path].push(node)
         }
         else {
             const node = getNode(item.name)
@@ -121,6 +121,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
     function loadConnect(data) {
         form.setFieldsValue({
             ...data,
+            path: data.path || '',
         })
         setCurConnect(data)
         setEditType('update')
@@ -269,6 +270,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
                 port: values.port,
                 user: values.user,
                 password: values.password,
+                path: values.path,
             }
             connections[idx] = newConnect
             newConnects = [
@@ -427,6 +429,13 @@ export function SqlConnector({ config, onConnnect, onJson }) {
                         >
                             <Input />
                         </Form.Item>
+                        <Form.Item
+                            name="path"
+                            label={t('path')}
+                            // rules={[{ required: true, },]}
+                        >
+                            <Input />
+                        </Form.Item>
                         {/* <Form.Item name="remember" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>
                             <Checkbox>{t('remember_me')}</Checkbox>
                         </Form.Item> */}
@@ -457,7 +466,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
                             </Space>
                         </Form.Item>
                     </Form>
-                    <CodeDebuger path="src/views/db-manager/redis-connect/redis-connect.tsx" />
+                    <CodeDebuger path="src/views/db-manager/sql-connect/sql-connect.tsx" />
                 </div>
             </div>
             {/* <TextArea className={styles.textarea} value={code} rows={4} 

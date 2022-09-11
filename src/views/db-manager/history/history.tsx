@@ -94,6 +94,10 @@ export function HistoryList({ config, onSql }) {
             }
         },
         {
+            title: '',
+            dataIndex: '_empty',
+        },
+        {
             title: t('actions'),
             dataIndex: 'actions',
             fixed: 'right',
