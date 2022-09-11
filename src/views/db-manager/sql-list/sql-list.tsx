@@ -95,58 +95,41 @@ export function SqlList({ config, connectionId, event$ }: any) {
         {
             title: 'Name',
             dataIndex: 'name',
+            width: 160,
+            ellipsis: true,
         },
         {
             title: 'SQL',
             dataIndex: 'sql',
+            width: 480 + 16,
+            ellipsis: true,
+            render(value) {
+                return (
+                    <Popover
+                        title="SQL"
+                        content={
+                            <div className={styles.content}>
+                                <code><pre>{value}</pre></code>
+                            </div>
+                        }
+                    >
+                        <div className={styles.sqlCell}>
+                            {value}
+                        </div>
+                    </Popover>
+                )
+            }
         },
-        // {
-        //     title: 'TABLE_ROWS',
-        //     dataIndex: 'TABLE_ROWS',
-        //     key: 'TABLE_ROWS',
-        //     sorter: (a, b) => a.TABLE_ROWS - b.TABLE_ROWS,
-        //     sortOrder: sortedInfo.columnKey === 'TABLE_ROWS' ? sortedInfo.order : null,
-        //     sortDirections: ['descend', 'ascend'],
-        //     ellipsis: true,
-        // },
-        // {
-        //     title: 'DATA_LENGTH',
-        //     dataIndex: 'DATA_LENGTH',
-        //     key: 'DATA_LENGTH',
-        //     sorter: (a, b) => a.DATA_LENGTH - b.DATA_LENGTH,
-        //     sortOrder: sortedInfo.columnKey === 'DATA_LENGTH' ? sortedInfo.order : null,
-        //     sortDirections: ['descend', 'ascend'],
-        // },
-        // {
-        //     title: 'INDEX_LENGTH',
-        //     dataIndex: 'INDEX_LENGTH',
-        //     key: 'INDEX_LENGTH',
-        //     sorter: (a, b) => a.INDEX_LENGTH - b.INDEX_LENGTH,
-        //     sortOrder: sortedInfo.columnKey === 'INDEX_LENGTH' ? sortedInfo.order : null,
-        //     sortDirections: ['descend', 'ascend'],
-        // },
-        // {
-        //     title: 'DATA_FREE',
-        //     dataIndex: 'DATA_FREE',
-        //     key: 'DATA_FREE',
-        //     sorter: (a, b) => a.DATA_FREE - b.DATA_FREE,
-        //     sortOrder: sortedInfo.columnKey === 'DATA_FREE' ? sortedInfo.order : null,
-        //     sortDirections: ['descend', 'ascend'],
-        // },
-        // {
-        //     title: 'TABLE_COLLATION',
-        //     dataIndex: 'TABLE_COLLATION',
-        // },
-        // {
-        //     title: 'TABLE_COMMENT',
-        //     dataIndex: 'TABLE_COMMENT',
-        //     width: 240,
-        //     ellipsis: true,
-        // },
+        {
+            title: '',
+            dataIndex: '_empty',
+        },
         {
             title: t('actions'),
             dataIndex: 'actions',
             fixed: 'right',
+            width: 160,
+            // ellipsis: true,
             render(value, item) {
                 return (
                     <Space>
@@ -330,7 +313,7 @@ export function SqlList({ config, connectionId, event$ }: any) {
                     setSortedInfo(sorter)
                 }}
                 scroll={{
-                    x: true,
+                    x: 2400,
                 }}
             />
             {/* <Card bordered={false}>
