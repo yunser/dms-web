@@ -119,6 +119,8 @@ i18n
                     truncate: 'Truncate',
                     description: 'Description',
                     drop: 'Drop',
+                    success: 'Success',
+                    fail: 'Fail',
                 }
             },
             zh: {
@@ -232,6 +234,8 @@ i18n
                     truncate: '清空',
                     description: '描述',
                     drop: '删除',
+                    success: '成功',
+                    fail: '失败',
                 }
             }
         },

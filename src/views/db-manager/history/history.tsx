@@ -35,11 +35,13 @@ export function HistoryList({ config, onSql }) {
         {
             title: t('schema'),
             dataIndex: 'schema',
+            width: 160,
+            ellipsis: true,
         },
         {
             title: t('sql'),
             dataIndex: 'sql',
-            with: 240,
+            width: 480 + 16,
             ellipsis: true,
             render(value) {
                 return (
@@ -48,12 +50,10 @@ export function HistoryList({ config, onSql }) {
                             title="SQL"
                             content={
                                 <div className={styles.content}>
-                                    {/* {sql} */}
                                     <code><pre>{value}</pre></code>
                                 </div>
                             }
                         >
-                            {/* <div className={styles.sql}>{sql}</div> */}
                             {value}
                         </Popover>
                     </div>
@@ -63,19 +63,21 @@ export function HistoryList({ config, onSql }) {
         {
             title: t('status'),
             dataIndex: 'status',
+            width: 80,
             render(value) {
                 return (
                     <div
                         style={{
                             color: value == 'success' ? 'green' : 'red',
                         }}
-                    >{value}</div>
+                    >{value == 'success' ? t('success') : t('fail')}</div>
                 )
             }
         },
         {
             title: t('rows'),
             dataIndex: 'rows',
+            width: 80,
         },
         {
             title: t('exec_time'),
@@ -85,13 +87,23 @@ export function HistoryList({ config, onSql }) {
         {
             title: t('message'),
             dataIndex: 'message',
+            width: 480 + 16,
+            ellipsis: true,
             render(value) {
                 return (
-                    <div
-                        style={{
-                            color: 'red',
-                        }}
-                    >{value}</div>
+                    <div>
+                        <Popover
+                            title={t('message')}
+                            content={
+                                <div className={styles.content}>
+                                    <code><pre>{value}</pre></code>
+                                </div>
+                            }
+                        >
+                            <div className={styles.messageCell}>{value}</div>
+                        </Popover>
+                        {/* {value} */}
+                    </div>
                 )
             }
         },
@@ -102,6 +114,7 @@ export function HistoryList({ config, onSql }) {
         {
             title: t('actions'),
             dataIndex: 'actions',
+            width: 80,
             fixed: 'right',
             render(value, item) {
                 return (
@@ -153,6 +166,10 @@ export function HistoryList({ config, onSql }) {
                     </IconButton>
                 </Space>
             </div>
+            {/* <div className={styles.debug}>
+
+            <code><pre>UPDA8TE `linxot`.`a_test567` SET `content` = '9999989' WHERE `id` = '9'</pre></code>
+            </div> */}
             <Table
                 loading={loading}
                 // showTotal={}
@@ -166,7 +183,7 @@ export function HistoryList({ config, onSql }) {
                 // columns={columns}
                 columns={columns}
                 scroll={{
-                    x: true,
+                    x: 2400,
                 }}
             />
         </div>
