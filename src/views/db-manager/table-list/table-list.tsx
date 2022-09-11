@@ -12,7 +12,7 @@ import { suggestionAdd } from '../suggestion';
 import { SorterResult } from 'antd/lib/table/interface';
 import { useEventEmitter } from 'ahooks';
 import { request } from '../utils/http';
-import filesize from 'filesize';
+import filesize from 'file-size'
 
 function getHightlight(title: string, keyword: string) {
     const index = title.toLocaleLowerCase().indexOf(keyword.toLowerCase())
@@ -409,8 +409,7 @@ ORDER BY TABLE_ROWS DESC`
             sorter: (a, b) => a.TABLE_NAME.localeCompare(b.TABLE_ROWS),
             sortOrder: sortedInfo.columnKey === 'TABLE_NAME' ? sortedInfo.order : null,
             // sortDirections: ['descend', 'ascend'],
-            width: 320,
-            // maxWidth: 80,
+            width: 240,
             ellipsis: true,
             fixed: 'left',
             render(value) {
@@ -422,40 +421,47 @@ ORDER BY TABLE_ROWS DESC`
         {
             title: t('nginx'),
             dataIndex: 'ENGINE',
+            width: 80,
+            ellipsis: true,
         },
         {
             title: t('rows'),
             dataIndex: 'TABLE_ROWS',
             key: 'TABLE_ROWS',
+            width: 110,
+            ellipsis: true,
             sorter: (a, b) => a.TABLE_ROWS - b.TABLE_ROWS,
             sortOrder: sortedInfo.columnKey === 'TABLE_ROWS' ? sortedInfo.order : null,
             sortDirections: ['descend', 'ascend'],
-            ellipsis: true,
         },
         {
             title: t('data_length'),
             dataIndex: 'DATA_LENGTH',
             key: 'DATA_LENGTH',
+            width: 120,
+            ellipsis: true,
             sorter: (a, b) => a.DATA_LENGTH - b.DATA_LENGTH,
             sortOrder: sortedInfo.columnKey === 'DATA_LENGTH' ? sortedInfo.order : null,
             sortDirections: ['descend', 'ascend'],
             render(value) {
-                return (
-                    <div>{filesize(value)}</div>
-                )
+                return filesize(value, { fixed: 1, }).human()
+                // return (
+                //     <div>{filesize(value, { fixed: 1, }).human()}</div>
+                // )
             },
         },
         {
             title: t('index_length'),
             dataIndex: 'INDEX_LENGTH',
             key: 'INDEX_LENGTH',
-            width: 400,
+            width: 120,
+            ellipsis: true,
             sorter: (a, b) => a.INDEX_LENGTH - b.INDEX_LENGTH,
             sortOrder: sortedInfo.columnKey === 'INDEX_LENGTH' ? sortedInfo.order : null,
             sortDirections: ['descend', 'ascend'],
             render(value) {
                 return (
-                    <div>{filesize(value)}</div>
+                    <div>{filesize(value, { fixed: 1, }).human()}</div>
                 )
             },
         },
@@ -463,29 +469,40 @@ ORDER BY TABLE_ROWS DESC`
             title: t('data_free'),
             dataIndex: 'DATA_FREE',
             key: 'DATA_FREE',
+            width: 120,
+            ellipsis: true,
             sorter: (a, b) => a.DATA_FREE - b.DATA_FREE,
             sortOrder: sortedInfo.columnKey === 'DATA_FREE' ? sortedInfo.order : null,
             sortDirections: ['descend', 'ascend'],
             render(value) {
                 return (
-                    <div>{filesize(value)}</div>
+                    <div>{filesize(value, { fixed: 1, }).human()}</div>
                 )
             },
         },
         {
             title: t('collation'),
             dataIndex: 'TABLE_COLLATION',
+            width: 170,
+            ellipsis: true,
         },
         {
             title: t('comment'),
             dataIndex: 'TABLE_COMMENT',
-            width: 240,
+            width: 320,
             ellipsis: true,
+        },
+        {
+            title: '',
+            dataIndex: '_empty',
+            // width: 240,
+            // ellipsis: true,
         },
         {
             title: t('actions'),
             dataIndex: 'op',
             fixed: 'right',
+            width: 200,
             render(_value, item) {
                 return (
                     <Space>
@@ -712,7 +729,9 @@ LIMIT 20`,
                     setSortedInfo(sorter)
                 }}
                 scroll={{
-                    x: true,
+                    // x: true,
+                    x: 1500,
+                    y: document.body.clientHeight - 40 - 40 -16 - 32 - 40 - 16 - 12,
                 }}
             />
             {/* <Card bordered={false}>
