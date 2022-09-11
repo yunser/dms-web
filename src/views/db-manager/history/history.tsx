@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import moment from 'moment'
 import { IconButton } from '../icon-button';
 import { ReloadOutlined } from '@ant-design/icons';
+import { CodeDebuger } from '../code-debug';
 
 const { TabPane } = Tabs
 const { TextArea } = Input
@@ -19,6 +20,8 @@ const { TextArea } = Input
 export function HistoryList({ config, onSql }) {
     const { t } = useTranslation()
     const [loading, setLoading] = useState(false)
+    const [page, setPage] = useState(1)
+    const [total, setTotal] = useState(0)
     const [list, setList] = useState([])
 
     const columns = [
@@ -136,19 +139,22 @@ export function HistoryList({ config, onSql }) {
         setLoading(true)
         let res = await request.post(`${config.host}/mysql/history/list`, {
             // dbName,
+            page,
+            pageSize: 10,
         })
         if (res.success) {
             // message.info('连接成功')
-            const list = res.data
+            const data = res.data
             // console.log('res', list)
-            setList(list)
+            setList(data.list)
+            setTotal(data.total)
         }
         setLoading(false)
     }
 
     useEffect(() => {
         loadData()
-    }, [])
+    }, [page])
 
     return (
         <div className={styles.historyBox}>
@@ -175,6 +181,14 @@ export function HistoryList({ config, onSql }) {
                 // showTotal={}
                 bordered
                 dataSource={list}
+                pagination={{
+                    current: page,
+                    pageSize: 20,
+                    total: total,
+                    onChange: (page) => {
+                        setPage(page)
+                    }
+                }}
                 size="small"
                 // pagination={{
                 //     showTotal: total => `共 ${total} 条`
@@ -183,9 +197,10 @@ export function HistoryList({ config, onSql }) {
                 // columns={columns}
                 columns={columns}
                 scroll={{
-                    x: 2400,
+                    x: 1800,
                 }}
             />
+            <CodeDebuger path="src/views/db-manager/history/history.tsx" />
         </div>
     )
 }
