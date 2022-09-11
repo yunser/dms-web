@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { IconButton } from '../icon-button';
 import { ReloadOutlined } from '@ant-design/icons';
 import filesize from 'file-size';
+import { CodeDebuger } from '../code-debug';
 // console.log('lodash', _)
 const { TabPane } = Tabs
 
@@ -929,12 +930,14 @@ ${rowSqls.join(' ,\n')}
                     }
                     return newCol
                 }))
-                setPartitions(res.data.partitions.map(item => {
-                    return {
-                        __id: uid(32),
-                        ...item,
-                    }
-                }))
+                setPartitions(res.data.partitions
+                    .filter(item => item.PARTITION_NAME)
+                    .map(item => {
+                        return {
+                            __id: uid(32),
+                            ...item,
+                        }
+                    }))
                 
                 const groupMap = _.groupBy(res.data.indexes, 'INDEX_NAME')
                 // console.log('groups2', groupMap)
@@ -1288,6 +1291,7 @@ ${rowSqls.join(' ,\n')}
                                 </>
                             }
                         </Tabs>
+                        <CodeDebuger path="src/views/db-manager/table-detail/table-detail.tsx" />
                     </div>
                 </>
             }
