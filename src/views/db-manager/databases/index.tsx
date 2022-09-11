@@ -85,7 +85,7 @@ export default function DatabaseList({ connectionId, config, event$, onJson, onS
             title: t('actions'),
             dataIndex: 'op',
             key: 'op',
-            width: 160,
+            width: 190,
             render(value, item) {
                 return (
                     <Space>

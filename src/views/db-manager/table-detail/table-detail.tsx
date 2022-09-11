@@ -9,6 +9,7 @@ import { uid } from 'uid';
 import { useTranslation } from 'react-i18next';
 import { IconButton } from '../icon-button';
 import { ReloadOutlined } from '@ant-design/icons';
+import filesize from 'file-size';
 // console.log('lodash', _)
 const { TabPane } = Tabs
 
@@ -603,20 +604,69 @@ ${rowSqls.join(' ,\n')}
 
     const partitionColumns = [
         {
-            title: '分区名',
+            title: t('name'),
             dataIndex: 'PARTITION_NAME',
+            width: 160,
+            ellipsis: true,
         },
         {
-            title: '表达式',
+            title: t('expression'),
             dataIndex: 'PARTITION_EXPRESSION',
+            width: 200,
+            ellipsis: true,
         },
         {
-            title: '数据长度',
+            title: t('rows'),
+            dataIndex: 'TABLE_ROWS',
+            width: 160,
+            ellipsis: true,
+        },
+        {
+            title: t('data_length'),
             dataIndex: 'DATA_LENGTH',
+            width: 120,
+            ellipsis: true,
+            render(value) {
+                return filesize(value, { fixed: 1, }).human()
+                // return (
+                //     <div>{filesize(value, { fixed: 1, }).human()}</div>
+                // )
+            },
         },
         {
-            title: '描述',
+            title: t('description'),
             dataIndex: 'PARTITION_DESCRIPTION',
+            width: 320,
+            ellipsis: true,
+        },
+        {
+            title: t('actions'),
+            dataIndex: 'actions',
+            // fixed: 'right',
+            render(value, item) {
+                return (
+                    <Space>
+                        <Button
+                            type="link"
+                            size="small"
+                            onClick={() => {
+                                // onSql && onSql(item.sql)
+                                event$.emit({
+                                    type: 'event_open_sql',
+                                    data: {
+                                        connectionId,
+                                        sql: `ALTER TABLE \`${item.TABLE_SCHEMA}\`.\`${item.TABLE_NAME}\` TRUNCATE PARTITION ${item.PARTITION_NAME}`,
+                                    }
+                                })
+                            }}
+                        >{t('truncate')}</Button>
+                    </Space>
+                )
+            }
+        },
+        {
+            title: '',
+            dataIndex: '_empty',
         },
     ]
 
@@ -1217,6 +1267,9 @@ ${rowSqls.join(' ,\n')}
                                             pagination={false}
                                             size="small"
                                             rowKey="__id"
+                                            scroll={{
+                                                // x: 2400,
+                                            }}
                                         />
                                     </TabPane>
                                 </>

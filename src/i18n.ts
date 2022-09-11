@@ -115,6 +115,9 @@ i18n
                     query: 'Query',
                     partition_info: 'Partitions',
                     folder: 'Folder',
+                    expression: 'Expression',
+                    truncate: 'Truncate',
+                    description: 'Description',
                 }
             },
             zh: {
@@ -224,6 +227,9 @@ i18n
                     query: '查询',
                     partition_info: '查询分区信息',
                     folder: '文件夹',
+                    expression: '表达式',
+                    truncate: '清空',
+                    description: '描述',
                 }
             }
         },
