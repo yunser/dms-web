@@ -44,6 +44,11 @@ body {
     
     /* background-color: #111; */
 }
+.theme-dark code {
+    color: #f1f1f1;
+    background-color: #333;
+    border: none;
+}
 
 .ui-unSupportEsm {
     position: fixed;
