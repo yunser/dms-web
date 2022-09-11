@@ -13,13 +13,16 @@ import { ExportOutlined, ReloadOutlined } from '@ant-design/icons';
 import { DatabaseEditHandler } from '../db-edit';
 import { DatabaseRemoveHandler } from '../db-remove';
 import { request } from '../utils/http';
+import { CodeDebuger } from '../code-debug';
 
 export default function DatabaseList({ connectionId, config, onJson, onSelectDatabase }) {
 
     const { t } = useTranslation()
     const [list, setList] = useState([])
+    const [loading, setLoading] = useState(false)
 
     async function loadDbList() {
+        setLoading(true)
         let ret = await request.post(`${config.host}/mysql/databases`, {
             connectionId,
         })
@@ -32,6 +35,7 @@ export default function DatabaseList({ connectionId, config, onJson, onSelectDat
         } else {
             message.error('连接失败')
         }
+        setLoading(false)
     }
 
     useEffect(() => {
@@ -43,6 +47,8 @@ export default function DatabaseList({ connectionId, config, onJson, onSelectDat
             title: t('schema_name'),
             dataIndex: 'SCHEMA_NAME',
             key: 'SCHEMA_NAME',
+            width: 320,
+            ellipsis: true,
             // render(value: string, item) {
             //     return (
             //         <div
@@ -66,15 +72,20 @@ export default function DatabaseList({ connectionId, config, onJson, onSelectDat
             // title: 'DEFAULT_CHARACTER_SET_NAME',
             title: t('character_set'),
             dataIndex: 'DEFAULT_CHARACTER_SET_NAME',
+            width: 170,
+            ellipsis: true,
         },
         {
             title: t('collation'),
             dataIndex: 'DEFAULT_COLLATION_NAME',
+            width: 170,
+            ellipsis: true,
         },
         {
             title: t('actions'),
             dataIndex: 'op',
             key: 'op',
+            width: 120,
             render(value, item) {
                 return (
                     <Space>
@@ -102,6 +113,10 @@ export default function DatabaseList({ connectionId, config, onJson, onSelectDat
                     </Space>
                 )
             },
+        },
+        {
+            title: '',
+            dataIndex: '_empty',
         },
     ]
 
@@ -142,6 +157,7 @@ export default function DatabaseList({ connectionId, config, onJson, onSelectDat
                 </Space>
             </div>
             <Table
+                loading={loading}
                 bordered
                 className={styles.table}
                 dataSource={list}
@@ -149,10 +165,12 @@ export default function DatabaseList({ connectionId, config, onJson, onSelectDat
                 columns={columns}
                 rowKey="name"
                 size="small"
-                // scroll={{
-                //     y: 400,
-                // }}
+                scroll={{
+                    // y: 400,
+                    y: document.body.clientHeight - 190,
+                }}
             />
+            <CodeDebuger path="src/views/db-manager/databases/index.tsx" />
             {/* <div>
             </div> */}
         </div>
