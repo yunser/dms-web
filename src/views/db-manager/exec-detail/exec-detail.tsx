@@ -786,8 +786,12 @@ export function ExecDetail(props) {
                                                     else {
                                                         console.log('单选')
                                                         // 单选
-                                                        
-                                                        setSelectedRowKeys([itemKey])
+                                                        if (selectedRowKeys.includes(itemKey)) {
+                                                            setSelectedRowKeys([])
+                                                        }
+                                                        else {
+                                                            setSelectedRowKeys([itemKey])
+                                                        }
                                                     }
                                                 }}
                                                 text={_idx + 1} color="#999" />
