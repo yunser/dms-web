@@ -36,12 +36,8 @@ export function Help({ config, }) {
         <div>
             <article className={styles.article}>
                 <h1>帮助</h1>
-                <p>目前功能以查询为主，更多功能正在开发中...</p>
-                <p>开发目标以满足自用为主，如有建议，请提 <a href="https://github.com/yunser/dms-public/issues" target="_blank">Issure</a>
-                </p>
-                <p>相关接口的设计暂未考虑安全性，请勿将端口暴露在公网。</p>
-                <p>暂未支持同时创建多个数据库连接，不要多个数据库同时使用。</p>
-                {/* <Tester /> */}
+                <p>如需帮助，请看 <a href="https://github.com/yunser/dms-public" target="_blank">文档</a></p>
+                <p>如有建议，请提 <a href="https://github.com/yunser/dms-public/issues" target="_blank">Issure</a></p>
             </article>
         </div>
     )
