@@ -216,6 +216,11 @@ export function DbManager({ config }) {
         >
             <div className={styles.app}>
                 <div className={styles.appHeader}>
+                    {/* <div className={styles.headerLeft}>
+                        <div className={styles.logoBox}>
+                            DMS
+                        </div>
+                    </div> */}
                     <Tabs
                         onEdit={onEdit}
                         activeKey={activeKey}
@@ -223,6 +228,11 @@ export function DbManager({ config }) {
                         type="editable-card"
                         hideAdd={true}
                         tabBarExtraContent={{
+                            left: (
+                                <div className={styles.logoBox}>
+                                    DMS
+                                </div>
+                            ),
                             right: (
                                 <div className={styles.langBox}>
                                     <Space>
