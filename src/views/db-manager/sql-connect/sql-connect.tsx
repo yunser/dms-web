@@ -1,5 +1,5 @@
 import { Button, Checkbox, Descriptions, Empty, Form, Input, InputNumber, message, Modal, Popover, Space, Table, Tabs, Tree } from 'antd';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './sql-connect.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
@@ -98,6 +98,8 @@ function list2Tree(list) {
 export function SqlConnector({ config, onConnnect, onJson }) {
     const { t } = useTranslation()
 
+    // TODO clear
+    const timerRef = useRef<number | null>(null)
     const [curConnect, setCurConnect] = useState(null)
     const [connections, setConnections] = useState([
         // {
@@ -179,19 +181,8 @@ export function SqlConnector({ config, onConnnect, onJson }) {
 //         form.setFieldsValue(dbInfo)
 //     }, [])
 
-    async function  connect() {
-        const values = await form.validateFields()
+    async function _connect(reqData) {
         setLoading(true)
-        const reqData = {
-            host: values.host,
-            port: values.port,
-            user: values.user,
-            password: values.password,
-            // remember: values.remember,
-        }
-        // if (values.remember) {
-        //     storage.set('dbInfo', reqData)
-        // }
         let ret = await request.post(`${config.host}/mysql/connect`, reqData)
         // console.log('ret', ret)
         if (ret.success) {
@@ -202,6 +193,22 @@ export function SqlConnector({ config, onConnnect, onJson }) {
             })
         }
         setLoading(false)
+    }
+
+    async function  connect() {
+        const values = await form.validateFields()
+        const reqData = {
+            host: values.host,
+            port: values.port,
+            user: values.user,
+            password: values.password,
+            // remember: values.remember,
+        }
+        await _connect(reqData)
+        // if (values.remember) {
+            //     storage.set('dbInfo', reqData)
+            // }
+        
         // else {
         //     message.error('连接失败')
         // }
@@ -280,6 +287,25 @@ export function SqlConnector({ config, onConnnect, onJson }) {
         }
         setConnections(newConnects)
         storage.set('connections', newConnects)
+    }
+
+    function handlerClick(nodeData) {
+        const data = nodeData.data
+        if (data) {
+            const { id } = nodeData.data
+            storage.set('current_connection_id', id)
+            loadConnect(data)
+        }
+    }
+
+    function handlerDoubleClick(nodeData) {
+        const data = nodeData.data
+        if (data) {
+            // const { id } = nodeData.data
+            // storage.set('current_connection_id', id)
+            // loadConnect(data)
+            _connect(nodeData.data)
+        }
     }
 
     function help() {
@@ -361,14 +387,37 @@ export function SqlConnector({ config, onConnnect, onJson }) {
                             expandedKeys={treeData.map(item => item.key)}
                             selectedKeys={curConnect ? [`dbkey-${curConnect.id}`] : []}
                             // defaultCheckedKeys={['0-0-0', '0-0-1']}
-                            onSelect={(selectKeys, info) => {
-                                console.log('onSelect', info.node)
-                                const data = info.node.data
-                                if (data) {
-                                    const { id } = info.node.data
-                                    storage.set('current_connection_id', id)
-                                    loadConnect(data)
-                                }
+                            // onSelect={(selectKeys, info) => {
+                            //     console.log('onSelect', info)
+                            //     handlerClick(info.node)
+                            // }}
+                            titleRender={nodeData => {
+                                return (
+                                    <div
+                                        onDoubleClick={() => {
+                                            // console.log('onDoubleClick')
+                                            // queryTable(nodeData.key)
+                                            if (timerRef.current) {
+                                                clearTimeout(timerRef.current)
+                                            }
+                                            console.log('双击')
+                                            handlerDoubleClick(nodeData)
+                                            // onDoubleClick && onDoubleClick()
+                                        }}
+                                        onClick={() => {
+                                            // console.log('onClick')
+                                            //先清除一次
+                                            if (timerRef.current) {
+                                                clearTimeout(timerRef.current)
+                                            }
+                                            timerRef.current = window.setTimeout(() => {
+                                                console.log('单机')
+                                                handlerClick(nodeData)
+                                                // onClick && onClick()
+                                            }, 200)
+                                        }}
+                                    >{nodeData.title}</div>
+                                )
                             }}
                             // onCheck={onCheck}
                         />
