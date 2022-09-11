@@ -431,7 +431,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
                         </Form.Item>
                         <Form.Item
                             name="path"
-                            label={t('path')}
+                            label={t('folder')}
                             // rules={[{ required: true, },]}
                         >
                             <Input />

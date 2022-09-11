@@ -112,6 +112,7 @@ i18n
                     more: 'More',
                     query: 'Query',
                     partition_info: 'Partitions',
+                    folder: 'Folder',
                 }
             },
             zh: {
@@ -218,6 +219,7 @@ i18n
                     more: '更多',
                     query: '查询',
                     partition_info: '查询分区信息',
+                    folder: '文件夹',
                 }
             }
         },
