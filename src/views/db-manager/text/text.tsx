@@ -31,27 +31,25 @@ export function TextEditor({ config, event$, data = {} }) {
 
     return (
         <div className={styles.jsonBox}>
-            {/* <div className={styles.toolBox}>
+            <div className={styles.toolBox}>
                 <Space>
                     <Button
                         size="small"
                         onClick={() => {
                             const code = getCode()
-                            const formatedCode = JSON.stringify(JSON.parse(code), null, 4)
-                            editor?.setValue(formatedCode)
+                            editor?.setValue(code.toLowerCase())
                         }}
                     >
-                        {t('format')}
+                        {t('lower_case')}
                     </Button>
                     <Button
                         size="small"
                         onClick={() => {
                             const code = getCode()
-                            const formatedCode = JSON.stringify(JSON.parse(code))
-                            editor?.setValue(formatedCode)
+                            editor?.setValue(code.toUpperCase())
                         }}
                     >
-                        {t('compress')}
+                        {t('upper_case')}
                     </Button>
                     <IconButton
                         size="small"
@@ -60,14 +58,14 @@ export function TextEditor({ config, event$, data = {} }) {
                             const code = getCode()
                             // const formatedCode = JSON.stringify(JSON.parse(code))
                             // editor?.setValue(formatedCode)
-                            const blob = new Blob([code], {type: 'application/json;charset=utf-8'});
-                            saveAs(blob, 'unnamed.json')
+                            const blob = new Blob([code], {type: 'text/plain;charset=utf-8'});
+                            saveAs(blob, `${t('unnamed')}.txt`)
                         }}
                     >
                         <DownloadOutlined />   
                     </IconButton>
                 </Space>
-            </div> */}
+            </div>
             <div className={styles.editorBox}>
                 <Editor
                     lang="plain"

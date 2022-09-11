@@ -128,6 +128,8 @@ i18n
                     fail: 'Fail',
                     unnamed: 'Unnamed',
                     untitled_query: 'Untitled Query',
+                    lower_case: 'Lower Case',
+                    upper_case: 'Upper Case',
                 }
             },
             zh: {
@@ -249,6 +251,8 @@ i18n
                     fail: '失败',
                     unnamed: '未命名',
                     untitled_query: '未命名查询',
+                    lower_case: '小写',
+                    upper_case: '大写',
                 }
             }
         },

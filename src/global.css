@@ -23,7 +23,8 @@
     /* --color-f1: #000; */
     --color-f1: rgba(255, 255, 255, .08);
     --color-f9: #1d1d1d;
-    --color-eee: #1d1d1d;
+    /* --color-eee: #1d1d1d; */
+    --color-eee: #333;
     --color-85: rgba(255, 255, 255, 0.85);
     --color-bg-left: #222;
     --color-table-hover: #333;
