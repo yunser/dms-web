@@ -224,7 +224,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
     function add() {
         const newItem = {
             id: uid(32),
-            name: 'Unnamed',
+            name: t('unnamed'),
             host: '',
             port: 3306,
             user: '',

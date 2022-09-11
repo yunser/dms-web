@@ -66,7 +66,7 @@ export function Json({ config, event$, data = {} }) {
                             // const formatedCode = JSON.stringify(JSON.parse(code))
                             // editor?.setValue(formatedCode)
                             const blob = new Blob([code], {type: 'application/json;charset=utf-8'});
-                            saveAs(blob, 'unnamed.json')
+                            saveAs(blob, `${t('unnamed')}.json`)
                         }}
                     >
                         <DownloadOutlined />   

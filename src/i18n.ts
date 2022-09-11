@@ -126,6 +126,8 @@ i18n
                     drop: 'Drop',
                     success: 'Success',
                     fail: 'Fail',
+                    unnamed: 'Unnamed',
+                    untitled_query: 'Untitled Query',
                 }
             },
             zh: {
@@ -245,6 +247,8 @@ i18n
                     drop: '删除',
                     success: '成功',
                     fail: '失败',
+                    unnamed: '未命名',
+                    untitled_query: '未命名查询',
                 }
             }
         },
