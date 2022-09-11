@@ -11,6 +11,7 @@ import { IconButton } from '../icon-button';
 import { ReloadOutlined } from '@ant-design/icons';
 import filesize from 'file-size';
 import { CodeDebuger } from '../code-debug';
+import moment from 'moment';
 // console.log('lodash', _)
 const { TabPane } = Tabs
 
@@ -1130,7 +1131,10 @@ ${rowSqls.join(' ,\n')}
                                                     {tableInfo.ROW_FORMAT}
                                                 </Form.Item>
                                                 <Form.Item label={t('create_time')}>
-                                                    {tableInfo.CREATE_TIME}
+                                                    {tableInfo.CREATE_TIME ? moment(tableInfo.CREATE_TIME).format('YYYY-MM-DD HH:mm:ss') : '--'}
+                                                </Form.Item>
+                                                <Form.Item label={t('update_time')}>
+                                                    {tableInfo.UPDATE_TIME ? moment(tableInfo.UPDATE_TIME).format('YYYY-MM-DD HH:mm:ss') : '--'}
                                                 </Form.Item>
                                                 {/* <Form.Item label="UPDATE_TIME">
                                                     {tableInfo.UPDATE_TIME}
