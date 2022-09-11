@@ -1119,7 +1119,7 @@ ${rowSqls.join(' ,\n')}
                                         {editType == 'update' &&
                                             <>
                                                 <Form.Item label={t('data_length')}>
-                                                    {tableInfo.DATA_LENGTH}
+                                                    {tableInfo.DATA_LENGTH ? filesize(tableInfo.DATA_LENGTH, { fixed: 1, }).human() : '--'}
                                                 </Form.Item>
                                                 <Form.Item label={t('avg_row_length')}>
                                                     {tableInfo.AVG_ROW_LENGTH}
