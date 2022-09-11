@@ -758,19 +758,26 @@ LIMIT 1000;`
                                             drop(nodeData)
                                         }
                                         else if (key == 'table_list') {
-                                            console.log('nodeData', nodeData)
-                                            // return
-                                            let tabKey = '' + new Date().getTime()
-                                            onTab && onTab({
-                                                title: 'Tables',
-                                                key: tabKey,
-                                                type: 'table_list',
-                                                // defaultSql: `SELECT * FROM \`${dbName}\`.\`${tableName}\` LIMIT 20;`,
+                                            event$.emit({
+                                                type: 'event_view_tables',
                                                 data: {
-                                                    dbName: nodeData.itemData.SCHEMA_NAME,
-                                                    // tableName,
-                                                },
+                                                    connectionId,
+                                                    schemaName: nodeData.itemData.SCHEMA_NAME,
+                                                }
                                             })
+                                            // console.log('nodeData', nodeData)
+                                            // // return
+                                            // let tabKey = '' + new Date().getTime()
+                                            // onTab && onTab({
+                                            //     title: `${t('tables')} - ${nodeData.itemData.SCHEMA_NAME}`,
+                                            //     key: tabKey,
+                                            //     type: 'table_list',
+                                            //     // defaultSql: `SELECT * FROM \`${dbName}\`.\`${tableName}\` LIMIT 20;`,
+                                            //     data: {
+                                            //         dbName: nodeData.itemData.SCHEMA_NAME,
+                                            //         // tableName,
+                                            //     },
+                                            // })
                                         }
                                         else if (key == 'table_create') {
                                             console.log('nodeData', nodeData)

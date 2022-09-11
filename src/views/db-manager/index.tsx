@@ -121,6 +121,7 @@ export function DbManager({ config }) {
         // console.log(val);
         if (msg.type == 'xxx') {
         }
+        
     })
 
     function closeTabByKey(key) {

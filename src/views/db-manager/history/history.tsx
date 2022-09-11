@@ -25,6 +25,7 @@ export function HistoryList({ config, onSql }) {
         {
             title: t('time'),
             dataIndex: 'time',
+            width: 180,
             render(value) {
                 return (
                     <div>{moment(value).format('YYYY-MM-DD HH:mm:ss')}</div>
@@ -79,6 +80,7 @@ export function HistoryList({ config, onSql }) {
         {
             title: t('exec_time'),
             dataIndex: 'execTime',
+            width: 120,
         },
         {
             title: t('message'),

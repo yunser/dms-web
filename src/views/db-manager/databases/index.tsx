@@ -15,7 +15,7 @@ import { DatabaseRemoveHandler } from '../db-remove';
 import { request } from '../utils/http';
 import { CodeDebuger } from '../code-debug';
 
-export default function DatabaseList({ connectionId, config, onJson, onSelectDatabase }) {
+export default function DatabaseList({ connectionId, config, event$, onJson, onSelectDatabase }) {
 
     const { t } = useTranslation()
     const [list, setList] = useState([])
@@ -85,7 +85,7 @@ export default function DatabaseList({ connectionId, config, onJson, onSelectDat
             title: t('actions'),
             dataIndex: 'op',
             key: 'op',
-            width: 120,
+            width: 160,
             render(value, item) {
                 return (
                     <Space>
@@ -100,6 +100,17 @@ export default function DatabaseList({ connectionId, config, onJson, onSelectDat
                         >
                             <a>{t('edit')}</a>
                         </DatabaseEditHandler>
+                        <a
+                            onClick={() => {
+                                event$.emit({
+                                    type: 'event_view_tables',
+                                    data: {
+                                        connectionId,
+                                        schemaName: item.SCHEMA_NAME,
+                                    }
+                                })
+                            }}
+                        >{t('table_list')}</a>
                         <DatabaseRemoveHandler
                             item={item}
                             connectionId={connectionId}

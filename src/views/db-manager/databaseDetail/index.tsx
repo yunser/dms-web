@@ -140,6 +140,7 @@ function Status({ config, event$, connectionId }) {
                 heartBeat()
             }
         }
+        
     })
 
     async function reconnect() {
@@ -278,6 +279,22 @@ export function DataBaseDetail({ connectionId, event$, config, onJson }) {
             if (_connectionId == connectionId) {
                 const { sql } = msg.data
                 onSql(sql)
+            }
+        }
+        else if (msg.type == 'event_view_tables') {
+            const { connectionId: _connectionId, schemaName } = msg.data
+            if (_connectionId == connectionId) {
+                let tabKey = '' + new Date().getTime()
+                addOrActiveTab({
+                    title: `${t('tables')} - ${schemaName}`,
+                    key: tabKey,
+                    type: 'table_list',
+                    // defaultSql: `SELECT * FROM \`${dbName}\`.\`${tableName}\` LIMIT 20;`,
+                    data: {
+                        dbName: schemaName,
+                        // tableName,
+                    },
+                })
             }
         }
     })
@@ -534,6 +551,7 @@ export function DataBaseDetail({ connectionId, event$, config, onJson }) {
                                     <DatabaseList
                                         config={config}
                                         onJson={onJson}
+                                        event$={event$}
                                         connectionId={connectionId}
                                         // onSelectDatabase={async ({name, connectionId}) => {
                                         //     const key = '' + new Date().getTime()
