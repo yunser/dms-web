@@ -118,6 +118,7 @@ i18n
                     expression: 'Expression',
                     truncate: 'Truncate',
                     description: 'Description',
+                    drop: 'Drop',
                 }
             },
             zh: {
@@ -230,6 +231,7 @@ i18n
                     expression: '表达式',
                     truncate: '清空',
                     description: '描述',
+                    drop: '删除',
                 }
             }
         },

@@ -618,7 +618,7 @@ ${rowSqls.join(' ,\n')}
         {
             title: t('rows'),
             dataIndex: 'TABLE_ROWS',
-            width: 160,
+            width: 110,
             ellipsis: true,
         },
         {
@@ -636,13 +636,14 @@ ${rowSqls.join(' ,\n')}
         {
             title: t('description'),
             dataIndex: 'PARTITION_DESCRIPTION',
-            width: 320,
+            width: 240,
             ellipsis: true,
         },
         {
             title: t('actions'),
             dataIndex: 'actions',
             // fixed: 'right',
+            width: 320,
             render(value, item) {
                 return (
                     <Space>
@@ -650,7 +651,6 @@ ${rowSqls.join(' ,\n')}
                             type="link"
                             size="small"
                             onClick={() => {
-                                // onSql && onSql(item.sql)
                                 event$.emit({
                                     type: 'event_open_sql',
                                     data: {
@@ -660,6 +660,19 @@ ${rowSqls.join(' ,\n')}
                                 })
                             }}
                         >{t('truncate')}</Button>
+                        <Button
+                            type="link"
+                            size="small"
+                            onClick={() => {
+                                event$.emit({
+                                    type: 'event_open_sql',
+                                    data: {
+                                        connectionId,
+                                        sql: `ALTER TABLE \`${item.TABLE_SCHEMA}\`.\`${item.TABLE_NAME}\` DROP PARTITION ${item.PARTITION_NAME}`,
+                                    }
+                                })
+                            }}
+                        >{t('drop')}</Button>
                     </Space>
                 )
             }
