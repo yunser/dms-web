@@ -196,7 +196,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
             // message.success('连接成功')
             onConnnect && onConnnect({
                 ...ret.data,
-                curConnect,
+                curConnect: reqData,
             })
         }
         setLoading(false)
@@ -315,6 +315,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
     }
 
     function handleDoubleClick(nodeData) {
+        console.log('nodeData', nodeData)
         const data = nodeData.data
         if (data) {
             // const { id } = nodeData.data

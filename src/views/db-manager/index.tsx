@@ -397,16 +397,6 @@ export function DbManager({ config }) {
                                                 // TODO 通过 setTimeout 解决这个问题，原因未知
                                                 // Can't perform a React state update on an unmounted component. This is a no-op, but it indicates a memory leak in your application. To fix, cancel all subscriptions and asynchronous tasks in a useEffect cleanup function
                                                 setTimeout(() => {
-                                                    // addOrActiveTab({
-                                                    //     title: 'MySQL Databases',
-                                                    //     key: 'mysql-database-0',
-                                                    //     type: 'databases',
-                                                    //     data: {
-                                                    //         connectionId: id,
-                                                    //     },
-                                                    // }, {
-                                                    //     closeCurrentTab: true,
-                                                    // })
                                                     const key = '' + new Date().getTime()
                                                     addOrActiveTab({
                                                         title: `${curConnect.name || 'Unnamed'}`,
@@ -420,16 +410,6 @@ export function DbManager({ config }) {
                                                         closeCurrentTab: true,
                                                     })
                                                 }, 0)
-                                                // setTabs([
-                                                //     ...tabs,
-                                                //     {
-                                                //         title: 'MySQL Databases',
-                                                //         key: '11111',
-                                                //         type: 'databases',
-                                                //         data: {},
-                                                //     },
-                                                // ])
-                                                // setActiveKey('11111')
                                             }}
                                         />
                                     }

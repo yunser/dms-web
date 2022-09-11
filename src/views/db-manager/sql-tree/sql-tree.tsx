@@ -10,6 +10,7 @@ import { IconButton } from '../icon-button';
 import { CodeOutlined, ConsoleSqlOutlined, DatabaseOutlined, FormatPainterOutlined, HistoryOutlined, InfoCircleOutlined, PlusOutlined, QuestionCircleOutlined, ReloadOutlined, SyncOutlined, TableOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
 import { getTableFieldMap, setAllFields, setTabbleAllFields, suggestionAdd, suggestionAddSchemas } from '../suggestion';
 import { request } from '../utils/http';
+import { i18n } from '@/i18n';
 
 function getHightlight(title: string, keyword: string) {
     const index = title.toLocaleLowerCase().indexOf(keyword.toLowerCase())
@@ -618,7 +619,7 @@ LIMIT 1000;`
                         onClick={() => {
                             let tabKey = '' + new Date().getTime()
                             onTab && onTab({
-                                title: 'MySQL Databases',
+                                title: t('schemas'),
                                 key: 'mysql-database-0',
                                 type: 'databases',
                                 data: {
