@@ -7,7 +7,7 @@ import _ from 'lodash';
 import classNames from 'classnames'
 // console.log('lodash', _)
 import copy from 'copy-to-clipboard';
-import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, ClearOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import moment from 'moment'
 import { IconButton } from '../icon-button';
@@ -170,6 +170,32 @@ export function HistoryList({ config, onSql }) {
                     >
                         <ReloadOutlined />
                     </IconButton>
+                    <IconButton
+                        tooltip={t('delete_all')}
+                        onClick={() => {
+                            Modal.confirm({
+                                content: `${t('delete_all_confirm')}`,
+                                async onOk() {
+                                    let res = await request.post(`${config.host}/mysql/history/clear`, {
+                                        // dbName,
+                                        page,
+                                        pageSize: 10,
+                                    })
+                                    if (res.success) {
+                                        loadData()
+                                        // message.info('连接成功')
+                                        
+                                        // const data = res.data
+                                        // // console.log('res', list)
+                                        // setList(data.list)
+                                        // setTotal(data.total)
+                                    }
+                                }
+                            })
+                        }}
+                    >
+                        <ClearOutlined />
+                    </IconButton>
                 </Space>
             </div>
             {/* <div className={styles.debug}>
@@ -190,6 +216,7 @@ export function HistoryList({ config, onSql }) {
                     }
                 }}
                 size="small"
+                rowKey="id"
                 // pagination={{
                 //     showTotal: total => `共 ${total} 条`
                 // }}
