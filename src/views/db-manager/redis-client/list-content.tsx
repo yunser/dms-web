@@ -12,6 +12,7 @@ import { IconButton } from '../icon-button';
 import { FolderOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 
 import humanFormat from 'human-format'
+import { ListPushHandler } from './list-push';
 
 const timeScale = new humanFormat.Scale({
   ms: 1,
@@ -22,10 +23,11 @@ const timeScale = new humanFormat.Scale({
 })
 
 
-export function ListContent({ curDb, data, config }) {
+export function ListContent({ curDb, onSuccess, data, config }) {
     // const [curDb] = useState(0)
     const [itemDetail, setItemDetail] = useState(null)
 
+    console.log('/data', data)
     async function loadItem(index) {
         // setLoading(true)
         let res = await request.post(`${config.host}/redis/lindex`, {
@@ -96,12 +98,25 @@ export function ListContent({ curDb, data, config }) {
                     return (
                         <div
                             className={styles.item}
-                            onClick={() => {
-                                loadItem(index)
-                            }}
+                            // onClick={() => {
+                            //     loadItem(index)
+                            // }}
                         >{item}</div>
                     )
                 })}
+            </div>
+            <div>
+                <ListPushHandler
+                    config={config}
+                    redisKey={data.key}
+                    onSuccess={onSuccess}
+                >
+                    <Button
+                        size="small"
+                    >
+                        新增行
+                    </Button>
+                </ListPushHandler>
             </div>
             {!!itemDetail &&
                 <div>?</div>

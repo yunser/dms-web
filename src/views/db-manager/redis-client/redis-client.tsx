@@ -607,6 +607,9 @@ export function RedisClient({ config, }) {
                                         <ListContent
                                             config={config}
                                             data={result}
+                                            onSuccess={() => {
+                                                loadKey(result.key)
+                                            }}
                                         />
                                     </div>
                                 }
