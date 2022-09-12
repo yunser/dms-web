@@ -18,8 +18,11 @@ function obj2Tree(obj, handler) {
             return handler(obj)
         }
         const results = []
+        let keyNum = 0
         for (let key in obj) {
-            results.push(handleObj(obj[key], key))
+            let ret = handleObj(obj[key], key)
+            results.push(ret)
+            keyNum += ret.keyNum || 1
         }
         if (key == '_____root') {
             return results
@@ -30,6 +33,7 @@ function obj2Tree(obj, handler) {
             itemData: {},
             type: 'type_folder',
             children: results,
+            keyNum,
         }
     }
 
@@ -204,9 +208,11 @@ export function RedisClient({ config, }) {
                                                 </div>
                                             }
                                             {nodeData.type == 'type_folder' &&
-                                                <div>
+                                                <div className={styles.folderNode}>
                                                     <FolderOutlined className={styles.icon} />
                                                     {nodeData.title}
+                                                    <div className={styles.keyNum}>{nodeData.keyNum} Keys</div>
+                                                    
                                                 </div>
                                             }
                                         </div>
