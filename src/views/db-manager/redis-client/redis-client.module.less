@@ -4,7 +4,7 @@
     display: flex;
     .layoutLeft {
         flex: 0 0 320px;
-        border-right: 1px solid rgba(0, 0, 0, .12);
+        border-right: 1px solid var(--border-color);
         // height: 100px;
         display: flex;
         flex-direction: column;
@@ -12,7 +12,7 @@
         .header {
             height: 48px;
             padding: 8px 8px;
-            border-bottom: 1px solid rgba(0, 0, 0, .12);
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -30,11 +30,31 @@
             overflow: auto;
             padding: 16px;
         }
+        .footer {
+            flex: 0 0 40px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+        }
     }
     .layoutRight {
         flex: 1 0 auto;
         width: 0;
-        padding: 16px;
+        // padding: 16px;
+        .header {
+            height: 48px;
+            padding: 0px 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+        }
+        .body {
+            flex: 1 0 auto;
+            // height: 0;
+            overflow: auto;
+            padding: 16px;
+        }
     }
 }
 .treeTitle {
