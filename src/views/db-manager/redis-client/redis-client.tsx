@@ -12,6 +12,7 @@ import { IconButton } from '../icon-button';
 import { FolderOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 
 import humanFormat from 'human-format'
+import { ListContent } from './list-content';
 
 const timeScale = new humanFormat.Scale({
   ms: 1,
@@ -582,14 +583,10 @@ export function RedisClient({ config, }) {
                                 }
                                 {result.type == 'list' &&
                                     <div>
-                                        {/* List */}
-                                        <div className={styles.items}>
-                                            {result.items.map(item => {
-                                                return (
-                                                    <div className={styles.item}>{item}</div>
-                                                )
-                                            })}
-                                        </div>
+                                        <ListContent
+                                            config={config}
+                                            data={result}
+                                        />
                                     </div>
                                 }
                                 {result.type == 'set' &&
@@ -610,7 +607,7 @@ export function RedisClient({ config, }) {
                                         <div className={styles.items}>
                                             {result.items.map(item => {
                                                 return (
-                                                    <div className={styles.item}>{item}</div>
+                                                    <div className={styles.item}>{item.key}: {item.value}</div>
                                                 )
                                             })}
                                         </div>

@@ -50,7 +50,7 @@ export function RedisConnect({ config, onConnnect, }) {
             port: values.port,
             user: values.user,
             password: values.password,
-            db: values.db,
+            db: 0,
             remember: values.remember,
         }
         if (values.remember) {
@@ -123,13 +123,13 @@ export function RedisConnect({ config, onConnnect, }) {
                     >
                         <Input />
                     </Form.Item>
-                    <Form.Item
+                    {/* <Form.Item
                         name="db"
                         label="DB"
                         rules={[{ required: true, },]}
                     >
                         <InputNumber />
-                    </Form.Item>
+                    </Form.Item> */}
                     <Form.Item name="remember" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>
                         <Checkbox>Remember me</Checkbox>
                     </Form.Item>
