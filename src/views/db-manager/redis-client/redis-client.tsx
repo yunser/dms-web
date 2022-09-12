@@ -114,7 +114,7 @@ export function RedisClient({ config, }) {
                                         <div className={styles.item}
                                             onClick={async () => {
                                                 let res = await request.post(`${config.host}/redis/get`, {
-                                                    key: item,
+                                                    key: item.key,
                                                     // dbName,
                                                 })
                                                 console.log('get/res', res.data)
@@ -127,7 +127,10 @@ export function RedisClient({ config, }) {
                                                     setEditType('update')
                                                 }
                                             }}
-                                        >{item}</div>
+                                        >
+                                            <div className={styles.type}>{item.type}</div>
+                                            <div className={styles.name}>{item.key}</div>
+                                        </div>
                                     )
                                 })}
                             </div>
