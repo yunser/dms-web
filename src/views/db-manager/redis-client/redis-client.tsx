@@ -23,14 +23,14 @@ const timeScale = new humanFormat.Scale({
 
 function obj2Tree(obj, handler) {
 
-    function handleObj(obj, key) {
+    function handleObj(obj, key, prefix) {
         if (obj._leaf) {
             return handler(obj)
         }
         const results = []
         let keyNum = 0
         for (let key in obj) {
-            let ret = handleObj(obj[key], key)
+            let ret = handleObj(obj[key], key, prefix + key + ':')
             results.push(ret)
             keyNum += ret.keyNum || 1
         }
@@ -40,14 +40,16 @@ function obj2Tree(obj, handler) {
         return {
             title: key,
             key: key,
-            itemData: {},
+            itemData: {
+                prefix: prefix,
+            },
             type: 'type_folder',
             children: results,
             keyNum,
         }
     }
 
-    return handleObj(obj, '_____root')
+    return handleObj(obj, '_____root', '')
 }
 
 export function RedisClient({ config, }) {
@@ -142,6 +144,37 @@ export function RedisClient({ config, }) {
             async onOk() {
                 let res = await request.post(`${config.host}/redis/delete`, {
                     key: key,
+                })
+                console.log('get/res', res.data)
+                if (res.success) {
+                    message.success('删除成功')
+                    loadKeys()
+                    setResult(null)
+                    // setResult({
+                    //     key: item,
+                    //     ...res.data,
+                    // })
+                    // setInputValue(res.data.value)
+                }
+            }
+        })
+    }
+
+    function removeKeys(nodeData) {
+        Modal.confirm({
+            // title: 'Confirm',
+            // icon: <ExclamationCircleOutlined />,
+            content: `Remove ${nodeData.keyNum} Keys?`,
+            okText: '确认',
+            cancelText: '取消',
+            async onOk() {
+                console.log('list', list)
+                const keys = list
+                    .filter(item => item.key.startsWith(nodeData.itemData.prefix))
+                    .map(item => item.key)
+                console.log('keys', keys)
+                let res = await request.post(`${config.host}/redis/delete`, {
+                    keys,
                 })
                 console.log('get/res', res.data)
                 if (res.success) {
@@ -266,12 +299,33 @@ export function RedisClient({ config, }) {
                                                 </Dropdown>
                                             }
                                             {nodeData.type == 'type_folder' &&
-                                                <div className={styles.folderNode}>
-                                                    <FolderOutlined className={styles.icon} />
-                                                    {nodeData.title}
-                                                    <div className={styles.keyNum}>{nodeData.keyNum} Keys</div>
-                                                    
-                                                </div>
+                                                <Dropdown
+                                                    overlay={(
+                                                        <Menu
+                                                            items={[
+                                                                {
+                                                                    label: t('delete'),
+                                                                    key: 'key_delete',
+                                                                },
+                                                            ]}
+                                                            onClick={async ({ _item, key, keyPath, domEvent }) => {
+                                                                // onAction && onAction(key)
+                                                                if (key == 'key_delete') {
+                                                                    console.log('removeKeys', nodeData)
+                                                                    removeKeys(nodeData)
+                                                                }
+                                                            }}
+                                                        >
+                                                        </Menu>
+                                                    )}
+                                                    trigger={['contextMenu']}
+                                                >
+                                                    <div className={styles.folderNode}>
+                                                        <FolderOutlined className={styles.icon} />
+                                                        {nodeData.title}
+                                                        <div className={styles.keyNum}>{nodeData.keyNum} Keys</div>
+                                                    </div>
+                                                </Dropdown>
                                             }
                                         </div>
                                     )
@@ -397,6 +451,8 @@ export function RedisClient({ config, }) {
                                                 console.log('get/res', res.data)
                                                 if (res.success) {
                                                     message.success('新增成功')
+                                                    loadKeys()
+                                                    setResult(null)
                                                     // setResult({
                                                     //     key: item,
                                                     //     ...res.data,
