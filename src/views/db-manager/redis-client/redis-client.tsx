@@ -13,6 +13,7 @@ import { FolderOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons'
 
 import humanFormat from 'human-format'
 import { ListContent } from './list-content';
+import { useInterval } from 'ahooks';
 
 const timeScale = new humanFormat.Scale({
   ms: 1,
@@ -69,23 +70,28 @@ function DbSelector({ curDb, onDatabaseChange, config }) {
         // setLoading(false)
     }
 
-    // async function loadInfo() {
-    //     // setLoading(true)
-    //     let res = await request.post(`${config.host}/redis/info`, {
-    //         // dbName,
-    //     })
-    //     if (res.success) {
-    //         console.log('DbSelector/info', res.data)
-    //     } else {
-    //         message.error('连接失败')
-    //     }
-    //     // setLoading(false)
-    // }
+    // 仅用于心跳
+    async function loadInfo() {
+        // setLoading(true)
+        let res = await request.post(`${config.host}/redis/info`, {
+            // dbName,
+        })
+        if (res.success) {
+            console.log('DbSelector/info', res.data)
+        } else {
+            message.error('连接失败')
+        }
+        // setLoading(false)
+    }
 
     useEffect(() => {
         loadKeys()
         // loadInfo()
     }, [curDb])
+
+    useInterval(() => {
+        loadInfo()
+    }, 60 * 1000)
 
     return (
         <div>
@@ -147,6 +153,7 @@ export function RedisClient({ config, }) {
     const [inputValue, setInputValue] = useState('')
     const [treeData, setTreeData] = useState([])
     const [expandedKeys, setExpandedKeys ] = useState([])
+    
     async function loadKeys() {
         setLoading(true)
         let res = await request.post(`${config.host}/redis/keys`, {
@@ -213,6 +220,22 @@ export function RedisClient({ config, }) {
             message.error('连接失败')
         }
         setLoading(false)
+    }
+
+    async function loadKey(key) {
+        let res = await request.post(`${config.host}/redis/get`, {
+            key: key,
+            // dbName,
+        })
+        console.log('get/res', res.data)
+        if (res.success) {
+            setResult({
+                key: key,
+                ...res.data,
+            })
+            setInputValue(res.data.value)
+            setEditType('update')
+        }
     }
 
     useEffect(() => {
@@ -378,19 +401,7 @@ export function RedisClient({ config, }) {
                                                 >
                                                     <div className={styles.item}
                                                         onClick={async () => {
-                                                            let res = await request.post(`${config.host}/redis/get`, {
-                                                                key: item.key,
-                                                                // dbName,
-                                                            })
-                                                            console.log('get/res', res.data)
-                                                            if (res.success) {
-                                                                setResult({
-                                                                    key: item.key,
-                                                                    ...res.data,
-                                                                })
-                                                                setInputValue(res.data.value)
-                                                                setEditType('update')
-                                                            }
+                                                            loadKey(item.key)
                                                         }}
                                                     >
                                                         <div className={styles.type}
@@ -488,6 +499,15 @@ export function RedisClient({ config, }) {
                     {!!result && editType == 'update' &&
                         <div className={styles.header}>
                             <div>{result.key}</div>
+                            <Button
+                                danger
+                                size="small"
+                                onClick={async () => {
+                                    removeKey(result.key)
+                                }}
+                            >
+                                删除
+                            </Button>
                         </div>
                     }
                     <div className={styles.body}>
@@ -498,7 +518,11 @@ export function RedisClient({ config, }) {
                                         {/* {result.key} */}
                                     </div>
                                 :
-                                <div>
+                                    <div
+                                        style={{
+                                            marginBottom: 16,
+                                        }}
+                                    >
                                         <div>Key:</div>
                                         <Input
                                             value={inputKey}
@@ -509,7 +533,7 @@ export function RedisClient({ config, }) {
                                     </div>
                                 }
 
-                                {result.type == 'string' &&
+                                {(result.type == 'string' || editType == 'create') &&
                                     <div>
                                         {/* <div>Value:</div> */}
                                         <Input.TextArea
@@ -522,10 +546,13 @@ export function RedisClient({ config, }) {
                                                 width: 400,
                                             }}
                                         />
-                                        <div>
+                                        <div style={{
+                                            marginTop: 8,
+                                        }}>
                                             {editType == 'update' ?
                                                 <Space>
                                                     <Button
+                                                        size="small"
                                                         onClick={async () => {
                                                             let res = await request.post(`${config.host}/redis/set`, {
                                                                 key: result.key,
@@ -545,14 +572,7 @@ export function RedisClient({ config, }) {
                                                     >
                                                         修改
                                                     </Button>
-                                                    <Button
-                                                        danger
-                                                        onClick={async () => {
-                                                            removeKey(result.key)
-                                                        }}
-                                                    >
-                                                        删除
-                                                    </Button>
+                                                    
                                                 </Space>
                                             :
                                                 <Button
@@ -566,7 +586,8 @@ export function RedisClient({ config, }) {
                                                         if (res.success) {
                                                             message.success('新增成功')
                                                             loadKeys()
-                                                            setResult(null)
+                                                            loadKey(inputKey)
+                                                            // setResult(null)
                                                             // setResult({
                                                             //     key: item,
                                                             //     ...res.data,
