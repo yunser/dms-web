@@ -499,15 +499,25 @@ export function RedisClient({ config, }) {
                     {!!result && editType == 'update' &&
                         <div className={styles.header}>
                             <div>{result.key}</div>
-                            <Button
-                                danger
-                                size="small"
-                                onClick={async () => {
-                                    removeKey(result.key)
-                                }}
-                            >
-                                删除
-                            </Button>
+                            <Space>
+                                <Button
+                                    size="small"
+                                    onClick={async () => {
+                                        loadKey(result.key)
+                                    }}
+                                >
+                                    刷新
+                                </Button>
+                                <Button
+                                    danger
+                                    size="small"
+                                    onClick={async () => {
+                                        removeKey(result.key)
+                                    }}
+                                >
+                                    删除
+                                </Button>
+                            </Space>
                         </div>
                     }
                     <div className={styles.body}>

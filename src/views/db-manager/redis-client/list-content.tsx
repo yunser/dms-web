@@ -101,7 +101,26 @@ export function ListContent({ curDb, onSuccess, data, config }) {
                             // onClick={() => {
                             //     loadItem(index)
                             // }}
-                        >{item}</div>
+                        >
+                            <div>
+                                {item}
+                            </div>
+                            <ListPushHandler
+                                config={config}
+                                redisKey={data.key}
+                                item={{
+                                    index,
+                                    value: item,
+                                }}
+                                onSuccess={onSuccess}
+                            >
+                                <Button
+                                    size="small"
+                                >
+                                    编辑
+                                </Button>
+                            </ListPushHandler>
+                        </div>
                     )
                 })}
             </div>

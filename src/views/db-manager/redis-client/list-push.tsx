@@ -84,9 +84,9 @@ export function DatabaseModal({ config, redisKey, connectionId, item, onClose, o
     useEffect(() => {
         if (item) {
             form.setFieldsValue({
-                name: item.SCHEMA_NAME,
-                characterSet: item.DEFAULT_CHARACTER_SET_NAME,
-                collation: item.DEFAULT_COLLATION_NAME,
+                value: item.value,
+                // characterSet: item.DEFAULT_CHARACTER_SET_NAME,
+                // collation: item.DEFAULT_COLLATION_NAME,
             })
         }
     }, [])
@@ -95,8 +95,8 @@ export function DatabaseModal({ config, redisKey, connectionId, item, onClose, o
 
     return (
         <Modal
-            // title={editType == 'create' ? t('db_create') : t('db_edit')}
-            title={'新增行'}
+            title={editType == 'create' ? t('新增行') : t('编辑行')}
+            // title={'新增行'}
             visible={true}
             onCancel={onClose}
             maskClosable={false}
@@ -119,27 +119,20 @@ export function DatabaseModal({ config, redisKey, connectionId, item, onClose, o
                     }
                 }
                 else {
-                    // let sql = `ALTER SCHEMA \`${item.SCHEMA_NAME}\``
-                    // if (values.characterSet) {
-                    //     sql += ` DEFAULT CHARACTER SET ${values.characterSet}`
-                    // }
-                    // if (values.collation) {
-                    //     sql += ` COLLATE ${values.collation}`
-                    // }
-                    // console.log('sql', sql)
-                    // // return
-                    // let ret = await request.post(`${config.host}/mysql/execSql`, {
-                    //     connectionId,
-                    //     sql,
-                    // })
-                    // // console.log('ret', ret)
-                    // if (ret.success) {
-                    //     // message.success('连接成功')
-                    //     // onConnnect && onConnnect()
-                    //     message.success('Success')
-                    //     onClose && onClose()
-                    //     onSuccess && onSuccess()
-                    // }
+                    let ret = await request.post(`${config.host}/redis/lset`, {
+                        connectionId,
+                        key: redisKey,
+                        index: item.index,
+                        value: values.value,
+                    })
+                    // console.log('ret', ret)
+                    if (ret.success) {
+                        // message.success('连接成功')
+                        // onConnnect && onConnnect()
+                        message.success('Success')
+                        onClose && onClose()
+                        onSuccess && onSuccess()
+                    }
                 }
                 // else {
                 //     message.error('Fail')
@@ -160,31 +153,33 @@ export function DatabaseModal({ config, redisKey, connectionId, item, onClose, o
                 //     wrapperCol: { span: 24 },
                 // }}
             >
-                <Form.Item
-                    name="position"
-                    label="插入到"
-                    rules={[ { required: true, }, ]}
-                >
-                    <Select
-                        options={[
-                            {
-                                label: '最后面',
-                                value: 'last',
-                            },
-                            {
-                                label: '最前面',
-                                value: 'first',
-                            },
-                        ]}
-                    />
-                </Form.Item>
+                {editType == 'create' &&
+                    <Form.Item
+                        name="position"
+                        label="插入到"
+                        rules={[ { required: true, }, ]}
+                    >
+                        <Select
+                            options={[
+                                {
+                                    label: '最后面',
+                                    value: 'last',
+                                },
+                                {
+                                    label: '最前面',
+                                    value: 'first',
+                                },
+                            ]}
+                        />
+                    </Form.Item>
+                }
                 <Form.Item
                     name="value"
                     label="内容"
                     rules={[ { required: true, }, ]}
                 >
                     <Input
-                        disabled={!(editType == 'create')}
+                        // disabled={!(editType == 'create')}
                     />
                 </Form.Item>
                 {/* <Form.Item
