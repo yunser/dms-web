@@ -1,4 +1,4 @@
-import { Button, Checkbox, Descriptions, Dropdown, Form, Input, InputNumber, Menu, message, Modal, Popover, Space, Table, Tabs, Tree } from 'antd';
+import { Button, Checkbox, Descriptions, Dropdown, Form, Input, InputNumber, Menu, message, Modal, Popover, Select, Space, Table, Tabs, Tree } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import styles from './redis-client.module.less';
 import _ from 'lodash';
@@ -20,6 +20,88 @@ const timeScale = new humanFormat.Scale({
   h: 3600000,
   d: 86400000
 })
+
+
+function DbSelector({ curDb, onDatabaseChange, config }) {
+    // const [curDb] = useState(0)
+    const [databases, setDatabases] = useState([])
+    const [totalDb, setTotalDb] = useState(0)
+
+    async function loadKeys() {
+        // setLoading(true)
+        let res = await request.post(`${config.host}/redis/config`, {
+            // dbName,
+        })
+        if (res.success) {
+            console.log('DbSelector/config', res.data.config)
+
+            const infos = res.data.info.split('\r\n')
+            // "db0:keys=76,expires=35,avg_ttl=67512945473"
+            // 107: "db1:keys=70711,expires=26,avg_ttl=28153799"
+            // 108: "db4:keys=1,expires=0,avg_ttl=0"
+            // 109: "db14:keys=38,expires=1,avg_ttl=70590450"
+
+            console.log('DbSelector/infos', infos)
+            const totalDb = parseInt(res.data.config[1])
+            setTotalDb(totalDb)
+            const databases = []
+            for (let i = 0; i < totalDb; i++) {
+                let keyNum = 0
+                for (let info of infos) {
+                    if (info.startsWith(`db${i}`)) {
+                        const match = info.match(/keys=(\d+)/)
+                        if (match) {
+                            keyNum = match[1]
+                        }
+                        break
+                    }
+                }
+                databases.push(({
+                    label: `${i} (${keyNum})`,
+                    value: i,
+                }))
+            }
+            setDatabases(databases)
+        } else {
+            message.error('连接失败')
+        }
+        // setLoading(false)
+    }
+
+    // async function loadInfo() {
+    //     // setLoading(true)
+    //     let res = await request.post(`${config.host}/redis/info`, {
+    //         // dbName,
+    //     })
+    //     if (res.success) {
+    //         console.log('DbSelector/info', res.data)
+    //     } else {
+    //         message.error('连接失败')
+    //     }
+    //     // setLoading(false)
+    // }
+
+    useEffect(() => {
+        loadKeys()
+        // loadInfo()
+    }, [])
+
+    return (
+        <div>
+            {/* {curDb}
+            /{totalDb} */}
+            DB: 
+            <Select
+                className={styles.select}
+                value={curDb}
+                options={databases}
+                onChange={value => {
+                    onDatabaseChange && onDatabaseChange(value)
+                }}
+            />
+        </div>
+    )
+}
 
 function obj2Tree(obj, handler) {
 
@@ -53,6 +135,7 @@ function obj2Tree(obj, handler) {
 }
 
 export function RedisClient({ config, }) {
+    const [curDb, setCurDb] = useState(0)
     const { t } = useTranslation()
     const [loading, setLoading] = useState(false)
     const [editType, setEditType] = useState('update')
@@ -62,11 +145,12 @@ export function RedisClient({ config, }) {
     const [inputKey, setInputKey] = useState('')
     const [inputValue, setInputValue] = useState('')
     const [treeData, setTreeData] = useState([])
-
+    const [expandedKeys, setExpandedKeys ] = useState([])
     async function loadKeys() {
         setLoading(true)
         let res = await request.post(`${config.host}/redis/keys`, {
             // dbName,
+            db: curDb,
         })
         if (res.success) {
             // message.info('连接成功')
@@ -132,7 +216,7 @@ export function RedisClient({ config, }) {
 
     useEffect(() => {
         loadKeys()
-    }, [])
+    }, [curDb])
 
     function removeKey(key) {
         Modal.confirm({
@@ -239,6 +323,25 @@ export function RedisClient({ config, }) {
                         :
                             <Tree
                                 treeData={treeData}
+                                expandedKeys={expandedKeys}
+                                onExpand={(expandedKeys) => {
+                                    setExpandedKeys(expandedKeys)
+                                }}
+                                onSelect={(selectedKeys, info) => {
+                                    const { key, type } = info.node
+                                    console.log('type', type)
+                                    if (type == 'type_folder') {
+                                        if (expandedKeys.includes(key)) {
+                                            setExpandedKeys(expandedKeys.filter(_key => _key != key))
+                                        }
+                                        else {
+                                            setExpandedKeys([
+                                                ...expandedKeys,
+                                                key,
+                                            ])
+                                        }
+                                    }
+                                }}
                                 titleRender={nodeData => {
                                     const item = nodeData.itemData
                                     const colorMap = {
@@ -369,7 +472,14 @@ export function RedisClient({ config, }) {
                     </div>
                 </div>
                 <div className={styles.footer}>
-                    {list.length} Keys
+                    <div>{list.length} Keys</div>
+                    <DbSelector
+                        config={config}
+                        curDb={curDb}
+                        onDatabaseChange={db => {
+                            setCurDb(db)
+                        }}
+                    />
                 </div>
             </div>
             <div className={styles.layoutRight}>
