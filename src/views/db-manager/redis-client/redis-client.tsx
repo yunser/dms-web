@@ -1,4 +1,4 @@
-import { Button, Checkbox, Descriptions, Form, Input, InputNumber, message, Modal, Popover, Space, Table, Tabs } from 'antd';
+import { Button, Checkbox, Descriptions, Form, Input, InputNumber, message, Modal, Popover, Space, Table, Tabs, Tree } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import styles from './redis-client.module.less';
 import _ from 'lodash';
@@ -9,7 +9,32 @@ import { Editor } from '../editor/Editor';
 import storage from '../storage'
 import { request } from '../utils/http'
 import { IconButton } from '../icon-button';
-import { PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { FolderOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+
+function obj2Tree(obj, handler) {
+
+    function handleObj(obj, key) {
+        if (obj._leaf) {
+            return handler(obj)
+        }
+        const results = []
+        for (let key in obj) {
+            results.push(handleObj(obj[key], key))
+        }
+        if (key == '_____root') {
+            return results
+        }
+        return {
+            title: key,
+            key: key,
+            itemData: {},
+            type: 'type_folder',
+            children: results,
+        }
+    }
+
+    return handleObj(obj, '_____root')
+}
 
 export function RedisClient({ config, }) {
     const { t } = useTranslation()
@@ -20,6 +45,7 @@ export function RedisClient({ config, }) {
     const [result, setResult] = useState(null)
     const [inputKey, setInputKey] = useState('')
     const [inputValue, setInputValue] = useState('')
+    const [treeData, setTreeData] = useState([])
 
     async function loadKeys() {
         setLoading(true)
@@ -28,9 +54,39 @@ export function RedisClient({ config, }) {
         })
         if (res.success) {
             // message.info('连接成功')
-            const list = res.data
+            // const list = res.data
             // console.log('res', list)
+            const { list } = res.data
             setList(res.data.list)
+            const treeData = []
+            const treeObj = {}
+            for (let item of list) {
+                treeData.push({
+                    title: item.key,
+                    key: item.key,
+                    itemData: item,
+                    type: 'type_key',
+                })
+                _.set(treeObj, item.key.replaceAll(':', '.'), {
+                    ...item,
+                    _leaf: true,
+                })
+            }
+
+            
+
+            const treeData2 = obj2Tree(treeObj, item => {
+                return {
+                    title: item.key,
+                    key: item.key,
+                    itemData: item,
+                    type: 'type_key',
+                }
+            })
+            console.log('treeData2', treeData2)
+            setTreeData(treeData2)
+            console.log('treeObj', treeObj)
+
 
             // const children = list
             //     .map(item => {
@@ -108,32 +164,89 @@ export function RedisClient({ config, }) {
                         {loading ?
                             <div>Loading</div>
                         :
-                            <div className={styles.list}>
-                                {list.map(item => {
+                            <Tree
+                                treeData={treeData}
+                                titleRender={nodeData => {
+                                    const item = nodeData.itemData
+                                    const colorMap = {
+                                        string: '#66a642',
+                                        list: '#dc9742',
+                                        set: '#4088cc',
+                                        hash: '#ad6ccb',
+                                        zset: '#c84f46',
+                                    }
                                     return (
-                                        <div className={styles.item}
-                                            onClick={async () => {
-                                                let res = await request.post(`${config.host}/redis/get`, {
-                                                    key: item.key,
-                                                    // dbName,
-                                                })
-                                                console.log('get/res', res.data)
-                                                if (res.success) {
-                                                    setResult({
-                                                        key: item,
-                                                        ...res.data,
-                                                    })
-                                                    setInputValue(res.data.value)
-                                                    setEditType('update')
-                                                }
-                                            }}
-                                        >
-                                            <div className={styles.type}>{item.type}</div>
-                                            <div className={styles.name}>{item.key}</div>
+                                        <div className={styles.treeTitle}>
+                                            {nodeData.type == 'type_key' &&
+                                                <div className={styles.item}
+                                                    onClick={async () => {
+                                                        let res = await request.post(`${config.host}/redis/get`, {
+                                                            key: item.key,
+                                                            // dbName,
+                                                        })
+                                                        console.log('get/res', res.data)
+                                                        if (res.success) {
+                                                            setResult({
+                                                                key: item.key,
+                                                                ...res.data,
+                                                            })
+                                                            setInputValue(res.data.value)
+                                                            setEditType('update')
+                                                        }
+                                                    }}
+                                                >
+                                                    <div className={styles.type}
+                                                        style={{
+                                                            backgroundColor: colorMap[item.type] || '#000'
+                                                        }}
+                                                    >{item.type}</div>
+                                                    <div className={styles.name}>{item.key}</div>
+                                                </div>
+                                            }
+                                            {nodeData.type == 'type_folder' &&
+                                                <div>
+                                                    <FolderOutlined className={styles.icon} />
+                                                    {nodeData.title}
+                                                </div>
+                                            }
                                         </div>
                                     )
-                                })}
-                            </div>
+                                }}
+                            />
+                            // <div className={styles.list}>
+                            //     {list.map(item => {
+                            //         const colorMap = {
+                            //             string: '#66a642',
+                            //             list: '#dc9742',
+                            //         }
+                            //         return (
+                            //             <div className={styles.item}
+                            //                 onClick={async () => {
+                            //                     let res = await request.post(`${config.host}/redis/get`, {
+                            //                         key: item.key,
+                            //                         // dbName,
+                            //                     })
+                            //                     console.log('get/res', res.data)
+                            //                     if (res.success) {
+                            //                         setResult({
+                            //                             key: item.key,
+                            //                             ...res.data,
+                            //                         })
+                            //                         setInputValue(res.data.value)
+                            //                         setEditType('update')
+                            //                     }
+                            //                 }}
+                            //             >
+                            //                 <div className={styles.type}
+                            //                     style={{
+                            //                         backgroundColor: colorMap[item.type] || '#000'
+                            //                     }}
+                            //                 >{item.type}</div>
+                            //                 <div className={styles.name}>{item.key}</div>
+                            //             </div>
+                            //         )
+                            //     })}
+                            // </div>
                         }
                     </div>
                 </div>
