@@ -11,6 +11,16 @@ import { request } from '../utils/http'
 import { IconButton } from '../icon-button';
 import { FolderOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 
+import humanFormat from 'human-format'
+
+const timeScale = new humanFormat.Scale({
+  ms: 1,
+  s: 1000,
+  min: 60000,
+  h: 3600000,
+  d: 86400000
+})
+
 function obj2Tree(obj, handler) {
 
     function handleObj(obj, key) {
@@ -261,53 +271,106 @@ export function RedisClient({ config, }) {
                 </div>
             </div>
             <div className={styles.layoutRight}>
-                {!!result && editType == 'update' &&
-                    <div className={styles.header}>
-                        <div>{result.key}</div>
-                    </div>
-                }
-                <div className={styles.body}>
-                    {!!result &&
-                        <div>
-                            {editType == 'update' ?
-                                <div>
-                                    {/* {result.key} */}
-                                </div>
-                            :
-                            <div>
-                                    <div>Key:</div>
-                                    <Input
-                                        value={inputKey}
-                                        onChange={e => {
-                                            setInputKey(e.target.value)
-                                        }}
-                                    />
-                                </div>
-                            }
-                            <div>Value:</div>
-                            <Input.TextArea
-                                value={inputValue}
-                                onChange={e => {
-                                    setInputValue(e.target.value)
-                                }}
-                                rows={8}
-                                style={{
-                                    width: 400,
-                                }}
-                            />
+                <div className={styles.layoutRightContent}>
+                    {!!result && editType == 'update' &&
+                        <div className={styles.header}>
+                            <div>{result.key}</div>
+                        </div>
+                    }
+                    <div className={styles.body}>
+                        {!!result &&
                             <div>
                                 {editType == 'update' ?
-                                    <Space>
+                                    <div>
+                                        {/* {result.key} */}
+                                    </div>
+                                :
+                                <div>
+                                        <div>Key:</div>
+                                        <Input
+                                            value={inputKey}
+                                            onChange={e => {
+                                                setInputKey(e.target.value)
+                                            }}
+                                        />
+                                    </div>
+                                }
+                                <div>Value:</div>
+                                <Input.TextArea
+                                    value={inputValue}
+                                    onChange={e => {
+                                        setInputValue(e.target.value)
+                                    }}
+                                    rows={8}
+                                    style={{
+                                        width: 400,
+                                    }}
+                                />
+                                <div>
+                                    {editType == 'update' ?
+                                        <Space>
+                                            <Button
+                                                onClick={async () => {
+                                                    let res = await request.post(`${config.host}/redis/set`, {
+                                                        key: result.key,
+                                                        value: inputValue,
+                                                        // dbName,
+                                                    })
+                                                    console.log('get/res', res.data)
+                                                    if (res.success) {
+                                                        message.success('修改成功')
+                                                        // setResult({
+                                                        //     key: item,
+                                                        //     ...res.data,
+                                                        // })
+                                                        // setInputValue(res.data.value)
+                                                    }
+                                                }}
+                                            >
+                                                修改
+                                            </Button>
+                                            <Button
+                                                danger
+                                                onClick={async () => {
+                                                    Modal.confirm({
+                                                        // title: 'Confirm',
+                                                        // icon: <ExclamationCircleOutlined />,
+                                                        content: `删除「${result.key}」`,
+                                                        okText: '确认',
+                                                        cancelText: '取消',
+                                                        async onOk() {
+                                                            let res = await request.post(`${config.host}/redis/delete`, {
+                                                                key: result.key,
+                                                            })
+                                                            console.log('get/res', res.data)
+                                                            if (res.success) {
+                                                                message.success('删除成功')
+                                                                loadKeys()
+                                                                setResult(null)
+                                                                // setResult({
+                                                                //     key: item,
+                                                                //     ...res.data,
+                                                                // })
+                                                                // setInputValue(res.data.value)
+                                                            }
+                                                        }
+                                                    })
+                                                }}
+                                            >
+                                                删除
+                                            </Button>
+                                        </Space>
+                                    :
                                         <Button
                                             onClick={async () => {
                                                 let res = await request.post(`${config.host}/redis/set`, {
-                                                    key: result.key,
+                                                    key: inputKey,
                                                     value: inputValue,
                                                     // dbName,
                                                 })
                                                 console.log('get/res', res.data)
                                                 if (res.success) {
-                                                    message.success('修改成功')
+                                                    message.success('新增成功')
                                                     // setResult({
                                                     //     key: item,
                                                     //     ...res.data,
@@ -316,63 +379,21 @@ export function RedisClient({ config, }) {
                                                 }
                                             }}
                                         >
-                                            修改
+                                            新增
                                         </Button>
-                                        <Button
-                                            danger
-                                            onClick={async () => {
-                                                Modal.confirm({
-                                                    // title: 'Confirm',
-                                                    // icon: <ExclamationCircleOutlined />,
-                                                    content: `删除「${result.key}」`,
-                                                    okText: '确认',
-                                                    cancelText: '取消',
-                                                    async onOk() {
-                                                        let res = await request.post(`${config.host}/redis/delete`, {
-                                                            key: result.key,
-                                                        })
-                                                        console.log('get/res', res.data)
-                                                        if (res.success) {
-                                                            message.success('删除成功')
-                                                            loadKeys()
-                                                            setResult(null)
-                                                            // setResult({
-                                                            //     key: item,
-                                                            //     ...res.data,
-                                                            // })
-                                                            // setInputValue(res.data.value)
-                                                        }
-                                                    }
-                                                })
-                                            }}
-                                        >
-                                            删除
-                                        </Button>
-                                    </Space>
-                                :
-                                    <Button
-                                        onClick={async () => {
-                                            let res = await request.post(`${config.host}/redis/set`, {
-                                                key: inputKey,
-                                                value: inputValue,
-                                                // dbName,
-                                            })
-                                            console.log('get/res', res.data)
-                                            if (res.success) {
-                                                message.success('新增成功')
-                                                // setResult({
-                                                //     key: item,
-                                                //     ...res.data,
-                                                // })
-                                                // setInputValue(res.data.value)
-                                            }
-                                        }}
-                                    >
-                                        新增
-                                    </Button>
-                                }
+                                    }
+                                </div>
+                                {/* <div>{result.value}</div> */}
                             </div>
-                            {/* <div>{result.value}</div> */}
+                        }
+                    </div>
+                </div>
+                <div className={styles.layoutRightSide}>
+                    {!!result && editType == 'update' &&
+                        <div>
+                            <div>TTL：{result.ttl >= 0 ? `${humanFormat(result.ttl, {scale: timeScale})}` : '--'}</div>
+                            <div>Encoding：{result.encoding}</div>
+                            <div>Size：{result.size} Bytes</div>
                         </div>
                     }
                 </div>

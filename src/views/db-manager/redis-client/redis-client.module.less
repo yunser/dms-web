@@ -41,6 +41,7 @@
     .layoutRight {
         flex: 1 0 auto;
         width: 0;
+        display: flex;
         // padding: 16px;
         .header {
             height: 48px;
@@ -48,11 +49,23 @@
             border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
+            font-size: 16px;
         }
         .body {
             flex: 1 0 auto;
             // height: 0;
             overflow: auto;
+            padding: 16px;
+        }
+        .layoutRightContent {
+            flex: 1 0 auto;
+            width: 0;
+            // border: 1px solid #f00;
+        }
+        .layoutRightSide {
+            flex: 0 0 300px;
+            // border: 1px solid #f00;
+            border-left: 1px solid var(--border-color);
             padding: 16px;
         }
     }
