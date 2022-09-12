@@ -1,4 +1,4 @@
-import { Button, Checkbox, Descriptions, Form, Input, InputNumber, message, Modal, Popover, Space, Table, Tabs, Tree } from 'antd';
+import { Button, Checkbox, Descriptions, Dropdown, Form, Input, InputNumber, Menu, message, Modal, Popover, Space, Table, Tabs, Tree } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import styles from './redis-client.module.less';
 import _ from 'lodash';
@@ -132,6 +132,32 @@ export function RedisClient({ config, }) {
         loadKeys()
     }, [])
 
+    function removeKey(key) {
+        Modal.confirm({
+            // title: 'Confirm',
+            // icon: <ExclamationCircleOutlined />,
+            content: `删除「${key}」`,
+            okText: '确认',
+            cancelText: '取消',
+            async onOk() {
+                let res = await request.post(`${config.host}/redis/delete`, {
+                    key: key,
+                })
+                console.log('get/res', res.data)
+                if (res.success) {
+                    message.success('删除成功')
+                    loadKeys()
+                    setResult(null)
+                    // setResult({
+                    //     key: item,
+                    //     ...res.data,
+                    // })
+                    // setInputValue(res.data.value)
+                }
+            }
+        })
+    }
+
     return (
         <div className={styles.redisLayout}>
             <div className={styles.layoutLeft}>
@@ -192,30 +218,52 @@ export function RedisClient({ config, }) {
                                     return (
                                         <div className={styles.treeTitle}>
                                             {nodeData.type == 'type_key' &&
-                                                <div className={styles.item}
-                                                    onClick={async () => {
-                                                        let res = await request.post(`${config.host}/redis/get`, {
-                                                            key: item.key,
-                                                            // dbName,
-                                                        })
-                                                        console.log('get/res', res.data)
-                                                        if (res.success) {
-                                                            setResult({
-                                                                key: item.key,
-                                                                ...res.data,
-                                                            })
-                                                            setInputValue(res.data.value)
-                                                            setEditType('update')
-                                                        }
-                                                    }}
+                                                <Dropdown
+                                                    overlay={(
+                                                        <Menu
+                                                            items={[
+                                                                {
+                                                                    label: t('delete'),
+                                                                    key: 'key_delete',
+                                                                },
+                                                            ]}
+                                                            onClick={async ({ _item, key, keyPath, domEvent }) => {
+                                                                // onAction && onAction(key)
+                                                                if (key == 'key_delete') {
+                                                                    console.log('nodeData', nodeData)
+                                                                    removeKey(item.key)
+                                                                }
+                                                            }}
+                                                        >
+                                                        </Menu>
+                                                    )}
+                                                    trigger={['contextMenu']}
                                                 >
-                                                    <div className={styles.type}
-                                                        style={{
-                                                            backgroundColor: colorMap[item.type] || '#000'
+                                                    <div className={styles.item}
+                                                        onClick={async () => {
+                                                            let res = await request.post(`${config.host}/redis/get`, {
+                                                                key: item.key,
+                                                                // dbName,
+                                                            })
+                                                            console.log('get/res', res.data)
+                                                            if (res.success) {
+                                                                setResult({
+                                                                    key: item.key,
+                                                                    ...res.data,
+                                                                })
+                                                                setInputValue(res.data.value)
+                                                                setEditType('update')
+                                                            }
                                                         }}
-                                                    >{item.type}</div>
-                                                    <div className={styles.name}>{item.key}</div>
-                                                </div>
+                                                    >
+                                                        <div className={styles.type}
+                                                            style={{
+                                                                backgroundColor: colorMap[item.type] || '#000'
+                                                            }}
+                                                        >{item.type}</div>
+                                                        <div className={styles.name}>{item.key}</div>
+                                                    </div>
+                                                </Dropdown>
                                             }
                                             {nodeData.type == 'type_folder' &&
                                                 <div className={styles.folderNode}>
@@ -332,29 +380,7 @@ export function RedisClient({ config, }) {
                                             <Button
                                                 danger
                                                 onClick={async () => {
-                                                    Modal.confirm({
-                                                        // title: 'Confirm',
-                                                        // icon: <ExclamationCircleOutlined />,
-                                                        content: `删除「${result.key}」`,
-                                                        okText: '确认',
-                                                        cancelText: '取消',
-                                                        async onOk() {
-                                                            let res = await request.post(`${config.host}/redis/delete`, {
-                                                                key: result.key,
-                                                            })
-                                                            console.log('get/res', res.data)
-                                                            if (res.success) {
-                                                                message.success('删除成功')
-                                                                loadKeys()
-                                                                setResult(null)
-                                                                // setResult({
-                                                                //     key: item,
-                                                                //     ...res.data,
-                                                                // })
-                                                                // setInputValue(res.data.value)
-                                                            }
-                                                        }
-                                                    })
+                                                    removeKey(result.key)
                                                 }}
                                             >
                                                 删除
