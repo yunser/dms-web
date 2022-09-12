@@ -84,7 +84,7 @@ function DbSelector({ curDb, onDatabaseChange, config }) {
     useEffect(() => {
         loadKeys()
         // loadInfo()
-    }, [])
+    }, [curDb])
 
     return (
         <div>
@@ -507,74 +507,127 @@ export function RedisClient({ config, }) {
                                         />
                                     </div>
                                 }
-                                <div>Value:</div>
-                                <Input.TextArea
-                                    value={inputValue}
-                                    onChange={e => {
-                                        setInputValue(e.target.value)
-                                    }}
-                                    rows={8}
-                                    style={{
-                                        width: 400,
-                                    }}
-                                />
-                                <div>
-                                    {editType == 'update' ?
-                                        <Space>
-                                            <Button
-                                                onClick={async () => {
-                                                    let res = await request.post(`${config.host}/redis/set`, {
-                                                        key: result.key,
-                                                        value: inputValue,
-                                                        // dbName,
-                                                    })
-                                                    console.log('get/res', res.data)
-                                                    if (res.success) {
-                                                        message.success('修改成功')
-                                                        // setResult({
-                                                        //     key: item,
-                                                        //     ...res.data,
-                                                        // })
-                                                        // setInputValue(res.data.value)
-                                                    }
-                                                }}
-                                            >
-                                                修改
-                                            </Button>
-                                            <Button
-                                                danger
-                                                onClick={async () => {
-                                                    removeKey(result.key)
-                                                }}
-                                            >
-                                                删除
-                                            </Button>
-                                        </Space>
-                                    :
-                                        <Button
-                                            onClick={async () => {
-                                                let res = await request.post(`${config.host}/redis/set`, {
-                                                    key: inputKey,
-                                                    value: inputValue,
-                                                    // dbName,
-                                                })
-                                                console.log('get/res', res.data)
-                                                if (res.success) {
-                                                    message.success('新增成功')
-                                                    loadKeys()
-                                                    setResult(null)
-                                                    // setResult({
-                                                    //     key: item,
-                                                    //     ...res.data,
-                                                    // })
-                                                    // setInputValue(res.data.value)
-                                                }
+
+                                {result.type == 'string' &&
+                                    <div>
+                                        {/* <div>Value:</div> */}
+                                        <Input.TextArea
+                                            value={inputValue}
+                                            onChange={e => {
+                                                setInputValue(e.target.value)
                                             }}
-                                        >
-                                            新增
-                                        </Button>
-                                    }
-                                </div>
+                                            rows={8}
+                                            style={{
+                                                width: 400,
+                                            }}
+                                        />
+                                        <div>
+                                            {editType == 'update' ?
+                                                <Space>
+                                                    <Button
+                                                        onClick={async () => {
+                                                            let res = await request.post(`${config.host}/redis/set`, {
+                                                                key: result.key,
+                                                                value: inputValue,
+                                                                // dbName,
+                                                            })
+                                                            console.log('get/res', res.data)
+                                                            if (res.success) {
+                                                                message.success('修改成功')
+                                                                // setResult({
+                                                                //     key: item,
+                                                                //     ...res.data,
+                                                                // })
+                                                                // setInputValue(res.data.value)
+                                                            }
+                                                        }}
+                                                    >
+                                                        修改
+                                                    </Button>
+                                                    <Button
+                                                        danger
+                                                        onClick={async () => {
+                                                            removeKey(result.key)
+                                                        }}
+                                                    >
+                                                        删除
+                                                    </Button>
+                                                </Space>
+                                            :
+                                                <Button
+                                                    onClick={async () => {
+                                                        let res = await request.post(`${config.host}/redis/set`, {
+                                                            key: inputKey,
+                                                            value: inputValue,
+                                                            // dbName,
+                                                        })
+                                                        console.log('get/res', res.data)
+                                                        if (res.success) {
+                                                            message.success('新增成功')
+                                                            loadKeys()
+                                                            setResult(null)
+                                                            // setResult({
+                                                            //     key: item,
+                                                            //     ...res.data,
+                                                            // })
+                                                            // setInputValue(res.data.value)
+                                                        }
+                                                    }}
+                                                >
+                                                    新增
+                                                </Button>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                                {result.type == 'list' &&
+                                    <div>
+                                        {/* List */}
+                                        <div className={styles.items}>
+                                            {result.items.map(item => {
+                                                return (
+                                                    <div className={styles.item}>{item}</div>
+                                                )
+                                            })}
+                                        </div>
+                                    </div>
+                                }
+                                {result.type == 'set' &&
+                                    <div>
+                                        {/* List */}
+                                        <div className={styles.items}>
+                                            {result.items.map(item => {
+                                                return (
+                                                    <div className={styles.item}>{item}</div>
+                                                )
+                                            })}
+                                        </div>
+                                    </div>
+                                }
+                                {result.type == 'hash' &&
+                                    <div>
+                                        {/* List */}
+                                        <div className={styles.items}>
+                                            {result.items.map(item => {
+                                                return (
+                                                    <div className={styles.item}>{item}</div>
+                                                )
+                                            })}
+                                        </div>
+                                    </div>
+                                }
+                                {result.type == 'zset' &&
+                                    <div>
+                                        {/* List */}
+                                        <div className={styles.items}>
+                                            {result.items.map(item => {
+                                                return (
+                                                    <div className={styles.item}>{item}</div>
+                                                )
+                                            })}
+                                        </div>
+                                    </div>
+                                }
                                 {/* <div>{result.value}</div> */}
                             </div>
                         }
