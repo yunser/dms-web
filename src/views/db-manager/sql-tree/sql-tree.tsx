@@ -681,6 +681,19 @@ LIMIT 1000;`
                         {/* <CodeOutlined /> */}
                         <ConsoleSqlOutlined />
                     </IconButton>
+                    <IconButton
+                        tooltip={t('info')}
+                        onClick={() => {
+                            event$.emit({
+                                type: 'event_show_info',
+                                data: {
+                                    connectionId,
+                                },
+                            })
+                        }}
+                    >
+                        <InfoCircleOutlined />
+                    </IconButton>
                 </div>
                 {/* Header */}
                 <DebounceInput

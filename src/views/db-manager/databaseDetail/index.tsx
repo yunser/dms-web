@@ -38,6 +38,7 @@ import DatabaseList from '../databases'
 import { UserList } from '../user-list'
 import { SqlList } from '../sql-list'
 import { suggestionAdd } from '../suggestion'
+import { MySqlInfo } from '../mysql-info'
 
 // console.log('ddd.0')
 // _.debounce(() => {
@@ -270,6 +271,17 @@ export function DataBaseDetail({ connectionId, event$, config, onJson }) {
                     type: 'type_sqls',
                     title: t('sql_manage'),
                     key: 'sqls-0-0',
+                }
+                addOrActiveTab(history_tab)
+            }
+        }
+        else if (msg.type == 'event_show_info') {
+            const { connectionId: _connectionId, schemaName } = msg.data
+            if (_connectionId == connectionId) {
+                const history_tab = {
+                    type: 'type_info',
+                    title: t('info'),
+                    key: 'info-0-0',
                 }
                 addOrActiveTab(history_tab)
             }
@@ -605,6 +617,13 @@ export function DataBaseDetail({ connectionId, event$, config, onJson }) {
                                 {item.type == 'history' &&
                                     <HistoryList
                                         config={config}
+                                        onSql={onSql}
+                                    />
+                                }
+                                {item.type == 'type_info' &&
+                                    <MySqlInfo
+                                        config={config}
+                                        connectionId={connectionId}
                                         onSql={onSql}
                                     />
                                 }

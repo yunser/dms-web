@@ -130,6 +130,8 @@ i18n
                     untitled_query: 'Untitled Query',
                     lower_case: 'Lower Case',
                     upper_case: 'Upper Case',
+                    server_version: 'Server Version',
+                    info: 'Infomation',
                 }
             },
             zh: {
@@ -253,6 +255,8 @@ i18n
                     untitled_query: '未命名查询',
                     lower_case: '小写',
                     upper_case: '大写',
+                    server_version: '服务器版本',
+                    info: '信息',
                 }
             }
         },
