@@ -89,6 +89,8 @@ export function DatabaseModal({ config, type, redisKey, connectionId, item, onCl
                 value: item.value,
                 // for hash
                 field: item.field,
+                // for zset
+                score: item.score,
                 // characterSet: item.DEFAULT_CHARACTER_SET_NAME,
                 // collation: item.DEFAULT_COLLATION_NAME,
             })
@@ -160,20 +162,22 @@ export function DatabaseModal({ config, type, redisKey, connectionId, item, onCl
                         }
                     }
                     else {
-                        // let ret = await request.post(`${config.host}/redis/lset`, {
-                        //     connectionId,
-                        //     key: redisKey,
-                        //     index: item.index,
-                        //     value: values.value,
-                        // })
-                        // // console.log('ret', ret)
-                        // if (ret.success) {
-                        //     // message.success('连接成功')
-                        //     // onConnnect && onConnnect()
-                        //     message.success('Success')
-                        //     onClose && onClose()
-                        //     onSuccess && onSuccess()
-                        // }
+                        let ret = await request.post(`${config.host}/redis/zreplace`, {
+                            connectionId,
+                            key: redisKey,
+                            score: item.score,
+                            newScore: values.score,
+                            value: item.value,
+                            newValue: values.value,
+                        })
+                        // console.log('ret', ret)
+                        if (ret.success) {
+                            // message.success('连接成功')
+                            // onConnnect && onConnnect()
+                            message.success('Success')
+                            onClose && onClose()
+                            onSuccess && onSuccess()
+                        }
                     }
                 }
                 else if (type == 'set') {
@@ -273,7 +277,7 @@ export function DatabaseModal({ config, type, redisKey, connectionId, item, onCl
                         />
                     </Form.Item>
                 }
-                {editType == 'create' && type == 'zset' &&
+                {type == 'zset' &&
                     <Form.Item
                         name="score"
                         label="分数"
