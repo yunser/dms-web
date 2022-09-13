@@ -121,22 +121,22 @@ export function HashContent({ curDb, onSuccess, data, config }) {
                                     编辑
                                 </Button>
                             </ListPushHandler> */}
-                            {/* <Button
+                            <Button
                                 danger
                                 size="small"
                                 onClick={async () => {
                                     Modal.confirm({
                                         // title: 'Confirm',
                                         // icon: <ExclamationCircleOutlined />,
-                                        content: `删除「${item.member}」`,
+                                        content: `删除「${item.key}」`,
                                         // okText: '确认',
                                         // cancelText: '取消',
                                         async onOk() {
                                             
-                                            let ret = await request.post(`${config.host}/redis/zrem`, {
+                                            let ret = await request.post(`${config.host}/redis/hdel`, {
                                                 key: data.key,
                                                 // connectionId,
-                                                value: item.member,
+                                                field: item.key,
                                             })
                                             // console.log('ret', ret)
                                             if (ret.success) {
@@ -151,7 +151,7 @@ export function HashContent({ curDb, onSuccess, data, config }) {
                                 }}
                             >
                                 删除
-                            </Button> */}
+                            </Button>
                         </div>
                     )
                 })}
