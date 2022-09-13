@@ -16,6 +16,7 @@ import { ListPushHandler } from './list-push';
 import { ListContent } from './list-content';
 import { SetContent } from './set-content';
 import { ZSetContent } from './zset-content';
+import { HashContent } from './hash-content';
 
 
 const timeScale = new humanFormat.Scale({
@@ -206,14 +207,20 @@ export function RedisKeyDetail({ config, redisKey, onRemove }) {
                             }
                             {result.type == 'hash' &&
                                 <div>
-                                    {/* List */}
-                                    <div className={styles.items}>
+                                    <HashContent
+                                        config={config}
+                                        data={result}
+                                        onSuccess={() => {
+                                            loadKey(result.key)
+                                        }}
+                                    />
+                                    {/* <div className={styles.items}>
                                         {result.items.map(item => {
                                             return (
                                                 <div className={styles.item}>{item.key}: {item.value}</div>
                                             )
                                         })}
-                                    </div>
+                                    </div> */}
                                 </div>
                             }
                             {result.type == 'zset' &&
