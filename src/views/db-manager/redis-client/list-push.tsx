@@ -103,7 +103,41 @@ export function DatabaseModal({ config, type, redisKey, connectionId, item, onCl
             maskClosable={false}
             onOk={async () => {
                 const values = await form.validateFields()
-                if (type == 'set') {
+                if (type == 'zset') {
+                    if (editType == 'create') {
+                        let ret = await request.post(`${config.host}/redis/zadd`, {
+                            key: redisKey,
+                            connectionId,
+                            score: values.score,
+                            value: values.value,
+                        })
+                        // console.log('ret', ret)
+                        if (ret.success) {
+                            // message.success('连接成功')
+                            // onConnnect && onConnnect()
+                            message.success('Success')
+                            onClose && onClose()
+                            onSuccess && onSuccess()
+                        }
+                    }
+                    else {
+                        // let ret = await request.post(`${config.host}/redis/lset`, {
+                        //     connectionId,
+                        //     key: redisKey,
+                        //     index: item.index,
+                        //     value: values.value,
+                        // })
+                        // // console.log('ret', ret)
+                        // if (ret.success) {
+                        //     // message.success('连接成功')
+                        //     // onConnnect && onConnnect()
+                        //     message.success('Success')
+                        //     onClose && onClose()
+                        //     onSuccess && onSuccess()
+                        // }
+                    }
+                }
+                else if (type == 'set') {
                     if (editType == 'create') {
                         let ret = await request.post(`${config.host}/redis/sadd`, {
                             key: redisKey,
@@ -189,6 +223,16 @@ export function DatabaseModal({ config, type, redisKey, connectionId, item, onCl
                 //     wrapperCol: { span: 24 },
                 // }}
             >
+                {editType == 'create' && type == 'zset' &&
+                    <Form.Item
+                        name="score"
+                        label="分数"
+                        rules={[ { required: true, }, ]}
+                    >
+                        <InputNumber
+                        />
+                    </Form.Item>
+                }
                 {editType == 'create' && type == 'list' &&
                     <Form.Item
                         name="position"

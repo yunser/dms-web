@@ -156,18 +156,18 @@ export function ZSetContent({ curDb, onSuccess, data, config }) {
                 })}
             </div>
             <div>
-                {/* <ListPushHandler
+                <ListPushHandler
                     config={config}
                     redisKey={data.key}
                     onSuccess={onSuccess}
-                    type="set"
+                    type="zset"
                 >
                     <Button
                         size="small"
                     >
                         新增行
                     </Button>
-                </ListPushHandler> */}
+                </ListPushHandler>
             </div>
             {!!itemDetail &&
                 <div>?</div>
