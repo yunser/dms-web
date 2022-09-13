@@ -105,9 +105,10 @@ export function SetContent({ curDb, onSuccess, data, config }) {
                             <div>
                                 {item}
                             </div>
-                            {/* <ListPushHandler
+                            <ListPushHandler
                                 config={config}
                                 redisKey={data.key}
+                                type="set"
                                 item={{
                                     index,
                                     value: item,
@@ -119,7 +120,7 @@ export function SetContent({ curDb, onSuccess, data, config }) {
                                 >
                                     编辑
                                 </Button>
-                            </ListPushHandler> */}
+                            </ListPushHandler>
                             <Button
                                 danger
                                 size="small"

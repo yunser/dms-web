@@ -188,20 +188,21 @@ export function DatabaseModal({ config, type, redisKey, connectionId, item, onCl
                         }
                     }
                     else {
-                        // let ret = await request.post(`${config.host}/redis/lset`, {
-                        //     connectionId,
-                        //     key: redisKey,
-                        //     index: item.index,
-                        //     value: values.value,
-                        // })
-                        // // console.log('ret', ret)
-                        // if (ret.success) {
-                        //     // message.success('连接成功')
-                        //     // onConnnect && onConnnect()
-                        //     message.success('Success')
-                        //     onClose && onClose()
-                        //     onSuccess && onSuccess()
-                        // }
+                        let ret = await request.post(`${config.host}/redis/sreplace`, {
+                            connectionId,
+                            key: redisKey,
+                            // index: item.index,
+                            value: item.value,
+                            newValue: values.value,
+                        })
+                        // console.log('ret', ret)
+                        if (ret.success) {
+                            // message.success('连接成功')
+                            // onConnnect && onConnnect()
+                            message.success('Success')
+                            onClose && onClose()
+                            onSuccess && onSuccess()
+                        }
                     }
                 }
                 else {
