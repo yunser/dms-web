@@ -101,6 +101,8 @@ function DbSelector({ curDb, onDatabaseChange, config }) {
             <Select
                 className={styles.select}
                 value={curDb}
+                // Redis 默认数据库数量 16，16 * 32 = 512
+                listHeight={512}
                 options={databases}
                 onChange={value => {
                     onDatabaseChange && onDatabaseChange(value)
