@@ -82,15 +82,18 @@ export function DatabaseModal({ config, type, redisKey, connectionId, item, onCl
         })
     }, [characterSet, characterSetMap])
 
+    console.log('item', item)
     useEffect(() => {
         if (item) {
             form.setFieldsValue({
                 value: item.value,
+                // for hash
+                field: item.field,
                 // characterSet: item.DEFAULT_CHARACTER_SET_NAME,
                 // collation: item.DEFAULT_COLLATION_NAME,
             })
         }
-    }, [])
+    }, [item])
    
 
 
@@ -121,20 +124,22 @@ export function DatabaseModal({ config, type, redisKey, connectionId, item, onCl
                         }
                     }
                     else {
-                        // let ret = await request.post(`${config.host}/redis/lset`, {
-                        //     connectionId,
-                        //     key: redisKey,
-                        //     index: item.index,
-                        //     value: values.value,
-                        // })
-                        // // console.log('ret', ret)
-                        // if (ret.success) {
-                        //     // message.success('连接成功')
-                        //     // onConnnect && onConnnect()
-                        //     message.success('Success')
-                        //     onClose && onClose()
-                        //     onSuccess && onSuccess()
-                        // }
+                        let ret = await request.post(`${config.host}/redis/hreplace`, {
+                            connectionId,
+                            key: redisKey,
+                            field: item.field,
+                            newField: values.field,
+                            value: item.value,
+                            newValue: values.value,
+                        })
+                        // console.log('ret', ret)
+                        if (ret.success) {
+                            // message.success('连接成功')
+                            // onConnnect && onConnnect()
+                            message.success('Success')
+                            onClose && onClose()
+                            onSuccess && onSuccess()
+                        }
                     }
                 }
                 else if (type == 'zset') {
@@ -258,7 +263,7 @@ export function DatabaseModal({ config, type, redisKey, connectionId, item, onCl
                 //     wrapperCol: { span: 24 },
                 // }}
             >
-                {editType == 'create' && type == 'hash' &&
+                {type == 'hash' &&
                     <Form.Item
                         name="field"
                         label="字段"

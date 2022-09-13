@@ -106,52 +106,57 @@ export function HashContent({ curDb, onSuccess, data, config }) {
                             <div>
                                 {item.key}: {item.value}</div>
                             </div>
-                            {/* <ListPushHandler
-                                config={config}
-                                redisKey={data.key}
-                                item={{
-                                    index,
-                                    value: item,
-                                }}
-                                onSuccess={onSuccess}
-                            >
-                                <Button
-                                    size="small"
+                            <Space>
+
+                                <ListPushHandler
+                                    config={config}
+                                    redisKey={data.key}
+                                    type="hash"
+                                    item={{
+                                        index,
+                                        field: item.key,
+                                        value: item.value,
+                                    }}
+                                    onSuccess={onSuccess}
                                 >
-                                    编辑
-                                </Button>
-                            </ListPushHandler> */}
-                            <Button
-                                danger
-                                size="small"
-                                onClick={async () => {
-                                    Modal.confirm({
-                                        // title: 'Confirm',
-                                        // icon: <ExclamationCircleOutlined />,
-                                        content: `删除「${item.key}」`,
-                                        // okText: '确认',
-                                        // cancelText: '取消',
-                                        async onOk() {
-                                            
-                                            let ret = await request.post(`${config.host}/redis/hdel`, {
-                                                key: data.key,
-                                                // connectionId,
-                                                field: item.key,
-                                            })
-                                            // console.log('ret', ret)
-                                            if (ret.success) {
-                                                // message.success('连接成功')
-                                                // onConnnect && onConnnect()
-                                                message.success('Success')
-                                                // onClose && onClose()
-                                                onSuccess && onSuccess()
+                                    <Button
+                                        size="small"
+                                    >
+                                        编辑
+                                    </Button>
+                                </ListPushHandler>
+                                <Button
+                                    danger
+                                    size="small"
+                                    onClick={async () => {
+                                        Modal.confirm({
+                                            // title: 'Confirm',
+                                            // icon: <ExclamationCircleOutlined />,
+                                            content: `删除「${item.key}」`,
+                                            // okText: '确认',
+                                            // cancelText: '取消',
+                                            async onOk() {
+                                                
+                                                let ret = await request.post(`${config.host}/redis/hdel`, {
+                                                    key: data.key,
+                                                    // connectionId,
+                                                    field: item.key,
+                                                })
+                                                // console.log('ret', ret)
+                                                if (ret.success) {
+                                                    // message.success('连接成功')
+                                                    // onConnnect && onConnnect()
+                                                    message.success('Success')
+                                                    // onClose && onClose()
+                                                    onSuccess && onSuccess()
+                                                }
                                             }
-                                        }
-                                    })
-                                }}
-                            >
-                                删除
-                            </Button>
+                                        })
+                                    }}
+                                >
+                                    删除
+                                </Button>
+                            </Space>
                         </div>
                     )
                 })}
