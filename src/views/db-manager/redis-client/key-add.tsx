@@ -57,7 +57,7 @@ import { request } from '../utils/http'
 // }
 
 
-export function KeyAddModal({ config, onCancel, connectionId, item, onClose, onSuccess, onConnnect, }) {
+export function KeyAddModal({ config, type, onCancel, connectionId, item, onClose, onSuccess, onConnnect, }) {
     const { t } = useTranslation()
 
     const [loading, setLoading] = useState(false)
@@ -79,20 +79,58 @@ export function KeyAddModal({ config, onCancel, connectionId, item, onClose, onS
    
 
 
+
     return (
         <Modal
-            title="添加字符串"
+            title={`添加 ${type}`}
             // title={'新增行'}
             visible={true}
             onCancel={onCancel}
             maskClosable={false}
             onOk={async () => {
                 const values = await form.validateFields()
-                let res = await request.post(`${config.host}/redis/set`, {
-                    key: values.name,
-                    value: 'New Key',
-                    // dbName,
-                })
+                let res
+                if (type == 'string') {
+                    res = await request.post(`${config.host}/redis/set`, {
+                        key: values.name,
+                        value: 'New Key',
+                        // dbName,
+                    })
+                }
+                else if (type == 'list') {
+                    res = await request.post(`${config.host}/redis/rpush`, {
+                        key: values.name,
+                        // field: '',
+                        value: 'New Item',
+                        // dbName,
+                    })
+                }
+                else if (type == 'set') {
+                    res = await request.post(`${config.host}/redis/sadd`, {
+                        key: values.name,
+                        // field: '',
+                        value: 'New Item',
+                        // dbName,
+                    })
+                }
+                else if (type == 'zset') {
+                    res = await request.post(`${config.host}/redis/zadd`, {
+                        key: values.name,
+                        // field: '',
+                        score: 0,
+                        value: 'New Item',
+                        // dbName,
+                    })
+                }
+                else if (type == 'hash') {
+                    res = await request.post(`${config.host}/redis/hset`, {
+                        key: values.name,
+                        // field: '',
+                        field: 'New Field',
+                        value: 'New Value',
+                        // dbName,
+                    })
+                }
                 console.log('get/res', res.data)
                 if (res.success) {
                     message.success('修改成功')

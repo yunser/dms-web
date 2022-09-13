@@ -150,6 +150,7 @@ export function RedisClient({ config, }) {
     const [treeData, setTreeData] = useState([])
     const [expandedKeys, setExpandedKeys ] = useState([])
     
+    const [addType, setAddType] = useState('')
     const [addModalVisible, setAddModalVisible] = useState(false)
     const [detailRedisKey, setDetailRedisKey] = useState('')
 
@@ -304,6 +305,22 @@ export function RedisClient({ config, }) {
                                         label: '字符串',
                                         key: 'string',
                                     },
+                                    {
+                                        label: '列表',
+                                        key: 'list',
+                                    },
+                                    {
+                                        label: '集合',
+                                        key: 'set',
+                                    },
+                                    {
+                                        label: '有序集合',
+                                        key: 'zset',
+                                    },
+                                    {
+                                        label: '哈希',
+                                        key: 'hash',
+                                    },
                                     // {
                                     //     label: <a href="https://www.aliyun.com">2nd menu item</a>,
                                     //     key: '1',
@@ -319,6 +336,23 @@ export function RedisClient({ config, }) {
                                 onClick={({ key }) => {
                                     if (key == 'string') {
                                         setAddModalVisible(true)
+                                        setAddType('string')
+                                    }
+                                    else if (key == 'list') {
+                                        setAddModalVisible(true)
+                                        setAddType('list')
+                                    }
+                                    else if (key == 'set') {
+                                        setAddModalVisible(true)
+                                        setAddType('set')
+                                    }
+                                    else if (key == 'zset') {
+                                        setAddModalVisible(true)
+                                        setAddType('zset')
+                                    }
+                                    else if (key == 'hash') {
+                                        setAddModalVisible(true)
+                                        setAddType('hash')
                                     }
                                 }}
                             />
@@ -516,6 +550,7 @@ export function RedisClient({ config, }) {
             {addModalVisible &&
                 <KeyAddModal
                     config={config}
+                    type={addType}
                     onCancel={() => {
                         setAddModalVisible(false)
                     }}
