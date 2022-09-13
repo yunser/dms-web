@@ -11,7 +11,7 @@ import { request } from '../utils/http'
 
 
 export function ListPushHandler(props) {
-    const { children, redisKey, config, connectionId, item, id, ids, onSuccess, asd = false } = props
+    const { children, type = 'list', redisKey, config, connectionId, item, id, ids, onSuccess, asd = false } = props
     // const { id: deviceId } = item
     // //console.log('children', children)
     // children.props.onClick = () => {
@@ -41,6 +41,7 @@ export function ListPushHandler(props) {
             {NewElem}
             {modalVisible &&
                 <DatabaseModal
+                    type={type}
                     redisKey={redisKey}
                     connectionId={connectionId}
                     config={config}
@@ -57,7 +58,7 @@ export function ListPushHandler(props) {
 }
 
 
-export function DatabaseModal({ config, redisKey, connectionId, item, onClose, onSuccess, onConnnect, }) {
+export function DatabaseModal({ config, type, redisKey, connectionId, item, onClose, onSuccess, onConnnect, }) {
     const { t } = useTranslation()
 
     const [loading, setLoading] = useState(false)
@@ -102,36 +103,71 @@ export function DatabaseModal({ config, redisKey, connectionId, item, onClose, o
             maskClosable={false}
             onOk={async () => {
                 const values = await form.validateFields()
-                if (editType == 'create') {
-                    let ret = await request.post(`${config.host}/redis/rpush`, {
-                        position: values.position,
-                        key: redisKey,
-                        connectionId,
-                        value: values.value,
-                    })
-                    // console.log('ret', ret)
-                    if (ret.success) {
-                        // message.success('连接成功')
-                        // onConnnect && onConnnect()
-                        message.success('Success')
-                        onClose && onClose()
-                        onSuccess && onSuccess()
+                if (type == 'set') {
+                    if (editType == 'create') {
+                        let ret = await request.post(`${config.host}/redis/sadd`, {
+                            key: redisKey,
+                            connectionId,
+                            value: values.value,
+                        })
+                        // console.log('ret', ret)
+                        if (ret.success) {
+                            // message.success('连接成功')
+                            // onConnnect && onConnnect()
+                            message.success('Success')
+                            onClose && onClose()
+                            onSuccess && onSuccess()
+                        }
+                    }
+                    else {
+                        // let ret = await request.post(`${config.host}/redis/lset`, {
+                        //     connectionId,
+                        //     key: redisKey,
+                        //     index: item.index,
+                        //     value: values.value,
+                        // })
+                        // // console.log('ret', ret)
+                        // if (ret.success) {
+                        //     // message.success('连接成功')
+                        //     // onConnnect && onConnnect()
+                        //     message.success('Success')
+                        //     onClose && onClose()
+                        //     onSuccess && onSuccess()
+                        // }
                     }
                 }
                 else {
-                    let ret = await request.post(`${config.host}/redis/lset`, {
-                        connectionId,
-                        key: redisKey,
-                        index: item.index,
-                        value: values.value,
-                    })
-                    // console.log('ret', ret)
-                    if (ret.success) {
-                        // message.success('连接成功')
-                        // onConnnect && onConnnect()
-                        message.success('Success')
-                        onClose && onClose()
-                        onSuccess && onSuccess()
+                    if (editType == 'create') {
+                        let ret = await request.post(`${config.host}/redis/rpush`, {
+                            position: values.position,
+                            key: redisKey,
+                            connectionId,
+                            value: values.value,
+                        })
+                        // console.log('ret', ret)
+                        if (ret.success) {
+                            // message.success('连接成功')
+                            // onConnnect && onConnnect()
+                            message.success('Success')
+                            onClose && onClose()
+                            onSuccess && onSuccess()
+                        }
+                    }
+                    else {
+                        let ret = await request.post(`${config.host}/redis/lset`, {
+                            connectionId,
+                            key: redisKey,
+                            index: item.index,
+                            value: values.value,
+                        })
+                        // console.log('ret', ret)
+                        if (ret.success) {
+                            // message.success('连接成功')
+                            // onConnnect && onConnnect()
+                            message.success('Success')
+                            onClose && onClose()
+                            onSuccess && onSuccess()
+                        }
                     }
                 }
                 // else {
@@ -153,7 +189,7 @@ export function DatabaseModal({ config, redisKey, connectionId, item, onClose, o
                 //     wrapperCol: { span: 24 },
                 // }}
             >
-                {editType == 'create' &&
+                {editType == 'create' && type == 'list' &&
                     <Form.Item
                         name="position"
                         label="插入到"

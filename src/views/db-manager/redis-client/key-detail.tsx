@@ -14,6 +14,7 @@ import { FolderOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons'
 import humanFormat from 'human-format'
 import { ListPushHandler } from './list-push';
 import { ListContent } from './list-content';
+import { SetContent } from './set-content';
 
 
 const timeScale = new humanFormat.Scale({
@@ -192,15 +193,23 @@ export function RedisKeyDetail({ config, redisKey, onRemove }) {
                                 </div>
                             }
                             {result.type == 'set' &&
+                                // <div>
+                                //     <div className={styles.items}>
+                                //         {result.items.map(item => {
+                                //             return (
+                                //                 <div className={styles.item}>{item}</div>
+                                //             )
+                                //         })}
+                                //     </div>
+                                // </div>
                                 <div>
-                                    {/* List */}
-                                    <div className={styles.items}>
-                                        {result.items.map(item => {
-                                            return (
-                                                <div className={styles.item}>{item}</div>
-                                            )
-                                        })}
-                                    </div>
+                                    <SetContent
+                                        config={config}
+                                        data={result}
+                                        onSuccess={() => {
+                                            loadKey(result.key)
+                                        }}
+                                    />
                                 </div>
                             }
                             {result.type == 'hash' &&
