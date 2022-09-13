@@ -120,22 +120,22 @@ export function ZSetContent({ curDb, onSuccess, data, config }) {
                                     编辑
                                 </Button>
                             </ListPushHandler> */}
-                            {/* <Button
+                            <Button
                                 danger
                                 size="small"
                                 onClick={async () => {
                                     Modal.confirm({
                                         // title: 'Confirm',
                                         // icon: <ExclamationCircleOutlined />,
-                                        content: `删除「${item}」`,
+                                        content: `删除「${item.member}」`,
                                         // okText: '确认',
                                         // cancelText: '取消',
                                         async onOk() {
                                             
-                                            let ret = await request.post(`${config.host}/redis/srem`, {
+                                            let ret = await request.post(`${config.host}/redis/zrem`, {
                                                 key: data.key,
                                                 // connectionId,
-                                                value: item,
+                                                value: item.member,
                                             })
                                             // console.log('ret', ret)
                                             if (ret.success) {
@@ -150,7 +150,7 @@ export function ZSetContent({ curDb, onSuccess, data, config }) {
                                 }}
                             >
                                 删除
-                            </Button> */}
+                            </Button>
                         </div>
                     )
                 })}
