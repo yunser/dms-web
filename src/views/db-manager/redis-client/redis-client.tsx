@@ -85,7 +85,7 @@ function DbSelector({ curDb, onDatabaseChange, config }) {
 
     useInterval(() => {
         loadInfo()
-    }, 60 * 1000)
+    }, 30 * 1000)
 
     return (
         <div>
