@@ -120,6 +120,37 @@ export function SetContent({ curDb, onSuccess, data, config }) {
                                     编辑
                                 </Button>
                             </ListPushHandler> */}
+                            <Button
+                                danger
+                                size="small"
+                                onClick={async () => {
+                                    Modal.confirm({
+                                        // title: 'Confirm',
+                                        // icon: <ExclamationCircleOutlined />,
+                                        content: `删除「${item}」`,
+                                        // okText: '确认',
+                                        // cancelText: '取消',
+                                        async onOk() {
+                                            
+                                            let ret = await request.post(`${config.host}/redis/srem`, {
+                                                key: data.key,
+                                                // connectionId,
+                                                value: item,
+                                            })
+                                            // console.log('ret', ret)
+                                            if (ret.success) {
+                                                // message.success('连接成功')
+                                                // onConnnect && onConnnect()
+                                                message.success('Success')
+                                                // onClose && onClose()
+                                                onSuccess && onSuccess()
+                                            }
+                                        }
+                                    })
+                                }}
+                            >
+                                删除
+                            </Button>
                         </div>
                     )
                 })}
