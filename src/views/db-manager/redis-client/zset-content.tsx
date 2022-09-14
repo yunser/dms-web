@@ -111,6 +111,7 @@ export function ZSetContent({ curDb, onSuccess, connectionId, data, config }) {
                                 <ListPushHandler
                                     config={config}
                                     redisKey={data.key}
+                                    connectionId={connectionId}
                                     type="zset"
                                     item={{
                                         index,
@@ -166,6 +167,7 @@ export function ZSetContent({ curDb, onSuccess, connectionId, data, config }) {
                 <ListPushHandler
                     config={config}
                     redisKey={data.key}
+                    connectionId={connectionId}
                     onSuccess={onSuccess}
                     type="zset"
                 >

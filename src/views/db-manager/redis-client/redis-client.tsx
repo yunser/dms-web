@@ -155,7 +155,6 @@ export function RedisClient({ config, connectionId }) {
     
     const [addType, setAddType] = useState('')
     const [addModalVisible, setAddModalVisible] = useState(false)
-    const [detailRedisKey, setDetailRedisKey] = useState('')
     const [tabInfo, setTabInfo] = useState({
         activeKey: '0',
         items: [
@@ -165,6 +164,34 @@ export function RedisClient({ config, connectionId }) {
             // }
         ],
     })
+
+    function closeTabByKeys(keys: string[]) {
+        const items = tabInfo.items.filter(_it => {
+            if (_it.itemData?.redisKey) {
+                return !keys.includes(_it.itemData.redisKey)
+            }
+            return true
+        })
+        const activeKey = items.length ? items[0].key : ''
+        setTabInfo({
+            activeKey,
+            items,
+        })
+    }
+
+    function closeTabByKey(targetKey) {
+        const items = tabInfo.items.filter(_it => _it.key != targetKey)
+        const activeKey = items.length ? items[0].key : ''
+        setTabInfo({
+            activeKey,
+            items,
+        })
+    }
+
+    function closeCurTab() {
+        console.log('closeCurTab', closeCurTab)
+        closeTabByKey(tabInfo.activeKey)
+    }
 
     const onEdit = (targetKey: string, action: string) => {
         console.log('targetKey, action', targetKey, action)
@@ -188,12 +215,8 @@ export function RedisClient({ config, connectionId }) {
             // })
         }
         else if (action === 'remove') {
-            const items = tabInfo.items.filter(_it => _it.key != targetKey)
-            const activeKey = items.length ? items[0].key : ''
-            setTabInfo({
-                activeKey,
-                items,
-            })
+            closeTabByKey(targetKey)
+            
             // for (let i = 0; i < tabs.length; i++) {
             //     if (tabs[i].key === targetKey) {
             //         tabs.splice(i, 1)
@@ -291,7 +314,26 @@ export function RedisClient({ config, connectionId }) {
         loadKeys()
     }, [curDb])
 
-    function removeKey(key) {
+    function addKey2Tab(key) {
+        const tabKey = uid(32)
+        setTabInfo({
+            // ...tabInfo,
+            activeKey: tabKey,
+            items: [
+                ...tabInfo.items,
+                {
+                    type: 'type_key',
+                    label: key,
+                    key: tabKey,
+                    itemData: {
+                        redisKey: key,
+                    },
+                }
+            ]
+        })
+    }
+
+    function removeKey(key, cb) {
         Modal.confirm({
             // title: 'Confirm',
             // icon: <ExclamationCircleOutlined />,
@@ -307,8 +349,8 @@ export function RedisClient({ config, connectionId }) {
                 if (res.success) {
                     message.success('删除成功')
                     loadKeys()
-                    setDetailRedisKey('')
-                    // setInputValue(res.data.value)
+                    closeTabByKeys([key])
+                    cb && cb()
                 }
             }
         })
@@ -335,7 +377,7 @@ export function RedisClient({ config, connectionId }) {
                 if (res.success) {
                     message.success('删除成功')
                     loadKeys()
-                    setDetailRedisKey('')
+                    closeTabByKeys(keys)
                 }
             }
         })
@@ -440,166 +482,113 @@ export function RedisClient({ config, connectionId }) {
                     </Space> */}
                 </div>
                 <div className={styles.body}>
-                    <div>
-                        {/* <Input
-                            value={keyword}
-                        /> */}
-                        {loading ?
-                            <div>Loading</div>
-                        :
-                            <Tree
-                                treeData={treeData}
-                                expandedKeys={expandedKeys}
-                                onExpand={(expandedKeys) => {
-                                    setExpandedKeys(expandedKeys)
-                                }}
-                                onSelect={(selectedKeys, info) => {
-                                    const { key, type } = info.node
-                                    console.log('type', type)
-                                    if (type == 'type_folder') {
-                                        if (expandedKeys.includes(key)) {
-                                            setExpandedKeys(expandedKeys.filter(_key => _key != key))
-                                        }
-                                        else {
-                                            setExpandedKeys([
-                                                ...expandedKeys,
-                                                key,
-                                            ])
-                                        }
+                    {loading ?
+                        <div>Loading</div>
+                    :
+                        <Tree
+                            className={styles.tree}
+                            height={document.body.clientHeight - 42 - 48 - 16 - 40}
+                            treeData={treeData}
+                            expandedKeys={expandedKeys}
+                            onExpand={(expandedKeys) => {
+                                setExpandedKeys(expandedKeys)
+                            }}
+                            onSelect={(selectedKeys, info) => {
+                                const { key, type } = info.node
+                                console.log('type', type)
+                                if (type == 'type_folder') {
+                                    if (expandedKeys.includes(key)) {
+                                        setExpandedKeys(expandedKeys.filter(_key => _key != key))
                                     }
-                                }}
-                                titleRender={nodeData => {
-                                    const item = nodeData.itemData
-                                    const colorMap = {
-                                        string: '#66a642',
-                                        list: '#dc9742',
-                                        set: '#4088cc',
-                                        hash: '#ad6ccb',
-                                        zset: '#c84f46',
+                                    else {
+                                        setExpandedKeys([
+                                            ...expandedKeys,
+                                            key,
+                                        ])
                                     }
-                                    return (
-                                        <div className={styles.treeTitle}>
-                                            {nodeData.type == 'type_key' &&
-                                                <Dropdown
-                                                    overlay={(
-                                                        <Menu
-                                                            items={[
-                                                                {
-                                                                    label: t('delete'),
-                                                                    key: 'key_delete',
-                                                                },
-                                                            ]}
-                                                            onClick={async ({ _item, key, keyPath, domEvent }) => {
-                                                                // onAction && onAction(key)
-                                                                if (key == 'key_delete') {
-                                                                    console.log('nodeData', nodeData)
-                                                                    removeKey(item.key)
-                                                                }
-                                                            }}
-                                                        >
-                                                        </Menu>
-                                                    )}
-                                                    trigger={['contextMenu']}
-                                                >
-                                                    <div className={styles.item}
-                                                        onClick={async () => {
-                                                            setDetailRedisKey(item.key)
-                                                            const tabKey = uid(32)
-                                                            setTabInfo({
-                                                                // ...tabInfo,
-                                                                activeKey: tabKey,
-                                                                items: [
-                                                                    ...tabInfo.items,
-                                                                    {
-                                                                        type: 'type_key',
-                                                                        label: item.key,
-                                                                        key: tabKey,
-                                                                        itemData: {
-                                                                            redisKey: item.key,
-                                                                        },
-                                                                    }
-                                                                ]
-                                                            })
+                                }
+                            }}
+                            titleRender={nodeData => {
+                                const item = nodeData.itemData
+                                const colorMap = {
+                                    string: '#66a642',
+                                    list: '#dc9742',
+                                    set: '#4088cc',
+                                    hash: '#ad6ccb',
+                                    zset: '#c84f46',
+                                }
+                                return (
+                                    <div className={styles.treeTitle}>
+                                        {nodeData.type == 'type_key' &&
+                                            <Dropdown
+                                                overlay={(
+                                                    <Menu
+                                                        items={[
+                                                            {
+                                                                label: t('delete'),
+                                                                key: 'key_delete',
+                                                            },
+                                                        ]}
+                                                        onClick={async ({ _item, key, keyPath, domEvent }) => {
+                                                            // onAction && onAction(key)
+                                                            if (key == 'key_delete') {
+                                                                console.log('nodeData', nodeData)
+                                                                removeKey(item.key)
+                                                            }
                                                         }}
                                                     >
-                                                        <div className={styles.type}
-                                                            style={{
-                                                                backgroundColor: colorMap[item.type] || '#000'
-                                                            }}
-                                                        >{item.type}</div>
-                                                        <div className={styles.name}>{item.key}</div>
-                                                    </div>
-                                                </Dropdown>
-                                            }
-                                            {nodeData.type == 'type_folder' &&
-                                                <Dropdown
-                                                    overlay={(
-                                                        <Menu
-                                                            items={[
-                                                                {
-                                                                    label: t('delete'),
-                                                                    key: 'key_delete',
-                                                                },
-                                                            ]}
-                                                            onClick={async ({ _item, key, keyPath, domEvent }) => {
-                                                                // onAction && onAction(key)
-                                                                if (key == 'key_delete') {
-                                                                    console.log('removeKeys', nodeData)
-                                                                    removeKeys(nodeData)
-                                                                }
-                                                            }}
-                                                        >
-                                                        </Menu>
-                                                    )}
-                                                    trigger={['contextMenu']}
+                                                    </Menu>
+                                                )}
+                                                trigger={['contextMenu']}
+                                            >
+                                                <div className={styles.item}
+                                                    onClick={async () => {
+                                                        addKey2Tab(item.key)
+                                                    }}
                                                 >
-                                                    <div className={styles.folderNode}>
-                                                        <FolderOutlined className={styles.icon} />
-                                                        {nodeData.title}
-                                                        <div className={styles.keyNum}>{nodeData.keyNum} Keys</div>
-                                                    </div>
-                                                </Dropdown>
-                                            }
-                                        </div>
-                                    )
-                                }}
-                            />
-                            // <div className={styles.list}>
-                            //     {list.map(item => {
-                            //         const colorMap = {
-                            //             string: '#66a642',
-                            //             list: '#dc9742',
-                            //         }
-                            //         return (
-                            //             <div className={styles.item}
-                            //                 onClick={async () => {
-                            //                     let res = await request.post(`${config.host}/redis/get`, {
-                            //                         key: item.key,
-                            //                         // dbName,
-                            //                     })
-                            //                     console.log('get/res', res.data)
-                            //                     if (res.success) {
-                            //                         setResult({
-                            //                             key: item.key,
-                            //                             ...res.data,
-                            //                         })
-                            //                         setInputValue(res.data.value)
-                            //                         setEditType('update')
-                            //                     }
-                            //                 }}
-                            //             >
-                            //                 <div className={styles.type}
-                            //                     style={{
-                            //                         backgroundColor: colorMap[item.type] || '#000'
-                            //                     }}
-                            //                 >{item.type}</div>
-                            //                 <div className={styles.name}>{item.key}</div>
-                            //             </div>
-                            //         )
-                            //     })}
-                            // </div>
-                        }
-                    </div>
+                                                    <div className={styles.type}
+                                                        style={{
+                                                            backgroundColor: colorMap[item.type] || '#000'
+                                                        }}
+                                                    >{item.type}</div>
+                                                    <div className={styles.name}>{item.key}</div>
+                                                </div>
+                                            </Dropdown>
+                                        }
+                                        {nodeData.type == 'type_folder' &&
+                                            <Dropdown
+                                                overlay={(
+                                                    <Menu
+                                                        items={[
+                                                            {
+                                                                label: t('delete'),
+                                                                key: 'key_delete',
+                                                            },
+                                                        ]}
+                                                        onClick={async ({ _item, key, keyPath, domEvent }) => {
+                                                            // onAction && onAction(key)
+                                                            if (key == 'key_delete') {
+                                                                console.log('removeKeys', nodeData)
+                                                                removeKeys(nodeData)
+                                                            }
+                                                        }}
+                                                    >
+                                                    </Menu>
+                                                )}
+                                                trigger={['contextMenu']}
+                                            >
+                                                <div className={styles.folderNode}>
+                                                    <FolderOutlined className={styles.icon} />
+                                                    {nodeData.title}
+                                                    <div className={styles.keyNum}>{nodeData.keyNum} Keys</div>
+                                                </div>
+                                            </Dropdown>
+                                        }
+                                    </div>
+                                )
+                            }}
+                        />
+                    }
                 </div>
                 <div className={styles.footer}>
                     <div>{list.length} Keys</div>
@@ -644,8 +633,10 @@ export function RedisClient({ config, connectionId }) {
                                         connectionId={connectionId}
                                         config={config}
                                         redisKey={item.itemData.redisKey}
-                                        onRemove={() => {
-                                            removeKey(detailRedisKey)
+                                        onRemove={({ key }) => {
+                                            removeKey(key, () => {
+                                                // closeCurTab()
+                                            })
                                         }}
                                     />
                                 }
@@ -657,14 +648,15 @@ export function RedisClient({ config, connectionId }) {
             {addModalVisible &&
                 <KeyAddModal
                     config={config}
+                    connectionId={connectionId}
                     type={addType}
                     onCancel={() => {
                         setAddModalVisible(false)
                     }}
                     onSuccess={({ key }) => {
-                        setDetailRedisKey(key)
                         setAddModalVisible(false)
                         loadKeys()
+                        addKey2Tab(key)
                     }}
                 />
             }

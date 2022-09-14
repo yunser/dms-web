@@ -108,6 +108,7 @@ export function ListContent({ curDb, connectionId, onSuccess, data, config }) {
                             </div>
                             <Space>
                                 <ListPushHandler
+                                    connectionId={connectionId}
                                     config={config}
                                     redisKey={data.key}
                                     item={{
@@ -162,6 +163,7 @@ export function ListContent({ curDb, connectionId, onSuccess, data, config }) {
             <div>
                 <ListPushHandler
                     config={config}
+                    connectionId={connectionId}
                     redisKey={data.key}
                     onSuccess={onSuccess}
                 >

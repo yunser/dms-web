@@ -93,7 +93,9 @@ export function RedisKeyDetail({ config, connectionId, redisKey, onRemove }) {
                                 danger
                                 size="small"
                                 onClick={async () => {
-                                    onRemove && onRemove()
+                                    onRemove && onRemove({
+                                        key: result.key,
+                                    })
                                     // removeKey(result.key)
                                 }}
                             >

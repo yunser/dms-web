@@ -111,6 +111,7 @@ export function HashContent({ connectionId, curDb, onSuccess, data, config }) {
 
                                 <ListPushHandler
                                     config={config}
+                                    connectionId={connectionId}
                                     redisKey={data.key}
                                     type="hash"
                                     item={{
@@ -166,6 +167,7 @@ export function HashContent({ connectionId, curDb, onSuccess, data, config }) {
             <div>
                 <ListPushHandler
                     config={config}
+                    connectionId={connectionId}
                     redisKey={data.key}
                     onSuccess={onSuccess}
                     type="hash"

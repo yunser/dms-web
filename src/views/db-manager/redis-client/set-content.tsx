@@ -109,6 +109,7 @@ export function SetContent({ curDb, onSuccess, data, connectionId, config }) {
                             <Space>
                                 <ListPushHandler
                                     config={config}
+                                    connectionId={connectionId}
                                     redisKey={data.key}
                                     type="set"
                                     item={{
@@ -164,6 +165,7 @@ export function SetContent({ curDb, onSuccess, data, connectionId, config }) {
                 <ListPushHandler
                     config={config}
                     redisKey={data.key}
+                    connectionId={connectionId}
                     onSuccess={onSuccess}
                     type="set"
                 >
