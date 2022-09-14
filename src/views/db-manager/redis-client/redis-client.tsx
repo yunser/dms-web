@@ -15,6 +15,7 @@ import { ListContent } from './list-content';
 import { useInterval } from 'ahooks';
 import { RedisKeyDetail } from './key-detail';
 import { KeyAddModal } from './key-add';
+import { uid } from 'uid';
 
 
 
@@ -153,6 +154,63 @@ export function RedisClient({ config, }) {
     const [addType, setAddType] = useState('')
     const [addModalVisible, setAddModalVisible] = useState(false)
     const [detailRedisKey, setDetailRedisKey] = useState('')
+    const [tabInfo, setTabInfo] = useState({
+        activeKey: '0',
+        items: [
+            // {
+            //     key: '0',
+            //     label: '111',
+            // }
+        ],
+    })
+
+    const onEdit = (targetKey: string, action: string) => {
+        console.log('targetKey, action', targetKey, action)
+        // this[action](targetKey);
+        if (action === 'add') {
+            // let tabKey = '' + new Date().getTime()
+            // setActiveKey(tabKey)
+            // setTabs([
+            //     ...tabs,
+            //     {
+            //         title: 'SQL',
+            //         key: tabKey,
+            //         defaultSql: '',
+            //     }
+            // ])
+            // _this.setState({
+            //     activeKey: tabKey,
+            //     tabs: tabs.concat([{
+
+            //     }]),
+            // })
+        }
+        else if (action === 'remove') {
+            const items = tabInfo.items.filter(_it => _it.key != targetKey)
+            const activeKey = items.length ? items[0].key : ''
+            setTabInfo({
+                activeKey,
+                items,
+            })
+            // for (let i = 0; i < tabs.length; i++) {
+            //     if (tabs[i].key === targetKey) {
+            //         tabs.splice(i, 1)
+            //         break
+            //     }
+            // }
+            // if (tabs.length == 0) {
+            //     tabs.push(tab_workbench)
+            // }
+            // setTabs([
+            //     ...tabs,
+            // ])
+            // setActiveKey(tabInfo.items[tabs.length - 1].key)
+            // _this.setState({
+            //     tabs
+            // })
+        }
+    }
+
 
     async function loadKeys() {
         setLoading(true)
@@ -221,6 +279,8 @@ export function RedisClient({ config, }) {
         }
         setLoading(false)
     }
+
+
 
     
 
@@ -367,11 +427,6 @@ export function RedisClient({ config, }) {
                         </a> */}
                         <IconButton
                             className={styles.refresh}
-                            onClick={() => {
-                                // setDetailRedisKey('')
-                                // setInputKey('')
-                                // setInputValue('')
-                            }}
                         >
                             <PlusOutlined />
                         </IconButton>
@@ -444,6 +499,22 @@ export function RedisClient({ config, }) {
                                                     <div className={styles.item}
                                                         onClick={async () => {
                                                             setDetailRedisKey(item.key)
+                                                            const tabKey = uid(32)
+                                                            setTabInfo({
+                                                                // ...tabInfo,
+                                                                activeKey: tabKey,
+                                                                items: [
+                                                                    ...tabInfo.items,
+                                                                    {
+                                                                        type: 'type_key',
+                                                                        label: item.key,
+                                                                        key: tabKey,
+                                                                        itemData: {
+                                                                            redisKey: item.key,
+                                                                        },
+                                                                    }
+                                                                ]
+                                                            })
                                                         }}
                                                     >
                                                         <div className={styles.type}
@@ -537,15 +608,44 @@ export function RedisClient({ config, }) {
                 </div>
             </div>
             <div className={styles.layoutRight}>
-                {!!detailRedisKey &&
-                    <RedisKeyDetail
-                        config={config}
-                        redisKey={detailRedisKey}
-                        onRemove={() => {
-                            removeKey(detailRedisKey)
+                <div className={styles.layoutRightHeader}>
+                    <Tabs
+                        hideAdd={true}
+                        activeKey={tabInfo.activeKey}
+                        type="editable-card"
+                        onChange={key => {
+                            setTabInfo({
+                                ...tabInfo,
+                                activeKey: key,
+                            })
                         }}
+                        onEdit={onEdit}
+                        items={tabInfo.items}
                     />
-                }
+                </div>
+                <div className={styles.layoutRightBody}>
+                    {tabInfo.items.map(item => {
+                        return (
+                            <div
+                                className={styles.tabContent}
+                                key={item.key}
+                                style={{
+                                    display: item.key == tabInfo.activeKey ? undefined : 'none',
+                                }}
+                            >
+                                {item.type == 'type_key' &&
+                                    <RedisKeyDetail
+                                        config={config}
+                                        redisKey={item.itemData.redisKey}
+                                        onRemove={() => {
+                                            removeKey(detailRedisKey)
+                                        }}
+                                    />
+                                }
+                            </div>
+                        )
+                    })}
+                </div>
             </div>
             {addModalVisible &&
                 <KeyAddModal
