@@ -148,6 +148,8 @@ export function RedisClient({ config, connectionId }) {
     const [loading, setLoading] = useState(false)
     
     const [keyword, setKeyword] = useState('')
+    const [searchType, setSearchType] = useState('blur')
+    const [searchKeyword, setSearchKeyword] = useState('')
     const [list, setList] = useState([])
     
     
@@ -244,6 +246,7 @@ export function RedisClient({ config, connectionId }) {
             // dbName,
             connectionId,
             db: curDb,
+            keyword: searchKeyword,
         })
         if (res.success) {
             // message.info('连接成功')
@@ -314,7 +317,7 @@ export function RedisClient({ config, connectionId }) {
 
     useEffect(() => {
         loadKeys()
-    }, [curDb])
+    }, [curDb, searchKeyword])
 
     function addKey2Tab(key) {
         const tabKey = uid(32)
@@ -389,15 +392,57 @@ export function RedisClient({ config, connectionId }) {
         <div className={styles.redisLayout}>
             <div className={styles.layoutLeft}>
                 <div className={styles.header}>
-                    <Input
-                        className={styles.searchInput}
-                        value={keyword}
-                        onChange={e => {
-                            setKeyword(e.target.value)
-                        }}
-                        allowClear
-                        placeholder="Search..."
-                    />
+                    <Input.Group
+                        compact
+                        className={styles.inputGroup}
+                    >
+                        <Select
+                            className={styles.inputSelect}
+                            value={searchType}
+                            onChange={value => {
+                                setSearchType(value)
+                            }}
+                            options={[
+                                {
+                                    label: '模糊',
+                                    value: 'blur',
+                                },
+                                {
+                                    label: '匹配',
+                                    value: 'match',
+                                },
+                            ]}
+                        />
+                        <Input.Search
+                            className={styles.searchInput}
+                            value={keyword}
+                            onChange={e => {
+                                setKeyword(e.target.value)
+                            }}
+                            allowClear
+                            // placeholder="Search... *{keyword}*"
+                            placeholder={searchType == 'blur' ? 'Search...' : 'ex: *{keyword}*'}
+                            onSearch={(value) => {
+                                console.log('onSearch', value)
+                                if (value) {
+                                    let _value
+                                    if (searchType == 'blur') {
+                                        _value = `*${value}*`
+                                    }
+                                    else {
+                                        _value = value
+                                    }
+                                    //  = value + (value.endsWith('*') ? '' : '*')
+                                    setSearchKeyword(_value)
+                                    // setKeyword(_value)
+                                }
+                                else {
+                                    setSearchKeyword('')
+                                }
+                                // handleSearch()
+                            }}
+                        />
+                    </Input.Group>
                     <IconButton
                         className={styles.refresh}
                         onClick={() => {

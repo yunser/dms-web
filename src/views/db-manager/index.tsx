@@ -479,7 +479,7 @@ export function DbManager({ config }) {
                                                 // closeTabByKey(item.key)
                                                 addOrActiveTab({
                                                     // title: 'Redis',
-                                                    title: name,
+                                                    title: `${name} - Redis`,
                                                     key: 'redis-' + uid(16),
                                                     type: 'redis-client',
                                                     data: {
