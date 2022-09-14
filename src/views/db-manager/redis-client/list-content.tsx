@@ -23,7 +23,7 @@ const timeScale = new humanFormat.Scale({
 })
 
 
-export function ListContent({ curDb, onSuccess, data, config }) {
+export function ListContent({ curDb, connectionId, onSuccess, data, config }) {
     // const [curDb] = useState(0)
     const [itemDetail, setItemDetail] = useState(null)
 
@@ -31,6 +31,7 @@ export function ListContent({ curDb, onSuccess, data, config }) {
     async function loadItem(index) {
         // setLoading(true)
         let res = await request.post(`${config.host}/redis/lindex`, {
+            connectionId: connectionId,
             // dbName,
             key: data.key,
             index,
@@ -134,6 +135,7 @@ export function ListContent({ curDb, onSuccess, data, config }) {
                                             async onOk() {
                                                 
                                                 let ret = await request.post(`${config.host}/redis/lremIndex`, {
+                                                    connectionId: connectionId,
                                                     key: data.key,
                                                     // connectionId,
                                                     index,

@@ -23,7 +23,7 @@ const timeScale = new humanFormat.Scale({
 })
 
 
-export function HashContent({ curDb, onSuccess, data, config }) {
+export function HashContent({ connectionId, curDb, onSuccess, data, config }) {
     // const [curDb] = useState(0)
     const [itemDetail, setItemDetail] = useState(null)
 
@@ -31,6 +31,7 @@ export function HashContent({ curDb, onSuccess, data, config }) {
     async function loadItem(index) {
         // setLoading(true)
         let res = await request.post(`${config.host}/redis/lindex`, {
+            connectionId,
             // dbName,
             key: data.key,
             index,
@@ -138,6 +139,7 @@ export function HashContent({ curDb, onSuccess, data, config }) {
                                             async onOk() {
                                                 
                                                 let ret = await request.post(`${config.host}/redis/hdel`, {
+                                                    connectionId,
                                                     key: data.key,
                                                     // connectionId,
                                                     field: item.key,

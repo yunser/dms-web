@@ -94,7 +94,10 @@ export function RedisConnect({ config, event$, onConnnect, }) {
         // console.log('ret', ret)
         if (ret.success) {
             // message.success('连接成功')
-            onConnnect && onConnnect()
+            onConnnect && onConnnect({
+                connectionId: ret.data.connectionId,
+                name: item.name,
+            })
         }
         setLoading(false)
         // else {

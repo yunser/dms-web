@@ -92,6 +92,7 @@ export function KeyAddModal({ config, type, onCancel, connectionId, item, onClos
                 let res
                 if (type == 'string') {
                     res = await request.post(`${config.host}/redis/set`, {
+                        connectionId: connectionId,
                         key: values.name,
                         value: 'New Key',
                         // dbName,
@@ -99,6 +100,7 @@ export function KeyAddModal({ config, type, onCancel, connectionId, item, onClos
                 }
                 else if (type == 'list') {
                     res = await request.post(`${config.host}/redis/rpush`, {
+                        connectionId: connectionId,
                         key: values.name,
                         // field: '',
                         value: 'New Item',
@@ -107,6 +109,7 @@ export function KeyAddModal({ config, type, onCancel, connectionId, item, onClos
                 }
                 else if (type == 'set') {
                     res = await request.post(`${config.host}/redis/sadd`, {
+                        connectionId: connectionId,
                         key: values.name,
                         // field: '',
                         value: 'New Item',
@@ -115,6 +118,7 @@ export function KeyAddModal({ config, type, onCancel, connectionId, item, onClos
                 }
                 else if (type == 'zset') {
                     res = await request.post(`${config.host}/redis/zadd`, {
+                        connectionId: connectionId,
                         key: values.name,
                         // field: '',
                         score: 0,
@@ -124,6 +128,7 @@ export function KeyAddModal({ config, type, onCancel, connectionId, item, onClos
                 }
                 else if (type == 'hash') {
                     res = await request.post(`${config.host}/redis/hset`, {
+                        connectionId: connectionId,
                         key: values.name,
                         // field: '',
                         field: 'New Field',

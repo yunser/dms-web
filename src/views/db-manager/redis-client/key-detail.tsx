@@ -29,7 +29,7 @@ const timeScale = new humanFormat.Scale({
 })
 
 
-export function RedisKeyDetail({ config, redisKey, onRemove }) {
+export function RedisKeyDetail({ config, connectionId, redisKey, onRemove }) {
     const [detaiLoading, setDetailLoading] = useState(false)
     const [editType, setEditType] = useState('update')
     const [result, setResult] = useState(null)
@@ -39,6 +39,7 @@ export function RedisKeyDetail({ config, redisKey, onRemove }) {
     async function loadKey() {
         setDetailLoading(true)
         let res = await request.post(`${config.host}/redis/get`, {
+            connectionId: connectionId,
             key: redisKey,
             // dbName,
         })
@@ -149,6 +150,7 @@ export function RedisKeyDetail({ config, redisKey, onRemove }) {
                                                     size="small"
                                                     onClick={async () => {
                                                         let res = await request.post(`${config.host}/redis/set`, {
+                                                            connectionId: connectionId,
                                                             key: result.key,
                                                             value: inputValue,
                                                             // dbName,
@@ -172,6 +174,7 @@ export function RedisKeyDetail({ config, redisKey, onRemove }) {
                                             <Button
                                                 onClick={async () => {
                                                     let res = await request.post(`${config.host}/redis/set`, {
+                                                        connectionId: connectionId,
                                                         key: inputKey,
                                                         value: inputValue,
                                                         // dbName,
@@ -199,6 +202,7 @@ export function RedisKeyDetail({ config, redisKey, onRemove }) {
                             {result.type == 'list' &&
                                 <div>
                                     <ListContent
+                                        connectionId={connectionId}
                                         config={config}
                                         data={result}
                                         onSuccess={() => {
@@ -210,6 +214,7 @@ export function RedisKeyDetail({ config, redisKey, onRemove }) {
                             {result.type == 'set' &&
                                 <div>
                                     <SetContent
+                                        connectionId={connectionId}
                                         config={config}
                                         data={result}
                                         onSuccess={() => {
@@ -221,6 +226,7 @@ export function RedisKeyDetail({ config, redisKey, onRemove }) {
                             {result.type == 'hash' &&
                                 <div>
                                     <HashContent
+                                        connectionId={connectionId}
                                         config={config}
                                         data={result}
                                         onSuccess={() => {
@@ -239,6 +245,7 @@ export function RedisKeyDetail({ config, redisKey, onRemove }) {
                             {result.type == 'zset' &&
                                 <div>
                                     <ZSetContent
+                                        connectionId={connectionId}
                                         config={config}
                                         data={result}
                                         onSuccess={() => {

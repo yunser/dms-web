@@ -474,13 +474,17 @@ export function DbManager({ config }) {
                                         <RedisConnect
                                             event$={event$}
                                             config={config}
-                                            onConnnect={() => {
+                                            onConnnect={({ connectionId, name }) => {
+                                                console.log('onConnnect', connectionId)
                                                 // closeTabByKey(item.key)
                                                 addOrActiveTab({
-                                                    title: 'Redis',
+                                                    // title: 'Redis',
+                                                    title: name,
                                                     key: 'redis-' + uid(16),
                                                     type: 'redis-client',
-                                                    data: {},
+                                                    data: {
+                                                        connectionId,
+                                                    },
                                                 }, {
                                                     closeCurrentTab: true,
                                                 })
@@ -490,6 +494,7 @@ export function DbManager({ config }) {
                                     {item.type == 'redis-client' &&
                                         <RedisClient
                                             config={config}
+                                            connectionId={item.data.connectionId}
                                         />
                                     }
                                     

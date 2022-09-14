@@ -19,7 +19,7 @@ import { uid } from 'uid';
 
 
 
-function DbSelector({ curDb, onDatabaseChange, config }) {
+function DbSelector({ curDb, connectionId, onDatabaseChange, config }) {
     // const [curDb] = useState(0)
     const [databases, setDatabases] = useState([])
     const [totalDb, setTotalDb] = useState(0)
@@ -27,6 +27,7 @@ function DbSelector({ curDb, onDatabaseChange, config }) {
     async function loadKeys() {
         // setLoading(true)
         let res = await request.post(`${config.host}/redis/config`, {
+            connectionId,
             // dbName,
         })
         if (res.success) {
@@ -69,6 +70,7 @@ function DbSelector({ curDb, onDatabaseChange, config }) {
     async function ping() {
         // setLoading(true)
         let res = await request.post(`${config.host}/redis/ping`, {
+            connectionId,
             // dbName,
         })
         if (res.success) {
@@ -138,7 +140,7 @@ function obj2Tree(obj, handler) {
     return handleObj(obj, '_____root', '')
 }
 
-export function RedisClient({ config, }) {
+export function RedisClient({ config, connectionId }) {
     const [curDb, setCurDb] = useState(0)
     const { t } = useTranslation()
     
@@ -216,6 +218,7 @@ export function RedisClient({ config, }) {
         setLoading(true)
         let res = await request.post(`${config.host}/redis/keys`, {
             // dbName,
+            connectionId,
             db: curDb,
         })
         if (res.success) {
@@ -297,6 +300,7 @@ export function RedisClient({ config, }) {
             cancelText: '取消',
             async onOk() {
                 let res = await request.post(`${config.host}/redis/delete`, {
+                    connectionId,
                     key: key,
                 })
                 console.log('get/res', res.data)
@@ -324,6 +328,7 @@ export function RedisClient({ config, }) {
                     .map(item => item.key)
                 console.log('keys', keys)
                 let res = await request.post(`${config.host}/redis/delete`, {
+                    connectionId,
                     keys,
                 })
                 console.log('get/res', res.data)
@@ -599,6 +604,7 @@ export function RedisClient({ config, }) {
                 <div className={styles.footer}>
                     <div>{list.length} Keys</div>
                     <DbSelector
+                        connectionId={connectionId}
                         config={config}
                         curDb={curDb}
                         onDatabaseChange={db => {
@@ -635,6 +641,7 @@ export function RedisClient({ config, }) {
                             >
                                 {item.type == 'type_key' &&
                                     <RedisKeyDetail
+                                        connectionId={connectionId}
                                         config={config}
                                         redisKey={item.itemData.redisKey}
                                         onRemove={() => {

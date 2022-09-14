@@ -23,7 +23,7 @@ const timeScale = new humanFormat.Scale({
 })
 
 
-export function ZSetContent({ curDb, onSuccess, data, config }) {
+export function ZSetContent({ curDb, onSuccess, connectionId, data, config }) {
     // const [curDb] = useState(0)
     const [itemDetail, setItemDetail] = useState(null)
 
@@ -31,6 +31,7 @@ export function ZSetContent({ curDb, onSuccess, data, config }) {
     async function loadItem(index) {
         // setLoading(true)
         let res = await request.post(`${config.host}/redis/lindex`, {
+            connectionId,
             // dbName,
             key: data.key,
             index,
@@ -137,6 +138,7 @@ export function ZSetContent({ curDb, onSuccess, data, config }) {
                                             async onOk() {
                                                 
                                                 let ret = await request.post(`${config.host}/redis/zrem`, {
+                                                    connectionId,
                                                     key: data.key,
                                                     // connectionId,
                                                     value: item.member,
