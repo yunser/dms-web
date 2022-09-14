@@ -119,9 +119,10 @@ export function DbManager({ config }) {
     event$.useSubscription(msg => {
         console.log('dbManager/onmessage', msg)
         // console.log(val);
-        if (msg.type == 'xxx') {
+        if (msg.type == 'event_show_json') {
+            const { json } = msg.data
+            addJsonTab(json)
         }
-        
     })
 
     function closeTabByKey(key) {
@@ -471,6 +472,7 @@ export function DbManager({ config }) {
                                     }
                                     {item.type == 'redis-connect' &&
                                         <RedisConnect
+                                            event$={event$}
                                             config={config}
                                             onConnnect={() => {
                                                 // closeTabByKey(item.key)

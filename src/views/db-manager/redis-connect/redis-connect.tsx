@@ -11,7 +11,7 @@ import { request } from '../utils/http'
 import { CodeDebuger } from '../code-debug';
 import { uid } from 'uid';
 
-export function RedisConnect({ config, onConnnect, }) {
+export function RedisConnect({ config, event$, onConnnect, }) {
     const { t } = useTranslation()
     const [modalVisible, setModalVisible] = useState(false)
     const [modalItem, setModalItem] = useState(false)
@@ -110,12 +110,15 @@ export function RedisConnect({ config, onConnnect, }) {
                     description="没有记录"
                 />
             }
-            <div>
+            <div className={styles.connections}>
                 {connections.map(item => {
                     return (
-                        <div>
+                        <div
+                            key={item.id}
+                            className={styles.item}
+                        >
+                            <div>{item.name || 'Unnamed'}</div>
                             <Space>
-                                <div>{item.name || 'Unnamed'}</div>
                                 <Button
                                     size="small"
                                     onClick={() => {
@@ -130,6 +133,7 @@ export function RedisConnect({ config, onConnnect, }) {
                                     }}
                                 >编辑</Button>
                                 <Button
+                                    danger  
                                     size="small"
                                     onClick={() => {
                                         Modal.confirm({
@@ -159,12 +163,29 @@ export function RedisConnect({ config, onConnnect, }) {
                         </div>
                     )
                 })}
-                <Button
-                    onClick={() => {
-                        setModalVisible(true)
-                        setModalItem(null)
-                    }}
-                >新增</Button>
+            </div>
+            <div>
+                <Space>
+                    <Button
+                        size="small"
+                        onClick={() => {
+                            setModalVisible(true)
+                            setModalItem(null)
+                        }}
+                    >新增</Button>
+                    <Button
+                        size="small"
+                        onClick={() => {
+                            event$.emit({
+                                type: 'event_show_json',
+                                data: {
+                                    json: JSON.stringify(connections, null, 4)
+                                    // connectionId,
+                                },
+                            })
+                        }}
+                    >导出 JSON</Button>
+                </Space>
             </div>
             {false &&
                 <div className={styles.content}>
