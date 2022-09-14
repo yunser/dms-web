@@ -3,7 +3,7 @@
     height: 100%;
     display: flex;
     .layoutLeft {
-        flex: 0 0 320px;
+        flex: 0 0 400px;
         border-right: 1px solid var(--border-color);
         // height: 100px;
         display: flex;
@@ -94,7 +94,8 @@
     }
 }
 .treeTitle {
-    width: 270px;
+    // width: 270px;
+    // width: 100%;
     // border: 1px solid #f00;
     // overflow: hidden;
     // text-overflow: ellipsis;
@@ -123,9 +124,10 @@
     .name {
         flex: 1 0;
         // border: 1px solid #f00;
-        max-width: 220px;
+        // max-width: 220px;
         overflow: hidden;
         text-overflow: ellipsis;
+        white-space: nowrap;
     }
     .folderNode {
         display: flex;

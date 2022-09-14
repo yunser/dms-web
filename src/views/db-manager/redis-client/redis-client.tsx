@@ -111,14 +111,14 @@ function DbSelector({ curDb, connectionId, onDatabaseChange, config }) {
 
 function obj2Tree(obj, handler) {
 
-    function handleObj(obj, key, prefix) {
+    function handleObj(obj, key, prefix, level) {
         if (obj._leaf) {
-            return handler(obj)
+            return handler(obj, { level: level - 1 })
         }
         const results = []
         let keyNum = 0
         for (let key in obj) {
-            let ret = handleObj(obj[key], key, prefix + key + ':')
+            let ret = handleObj(obj[key], key, prefix + key + ':', level + 1)
             results.push(ret)
             keyNum += ret.keyNum || 1
         }
@@ -131,13 +131,14 @@ function obj2Tree(obj, handler) {
             itemData: {
                 prefix: prefix,
             },
+            level: level - 1,
             type: 'type_folder',
             children: results,
             keyNum,
         }
     }
 
-    return handleObj(obj, '_____root', '')
+    return handleObj(obj, '_____root', '', 0)
 }
 
 export function RedisClient({ config, connectionId }) {
@@ -267,12 +268,13 @@ export function RedisClient({ config, connectionId }) {
 
             
 
-            const treeData2 = obj2Tree(treeObj, item => {
+            const treeData2 = obj2Tree(treeObj, (item, { level }) => {
                 return {
                     title: item.key,
                     key: item.key,
                     itemData: item,
                     type: 'type_key',
+                    level,
                 }
             })
             console.log('treeData2', treeData2)
@@ -509,6 +511,8 @@ export function RedisClient({ config, connectionId }) {
                                 }
                             }}
                             titleRender={nodeData => {
+                                // console.log('nodeData?', nodeData)
+                                const { level = 0 } = nodeData
                                 const item = nodeData.itemData
                                 const colorMap = {
                                     string: '#66a642',
@@ -518,7 +522,11 @@ export function RedisClient({ config, connectionId }) {
                                     zset: '#c84f46',
                                 }
                                 return (
-                                    <div className={styles.treeTitle}>
+                                    <div className={styles.treeTitle}
+                                        style={{
+                                            width: 400 - level * 24 - 56,
+                                        }}
+                                    >
                                         {nodeData.type == 'type_key' &&
                                             <Dropdown
                                                 overlay={(
