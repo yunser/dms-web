@@ -65,13 +65,13 @@ function DbSelector({ curDb, onDatabaseChange, config }) {
     }
 
     // 仅用于心跳
-    async function loadInfo() {
+    async function ping() {
         // setLoading(true)
-        let res = await request.post(`${config.host}/redis/info`, {
+        let res = await request.post(`${config.host}/redis/ping`, {
             // dbName,
         })
         if (res.success) {
-            console.log('DbSelector/info', res.data)
+            console.log('DbSelector/ping', res.data)
         } else {
             message.error('连接失败')
         }
@@ -84,7 +84,7 @@ function DbSelector({ curDb, onDatabaseChange, config }) {
     }, [curDb])
 
     useInterval(() => {
-        loadInfo()
+        ping()
     }, 30 * 1000)
 
     return (

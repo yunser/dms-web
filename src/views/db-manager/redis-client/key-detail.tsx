@@ -92,6 +92,9 @@ export function RedisKeyDetail({ config, redisKey, onRemove }) {
                     </div>
                 }
                 <div className={styles.body}>
+                    {/* {!!result && result.value == null &&
+                        <div>键不存在</div>
+                    } */}
                     {!!result &&
                         <div>
                             {editType == 'update' ?
