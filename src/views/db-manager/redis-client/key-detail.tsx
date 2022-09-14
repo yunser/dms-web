@@ -17,6 +17,7 @@ import { ListContent } from './list-content';
 import { SetContent } from './set-content';
 import { ZSetContent } from './zset-content';
 import { HashContent } from './hash-content';
+import copy from 'copy-to-clipboard';
 
 
 const timeScale = new humanFormat.Scale({
@@ -77,6 +78,15 @@ export function RedisKeyDetail({ config, redisKey, onRemove }) {
                                 }}
                             >
                                 刷新
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={async () => {
+                                    copy(result.key)
+                                    message.info('Copied')
+                                }}
+                            >
+                                复制 Key
                             </Button>
                             <Button
                                 danger
