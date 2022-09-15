@@ -1,4 +1,4 @@
-import { Button, Checkbox, Descriptions, Empty, Form, Input, InputNumber, message, Modal, Popover, Space, Table, Tabs } from 'antd';
+import { Button, Checkbox, Col, Descriptions, Empty, Form, Input, InputNumber, message, Modal, Popover, Row, Space, Table, Tabs } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import styles from './redis-connect.module.less';
 import _ from 'lodash';
@@ -270,60 +270,121 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
         }
     }, [item])
 
+    async function handleOk() {
+        const values = await form.validateFields()
+        // setLoading(true)
+        let _connections
+        if (editType == 'create') {
+            const connections = storage.get('redis-connections', [])
+            if (connections.length) {
+                _connections = connections
+            }
+            else {
+                _connections = []
+            }
+            _connections.unshift({
+                id: uid(32),
+                name: values.name,
+                host: values.host,
+                port: values.port,
+                // user: values.user,
+                password: values.password,
+                // db: values.db,
+            })
+        }
+        else {
+            const connections = storage.get('redis-connections', [])
+            if (connections.length) {
+                _connections = connections
+            }
+            else {
+                _connections = []
+            }
+            const idx = _connections.findIndex(_item => _item.id == item.id)
+            _connections[idx] = {
+                ..._connections[idx],
+                name: values.name,
+                host: values.host,
+                port: values.port,
+                // user: values.user,
+                password: values.password,
+                // db: values.db,
+            }
+            
+            
+        }
+        // setLoading(false)
+        storage.set('redis-connections', _connections)
+            onSuccess && onSuccess()
+        // else {
+        //     message.error('Fail')
+        // }
+    }
+
+    async function handleTestConnection() {
+        const values = await form.validateFields()
+        setLoading(true)
+        const reqData = {
+            name: values.name,
+            host: values.host,
+            port: values.port,
+            // user: values.user,
+            password: values.password,
+            db: 0,
+            test: true,
+            // remember: values.remember,
+        }
+        let ret = await request.post(`${config.host}/redis/connect`, reqData)
+        // console.log('ret', ret)
+        if (ret.success) {
+            message.success('连接成功')
+        }
+        setLoading(false)
+    }
+
     return (
         <Modal
             title={editType == 'create' ? '新增实例' : '编辑实例'}
             visible={true}
             maskClosable={false}
             onCancel={onCancel}
-            onOk={async () => {
-                const values = await form.validateFields()
-                let _connections
-                if (editType == 'create') {
-                    const connections = storage.get('redis-connections', [])
-                    if (connections.length) {
-                        _connections = connections
-                    }
-                    else {
-                        _connections = []
-                    }
-                    _connections.unshift({
-                        id: uid(32),
-                        name: values.name,
-                        host: values.host,
-                        port: values.port,
-                        // user: values.user,
-                        password: values.password,
-                        // db: values.db,
-                    })
-                }
-                else {
-                    const connections = storage.get('redis-connections', [])
-                    if (connections.length) {
-                        _connections = connections
-                    }
-                    else {
-                        _connections = []
-                    }
-                    const idx = _connections.findIndex(_item => _item.id == item.id)
-                    _connections[idx] = {
-                        ..._connections[idx],
-                        name: values.name,
-                        host: values.host,
-                        port: values.port,
-                        // user: values.user,
-                        password: values.password,
-                        // db: values.db,
-                    }
-                    
-                    
-                }
-                storage.set('redis-connections', _connections)
-                    onSuccess && onSuccess()
-                // else {
-                //     message.error('Fail')
-                // }
-            }}
+            // onOk={async () => {
+                
+            // }}
+            footer={(
+                <div
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                    }}
+                >
+                    <Button key="back"
+                        loading={loading}
+                        disabled={loading}
+                        onClick={handleTestConnection}
+                    >
+                        Test Connection
+                    </Button>
+                    <Space>
+                        <Button
+                            // key="submit"
+                            // type="primary"
+                            disabled={loading}
+                            onClick={onCancel}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            type="primary"
+                            disabled={loading}
+                            onClick={handleOk}
+                        >
+                            OK
+                        </Button>
+                    </Space>
+                </div>
+            )}
         >
             <Form
                 form={form}
