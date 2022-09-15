@@ -1,4 +1,4 @@
-import { Button, Checkbox, Descriptions, Dropdown, Form, Input, InputNumber, Menu, message, Modal, Popover, Select, Space, Table, Tabs, Tree } from 'antd';
+import { Button, Checkbox, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Select, Space, Table, Tabs, Tree } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import styles from './redis-client.module.less';
 import _ from 'lodash';
@@ -531,6 +531,10 @@ export function RedisClient({ config, connectionId }) {
                 <div className={styles.body}>
                     {loading ?
                         <div>Loading</div>
+                    : list.length == 0 ?
+                        <Empty
+                            
+                        />
                     :
                         <Tree
                             className={styles.tree}
