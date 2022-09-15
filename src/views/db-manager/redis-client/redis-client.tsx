@@ -168,6 +168,13 @@ export function RedisClient({ config, connectionId }) {
         ],
     })
 
+    function closeAllTab() {
+        setTabInfo({
+            activeKey: '',
+            items: [],
+        })
+    }
+
     function closeTabByKeys(keys: string[]) {
         const items = tabInfo.items.filter(_it => {
             if (_it.itemData?.redisKey) {
@@ -533,7 +540,7 @@ export function RedisClient({ config, connectionId }) {
                         <div>Loading</div>
                     : list.length == 0 ?
                         <Empty
-                            
+
                         />
                     :
                         <Tree
@@ -655,6 +662,7 @@ export function RedisClient({ config, connectionId }) {
                         curDb={curDb}
                         onDatabaseChange={db => {
                             setCurDb(db)
+                            closeAllTab()
                         }}
                     />
                 </div>
