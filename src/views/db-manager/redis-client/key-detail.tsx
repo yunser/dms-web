@@ -30,7 +30,7 @@ const timeScale = new humanFormat.Scale({
 })
 
 
-export function RedisKeyDetail({ config, connectionId, redisKey, onRemove }) {
+export function RedisKeyDetail({ config, event$, connectionId, redisKey, onRemove }) {
     const [detaiLoading, setDetailLoading] = useState(false)
     const [editType, setEditType] = useState('update')
     const [result, setResult] = useState(null)
@@ -79,8 +79,38 @@ export function RedisKeyDetail({ config, connectionId, redisKey, onRemove }) {
                                     loadKey()
                                 }}
                             >
-                                {/* 刷新 */}
                                 {t('refresh')}
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={async () => {
+                                    console.log('result', result)
+                                    let exportObj = {}
+                                    if (result.type == 'string') {
+                                        exportObj = {
+                                            type: result.type,
+                                            key: result.key,
+                                            value: result.value,
+                                        }
+                                    }
+                                    else {
+                                        exportObj = {
+                                            type: result.type,
+                                            key: result.key,
+                                            items: result.items,
+                                        }
+                                    }
+
+                                    event$.emit({
+                                        type: 'event_show_json',
+                                        data: {
+                                            json: JSON.stringify(exportObj, null, 4)
+                                            // connectionId,
+                                        },
+                                    })
+                                }}
+                            >
+                                {t('export_json')}
                             </Button>
                             <Button
                                 size="small"

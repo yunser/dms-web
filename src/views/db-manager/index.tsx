@@ -479,6 +479,7 @@ export function DbManager({ config }) {
                                     {item.type == 'redis-client' &&
                                         <RedisClient
                                             config={config}
+                                            event$={event$}
                                             connectionId={item.data.connectionId}
                                             defaultDatabase={item.data.defaultDatabase}
                                         />

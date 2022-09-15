@@ -98,6 +98,7 @@ function DbSelector({ curDb, connectionId, onDatabaseChange, config }) {
             <Space>
                 <div>{t('db')}</div>
                 <Select
+                    size="small"
                     className={styles.select}
                     value={curDb}
                     // Redis 默认数据库数量 16，16 * 32 = 512
@@ -144,7 +145,7 @@ function obj2Tree(obj, handler) {
     return handleObj(obj, '_____root', '', 0)
 }
 
-export function RedisClient({ config, connectionId, defaultDatabase = 0 }) {
+export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 }) {
     const [curDb, setCurDb] = useState(defaultDatabase)
     const { t } = useTranslation()
     
@@ -699,6 +700,7 @@ export function RedisClient({ config, connectionId, defaultDatabase = 0 }) {
                                 {item.type == 'type_key' &&
                                     <RedisKeyDetail
                                         connectionId={connectionId}
+                                        event$={event$}
                                         config={config}
                                         redisKey={item.itemData.redisKey}
                                         onRemove={({ key }) => {
