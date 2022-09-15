@@ -152,6 +152,8 @@ i18n
                     set: 'Set',
                     zset: 'Sorted Set',
                     hash: 'Hash',
+                    match: 'Match',
+                    fuzzy: 'Include',
                 }
             },
             zh: {
@@ -297,6 +299,8 @@ i18n
                     set: '集合',
                     zset: '有序集合',
                     hash: '哈希',
+                    match: '匹配',
+                    fuzzy: '包含',
                 }
             }
         },

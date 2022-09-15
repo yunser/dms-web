@@ -408,11 +408,11 @@ export function RedisClient({ config, connectionId, defaultDatabase = 0 }) {
                             }}
                             options={[
                                 {
-                                    label: '模糊',
+                                    label: t('fuzzy'),
                                     value: 'blur',
                                 },
                                 {
-                                    label: '匹配',
+                                    label: t('match'),
                                     value: 'match',
                                 },
                             ]}
