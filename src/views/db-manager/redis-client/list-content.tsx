@@ -24,6 +24,7 @@ const timeScale = new humanFormat.Scale({
 
 
 export function ListContent({ curDb, connectionId, onSuccess, data, config }) {
+    const { t } = useTranslation()
     // const [curDb] = useState(0)
     const [itemDetail, setItemDetail] = useState(null)
 
@@ -120,7 +121,7 @@ export function ListContent({ curDb, connectionId, onSuccess, data, config }) {
                                     <Button
                                         size="small"
                                     >
-                                        编辑
+                                        {t('edit')}
                                     </Button>
                                 </ListPushHandler>
                                 <Button
@@ -128,11 +129,7 @@ export function ListContent({ curDb, connectionId, onSuccess, data, config }) {
                                     size="small"
                                     onClick={async () => {
                                         Modal.confirm({
-                                            // title: 'Confirm',
-                                            // icon: <ExclamationCircleOutlined />,
-                                            content: `删除「${item}」`,
-                                            // okText: '确认',
-                                            // cancelText: '取消',
+                                            content: `${t('delete')}「${item}」?`,
                                             async onOk() {
                                                 
                                                 let ret = await request.post(`${config.host}/redis/lremIndex`, {
@@ -145,7 +142,7 @@ export function ListContent({ curDb, connectionId, onSuccess, data, config }) {
                                                 if (ret.success) {
                                                     // message.success('连接成功')
                                                     // onConnnect && onConnnect()
-                                                    message.success('Success')
+                                                    message.success(t('success'))
                                                     // onClose && onClose()
                                                     onSuccess && onSuccess()
                                                 }
@@ -153,7 +150,7 @@ export function ListContent({ curDb, connectionId, onSuccess, data, config }) {
                                         })
                                     }}
                                 >
-                                    删除
+                                    {t('delete')}
                                 </Button>
                             </Space>
                         </div>
@@ -170,7 +167,8 @@ export function ListContent({ curDb, connectionId, onSuccess, data, config }) {
                     <Button
                         size="small"
                     >
-                        新增行
+                        {/* 新增行 */}
+                        {t('add')}
                     </Button>
                 </ListPushHandler>
             </div>

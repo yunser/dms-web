@@ -509,8 +509,6 @@ export function ExecDetail(props) {
         //     title: 'Confirm',
         //     // icon: <ExclamationCircleOutlined />,
         //     content: `删除 ${selectedRowKeys.length} 行记录？`,
-        //     okText: '确认',
-        //     cancelText: '取消',
         //     async onOk() {
 
         //     }

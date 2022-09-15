@@ -153,8 +153,6 @@ export function SqlList({ config, connectionId, event$ }: any) {
                             onClick={() => {
                                 Modal.confirm({
                                     content: `${t('delete_confirm')} ${item.name}?`,
-                                    // okText: '确认',
-                                    // cancelText: '取消',
                                     async onOk() {
                                         // console.log('删除', )
                                         let res = await request.post(`${config.host}/mysql/sql/remove`, {

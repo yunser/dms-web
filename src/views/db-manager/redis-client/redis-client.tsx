@@ -20,6 +20,7 @@ import { uid } from 'uid';
 
 
 function DbSelector({ curDb, connectionId, onDatabaseChange, config }) {
+    const { t } = useTranslation()
     // const [curDb] = useState(0)
     const [databases, setDatabases] = useState([])
     const [totalDb, setTotalDb] = useState(0)
@@ -94,17 +95,19 @@ function DbSelector({ curDb, connectionId, onDatabaseChange, config }) {
         <div>
             {/* {curDb}
             /{totalDb} */}
-            DB: 
-            <Select
-                className={styles.select}
-                value={curDb}
-                // Redis 默认数据库数量 16，16 * 32 = 512
-                listHeight={512}
-                options={databases}
-                onChange={value => {
-                    onDatabaseChange && onDatabaseChange(value)
-                }}
-            />
+            <Space>
+                <div>{t('db')}</div>
+                <Select
+                    className={styles.select}
+                    value={curDb}
+                    // Redis 默认数据库数量 16，16 * 32 = 512
+                    listHeight={512}
+                    options={databases}
+                    onChange={value => {
+                        onDatabaseChange && onDatabaseChange(value)
+                    }}
+                />
+            </Space>
         </div>
     )
 }
@@ -347,11 +350,7 @@ export function RedisClient({ config, connectionId, defaultDatabase = 0 }) {
 
     function removeKey(key, cb) {
         Modal.confirm({
-            // title: 'Confirm',
-            // icon: <ExclamationCircleOutlined />,
-            content: `删除「${key}」`,
-            okText: '确认',
-            cancelText: '取消',
+            content: `${t('delete')}「${key}」?`,
             async onOk() {
                 let res = await request.post(`${config.host}/redis/delete`, {
                     connectionId,
@@ -359,7 +358,7 @@ export function RedisClient({ config, connectionId, defaultDatabase = 0 }) {
                 })
                 console.log('get/res', res.data)
                 if (res.success) {
-                    message.success('删除成功')
+                    message.success(t('success'))
                     loadKeys()
                     closeTabByKeys([key])
                     cb && cb()
@@ -372,9 +371,7 @@ export function RedisClient({ config, connectionId, defaultDatabase = 0 }) {
         Modal.confirm({
             // title: 'Confirm',
             // icon: <ExclamationCircleOutlined />,
-            content: `Remove ${nodeData.keyNum} Keys?`,
-            okText: '确认',
-            cancelText: '取消',
+            content: `${t('delete')} ${nodeData.keyNum} ${t('num_keys').toLowerCase()}?`,
             async onOk() {
                 console.log('list', list)
                 const keys = list
@@ -421,12 +418,13 @@ export function RedisClient({ config, connectionId, defaultDatabase = 0 }) {
                             ]}
                         />
                         <Input.Search
-                            className={styles.searchInput}
+                            className={styles.searchSearch}
                             value={keyword}
                             onChange={e => {
                                 setKeyword(e.target.value)
                             }}
                             allowClear
+                            
                             // placeholder="Search... *{keyword}*"
                             placeholder={searchType == 'blur' ? 'Search...' : 'ex: *{keyword}*'}
                             onSearch={(value) => {
@@ -451,6 +449,7 @@ export function RedisClient({ config, connectionId, defaultDatabase = 0 }) {
                         />
                     </Input.Group>
                     <IconButton
+                        tooltip={t('refresh')}
                         className={styles.refresh}
                         onClick={() => {
                             loadKeys()
@@ -463,23 +462,23 @@ export function RedisClient({ config, connectionId, defaultDatabase = 0 }) {
                             <Menu
                                 items={[
                                     {
-                                        label: '字符串',
+                                        label: t('string'),
                                         key: 'string',
                                     },
                                     {
-                                        label: '列表',
+                                        label: t('list'),
                                         key: 'list',
                                     },
                                     {
-                                        label: '集合',
+                                        label: t('set'),
                                         key: 'set',
                                     },
                                     {
-                                        label: '有序集合',
+                                        label: t('zset'),
                                         key: 'zset',
                                     },
                                     {
-                                        label: '哈希',
+                                        label: t('hash'),
                                         key: 'hash',
                                     },
                                     // {
@@ -527,6 +526,7 @@ export function RedisClient({ config, connectionId, defaultDatabase = 0 }) {
                         </Space>
                         </a> */}
                         <IconButton
+                            tooltip={t('add')}
                             className={styles.refresh}
                         >
                             <PlusOutlined />
@@ -644,7 +644,7 @@ export function RedisClient({ config, connectionId, defaultDatabase = 0 }) {
                                                 <div className={styles.folderNode}>
                                                     <FolderOutlined className={styles.icon} />
                                                     {nodeData.title}
-                                                    <div className={styles.keyNum}>{nodeData.keyNum} Keys</div>
+                                                    <div className={styles.keyNum}>{nodeData.keyNum} {t('num_keys')}</div>
                                                 </div>
                                             </Dropdown>
                                         }
@@ -655,7 +655,7 @@ export function RedisClient({ config, connectionId, defaultDatabase = 0 }) {
                     }
                 </div>
                 <div className={styles.footer}>
-                    <div>{list.length} Keys</div>
+                    <div>{list.length} {t('num_keys')}</div>
                     <DbSelector
                         connectionId={connectionId}
                         config={config}

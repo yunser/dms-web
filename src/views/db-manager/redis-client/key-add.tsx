@@ -83,7 +83,7 @@ export function KeyAddModal({ config, type, onCancel, connectionId, item, onClos
 
     return (
         <Modal
-            title={`添加 ${type}`}
+            title={`${t('add')} ${t(type)}`}
             // title={'新增行'}
             visible={true}
             onCancel={onCancel}
@@ -139,7 +139,7 @@ export function KeyAddModal({ config, type, onCancel, connectionId, item, onClos
                 }
                 console.log('get/res', res.data)
                 if (res.success) {
-                    message.success('修改成功')
+                    message.success(t('success'))
                     onSuccess && onSuccess({
                         key: values.name,
                     })
@@ -202,7 +202,7 @@ export function KeyAddModal({ config, type, onCancel, connectionId, item, onClos
             >
                 <Form.Item
                     name="name"
-                    label="键名"
+                    label={t('key_name')}
                     rules={[ { required: true, }, ]}
                 >
                     <Input

@@ -18,6 +18,7 @@ import { SetContent } from './set-content';
 import { ZSetContent } from './zset-content';
 import { HashContent } from './hash-content';
 import copy from 'copy-to-clipboard';
+import { t } from 'i18next';
 
 
 const timeScale = new humanFormat.Scale({
@@ -78,7 +79,8 @@ export function RedisKeyDetail({ config, connectionId, redisKey, onRemove }) {
                                     loadKey()
                                 }}
                             >
-                                刷新
+                                {/* 刷新 */}
+                                {t('refresh')}
                             </Button>
                             <Button
                                 size="small"
@@ -87,7 +89,7 @@ export function RedisKeyDetail({ config, connectionId, redisKey, onRemove }) {
                                     message.info('Copied')
                                 }}
                             >
-                                复制 Key
+                                {t('copy_key_name')}
                             </Button>
                             <Button
                                 danger
@@ -99,7 +101,7 @@ export function RedisKeyDetail({ config, connectionId, redisKey, onRemove }) {
                                     // removeKey(result.key)
                                 }}
                             >
-                                删除
+                                {t('delete')}
                             </Button>
                         </Space>
                     </div>
@@ -168,7 +170,7 @@ export function RedisKeyDetail({ config, connectionId, redisKey, onRemove }) {
                                                         }
                                                     }}
                                                 >
-                                                    修改
+                                                    {t('update')}
                                                 </Button>
                                                 
                                             </Space>
@@ -265,8 +267,8 @@ export function RedisKeyDetail({ config, connectionId, redisKey, onRemove }) {
                 {!!result && editType == 'update' &&
                     <div>
                         <div>TTL：{result.ttl >= 0 ? `${humanFormat(result.ttl, {scale: timeScale})}` : '--'}</div>
-                        <div>Encoding：{result.encoding}</div>
-                        <div>Size：{result.size} Bytes</div>
+                        <div>{t('encoding')}：{result.encoding}</div>
+                        <div>{t('mem_size')}：{result.size} Bytes</div>
                     </div>
                 }
             </div>

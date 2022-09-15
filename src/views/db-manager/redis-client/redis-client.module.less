@@ -142,9 +142,9 @@
 .inputSelect {
     width: 70px;
 }
-.searchInput {
+.searchSearch {
     flex: 1 0 auto;
-    width: 220px;
+    width: 220px !important;
 }
 .inputGroup {
     // width: 320px;
@@ -160,12 +160,16 @@
 .items {
     width: 320px;
     margin-bottom: 16px;
+    border: 1px solid var(--border-color);
     .item {
         padding: 8px 16px;
-        border: 1px solid var(--border-color);
+        border-bottom: 1px solid var(--border-color);
         display: flex;
         align-items: center;
         justify-content: space-between;
+        &:last-child {
+            border-bottom: none;
+        }
     }
 }
 

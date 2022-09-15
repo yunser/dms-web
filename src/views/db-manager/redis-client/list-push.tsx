@@ -101,7 +101,7 @@ export function DatabaseModal({ config, type, redisKey, connectionId, item, onCl
 
     return (
         <Modal
-            title={editType == 'create' ? t('新增行') : t('编辑行')}
+            title={editType == 'create' ? t('item_add') : t('item_update')}
             // title={'新增行'}
             visible={true}
             onCancel={onClose}
@@ -270,7 +270,7 @@ export function DatabaseModal({ config, type, redisKey, connectionId, item, onCl
                 {type == 'hash' &&
                     <Form.Item
                         name="field"
-                        label="字段"
+                        label={t('field')}
                         rules={[ { required: true, }, ]}
                     >
                         <Input
@@ -280,7 +280,7 @@ export function DatabaseModal({ config, type, redisKey, connectionId, item, onCl
                 {type == 'zset' &&
                     <Form.Item
                         name="score"
-                        label="分数"
+                        label={t('score')}
                         rules={[ { required: true, }, ]}
                     >
                         <InputNumber
@@ -290,17 +290,17 @@ export function DatabaseModal({ config, type, redisKey, connectionId, item, onCl
                 {editType == 'create' && type == 'list' &&
                     <Form.Item
                         name="position"
-                        label="插入到"
+                        label={t('insert_into')}
                         rules={[ { required: true, }, ]}
                     >
                         <Select
                             options={[
                                 {
-                                    label: '最后面',
+                                    label: t('last'),
                                     value: 'last',
                                 },
                                 {
-                                    label: '最前面',
+                                    label: t('front'),
                                     value: 'first',
                                 },
                             ]}
@@ -309,7 +309,7 @@ export function DatabaseModal({ config, type, redisKey, connectionId, item, onCl
                 }
                 <Form.Item
                     name="value"
-                    label="内容"
+                    label={t('content')}
                     rules={[ { required: true, }, ]}
                 >
                     <Input

@@ -11,6 +11,7 @@ import { request } from '../utils/http'
 
 
 export function DatabaseRemoveHandler(props) {
+    const { t } = useTranslation()
     const { children, config, connectionId, item, id, ids, onSuccess, asd = false } = props
     // const { id: deviceId } = item
     // //console.log('children', children)
@@ -31,9 +32,7 @@ export function DatabaseRemoveHandler(props) {
                 Modal.confirm({
                     // title: 'Confirm',
                     // icon: <ExclamationCircleOutlined />,
-                    content: `删除「${item.SCHEMA_NAME}」`,
-                    okText: '确认',
-                    cancelText: '取消',
+                    content: `${t('delete')}「${item.SCHEMA_NAME}」?`,
                     async onOk() {
                         let res = await request.post(`${config.host}/mysql/execSql`, {
                             connectionId,
@@ -41,7 +40,7 @@ export function DatabaseRemoveHandler(props) {
                         })
                         console.log('get/res', res.data)
                         if (res.success) {
-                            message.success('删除成功')
+                            message.success(t('success'))
                             onSuccess && onSuccess()
                             // loadKeys()
                             // setResult(null)

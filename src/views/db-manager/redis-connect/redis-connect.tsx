@@ -109,6 +109,33 @@ export function RedisConnect({ config, event$, onConnnect, }) {
 
     return (
         <div className={styles.connectBox}>
+            <div style={{
+                marginBottom: 8,
+            }}>
+                <Space>
+                    <Button
+                        size="small"
+                        onClick={() => {
+                            setModalVisible(true)
+                            setModalItem(null)
+                        }}
+                    >{t('add')}</Button>
+                    <Button
+                        size="small"
+                        onClick={() => {
+                            event$.emit({
+                                type: 'event_show_json',
+                                data: {
+                                    json: JSON.stringify(connections, null, 4)
+                                    // connectionId,
+                                },
+                            })
+                        }}
+                    >
+                        {t('export_json')}
+                    </Button>
+                </Space>
+            </div>
             {connections.length == 0 &&
                 <Empty
                     description="没有记录"
@@ -128,24 +155,24 @@ export function RedisConnect({ config, event$, onConnnect, }) {
                                     onClick={() => {
                                         connect(item)
                                     }}
-                                >连接</Button>
+                                >
+                                    {t('connect')}
+                                </Button>
                                 <Button
                                     size="small"
                                     onClick={() => {
                                         setModalVisible(true)
                                         setModalItem((item))
                                     }}
-                                >编辑</Button>
+                                >
+                                    {t('edit')}
+                                </Button>
                                 <Button
                                     danger  
                                     size="small"
                                     onClick={() => {
                                         Modal.confirm({
-                                            // title: 'Confirm',
-                                            // icon: <ExclamationCircleOutlined />,
-                                            content: `删除「${item.name || 'Unnamed'}」`,
-                                            // okText: '确认',
-                                            // cancelText: '取消',
+                                            content: `${t('delete')}「${item.name || 'Unnamed'}」?`,
                                             async onOk() {
                                                 let _connections
                                                 const connections = storage.get('redis-connections', [])
@@ -157,40 +184,20 @@ export function RedisConnect({ config, event$, onConnnect, }) {
                                                 }
                                                 _connections = connections.filter((_item => _item.id != item.id))
                                                 storage.set('redis-connections', _connections)
-                                                message.success('Success')
+                                                message.success(t('success'))
                                                 init()
                                             }
                                         })
                                     }}
-                                >删除</Button>
+                                >
+                                    {t('delete')}
+                                </Button>
                             </Space>
                         </div>
                     )
                 })}
             </div>
-            <div>
-                <Space>
-                    <Button
-                        size="small"
-                        onClick={() => {
-                            setModalVisible(true)
-                            setModalItem(null)
-                        }}
-                    >新增</Button>
-                    <Button
-                        size="small"
-                        onClick={() => {
-                            event$.emit({
-                                type: 'event_show_json',
-                                data: {
-                                    json: JSON.stringify(connections, null, 4)
-                                    // connectionId,
-                                },
-                            })
-                        }}
-                    >导出 JSON</Button>
-                </Space>
-            </div>
+            
             {false &&
                 <div className={styles.content}>
                     
@@ -341,14 +348,14 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
         let ret = await request.post(`${config.host}/redis/connect`, reqData)
         // console.log('ret', ret)
         if (ret.success) {
-            message.success('连接成功')
+            message.success(t('success'))
         }
         setLoading(false)
     }
 
     return (
         <Modal
-            title={editType == 'create' ? '新增实例' : '编辑实例'}
+            title={editType == 'create' ? t('connection_create') : t('connection_update')}
             visible={true}
             maskClosable={false}
             onCancel={onCancel}
