@@ -373,34 +373,6 @@ function SqlBox({ config, event$, connectionId, onJson, className, defaultSql = 
     // console.log('render.list.length', list.length)
     // console.log('render.execResults', execResults)
 
-    function TabItem(item: TabProps) {
-        return (
-            <TabPane
-                tab={(
-                    <div>
-                        {item.data.error ?
-                            <CloseCircleOutlined className={styles.failIcon} />
-                        :
-                            <CheckCircleOutlined className={styles.successIcon} />
-                        }
-                        {item.title}
-                    </div>
-                )}
-                key={item.key}
-                closable={item.closable !== false}
-                // closeIcon={
-                //     <IconButton
-                //         size="small"
-                //     >
-                //         <CloseOutlined style={{ color: '#999' }} />
-                //     </IconButton>
-                // }
-            >
-            </TabPane>
-            // <SqlBox defaultSql={item.defaultSql} />
-        )
-    }
-
     const onEdit = (targetKey: string, action: string) => {
         console.log('targetKey, action', targetKey, action)
         // this[action](targetKey);
@@ -517,13 +489,23 @@ function SqlBox({ config, event$, connectionId, onJson, className, defaultSql = 
                         style={{
                             height: '100%',
                         }}
-                    >
-                        {execResults.map(TabItem)}
-                    </Tabs>
-                    {/* {execResults.map(execResult => {
-                        return (
-                        )
-                    })} */}
+                        items={execResults.map(item => {
+                            return {
+                                label: (
+                                    <div>
+                                        {item.data.error ?
+                                            <CloseCircleOutlined className={styles.failIcon} />
+                                        :
+                                            <CheckCircleOutlined className={styles.successIcon} />
+                                        }
+                                        {item.title}
+                                    </div>
+                                ),
+                                key: item.key,
+                                closable: item.closable !== false,
+                            }
+                        })}
+                    />
                 </div>
                 {execResults.map(item => {
                     return (

@@ -394,24 +394,6 @@ export function DataBaseDetail({ connectionId, event$, config, onJson }) {
     //     setActiveKey(key)
     // }
 
-    function TabItem(item: TabProps) {
-        return (
-            <TabPane
-                tab={item.title}
-                key={item.key}
-                closable={item.closable !== false}
-                // closeIcon={
-                //     <IconButton
-                //         size="small"
-                //     >
-                //         <CloseOutlined style={{ color: '#999' }} />
-                //     </IconButton>
-                // }
-            >
-            </TabPane>
-            // <SqlBox defaultSql={item.defaultSql} />
-        )
-    }
 
     const onEdit = (targetKey: string, action: string) => {
         console.log('targetKey, action', targetKey, action)
@@ -538,9 +520,14 @@ export function DataBaseDetail({ connectionId, event$, config, onJson }) {
                                 </Space>
                             )
                         }}
-                    >
-                        {tabs.map(TabItem)}
-                    </Tabs>
+                        items={tabs.map(item => {
+                            return {
+                                label: item.title,
+                                key: item.key,
+                                closable: item.closable !== false,
+                            }
+                        })}
+                    />
                 </div>
                 <div className={styles.body}>
                     {tabs.map(item => {

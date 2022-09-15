@@ -92,45 +92,6 @@ export function ExecModal({ config, connectionId, sql, onClose, onSuccess, table
 
     }
 
-    function TabItem(item: any) {
-        return (
-            <TabPane
-                tab={(
-                    <span>
-                        {item.data.error ?
-                            <CloseCircleOutlined className={styles.failIcon} />
-                        :
-                            <CheckCircleOutlined className={styles.successIcon} />
-                        }
-                        {item.title}
-                    </span>
-                )}
-                key={item.key}
-                closable={true}
-            >
-                <div className={styles.modalResultBox}>
-                    <div className={styles.sqlBox}>
-                        <div>SQL:</div>
-                        <div><code><pre>{item.data.sql}</pre></code></div>
-                    </div>
-                    {!!item.data.error ?
-                        <div>
-                            <div>Error</div>
-                            <div className={styles.errMsg}>{item.data.error}</div>
-                        </div>
-                    :
-                        <div>
-                            <div>Info:</div>
-                            <div className={styles.info}>
-                                {!!item.data.resData.result?.info ? item.data.resData.result?.info : `影响行数：${item.data.resData?.result?.affectedRows}`}</div>
-                        </div>
-                    }
-                </div>
-            </TabPane>
-            // <SqlBox defaultSql={item.defaultSql} />
-        )
-    }
-
 	return (
         <div className={styles.resultBox}>
             {modelVisible &&
@@ -201,10 +162,52 @@ export function ExecModal({ config, connectionId, sql, onClose, onSuccess, table
                         style={{
                             // height: '100%',
                         }}
-                    >
-                        {resultTabs.map(TabItem)}
-                    </Tabs>
-
+                        items={resultTabs.map(item => {
+                            return {
+                                label: (
+                                    <span>
+                                        {item.data.error ?
+                                            <CloseCircleOutlined className={styles.failIcon} />
+                                        :
+                                            <CheckCircleOutlined className={styles.successIcon} />
+                                        }
+                                        {item.title}
+                                    </span>
+                                ),
+                                key: item.key,
+                                closable: true,
+                            }
+                        })}
+                    />
+                        {/* {resultTabs.map(TabItem)} */}
+                    {/* </Tabs> */}
+                    {resultTabs.map(item => {
+                        return (
+                            <div>
+                                {resultActiveKey == item.key &&
+                                    <div className={styles.modalResultBox}>
+                                        <div className={styles.sqlBox}>
+                                            <div>SQL:</div>
+                                            <div><code><pre>{item.data.sql}</pre></code></div>
+                                        </div>
+                                        {!!item.data.error ?
+                                            <div>
+                                                <div>Error</div>
+                                                <div className={styles.errMsg}>{item.data.error}</div>
+                                            </div>
+                                        :
+                                            <div>
+                                                <div>Info:</div>
+                                                <div className={styles.info}>
+                                                    {!!item.data.resData.result?.info ? item.data.resData.result?.info : `影响行数：${item.data.resData?.result?.affectedRows}`}</div>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        )
+                    })}
+                    
                 </Modal>
             }
         </div>

@@ -150,26 +150,6 @@ export function DbManager({ config }) {
         setActiveKey(key)
     }
 
-    function TabItem(item) {
-        return (
-            <TabPane
-                tab={item.title}
-                key={item.key}
-                // closable={true}
-                closable={item.closable !== false}
-                // closeIcon={
-                //     <IconButton
-                //         size="small"
-                //     >
-                //         <CloseOutlined style={{ color: '#999' }} />
-                //     </IconButton>
-                // }
-            >
-                
-            </TabPane>
-        )
-    }
-
     const onEdit = (targetKey: string, action: string) => {
         console.log('targetKey, action', targetKey, action)
         // this[action](targetKey);
@@ -358,10 +338,14 @@ export function DbManager({ config }) {
                                 </div>
                             )
                         }}
-                    >
-                        {tabs.map(TabItem)}
-                        
-                    </Tabs>
+                        items={tabs.map(item => {
+                            return {
+                                label: item.title,
+                                key: item.key,
+                                closable: item.closable !== false,
+                            }
+                        })}
+                    />
                 </div>
                 <div className={styles.appBody}>
                     {tabs.map(item => {
