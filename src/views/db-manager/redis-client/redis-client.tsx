@@ -401,6 +401,7 @@ export function RedisClient({ config, connectionId, defaultDatabase = 0 }) {
                         className={styles.inputGroup}
                     >
                         <Select
+                            size="small"
                             className={styles.inputSelect}
                             value={searchType}
                             onChange={value => {
@@ -418,6 +419,7 @@ export function RedisClient({ config, connectionId, defaultDatabase = 0 }) {
                             ]}
                         />
                         <Input.Search
+                            size="small"
                             className={styles.searchSearch}
                             value={keyword}
                             onChange={e => {
@@ -670,6 +672,7 @@ export function RedisClient({ config, connectionId, defaultDatabase = 0 }) {
             <div className={styles.layoutRight}>
                 <div className={styles.layoutRightHeader}>
                     <Tabs
+                        // size="large"
                         hideAdd={true}
                         activeKey={tabInfo.activeKey}
                         type="editable-card"
