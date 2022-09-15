@@ -26,12 +26,12 @@ export function RedisConnect({ config, event$, onConnnect, }) {
         // },
     ])
     const [loading, setLoading] = useState(false)
-    const [form] = Form.useForm()
-    const [code, setCode] = useState(`{
-    "host": "",
-    "user": "",
-    "password": ""
-}`)
+    // const [form] = Form.useForm()
+//     const [code, setCode] = useState(`{
+//     "host": "",
+//     "user": "",
+//     "password": ""
+// }`)
 
     async function init() {
         const connections = storage.get('redis-connections', [])
@@ -55,26 +55,26 @@ export function RedisConnect({ config, event$, onConnnect, }) {
         init()
     }, [])
 
-    useEffect(() => {
-//         console.log('onMouneed', storage.get('redisInfo', `{
-//     "host": "",
-//     "user": "",
-//     "password": ""
-// }`))
-        const redisInfo = storage.get('redisInfo', {
-            "host": "",
-            "user": "",
-            "password": "",
-            port: 6379,
-            remember: true,
-        })
-        // setCode(storage.get('redisInfo', `{
-        //     "host": "",
-        //     "user": "",
-        //     "password": ""
-        // }`))
-        form.setFieldsValue(redisInfo)
-    }, [])
+//     useEffect(() => {
+// //         console.log('onMouneed', storage.get('redisInfo', `{
+// //     "host": "",
+// //     "user": "",
+// //     "password": ""
+// // }`))
+//         const redisInfo = storage.get('redisInfo', {
+//             "host": "",
+//             "user": "",
+//             "password": "",
+//             port: 6379,
+//             remember: true,
+//         })
+//         // setCode(storage.get('redisInfo', `{
+//         //     "host": "",
+//         //     "user": "",
+//         //     "password": ""
+//         // }`))
+//         form.setFieldsValue(redisInfo)
+//     }, [])
 
     async function  connect(item) {
         setLoading(true)
@@ -84,7 +84,7 @@ export function RedisConnect({ config, event$, onConnnect, }) {
             port: item.port,
             user: item.user,
             password: item.password,
-            db: 0,
+            db: item.defaultDatabase || 0,
             // remember: values.remember,
         }
         // if (values.remember) {
@@ -97,6 +97,7 @@ export function RedisConnect({ config, event$, onConnnect, }) {
             onConnnect && onConnnect({
                 connectionId: ret.data.connectionId,
                 name: item.name,
+                defaultDatabase: item.defaultDatabase || 0,
             })
         }
         setLoading(false)
@@ -224,11 +225,11 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
     const editType = item ? 'update' : 'create'
     const [loading, setLoading] = useState(false)
     const [form] = Form.useForm()
-    const [code, setCode] = useState(`{
-    "host": "",
-    "user": "",
-    "password": ""
-}`)
+//     const [code, setCode] = useState(`{
+//     "host": "",
+//     "user": "",
+//     "password": ""
+// }`)
 
 //     useEffect(() => {
 // //         console.log('onMouneed', storage.get('redisInfo', `{
@@ -257,6 +258,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
         if (item) {
             form.setFieldsValue({
                 ...item,
+                defaultDatabase: item.defaultDatabase || 0,
             })
         }
         else {
@@ -265,7 +267,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
                 host: '',
                 port: 6379,
                 password: '',
-                db: 0,
+                defaultDatabase: 0,
             })
         }
     }, [item])
@@ -289,6 +291,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
                 port: values.port,
                 // user: values.user,
                 password: values.password,
+                defaultDatabase: values.defaultDatabase,
                 // db: values.db,
             })
         }
@@ -308,6 +311,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
                 port: values.port,
                 // user: values.user,
                 password: values.password,
+                defaultDatabase: values.defaultDatabase,
                 // db: values.db,
             }
             
@@ -330,7 +334,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
             port: values.port,
             // user: values.user,
             password: values.password,
-            db: 0,
+            db: values.defaultDatabase || 0,
             test: true,
             // remember: values.remember,
         }
@@ -434,13 +438,13 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
                 >
                     <Input />
                 </Form.Item>
-                {/* <Form.Item
-                    name="db"
-                    label="DB"
+                <Form.Item
+                    name="defaultDatabase"
+                    label="Default DB"
                     rules={[{ required: true, },]}
                 >
                     <InputNumber />
-                </Form.Item> */}
+                </Form.Item>
                 {/* <Form.Item name="remember" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>
                     <Checkbox>Remember me</Checkbox>
                 </Form.Item> */}

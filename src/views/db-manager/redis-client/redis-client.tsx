@@ -141,8 +141,8 @@ function obj2Tree(obj, handler) {
     return handleObj(obj, '_____root', '', 0)
 }
 
-export function RedisClient({ config, connectionId }) {
-    const [curDb, setCurDb] = useState(0)
+export function RedisClient({ config, connectionId, defaultDatabase = 0 }) {
+    const [curDb, setCurDb] = useState(defaultDatabase)
     const { t } = useTranslation()
     
     const [loading, setLoading] = useState(false)
