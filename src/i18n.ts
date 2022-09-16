@@ -154,6 +154,7 @@ i18n
                     hash: 'Hash',
                     match: 'Match',
                     fuzzy: 'Include',
+                    command: 'Command',
                 }
             },
             zh: {
@@ -301,6 +302,7 @@ i18n
                     hash: '哈希',
                     match: '匹配',
                     fuzzy: '包含',
+                    command: '命令',
                 }
             }
         },

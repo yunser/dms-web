@@ -9,13 +9,14 @@ import { Editor } from '../editor/Editor';
 import storage from '../storage'
 import { request } from '../utils/http'
 import { IconButton } from '../icon-button';
-import { FolderOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { FolderOutlined, HistoryOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 
 import { ListContent } from './list-content';
 import { useInterval } from 'ahooks';
 import { RedisKeyDetail } from './key-detail';
 import { KeyAddModal } from './key-add';
 import { uid } from 'uid';
+import { RedisHistory } from '../redis-history';
 
 
 
@@ -330,6 +331,25 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
         loadKeys()
     }, [curDb, searchKeyword])
 
+    function addHistoryTab(key) {
+        const tabKey = uid(32)
+        setTabInfo({
+            // ...tabInfo,
+            activeKey: tabKey,
+            items: [
+                ...tabInfo.items,
+                {
+                    type: 'type_history',
+                    label: t('history'),
+                    key: tabKey,
+                    itemData: {
+                        // redisKey: key,
+                    },
+                }
+            ]
+        })
+    }
+
     function addKey2Tab(key) {
         const tabKey = uid(32)
         setTabInfo({
@@ -459,6 +479,21 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                         }}
                     >
                         <ReloadOutlined />
+                    </IconButton>
+                    <IconButton
+                        tooltip={t('history')}
+                        className={styles.refresh}
+                        onClick={() => {
+                            addHistoryTab()
+                            // event$.emit({
+                            //     type: 'event_redis_history',
+                            //     data: {
+                            //         connectionId,
+                            //     },
+                            // })
+                        }}
+                    >
+                        <HistoryOutlined />
                     </IconButton>
                     <Dropdown
                         overlay={
@@ -708,6 +743,11 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                                                 // closeCurTab()
                                             })
                                         }}
+                                    />
+                                }
+                                {item.type == 'type_history' &&
+                                    <RedisHistory
+                                        config={config}
                                     />
                                 }
                             </div>
