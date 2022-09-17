@@ -20,8 +20,12 @@ import { HashContent } from './hash-content';
 import copy from 'copy-to-clipboard';
 import { t } from 'i18next';
 import { RedisTtlModal } from '../redis-ttl';
+import { StringContent } from './key-detail-string';
 
 export function RedisKeyDetail({ config, event$, connectionId, redisKey, onRemove }) {
+
+    console.warn('RedisKeyDetail/render')
+
     const [detaiLoading, setDetailLoading] = useState(false)
     const [editType, setEditType] = useState('update')
     const [result, setResult] = useState(null)
@@ -237,7 +241,7 @@ export function RedisKeyDetail({ config, event$, connectionId, redisKey, onRemov
                             {(result.type == 'string' || editType == 'create') &&
                                 <div>
                                     {/* <div>Value:</div> */}
-                                    <Input.TextArea
+                                    {/* <Input.TextArea
                                         value={inputValue}
                                         onChange={e => {
                                             setInputValue(e.target.value)
@@ -302,7 +306,15 @@ export function RedisKeyDetail({ config, event$, connectionId, redisKey, onRemov
                                                 新增
                                             </Button>
                                         }
-                                    </div>
+                                    </div> */}
+                                    <StringContent
+                                        connectionId={connectionId}
+                                        config={config}
+                                        data={result}
+                                        onSuccess={() => {
+                                            loadKey(result.key)
+                                        }}
+                                    />
                                 </div>
                             }
                             {result.type == 'list' &&
