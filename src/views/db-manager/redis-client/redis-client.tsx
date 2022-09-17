@@ -21,6 +21,7 @@ import { RedisEditor } from '../redis-editor';
 import copy from 'copy-to-clipboard';
 import { RedisLike } from '../redis-like';
 import { RedisInfo } from '../redis-info';
+import { RedisRenameModal } from '../redis-rename';
 
 function FullCenterBox(props) {
     const { children, height } = props
@@ -181,6 +182,8 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
     
     const [addType, setAddType] = useState('')
     const [addModalVisible, setAddModalVisible] = useState(false)
+    const [renameModalVisible, setRenameModalVisible] = useState(false)
+    const [renameKey, setRenameKey] = useState('')
     const [tabInfo, setTabInfo] = useState({
         activeKey: '0',
         items: [
@@ -775,6 +778,10 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                                                     <Menu
                                                         items={[
                                                             {
+                                                                label: t('rename'),
+                                                                key: 'rename',
+                                                            },
+                                                            {
                                                                 label: t('copy_key_name'),
                                                                 key: 'copy_key_name',
                                                             },
@@ -794,6 +801,11 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                                                                 // removeKey(item.key)
                                                                 copy(nodeData.itemData.key)
                                                                 message.info(t('copied'))
+                                                            }
+                                                            else if (key == 'rename') {
+                                                                console.log('nodeData', nodeData)
+                                                                setRenameModalVisible(true)
+                                                                setRenameKey(nodeData.itemData.key)
                                                             }
                                                         }}
                                                     >
@@ -1008,6 +1020,20 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                         setAddModalVisible(false)
                         loadKeys()
                         addKey2Tab(key)
+                    }}
+                />
+            }
+            {renameModalVisible &&
+                <RedisRenameModal
+                    config={config}
+                    connectionId={connectionId}
+                    redisKey={renameKey}
+                    onCancel={() => {
+                        setRenameModalVisible(false)
+                    }}
+                    onSuccess={() => {
+                        setRenameModalVisible(false)
+                        loadKeys()
                     }}
                 />
             }
