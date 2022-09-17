@@ -168,6 +168,9 @@ i18n
                     day: 'Days',
                     month: 'Months',
                     year: 'Years',
+                    favorite_key: 'Favorite key',
+                    favorite_keys: 'Favorite Keys',
+                    view: 'View',
                 }
             },
             zh: {
@@ -329,6 +332,9 @@ i18n
                     day: '天',
                     month: '月',
                     year: '年',
+                    favorite_key: '收藏键',
+                    favorite_keys: '我的收藏',
+                    view: '查看',
                 }
             }
         },

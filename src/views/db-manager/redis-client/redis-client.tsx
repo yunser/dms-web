@@ -357,7 +357,7 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                 ...tabInfo.items,
                 {
                     type: 'type_like',
-                    label: t('like'),
+                    label: t('favorite_keys'),
                     key: tabKey,
                     itemData: {
                         // redisKey: key,

@@ -100,17 +100,44 @@ export function RedisLike({ config, event$, connectionId, onConnnect, }) {
                         render(_value, item) {
                             return (
                                 <div>
-                                    <a
-                                        onClick={() => {
-                                            event$.emit({
-                                                type: 'event_show_key',
-                                                data: {
-                                                    connectionId,
-                                                    key: item.key,
-                                                }
-                                            })
-                                        }}
-                                    >{t('view')}</a>
+                                    <Space>
+                                        <Button
+                                            type="link"
+                                            size="small"
+                                            onClick={async () => {
+                                                event$.emit({
+                                                    type: 'event_show_key',
+                                                    data: {
+                                                        connectionId,
+                                                        key: item.key,
+                                                    }
+                                                })
+                                            }}
+                                        >
+                                            {t('view')}
+                                        </Button>
+                                        <Button
+                                            danger
+                                            type="link"
+                                            size="small"
+                                            onClick={async () => {
+                                                Modal.confirm({
+                                                    content: `${t('delete')}「${item.key}」?`,
+                                                    async onOk() {
+                                                        let res = await request.post(`${config.host}/redis/key/remove`, {
+                                                            id: item.id,
+                                                            // dbName,
+                                                        })
+                                                        if (res.success) {
+                                                            loadList()
+                                                        }
+                                                    }
+                                                })
+                                            }}
+                                        >
+                                            {t('delete')}
+                                        </Button>
+                                    </Space>
                                 </div>
                             )
                         }

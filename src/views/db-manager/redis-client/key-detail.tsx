@@ -9,7 +9,7 @@ import { Editor } from '../editor/Editor';
 import storage from '../storage'
 import { request } from '../utils/http'
 import { IconButton } from '../icon-button';
-import { FolderOutlined, HeartOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EllipsisOutlined, FolderOutlined, HeartOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 
 import humanFormat from 'human-format'
 import { ListPushHandler } from './list-push';
@@ -38,6 +38,33 @@ export function RedisKeyDetail({ config, event$, connectionId, redisKey, onRemov
         [t('month')]: 30 * 24 * 60 * 60 * 1000,
         [t('year')]: 365 * 24 * 60 * 60 * 1000,
       })
+
+    function exportJson() {
+        console.log('result', result)
+        let exportObj = {}
+        if (result.type == 'string') {
+            exportObj = {
+                type: result.type,
+                key: result.key,
+                value: result.value,
+            }
+        }
+        else {
+            exportObj = {
+                type: result.type,
+                key: result.key,
+                items: result.items,
+            }
+        }
+
+        event$.emit({
+            type: 'event_show_json',
+            data: {
+                json: JSON.stringify(exportObj, null, 4)
+                // connectionId,
+            },
+        })
+    }
     
     async function like() {
         let res = await request.post(`${config.host}/redis/key/create`, {
@@ -111,7 +138,7 @@ export function RedisKeyDetail({ config, event$, connectionId, redisKey, onRemov
                                 <ReloadOutlined />
                             </IconButton>
                             <IconButton
-                                tooltip={t('like')}
+                                tooltip={t('favorite_key')}
                                 // size="small"
                                 className={styles.refresh}
                                 onClick={() => {
@@ -120,58 +147,64 @@ export function RedisKeyDetail({ config, event$, connectionId, redisKey, onRemov
                             >
                                 <HeartOutlined />
                             </IconButton>
-                            <Button
-                                size="small"
-                                onClick={async () => {
-                                    console.log('result', result)
-                                    let exportObj = {}
-                                    if (result.type == 'string') {
-                                        exportObj = {
-                                            type: result.type,
-                                            key: result.key,
-                                            value: result.value,
-                                        }
-                                    }
-                                    else {
-                                        exportObj = {
-                                            type: result.type,
-                                            key: result.key,
-                                            items: result.items,
-                                        }
-                                    }
-
-                                    event$.emit({
-                                        type: 'event_show_json',
-                                        data: {
-                                            json: JSON.stringify(exportObj, null, 4)
-                                            // connectionId,
-                                        },
-                                    })
-                                }}
-                            >
-                                {t('export_json')}
-                            </Button>
-                            <Button
-                                size="small"
-                                onClick={async () => {
-                                    copy(result.key)
-                                    message.info('Copied')
-                                }}
-                            >
-                                {t('copy_key_name')}
-                            </Button>
-                            <Button
-                                danger
-                                size="small"
-                                onClick={async () => {
+                            <IconButton
+                                tooltip={t('delete')}
+                                // size="small"
+                                className={styles.refresh}
+                                onClick={() => {
                                     onRemove && onRemove({
                                         key: result.key,
                                     })
+                                }}
+                            >
+                                <DeleteOutlined />
+                            </IconButton>
+                            {/* <Button
+                                danger
+                                size="small"
+                                onClick={async () => {
                                     // removeKey(result.key)
                                 }}
                             >
                                 {t('delete')}
-                            </Button>
+                            </Button> */}
+                            <Dropdown
+                                overlay={
+                                    <Menu
+                                        items={[
+                                            {
+                                                key: 'copy_key_name',
+                                                label: t('copy_key_name'),
+                                            },
+                                            {
+                                                key: 'export_json',
+                                                // danger: true,
+                                                label: t('export_json'),
+                                            }
+                                        ]}
+                                        onClick={({ key }) => {
+                                            if (key == 'copy_key_name') {
+                                                copy(result.key)
+                                                message.info('Copied')
+                                            }
+                                            else if (key == 'export_json') {
+                                                exportJson()
+                                            }
+                                        }}
+                                    />        
+                                }
+                            >
+                                <IconButton
+                                    // tooltip={t('refresh')}
+                                    // size="small"
+                                    className={styles.refresh}
+                                    // onClick={() => {
+                                    //     loadKey()
+                                    // }}
+                                >
+                                    <EllipsisOutlined />
+                                </IconButton>
+                            </Dropdown>
                         </Space>
                     </div>
                 }
