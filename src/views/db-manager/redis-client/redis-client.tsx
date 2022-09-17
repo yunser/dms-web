@@ -206,7 +206,7 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
     }
 
     function closeOtherTab() {
-        const items = tabInfo.items.filter(_it => _it.key != tabInfo.activeKey)
+        const items = tabInfo.items.filter(_it => _it.key == tabInfo.activeKey)
         const activeKey = items.length ? items[0].key : ''
         setTabInfo({
             activeKey,
