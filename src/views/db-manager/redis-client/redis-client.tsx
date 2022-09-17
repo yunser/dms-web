@@ -9,7 +9,7 @@ import { Editor } from '../editor/Editor';
 import storage from '../storage'
 import { request } from '../utils/http'
 import { IconButton } from '../icon-button';
-import { CodeOutlined, FolderOutlined, HeartOutlined, HistoryOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { CodeOutlined, FolderOutlined, HeartOutlined, HistoryOutlined, InfoCircleOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 
 import { ListContent } from './list-content';
 import { useInterval } from 'ahooks';
@@ -20,6 +20,7 @@ import { RedisHistory } from '../redis-history';
 import { RedisEditor } from '../redis-editor';
 import copy from 'copy-to-clipboard';
 import { RedisLike } from '../redis-like';
+import { RedisInfo } from '../redis-info';
 
 function FullCenterBox(props) {
     const { children, height } = props
@@ -367,6 +368,25 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
         })
     }
 
+    function addInfoTab() {
+        const tabKey = uid(32)
+        setTabInfo({
+            // ...tabInfo,
+            activeKey: tabKey,
+            items: [
+                ...tabInfo.items,
+                {
+                    type: 'type_info',
+                    label: t('info'),
+                    key: tabKey,
+                    itemData: {
+                        // redisKey: key,
+                    },
+                }
+            ]
+        })
+    }
+
     function addHistoryTab() {
         const tabKey = uid(32)
         setTabInfo({
@@ -616,6 +636,16 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                                 }}
                             >
                                 <HeartOutlined />
+                            </IconButton>
+                            <IconButton
+                                tooltip={t('info')}
+                                // size="small"
+                                className={styles.refresh}
+                                onClick={() => {
+                                    addInfoTab()
+                                }}
+                            >
+                                <InfoCircleOutlined />
                             </IconButton>
                         </Space>
                     </div>
@@ -871,6 +901,13 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                                 }
                                 {item.type == 'type_like' &&
                                     <RedisLike
+                                        config={config}
+                                        event$={event$}
+                                        connectionId={connectionId}
+                                    />
+                                }
+                                {item.type == 'type_info' &&
+                                    <RedisInfo
                                         config={config}
                                         event$={event$}
                                         connectionId={connectionId}
