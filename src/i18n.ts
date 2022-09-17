@@ -178,6 +178,7 @@ i18n
                     default_database: 'Default DB',
                     user_name_helper: 'Username are only supported in Redis 6 and later',
                     rename: 'Rename',
+                    copy: 'Copy',
                 }
             },
             zh: {
@@ -349,6 +350,7 @@ i18n
                     default_database: '默认数据库',
                     user_name_helper: '用户名仅在 Redis 6 及之后的版本支持',
                     rename: '重命名',
+                    copy: '复制',
                 }
             }
         },

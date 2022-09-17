@@ -12,6 +12,7 @@ import { CodeDebuger } from '../code-debug';
 import { uid } from 'uid';
 import { IconButton } from '../icon-button';
 import { ClearOutlined, ReloadOutlined } from '@ant-design/icons';
+import copy from 'copy-to-clipboard';
 
 export function RedisHistory({ config, event$, connectionId, onConnnect, }) {
     const { t } = useTranslation()
@@ -135,6 +136,16 @@ export function RedisHistory({ config, event$, connectionId, onConnnect, }) {
                             return (
                                 <div>
                                     <Space>
+                                        <Button
+                                            type="link"
+                                            size="small"
+                                            onClick={async () => {
+                                                copy(item.command)
+                                                message.info(t('copied'))
+                                            }}
+                                        >
+                                            {t('copy')}
+                                        </Button>
                                         <Button
                                             type="link"
                                             size="small"
