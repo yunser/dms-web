@@ -10,6 +10,8 @@ import storage from '../storage'
 import { request } from '../utils/http'
 import { CodeDebuger } from '../code-debug';
 import { uid } from 'uid';
+import { IconButton } from '../icon-button';
+import { ClearOutlined, ReloadOutlined } from '@ant-design/icons';
 
 export function RedisHistory({ config, event$, connectionId, onConnnect, }) {
     const { t } = useTranslation()
@@ -37,6 +39,7 @@ export function RedisHistory({ config, event$, connectionId, onConnnect, }) {
 // }`)
 
     async function loadList() {
+        setLoading(true)
         let res = await request.post(`${config.host}/redis/history/list`, {
             page,
             connectionId,
@@ -46,6 +49,7 @@ export function RedisHistory({ config, event$, connectionId, onConnnect, }) {
             setList(res.data.list)
             setTotal(res.data.total)
         }
+        setLoading(false)
     }
 
     useEffect(() => {
@@ -59,14 +63,47 @@ export function RedisHistory({ config, event$, connectionId, onConnnect, }) {
                     marginBottom: 8,
                 }}
             >
-                <Button
+                <Space>
+                    <IconButton
+                        tooltip={t('refresh')}
+                        onClick={() => {
+                            loadList()
+                        }}
+                    >
+                        <ReloadOutlined />
+                    </IconButton>
+                    <IconButton
+                        tooltip={t('delete_all')}
+                        onClick={() => {
+                            Modal.confirm({
+                                content: `${t('delete_all_confirm')}`,
+                                async onOk() {
+                                    let res = await request.post(`${config.host}/redis/history/clear`, {
+                                    })
+                                    if (res.success) {
+                                        loadList()
+                                        // message.info('连接成功')
+                                        
+                                        // const data = res.data
+                                        // // console.log('res', list)
+                                        // setList(data.list)
+                                        // setTotal(data.total)
+                                    }
+                                }
+                            })
+                        }}
+                    >
+                        <ClearOutlined />
+                    </IconButton>
+                </Space>
+                {/* <Button
                     size="small"
                     onClick={() => {
                         loadList()
                     }}
                 >
                     {t('refresh')}
-                </Button>
+                </Button> */}
             </div>
             <Table
                 loading={loading}
