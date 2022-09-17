@@ -171,6 +171,10 @@ i18n
                     favorite_key: 'Favorite key',
                     favorite_keys: 'Favorite Keys',
                     view: 'View',
+                    user_name: 'User Name',
+                    test_connection: 'Test Connection',
+                    default_database: 'Default DB',
+                    user_name_helper: 'Username are only supported in Redis 6 and later',
                 }
             },
             zh: {
@@ -335,6 +339,10 @@ i18n
                     favorite_key: '收藏键',
                     favorite_keys: '我的收藏',
                     view: '查看',
+                    user_name: '用户名',
+                    test_connection: '测试连接',
+                    default_database: '默认数据库',
+                    user_name_helper: '用户名仅在 Redis 6 及之后的版本支持',
                 }
             }
         },

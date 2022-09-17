@@ -55,27 +55,6 @@ export function RedisConnect({ config, event$, onConnnect, }) {
         init()
     }, [])
 
-//     useEffect(() => {
-// //         console.log('onMouneed', storage.get('redisInfo', `{
-// //     "host": "",
-// //     "user": "",
-// //     "password": ""
-// // }`))
-//         const redisInfo = storage.get('redisInfo', {
-//             "host": "",
-//             "user": "",
-//             "password": "",
-//             port: 6379,
-//             remember: true,
-//         })
-//         // setCode(storage.get('redisInfo', `{
-//         //     "host": "",
-//         //     "user": "",
-//         //     "password": ""
-//         // }`))
-//         form.setFieldsValue(redisInfo)
-//     }, [])
-
     async function  connect(item) {
         setLoading(true)
         // const values = await form.validateFields()
@@ -239,27 +218,6 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
 //     "password": ""
 // }`)
 
-//     useEffect(() => {
-// //         console.log('onMouneed', storage.get('redisInfo', `{
-// //     "host": "",
-// //     "user": "",
-// //     "password": ""
-// // }`))
-//         const redisInfo = storage.get('redisInfo', {
-//             "host": "",
-//             "user": "",
-//             "password": "",
-//             port: 6379,
-//             remember: true,
-//         })
-//         // setCode(storage.get('redisInfo', `{
-//         //     "host": "",
-//         //     "user": "",
-//         //     "password": ""
-//         // }`))
-//         form.setFieldsValue(redisInfo)
-//     }, [])
-
     
 
     useEffect(() => {
@@ -273,9 +231,9 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
             form.setFieldsValue({
                 name: '',
                 host: '',
-                port: 6379,
+                port: null,
                 password: '',
-                defaultDatabase: 0,
+                defaultDatabase: null,
                 userName: '',
             })
         }
@@ -295,13 +253,13 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
             }
             _connections.unshift({
                 id: uid(32),
-                name: values.name,
-                host: values.host,
-                port: values.port,
+                name: values.name || t('unnamed'),
+                host: values.host || 'localhost',
+                port: values.port || 6379,
                 // user: values.user,
                 password: values.password,
                 userName: values.userName,
-                defaultDatabase: values.defaultDatabase,
+                defaultDatabase: values.defaultDatabase || 0,
                 // db: values.db,
             })
         }
@@ -316,13 +274,13 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
             const idx = _connections.findIndex(_item => _item.id == item.id)
             _connections[idx] = {
                 ..._connections[idx],
-                name: values.name,
-                host: values.host,
-                port: values.port,
+                name: values.name || t('unnamed'),
+                host: values.host || 'localhost',
+                port: values.port || 6379,
                 // user: values.user,
                 password: values.password,
                 userName: values.userName,
-                defaultDatabase: values.defaultDatabase,
+                defaultDatabase: values.defaultDatabase || 0,
                 // db: values.db,
             }
             
@@ -340,9 +298,8 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
         const values = await form.validateFields()
         setLoading(true)
         const reqData = {
-            name: values.name,
-            host: values.host,
-            port: values.port,
+            host: values.host || 'localhost',
+            port: values.port || 6379,
             // user: values.user,
             password: values.password,
             userName: values.userName,
@@ -380,7 +337,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
                         disabled={loading}
                         onClick={handleTestConnection}
                     >
-                        Test Connection
+                        {t('test_connection')}
                     </Button>
                     <Space>
                         <Button
@@ -389,14 +346,14 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
                             disabled={loading}
                             onClick={onCancel}
                         >
-                            Cancel
+                            {t('cancel')}
                         </Button>
                         <Button
                             type="primary"
                             disabled={loading}
                             onClick={handleOk}
                         >
-                            OK
+                            {t('ok')}
                         </Button>
                     </Space>
                 </div>
@@ -404,12 +361,8 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
         >
             <Form
                 form={form}
-                labelCol={{ span: 8 }}
-                wrapperCol={{ span: 16 }}
-                initialValues={{
-                    port: 6379,
-                    db: 0,
-                }}
+                labelCol={{ span: 6 }}
+                wrapperCol={{ span: 18 }}
                 // layout={{
                 //     labelCol: { span: 0 },
                 //     wrapperCol: { span: 24 },
@@ -417,24 +370,28 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
             >
                 <Form.Item
                     name="name"
-                    label="Name"
-                    rules={[ { required: true, }, ]}
+                    label={t('name')}
+                    // rules={[ { required: true, }, ]}
                 >
                     <Input />
                 </Form.Item>
                 <Form.Item
                     name="host"
-                    label="Host"
-                    rules={[ { required: true, }, ]}
+                    label={t('host')}
+                    // rules={[ { required: true, }, ]}
                 >
-                    <Input />
+                    <Input
+                        placeholder="localhost"
+                    />
                 </Form.Item>
                 <Form.Item
                     name="port"
-                    label="Port"
-                    rules={[{ required: true, },]}
+                    label={t('port')}
+                    // rules={[{ required: true, },]}
                 >
-                    <InputNumber />
+                    <InputNumber
+                        placeholder="6379"
+                    />
                 </Form.Item>
                 {/* <Form.Item
                     name="user"
@@ -445,22 +402,24 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
                 </Form.Item> */}
                 <Form.Item
                     name="password"
-                    label="Password"
+                    label={t('password')}
                     rules={[{ required: true, },]}
                 >
                     <Input />
                 </Form.Item>
                 <Form.Item
                     name="defaultDatabase"
-                    label="Default DB"
-                    rules={[{ required: true, },]}
+                    label={t('default_database')}
+                    // rules={[{ required: true, },]}
                 >
-                    <InputNumber />
+                    <InputNumber
+                        placeholder="0"
+                    />
                 </Form.Item>
                 <Form.Item
                     name="userName"
-                    label="User Name"
-                    extra={`用户名仅在 Redis 6 及之后的版本支持`}
+                    label={t('user_name')}
+                    extra={t('user_name_helper')}
                 >
                     <Input />
                 </Form.Item>
