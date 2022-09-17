@@ -172,3 +172,15 @@ body {
 .ant-btn-sm {
     /* font-size: 12px !important; */
 }
+/* 
+
+input:-webkit-autofill,
+input:-webkit-autofill:focus
+ {
+    box-shadow: 0 0 0 1000px white inset;
+} */
+
+/* 
+.ant-input-sm {
+    height: 32px !important;
+} */

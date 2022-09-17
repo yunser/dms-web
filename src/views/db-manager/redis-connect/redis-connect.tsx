@@ -10,6 +10,30 @@ import storage from '../../db-manager/storage'
 import { request } from '../utils/http'
 import { CodeDebuger } from '../code-debug';
 import { uid } from 'uid';
+import { EyeInvisibleOutlined, EyeOutlined, EyeTwoTone } from '@ant-design/icons';
+import { IconButton } from '../icon-button';
+
+function InputPassword(props) {
+    const [visible, setVisible] = useState(false)
+    return (
+        <Input
+            {...props}
+            type={visible ? 'text' : 'password'}
+            addonAfter={
+                <div>
+                    <IconButton
+                        size="small"
+                        onClick={() => {
+                            setVisible(!visible)
+                        }}
+                    >
+                        {visible ? <EyeOutlined /> : <EyeInvisibleOutlined /> }
+                    </IconButton>
+                </div>
+            }
+        />
+    )
+}
 
 export function RedisConnect({ config, event$, onConnnect, }) {
     const { t } = useTranslation()
@@ -405,8 +429,18 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
                     label={t('password')}
                     rules={[{ required: true, },]}
                 >
-                    <Input />
+                    <InputPassword />
                 </Form.Item>
+                {/* <Form.Item
+                    name="ppppp"
+                    label={t('ppppppp')}
+                    rules={[{ required: true, },]}
+                >
+                    <Input.Password
+                        size="small"
+                        autoComplete="new-password"
+                    />
+                </Form.Item> */}
                 <Form.Item
                     name="defaultDatabase"
                     label={t('default_database')}
