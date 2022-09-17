@@ -104,9 +104,8 @@ export function HashContent({ connectionId, curDb, onSuccess, data, config }) {
                             //     loadItem(index)
                             // }}
                         >
-                            <div>
-                            <div>
-                                {item.key}: {item.value}</div>
+                            <div className={styles.content}>
+                                {item.key}: {item.value}
                             </div>
                             <Space>
 

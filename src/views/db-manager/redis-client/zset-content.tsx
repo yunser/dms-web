@@ -104,8 +104,8 @@ export function ZSetContent({ curDb, onSuccess, connectionId, data, config }) {
                             //     loadItem(index)
                             // }}
                         >
-                            <div>
-                            {item.score}:{item.member}
+                            <div className={styles.content}>
+                                {item.score}:{item.member}
                             </div>
                             <Space>
 

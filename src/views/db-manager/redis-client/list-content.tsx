@@ -104,7 +104,7 @@ export function ListContent({ curDb, connectionId, onSuccess, data, config }) {
                             //     loadItem(index)
                             // }}
                         >
-                            <div>
+                            <div className={styles.content}>
                                 {item}
                             </div>
                             <Space>

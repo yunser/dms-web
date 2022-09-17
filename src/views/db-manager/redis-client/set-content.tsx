@@ -105,7 +105,7 @@ export function SetContent({ curDb, onSuccess, data, connectionId, config }) {
                             //     loadItem(index)
                             // }}
                         >
-                            <div>
+                            <div className={styles.content}>
                                 {item}
                             </div>
                             <Space>

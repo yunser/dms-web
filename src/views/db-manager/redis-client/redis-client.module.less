@@ -172,7 +172,7 @@
 }
 
 .items {
-    width: 320px;
+    width: 640px;
     margin-bottom: 16px;
     border: 1px solid var(--border-color);
     .item {
@@ -184,6 +184,14 @@
         &:last-child {
             border-bottom: none;
         }
+    }
+    .content {
+        flex: 1 0 auto;
+        width: 0;
+        margin-right: 8px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 }
 
