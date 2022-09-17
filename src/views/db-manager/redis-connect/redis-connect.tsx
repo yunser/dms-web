@@ -84,6 +84,7 @@ export function RedisConnect({ config, event$, onConnnect, }) {
             port: item.port,
             user: item.user,
             password: item.password,
+            userName: item.userName,
             db: item.defaultDatabase || 0,
             // remember: values.remember,
         }
@@ -275,6 +276,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
                 port: 6379,
                 password: '',
                 defaultDatabase: 0,
+                userName: '',
             })
         }
     }, [item])
@@ -298,6 +300,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
                 port: values.port,
                 // user: values.user,
                 password: values.password,
+                userName: values.userName,
                 defaultDatabase: values.defaultDatabase,
                 // db: values.db,
             })
@@ -318,6 +321,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
                 port: values.port,
                 // user: values.user,
                 password: values.password,
+                userName: values.userName,
                 defaultDatabase: values.defaultDatabase,
                 // db: values.db,
             }
@@ -341,6 +345,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
             port: values.port,
             // user: values.user,
             password: values.password,
+            userName: values.userName,
             db: values.defaultDatabase || 0,
             test: true,
             // remember: values.remember,
@@ -451,6 +456,13 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
                     rules={[{ required: true, },]}
                 >
                     <InputNumber />
+                </Form.Item>
+                <Form.Item
+                    name="userName"
+                    label="User Name"
+                    extra={`用户名仅在 Redis 6 及之后的版本支持`}
+                >
+                    <Input />
                 </Form.Item>
                 {/* <Form.Item name="remember" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>
                     <Checkbox>Remember me</Checkbox>
