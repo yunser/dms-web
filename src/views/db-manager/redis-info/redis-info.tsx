@@ -97,7 +97,7 @@ export function RedisInfo({ config, event$, connectionId, onConnnect, }) {
                 // }}
                 columns={[
                     {
-                        title: t('key'),
+                        title: t('name'),
                         dataIndex: 'key',
                         width: 240,
                     },
