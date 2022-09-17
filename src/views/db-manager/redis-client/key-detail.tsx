@@ -19,24 +19,26 @@ import { ZSetContent } from './zset-content';
 import { HashContent } from './hash-content';
 import copy from 'copy-to-clipboard';
 import { t } from 'i18next';
-
-
-const timeScale = new humanFormat.Scale({
-  ms: 1,
-  s: 1000,
-  min: 60000,
-  h: 3600000,
-  d: 86400000
-})
-
+import { RedisTtlModal } from '../redis-ttl';
 
 export function RedisKeyDetail({ config, event$, connectionId, redisKey, onRemove }) {
     const [detaiLoading, setDetailLoading] = useState(false)
     const [editType, setEditType] = useState('update')
     const [result, setResult] = useState(null)
+    const [ttlModalVisible, setTtlModalVisible] = useState(false)
     const [inputKey, setInputKey] = useState('')
     const [inputValue, setInputValue] = useState('')
 
+    const timeScale = new humanFormat.Scale({
+        [t('msecond')]: 1,
+        [t('second')]: 1000,
+        [t('minute')]: 60 * 1000,
+        [t('hour')]: 60 * 60 * 1000,
+        [t('day')]: 24 * 60 * 60 * 1000,
+        [t('month')]: 30 * 24 * 60 * 60 * 1000,
+        [t('year')]: 365 * 24 * 60 * 60 * 1000,
+      })
+      
     async function loadKey() {
         setDetailLoading(true)
         let res = await request.post(`${config.host}/redis/get`, {
@@ -296,12 +298,37 @@ export function RedisKeyDetail({ config, event$, connectionId, redisKey, onRemov
             <div className={styles.layoutRightSide}>
                 {!!result && editType == 'update' &&
                     <div>
-                        <div>TTL：{result.ttl >= 0 ? `${humanFormat(result.ttl, {scale: timeScale})}` : '--'}</div>
+                        <div>
+                            TTL：{result.ttl >= 0 ? `${humanFormat(result.ttl, {scale: timeScale})}` : '--'}
+                            <Button
+                                className={styles.setting}
+                                size="small"
+                                onClick={() => {
+                                    setTtlModalVisible(true)
+                                }}
+                            >
+                                {t('setting')}
+                            </Button>
+                        </div>
                         <div>{t('encoding')}：{result.encoding}</div>
                         <div>{t('mem_size')}：{result.size} Bytes</div>
                     </div>
                 }
             </div>
+            {ttlModalVisible &&
+                <RedisTtlModal
+                    config={config}
+                    redisKey={result.key}
+                    connectionId={connectionId}
+                    onCancel={() => {
+                        setTtlModalVisible(false)
+                    }}
+                    onSuccess={() => {
+                        setTtlModalVisible(false)
+                        loadKey(result.key)
+                    }}
+                />
+            }
         </div>
     )
 }

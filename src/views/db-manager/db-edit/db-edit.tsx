@@ -262,5 +262,5 @@ export function DatabaseModal({ config, connectionId, item, onClose, onSuccess, 
                 
             </Form>
         </Modal>
-    );
+    )
 }
