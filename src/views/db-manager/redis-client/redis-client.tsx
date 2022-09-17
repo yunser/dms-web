@@ -18,6 +18,7 @@ import { KeyAddModal } from './key-add';
 import { uid } from 'uid';
 import { RedisHistory } from '../redis-history';
 import { RedisEditor } from '../redis-editor';
+import copy from 'copy-to-clipboard';
 
 function FullCenterBox(props) {
     const { children, height } = props
@@ -695,6 +696,10 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                                                     <Menu
                                                         items={[
                                                             {
+                                                                label: t('copy_key_name'),
+                                                                key: 'copy_key_name',
+                                                            },
+                                                            {
                                                                 label: t('delete'),
                                                                 key: 'key_delete',
                                                             },
@@ -704,6 +709,12 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                                                             if (key == 'key_delete') {
                                                                 console.log('nodeData', nodeData)
                                                                 removeKey(item.key)
+                                                            }
+                                                            else if (key == 'copy_key_name') {
+                                                                console.log('nodeData', nodeData)
+                                                                // removeKey(item.key)
+                                                                copy(nodeData.itemData.key)
+                                                                message.info(t('copied'))
                                                             }
                                                         }}
                                                     >

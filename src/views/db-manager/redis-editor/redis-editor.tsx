@@ -79,7 +79,9 @@ export function RedisEditor({ config, event$, connectionId, defaultDatabase = 0 
                 <div className={styles.results}>
                     {results.map(item => {
                         return (
-                            <div className={styles.item}>
+                            <div className={styles.item}
+                                key={item.id}
+                            >
                                 <div className={styles.command}>{item.command}</div>
                                 {item.result.success ?
                                     <div className={styles.res}>
