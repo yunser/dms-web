@@ -9,7 +9,7 @@ import { Editor } from '../editor/Editor';
 import storage from '../storage'
 import { request } from '../utils/http'
 import { IconButton } from '../icon-button';
-import { CodeOutlined, FolderOutlined, HeartOutlined, HistoryOutlined, InfoCircleOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { CodeOutlined, FolderOutlined, HeartOutlined, HistoryOutlined, InfoCircleOutlined, MenuOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 
 import { ListContent } from './list-content';
 import { useInterval } from 'ahooks';
@@ -195,6 +195,15 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
         setTabInfo({
             activeKey: '',
             items: [],
+        })
+    }
+
+    function closeOtherTab() {
+        const items = tabInfo.items.filter(_it => _it.key != tabInfo.activeKey)
+        const activeKey = items.length ? items[0].key : ''
+        setTabInfo({
+            activeKey,
+            items,
         })
     }
 
@@ -868,6 +877,69 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                             })
                         }}
                         onEdit={onEdit}
+                        tabBarExtraContent={{
+                            right: (
+                                <div className={styles.layoutRightHeaderTabExtra}>
+                                    <Space>
+                                        {tabInfo.items.length > 0 &&
+                                            <Dropdown
+                                                overlay={
+                                                    <Menu
+                                                        onClick={({ key }) => {
+                                                            if (key == 'close_other') {
+                                                                closeOtherTab()
+                                                            }
+                                                            else if (key == 'close_all') {
+                                                                closeAllTab()
+                                                            }
+                                                            else if (key == 'close_current') {
+                                                                // const curTab = tabs.find(item => item.key == activeKey)
+                                                                // if (curTab) {
+                                                                //     if (curTab.closable !== false) {
+                                                                //         const newTabs = tabs.filter(item => item.key != activeKey)
+                                                                //         setTabs(newTabs)
+                                                                //         if (newTabs.length) {
+                                                                //             setActiveKey(newTabs[newTabs.length - 1].key)
+                                                                //         }
+                                                                //         else {
+                                                                //             setActiveKey('')
+                                                                //         }
+                                                                //     }
+
+                                                                // }
+                                                            }
+                                                        }}
+                                                        items={[
+                                                            // {
+                                                            //     label: t('close'),
+                                                            //     key: 'close_current',
+                                                            // },
+                                                            {
+                                                                label: t('close_other'),
+                                                                key: 'close_other',
+                                                            },
+                                                            {
+                                                                label: t('close_all'),
+                                                                key: 'close_all',
+                                                            },
+                                                        ]}
+                                                    />
+                                                }
+                                            >
+                                                <IconButton
+                                                    onClick={e => e.preventDefault()}
+                                                >
+                                                    <MenuOutlined />
+                                                </IconButton>
+                                                {/* <a
+                                                >
+                                                </a> */}
+                                            </Dropdown>
+                                        }
+                                    </Space>
+                                </div>
+                            )
+                        }}
                         items={tabInfo.items}
                     />
                 </div>
