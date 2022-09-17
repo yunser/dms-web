@@ -91,11 +91,88 @@ export function HashContent({ connectionId, curDb, onSuccess, data, config }) {
         // loadInfo()
     }, [curDb])
 
+    const columns = [
+        {
+            title: t('field'),
+            dataIndex: 'key',
+            width: 240,
+            ellipsis: true,
+        },
+        {
+            title: t('value'),
+            dataIndex: 'value',
+            width: 480,
+            ellipsis: true,
+        },
+        {
+            title: '',
+            dataIndex: '_empty',
+            render(_value, item, index) {
+                return (
+                    <Space>
+                        <ListPushHandler
+                            config={config}
+                            connectionId={connectionId}
+                            redisKey={data.key}
+                            type="hash"
+                            item={{
+                                index,
+                                field: item.key,
+                                value: item.value,
+                            }}
+                            onSuccess={onSuccess}
+                        >
+                            <Button
+                                size="small"
+                            >
+                                {t('edit')}
+                            </Button>
+                        </ListPushHandler>
+                        <Button
+                            danger
+                            size="small"
+                            onClick={async () => {
+                                Modal.confirm({
+                                    // title: 'Confirm',
+                                    // icon: <ExclamationCircleOutlined />,
+                                    content: `${t('delete')}「${item.key}」?`,
+                                    async onOk() {
+                                        
+                                        let ret = await request.post(`${config.host}/redis/hdel`, {
+                                            connectionId,
+                                            key: data.key,
+                                            // connectionId,
+                                            field: item.key,
+                                        })
+                                        // console.log('ret', ret)
+                                        if (ret.success) {
+                                            // message.success('连接成功')
+                                            // onConnnect && onConnnect()
+                                            message.success(t('success'))
+                                            // onClose && onClose()
+                                            onSuccess && onSuccess()
+                                        }
+                                    }
+                                })
+                            }}
+                        >
+                            {t('delete')}
+                        </Button>
+                    </Space>
+                )
+            }
+        },
+    ]
+
     return (
         <div className={styles.contentBox}>
-            {/* {curDb}
-            /{totalDb} */}
-            <div className={styles.items}>
+            <Table
+                dataSource={data.items}
+                columns={columns}
+                size="small"
+                pagination={false}
+            />
+            {/* <div className={styles.items}>
                 {data.items.map((item, index) => {
                     return (
                         <div
@@ -107,62 +184,12 @@ export function HashContent({ connectionId, curDb, onSuccess, data, config }) {
                             <div className={styles.content}>
                                 {item.key}: {item.value}
                             </div>
-                            <Space>
-
-                                <ListPushHandler
-                                    config={config}
-                                    connectionId={connectionId}
-                                    redisKey={data.key}
-                                    type="hash"
-                                    item={{
-                                        index,
-                                        field: item.key,
-                                        value: item.value,
-                                    }}
-                                    onSuccess={onSuccess}
-                                >
-                                    <Button
-                                        size="small"
-                                    >
-                                        {t('edit')}
-                                    </Button>
-                                </ListPushHandler>
-                                <Button
-                                    danger
-                                    size="small"
-                                    onClick={async () => {
-                                        Modal.confirm({
-                                            // title: 'Confirm',
-                                            // icon: <ExclamationCircleOutlined />,
-                                            content: `${t('delete')}「${item.key}」?`,
-                                            async onOk() {
-                                                
-                                                let ret = await request.post(`${config.host}/redis/hdel`, {
-                                                    connectionId,
-                                                    key: data.key,
-                                                    // connectionId,
-                                                    field: item.key,
-                                                })
-                                                // console.log('ret', ret)
-                                                if (ret.success) {
-                                                    // message.success('连接成功')
-                                                    // onConnnect && onConnnect()
-                                                    message.success(t('success'))
-                                                    // onClose && onClose()
-                                                    onSuccess && onSuccess()
-                                                }
-                                            }
-                                        })
-                                    }}
-                                >
-                                    {t('delete')}
-                                </Button>
-                            </Space>
+                            
                         </div>
                     )
                 })}
-            </div>
-            <div>
+            </div> */}
+            <div style={{ marginTop: 16 }}>
                 <ListPushHandler
                     config={config}
                     connectionId={connectionId}

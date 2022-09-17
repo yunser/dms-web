@@ -91,11 +91,86 @@ export function ZSetContent({ curDb, onSuccess, connectionId, data, config }) {
         // loadInfo()
     }, [curDb])
 
+    const columns = [
+        {
+            title: t('score'),
+            dataIndex: 'score',
+            width: 240,
+            ellipsis: true,
+        },
+        {
+            title: t('value'),
+            dataIndex: 'member',
+            width: 480,
+            ellipsis: true,
+        },
+        {
+            title: '',
+            dataIndex: '_empty',
+            render(_value, item, index) {
+                return (
+                    <Space>
+                        <ListPushHandler
+                            config={config}
+                            redisKey={data.key}
+                            connectionId={connectionId}
+                            type="zset"
+                            item={{
+                                index,
+                                score: item.score,
+                                value: item.member,
+                            }}
+                            onSuccess={onSuccess}
+                        >
+                            <Button
+                                size="small"
+                            >
+                                {t('edit')}
+                            </Button>
+                        </ListPushHandler>
+                        <Button
+                            danger
+                            size="small"
+                            onClick={async () => {
+                                Modal.confirm({
+                                    content: `${t('delete')}「${item.member}」?`,
+                                    async onOk() {
+                                        
+                                        let ret = await request.post(`${config.host}/redis/zrem`, {
+                                            connectionId,
+                                            key: data.key,
+                                            // connectionId,
+                                            value: item.member,
+                                        })
+                                        // console.log('ret', ret)
+                                        if (ret.success) {
+                                            // message.success('连接成功')
+                                            // onConnnect && onConnnect()
+                                            message.success(t('success'))
+                                            // onClose && onClose()
+                                            onSuccess && onSuccess()
+                                        }
+                                    }
+                                })
+                            }}
+                        >
+                            {t('delete')}
+                        </Button>
+                    </Space>
+                )
+            }
+        },
+    ]
+
     return (
         <div className={styles.contentBox}>
-            {/* {curDb}
-            /{totalDb} */}
-            <div className={styles.items}>
+            <Table
+                dataSource={data.items}
+                columns={columns}
+                size="small"
+                pagination={false}
+            />
+            {/* <div className={styles.items}>
                 {data.items.map((item, index) => {
                     return (
                         <div
@@ -109,58 +184,13 @@ export function ZSetContent({ curDb, onSuccess, connectionId, data, config }) {
                             </div>
                             <Space>
 
-                                <ListPushHandler
-                                    config={config}
-                                    redisKey={data.key}
-                                    connectionId={connectionId}
-                                    type="zset"
-                                    item={{
-                                        index,
-                                        score: item.score,
-                                        value: item.member,
-                                    }}
-                                    onSuccess={onSuccess}
-                                >
-                                    <Button
-                                        size="small"
-                                    >
-                                        {t('edit')}
-                                    </Button>
-                                </ListPushHandler>
-                                <Button
-                                    danger
-                                    size="small"
-                                    onClick={async () => {
-                                        Modal.confirm({
-                                            content: `${t('delete')}「${item.member}」?`,
-                                            async onOk() {
-                                                
-                                                let ret = await request.post(`${config.host}/redis/zrem`, {
-                                                    connectionId,
-                                                    key: data.key,
-                                                    // connectionId,
-                                                    value: item.member,
-                                                })
-                                                // console.log('ret', ret)
-                                                if (ret.success) {
-                                                    // message.success('连接成功')
-                                                    // onConnnect && onConnnect()
-                                                    message.success(t('success'))
-                                                    // onClose && onClose()
-                                                    onSuccess && onSuccess()
-                                                }
-                                            }
-                                        })
-                                    }}
-                                >
-                                    {t('delete')}
-                                </Button>
+                                
                             </Space>
                         </div>
                     )
                 })}
-            </div>
-            <div>
+            </div> */}
+            <div style={{ marginTop: 16 }}>
                 <ListPushHandler
                     config={config}
                     redisKey={data.key}
