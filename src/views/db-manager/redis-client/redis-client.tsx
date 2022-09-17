@@ -652,7 +652,7 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                     :
                         <Tree
                             className={styles.tree}
-                            height={document.body.clientHeight - 42 - 48 - 16 - 40}
+                            height={document.body.clientHeight - 42 - 48 - 16 - 80}
                             treeData={treeData}
                             expandedKeys={expandedKeys}
                             onExpand={(expandedKeys) => {
