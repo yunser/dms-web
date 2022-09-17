@@ -135,6 +135,10 @@ function DbSelector({ curDb, connectionId, onDatabaseChange, config }) {
 
 function obj2Tree(obj, handler) {
 
+    const sorter = (a, b) => {
+        console.log('ab', a, b)
+        return a.key.localeCompare(b.key)
+    }
     function handleObj(obj, key, prefix, level) {
         if (obj._leaf) {
             return handler(obj, { level: level - 1 })
@@ -157,12 +161,12 @@ function obj2Tree(obj, handler) {
             },
             level: level - 1,
             type: 'type_folder',
-            children: results,
+            children: results.sort(sorter),
             keyNum,
         }
     }
 
-    return handleObj(obj, '_____root', '', 0)
+    return handleObj(obj, '_____root', '', 0).sort(sorter)
 }
 
 export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 }) {
@@ -338,14 +342,6 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
             //     .sort((a, b) => {
             //         return a.title.localeCompare(b.title)
             //     })
-            // setTreeData([
-            //     {
-            //         title: dbName,
-            //         key: 'root',
-            //         children,
-            //         itemData: Item,
-            //     },
-            // ])
             // adbs: ,
         } else {
             message.error('连接失败')
