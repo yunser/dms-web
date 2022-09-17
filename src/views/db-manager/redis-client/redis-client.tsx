@@ -17,6 +17,7 @@ import { RedisKeyDetail } from './key-detail';
 import { KeyAddModal } from './key-add';
 import { uid } from 'uid';
 import { RedisHistory } from '../redis-history';
+import { RedisEditor } from '../redis-editor';
 
 
 
@@ -350,6 +351,25 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
         })
     }
 
+    function addEditorTab() {
+        const tabKey = uid(32)
+        setTabInfo({
+            // ...tabInfo,
+            activeKey: tabKey,
+            items: [
+                ...tabInfo.items,
+                {
+                    type: 'type_editor',
+                    label: t('editor'),
+                    key: tabKey,
+                    itemData: {
+                        // redisKey: key,
+                    },
+                }
+            ]
+        })
+    }
+
     function addKey2Tab(key) {
         const tabKey = uid(32)
         setTabInfo({
@@ -519,6 +539,13 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                                         label: t('hash'),
                                         key: 'hash',
                                     },
+                                    {
+                                        type: 'divider',
+                                    },
+                                    {
+                                        label: t('command'),
+                                        key: 'command',
+                                    },
                                     // {
                                     //     label: <a href="https://www.aliyun.com">2nd menu item</a>,
                                     //     key: '1',
@@ -551,6 +578,9 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                                     else if (key == 'hash') {
                                         setAddModalVisible(true)
                                         setAddType('hash')
+                                    }
+                                    else if (key == 'command') {
+                                        addEditorTab()
                                     }
                                 }}
                             />
@@ -748,6 +778,12 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                                 {item.type == 'type_history' &&
                                     <RedisHistory
                                         config={config}
+                                    />
+                                }
+                                {item.type == 'type_editor' &&
+                                    <RedisEditor
+                                        config={config}
+                                        connectionId={connectionId}
                                     />
                                 }
                             </div>
