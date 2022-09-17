@@ -9,7 +9,7 @@ import { Editor } from '../editor/Editor';
 import storage from '../storage'
 import { request } from '../utils/http'
 import { IconButton } from '../icon-button';
-import { FolderOutlined, HistoryOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { CodeOutlined, FolderOutlined, HistoryOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 
 import { ListContent } from './list-content';
 import { useInterval } from 'ahooks';
@@ -19,7 +19,21 @@ import { uid } from 'uid';
 import { RedisHistory } from '../redis-history';
 import { RedisEditor } from '../redis-editor';
 
-
+function FullCenterBox(props) {
+    const { children, height } = props
+    return (
+        <div
+            className={styles.fullCenterBox}
+            style={{
+                // width: '100%',
+                // height: '100%',
+                height,
+            }}
+        >
+            {children}
+        </div>
+    )
+}
 
 function DbSelector({ curDb, connectionId, onDatabaseChange, config }) {
     const { t } = useTranslation()
@@ -437,169 +451,191 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
         <div className={styles.redisLayout}>
             <div className={styles.layoutLeft}>
                 <div className={styles.header}>
-                    <Input.Group
-                        compact
-                        className={styles.inputGroup}
-                    >
-                        <Select
-                            size="small"
-                            className={styles.inputSelect}
-                            value={searchType}
-                            onChange={value => {
-                                setSearchType(value)
-                            }}
-                            options={[
-                                {
-                                    label: t('fuzzy'),
-                                    value: 'blur',
-                                },
-                                {
-                                    label: t('match'),
-                                    value: 'match',
-                                },
-                            ]}
-                        />
-                        <Input.Search
-                            size="small"
-                            className={styles.searchSearch}
-                            value={keyword}
-                            onChange={e => {
-                                setKeyword(e.target.value)
-                            }}
-                            allowClear
-                            
-                            // placeholder="Search... *{keyword}*"
-                            placeholder={searchType == 'blur' ? 'Search...' : 'ex: *{keyword}*'}
-                            onSearch={(value) => {
-                                console.log('onSearch', value)
-                                if (value) {
-                                    let _value
-                                    if (searchType == 'blur') {
-                                        _value = `*${value}*`
+                    <div className={styles.layoutLeftTool}>
+                        <Space>
+                            <IconButton
+                                tooltip={t('refresh')}
+                                // size="small"
+                                className={styles.refresh}
+                                onClick={() => {
+                                    loadKeys()
+                                }}
+                            >
+                                <ReloadOutlined />
+                            </IconButton>
+                            <IconButton
+                                tooltip={t('history')}
+                                // size="small"
+                                className={styles.refresh}
+                                onClick={() => {
+                                    addHistoryTab()
+                                    // event$.emit({
+                                    //     type: 'event_redis_history',
+                                    //     data: {
+                                    //         connectionId,
+                                    //     },
+                                    // })
+                                }}
+                            >
+                                <HistoryOutlined />
+                            </IconButton>
+                            <Dropdown
+                                overlay={
+                                    <Menu
+                                        items={[
+                                            {
+                                                label: t('string'),
+                                                key: 'string',
+                                            },
+                                            {
+                                                label: t('list'),
+                                                key: 'list',
+                                            },
+                                            {
+                                                label: t('set'),
+                                                key: 'set',
+                                            },
+                                            {
+                                                label: t('zset'),
+                                                key: 'zset',
+                                            },
+                                            {
+                                                label: t('hash'),
+                                                key: 'hash',
+                                            },
+                                            // {
+                                            //     type: 'divider',
+                                            // },
+                                            // {
+                                            //     label: t('command'),
+                                            //     key: 'command',
+                                            // },
+                                            // {
+                                            //     label: <a href="https://www.aliyun.com">2nd menu item</a>,
+                                            //     key: '1',
+                                            // },
+                                            // {
+                                            //     type: 'divider',
+                                            // },
+                                            // {
+                                            //     label: '3rd menu item',
+                                            //     key: '3',
+                                            // },
+                                        ]}
+                                        onClick={({ key }) => {
+                                            if (key == 'string') {
+                                                setAddModalVisible(true)
+                                                setAddType('string')
+                                            }
+                                            else if (key == 'list') {
+                                                setAddModalVisible(true)
+                                                setAddType('list')
+                                            }
+                                            else if (key == 'set') {
+                                                setAddModalVisible(true)
+                                                setAddType('set')
+                                            }
+                                            else if (key == 'zset') {
+                                                setAddModalVisible(true)
+                                                setAddType('zset')
+                                            }
+                                            else if (key == 'hash') {
+                                                setAddModalVisible(true)
+                                                setAddType('hash')
+                                            }
+                                            // else if (key == 'command') {
+                                            //     addEditorTab()
+                                            // }
+                                        }}
+                                    />
+                                }
+                                trigger={['click']}
+                            >
+                                {/* <a onClick={e => e.preventDefault()}>
+                                <Space>
+                                    Click me
+                                    <DownOutlined />
+                                </Space>
+                                </a> */}
+                                <IconButton
+                                    tooltip={t('add')}
+                                    // size="small"
+                                    className={styles.refresh}
+                                >
+                                    <PlusOutlined />
+                                </IconButton>
+                            </Dropdown>
+                            <IconButton
+                                tooltip={t('command')}
+                                // size="small"
+                                className={styles.refresh}
+                                onClick={() => {
+                                    addEditorTab()
+                                }}
+                            >
+                                <CodeOutlined />
+                            </IconButton>
+
+                        </Space>
+                    </div>
+                    <div className={styles.layoutLeftSearch}>
+
+                        <Input.Group
+                            compact
+                            className={styles.inputGroup}
+                        >
+                            <Select
+                                // size="small"
+                                className={styles.inputSelect}
+                                value={searchType}
+                                onChange={value => {
+                                    setSearchType(value)
+                                }}
+                                options={[
+                                    {
+                                        label: t('fuzzy'),
+                                        value: 'blur',
+                                    },
+                                    {
+                                        label: t('match'),
+                                        value: 'match',
+                                    },
+                                ]}
+                            />
+                            <Input.Search
+                                // size="small"
+                                className={styles.searchSearch}
+                                value={keyword}
+                                onChange={e => {
+                                    setKeyword(e.target.value)
+                                }}
+                                allowClear
+                                
+                                // placeholder="Search... *{keyword}*"
+                                placeholder={searchType == 'blur' ? 'Search...' : 'ex: *{keyword}*'}
+                                onSearch={(value) => {
+                                    console.log('onSearch', value)
+                                    if (value) {
+                                        let _value
+                                        if (searchType == 'blur') {
+                                            _value = `*${value}*`
+                                        }
+                                        else {
+                                            _value = value
+                                        }
+                                        //  = value + (value.endsWith('*') ? '' : '*')
+                                        setSearchKeyword(_value)
+                                        // setKeyword(_value)
                                     }
                                     else {
-                                        _value = value
+                                        setSearchKeyword('')
                                     }
-                                    //  = value + (value.endsWith('*') ? '' : '*')
-                                    setSearchKeyword(_value)
-                                    // setKeyword(_value)
-                                }
-                                else {
-                                    setSearchKeyword('')
-                                }
-                                // handleSearch()
-                            }}
-                        />
-                    </Input.Group>
-                    <IconButton
-                        tooltip={t('refresh')}
-                        className={styles.refresh}
-                        onClick={() => {
-                            loadKeys()
-                        }}
-                    >
-                        <ReloadOutlined />
-                    </IconButton>
-                    <IconButton
-                        tooltip={t('history')}
-                        className={styles.refresh}
-                        onClick={() => {
-                            addHistoryTab()
-                            // event$.emit({
-                            //     type: 'event_redis_history',
-                            //     data: {
-                            //         connectionId,
-                            //     },
-                            // })
-                        }}
-                    >
-                        <HistoryOutlined />
-                    </IconButton>
-                    <Dropdown
-                        overlay={
-                            <Menu
-                                items={[
-                                    {
-                                        label: t('string'),
-                                        key: 'string',
-                                    },
-                                    {
-                                        label: t('list'),
-                                        key: 'list',
-                                    },
-                                    {
-                                        label: t('set'),
-                                        key: 'set',
-                                    },
-                                    {
-                                        label: t('zset'),
-                                        key: 'zset',
-                                    },
-                                    {
-                                        label: t('hash'),
-                                        key: 'hash',
-                                    },
-                                    {
-                                        type: 'divider',
-                                    },
-                                    {
-                                        label: t('command'),
-                                        key: 'command',
-                                    },
-                                    // {
-                                    //     label: <a href="https://www.aliyun.com">2nd menu item</a>,
-                                    //     key: '1',
-                                    // },
-                                    // {
-                                    //     type: 'divider',
-                                    // },
-                                    // {
-                                    //     label: '3rd menu item',
-                                    //     key: '3',
-                                    // },
-                                ]}
-                                onClick={({ key }) => {
-                                    if (key == 'string') {
-                                        setAddModalVisible(true)
-                                        setAddType('string')
-                                    }
-                                    else if (key == 'list') {
-                                        setAddModalVisible(true)
-                                        setAddType('list')
-                                    }
-                                    else if (key == 'set') {
-                                        setAddModalVisible(true)
-                                        setAddType('set')
-                                    }
-                                    else if (key == 'zset') {
-                                        setAddModalVisible(true)
-                                        setAddType('zset')
-                                    }
-                                    else if (key == 'hash') {
-                                        setAddModalVisible(true)
-                                        setAddType('hash')
-                                    }
-                                    else if (key == 'command') {
-                                        addEditorTab()
-                                    }
+                                    // handleSearch()
                                 }}
                             />
-                        }
-                        trigger={['click']}
-                    >
-                        {/* <a onClick={e => e.preventDefault()}>
-                        <Space>
-                            Click me
-                            <DownOutlined />
-                        </Space>
-                        </a> */}
-                        <IconButton
-                            tooltip={t('add')}
-                            className={styles.refresh}
-                        >
-                            <PlusOutlined />
-                        </IconButton>
-                    </Dropdown>
+                        </Input.Group>
+                    </div>
+                    
                     {/* <Space>
                     </Space> */}
                 </div>
@@ -607,9 +643,11 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                     {loading ?
                         <div>Loading</div>
                     : list.length == 0 ?
-                        <Empty
-
-                        />
+                        <FullCenterBox
+                            height={320}
+                        >
+                            <Empty />
+                        </FullCenterBox>
                     :
                         <Tree
                             className={styles.tree}
