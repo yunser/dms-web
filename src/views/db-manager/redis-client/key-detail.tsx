@@ -9,7 +9,7 @@ import { Editor } from '../editor/Editor';
 import storage from '../storage'
 import { request } from '../utils/http'
 import { IconButton } from '../icon-button';
-import { FolderOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { FolderOutlined, HeartOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 
 import humanFormat from 'human-format'
 import { ListPushHandler } from './list-push';
@@ -38,7 +38,24 @@ export function RedisKeyDetail({ config, event$, connectionId, redisKey, onRemov
         [t('month')]: 30 * 24 * 60 * 60 * 1000,
         [t('year')]: 365 * 24 * 60 * 60 * 1000,
       })
-      
+    
+    async function like() {
+        let res = await request.post(`${config.host}/redis/key/create`, {
+            connectionId: connectionId,
+            key: redisKey,
+            // dbName,
+        })
+        console.log('get/res', res.data)
+        if (res.success) {
+            message.success(t('success'))
+            // setResult({
+            //     key: redisKey,
+            //     ...res.data,
+            // })
+            // setInputValue(res.data.value)
+            // setEditType('update')
+        }
+    }
     async function loadKey() {
         setDetailLoading(true)
         let res = await request.post(`${config.host}/redis/get`, {
@@ -75,14 +92,34 @@ export function RedisKeyDetail({ config, event$, connectionId, redisKey, onRemov
                     <div className={styles.header}>
                         <div>{result.key}</div>
                         <Space>
-                            <Button
+                            {/* <Button
                                 size="small"
                                 onClick={async () => {
                                     loadKey()
                                 }}
                             >
                                 {t('refresh')}
-                            </Button>
+                            </Button> */}
+                            <IconButton
+                                tooltip={t('refresh')}
+                                // size="small"
+                                className={styles.refresh}
+                                onClick={() => {
+                                    loadKey()
+                                }}
+                            >
+                                <ReloadOutlined />
+                            </IconButton>
+                            <IconButton
+                                tooltip={t('like')}
+                                // size="small"
+                                className={styles.refresh}
+                                onClick={() => {
+                                    like()
+                                }}
+                            >
+                                <HeartOutlined />
+                            </IconButton>
                             <Button
                                 size="small"
                                 onClick={async () => {

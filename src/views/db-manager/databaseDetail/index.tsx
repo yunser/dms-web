@@ -141,7 +141,6 @@ function Status({ config, event$, connectionId }) {
                 heartBeat()
             }
         }
-        
     })
 
     async function reconnect() {

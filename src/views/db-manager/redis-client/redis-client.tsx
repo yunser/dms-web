@@ -9,7 +9,7 @@ import { Editor } from '../editor/Editor';
 import storage from '../storage'
 import { request } from '../utils/http'
 import { IconButton } from '../icon-button';
-import { CodeOutlined, FolderOutlined, HistoryOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { CodeOutlined, FolderOutlined, HeartOutlined, HistoryOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 
 import { ListContent } from './list-content';
 import { useInterval } from 'ahooks';
@@ -19,6 +19,7 @@ import { uid } from 'uid';
 import { RedisHistory } from '../redis-history';
 import { RedisEditor } from '../redis-editor';
 import copy from 'copy-to-clipboard';
+import { RedisLike } from '../redis-like';
 
 function FullCenterBox(props) {
     const { children, height } = props
@@ -347,7 +348,26 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
         loadKeys()
     }, [curDb, searchKeyword])
 
-    function addHistoryTab(key) {
+    function addLikeTab() {
+        const tabKey = uid(32)
+        setTabInfo({
+            // ...tabInfo,
+            activeKey: tabKey,
+            items: [
+                ...tabInfo.items,
+                {
+                    type: 'type_like',
+                    label: t('like'),
+                    key: tabKey,
+                    itemData: {
+                        // redisKey: key,
+                    },
+                }
+            ]
+        })
+    }
+
+    function addHistoryTab() {
         const tabKey = uid(32)
         setTabInfo({
             // ...tabInfo,
@@ -403,6 +423,17 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
             ]
         })
     }
+
+    event$.useSubscription(msg => {
+        console.log('RedisClient/onmessage', msg)
+        // console.log(val);
+        if (msg.type == 'event_show_key') {
+            const { connectionId: _connectionId, key } = msg.data
+            if (_connectionId == connectionId) {
+                addKey2Tab(key)
+            }
+        }
+    })
 
     function removeKey(key, cb) {
         Modal.confirm({
@@ -576,7 +607,16 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                             >
                                 <CodeOutlined />
                             </IconButton>
-
+                            <IconButton
+                                tooltip={t('like')}
+                                // size="small"
+                                className={styles.refresh}
+                                onClick={() => {
+                                    addLikeTab()
+                                }}
+                            >
+                                <HeartOutlined />
+                            </IconButton>
                         </Space>
                     </div>
                     <div className={styles.layoutLeftSearch}>
@@ -827,6 +867,13 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                                 {item.type == 'type_history' &&
                                     <RedisHistory
                                         config={config}
+                                    />
+                                }
+                                {item.type == 'type_like' &&
+                                    <RedisLike
+                                        config={config}
+                                        event$={event$}
+                                        connectionId={connectionId}
                                     />
                                 }
                                 {item.type == 'type_editor' &&
