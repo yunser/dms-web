@@ -24,10 +24,10 @@ function handleRes(res) {
     return res
 }
 
-export function RedisEditor({ config, event$, connectionId, defaultDatabase = 0 }) {
+export function RedisEditor({ config, event$, defaultCommand = '', connectionId, defaultDatabase = 0 }) {
     const [curDb, setCurDb] = useState(defaultDatabase)
     const { t } = useTranslation()
-    const [code, setCode] = useState('')
+    const [code, setCode] = useState(defaultCommand)
     const [results, setResults] = useState([])
     const [loading, setLoading] = useState(false)
 

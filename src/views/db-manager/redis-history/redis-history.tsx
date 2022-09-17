@@ -91,6 +91,55 @@ export function RedisHistory({ config, event$, connectionId, onConnnect, }) {
                         width: 480,
                     },
                     {
+                        title: t('actions'),
+                        dataIndex: 'actions',
+                        width: 80,
+                        render(_value, item) {
+                            return (
+                                <div>
+                                    <Space>
+                                        <Button
+                                            type="link"
+                                            size="small"
+                                            onClick={async () => {
+                                                event$.emit({
+                                                    type: 'event_open_command',
+                                                    data: {
+                                                        connectionId,
+                                                        command: item.command,
+                                                    }
+                                                })
+                                            }}
+                                        >
+                                            {t('use')}
+                                        </Button>
+                                        {/* <Button
+                                            danger
+                                            type="link"
+                                            size="small"
+                                            onClick={async () => {
+                                                Modal.confirm({
+                                                    content: `${t('delete')}「${item.key}」?`,
+                                                    async onOk() {
+                                                        let res = await request.post(`${config.host}/redis/key/remove`, {
+                                                            id: item.id,
+                                                            // dbName,
+                                                        })
+                                                        if (res.success) {
+                                                            loadList()
+                                                        }
+                                                    }
+                                                })
+                                            }}
+                                        >
+                                            {t('delete')}
+                                        </Button> */}
+                                    </Space>
+                                </div>
+                            )
+                        }
+                    },
+                    {
                         title: '',
                         dataIndex: '_empty',
                     },

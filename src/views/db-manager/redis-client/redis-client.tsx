@@ -418,7 +418,7 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
         })
     }
 
-    function addEditorTab() {
+    function addEditorTab(command) {
         const tabKey = uid(32)
         setTabInfo({
             // ...tabInfo,
@@ -427,9 +427,10 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                 ...tabInfo.items,
                 {
                     type: 'type_editor',
-                    label: t('editor'),
+                    label: t('untitled'),
                     key: tabKey,
                     itemData: {
+                        defaultCommand: command,
                         // redisKey: key,
                     },
                 }
@@ -463,6 +464,12 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
             const { connectionId: _connectionId, key } = msg.data
             if (_connectionId == connectionId) {
                 addKey2Tab(key)
+            }
+        }
+        else if (msg.type == 'event_open_command') {
+            const { connectionId: _connectionId, command } = msg.data
+            if (_connectionId == connectionId) {
+                addEditorTab(command)
             }
         }
     })
@@ -981,6 +988,8 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                                 {item.type == 'type_history' &&
                                     <RedisHistory
                                         config={config}
+                                        event$={event$}
+                                        connectionId={connectionId}
                                     />
                                 }
                                 {item.type == 'type_like' &&
@@ -1001,6 +1010,7 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                                     <RedisEditor
                                         config={config}
                                         connectionId={connectionId}
+                                        defaultCommand={item.itemData.defaultCommand}
                                     />
                                 }
                             </div>
