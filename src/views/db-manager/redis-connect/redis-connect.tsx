@@ -60,7 +60,9 @@ export function RedisConnect({ config, event$, onConnnect, }) {
     async function init() {
         const connections = storage.get('redis-connections', [])
         if (connections.length) {
-            setConnections(connections)
+            setConnections(connections.sort((a, b) => {
+                return a.name.localeCompare(b.name)
+            }))
             // const curConneId = storage.get('current_connection_id')
             // let curConn
             // if (curConneId) {
