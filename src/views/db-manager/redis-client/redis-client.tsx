@@ -62,7 +62,7 @@ function DbSelector({ curDb, connectionId, onDatabaseChange, config }) {
             // 108: "db4:keys=1,expires=0,avg_ttl=0"
             // 109: "db14:keys=38,expires=1,avg_ttl=70590450"
 
-            console.log('DbSelector/infos', infos)
+            // console.log('DbSelector/infos', infos)
             const totalDb = parseInt(res.data.config[1])
             setTotalDb(totalDb)
             const databases = []
@@ -139,7 +139,14 @@ function obj2Tree(obj, handler) {
 
     const sorter = (a, b) => {
         // console.log('ab', a, b)
-        return a.key.localeCompare(b.key)
+        const typeScore = {
+            'type_key': 1,
+            'type_folder': 2,
+        }
+        if (a.itemData.key == b.itemData.key) {
+            return typeScore[a.type] - typeScore[b.type]
+        }
+        return a.itemData.key.localeCompare(b.itemData.key)
     }
     function handleObj(obj, key, prefix, level) {
         if (obj._leaf) {
@@ -157,9 +164,10 @@ function obj2Tree(obj, handler) {
         }
         return {
             title: key,
-            key: key,
+            key: 'folder-' + key,
             itemData: {
                 prefix: prefix,
+                key,
             },
             level: level - 1,
             type: 'type_folder',
@@ -307,35 +315,43 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
             // console.log('res', list)
             const { list } = res.data
             setList(res.data.list)
-            const treeData = []
+            // const treeData = []
             const treeObj = {}
             for (let item of list) {
-                treeData.push({
-                    title: item.key,
-                    key: item.key,
-                    itemData: item,
-                    type: 'type_key',
-                })
-                _.set(treeObj, item.key.replaceAll(':', '.'), {
+                // treeData.push({
+                //     title: item.key,
+                //     key: item.key,
+                //     itemData: item,
+                //     type: 'type_key',
+                // })
+                const node = {
                     ...item,
                     _leaf: true,
-                })
+                }
+                if (item.key.includes(':')) {
+                    _.set(treeObj, item.key.replaceAll(':', '.'), node)
+                }
+                else {
+                    _.set(treeObj, '____root____' + item.key, node)
+                }
             }
+            
 
             
 
             const treeData2 = obj2Tree(treeObj, (item, { level }) => {
                 return {
                     title: item.key,
-                    key: item.key,
+                    key: 'key-' + item.key,
                     itemData: item,
                     type: 'type_key',
                     level,
+                    childrem: undefined,
                 }
             })
-            console.log('treeData2', treeData2)
+            // console.log('treeData2', treeData2)
             setTreeData(treeData2)
-            console.log('treeObj', treeObj)
+            // console.log('treeObj', treeObj)
 
 
             // const children = list
@@ -692,7 +708,7 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                                 <CodeOutlined />
                             </IconButton>
                             <IconButton
-                                tooltip={t('like')}
+                                tooltip={t('favorite_keys')}
                                 // size="small"
                                 className={styles.refresh}
                                 onClick={() => {
