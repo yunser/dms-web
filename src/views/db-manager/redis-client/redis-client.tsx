@@ -509,6 +509,29 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
         })
     }
 
+    function exportKeys(nodeData) {
+        const keys = list
+            .filter(item => item.key.startsWith(nodeData.itemData.prefix))
+            .map(item => item.key)
+        console.log('keys', keys)
+        event$.emit({
+            type: 'event_show_json',
+            data: {
+                json: JSON.stringify(keys, null, 4)
+                // connectionId,
+            },
+        })
+        // let res = await request.post(`${config.host}/redis/delete`, {
+        //     connectionId,
+        //     keys,
+        // })
+        // console.log('get/res', res.data)
+        // if (res.success) {
+        //     message.success('删除成功')
+        //     loadKeys()
+        //     closeTabByKeys(keys)
+        // }
+    }
     function removeKeys(nodeData) {
         Modal.confirm({
             // title: 'Confirm',
@@ -874,6 +897,10 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                                                     <Menu
                                                         items={[
                                                             {
+                                                                label: t('export_json'),
+                                                                key: 'key_export_keys',
+                                                            },
+                                                            {
                                                                 label: t('delete'),
                                                                 key: 'key_delete',
                                                             },
@@ -883,6 +910,9 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                                                             if (key == 'key_delete') {
                                                                 console.log('removeKeys', nodeData)
                                                                 removeKeys(nodeData)
+                                                            }
+                                                            else if (key == 'key_export_keys') {
+                                                                exportKeys(nodeData)
                                                             }
                                                         }}
                                                     >
