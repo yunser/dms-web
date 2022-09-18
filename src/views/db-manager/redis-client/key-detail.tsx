@@ -265,6 +265,7 @@ export function RedisKeyDetail({ config, event$, connectionId, redisKey, onRemov
                         {(result.type == 'string' || editType == 'create') &&
                             <StringContent
                                 connectionId={connectionId}
+                                event$={event$}
                                 config={config}
                                 data={result}
                                 onSuccess={() => {

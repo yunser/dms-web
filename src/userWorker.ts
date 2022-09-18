@@ -6,11 +6,12 @@
 // 核心引入
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 // 支持 SQL
-console.log('monaco', 'import sql')
+// console.log('monaco', 'import sql')
 import 'monaco-editor/esm/vs/basic-languages/sql/sql.contribution';
 // 支持 JSON
 import 'monaco-editor/esm/vs/language/json/monaco.contribution.js';
-
+// 支持 Redis
+import 'monaco-editor/esm/vs/basic-languages/redis/redis.contribution.js';
 // 代码提示必不可少
 import 'monaco-editor/esm/vs/editor/contrib/suggest/browser/suggestController.js';
 import 'monaco-editor/esm/vs/editor/contrib/suggest/browser/suggestInlineCompletions.js';

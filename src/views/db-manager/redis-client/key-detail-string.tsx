@@ -1,5 +1,5 @@
 import { Button, Checkbox, Descriptions, Dropdown, Form, Input, InputNumber, Menu, message, Modal, Popover, Select, Space, Table, Tabs, Tree } from 'antd';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './redis-client.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
@@ -10,7 +10,7 @@ import storage from '../storage'
 import { request } from '../utils/http'
 import { IconButton } from '../icon-button';
 import { FolderOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
-
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import humanFormat from 'human-format'
 import { ListPushHandler } from './list-push';
 
@@ -23,22 +23,45 @@ const timeScale = new humanFormat.Scale({
 })
 
 
-export function StringContent({ curDb, connectionId, onSuccess, data, config }) {
+export function StringContent({ curDb, event$, connectionId, onSuccess, data, config }) {
     const { t } = useTranslation()
     // const [curDb] = useState(0)
     const [itemDetail, setItemDetail] = useState(null)
     const [inputValue, setInputValue] = useState(data.value)
     const editType = 'update'
 
+    const [code, setCode] = useState(data.value || '')
+
     console.log('data?', data)
+
+    const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
+    const code_ref = useRef('')
+    
+    function getCode() {
+        return code_ref.current
+    }
+
+    function setCodeASD(code) {
+        code_ref.current = code
+    }
 
     return (
         <>
-            <div className={styles.body}>
+            <div className={classNames(styles.body, styles.stringBody)}>
 
-                <div className={styles.stringBox}>
-
-                    <Input.TextArea
+                <Editor
+                    lang="plain"
+                    event$={event$}
+                    connectionId={connectionId}
+                    value={code}
+                    onChange={value => setCodeASD(value)}
+                    onEditor={editor => {
+                        // console.warn('ExecDetail/setEditor')
+                        setEditor(editor)
+                    }}
+                />
+                <div className={styles.stringBox2}>
+                    {/* <Input.TextArea
                         className={styles.textarea}
                         value={inputValue}
                         onChange={e => {
@@ -48,7 +71,7 @@ export function StringContent({ curDb, connectionId, onSuccess, data, config }) 
                         // style={{
                         //     width: 400,
                         // }}
-                    />
+                    /> */}
                     {/* <Button
                         onClick={async () => {
                             let res = await request.post(`${config.host}/redis/set`, {
@@ -80,10 +103,15 @@ export function StringContent({ curDb, connectionId, onSuccess, data, config }) 
                     <Button
                         size="small"
                         onClick={async () => {
+                            const code = getCode()
+                            if (!code) {
+                                message.error('请输入代码')
+                                return
+                            }
                             let res = await request.post(`${config.host}/redis/set`, {
                                 connectionId: connectionId,
                                 key: data.key,
-                                value: inputValue,
+                                value: code,
                                 // dbName,
                             })
                             console.log('get/res', res.data)

@@ -77,7 +77,8 @@ export function RedisEditor({ config, event$, defaultCommand = '', connectionId,
                     }}
                 /> */}
                 <Editor
-                    lang="plain"
+                    // lang="plain"
+                    lang="redis"
                     event$={event$}
                     connectionId={connectionId}
                     value={code}
