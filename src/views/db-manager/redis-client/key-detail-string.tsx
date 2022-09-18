@@ -33,52 +33,23 @@ export function StringContent({ curDb, connectionId, onSuccess, data, config }) 
     console.log('data?', data)
 
     return (
-        <div className={styles.stringBox}>
+        <>
+            <div className={styles.body}>
 
-            <Input.TextArea
-                className={styles.textarea}
-                value={inputValue}
-                onChange={e => {
-                    setInputValue(e.target.value)
-                }}
-                rows={24}
-                // style={{
-                //     width: 400,
-                // }}
-            />
-            <div style={{
-                marginTop: 8,
-            }}>
-                {editType == 'update' ?
-                    <Space>
-                        <Button
-                            size="small"
-                            onClick={async () => {
-                                let res = await request.post(`${config.host}/redis/set`, {
-                                    connectionId: connectionId,
-                                    key: data.key,
-                                    value: inputValue,
-                                    // dbName,
-                                })
-                                console.log('get/res', res.data)
-                                if (res.success) {
-                                    // message.success('修改成功')
-                                    message.success(t('success'))
-                                    onSuccess && onSuccess()
-                                    // setResult({
-                                    //     key: item,
-                                    //     ...res.data,
-                                    // })
-                                    // setInputValue(res.data.value)
-                                }
-                            }}
-                        >
-                            {t('update')}
-                        </Button>
-                        
-                    </Space>
-                :
-                    <Button
+                <div className={styles.stringBox}>
+
+                    <Input.TextArea
+                        className={styles.textarea}
+                        value={inputValue}
+                        onChange={e => {
+                            setInputValue(e.target.value)
+                        }}
+                        rows={24}
+                        // style={{
+                        //     width: 400,
+                        // }}
+                    />
+                    {/* <Button
                         onClick={async () => {
                             let res = await request.post(`${config.host}/redis/set`, {
                                 connectionId: connectionId,
@@ -101,9 +72,38 @@ export function StringContent({ curDb, connectionId, onSuccess, data, config }) 
                         }}
                     >
                         新增
-                    </Button>
-                }
+                    </Button> */}
+                </div>
             </div>
-        </div>
+            <div className={styles.footer}>
+                <Space>
+                    <Button
+                        size="small"
+                        onClick={async () => {
+                            let res = await request.post(`${config.host}/redis/set`, {
+                                connectionId: connectionId,
+                                key: data.key,
+                                value: inputValue,
+                                // dbName,
+                            })
+                            console.log('get/res', res.data)
+                            if (res.success) {
+                                // message.success('修改成功')
+                                message.success(t('success'))
+                                onSuccess && onSuccess()
+                                // setResult({
+                                //     key: item,
+                                //     ...res.data,
+                                // })
+                                // setInputValue(res.data.value)
+                            }
+                        }}
+                    >
+                        {t('update')}
+                    </Button>
+                    
+                </Space>
+            </div>
+        </>
     )
 }

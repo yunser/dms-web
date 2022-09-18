@@ -93,6 +93,32 @@
         // border: 1px solid #f00;
         display: flex;
         flex-direction: column;
+        .header {
+            height: 48px;
+            padding: 0px 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 16px;
+        }
+        .body {
+            flex: 1 0 auto;
+            height: 0;
+            overflow: auto;
+            padding: 16px;
+            // border: 1px solid #f00;
+        }
+        .footer {
+            // height: 48px;
+            flex: 0 0 48px;
+            padding: 0px 16px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            // font-size: 16px;
+        }
     }
     .layoutRightSide {
         flex: 0 0 300px;
@@ -102,22 +128,6 @@
         .setting {
             margin-left: 16px;
         }
-    }
-    .header {
-        height: 48px;
-        padding: 0px 16px;
-        border-bottom: 1px solid var(--border-color);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        font-size: 16px;
-    }
-    .body {
-        flex: 1 0 auto;
-        height: 0;
-        overflow: auto;
-        padding: 16px;
-        // border: 1px solid #f00;
     }
 }
 .treeTitle {

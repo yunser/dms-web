@@ -92,72 +92,79 @@ export function ListContent({ curDb, connectionId, onSuccess, data, config }) {
     }, [curDb])
 
     return (
-        <div className={styles.contentBox}>
-            {/* {curDb}
-            /{totalDb} */}
-            <div className={styles.items}>
-                {data.items.map((item, index) => {
-                    return (
-                        <div
-                            className={styles.item}
-                            // onClick={() => {
-                            //     loadItem(index)
-                            // }}
-                        >
-                            <div className={styles.content}>
-                                {item}
-                            </div>
-                            <Space>
-                                <ListPushHandler
-                                    connectionId={connectionId}
-                                    config={config}
-                                    redisKey={data.key}
-                                    item={{
-                                        index,
-                                        value: item,
-                                    }}
-                                    onSuccess={onSuccess}
-                                >
-                                    <Button
-                                        size="small"
+        <>
+            <div className={styles.body}>
+                {/* {curDb}
+                /{totalDb} */}
+                <div className={styles.items}>
+                    {data.items.map((item, index) => {
+                        return (
+                            <div
+                                className={styles.item}
+                                // onClick={() => {
+                                //     loadItem(index)
+                                // }}
+                            >
+                                <div className={styles.content}>
+                                    {item}
+                                </div>
+                                <Space>
+                                    <ListPushHandler
+                                        connectionId={connectionId}
+                                        config={config}
+                                        redisKey={data.key}
+                                        item={{
+                                            index,
+                                            value: item,
+                                        }}
+                                        onSuccess={onSuccess}
                                     >
-                                        {t('edit')}
-                                    </Button>
-                                </ListPushHandler>
-                                <Button
-                                    danger
-                                    size="small"
-                                    onClick={async () => {
-                                        Modal.confirm({
-                                            content: `${t('delete')}「${item}」?`,
-                                            async onOk() {
-                                                
-                                                let ret = await request.post(`${config.host}/redis/lremIndex`, {
-                                                    connectionId: connectionId,
-                                                    key: data.key,
-                                                    // connectionId,
-                                                    index,
-                                                })
-                                                // console.log('ret', ret)
-                                                if (ret.success) {
-                                                    // message.success('连接成功')
-                                                    // onConnnect && onConnnect()
-                                                    message.success(t('success'))
-                                                    // onClose && onClose()
-                                                    onSuccess && onSuccess()
+                                        <Button
+                                            size="small"
+                                        >
+                                            {t('edit')}
+                                        </Button>
+                                    </ListPushHandler>
+                                    <Button
+                                        danger
+                                        size="small"
+                                        onClick={async () => {
+                                            Modal.confirm({
+                                                content: `${t('delete')}「${item}」?`,
+                                                async onOk() {
+                                                    
+                                                    let ret = await request.post(`${config.host}/redis/lremIndex`, {
+                                                        connectionId: connectionId,
+                                                        key: data.key,
+                                                        // connectionId,
+                                                        index,
+                                                    })
+                                                    // console.log('ret', ret)
+                                                    if (ret.success) {
+                                                        // message.success('连接成功')
+                                                        // onConnnect && onConnnect()
+                                                        message.success(t('success'))
+                                                        // onClose && onClose()
+                                                        onSuccess && onSuccess()
+                                                    }
                                                 }
-                                            }
-                                        })
-                                    }}
-                                >
-                                    {t('delete')}
-                                </Button>
-                            </Space>
-                        </div>
-                    )
-                })}
+                                            })
+                                        }}
+                                    >
+                                        {t('delete')}
+                                    </Button>
+                                </Space>
+                            </div>
+                        )
+                    })}
+                </div>
+                <div>
+                </div>
+                {!!itemDetail &&
+                    <div>?</div>
+                }
             </div>
-            <div>
+            <div className={styles.footer}>
                 <ListPushHandler
                     config={config}
                     connectionId={connectionId}
@@ -172,9 +179,6 @@ export function ListContent({ curDb, connectionId, onSuccess, data, config }) {
                     </Button>
                 </ListPushHandler>
             </div>
-            {!!itemDetail &&
-                <div>?</div>
-            }
-        </div>
+        </>
     )
 }

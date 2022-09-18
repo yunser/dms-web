@@ -107,7 +107,7 @@ export function RedisTtlModal({ config, onCancel, onSuccess, redisKey, event$, c
             title={`TTL ${t('setting')}`}
             visible={true}
             onCancel={onCancel}
-            maskClosable={false}
+            maskClosable={true}
             footer={(
                 <div
                     style={{

@@ -23,7 +23,7 @@ const timeScale = new humanFormat.Scale({
 })
 
 
-export function ZSetContent({ curDb, onSuccess, connectionId, data, config }) {
+export function HashContent({ connectionId, curDb, onSuccess, data, config }) {
     const { t } = useTranslation()
     // const [curDb] = useState(0)
     const [itemDetail, setItemDetail] = useState(null)
@@ -93,14 +93,14 @@ export function ZSetContent({ curDb, onSuccess, connectionId, data, config }) {
 
     const columns = [
         {
-            title: t('score'),
-            dataIndex: 'score',
+            title: t('field'),
+            dataIndex: 'key',
             width: 240,
             ellipsis: true,
         },
         {
             title: t('value'),
-            dataIndex: 'member',
+            dataIndex: 'value',
             width: 480,
             ellipsis: true,
         },
@@ -112,13 +112,13 @@ export function ZSetContent({ curDb, onSuccess, connectionId, data, config }) {
                     <Space>
                         <ListPushHandler
                             config={config}
-                            redisKey={data.key}
                             connectionId={connectionId}
-                            type="zset"
+                            redisKey={data.key}
+                            type="hash"
                             item={{
                                 index,
-                                score: item.score,
-                                value: item.member,
+                                field: item.key,
+                                value: item.value,
                             }}
                             onSuccess={onSuccess}
                         >
@@ -133,14 +133,16 @@ export function ZSetContent({ curDb, onSuccess, connectionId, data, config }) {
                             size="small"
                             onClick={async () => {
                                 Modal.confirm({
-                                    content: `${t('delete')}「${item.member}」?`,
+                                    // title: 'Confirm',
+                                    // icon: <ExclamationCircleOutlined />,
+                                    content: `${t('delete')}「${item.key}」?`,
                                     async onOk() {
                                         
-                                        let ret = await request.post(`${config.host}/redis/zrem`, {
+                                        let ret = await request.post(`${config.host}/redis/hdel`, {
                                             connectionId,
                                             key: data.key,
                                             // connectionId,
-                                            value: item.member,
+                                            field: item.key,
                                         })
                                         // console.log('ret', ret)
                                         if (ret.success) {
@@ -163,40 +165,44 @@ export function ZSetContent({ curDb, onSuccess, connectionId, data, config }) {
     ]
 
     return (
-        <div className={styles.contentBox}>
-            <Table
-                dataSource={data.items}
-                columns={columns}
-                size="small"
-                pagination={false}
-            />
-            {/* <div className={styles.items}>
-                {data.items.map((item, index) => {
-                    return (
-                        <div
-                            className={styles.item}
-                            // onClick={() => {
-                            //     loadItem(index)
-                            // }}
-                        >
-                            <div className={styles.content}>
-                                {item.score}:{item.member}
-                            </div>
-                            <Space>
-
-                                
-                            </Space>
-                        </div>
-                    )
-                })}
-            </div> */}
-            <div style={{ marginTop: 16 }}>
+        <>
+            <div className={styles.body}>
+                <div className={styles.contentBox}>
+                    <Table
+                        dataSource={data.items}
+                        columns={columns}
+                        size="small"
+                        pagination={false}
+                    />
+                    {/* <div className={styles.items}>
+                        {data.items.map((item, index) => {
+                            return (
+                                <div
+                                    className={styles.item}
+                                    // onClick={() => {
+                                    //     loadItem(index)
+                                    // }}
+                                >
+                                    <div className={styles.content}>
+                                        {item.key}: {item.value}
+                                    </div>
+                                    
+                                </div>
+                            )
+                        })}
+                    </div> */}
+                    {!!itemDetail &&
+                        <div>?</div>
+                    }
+                </div>
+            </div>
+            <div className={styles.footer}>
                 <ListPushHandler
                     config={config}
-                    redisKey={data.key}
                     connectionId={connectionId}
+                    redisKey={data.key}
                     onSuccess={onSuccess}
-                    type="zset"
+                    type="hash"
                 >
                     <Button
                         size="small"
@@ -205,9 +211,6 @@ export function ZSetContent({ curDb, onSuccess, connectionId, data, config }) {
                     </Button>
                 </ListPushHandler>
             </div>
-            {!!itemDetail &&
-                <div>?</div>
-            }
-        </div>
+        </>
     )
 }

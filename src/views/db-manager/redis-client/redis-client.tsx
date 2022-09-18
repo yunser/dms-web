@@ -11,7 +11,7 @@ import { request } from '../utils/http'
 import { IconButton } from '../icon-button';
 import { CodeOutlined, FolderOutlined, HeartOutlined, HistoryOutlined, InfoCircleOutlined, MenuOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 
-import { ListContent } from './list-content';
+import { ListContent } from './key-detail-list';
 import { useInterval } from 'ahooks';
 import { RedisKeyDetail } from './key-detail';
 import { KeyAddModal } from './key-add';

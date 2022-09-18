@@ -13,10 +13,10 @@ import { DeleteOutlined, EllipsisOutlined, FolderOutlined, HeartOutlined, PlusOu
 
 import humanFormat from 'human-format'
 import { ListPushHandler } from './list-push';
-import { ListContent } from './list-content';
-import { SetContent } from './set-content';
-import { ZSetContent } from './zset-content';
-import { HashContent } from './hash-content';
+import { ListContent } from './key-detail-list';
+import { SetContent } from './key-detail-set';
+import { ZSetContent } from './key-detail-zset';
+import { HashContent } from './key-detail-hash';
 import copy from 'copy-to-clipboard';
 import { t } from 'i18next';
 import { RedisTtlModal } from '../redis-ttl';
@@ -212,170 +212,86 @@ export function RedisKeyDetail({ config, event$, connectionId, redisKey, onRemov
                         </Space>
                     </div>
                 }
-                <div className={styles.body}>
+                {/* <div className={styles.body}> */}
                     {/* {!!result && result.value == null &&
                         <div>键不存在</div>
                     } */}
-                    {!!result &&
-                        <div>
-                            {editType == 'update' ?
-                                <div>
-                                    {/* {result.key} */}
-                                </div>
-                            :
-                                <div
-                                    style={{
-                                        marginBottom: 16,
+                {/* </div> */}
+                {!!result &&
+                    <>
+                        {editType == 'update' ?
+                            <div>
+                                {/* {result.key} */}
+                            </div>
+                        :
+                            <div
+                                style={{
+                                    marginBottom: 16,
+                                }}
+                            >
+                                <div>Key:</div>
+                                <Input
+                                    value={inputKey}
+                                    onChange={e => {
+                                        setInputKey(e.target.value)
                                     }}
-                                >
-                                    <div>Key:</div>
-                                    <Input
-                                        value={inputKey}
-                                        onChange={e => {
-                                            setInputKey(e.target.value)
-                                        }}
-                                    />
-                                </div>
-                            }
+                                />
+                            </div>
+                        }
 
-                            {(result.type == 'string' || editType == 'create') &&
-                                <div>
-                                    {/* <div>Value:</div> */}
-                                    {/* <Input.TextArea
-                                        value={inputValue}
-                                        onChange={e => {
-                                            setInputValue(e.target.value)
-                                        }}
-                                        rows={8}
-                                        style={{
-                                            width: 400,
-                                        }}
-                                    />
-                                    <div style={{
-                                        marginTop: 8,
-                                    }}>
-                                        {editType == 'update' ?
-                                            <Space>
-                                                <Button
-                                                    size="small"
-                                                    onClick={async () => {
-                                                        let res = await request.post(`${config.host}/redis/set`, {
-                                                            connectionId: connectionId,
-                                                            key: result.key,
-                                                            value: inputValue,
-                                                            // dbName,
-                                                        })
-                                                        console.log('get/res', res.data)
-                                                        if (res.success) {
-                                                            message.success('修改成功')
-                                                            // setResult({
-                                                            //     key: item,
-                                                            //     ...res.data,
-                                                            // })
-                                                            // setInputValue(res.data.value)
-                                                        }
-                                                    }}
-                                                >
-                                                    {t('update')}
-                                                </Button>
-                                                
-                                            </Space>
-                                        :
-                                            <Button
-                                                onClick={async () => {
-                                                    let res = await request.post(`${config.host}/redis/set`, {
-                                                        connectionId: connectionId,
-                                                        key: inputKey,
-                                                        value: inputValue,
-                                                        // dbName,
-                                                    })
-                                                    console.log('get/res', res.data)
-                                                    if (res.success) {
-                                                        message.success('新增成功')
-                                                        loadKeys()
-                                                        loadKey(inputKey)
-                                                        // setResult(null)
-                                                        // setResult({
-                                                        //     key: item,
-                                                        //     ...res.data,
-                                                        // })
-                                                        // setInputValue(res.data.value)
-                                                    }
-                                                }}
-                                            >
-                                                新增
-                                            </Button>
-                                        }
-                                    </div> */}
-                                    <StringContent
-                                        connectionId={connectionId}
-                                        config={config}
-                                        data={result}
-                                        onSuccess={() => {
-                                            loadKey(result.key)
-                                        }}
-                                    />
-                                </div>
-                            }
-                            {result.type == 'list' &&
-                                <div>
-                                    <ListContent
-                                        connectionId={connectionId}
-                                        config={config}
-                                        data={result}
-                                        onSuccess={() => {
-                                            loadKey(result.key)
-                                        }}
-                                    />
-                                </div>
-                            }
-                            {result.type == 'set' &&
-                                <div>
-                                    <SetContent
-                                        connectionId={connectionId}
-                                        config={config}
-                                        data={result}
-                                        onSuccess={() => {
-                                            loadKey(result.key)
-                                        }}
-                                    />
-                                </div>
-                            }
-                            {result.type == 'hash' &&
-                                <div>
-                                    <HashContent
-                                        connectionId={connectionId}
-                                        config={config}
-                                        data={result}
-                                        onSuccess={() => {
-                                            loadKey(result.key)
-                                        }}
-                                    />
-                                    {/* <div className={styles.items}>
-                                        {result.items.map(item => {
-                                            return (
-                                                <div className={styles.item}>{item.key}: {item.value}</div>
-                                            )
-                                        })}
-                                    </div> */}
-                                </div>
-                            }
-                            {result.type == 'zset' &&
-                                <div>
-                                    <ZSetContent
-                                        connectionId={connectionId}
-                                        config={config}
-                                        data={result}
-                                        onSuccess={() => {
-                                            loadKey(result.key)
-                                        }}
-                                    />
-                                </div>
-                            }
-                            {/* <div>{result.value}</div> */}
-                        </div>
-                    }
-                </div>
+                        {(result.type == 'string' || editType == 'create') &&
+                            <StringContent
+                                connectionId={connectionId}
+                                config={config}
+                                data={result}
+                                onSuccess={() => {
+                                    loadKey(result.key)
+                                }}
+                            />
+                        }
+                        {result.type == 'list' &&
+                            <ListContent
+                                connectionId={connectionId}
+                                config={config}
+                                data={result}
+                                onSuccess={() => {
+                                    loadKey(result.key)
+                                }}
+                            />
+                        }
+                        {result.type == 'set' &&
+                            <SetContent
+                                connectionId={connectionId}
+                                config={config}
+                                data={result}
+                                onSuccess={() => {
+                                    loadKey(result.key)
+                                }}
+                            />
+                        }
+                        {result.type == 'hash' &&
+                            <HashContent
+                                connectionId={connectionId}
+                                config={config}
+                                data={result}
+                                onSuccess={() => {
+                                    loadKey(result.key)
+                                }}
+                            />
+                        }
+                        {result.type == 'zset' &&
+                            <ZSetContent
+                                connectionId={connectionId}
+                                config={config}
+                                data={result}
+                                onSuccess={() => {
+                                    loadKey(result.key)
+                                }}
+                            />
+                        }
+                        {/* <div>{result.value}</div> */}
+                    </>
+                }
             </div>
             <div className={styles.layoutRightSide}>
                 {!!result && editType == 'update' &&

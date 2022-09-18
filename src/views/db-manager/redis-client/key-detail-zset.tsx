@@ -23,7 +23,7 @@ const timeScale = new humanFormat.Scale({
 })
 
 
-export function HashContent({ connectionId, curDb, onSuccess, data, config }) {
+export function ZSetContent({ curDb, onSuccess, connectionId, data, config }) {
     const { t } = useTranslation()
     // const [curDb] = useState(0)
     const [itemDetail, setItemDetail] = useState(null)
@@ -93,14 +93,14 @@ export function HashContent({ connectionId, curDb, onSuccess, data, config }) {
 
     const columns = [
         {
-            title: t('field'),
-            dataIndex: 'key',
+            title: t('score'),
+            dataIndex: 'score',
             width: 240,
             ellipsis: true,
         },
         {
             title: t('value'),
-            dataIndex: 'value',
+            dataIndex: 'member',
             width: 480,
             ellipsis: true,
         },
@@ -112,13 +112,13 @@ export function HashContent({ connectionId, curDb, onSuccess, data, config }) {
                     <Space>
                         <ListPushHandler
                             config={config}
-                            connectionId={connectionId}
                             redisKey={data.key}
-                            type="hash"
+                            connectionId={connectionId}
+                            type="zset"
                             item={{
                                 index,
-                                field: item.key,
-                                value: item.value,
+                                score: item.score,
+                                value: item.member,
                             }}
                             onSuccess={onSuccess}
                         >
@@ -133,16 +133,14 @@ export function HashContent({ connectionId, curDb, onSuccess, data, config }) {
                             size="small"
                             onClick={async () => {
                                 Modal.confirm({
-                                    // title: 'Confirm',
-                                    // icon: <ExclamationCircleOutlined />,
-                                    content: `${t('delete')}「${item.key}」?`,
+                                    content: `${t('delete')}「${item.member}」?`,
                                     async onOk() {
                                         
-                                        let ret = await request.post(`${config.host}/redis/hdel`, {
+                                        let ret = await request.post(`${config.host}/redis/zrem`, {
                                             connectionId,
                                             key: data.key,
                                             // connectionId,
-                                            field: item.key,
+                                            value: item.member,
                                         })
                                         // console.log('ret', ret)
                                         if (ret.success) {
@@ -165,37 +163,48 @@ export function HashContent({ connectionId, curDb, onSuccess, data, config }) {
     ]
 
     return (
-        <div className={styles.contentBox}>
-            <Table
-                dataSource={data.items}
-                columns={columns}
-                size="small"
-                pagination={false}
-            />
-            {/* <div className={styles.items}>
-                {data.items.map((item, index) => {
-                    return (
-                        <div
-                            className={styles.item}
-                            // onClick={() => {
-                            //     loadItem(index)
-                            // }}
-                        >
-                            <div className={styles.content}>
-                                {item.key}: {item.value}
-                            </div>
-                            
-                        </div>
-                    )
-                })}
-            </div> */}
-            <div style={{ marginTop: 16 }}>
+        <>
+            <div className={styles.body}>
+
+                <div className={styles.contentBox}>
+                    <Table
+                        dataSource={data.items}
+                        columns={columns}
+                        size="small"
+                        pagination={false}
+                    />
+                    {/* <div className={styles.items}>
+                        {data.items.map((item, index) => {
+                            return (
+                                <div
+                                    className={styles.item}
+                                    // onClick={() => {
+                                    //     loadItem(index)
+                                    // }}
+                                >
+                                    <div className={styles.content}>
+                                        {item.score}:{item.member}
+                                    </div>
+                                    <Space>
+
+                                        
+                                    </Space>
+                                </div>
+                            )
+                        })}
+                    </div> */}
+                    {!!itemDetail &&
+                        <div>?</div>
+                    }
+                </div>
+            </div>
+            <div className={styles.footer}>
                 <ListPushHandler
                     config={config}
-                    connectionId={connectionId}
                     redisKey={data.key}
+                    connectionId={connectionId}
                     onSuccess={onSuccess}
-                    type="hash"
+                    type="zset"
                 >
                     <Button
                         size="small"
@@ -204,9 +213,6 @@ export function HashContent({ connectionId, curDb, onSuccess, data, config }) {
                     </Button>
                 </ListPushHandler>
             </div>
-            {!!itemDetail &&
-                <div>?</div>
-            }
-        </div>
+        </>
     )
 }
