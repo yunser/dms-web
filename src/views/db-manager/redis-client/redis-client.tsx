@@ -762,8 +762,7 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                                 }}
                                 allowClear
                                 
-                                // placeholder="Search... *{keyword}*"
-                                placeholder={searchType == 'blur' ? 'Search...' : 'ex: *{keyword}*'}
+                                placeholder={searchType == 'blur' ? t('search') : '*{keyword}*'}
                                 onSearch={(value) => {
                                     console.log('onSearch', value)
                                     if (value) {
