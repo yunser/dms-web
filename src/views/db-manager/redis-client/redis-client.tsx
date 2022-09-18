@@ -9,7 +9,7 @@ import { Editor } from '../editor/Editor';
 import storage from '../storage'
 import { request } from '../utils/http'
 import { IconButton } from '../icon-button';
-import { CodeOutlined, FolderOutlined, HeartOutlined, HistoryOutlined, InfoCircleOutlined, MenuOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { CodeOutlined, ExportOutlined, FolderOutlined, HeartOutlined, HistoryOutlined, InfoCircleOutlined, MenuOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 
 import { ListContent } from './key-detail-list';
 import { useInterval } from 'ahooks';
@@ -531,6 +531,17 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
         })
     }
 
+    function exportAllKeys() {
+        console.log('list', list)
+        event$.emit({
+            type: 'event_show_json',
+            data: {
+                json: JSON.stringify(list, null, 4)
+                // connectionId,
+            },
+        })
+    }
+
     function exportKeys(nodeData) {
         const keys = list
             .filter(item => item.key.startsWith(nodeData.itemData.prefix))
@@ -726,6 +737,16 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                                 }}
                             >
                                 <InfoCircleOutlined />
+                            </IconButton>
+                            <IconButton
+                                tooltip={t('export_json')}
+                                // size="small"
+                                className={styles.refresh}
+                                onClick={() => {
+                                    exportAllKeys()
+                                }}
+                            >
+                                <ExportOutlined />
                             </IconButton>
                         </Space>
                     </div>
