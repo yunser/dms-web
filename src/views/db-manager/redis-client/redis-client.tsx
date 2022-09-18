@@ -434,23 +434,42 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
         })
     }
 
-    function addKey2Tab(key) {
-        const tabKey = uid(32)
-        setTabInfo({
-            // ...tabInfo,
-            activeKey: tabKey,
-            items: [
-                ...tabInfo.items,
-                {
-                    type: 'type_key',
-                    label: key,
-                    key: tabKey,
-                    itemData: {
-                        redisKey: key,
-                    },
-                }
-            ]
-        })
+    function addKey2Tab(key, { openInNewTab = false } = {}) {
+        // const tabKey = uid(32)
+        let tabKey = 'key-detail-single'
+        if (openInNewTab) {
+            tabKey = uid(32)
+        }
+        const fIdx = tabInfo.items.findIndex(item => item.key == tabKey)
+        const newTab = {
+            type: 'type_key',
+            label: key,
+            key: tabKey,
+            itemData: {
+                redisKey: key,
+            },
+        }
+        console.log('fIdx', fIdx)
+        if (fIdx == -1) {
+            setTabInfo({
+                // ...tabInfo,
+                activeKey: tabKey,
+                items: [
+                    ...tabInfo.items,
+                    newTab,
+                ]
+            })
+        }
+        else {
+            tabInfo.items[fIdx] = newTab
+            setTabInfo({
+                // ...tabInfo,
+                activeKey: tabKey,
+                items: [
+                    ...tabInfo.items,
+                ]
+            })
+        }
     }
 
     event$.useSubscription(msg => {
@@ -785,6 +804,10 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                                                                 key: 'rename',
                                                             },
                                                             {
+                                                                label: t('open_in_new_tab'),
+                                                                key: 'open_in_new_tab',
+                                                            },
+                                                            {
                                                                 label: t('copy_key_name'),
                                                                 key: 'copy_key_name',
                                                             },
@@ -795,9 +818,12 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                                                         ]}
                                                         onClick={async ({ _item, key, keyPath, domEvent }) => {
                                                             // onAction && onAction(key)
-                                                            if (key == 'key_delete') {
+                                                            if (key == 'open_in_new_tab') {
+                                                                addKey2Tab(nodeData.itemData.key, { openInNewTab: true })
+                                                            }
+                                                            else if (key == 'key_delete') {
                                                                 console.log('nodeData', nodeData)
-                                                                removeKey(item.key)
+                                                                removeKey(nodeData.itemData.key)
                                                             }
                                                             else if (key == 'copy_key_name') {
                                                                 console.log('nodeData', nodeData)

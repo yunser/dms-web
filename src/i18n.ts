@@ -180,6 +180,7 @@ i18n
                     rename: 'Rename',
                     copy: 'Copy',
                     value: 'Value',
+                    open_in_new_tab: 'Open in New Tab',
                 }
             },
             zh: {
@@ -353,6 +354,7 @@ i18n
                     rename: '重命名',
                     copy: '复制',
                     value: '值',
+                    open_in_new_tab: '在新标签页打开',
                 }
             }
         },
