@@ -127,6 +127,16 @@ export function RedisHistory({ config, event$, connectionId, onConnnect, }) {
                         title: t('command'),
                         dataIndex: 'command',
                         width: 480,
+                        render(value) {
+                            const arr = value.split(/\s+/)
+                            const [cmd, ...params] = arr
+                            return (
+                                <div  className={styles.cmdCell}>
+                                    <span className={styles.cmd}>{cmd}</span>
+                                    <span className={styles.params}>{params.join(' ')}</span>
+                                </div>
+                            )
+                        }
                     },
                     {
                         title: t('actions'),

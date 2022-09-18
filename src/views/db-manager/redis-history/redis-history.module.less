@@ -8,15 +8,19 @@
     .content {
         height: 400px;
     }
-}
-.connections {
-    width: 400px;
-    .item {
-        padding: 8px;
-        margin-bottom: 8px;
-        border: 1px solid var(--border-color);
+    .cmdCell {
         display: flex;
         align-items: center;
-        justify-content: space-between;
+        white-space: nowrap;
+        .cmd {
+            // color: #177ddc;
+            color: green;
+            margin-right: 4px;
+        }
+        .params {
+            max-width: 400px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     }
 }
