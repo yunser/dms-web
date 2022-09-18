@@ -22,6 +22,7 @@ import copy from 'copy-to-clipboard';
 import { RedisLike } from '../redis-like';
 import { RedisInfo } from '../redis-info';
 import { RedisRenameModal } from '../redis-rename';
+import { RedisDuplicateModal } from '../redis-duplicate';
 // import ReactLoading from 'react-loading';
 
 export function FullCenterBox(props) {
@@ -180,15 +181,20 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
     const [searchType, setSearchType] = useState('blur')
     const [searchKeyword, setSearchKeyword] = useState('')
     const [list, setList] = useState([])
-    
-    
+    // tree
     const [treeData, setTreeData] = useState([])
     const [expandedKeys, setExpandedKeys ] = useState([])
-    
+    // add
     const [addType, setAddType] = useState('')
     const [addModalVisible, setAddModalVisible] = useState(false)
+    // rename
     const [renameModalVisible, setRenameModalVisible] = useState(false)
     const [renameKey, setRenameKey] = useState('')
+    // duplicate
+    const [duplicateVisible, setDuplicateVisible] = useState(false)
+    const [duplicateKey, setDuplicateKey] = useState('')
+
+    // tabs
     const [tabInfo, setTabInfo] = useState({
         activeKey: '0',
         items: [
@@ -843,6 +849,10 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                                                                 key: 'copy_key_name',
                                                             },
                                                             {
+                                                                label: t('duplicate'),
+                                                                key: 'duplicate',
+                                                            },
+                                                            {
                                                                 label: t('rename'),
                                                                 key: 'rename',
                                                             },
@@ -870,6 +880,10 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                                                                 console.log('nodeData', nodeData)
                                                                 setRenameModalVisible(true)
                                                                 setRenameKey(nodeData.itemData.key)
+                                                            }
+                                                            else if (key == 'duplicate') {
+                                                                setDuplicateVisible(true)
+                                                                setDuplicateKey(nodeData.itemData.key)
                                                             }
                                                         }}
                                                     >
@@ -1108,6 +1122,20 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                     }}
                     onSuccess={() => {
                         setRenameModalVisible(false)
+                        loadKeys()
+                    }}
+                />
+            }
+            {duplicateVisible &&
+                <RedisDuplicateModal
+                    config={config}
+                    connectionId={connectionId}
+                    redisKey={duplicateKey}
+                    onCancel={() => {
+                        setDuplicateVisible(false)
+                    }}
+                    onSuccess={() => {
+                        setDuplicateVisible(false)
                         loadKeys()
                     }}
                 />

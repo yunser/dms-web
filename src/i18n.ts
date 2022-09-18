@@ -182,6 +182,7 @@ i18n
                     value: 'Value',
                     open_in_new_tab: 'Open in New Tab',
                     key_is_not_exists: 'Key is not exists',
+                    duplicate: 'Duplicate',
                 }
             },
             zh: {
@@ -357,6 +358,7 @@ i18n
                     value: '值',
                     open_in_new_tab: '在新标签页打开',
                     key_is_not_exists: '键不存在',
+                    duplicate: '创建副本',
                 }
             }
         },
