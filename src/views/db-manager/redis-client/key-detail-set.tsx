@@ -32,12 +32,16 @@ export function SetContent({ curDb, onSuccess, data, connectionId, config }) {
     console.log('/data', data)
     
     const list = useMemo(() => {
-        return data.items.map((item, index) => {
-            return {
-                // index,
-                value: item,
-            }
-        })
+        return data.items
+            .map((item, index) => {
+                return {
+                    // index,
+                    value: item,
+                }
+            })
+            .sort((a, b) => {
+                return a.value.localeCompare(b.value)
+            })
     }, [data])
 
     const columns = [
