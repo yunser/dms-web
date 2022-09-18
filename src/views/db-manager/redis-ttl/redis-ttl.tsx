@@ -32,10 +32,29 @@ export function RedisTtlModal({ config, onCancel, onSuccess, redisKey, event$, c
     const { t } = useTranslation()
     const [code, setCode] = useState('')
     const [results, setResults] = useState([])
+    const [noExpireLoading, setNoExpireLoading] = useState(false)
     const [loading, setLoading] = useState(false)
     const [form] = Form.useForm()
 
+    async function _setTtl(seconds) {
+        // setLoading(true)
+        let ret = await request.post(`${config.host}/redis/expire`, {
+            connectionId,
+            key: redisKey,
+            seconds,
+        })
+        // console.log('ret', ret)
+        if (ret.success) {
+            // message.success('连接成功')
+            // onConnnect && onConnnect()
+            message.success(t('success'))
+            onSuccess && onSuccess()
+        }
+        // setLoading(false)
+    }
+
     async function handleOk() {
+        setLoading(true)
         const values = await form.validateFields()
         const unitValues = {
             second: 1000,
@@ -57,21 +76,13 @@ export function RedisTtlModal({ config, onCancel, onSuccess, redisKey, event$, c
             message.success(t('success'))
             onSuccess && onSuccess()
         }
+        setLoading(false)
     }
 
     async function noExpire() {
-        let ret = await request.post(`${config.host}/redis/expire`, {
-            connectionId,
-            key: redisKey,
-            seconds: -1,
-        })
-        // console.log('ret', ret)
-        if (ret.success) {
-            // message.success('连接成功')
-            // onConnnect && onConnnect()
-            message.success(t('success'))
-            onSuccess && onSuccess()
-        }
+        setNoExpireLoading(true)
+        await _setTtl(-1)
+        setNoExpireLoading(false)
     }
 
     const units = [
@@ -117,8 +128,8 @@ export function RedisTtlModal({ config, onCancel, onSuccess, redisKey, event$, c
                     }}
                 >
                     <Button key="back"
-                        loading={loading}
-                        disabled={loading}
+                        loading={noExpireLoading}
+                        disabled={loading || noExpireLoading}
                         onClick={noExpire}
                     >
                         {t('no_expire')}
@@ -127,14 +138,15 @@ export function RedisTtlModal({ config, onCancel, onSuccess, redisKey, event$, c
                         <Button
                             // key="submit"
                             // type="primary"
-                            disabled={loading}
+                            disabled={loading || noExpireLoading}
                             onClick={onCancel}
                         >
                             {t('cancel')}
                         </Button>
                         <Button
                             type="primary"
-                            disabled={loading}
+                            loading={loading}
+                            disabled={loading || noExpireLoading}
                             onClick={handleOk}
                         >
                             {t('ok')}
@@ -148,7 +160,7 @@ export function RedisTtlModal({ config, onCancel, onSuccess, redisKey, event$, c
                 labelCol={{ span: 6 }}
                 wrapperCol={{ span: 18 }}
                 initialValues={{
-                    unit: 'second',
+                    unit: 'minute',
                     // port: 6379,
                     // db: 0,
                 }}

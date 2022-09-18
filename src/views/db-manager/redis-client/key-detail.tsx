@@ -1,4 +1,4 @@
-import { Button, Checkbox, Descriptions, Dropdown, Form, Input, InputNumber, Menu, message, Modal, Popover, Select, Space, Table, Tabs, Tree } from 'antd';
+import { Button, Checkbox, Descriptions, Dropdown, Form, Input, InputNumber, Menu, message, Modal, Popover, Select, Space, Spin, Table, Tabs, Tree } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import styles from './redis-client.module.less';
 import _ from 'lodash';
@@ -21,6 +21,7 @@ import copy from 'copy-to-clipboard';
 import { t } from 'i18next';
 import { RedisTtlModal } from '../redis-ttl';
 import { StringContent } from './key-detail-string';
+import { FullCenterBox } from './redis-client';
 
 export function RedisKeyDetail({ config, event$, connectionId, redisKey, onRemove }) {
 
@@ -112,7 +113,19 @@ export function RedisKeyDetail({ config, event$, connectionId, redisKey, onRemov
 
     if (detaiLoading) {
         return (
-            <div>Loading</div>
+            <FullCenterBox
+                // height={320}
+            >
+                {/* <div>Loading</div> */}
+                {/* <ReactLoading
+                    type="bars"
+                    color={'#09c'}
+                    height={66.7}
+                    width={37.5}
+                /> */}
+                <Spin />
+            </FullCenterBox>
+            // <div>Loading</div>
         )
     }
 

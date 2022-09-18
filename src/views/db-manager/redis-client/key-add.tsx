@@ -88,8 +88,10 @@ export function KeyAddModal({ config, type, onCancel, connectionId, item, onClos
             visible={true}
             onCancel={onCancel}
             maskClosable={false}
+            confirmLoading={loading}
             onOk={async () => {
                 const values = await form.validateFields()
+                setLoading(true)
                 let res
                 if (type == 'string') {
                     res = await request.post(`${config.host}/redis/set`, {
@@ -149,6 +151,7 @@ export function KeyAddModal({ config, type, onCancel, connectionId, item, onClos
                     // })
                     // setInputValue(res.data.value)
                 }
+                setLoading(false)
                 // if (editType == 'create') {
                 //     let ret = await request.post(`${config.host}/redis/rpush`, {
                 //         position: values.position,

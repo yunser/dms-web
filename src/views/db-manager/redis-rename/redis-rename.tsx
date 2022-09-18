@@ -45,8 +45,10 @@ export function RedisRenameModal({ config, onCancel, onSuccess, redisKey, event$
             title={t('rename')}
             visible={true}
             onCancel={onCancel}
+            confirmLoading={loading}
             onOk={async () => {
                 const values = await form.validateFields()
+                setLoading(true)
                 let ret = await request.post(`${config.host}/redis/rename`, {
                     connectionId,
                     key: redisKey,
@@ -59,7 +61,7 @@ export function RedisRenameModal({ config, onCancel, onSuccess, redisKey, event$
                     message.success(t('success'))
                     onSuccess && onSuccess()
                 }
-
+                setLoading(false)
             }}
             maskClosable={false}
         >

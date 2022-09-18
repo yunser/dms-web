@@ -37,6 +37,7 @@ export function RedisEditor({ config, event$, defaultCommand = '', connectionId,
             message.error('请输入代码')
             return
         }
+        setLoading(true)
         let res = await request.post(`${config.host}/redis/execCommands`, {
             connectionId,
             commands: lines,
@@ -46,6 +47,7 @@ export function RedisEditor({ config, event$, defaultCommand = '', connectionId,
         if (res.success) {
             setResults(res.data.results)
         }
+        setLoading(false)
     }
 
     return (
@@ -66,6 +68,7 @@ export function RedisEditor({ config, event$, defaultCommand = '', connectionId,
                 <div className={styles.tool}>
                     <Button
                         size="small"
+                        loading={loading}
                         onClick={() => {
                             run()
                         }}

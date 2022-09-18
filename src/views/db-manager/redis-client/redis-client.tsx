@@ -1,4 +1,4 @@
-import { Button, Checkbox, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Select, Space, Table, Tabs, Tree } from 'antd';
+import { Button, Checkbox, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Select, Space, Spin, Table, Tabs, Tree } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import styles from './redis-client.module.less';
 import _ from 'lodash';
@@ -22,8 +22,9 @@ import copy from 'copy-to-clipboard';
 import { RedisLike } from '../redis-like';
 import { RedisInfo } from '../redis-info';
 import { RedisRenameModal } from '../redis-rename';
+// import ReactLoading from 'react-loading';
 
-function FullCenterBox(props) {
+export function FullCenterBox(props) {
     const { children, height } = props
     return (
         <div
@@ -746,7 +747,18 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                 </div>
                 <div className={styles.body}>
                     {loading ?
-                        <div>Loading</div>
+                        <FullCenterBox
+                            height={320}
+                        >
+                            {/* <div>Loading</div> */}
+                            {/* <ReactLoading
+                                type="bars"
+                                color={'#09c'}
+                                height={66.7}
+                                width={37.5}
+                            /> */}
+                            <Spin />
+                        </FullCenterBox>
                     : list.length == 0 ?
                         <FullCenterBox
                             height={320}
@@ -800,16 +812,16 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                                                     <Menu
                                                         items={[
                                                             {
-                                                                label: t('rename'),
-                                                                key: 'rename',
-                                                            },
-                                                            {
                                                                 label: t('open_in_new_tab'),
                                                                 key: 'open_in_new_tab',
                                                             },
                                                             {
                                                                 label: t('copy_key_name'),
                                                                 key: 'copy_key_name',
+                                                            },
+                                                            {
+                                                                label: t('rename'),
+                                                                key: 'rename',
                                                             },
                                                             {
                                                                 label: t('delete'),
