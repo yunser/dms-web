@@ -10,13 +10,15 @@ import storage from '../storage'
 import { request } from '../utils/http'
 import { CodeDebuger } from '../code-debug';
 import { uid } from 'uid';
+import { FullCenterBox } from '../redis-client';
 
 function handleRes(res) {
     if (res == null) {
         return `(nil)`
     }
     if (typeof res == 'string') {
-        return `"${res}"`
+        // return `"${res}"`
+        return `${res}`
     }
     if (Array.isArray(res)) {
         return res.join('\n')
@@ -28,6 +30,7 @@ export function RedisEditor({ config, event$, defaultCommand = '', connectionId,
     const [curDb, setCurDb] = useState(defaultDatabase)
     const { t } = useTranslation()
     const [code, setCode] = useState(defaultCommand)
+    const [hasResult, setHasResult] = useState(false)
     const [results, setResults] = useState([])
     const [loading, setLoading] = useState(false)
 
@@ -46,6 +49,7 @@ export function RedisEditor({ config, event$, defaultCommand = '', connectionId,
         console.log('data', res.data)
         if (res.success) {
             setResults(res.data.results)
+            setHasResult(true)
         }
         setLoading(false)
     }
@@ -78,25 +82,37 @@ export function RedisEditor({ config, event$, defaultCommand = '', connectionId,
                 </div>
             </div>
             <div className={styles.resultBox}>
-                <div className={styles.title}>{t('Result')}：</div>
-                <div className={styles.results}>
-                    {results.map(item => {
-                        return (
-                            <div className={styles.item}
-                                key={item.id}
-                            >
-                                <div className={styles.command}>{item.command}</div>
-                                {item.result.success ?
-                                    <div className={styles.res}>
-                                        <pre>{handleRes(item.result.res)}</pre>
+                {hasResult ?
+                    <>
+                        {/* <div className={styles.title}>{t('Result')}：</div> */}
+                        <div className={styles.results}>
+                            {results.map(item => {
+                                return (
+                                    <div className={styles.item}
+                                        key={item.id}
+                                    >
+                                        <div className={styles.command}>{item.command}</div>
+                                        {item.result.success ?
+                                            <div className={styles.res}>
+                                                <pre>{handleRes(item.result.res)}</pre>
+                                            </div>
+                                        :
+                                            <div className={styles.msg}>{item.result.message}</div>
+                                        }
                                     </div>
-                                :
-                                    <div className={styles.msg}>{item.result.message}</div>
-                                }
-                            </div>
-                        )
-                    })}
-                </div>
+                                )
+                            })}
+                        </div>
+                    </>   
+                :
+                    <FullCenterBox
+                    >
+                        <Empty
+                            description="No Request"
+                        />
+                        {/* <div>--</div> */}
+                    </FullCenterBox>
+                }
             </div>
         </div>
     )
