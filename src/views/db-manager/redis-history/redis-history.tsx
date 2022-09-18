@@ -13,6 +13,7 @@ import { uid } from 'uid';
 import { IconButton } from '../icon-button';
 import { ClearOutlined, ReloadOutlined } from '@ant-design/icons';
 import copy from 'copy-to-clipboard';
+import moment from 'moment';
 
 export function RedisHistory({ config, event$, connectionId, onConnnect, }) {
     const { t } = useTranslation()
@@ -122,6 +123,9 @@ export function RedisHistory({ config, event$, connectionId, onConnnect, }) {
                         title: t('time'),
                         dataIndex: 'create_time',
                         width: 240,
+                        render(value) {
+                            return moment(value).format('YYYY-MM-DD HH:mm:ss')
+                        }
                     },
                     {
                         title: t('command'),
@@ -130,9 +134,57 @@ export function RedisHistory({ config, event$, connectionId, onConnnect, }) {
                         render(value) {
                             const arr = value.split(/\s+/)
                             const [cmd, ...params] = arr
+                            // let color = 'green'
+                            let color = undefined
+                            // TODO 大小写
+                            const cmdLowerCase = cmd.toLowerCase()
+                            const delCmds = [
+                                'DEL',
+                                'LREM',
+                                'SREM',
+                                'HDEL',
+                                'ZREM',
+                            ]
+                            const updateCmds = [
+                                'SADD',
+                                'SET',
+                                'LSET',
+                                'RESTORE',
+                                'HSETNX',
+                                'RPUSH',
+                                'ZADD',
+                                'PERSIST',
+                                'HSET',
+                            ]
+                            const getCmds = [
+                                'GET',
+                                'SMEMBERS',
+                                'LRANGE',
+                                'LLEN',
+                                'INFO',
+                                'HGETALL',
+                                'DUMP',
+                                // zset
+                                'ZCARD',
+                                'ZRANGE',
+                                'TYPE',
+                            ]
+                            if (delCmds.includes(cmd.toUpperCase())) {
+                                color = 'red'
+                            }
+                            else if (updateCmds.includes(cmd.toUpperCase())) {
+                                color = '#177ddc'
+                            }
+                            else if (getCmds.includes(cmd.toUpperCase())) {
+                                color = 'green'
+                            }
                             return (
                                 <div  className={styles.cmdCell}>
-                                    <span className={styles.cmd}>{cmd}</span>
+                                    <span className={styles.cmd}
+                                        style={{
+                                            color,
+                                        }}
+                                    >{cmd}</span>
                                     <span className={styles.params}>{params.join(' ')}</span>
                                 </div>
                             )
