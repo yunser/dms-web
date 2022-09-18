@@ -24,7 +24,7 @@ export const request = {
         }
         catch (err) {
             if (opts?.noMessage !== true) {
-                message.error(err.response.data.message)
+                message.error(err.response?.data?.message)
             }
             return {
                 ...err.response,
@@ -42,7 +42,7 @@ export const request = {
         }
         catch (err) {
             if (opts?.noMessage !== true) {
-                message.error(err.response.data.message)
+                message.error(err.response?.data?.message)
             }
             return {
                 ...err.response,

@@ -1,4 +1,4 @@
-import { Button, Checkbox, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Select, Space, Spin, Table, Tabs, Tree } from 'antd';
+import { Button, Checkbox, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Select, Space, Spin, Table, Tabs, Tooltip, Tree } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import styles from './redis-client.module.less';
 import _ from 'lodash';
@@ -9,7 +9,7 @@ import { Editor } from '../editor/Editor';
 import storage from '../storage'
 import { request } from '../utils/http'
 import { IconButton } from '../icon-button';
-import { CodeOutlined, ExportOutlined, FolderOutlined, HeartOutlined, HistoryOutlined, InfoCircleOutlined, MenuOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { CodeOutlined, ExportOutlined, FolderOutlined, HeartOutlined, HistoryOutlined, InfoCircleOutlined, LinkOutlined, MenuOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 
 import { ListContent } from './key-detail-list';
 import { useInterval } from 'ahooks';
@@ -37,6 +37,64 @@ export function FullCenterBox(props) {
             }}
         >
             {children}
+        </div>
+    )
+}
+
+function Status({ config, connectionId }) {
+    const { t } = useTranslation()
+    const [status, setStatus] = useState('unknown')
+    // 仅用于心跳
+    async function ping() {
+        // setLoading(true)
+        let res = await request.post(`${config.host}/redis/ping`, {
+            connectionId,
+            // dbName,
+        }, {
+            timeout: 1000,
+        })
+        console.log('Status/res', res)
+        if (res.success) {
+            console.log('DbSelector/ping', res.data)
+            setStatus('success')
+            // setStatus('fail')
+        } else {
+            setStatus('fail')
+            message.error('连接失败')
+        }
+        // setLoading(false)
+    }
+
+    useInterval(() => {
+        ping()
+    }, 3 * 1000, {
+        immediate: true,
+    })
+
+    const colors = {
+        success: 'green',
+        fail: 'red',
+    }
+    const tooltips = {
+        success: t('connected'),
+        fail: t('connect_error'),
+        unknown: 'Un Connect',
+    }
+
+    return (
+        <div>
+            <Tooltip
+                placement="topLeft"
+                title={tooltips[status]}
+            >
+                <LinkOutlined
+                    style={{
+                        // fontWeight: 'bold',
+                        color: colors[status],
+                    }}
+                />
+            </Tooltip>
+            {/* {status} */}
         </div>
     )
 }
@@ -89,29 +147,12 @@ function DbSelector({ curDb, connectionId, onDatabaseChange, config }) {
         // setLoading(false)
     }
 
-    // 仅用于心跳
-    async function ping() {
-        // setLoading(true)
-        let res = await request.post(`${config.host}/redis/ping`, {
-            connectionId,
-            // dbName,
-        })
-        if (res.success) {
-            console.log('DbSelector/ping', res.data)
-        } else {
-            message.error('连接失败')
-        }
-        // setLoading(false)
-    }
+    
 
     useEffect(() => {
         loadKeys()
         // loadInfo()
     }, [curDb])
-
-    useInterval(() => {
-        ping()
-    }, 30 * 1000)
 
     return (
         <div>
@@ -984,7 +1025,13 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                     }
                 </div>
                 <div className={styles.footer}>
-                    <div>{list.length} {t('num_keys')}</div>
+                    <Space>
+                        <Status
+                            config={config}
+                            connectionId={connectionId}
+                        />
+                        <div>{list.length} {t('num_keys')}</div>
+                    </Space>
                     <DbSelector
                         connectionId={connectionId}
                         config={config}
