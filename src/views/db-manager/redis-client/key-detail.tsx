@@ -1,4 +1,4 @@
-import { Button, Checkbox, Descriptions, Dropdown, Form, Input, InputNumber, Menu, message, Modal, Popover, Select, Space, Spin, Table, Tabs, Tree } from 'antd';
+import { Button, Checkbox, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Select, Space, Spin, Table, Tabs, Tree } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import styles from './redis-client.module.less';
 import _ from 'lodash';
@@ -126,6 +126,16 @@ export function RedisKeyDetail({ config, event$, connectionId, redisKey, onRemov
                 <Spin />
             </FullCenterBox>
             // <div>Loading</div>
+        )
+    }
+
+    if (result && !result.exists) {
+        return (
+            <FullCenterBox>
+                <Empty
+                    description={t('key_is_not_exists')}
+                />
+            </FullCenterBox>
         )
     }
 
