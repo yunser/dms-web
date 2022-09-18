@@ -1,5 +1,5 @@
 import { Button, Checkbox, Col, Descriptions, Empty, Form, Input, InputNumber, message, Modal, Popover, Row, Space, Table, Tabs } from 'antd';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './redis-editor.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
@@ -11,6 +11,7 @@ import { request } from '../utils/http'
 import { CodeDebuger } from '../code-debug';
 import { uid } from 'uid';
 import { FullCenterBox } from '../redis-client';
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
 function handleRes(res) {
     if (res == null) {
@@ -33,9 +34,19 @@ export function RedisEditor({ config, event$, defaultCommand = '', connectionId,
     const [hasResult, setHasResult] = useState(false)
     const [results, setResults] = useState([])
     const [loading, setLoading] = useState(false)
+    const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
+    const code_ref = useRef('')
+    
+    function getCode() {
+        return code_ref.current
+    }
+
+    function setCodeASD(code) {
+        code_ref.current = code
+    }
 
     async function run() {
-        const lines = code.split('\n').map(item => item.trim()).filter(item => item)
+        const lines = getCode().split('\n').map(item => item.trim()).filter(item => item)
         if (lines.length == 0) {
             message.error('请输入代码')
             return
@@ -57,29 +68,36 @@ export function RedisEditor({ config, event$, defaultCommand = '', connectionId,
     return (
         <div className={styles.root}>
             <div className={styles.editorBox}>
-                <Input.TextArea
+                {/* <Input.TextArea
                     className={styles.input}
                     placeholder={t('command')}
                     value={code}
                     onChange={e => {
                         setCode(e.target.value)
                     }}
-                    rows={12}
-                    // style={{
-                    //     // width: 400,
-                    // }}
+                /> */}
+                <Editor
+                    lang="plain"
+                    event$={event$}
+                    connectionId={connectionId}
+                    value={code}
+                    onChange={value => setCodeASD(value)}
+                    onEditor={editor => {
+                        // console.warn('ExecDetail/setEditor')
+                        setEditor(editor)
+                    }}
                 />
-                <div className={styles.tool}>
-                    <Button
-                        size="small"
-                        loading={loading}
-                        onClick={() => {
-                            run()
-                        }}
-                    >
-                        {t('run')}
-                    </Button>
-                </div>
+            </div>
+            <div className={styles.toolBox}>
+                <Button
+                    size="small"
+                    loading={loading}
+                    onClick={() => {
+                        run()
+                    }}
+                >
+                    {t('run')}
+                </Button>
             </div>
             <div className={styles.resultBox}>
                 {hasResult ?

@@ -137,7 +137,7 @@ function DbSelector({ curDb, connectionId, onDatabaseChange, config }) {
 function obj2Tree(obj, handler) {
 
     const sorter = (a, b) => {
-        console.log('ab', a, b)
+        // console.log('ab', a, b)
         return a.key.localeCompare(b.key)
     }
     function handleObj(obj, key, prefix, level) {
@@ -1074,6 +1074,7 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                                     <RedisEditor
                                         config={config}
                                         connectionId={connectionId}
+                                        event$={event$}
                                         defaultCommand={item.itemData.defaultCommand}
                                     />
                                 }
