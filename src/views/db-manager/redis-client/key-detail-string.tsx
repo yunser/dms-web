@@ -29,9 +29,14 @@ export function StringContent({ curDb, event$, connectionId, onSuccess, data, co
     const [itemDetail, setItemDetail] = useState(null)
     const [inputValue, setInputValue] = useState(data.value)
     const editType = 'update'
-
     const [code, setCode] = useState(data.value || '')
-
+    const [lang, setLang] = useState(() => {
+        const code = data.value.trim()
+        if (code.startsWith('{') && code.endsWith('}')) {
+            return 'json'
+        }
+        return 'plain'
+    })
     console.log('data?', data)
 
     const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
@@ -50,7 +55,7 @@ export function StringContent({ curDb, event$, connectionId, onSuccess, data, co
             <div className={classNames(styles.body, styles.stringBody)}>
 
                 <Editor
-                    lang="plain"
+                    lang={lang}
                     event$={event$}
                     connectionId={connectionId}
                     value={code}
@@ -130,6 +135,29 @@ export function StringContent({ curDb, event$, connectionId, onSuccess, data, co
                         {t('update')}
                     </Button>
                     
+                </Space>
+                <Space>
+                    {/* <div>
+                        {lang}
+                    </div> */}
+                    <Select
+                        size="small"
+                        value={lang}
+                        onChange={value => {
+                            setLang(value)
+                            monaco.editor.setModelLanguage(editor.getModel(), value)
+                        }}
+                        options={[
+                            {
+                                label: t('text'),
+                                value: 'plain',
+                            },
+                            {
+                                label: 'JSON',
+                                value: 'json',
+                            },
+                        ]}
+                    />
                 </Space>
             </div>
         </>

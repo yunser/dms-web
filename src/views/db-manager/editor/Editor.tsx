@@ -44,7 +44,7 @@ export const Editor: VFC = ({ lang = 'sql', event$, connectionId, value, onChang
                 },
                 // tabSize: 4,
             })
-            console.log('mmm', _editor.getModel())
+            // console.log('_editor/mmm', _editor.getModel())
             _editor.getModel().onDidChangeContent((event) => {
                 const newValue = _editor?.getValue()
                 // console.log('onDidChangeContent', newValue)
@@ -52,12 +52,13 @@ export const Editor: VFC = ({ lang = 'sql', event$, connectionId, value, onChang
             })
             // https://microsoft.github.io/monaco-editor/api/interfaces/monaco.editor.IStandaloneCodeEditor.html#onDidFocusEditorText
             _editor.onDidFocusEditorText((event) => {
-                console.log('onDidFocusEditorText')
+                // console.log('onDidFocusEditorText')
                 window.g_editorConnectionId = connectionId
             })
             // _editor.onDidBlurEditorText((event) => {
             //     console.log('onDidBlurEditorText')
             // })
+            // console.log('_editor', _editor)
 			setEditor(_editor);
             editorRef.current = _editor
             onEditor && onEditor(_editor)
