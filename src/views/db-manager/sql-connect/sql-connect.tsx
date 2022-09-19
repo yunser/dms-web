@@ -110,9 +110,11 @@ function list2Tree(list) {
     return treeData.sort(sorter)
 }
 
-function ConnectModal({ item, onCancel, onSuccess }) {
+function ConnectModal({ config, item, onCancel, onSuccess }) {
 
     const { t } = useTranslation()
+
+    const [loading, setLoading] = useState(false)
 
     const [form] = Form.useForm()
     const editType = item ? 'update' : 'create'
@@ -166,13 +168,68 @@ function ConnectModal({ item, onCancel, onSuccess }) {
         onSuccess && onSuccess()
     }
 
+    async function handleTestConnection() {
+        const values = await form.validateFields()
+        setLoading(true)
+        const reqData = {
+            host: values.host || 'localhost',
+            port: values.port || 6379,
+            // user: values.user,
+            password: values.password,
+            user: values.user,
+            // db: values.defaultDatabase || 0,
+            test: true,
+            // remember: values.remember,
+        }
+        let ret = await request.post(`${config.host}/mysql/connect`, reqData)
+        // console.log('ret', ret)
+        if (ret.success) {
+            message.success(t('success'))
+        }
+        setLoading(false)
+    }
+
     return (
         <Modal
             title={editType == 'create' ? t('connection_create') : t('connection_update')}
             visible={true}
             onCancel={onCancel}
             maskClosable={false}
-            onOk={save}
+            // onOk={save}
+            footer={(
+                <div
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                    }}
+                >
+                    <Button key="back"
+                        loading={loading}
+                        disabled={loading}
+                        onClick={handleTestConnection}
+                    >
+                        {t('test_connection')}
+                    </Button>
+                    <Space>
+                        <Button
+                            // key="submit"
+                            // type="primary"
+                            disabled={loading}
+                            onClick={onCancel}
+                        >
+                            {t('cancel')}
+                        </Button>
+                        <Button
+                            type="primary"
+                            disabled={loading}
+                            onClick={save}
+                        >
+                            {t('ok')}
+                        </Button>
+                    </Space>
+                </div>
+            )}
         >
             <Form
                 form={form}
@@ -559,6 +616,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
             {/* <Button type="primary" onClick={help}>帮助</Button> */}
             {modalVisible &&
                 <ConnectModal
+                    config={config}
                     item={modalItem}
                     onCancel={() => {
                         setModalVisible(false)
