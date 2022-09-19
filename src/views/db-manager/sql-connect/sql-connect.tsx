@@ -297,6 +297,8 @@ export function SqlConnector({ config, onConnnect, onJson }) {
     const { t } = useTranslation()
 
     // TODO clear
+    const [treeData, setTreeData] = useState([])
+    const [expandedKeys, setExpandedKeys] = useState<any[]>([])
     const [modalVisible, setModalVisible] = useState(false)
     const [modalItem, setModalItem] = useState(null)
     const timerRef = useRef<number | null>(null)
@@ -324,6 +326,9 @@ export function SqlConnector({ config, onConnnect, onJson }) {
         const connections = storage.get('connections', [])
         if (connections.length) {
             setConnections(connections)
+            const treeData = list2Tree(connections)
+            setTreeData(treeData)
+            setExpandedKeys(treeData.map(item => item.key))
         }   
     }
 
@@ -427,17 +432,26 @@ export function SqlConnector({ config, onConnnect, onJson }) {
     
 
     function handleClick(nodeData) {
-        console.log('click', nodeData)
+        // console.log('click', nodeData)
         if (nodeData.type == 'connection') {
-            const data = nodeData.data
-            if (data) {
-                const { id } = nodeData.data
-                storage.set('current_connection_id', id)
-                setModalVisible(true)
-                setModalItem(data)
-            }
+            // const data = nodeData.data
+            // if (data) {
+            //     const { id } = nodeData.data
+            //     storage.set('current_connection_id', id)
+            //     setModalVisible(true)
+            //     setModalItem(data)
+            // }
         }
         else if (nodeData.type == 'folder') {
+            if (expandedKeys.includes(nodeData.key)) {
+                setExpandedKeys(expandedKeys.filter(_key => _key != nodeData.key))
+            }
+            else {
+                setExpandedKeys([
+                    ...expandedKeys,
+                    nodeData.key,
+                ])
+            }
         }
     }
 
@@ -465,7 +479,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
     }
 
 
-    const treeData = list2Tree(connections)
+    // const treeData = list2Tree(connections)
     // const treeData = [
     //     {
     //         title: 'root',
@@ -524,7 +538,12 @@ export function SqlConnector({ config, onConnnect, onJson }) {
                             // checkable
                             defaultExpandAll
                             // defaultExpandedKeys={['root']}
-                            expandedKeys={treeData.map(item => item.key)}
+                            // expandedKeys={treeData.map(item => item.key)}
+                            expandedKeys={expandedKeys}
+                            onExpand={(expandedKeys) => {
+                                setExpandedKeys(expandedKeys)
+                            }}
+                            
                             // selectedKeys={curConnect ? [`dbkey-${curConnect.id}`] : []}
                             // defaultCheckedKeys={['0-0-0', '0-0-1']}
                             // onSelect={(selectKeys, info) => {
@@ -542,7 +561,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
                                                         key: 'key_connect',
                                                     },
                                                     {
-                                                        label: t('Edit'),
+                                                        label: t('edit'),
                                                         key: 'key_edit',
                                                     },
                                                     {
@@ -577,7 +596,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
                                                 if (timerRef.current) {
                                                     clearTimeout(timerRef.current)
                                                 }
-                                                console.log('双击')
+                                                // console.log('双击')
                                                 handleDoubleClick(nodeData)
                                                 // onDoubleClick && onDoubleClick()
                                             }}
@@ -588,8 +607,8 @@ export function SqlConnector({ config, onConnnect, onJson }) {
                                                     clearTimeout(timerRef.current)
                                                 }
                                                 timerRef.current = window.setTimeout(() => {
-                                                    console.log('单机')
-                                                    // handleClick(nodeData)
+                                                    // console.log('单机')
+                                                    handleClick(nodeData)
                                                     // onClick && onClick()
                                                 }, 200)
                                             }}
