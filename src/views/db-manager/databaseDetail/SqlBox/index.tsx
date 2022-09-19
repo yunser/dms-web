@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import styles from './index.module.less'
-import { message, Input, Modal, Button, Table, Popover, Space, Empty, Result, Tabs, Select, Tooltip } from 'antd'
+import { message, Input, Modal, Button, Table, Popover, Space, Empty, Result, Tabs, Select, Tooltip, Spin } from 'antd'
 // import http from '@/utils/http'
 import classNames from 'classnames'
 import { Editor } from '../../editor/Editor'
@@ -20,6 +20,7 @@ import { CloseCircleOutlined } from '@ant-design/icons'
 import { CheckCircleOutlined } from '@ant-design/icons'
 import { SaveOutlined } from '@ant-design/icons'
 import { SqlEditHandler } from '../../sql-edit'
+import { FullCenterBox } from '../../redis-client'
 // var parse = require('sql-parse').parse;
 // console.log('asd')
 
@@ -73,7 +74,7 @@ function SqlBox({ config, event$, connectionId, onJson, className, defaultSql = 
     const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
     const [code, setCode] = useState(defaultSql)
     const code_ref = useRef(defaultSql)
-
+    const [codeLoading, setCodeLoading] = useState(false)
     const [tab, setTab] = useState({
         // activeKey: execResults[0]?.key,
         activeKey: null,
@@ -175,6 +176,7 @@ function SqlBox({ config, event$, connectionId, onJson, className, defaultSql = 
             // history_tab,
         ]
         setExecResults(newTabs)
+        setCodeLoading(true)
         // console.log('ExecDetail/setExecResults1')
         const removedCommentCode = removeComment(execCode)
         const lines = removedCommentCode.split(';').filter(item => item.trim())
@@ -360,6 +362,7 @@ function SqlBox({ config, event$, connectionId, onJson, className, defaultSql = 
             }
             lineIdx++
         }
+        setCodeLoading(false)
         // return
         // else {
         //     message.error('执行失败')
@@ -407,8 +410,21 @@ function SqlBox({ config, event$, connectionId, onJson, className, defaultSql = 
             <div className={styles.editorBox}>
                 <div className={styles.toolBox}>
                     <Space>
-                        <Button type="primary" size="small" onClick={run}>{t('run')}</Button>
-                        <Button size="small" onClick={runPlain}>{t('explain')}</Button>
+                        <Button
+                            type="primary"
+                            size="small"
+                            onClick={run}
+                            disabled={codeLoading}
+                        >
+                            {t('run')}
+                        </Button>
+                        <Button
+                            size="small"
+                            onClick={runPlain}
+                            disabled={codeLoading}
+                        >
+                            {t('explain')}
+                        </Button>
                         <Button size="small" onClick={formatSql}>{t('format')}</Button>
                         <Select
                             size="small"
@@ -523,7 +539,11 @@ function SqlBox({ config, event$, connectionId, onJson, className, defaultSql = 
                             {item.type == 'single' &&
                                 <>
                                 {!!item.data.loading ?
-                                    <div className={styles.loadingBox}>Loding...</div>
+                                    <FullCenterBox
+                                    >
+                                        <Spin />
+                                    </FullCenterBox>
+                                    // <div className={styles.loadingBox}>Loding...</div>
                                 :
                                     <ExecDetail
                                         data={item.data}
