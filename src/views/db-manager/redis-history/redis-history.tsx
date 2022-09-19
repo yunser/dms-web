@@ -127,6 +127,11 @@ export function RedisHistory({ config, event$, connectionId, onConnnect, }) {
                             return moment(value).format('YYYY-MM-DD HH:mm:ss')
                         }
                     },
+                    // {
+                    //     title: t('db'),
+                    //     dataIndex: 'db',
+                    //     width: 80,
+                    // },
                     {
                         title: t('command'),
                         dataIndex: 'command',

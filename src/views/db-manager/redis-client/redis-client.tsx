@@ -587,7 +587,7 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
         const keys = list
             .filter(item => item.key.startsWith(nodeData.itemData.prefix))
             .map(item => item.key)
-        console.log('keys', keys)
+        // console.log('keys', keys)
         event$.emit({
             type: 'event_show_json',
             data: {
@@ -595,17 +595,22 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                 // connectionId,
             },
         })
-        // let res = await request.post(`${config.host}/redis/delete`, {
-        //     connectionId,
-        //     keys,
-        // })
-        // console.log('get/res', res.data)
-        // if (res.success) {
-        //     message.success('删除成功')
-        //     loadKeys()
-        //     closeTabByKeys(keys)
-        // }
     }
+
+    function exportKeyValue(nodeData) {
+        const keys = list
+            .filter(item => item.key.startsWith(nodeData.itemData.prefix))
+        //     .map(item => item.key)
+        // console.log('keys', keys)
+        event$.emit({
+            type: 'event_show_json',
+            data: {
+                json: JSON.stringify(keys, null, 4)
+                // connectionId,
+            },
+        })
+    }
+
     function removeKeys(nodeData) {
         Modal.confirm({
             // title: 'Confirm',
@@ -987,9 +992,23 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                                                 overlay={(
                                                     <Menu
                                                         items={[
+                                                            // {
+                                                            //     label: t('export_json'),
+                                                            //     key: 'key_export_keys',
+                                                            // },
                                                             {
-                                                                label: t('export_json'),
+                                                                label: t('export'),
                                                                 key: 'key_export_keys',
+                                                                children: [
+                                                                    {
+                                                                        label: t('export_keys'),
+                                                                        key: 'key_export_keys',
+                                                                    },
+                                                                    {
+                                                                        label: t('export_key_and_value'),
+                                                                        key: 'key_export_key_value',
+                                                                    },
+                                                                ]
                                                             },
                                                             {
                                                                 label: t('delete'),
@@ -1004,6 +1023,9 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                                                             }
                                                             else if (key == 'key_export_keys') {
                                                                 exportKeys(nodeData)
+                                                            }
+                                                            else if (key == 'key_export_key_value') {
+                                                                exportKeyValue(nodeData)
                                                             }
                                                         }}
                                                     >

@@ -184,6 +184,8 @@ i18n
                     open_in_new_tab: 'Open in New Tab',
                     key_is_not_exists: 'Key is not exists',
                     duplicate: 'Duplicate',
+                    export_keys: 'Export Keys',
+                    export_key_and_value: 'Export Key and Value',
                 }
             },
             zh: {
@@ -361,6 +363,8 @@ i18n
                     open_in_new_tab: '在新标签页打开',
                     key_is_not_exists: '键不存在',
                     duplicate: '创建副本',
+                    export_keys: '导出键',
+                    export_key_and_value: '导出键值',
                 }
             }
         },
