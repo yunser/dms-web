@@ -73,6 +73,13 @@ function list2Tree(list) {
         //     children: unGroupList,
         // }
     ]
+
+    function sorter(a, b) {
+        // console.log('ab', a, b)
+        return a.data.name.localeCompare(b.data.name)
+        // return a.title.localeCompare(b.title)
+    }
+
     for (let key of Object.keys(map)) {
         treeData.push({
             title: (
@@ -81,8 +88,11 @@ function list2Tree(list) {
                     {key}
                 </Space>
             ),
+            data: {
+                name: key,
+            },
             key: `group-${key}`,
-            children: map[key],
+            children: map[key].sort(sorter),
             type: 'folder',
         })
     }
@@ -97,7 +107,7 @@ function list2Tree(list) {
     //     children: unGroupList,
     // })
     treeData.push(...unGroupList)
-    return treeData
+    return treeData.sort(sorter)
 }
 
 function ConnectModal({ item, onCancel, onSuccess }) {
@@ -150,7 +160,6 @@ function ConnectModal({ item, onCancel, onSuccess }) {
             newConnects = [
                 ...connections,
             ]
-            // setCurConnect(newConnect)
         }
         // setConnections(newConnects)
         storage.set('connections', newConnects)
@@ -233,9 +242,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
     // TODO clear
     const [modalVisible, setModalVisible] = useState(false)
     const [modalItem, setModalItem] = useState(null)
-    const [view, setView] = useState('')
     const timerRef = useRef<number | null>(null)
-    const [curConnect, setCurConnect] = useState(null)
     const [connections, setConnections] = useState([
         // {
         //     id: '1',
@@ -346,7 +353,6 @@ export function SqlConnector({ config, onConnnect, onJson }) {
         // ]
         // setConnections(newConnects)
         // storage.set('connections', newConnects)
-        // setView('edit')
     }
 
     function remove(data) {
@@ -372,12 +378,9 @@ export function SqlConnector({ config, onConnnect, onJson }) {
                 storage.set('current_connection_id', id)
                 setModalVisible(true)
                 setModalItem(data)
-                setView('edit')
             }
         }
         else if (nodeData.type == 'folder') {
-            setCurConnect(null)
-            setView('folder')
         }
     }
 
@@ -549,14 +552,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
                 </div>
             </div>
             <div className={styles.layoutRight}>
-                {view == 'edit' &&
-                    <div className={styles.editView}>
-                        <div className={styles.content}>
-                            
-                            <CodeDebuger path="src/views/db-manager/sql-connect/sql-connect.tsx" />
-                        </div>
-                    </div>
-                }
+                <CodeDebuger path="src/views/db-manager/sql-connect/sql-connect.tsx" />
             </div>
             {/* <TextArea className={styles.textarea} value={code} rows={4} 
                 onChange={e => setCode(e.target.value)} /> */}
