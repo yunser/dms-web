@@ -1,4 +1,4 @@
-import { Button, Checkbox, Descriptions, Empty, Form, Input, InputNumber, message, Modal, Popover, Space, Table, Tabs, Tree } from 'antd';
+import { Button, Checkbox, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Space, Table, Tabs, Tree } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './sql-connect.module.less';
 import _ from 'lodash';
@@ -100,11 +100,139 @@ function list2Tree(list) {
     return treeData
 }
 
+function ConnectModal({ item, onCancel, onSuccess }) {
+
+    const { t } = useTranslation()
+
+    const [form] = Form.useForm()
+    const editType = item ? 'update' : 'create'
+    useEffect(() => {
+        if (item) {
+            form.setFieldsValue({
+                ...item,
+                path: item.path || '',
+            })
+        }
+    }, [item])
+
+    async function save() {
+        // storage.set('dbInfo', code)
+        // message.success('保存成功')
+        const values = await form.validateFields()
+        const connections = storage.get('connections', [])
+        let newConnects
+        if (editType == 'create') {
+            newConnects = [
+                {
+                    id: uid(32),
+                    name: values.name || 'Unnamed',
+                    host: values.host,
+                    port: values.port,
+                    user: values.user,
+                    password: values.password,
+                },
+                ...connections,
+            ]
+        }
+        else {
+            const idx = connections.findIndex(_item => _item.id == item.id)
+            console.log('idx', idx)
+            const newConnect = {
+                ...item,
+                name: values.name || 'Unnamed',
+                host: values.host,
+                port: values.port,
+                user: values.user,
+                password: values.password,
+                path: values.path,
+            }
+            connections[idx] = newConnect
+            newConnects = [
+                ...connections,
+            ]
+            // setCurConnect(newConnect)
+        }
+        // setConnections(newConnects)
+        storage.set('connections', newConnects)
+        onSuccess && onSuccess()
+    }
+
+    return (
+        <Modal
+            title={editType == 'create' ? t('connection_create') : t('connection_update')}
+            visible={true}
+            onCancel={onCancel}
+            maskClosable={false}
+            onOk={save}
+        >
+            <Form
+                form={form}
+                labelCol={{ span: 8 }}
+                wrapperCol={{ span: 16 }}
+                initialValues={{
+                    port: 3306,
+                }}
+                // layout={{
+                //     labelCol: { span: 0 },
+                //     wrapperCol: { span: 24 },
+                // }}
+            >
+                <Form.Item
+                    name="name"
+                    label={t('name')}
+                    rules={[]}
+                >
+                    <Input />
+                </Form.Item>
+                <Form.Item
+                    name="host"
+                    label={t('host')}
+                    rules={[ { required: true, }, ]}
+                >
+                    <Input />
+                </Form.Item>
+                <Form.Item
+                    name="port"
+                    label={t('port')}
+                    rules={[{ required: true, },]}
+                >
+                    <InputNumber />
+                </Form.Item>
+                <Form.Item
+                    name="user"
+                    label={t('user')}
+                    rules={[{ required: true, },]}
+                >
+                    <Input />
+                </Form.Item>
+                <Form.Item
+                    name="password"
+                    label={t('password')}
+                    rules={[{ required: true, },]}
+                >
+                    <Input />
+                </Form.Item>
+                <Form.Item
+                    name="path"
+                    label={t('folder')}
+                    // rules={[{ required: true, },]}
+                >
+                    <Input />
+                </Form.Item>
+                {/* <Form.Item name="remember" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>
+                    <Checkbox>{t('remember_me')}</Checkbox>
+                </Form.Item> */}
+            </Form>
+        </Modal>
+    )
+}
 
 export function SqlConnector({ config, onConnnect, onJson }) {
     const { t } = useTranslation()
 
     // TODO clear
+    const [modalVisible, setModalVisible] = useState(false)
+    const [modalItem, setModalItem] = useState(null)
     const [view, setView] = useState('')
     const timerRef = useRef<number | null>(null)
     const [curConnect, setCurConnect] = useState(null)
@@ -127,30 +255,11 @@ export function SqlConnector({ config, onConnnect, onJson }) {
         // },
     ])
 
-    function loadConnect(data) {
-        form.setFieldsValue({
-            ...data,
-            path: data.path || '',
-        })
-        setCurConnect(data)
-        setEditType('update')
-    }
 
     async function init() {
         const connections = storage.get('connections', [])
         if (connections.length) {
             setConnections(connections)
-            // const curConneId = storage.get('current_connection_id')
-            // let curConn
-            // if (curConneId) {
-            //     curConn = connections.find(item => item.id === curConneId)
-            // }
-            // if (curConn) {
-            //     loadConnect(curConn)
-            // }
-            // else {
-            //     loadConnect(connections[0])
-            // }
         }   
     }
 
@@ -159,7 +268,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
     }, [])
 
     const [loading, setLoading] = useState(false)
-    const [form] = Form.useForm()
+    
 //     const [code, setCode] = useState(`{
 //     "host": "",
 //     "user": "",
@@ -202,13 +311,12 @@ export function SqlConnector({ config, onConnnect, onJson }) {
         setLoading(false)
     }
 
-    async function  connect() {
-        const values = await form.validateFields()
+    async function connect(data) {
         const reqData = {
-            host: values.host,
-            port: values.port,
-            user: values.user,
-            password: values.password,
+            host: data.host,
+            port: data.port,
+            user: data.user,
+            password: data.password,
             // remember: values.remember,
         }
         await _connect(reqData)
@@ -222,78 +330,38 @@ export function SqlConnector({ config, onConnnect, onJson }) {
     }
 
     function add() {
-        const newItem = {
-            id: uid(32),
-            name: t('unnamed'),
-            host: '',
-            port: 3306,
-            user: '',
-            password: '',
-        }
-        const newConnects = [
-            newItem,
-            ...connections,
-        ]
-        setConnections(newConnects)
-        storage.set('connections', newConnects)
-        loadConnect(newItem)
-        setView('edit')
+        setModalVisible(true)
+        setModalItem(null)
+        // const newItem = {
+        //     id: uid(32),
+        //     name: t('unnamed'),
+        //     host: '',
+        //     port: 3306,
+        //     user: '',
+        //     password: '',
+        // }
+        // const newConnects = [
+        //     newItem,
+        //     ...connections,
+        // ]
+        // setConnections(newConnects)
+        // storage.set('connections', newConnects)
+        // setView('edit')
     }
 
-    function remove() {
+    function remove(data) {
         Modal.confirm({
-            content: `${t('delete_confirm')} ${curConnect.name}?`,
+            content: `${t('delete_confirm')} ${data.name}?`,
             onOk() {
                 // console.log('删除', )
-                let newConnects = connections.filter(item => item.id != curConnect.id)
+                let newConnects = connections.filter(item => item.id != data.id)
                 setConnections(newConnects)
                 storage.set('connections', newConnects)
-                if (newConnects.length) {
-                    loadConnect(newConnects[0])
-                }
             }
         })
     }
 
-    async function save() {
-        // storage.set('dbInfo', code)
-        // message.success('保存成功')
-        const values = await form.validateFields()
-        let newConnects
-        if (editType == 'create') {
-            newConnects = [
-                {
-                    id: uid(32),
-                    name: values.name || 'Unnamed',
-                    host: values.host,
-                    port: values.port,
-                    user: values.user,
-                    password: values.password,
-                },
-                ...connections,
-            ]
-        }
-        else {
-            const idx = connections.findIndex(item => item.id == curConnect.id)
-            console.log('idx', idx)
-            const newConnect = {
-                ...curConnect,
-                name: values.name || 'Unnamed',
-                host: values.host,
-                port: values.port,
-                user: values.user,
-                password: values.password,
-                path: values.path,
-            }
-            connections[idx] = newConnect
-            newConnects = [
-                ...connections,
-            ]
-            setCurConnect(newConnect)
-        }
-        setConnections(newConnects)
-        storage.set('connections', newConnects)
-    }
+    
 
     function handleClick(nodeData) {
         console.log('click', nodeData)
@@ -302,7 +370,8 @@ export function SqlConnector({ config, onConnnect, onJson }) {
             if (data) {
                 const { id } = nodeData.data
                 storage.set('current_connection_id', id)
-                loadConnect(data)
+                setModalVisible(true)
+                setModalItem(data)
                 setView('edit')
             }
         }
@@ -318,14 +387,11 @@ export function SqlConnector({ config, onConnnect, onJson }) {
         if (data) {
             // const { id } = nodeData.data
             // storage.set('current_connection_id', id)
-            // loadConnect(data)
             _connect(nodeData.data)
         }
     }
 
-    function help() {
-        window.open('https://project.yunser.com/products/167b35305d3311eaa6a6a10dd443ff08', '_blank')
-    }
+   
 
     function ConnectionItem(item) {
         return (
@@ -372,20 +438,19 @@ export function SqlConnector({ config, onConnnect, onJson }) {
     return (
         <div className={styles.connectBox}>
             <div className={styles.layoutLeft}>
-                {/* {curConnect.id} */}
                 <div className={styles.header}>
                     <Space>
                         <IconButton
-                            onClick={add}
                             tooltip={t('connection_create')}
+                            onClick={add}
                         >
                             <PlusOutlined />
                         </IconButton>
                         <IconButton
+                            tooltip={t('connection_export')}
                             onClick={() => {
                                 onJson && onJson(JSON.stringify(connections, null, 4))
                             }}
-                            tooltip={t('connection_export')}
                         >
                             <ExportOutlined />
                         </IconButton>
@@ -400,7 +465,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
                             defaultExpandAll
                             // defaultExpandedKeys={['root']}
                             expandedKeys={treeData.map(item => item.key)}
-                            selectedKeys={curConnect ? [`dbkey-${curConnect.id}`] : []}
+                            // selectedKeys={curConnect ? [`dbkey-${curConnect.id}`] : []}
                             // defaultCheckedKeys={['0-0-0', '0-0-1']}
                             // onSelect={(selectKeys, info) => {
                             //     console.log('onSelect', info)
@@ -408,30 +473,70 @@ export function SqlConnector({ config, onConnnect, onJson }) {
                             // }}
                             titleRender={nodeData => {
                                 return (
-                                    <div
-                                        onDoubleClick={() => {
-                                            // console.log('onDoubleClick')
-                                            // queryTable(nodeData.key)
-                                            if (timerRef.current) {
-                                                clearTimeout(timerRef.current)
-                                            }
-                                            console.log('双击')
-                                            handleDoubleClick(nodeData)
-                                            // onDoubleClick && onDoubleClick()
-                                        }}
-                                        onClick={() => {
-                                            // console.log('onClick')
-                                            //先清除一次
-                                            if (timerRef.current) {
-                                                clearTimeout(timerRef.current)
-                                            }
-                                            timerRef.current = window.setTimeout(() => {
-                                                console.log('单机')
-                                                handleClick(nodeData)
-                                                // onClick && onClick()
-                                            }, 200)
-                                        }}
-                                    >{nodeData.title}</div>
+                                    <Dropdown
+                                        overlay={(
+                                            <Menu
+                                                items={[
+                                                    {
+                                                        label: t('connect'),
+                                                        key: 'key_connect',
+                                                    },
+                                                    {
+                                                        label: t('Edit'),
+                                                        key: 'key_edit',
+                                                    },
+                                                    {
+                                                        label: t('delete'),
+                                                        key: 'key_delete',
+                                                    },
+                                                ]}
+                                                onClick={async ({ _item, key, keyPath, domEvent }) => {
+                                                    if (key == 'key_connect') {
+                                                        // console.log('_item', nodeData)
+                                                        connect(nodeData.data)
+                                                    }
+                                                    else if (key == 'key_edit') {
+                                                        // console.log('_item', nodeData)
+                                                        setModalVisible(true)
+                                                        setModalItem(nodeData.data)
+                                                    }
+                                                    else if (key == 'key_delete') {
+                                                        // console.log('_item', nodeData)
+                                                        remove(nodeData.data)
+                                                    }
+                                                }}
+                                            >
+                                            </Menu>
+                                        )}
+                                        trigger={['contextMenu']}
+                                    >
+                                        <div
+                                            onDoubleClick={() => {
+                                                // console.log('onDoubleClick')
+                                                // queryTable(nodeData.key)
+                                                if (timerRef.current) {
+                                                    clearTimeout(timerRef.current)
+                                                }
+                                                console.log('双击')
+                                                handleDoubleClick(nodeData)
+                                                // onDoubleClick && onDoubleClick()
+                                            }}
+                                            onClick={() => {
+                                                // console.log('onClick')
+                                                //先清除一次
+                                                if (timerRef.current) {
+                                                    clearTimeout(timerRef.current)
+                                                }
+                                                timerRef.current = window.setTimeout(() => {
+                                                    console.log('单机')
+                                                    // handleClick(nodeData)
+                                                    // onClick && onClick()
+                                                }, 200)
+                                            }}
+                                        >
+                                            {nodeData.title}
+                                        </div>
+                                    </Dropdown>
                                 )
                             }}
                             // onCheck={onCheck}
@@ -447,90 +552,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
                 {view == 'edit' &&
                     <div className={styles.editView}>
                         <div className={styles.content}>
-                            <Form
-                                form={form}
-                                labelCol={{ span: 8 }}
-                                wrapperCol={{ span: 16 }}
-                                initialValues={{
-                                    port: 3306,
-                                }}
-                                // layout={{
-                                //     labelCol: { span: 0 },
-                                //     wrapperCol: { span: 24 },
-                                // }}
-                            >
-                                <Form.Item
-                                    name="name"
-                                    label={t('name')}
-                                    rules={[]}
-                                >
-                                    <Input />
-                                </Form.Item>
-                                <Form.Item
-                                    name="host"
-                                    label={t('host')}
-                                    rules={[ { required: true, }, ]}
-                                >
-                                    <Input />
-                                </Form.Item>
-                                <Form.Item
-                                    name="port"
-                                    label={t('port')}
-                                    rules={[{ required: true, },]}
-                                >
-                                    <InputNumber />
-                                </Form.Item>
-                                <Form.Item
-                                    name="user"
-                                    label={t('user')}
-                                    rules={[{ required: true, },]}
-                                >
-                                    <Input />
-                                </Form.Item>
-                                <Form.Item
-                                    name="password"
-                                    label={t('password')}
-                                    rules={[{ required: true, },]}
-                                >
-                                    <Input />
-                                </Form.Item>
-                                <Form.Item
-                                    name="path"
-                                    label={t('folder')}
-                                    // rules={[{ required: true, },]}
-                                >
-                                    <Input />
-                                </Form.Item>
-                                {/* <Form.Item name="remember" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>
-                                    <Checkbox>{t('remember_me')}</Checkbox>
-                                </Form.Item> */}
-                                <Form.Item
-                                    wrapperCol={{ offset: 8, span: 16 }}
-                                    // name="passowrd"
-                                    // label="Passowrd"
-                                    // rules={[{ required: true, },]}
-                                >
-                                    <Space>
-                                        <Button
-                                            type="primary"
-                                            onClick={connect}
-                                        >
-                                            {t('connect')}
-                                        </Button>
-                                        <Button onClick={save}>
-                                            {t('save')}
-                                        </Button>
-                                        {editType == 'update' &&
-                                            <Button
-                                                danger
-                                                onClick={remove}
-                                            >
-                                                {t('delete')}
-                                            </Button>
-                                        }
-                                    </Space>
-                                </Form.Item>
-                            </Form>
+                            
                             <CodeDebuger path="src/views/db-manager/sql-connect/sql-connect.tsx" />
                         </div>
                     </div>
@@ -539,6 +561,18 @@ export function SqlConnector({ config, onConnnect, onJson }) {
             {/* <TextArea className={styles.textarea} value={code} rows={4} 
                 onChange={e => setCode(e.target.value)} /> */}
             {/* <Button type="primary" onClick={help}>帮助</Button> */}
+            {modalVisible &&
+                <ConnectModal
+                    item={modalItem}
+                    onCancel={() => {
+                        setModalVisible(false)
+                    }}
+                    onSuccess={() => {
+                        setModalVisible(false)
+                        init()
+                    }}
+                />
+            }
         </div>
-    );
+    )
 }
