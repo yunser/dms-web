@@ -245,6 +245,17 @@ export function ExecDetail(props) {
         
     } = data || {}
 
+    const tableEditable = useMemo(() => {
+        const lowerSql = sql.toLowerCase()
+        if (!lowerSql.includes('select')) {
+            return false
+        }
+        if (lowerSql.includes('explain')) {
+            return false
+        }
+        return true
+    }, [sql])
+
     // console.timeEnd()
     const rawExecResult = result?.result
     // console.log('ExecDetail/render', JSON.stringify(props))
@@ -620,31 +631,34 @@ export function ExecDetail(props) {
                     {!!result && !rawExecResult &&
                         <div className={styles.header}>
                             <Space>
-                                {/* 提交修改 */}
-                                <Button
-                                    size="small"
-                                    type="primary"
-                                    disabled={!(tableName && dbName && editing)}
-                                    onClick={() => {
-                                        submitModify()
-                                    }}
-                                >{t('submit_modify')}</Button>
-                                {/* 新增 */}
-                                <Button
-                                    size="small"
-                                    onClick={() => {
-                                        addRow()
-                                    }}
-                                >{t('add')}</Button>
-                                {/* 删除 */}
-                                <Button
-                                    danger
-                                    size="small"
-                                    disabled={!(selectedRowKeys.length > 0)}
-                                    onClick={() => {
-                                        removeSelection()
-                                    }}
-                                >{t('delete')}</Button>
+                                {tableEditable &&
+                                    <Button
+                                        size="small"
+                                        type="primary"
+                                        disabled={!(tableName && dbName && editing)}
+                                        onClick={() => {
+                                            submitModify()
+                                        }}
+                                    >{t('submit_modify')}</Button>
+                                }
+                                {tableEditable &&
+                                    <Button
+                                        size="small"
+                                        onClick={() => {
+                                            addRow()
+                                        }}
+                                    >{t('add')}</Button>
+                                }
+                                {tableEditable &&
+                                    <Button
+                                        danger
+                                        size="small"
+                                        disabled={!(selectedRowKeys.length > 0)}
+                                        onClick={() => {
+                                            removeSelection()
+                                        }}
+                                    >{t('delete')}</Button>
+                                }
                                 {/* {!editing &&
                                     <Button
                                         // danger
