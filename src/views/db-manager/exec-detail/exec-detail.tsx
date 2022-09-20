@@ -815,7 +815,7 @@ export function ExecDetail(props) {
                     }
                     {!!result &&
                         <div className={styles.footer}>
-                            <div>{t('duraion')}: {' '}
+                            <div>{t('duration')}: {' '}
                                 <span
                                     style={{
                                         color: result.time < 1000 ? 'green': 'red',
