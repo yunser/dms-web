@@ -272,6 +272,7 @@ export function TableDetail({ config, connectionId, event$, dbName, tableName: o
     const [removedRows, setRemovedRows] = useState([])
     const [removedIndexes, setRemovedIndexes] = useState([])
     const [partitions, setPartitions] = useState([])
+    const [triggers, setTriggers] = useState([])
     const [tableInfo, setTableInfo] = useState({})
     const [modelVisible, setModalVisible] = useState(false)
     const [modelCode, setModalCode] = useState('')
@@ -604,6 +605,31 @@ ${rowSqls.join(' ,\n')}
     //     setExecSql(sql)
     // }
 
+    const triggerColumns = [
+        {
+            title: t('name'),
+            dataIndex: 'TRIGGER_NAME',
+            width: 160,
+            ellipsis: true,
+        },
+        {
+            title: t('type'),
+            dataIndex: 'EVENT_MANIPULATION',
+            width: 160,
+            ellipsis: true,
+        },
+        {
+            title: t('statement'),
+            dataIndex: 'ACTION_STATEMENT',
+            // width: 200,
+            ellipsis: true,
+        },
+        // {
+        //     title: '',
+        //     dataIndex: '__empty',
+        // },
+    ]
+
     const partitionColumns = [
         {
             title: t('name'),
@@ -931,6 +957,7 @@ ${rowSqls.join(' ,\n')}
                     }
                     return newCol
                 }))
+                setTriggers(res.data.triggers)
                 setPartitions(res.data.partitions
                     .filter(item => item.PARTITION_NAME)
                     .map(item => {
@@ -1009,6 +1036,10 @@ ${rowSqls.join(' ,\n')}
         tabs.push({
             label: t('partition'),
             key: 'partition',
+        })
+        tabs.push({
+            label: t('triggers'),
+            key: 'trigger',
         })
     }
     
@@ -1327,6 +1358,21 @@ ${rowSqls.join(' ,\n')}
                                                 <Table
                                                     columns={partitionColumns}
                                                     dataSource={partitions}
+                                                    bordered
+                                                    pagination={false}
+                                                    size="small"
+                                                    rowKey="__id"
+                                                    scroll={{
+                                                        // x: 2400,
+                                                    }}
+                                                />
+                                            </div>
+                                        }
+                                        {item.key == 'trigger' &&
+                                            <div>
+                                                <Table
+                                                    columns={triggerColumns}
+                                                    dataSource={triggers}
                                                     bordered
                                                     pagination={false}
                                                     size="small"

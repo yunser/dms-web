@@ -188,6 +188,8 @@ i18n
                     duplicate: 'Duplicate',
                     export_keys: 'Export Keys',
                     export_key_and_value: 'Export Key and Value',
+                    triggers: 'Triggers',
+                    statement: 'Statement',
                 }
             },
             zh: {
@@ -369,6 +371,8 @@ i18n
                     duplicate: '创建副本',
                     export_keys: '导出键',
                     export_key_and_value: '导出键值',
+                    triggers: '触发器',
+                    statement: '语句',
                 }
             }
         },
