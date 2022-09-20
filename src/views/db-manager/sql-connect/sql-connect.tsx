@@ -665,6 +665,20 @@ export function SqlConnector({ config, onConnnect, onJson }) {
                     }}
                 />
             }
+            {loading &&
+                <Modal
+                    open={true}
+                    // centered
+                    // title="connecting"
+                    title={null}
+                    footer={null}
+                    onCancel={() => {
+                        setLoading(false)
+                    }}
+                >
+                    {t('connecting')}
+                </Modal>
+            }
         </div>
     )
 }

@@ -1,4 +1,4 @@
-import { Button, Descriptions, Dropdown, Input, InputProps, Menu, message, Modal, Popover, Space, Table, Tabs, Tooltip, Tree } from 'antd';
+import { Button, Descriptions, Dropdown, Input, InputProps, Menu, message, Modal, Popover, Space, Spin, Table, Tabs, Tooltip, Tree } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './sql-tree.module.less';
 import _, { debounce } from 'lodash';
@@ -11,6 +11,7 @@ import { CodeOutlined, ConsoleSqlOutlined, DatabaseOutlined, FormatPainterOutlin
 import { getTableFieldMap, setAllFields, setTabbleAllFields, suggestionAdd, suggestionAddSchemas } from '../suggestion';
 import { request } from '../utils/http';
 import { i18n } from '@/i18n';
+import { FullCenterBox } from '../redis-client';
 
 function getHightlight(title: string, keyword: string) {
     const index = title.toLocaleLowerCase().indexOf(keyword.toLowerCase())
@@ -709,7 +710,12 @@ LIMIT 1000;`
             </div>
             <div className={styles.body}>
                 {loading ?
-                    <div className={styles.loading}>{t('loading')}</div>
+                    <FullCenterBox
+                        height={320}
+                    >
+                        <Spin />
+                    </FullCenterBox>
+                    // <div className={styles.loading}>{t('loading')}</div>
                 :
                     <Tree
                         height={document.body.clientHeight - 42 - 80 - 40}
