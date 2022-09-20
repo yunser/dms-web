@@ -12,6 +12,8 @@ import { IconButton } from '../icon-button';
 import { DatabaseOutlined, ExportOutlined, FolderOutlined, PlusOutlined } from '@ant-design/icons';
 import { uid } from 'uid';
 import { CodeDebuger } from '../code-debug';
+import { ColorSelector } from '../color-selector';
+
 
 
 function lastSplit(text: string, sep: string) {
@@ -28,13 +30,23 @@ function lastSplit(text: string, sep: string) {
 function list2Tree(list) {
     const unGroupList = []
     const map = {}
+    const colorMap = {
+        red: '#f5222d',
+        blue: '#1890ff',
+        green: '#52c41a',
+        orange: '#fa8c16',
+    }
     for (let item of list) {
         // let _name = item.name
         function getNode(name, props) {
             return {
                 title: (
                     <Space>
-                        <DatabaseOutlined />
+                        <DatabaseOutlined
+                            style={{
+                                color: colorMap[item.color],
+                            }}
+                        />
                         {name}
                     </Space>
                 ),
@@ -133,15 +145,20 @@ function ConnectModal({ config, item, onCancel, onSuccess }) {
         const values = await form.validateFields()
         const connections = storage.get('connections', [])
         let newConnects
+        const saveOrUpdateData = {
+            name: values.name || 'Unnamed',
+            host: values.host,
+            port: values.port,
+            user: values.user,
+            password: values.password,
+            path: values.path,
+            color: values.color,
+        }
         if (editType == 'create') {
             newConnects = [
                 {
                     id: uid(32),
-                    name: values.name || 'Unnamed',
-                    host: values.host,
-                    port: values.port,
-                    user: values.user,
-                    password: values.password,
+                    ...saveOrUpdateData,
                 },
                 ...connections,
             ]
@@ -151,12 +168,7 @@ function ConnectModal({ config, item, onCancel, onSuccess }) {
             console.log('idx', idx)
             const newConnect = {
                 ...item,
-                name: values.name || 'Unnamed',
-                host: values.host,
-                port: values.port,
-                user: values.user,
-                password: values.password,
-                path: values.path,
+                ...saveOrUpdateData,
             }
             connections[idx] = newConnect
             newConnects = [
@@ -284,6 +296,13 @@ function ConnectModal({ config, item, onCancel, onSuccess }) {
                     // rules={[{ required: true, },]}
                 >
                     <Input />
+                </Form.Item>
+                <Form.Item
+                    name="color"
+                    label={t('color')}
+                    // rules={[{ required: true, },]}
+                >
+                    <ColorSelector />
                 </Form.Item>
                 {/* <Form.Item name="remember" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>
                     <Checkbox>{t('remember_me')}</Checkbox>

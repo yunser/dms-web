@@ -190,6 +190,11 @@ i18n
                     export_key_and_value: 'Export Key and Value',
                     triggers: 'Triggers',
                     statement: 'Statement',
+                    color: 'Color',
+                    'color.red': 'Red',
+                    'color.blue': 'Blue',
+                    'color.green': 'Green',
+                    'color.orange': 'Orange',
                 }
             },
             zh: {
@@ -373,6 +378,11 @@ i18n
                     export_key_and_value: '导出键值',
                     triggers: '触发器',
                     statement: '语句',
+                    color: '颜色',
+                    'color.red': '红色',
+                    'color.blue': '蓝色',
+                    'color.green': '绿色',
+                    'color.orange': '橙色',
                 }
             }
         },
