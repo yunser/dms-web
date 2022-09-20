@@ -9,7 +9,7 @@ import { Editor } from '../editor/Editor';
 import storage from '../storage'
 import { request } from '../utils/http'
 import { IconButton } from '../icon-button';
-import { DatabaseOutlined, ExportOutlined, FolderOutlined, PlusOutlined } from '@ant-design/icons';
+import { DatabaseOutlined, ExportOutlined, FolderOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import { uid } from 'uid';
 import { CodeDebuger } from '../code-debug';
 import { ColorSelector } from '../color-selector';
@@ -541,6 +541,12 @@ export function SqlConnector({ config, onConnnect, onJson }) {
             <div className={styles.layoutLeft}>
                 <div className={styles.header}>
                     <Space>
+                        <IconButton
+                            tooltip={t('refresh')}
+                            onClick={init}
+                        >
+                            <ReloadOutlined />
+                        </IconButton>
                         <IconButton
                             tooltip={t('connection_create')}
                             onClick={add}
