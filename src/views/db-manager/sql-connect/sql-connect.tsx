@@ -297,6 +297,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
     const { t } = useTranslation()
 
     // TODO clear
+    const [keyword, setKeyword] = useState('')
     const [treeData, setTreeData] = useState([])
     const [expandedKeys, setExpandedKeys] = useState<any[]>([])
     const [modalVisible, setModalVisible] = useState(false)
@@ -321,11 +322,18 @@ export function SqlConnector({ config, onConnnect, onJson }) {
         // },
     ])
 
+    // const treeData = useMemo(() => {
+
+    // }, [connections, keyword])
 
     async function init() {
-        const connections = storage.get('connections', [])
+        let connections = storage.get('connections', [])
+        if (keyword) {
+            connections = connections.filter(item => item.name.toLowerCase().includes(keyword.toLowerCase()))
+        }
+        // const connections = storage.get('connections', [])
+        setConnections(connections)
         if (connections.length) {
-            setConnections(connections)
             const treeData = list2Tree(connections)
             setTreeData(treeData)
             setExpandedKeys(treeData.map(item => item.key))
@@ -334,7 +342,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
 
     useEffect(() => {
         init()
-    }, [])
+    }, [keyword])
 
     const [loading, setLoading] = useState(false)
     
@@ -529,6 +537,17 @@ export function SqlConnector({ config, onConnnect, onJson }) {
                             <ExportOutlined />
                         </IconButton>
                     </Space>
+                    <div>
+                        <Input
+                            placeholder={t('search')}
+                            value={keyword}
+                            allowClear={true}
+                            onChange={e => {
+                                // const 
+                                setKeyword(e.target.value)
+                            }}
+                        />
+                    </div>
                 </div>
                 <div className={styles.connections}>
                     {/* {connections.map(ConnectionItem)} */}
@@ -622,7 +641,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
                         />
                     :
                         <div className={styles.emptyBox}>
-                            <Empty description="No Connects"></Empty>
+                            <Empty description={t('connection_empty')}></Empty>
                         </div>
                     }
                 </div>
