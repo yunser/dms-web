@@ -16,6 +16,7 @@ import saveAs from 'file-saver';
 import { DownloadOutlined } from '@ant-design/icons';
 import { t } from 'i18next';
 import { RowDetailModal } from '../sql-row-detail-modal/sql-row-detail-modal';
+import { RowEditModal } from '../sql-row-edit-modal/sql-row-edit-modal';
 
 const { TabPane } = Tabs
 const { TextArea } = Input
@@ -274,6 +275,7 @@ export function ExecDetail(props) {
     // console.log('tableInfo_will', tableInfoList)
 
     const [modelCode, setModalCode] = useState('')
+    const [rowEditItem, setRowEditItem] = useState(null)
     const [rowModalItem, setRowModalItem] = useState(null)
     const tableBoxRef = useRef(null)
     const [editing, setEditing] = useState(false)
@@ -491,6 +493,13 @@ export function ExecDetail(props) {
         setRowModalItem(list[rowKey])
     }
 
+    function selectionEdit() {
+        const rowKey = selectedRowKeys[0]
+        console.log('rowKey', rowKey)
+        console.log('list', list)
+        setRowEditItem(list[rowKey])
+    }
+
     async function removeSelection() {
         // if 
         console.log('tableInfo', tableInfoList.current)
@@ -666,6 +675,13 @@ export function ExecDetail(props) {
                                         }}
                                     >{t('add')}</Button>
                                 }
+                                <Button
+                                    size="small"
+                                    disabled={!(selectedRowKeys.length == 1)}
+                                    onClick={() => {
+                                        selectionEdit()
+                                    }}
+                                >{t('edit')}</Button>
                                 {tableEditable &&
                                     <Button
                                         danger
@@ -894,6 +910,35 @@ export function ExecDetail(props) {
                     item={rowModalItem}
                     onCancel={() => {
                         setRowModalItem(null)
+                    }}
+                />
+            }
+            {!!rowEditItem &&
+                <RowEditModal
+                    item={rowEditItem}
+                    onCancel={() => {
+                        setRowEditItem(null)
+                    }}
+                    onOk={(values) => {
+                        console.log('onOk', values, rowEditItem)
+                        console.log('list[rowEditItem._idx]', list[rowEditItem._idx])
+                        for (let field in values) {
+                            // list[rowEditItem._idx][field] = values[field]
+                            for (let idx in list[rowEditItem._idx]) {
+                                const cell = list[rowEditItem._idx][idx]
+                                if (cell.fieldName == field) {
+                                    if (values[field] != list[rowEditItem._idx][idx].value) {
+                                        list[rowEditItem._idx][idx].newValue = values[field]
+                                    }
+                                }
+                            }
+                        }
+                        console.log('newItem', list[rowEditItem._idx])
+                        setList([
+                            ...list,
+                        ])
+                        setEditing(true)
+                        setRowEditItem(null)
                     }}
                 />
             }
