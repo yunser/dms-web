@@ -19,7 +19,7 @@ export function RowDetailModal({ config, connectionId, item, onCancel, onSuccess
 
     // const [columns, setColumns] = useState([])
     const [list, setList] = useState([])
-   
+    const [keyword, setKeyword] = useState('')
     console.log('item', item)
     const columns = [
         {
@@ -32,9 +32,19 @@ export function RowDetailModal({ config, connectionId, item, onCancel, onSuccess
             dataIndex: 'value',
         },
     ]
+    const filterList = useMemo(() => {
+
+        if (!keyword) {
+            return list
+        }
+        return list.filter(item => {
+            return (item.field && item.field.toLowerCase().includes(keyword.toLowerCase()))
+                || (item.value && ('' + item.value).toLowerCase().includes(keyword.toLowerCase()))
+        })
+    }, [list, keyword])
 
     useEffect(() => {
-        const list = []
+        const list = [] 
         for (let key in item) {
             const { fieldName, value } = item[key]
             list.push({
@@ -62,13 +72,27 @@ export function RowDetailModal({ config, connectionId, item, onCancel, onSuccess
             }}
             footer={null}
         >
+            <div style={{
+                marginBottom: 8,
+            }}>
+                <Input
+                    placeholder={t(('search'))}
+                    value={keyword}
+                    onChange={e => {
+                        setKeyword(e.target.value)
+                    }}
+                    style={{
+                        width: 320,
+                    }}
+                />
+            </div>
             <Table
-                dataSource={list}
+                dataSource={filterList}
                 columns={columns}
                 size="small"
                 pagination={false}
                 scroll={{
-                    y: 560,
+                    y: 480,
                 }}
             />
         </Modal>
