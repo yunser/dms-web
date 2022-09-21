@@ -2,6 +2,7 @@
     --primary-color: #1628d4;
     --main-color: #09c;
     --primary: #f00;
+    
 }
 .theme-light {
     --border-color: rgba(0, 0, 0, .12);
@@ -16,6 +17,7 @@
     /* --color-bg-left: #f00; */
 
     --color-bg-left2: #fff;
+    --color-text-3: rgba(0, 0, 0, .45);
 }
 .theme-dark {
     --border-color: rgba(255, 255, 255, .12);
@@ -31,6 +33,7 @@
     --color-table-selected: #555;
 
     --color-bg-left2: #1d1d1d;
+    --color-text-3: rgba(255, 255, 255, .45);
 }
 body {
     transition: background-color .3s;

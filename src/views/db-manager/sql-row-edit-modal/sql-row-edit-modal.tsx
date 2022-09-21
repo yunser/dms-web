@@ -56,7 +56,7 @@ export function RowEditModal({ config, onOk, item, onCancel, onSuccess, tableNam
         <Modal
             title={t('edit')}
             visible={true}
-            width={640}
+            width={800}
             maskClosable={false}
             // okText={t('run')}
             // onOk={handleOk}
@@ -75,8 +75,8 @@ export function RowEditModal({ config, onOk, item, onCancel, onSuccess, tableNam
             <Form
                 form={form}
                 size="small"
-                labelCol={{ span: 4 }}
-                wrapperCol={{ span: 20 }}
+                labelCol={{ span: 6 }}
+                wrapperCol={{ span: 18 }}
                 initialValues={{
                     port: 3306,
                 }}

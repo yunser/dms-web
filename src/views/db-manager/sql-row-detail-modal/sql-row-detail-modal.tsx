@@ -30,6 +30,14 @@ export function RowDetailModal({ config, connectionId, item, onCancel, onSuccess
         {
             title: t('value'),
             dataIndex: 'value',
+            render(value) {
+                if (value == null) {
+                    return (
+                        <div className={styles.null}>NULL</div>
+                    )
+                }
+                return <div>{value}</div>
+            }
         },
     ]
     const filterList = useMemo(() => {
@@ -46,11 +54,13 @@ export function RowDetailModal({ config, connectionId, item, onCancel, onSuccess
     useEffect(() => {
         const list = [] 
         for (let key in item) {
-            const { fieldName, value } = item[key]
-            list.push({
-                field: fieldName,
-                value,
-            })
+            if (key != '_idx') {
+                const { fieldName, value } = item[key]
+                list.push({
+                    field: fieldName,
+                    value,
+                })
+            }
         }
         console.log('list', list)
         setList(list)
@@ -91,6 +101,7 @@ export function RowDetailModal({ config, connectionId, item, onCancel, onSuccess
                 columns={columns}
                 size="small"
                 pagination={false}
+                rowKey="field"
                 scroll={{
                     y: 480,
                 }}

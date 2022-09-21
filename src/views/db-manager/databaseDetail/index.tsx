@@ -39,6 +39,7 @@ import { UserList } from '../user-list'
 import { SqlList } from '../sql-list'
 import { suggestionAdd } from '../suggestion'
 import { MySqlInfo } from '../mysql-info'
+import { SqlQuickPanel } from '../sql-quick/sql-quick'
 
 // console.log('ddd.0')
 // _.debounce(() => {
@@ -604,6 +605,13 @@ export function DataBaseDetail({ connectionId, event$, config, onJson }) {
                                     <HistoryList
                                         config={config}
                                         onSql={onSql}
+                                    />
+                                }
+                                {item.type == 'quick_sql' &&
+                                    <SqlQuickPanel
+                                        config={config}
+                                        connectionId={connectionId}
+                                        event$={event$}
                                     />
                                 }
                                 {item.type == 'type_info' &&

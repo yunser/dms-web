@@ -7,7 +7,7 @@ import classNames from 'classnames'
 import { useTranslation } from 'react-i18next';
 import { Editor } from '../editor/Editor';
 import { IconButton } from '../icon-button';
-import { CodeOutlined, ConsoleSqlOutlined, DatabaseOutlined, FormatPainterOutlined, HistoryOutlined, InfoCircleOutlined, PlusOutlined, QuestionCircleOutlined, ReloadOutlined, SyncOutlined, TableOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
+import { AimOutlined, CodeOutlined, ConsoleSqlOutlined, DatabaseOutlined, FormatPainterOutlined, HistoryOutlined, InfoCircleOutlined, PlusOutlined, QuestionCircleOutlined, ReloadOutlined, SyncOutlined, TableOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
 import { getTableFieldMap, setAllFields, setTabbleAllFields, suggestionAdd, suggestionAddSchemas } from '../suggestion';
 import { request } from '../utils/http';
 import { i18n } from '@/i18n';
@@ -694,6 +694,22 @@ LIMIT 1000;`
                         }}
                     >
                         <InfoCircleOutlined />
+                    </IconButton>
+                    <IconButton
+                        tooltip={t('quick_sql')}
+                        onClick={() => {
+                            // let tabKey = '' + new Date().getTime()
+                            onTab && onTab({
+                                title: t('quick_sql'),
+                                key: 'quick-sql-0',
+                                type: 'quick_sql',
+                                data: {
+                                    connectionId,
+                                },
+                            })
+                        }}
+                    >
+                        <AimOutlined />
                     </IconButton>
                 </div>
                 {/* Header */}

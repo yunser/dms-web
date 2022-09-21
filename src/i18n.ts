@@ -196,6 +196,7 @@ i18n
                     'color.green': 'Green',
                     'color.orange': 'Orange',
                     detail: 'Detail',
+                    quick_sql: 'Quick SQL',
                 }
             },
             zh: {
@@ -385,6 +386,7 @@ i18n
                     'color.green': '绿色',
                     'color.orange': '橙色',
                     detail: '详情',
+                    quick_sql: '快捷 SQL 面板',
                 }
             }
         },

@@ -675,13 +675,15 @@ export function ExecDetail(props) {
                                         }}
                                     >{t('add')}</Button>
                                 }
-                                <Button
-                                    size="small"
-                                    disabled={!(selectedRowKeys.length == 1)}
-                                    onClick={() => {
-                                        selectionEdit()
-                                    }}
-                                >{t('edit')}</Button>
+                                {tableEditable &&
+                                    <Button
+                                        size="small"
+                                        disabled={!(selectedRowKeys.length == 1)}
+                                        onClick={() => {
+                                            selectionEdit()
+                                        }}
+                                    >{t('edit')}</Button>
+                                }
                                 {tableEditable &&
                                     <Button
                                         danger
