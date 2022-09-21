@@ -242,7 +242,7 @@ export function DataBaseDetail({ connectionId, event$, config, onJson }) {
             const { connectionId: _connectionId, schemaName } = msg.data
             if (_connectionId == connectionId) {
                 addOrActiveTab({
-                    title: `Users`,
+                    title: t('user_manager'),
                     key: 'user-manager-0',
                     type: 'user-manager',
                     data: {
