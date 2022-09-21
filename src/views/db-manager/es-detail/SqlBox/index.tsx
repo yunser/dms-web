@@ -4,17 +4,11 @@ import { message, Input, Modal, Button, Table, Popover, Space, Empty, Result, Ta
 // import http from '@/utils/http'
 import classNames from 'classnames'
 import { Editor } from '../../editor/Editor'
-import copy from 'copy-to-clipboard';
 import { request } from '../../utils/http'
 import { format } from 'sql-formatter'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import {  SqlParser } from '../../sql-parse-lib/sqlParser'
-import { ExecDetail } from '../../exec-detail/exec-detail'
 import { uid } from 'uid'
 import { useTranslation, Trans } from "react-i18next";
-import { HistoryList } from '../../history'
-import { CloseOutlined } from '@ant-design/icons'
-import { IconButton } from '../../icon-button'
 // var parse = require('sql-parse').parse;
 // console.log('asd')
 

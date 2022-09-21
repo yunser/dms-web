@@ -26,7 +26,7 @@ import { CloseOutlined, DatabaseOutlined, DownOutlined, EllipsisOutlined, Histor
 import { useTranslation } from 'react-i18next'
 import { IconButton } from '../icon-button'
 import { ExecModal } from '../exec-modal/exec-modal'
-import { HistoryList } from '../history'
+import { HistoryList } from '../sql-history'
 // import _ from 'lodash'
 import debounce from 'lodash/debounce'
 import { SqlTree } from '../sql-tree'

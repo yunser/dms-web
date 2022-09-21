@@ -12,7 +12,7 @@ import {  SqlParser } from '../../sql-parse-lib/sqlParser'
 import { ExecDetail } from '../../exec-detail/exec-detail'
 import { uid } from 'uid'
 import { useTranslation, Trans } from "react-i18next";
-import { HistoryList } from '../../history'
+import { HistoryList } from '../../sql-history'
 import { CloseOutlined } from '@ant-design/icons'
 import { IconButton } from '../../icon-button'
 import storage from '@/utils/storage'

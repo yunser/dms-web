@@ -117,7 +117,7 @@ export function HistoryList({ config, onSql }) {
         {
             title: t('actions'),
             dataIndex: 'actions',
-            width: 80,
+            width: 120,
             fixed: 'right',
             render(value, item) {
                 return (
@@ -129,6 +129,14 @@ export function HistoryList({ config, onSql }) {
                                 onSql && onSql(item.sql)
                             }}
                         >{t('use')}</Button>
+                        <Button
+                            type="link"
+                            size="small"
+                            onClick={() => {
+                                copy(item.sql)
+                                message.success(t('copied'))
+                            }}
+                        >{t('copy')}</Button>
                     </Space>
                 )
             }
