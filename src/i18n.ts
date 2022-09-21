@@ -195,6 +195,7 @@ i18n
                     'color.blue': 'Blue',
                     'color.green': 'Green',
                     'color.orange': 'Orange',
+                    detail: 'Detail',
                 }
             },
             zh: {
@@ -383,6 +384,7 @@ i18n
                     'color.blue': '蓝色',
                     'color.green': '绿色',
                     'color.orange': '橙色',
+                    detail: '详情',
                 }
             }
         },
@@ -401,4 +403,5 @@ i18n
     });
 
 export { i18n }
+
 

@@ -15,6 +15,7 @@ import { ExecModal } from '../exec-modal/exec-modal';
 import saveAs from 'file-saver';
 import { DownloadOutlined } from '@ant-design/icons';
 import { t } from 'i18next';
+import { RowDetailModal } from '../sql-row-detail-modal/sql-row-detail-modal';
 
 const { TabPane } = Tabs
 const { TextArea } = Input
@@ -273,6 +274,7 @@ export function ExecDetail(props) {
     // console.log('tableInfo_will', tableInfoList)
 
     const [modelCode, setModalCode] = useState('')
+    const [rowModalItem, setRowModalItem] = useState(null)
     const tableBoxRef = useRef(null)
     const [editing, setEditing] = useState(false)
     const [list, setList] = useState(_list)
@@ -482,6 +484,13 @@ export function ExecDetail(props) {
         saveAs(blob, 'unnamed.csv')
     }
 
+    function selectionDetail() {
+        const rowKey = selectedRowKeys[0]
+        console.log('rowKey', rowKey)
+        console.log('list', list)
+        setRowModalItem(list[rowKey])
+    }
+
     async function removeSelection() {
         // if 
         console.log('tableInfo', tableInfoList.current)
@@ -600,6 +609,7 @@ export function ExecDetail(props) {
         
     }, [results, fields, list])
 
+    console.log('rowModalItem', rowModalItem)
 
 	return (
         <div className={styles.resultBox}>
@@ -631,6 +641,13 @@ export function ExecDetail(props) {
                     {!!result && !rawExecResult &&
                         <div className={styles.header}>
                             <Space>
+                                <Button
+                                    size="small"
+                                    disabled={!(selectedRowKeys.length == 1)}
+                                    onClick={() => {
+                                        selectionDetail()
+                                    }}
+                                >{t('detail')}</Button>
                                 {tableEditable &&
                                     <Button
                                         size="small"
@@ -869,6 +886,14 @@ export function ExecDetail(props) {
                     dbName={dbName}
                     onClose={() => {
                         setModalCode('')
+                    }}
+                />
+            }
+            {!!rowModalItem &&
+                <RowDetailModal
+                    item={rowModalItem}
+                    onCancel={() => {
+                        setRowModalItem(null)
                     }}
                 />
             }
