@@ -12,6 +12,7 @@ import { suggestionAdd } from '../suggestion';
 import { SorterResult } from 'antd/lib/table/interface';
 import { request } from '../utils/http';
 import { UserDetail } from './user-detail';
+import { UserEditModal } from './user-edit';
 
 export function UserList({ config, connectionId, onTab, data = {} }: any) {
     console.warn('SqlTree/render')
@@ -22,6 +23,7 @@ export function UserList({ config, connectionId, onTab, data = {} }: any) {
     const [sortedInfo, setSortedInfo] = useState({});
     const [loading, setLoading] = useState(false)
     const [curUserName, setCurUserName] = useState('')
+    const [editUserItem, setEditUserItem] = useState('')
     
     const [list, setList] = useState([])
     
@@ -92,6 +94,15 @@ FROM \`mysql\`.\`user\``,
                         >
                             查看权限
                         </Button>
+                        <Button
+                            type="link"
+                            size="small"
+                            onClick={() => {
+                                setEditUserItem(item)
+                            }}
+                        >
+                            {t('edit')}
+                        </Button>
                         {/* <Button
                             type="link"
                             size="small"
@@ -151,6 +162,20 @@ FROM \`mysql\`.\`user\``,
                         userName={curUserName}
                     />
                 </div>
+            }
+            {!!editUserItem &&
+                <UserEditModal
+                    config={config}
+                    connectionId={connectionId}
+                    item={editUserItem}
+                    onCancel={() => {
+                        setEditUserItem('')
+                    }}
+                    onSuccess={() => {
+                        setEditUserItem('')
+                        loadData()
+                    }}
+                />
             }
         </div>
     )
