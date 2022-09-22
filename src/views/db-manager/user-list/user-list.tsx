@@ -7,7 +7,7 @@ import classNames from 'classnames'
 import { useTranslation } from 'react-i18next';
 import { Editor } from '../editor/Editor';
 import { IconButton } from '../icon-button';
-import { DatabaseOutlined, FormatPainterOutlined, ReloadOutlined, TableOutlined, UnorderedListOutlined } from '@ant-design/icons';
+import { DatabaseOutlined, FormatPainterOutlined, PlusOutlined, ReloadOutlined, TableOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import { suggestionAdd } from '../suggestion';
 import { SorterResult } from 'antd/lib/table/interface';
 import { request } from '../utils/http';
@@ -23,6 +23,7 @@ export function UserList({ config, connectionId, onTab, data = {} }: any) {
     const [sortedInfo, setSortedInfo] = useState({});
     const [loading, setLoading] = useState(false)
     const [curUserName, setCurUserName] = useState('')
+    const [editVisible, setEditVisible] = useState(false)
     const [editUserItem, setEditUserItem] = useState('')
     
     
@@ -100,6 +101,7 @@ FROM \`mysql\`.\`user\``,
                             type="link"
                             size="small"
                             onClick={() => {
+                                setEditVisible(true)
                                 setEditUserItem(item)
                             }}
                         >
@@ -134,6 +136,17 @@ FROM \`mysql\`.\`user\``,
                     >
                         <ReloadOutlined />
                     </IconButton>
+                    <IconButton
+                        tooltip={t('add')}
+                        // size="small"
+                        className={styles.refresh}
+                        onClick={() => {
+                            setEditVisible(true)
+                            setEditUserItem(null)
+                        }}
+                    >
+                        <PlusOutlined />
+                    </IconButton>
                 </Space>
             </div>
             <Table
@@ -165,16 +178,16 @@ FROM \`mysql\`.\`user\``,
                     />
                 </div>
             }
-            {!!editUserItem &&
+            {editVisible &&
                 <UserEditModal
                     config={config}
                     connectionId={connectionId}
                     item={editUserItem}
                     onCancel={() => {
-                        setEditUserItem('')
+                        setEditVisible(false)
                     }}
                     onSuccess={() => {
-                        setEditUserItem('')
+                        setEditVisible(false)
                         loadData()
                     }}
                 />

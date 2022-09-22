@@ -209,23 +209,33 @@ const all_permissions = [
 ]
 
 export function UserEditModal({ config, connectionId, onSuccess, onCancel, item, onTab, data = {} }: any) {
-    const userName = item.User
+    
     console.warn('SqlTree/render')
     
+    const editType = item ? 'update' : 'create'
     const { defaultJson = '' } = data
     const { t } = useTranslation()
 
     const [sortedInfo, setSortedInfo] = useState({});
     const [loading, setLoading] = useState(false)
-    // const [curTab, setCurTab] = useState('basic')
-    const [curTab, setCurTab] = useState('global')
+    const [curTab, setCurTab] = useState('basic')
+    // const [curTab, setCurTab] = useState('global')
     const [form] = Form.useForm()
     const [execSql, setExecSql] = useState('')
     useEffect(() => {
-        form.setFieldsValue({
-            ...item,
-            password: item.authentication_string,
-        })
+        if (item) {
+            form.setFieldsValue({
+                ...item,
+                password: item.authentication_string,
+            })
+        }
+        else {
+            form.setFieldsValue({
+                User: '',
+                Host: '',
+                password: '',
+            })
+        }
     }, [item])
     const [list, setList] = useState([])
     const [checkOptions, setCheckOptions] = useState([])
@@ -241,6 +251,10 @@ export function UserEditModal({ config, connectionId, onSuccess, onCancel, item,
         // dispatch({
         //   type: 'user/fetchUserList',
         // });
+        if (!item) {
+            return
+        }
+        const userName = item.User
         setLoading(true)
         setSortedInfo({})
         let res = await request.post(`${config.host}/mysql/execSqlSimple`, {
@@ -312,7 +326,7 @@ LIMIT 20;`,
 
     useEffect(() => {
         loadData()
-    }, [userName, item])
+    }, [item])
 
     function showSqlInNewtab({ title = 'New Query', sql }) {
         let tabKey = '' + new Date().getTime()
@@ -348,11 +362,15 @@ LIMIT 20;`,
             label: t('基本设置'),
             key: 'basic',
         },
-        {
-            label: t('全局权限'),
-            key: 'global',
-        },
     ]
+    if (editType == 'update') {
+        tabs.push(...[
+            {
+                label: t('全局权限'),
+                key: 'global',
+            },
+        ])
+    }
 
     return (
         <div>
@@ -364,14 +382,20 @@ LIMIT 20;`,
                 onOk={async () => {
                     const values = await form.validateFields()
                     const updates = []
-                    const uh = `'${values.User}'@'${values.Host}'`
-                    // 修改用户名和主机
-                    if (values.User != item.User || values.Host != item.Host) {
-                        updates.push(`RENAME USER '${item.User}'@'${item.Host}' TO ${uh};`)
+                    const uh = `'${values.User}'@'${values.Host || '%'}'`
+                    if (editType == 'create') {
+                        // let pwdCode = ''
+                        updates.push(`CREATE USER ${uh} IDENTIFIED BY '${values.password}';`)
                     }
-                    // 修改密码
-                    if (values.password != item.authentication_string) {
-                        updates.push(`ALTER USER ${uh} IDENTIFIED BY '${values.password}';`)
+                    else {
+                        // 修改用户名和主机
+                        if (values.User != item.User || values.Host != item.Host) {
+                            updates.push(`RENAME USER '${item.User}'@'${item.Host}' TO ${uh};`)
+                        }
+                        // 修改密码
+                        if (values.password != item.authentication_string) {
+                            updates.push(`ALTER USER ${uh} IDENTIFIED BY '${values.password}';`)
+                        }
                     }
                     // 修改全局权限
                     const addPer = []
@@ -445,7 +469,7 @@ LIMIT 20;`,
                                             <Form.Item
                                                 name="Host"
                                                 label="Host"
-                                                rules={[ { required: true, }, ]}
+                                                rules={[ { required: editType == 'update', }, ]}
                                             >
                                                 <Input />
                                             </Form.Item>
