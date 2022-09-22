@@ -25,10 +25,12 @@ export function UserList({ config, connectionId, onTab, data = {} }: any) {
     const [curUserName, setCurUserName] = useState('')
     const [editUserItem, setEditUserItem] = useState('')
     
+    
     const [list, setList] = useState([])
     
 
     async function loadData() {
+        setCurUserName('')
         setLoading(true)
         setSortedInfo({})
         let res = await request.post(`${config.host}/mysql/execSqlSimple`, {
@@ -92,7 +94,7 @@ FROM \`mysql\`.\`user\``,
                                 setCurUserName(item.User)
                             }}
                         >
-                            查看权限
+                            查看数据库权限
                         </Button>
                         <Button
                             type="link"
