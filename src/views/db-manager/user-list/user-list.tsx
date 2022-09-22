@@ -13,6 +13,7 @@ import { SorterResult } from 'antd/lib/table/interface';
 import { request } from '../utils/http';
 import { UserDetail } from './user-detail';
 import { UserEditModal } from './user-edit';
+import { ExecModal } from '../exec-modal/exec-modal';
 
 export function UserList({ config, connectionId, onTab, data = {} }: any) {
     console.warn('SqlTree/render')
@@ -25,12 +26,12 @@ export function UserList({ config, connectionId, onTab, data = {} }: any) {
     const [curUserName, setCurUserName] = useState('')
     const [editVisible, setEditVisible] = useState(false)
     const [editUserItem, setEditUserItem] = useState('')
-    
+    const [execSql, setExecSql] = useState('')
     
     const [list, setList] = useState([])
     
 
-    async function loadData() {
+    async function loadList() {
         setCurUserName('')
         setLoading(true)
         setSortedInfo({})
@@ -53,7 +54,7 @@ FROM \`mysql\`.\`user\``,
     }
 
     useEffect(() => {
-        loadData()
+        loadList()
     }, [])
 
     function showSqlInNewtab({ title = 'New Query', sql }) {
@@ -107,15 +108,16 @@ FROM \`mysql\`.\`user\``,
                         >
                             {t('edit')}
                         </Button>
-                        {/* <Button
+                        <Button
+                            danger
                             type="link"
                             size="small"
                             onClick={() => {
-                                truncate(item.TABLE_NAME)
+                                setExecSql(`DROP USER '${item.User}'@'${item.Host}';`)
                             }}
                         >
-                            清空
-                        </Button> */}
+                            {t('delete')}
+                        </Button>
                     </Space>
                 )
             }
@@ -131,7 +133,7 @@ FROM \`mysql\`.\`user\``,
                     <IconButton
                         tooltip={t('refresh')}
                         onClick={() => {
-                            loadData()
+                            loadList()
                         }}
                     >
                         <ReloadOutlined />
@@ -188,7 +190,23 @@ FROM \`mysql\`.\`user\``,
                     }}
                     onSuccess={() => {
                         setEditVisible(false)
-                        loadData()
+                        loadList()
+                    }}
+                />
+            }
+            {!!execSql &&
+                <ExecModal
+                    config={config}
+                    connectionId={connectionId}
+                    sql={execSql}
+                    tableName={null}
+                    dbName={null}
+                    onClose={() => {
+                        setExecSql('')
+                    }}
+                    onSuccess={() => {
+                        setExecSql('')
+                        loadList()
                     }}
                 />
             }
