@@ -26,7 +26,10 @@ export function UserEditModal({ config, connectionId, onSuccess, onCancel, item,
     const [form] = Form.useForm()
     const [execSql, setExecSql] = useState('')
     useEffect(() => {
-        form.setFieldsValue(item)
+        form.setFieldsValue({
+            ...item,
+            password: item.authentication_string,
+        })
     }, [item])
     const [list, setList] = useState([])
     
@@ -184,6 +187,8 @@ LIMIT 20;`,
         },
     ]
 
+    console.log('execSql', execSql)
+
     return (
         <div className={styles.tablesBox}>
             <Modal
@@ -193,10 +198,16 @@ LIMIT 20;`,
                 onOk={async () => {
                     const values = await form.validateFields()
                     const updates = []
+                    // 修改用户名和主机
                     if (values.User != item.User || values.Host != item.Host) {
                         updates.push(`RENAME USER '${item.User}'@'${item.Host}' TO '${values.User}'@'${values.Host}';`)
                     }
+                    // 修改密码
+                    if (values.password != item.authentication_string) {
+                        updates.push(`ALTER USER '${values.User}'@'${values.Host}' IDENTIFIED BY '${values.password}';`)
+                    }
                     if (!updates.length) {
+                        message.info('No changed.')
                         onCancel && onCancel()
                         return
                     }
@@ -229,6 +240,15 @@ LIMIT 20;`,
                     >
                         <Input />
                     </Form.Item>
+                    <Form.Item
+                        name="password"
+                        label="Password"
+                        rules={[ { required: true, }, ]}
+                    >
+                        <Input
+                            type="password"
+                        />
+                    </Form.Item>
                 </Form>
                 {/* <Table
                     className={styles.table}
@@ -257,6 +277,9 @@ LIMIT 20;`,
                     sql={execSql}
                     tableName={null}
                     dbName={null}
+                    onClose={() => {
+                        setExecSql('')
+                    }}
                     onSuccess={() => {
                         setExecSql('')
                         onSuccess && onSuccess()
