@@ -209,6 +209,60 @@ const all_permissions = [
     
 ]
 
+
+
+function PermissionEditModal({ value, onCancel, onOk }) {
+
+    const [checkValues, setCheckValues] = useState([])
+    const [checkOptions, setCheckOptions] = useState([])
+    
+    console.log('value?', value)
+
+    useEffect(() => {
+
+        // const checkValues = []
+        const checkOptions = []
+        for (let per of all_permissions) {
+            checkOptions.push({
+                label: per.name,
+                value: per.col,
+            })
+            // if (item[per.col] == 'Y') {
+            //     checkValues.push(per.col)
+            // }
+        }
+        setCheckOptions(checkOptions)
+        setCheckValues(value.map(item => item.col))
+    }, [])
+    
+    return (
+        <Modal
+            title="编辑权限"
+            open={true}
+            onCancel={onCancel}
+            onOk={() => {
+                console.log('ok', checkValues)
+                const newList = checkValues.map(col => {
+                    return all_permissions.find(item => item.col == col)
+                })
+                console.log('newList', newList)
+                onOk && onOk(newList)
+            }}
+        >
+            <div className={styles.perBox}>
+                <Checkbox.Group
+                    options={checkOptions}
+                    value={checkValues}
+                    onChange={value => {
+                        setCheckValues(value)
+                    }}
+                />
+            </div>
+        </Modal>
+    )
+}
+
+
 export function UserEditModal({ config, connectionId, onSuccess, onCancel, item, onTab, data = {} }: any) {
     
     console.warn('SqlTree/render')
@@ -221,6 +275,8 @@ export function UserEditModal({ config, connectionId, onSuccess, onCancel, item,
     const [loading, setLoading] = useState(false)
     // const [curTab, setCurTab] = useState('basic')
     // const [curTab, setCurTab] = useState('global')
+    const [perModalVisible, setPerModalVisible] = useState(false)
+    const [perModalItem, setPerModalItem] = useState(false)
     const [removedDbPers, setRemovedDbPers] = useState([])
     const [curTab, setCurTab] = useState('database')
     const [form] = Form.useForm()
@@ -309,19 +365,20 @@ ORDER BY \`Db\` ASC;`,
 
 
             setList(list.map(item => {
-                const permissions = []
-                const permissionCodes = []
+                const _permissions = []
+                // const permissions = []
                 for (let per of truePermissions) {
                     if (item[per.col] == 'Y') {
-                        permissions.push(per.name)
-                        permissionCodes.push(per.code)
+                        // permissions.push(per.name)
+                        _permissions.push(per)
                     }
                 }
                 return {
                     __id: uid(16),
                     ...item,
-                    permissions: permissions.join(', '),
-                    permissionCodes,
+                    _permissions,
+                    _oldPermissions: JSON.parse(JSON.stringify(_permissions)),
+                    // permissions: permissions.join(', '),
                 }
             }))
 
@@ -360,8 +417,13 @@ ORDER BY \`Db\` ASC;`,
         },
         {
             title: t('permissions'),
-            dataIndex: 'permissions',
+            dataIndex: '_permissions',
             with: 640,
+            render(value) {
+                return (
+                    <div>{value.map(it => it.name).join((', '))}</div>
+                )
+            }
         },
         {
             title: '操作',
@@ -385,9 +447,12 @@ ORDER BY \`Db\` ASC;`,
                             onClick={() => {
                                 // setEditVisible(true)
                                 // setEditUserItem(item)
+                                console.log('item', item)
+                                setPerModalVisible(true)
+                                setPerModalItem(item)
                             }}
                         >
-                            查看/{t('edit')}
+                            {t('edit')}
                         </Button>
                         <Button
                             danger
@@ -478,9 +543,39 @@ ORDER BY \`Db\` ASC;`,
                     if (removedDbPers.length) {
                         console.log('removedDbPers', removedDbPers)
                         for (let item of removedDbPers) {
-                            updates.push(`REVOKE ${item.permissionCodes.join(', ')} ON \`${item.Db}\`.* FROM ${uh};`)
+                            updates.push(`REVOKE ${item._oldPermissions.map(it => it.code).join(', ')} ON \`${item.Db}\`.* FROM ${uh};`)
                         }
                     }
+                    // 编辑数据库权限
+                    for (let item of list) {
+                        // 新增的权限逻辑
+                        const addList = []
+                        for (let it of item._permissions) {
+                            const fOld = item._oldPermissions.find(_it => _it.col == it.col)
+                            if (!fOld) {
+                                addList.push(it)
+                            }
+                        }
+                        console.log('item', item)
+                        console.log('addList', addList)
+                        if (addList.length) {
+                            updates.push(`GRANT ${addList.map(it => it.code).join(', ')} ON \`${item.Db}\`.* TO ${uh};`)
+                        }
+                        // 删除的权限逻辑
+                        const removeList = []
+                        for (let it of item._oldPermissions) {
+                            const fOld = item._permissions.find(_it => _it.col == it.col)
+                            if (!fOld) {
+                                removeList.push(it)
+                            }
+                        }
+                        console.log('removeList', removeList)
+                        if (removeList.length) {
+                            updates.push(`REVOKE ${removeList.map(it => it.code).join(', ')} ON \`${item.Db}\`.* FROM ${uh};`)
+                        }
+                        
+                    }
+
                     if (!updates.length) {
                         message.info('No changed.')
                         onCancel && onCancel()
@@ -606,6 +701,23 @@ ORDER BY \`Db\` ASC;`,
                     onSuccess={() => {
                         setExecSql('')
                         onSuccess && onSuccess()
+                    }}
+                />
+            }
+            {perModalVisible &&
+                <PermissionEditModal
+                    value={perModalItem._permissions}
+                    onCancel={() => {
+                        setPerModalVisible(false)
+                    }}
+                    onOk={(pers) => {
+                        const idx = list.findIndex(it => it.__id == perModalItem.__id)
+                        console.log('idx', idx)
+                        list[idx]._permissions = pers
+                        setList([
+                            ...list,
+                        ])
+                        setPerModalVisible(false)
                     }}
                 />
             }
