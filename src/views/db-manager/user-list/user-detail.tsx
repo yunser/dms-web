@@ -178,6 +178,7 @@ LIMIT 20;`,
             title: t('permissions'),
             dataIndex: 'permissions',
         },
+        
     ]
 
     return (

@@ -89,7 +89,7 @@ FROM \`mysql\`.\`user\``,
             render(_value, item) {
                 return (
                     <Space>
-                        <Button
+                        {/* <Button
                             type="link"
                             size="small"
                             onClick={() => {
@@ -97,7 +97,7 @@ FROM \`mysql\`.\`user\``,
                             }}
                         >
                             查看数据库权限
-                        </Button>
+                        </Button> */}
                         <Button
                             type="link"
                             size="small"
@@ -106,7 +106,7 @@ FROM \`mysql\`.\`user\``,
                                 setEditUserItem(item)
                             }}
                         >
-                            {t('edit')}
+                            查看/{t('edit')}
                         </Button>
                         <Button
                             danger

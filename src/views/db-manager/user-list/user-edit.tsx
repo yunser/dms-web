@@ -12,6 +12,7 @@ import { suggestionAdd } from '../suggestion';
 import { SorterResult } from 'antd/lib/table/interface';
 import { request } from '../utils/http';
 import { ExecModal } from '../exec-modal/exec-modal';
+import { uid } from 'uid';
 
 
 
@@ -78,7 +79,7 @@ const all_permissions = [
         code: 'DROP',
     },
     {
-        name: 'Grant',
+        name: 'Grant Option',
         col: 'Grant_priv',
         code: 'GRANT OPTION',
     },
@@ -218,8 +219,10 @@ export function UserEditModal({ config, connectionId, onSuccess, onCancel, item,
 
     const [sortedInfo, setSortedInfo] = useState({});
     const [loading, setLoading] = useState(false)
-    const [curTab, setCurTab] = useState('basic')
+    // const [curTab, setCurTab] = useState('basic')
     // const [curTab, setCurTab] = useState('global')
+    const [removedDbPers, setRemovedDbPers] = useState([])
+    const [curTab, setCurTab] = useState('database')
     const [form] = Form.useForm()
     const [execSql, setExecSql] = useState('')
     useEffect(() => {
@@ -257,12 +260,14 @@ export function UserEditModal({ config, connectionId, onSuccess, onCancel, item,
         const userName = item.User
         setLoading(true)
         setSortedInfo({})
+        setRemovedDbPers([])
+        
         let res = await request.post(`${config.host}/mysql/execSqlSimple`, {
             connectionId,
             sql: `SELECT *
 FROM \`mysql\`.\`db\`
 WHERE \`User\` = '${userName}'
-LIMIT 20;`,
+ORDER BY \`Db\` ASC;`,
         })
         if (res.success) {
             // message.info('连接成功')
@@ -305,14 +310,18 @@ LIMIT 20;`,
 
             setList(list.map(item => {
                 const permissions = []
+                const permissionCodes = []
                 for (let per of truePermissions) {
                     if (item[per.col] == 'Y') {
                         permissions.push(per.name)
+                        permissionCodes.push(per.code)
                     }
                 }
                 return {
+                    __id: uid(16),
                     ...item,
-                    permissions: permissions.join(', ')
+                    permissions: permissions.join(', '),
+                    permissionCodes,
                 }
             }))
 
@@ -352,10 +361,56 @@ LIMIT 20;`,
         {
             title: t('permissions'),
             dataIndex: 'permissions',
+            with: 640,
+        },
+        {
+            title: '操作',
+            dataIndex: 'op',
+            fixed: 'right',
+            render(_value, item) {
+                return (
+                    <Space>
+                        {/* <Button
+                            type="link"
+                            size="small"
+                            onClick={() => {
+                                setCurUserName(item.User)
+                            }}
+                        >
+                            查看数据库权限
+                        </Button> */}
+                        <Button
+                            type="link"
+                            size="small"
+                            onClick={() => {
+                                // setEditVisible(true)
+                                // setEditUserItem(item)
+                            }}
+                        >
+                            查看/{t('edit')}
+                        </Button>
+                        <Button
+                            danger
+                            type="link"
+                            size="small"
+                            onClick={() => {
+                                // setExecSql(`DROP USER '${item.User}'@'${item.Host}';`)
+                                setRemovedDbPers([
+                                    ...removedDbPers,
+                                    item,
+                                ])
+                                setList(list.filter(_item => _item.__id != item.__id))
+                            }}
+                        >
+                            {t('delete')}
+                        </Button>
+                    </Space>
+                )
+            }
         },
     ]
 
-    console.log('execSql', execSql)
+    // console.log('execSql', execSql)
 
     const tabs = [
         {
@@ -369,6 +424,10 @@ LIMIT 20;`,
                 label: t('全局权限'),
                 key: 'global',
             },
+            {
+                label: t('数据库权限'),
+                key: 'database',
+            },
         ])
     }
 
@@ -377,7 +436,7 @@ LIMIT 20;`,
             <Modal
                 open={true}
                 title="编辑用户"
-                width={800}
+                width={1200}
                 onCancel={onCancel}
                 onOk={async () => {
                     const values = await form.validateFields()
@@ -415,7 +474,13 @@ LIMIT 20;`,
                     if (addPer.length) {
                         updates.push(`GRANT ${addPer.join(', ')} ON *.* TO ${uh};`)
                     }
-
+                    // 删除数据库权限
+                    if (removedDbPers.length) {
+                        console.log('removedDbPers', removedDbPers)
+                        for (let item of removedDbPers) {
+                            updates.push(`REVOKE ${item.permissionCodes.join(', ')} ON \`${item.Db}\`.* FROM ${uh};`)
+                        }
+                    }
                     if (!updates.length) {
                         message.info('No changed.')
                         onCancel && onCancel()
@@ -447,42 +512,44 @@ LIMIT 20;`,
                                     }}
                                 >
                                     {item.key == 'basic' &&
-                                        <Form
-                                            form={form}
-                                            labelCol={{ span: 8 }}
-                                            wrapperCol={{ span: 16 }}
-                                            initialValues={{
-                                                port: 3306,
-                                            }}
-                                            // layout={{
-                                            //     labelCol: { span: 0 },
-                                            //     wrapperCol: { span: 24 },
-                                            // }}
-                                        >
-                                            <Form.Item
-                                                name="User"
-                                                label="User"
-                                                rules={[ { required: true, }, ]}
+                                        <div className={styles.formBox}>
+                                            <Form
+                                                form={form}
+                                                labelCol={{ span: 8 }}
+                                                wrapperCol={{ span: 16 }}
+                                                initialValues={{
+                                                    port: 3306,
+                                                }}
+                                                // layout={{
+                                                //     labelCol: { span: 0 },
+                                                //     wrapperCol: { span: 24 },
+                                                // }}
                                             >
-                                                <Input />
-                                            </Form.Item>
-                                            <Form.Item
-                                                name="Host"
-                                                label="Host"
-                                                rules={[ { required: editType == 'update', }, ]}
-                                            >
-                                                <Input />
-                                            </Form.Item>
-                                            <Form.Item
-                                                name="password"
-                                                label="Password"
-                                                rules={[ { required: true, }, ]}
-                                            >
-                                                <Input
-                                                    type="password"
-                                                />
-                                            </Form.Item>
-                                        </Form>
+                                                <Form.Item
+                                                    name="User"
+                                                    label="User"
+                                                    rules={[ { required: true, }, ]}
+                                                >
+                                                    <Input />
+                                                </Form.Item>
+                                                <Form.Item
+                                                    name="Host"
+                                                    label="Host"
+                                                    rules={[ { required: editType == 'update', }, ]}
+                                                >
+                                                    <Input />
+                                                </Form.Item>
+                                                <Form.Item
+                                                    name="password"
+                                                    label="Password"
+                                                    rules={[ { required: true, }, ]}
+                                                >
+                                                    <Input
+                                                        type="password"
+                                                    />
+                                                </Form.Item>
+                                            </Form>
+                                        </div>
                                     }
                                     {item.key == 'global' &&
                                         <div>
@@ -495,31 +562,36 @@ LIMIT 20;`,
                                             />
                                         </div>
                                     }
+                                    {item.key == 'database' &&
+                                        <div>
+                                            <Table
+                                                className={styles.table}
+                                                dataSource={list}
+                                                pagination={false}
+                                                size="small"
+                                                rowKey="__id"
+                                                columns={columns}
+                                                loading={loading}
+                                                bordered
+                                                onChange={(pagination, filters, sorter) => {
+                                                    console.log('Various parameters', pagination, filters, sorter);
+                                                    // setFilteredInfo(filters);
+                                                    console.log('sorter', sorter)
+                                                    setSortedInfo(sorter)
+                                                }}
+                                                scroll={{
+                                                    x: true,
+                                                }}
+                                            />
+                                        </div>
+                                    }
                                 </div>
                             )
                         })}
 
                     </div>
                 </div>
-                {/* <Table
-                    className={styles.table}
-                    dataSource={list}
-                    pagination={false}
-                    size="small"
-                    rowKey="TABLE_NAME"
-                    columns={columns}
-                    loading={loading}
-                    bordered
-                    onChange={(pagination, filters, sorter) => {
-                        console.log('Various parameters', pagination, filters, sorter);
-                        // setFilteredInfo(filters);
-                        console.log('sorter', sorter)
-                        setSortedInfo(sorter)
-                    }}
-                    scroll={{
-                        x: true,
-                    }}
-                /> */}
+                
             </Modal>
             {!!execSql &&
                 <ExecModal
