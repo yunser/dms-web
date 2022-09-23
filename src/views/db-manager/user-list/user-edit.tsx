@@ -1,4 +1,4 @@
-import { Button, Checkbox, Descriptions, Dropdown, Form, Input, InputProps, Menu, message, Modal, Popover, Space, Table, Tabs, Tooltip, Tree } from 'antd';
+import { Button, Checkbox, Descriptions, Dropdown, Form, Input, InputProps, Menu, message, Modal, Popover, Select, Space, Table, Tabs, Tooltip, Tree } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './user-list.module.less';
 import _, { debounce } from 'lodash';
@@ -209,7 +209,71 @@ const all_permissions = [
     
 ]
 
+function DbModal({ config, connectionId, onOk, onCancel }) {
+    const [form] = Form.useForm()
+    const [options, setOptions] = useState([])
+    async function loadDbList() {
+        // setLoading(true)
+        let ret = await request.post(`${config.host}/mysql/databases`, {
+            connectionId,
+        })
+        // console.log('ret', ret)
+        if (ret.success) {
+            // message.info('连接成功')
+            // console.log('ret', ret.data)
+            // storage.set('connectId', 'ret.data')
+            setOptions(ret.data.map(item => {
+                return {
+                    label: item.SCHEMA_NAME,
+                    value: item.SCHEMA_NAME,
+                }
+            }))
+        } else {
+            // message.error('连接失败')
+        }
+        // setLoading(false)
+    }
 
+    useEffect(() => {
+        loadDbList()
+    }, [])
+
+    return (
+        <Modal
+            title="选择数据库"
+            open={true}
+            onCancel={onCancel}
+            onOk={async () => {
+                const values = await form.validateFields()
+                console.log('values', values)
+                onOk && onOk(values.schema)
+            }}
+        >
+            <Form
+                form={form}
+                labelCol={{ span: 8 }}
+                wrapperCol={{ span: 16 }}
+                initialValues={{
+                    // port: 3306,
+                }}
+                // layout={{
+                //     labelCol: { span: 0 },
+                //     wrapperCol: { span: 24 },
+                // }}
+            >
+                <Form.Item
+                    name="schema"
+                    label="数据库"
+                    rules={[ { required: true, }, ]}
+                >
+                    <Select
+                        options={options}
+                    />
+                </Form.Item>
+            </Form>
+        </Modal>
+    )
+}
 
 function PermissionEditModal({ value, onCancel, onOk }) {
 
@@ -300,6 +364,7 @@ export function UserEditModal({ config, connectionId, onSuccess, onCancel, item,
     const [checkOptions, setCheckOptions] = useState([])
     const [checkValues, setCheckValues] = useState([])
     const [truePermissions, setTruePermissions] = useState([])
+    const [dbModalVisible, setDbModalVisible] = useState(false)
     
 
     async function loadData() {
@@ -546,8 +611,14 @@ ORDER BY \`Db\` ASC;`,
                             updates.push(`REVOKE ${item._oldPermissions.map(it => it.code).join(', ')} ON \`${item.Db}\`.* FROM ${uh};`)
                         }
                     }
-                    // 编辑数据库权限
                     for (let item of list) {
+                        if (item.__new) {
+                            // 新增数据库权限
+                        }
+                        else {
+                            // 编辑数据库权限
+
+                        }
                         // 新增的权限逻辑
                         const addList = []
                         for (let it of item._permissions) {
@@ -659,6 +730,14 @@ ORDER BY \`Db\` ASC;`,
                                     }
                                     {item.key == 'database' &&
                                         <div>
+                                            <Button
+                                                size="small"
+                                                onClick={() => {
+                                                    setDbModalVisible(true)
+                                                }}
+                                            >
+                                                新增
+                                            </Button>
                                             <Table
                                                 className={styles.table}
                                                 dataSource={list}
@@ -719,6 +798,30 @@ ORDER BY \`Db\` ASC;`,
                         ])
                         setPerModalVisible(false)
                     }}
+                />
+            }
+            {dbModalVisible &&
+                <DbModal
+                    config={config}
+                    connectionId={connectionId}
+                    onCancel={() => {
+                        setDbModalVisible(false)
+                    }}
+                    onOk={(schema) => {
+                        setDbModalVisible(false)
+                        setList([
+                            ...list,
+                            {
+                                __new: true,
+                                __id: uid(16),
+                                // ...item,
+                                Db: schema,
+                                _permissions: [],
+                                _oldPermissions: [],
+                            }
+                        ])
+                    }}
+                    
                 />
             }
         </div>
