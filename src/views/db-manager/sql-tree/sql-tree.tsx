@@ -620,7 +620,7 @@ LIMIT 1000;`
                         onClick={() => {
                             let tabKey = '' + new Date().getTime()
                             onTab && onTab({
-                                title: t('schemas'),
+                                title: '$i18n.schemas',
                                 key: 'mysql-database-0',
                                 type: 'databases',
                                 data: {
@@ -700,7 +700,7 @@ LIMIT 1000;`
                         onClick={() => {
                             // let tabKey = '' + new Date().getTime()
                             onTab && onTab({
-                                title: t('quick_sql'),
+                                title: '$i18n.quick_sql',
                                 key: 'quick-sql-0',
                                 type: 'quick_sql',
                                 data: {

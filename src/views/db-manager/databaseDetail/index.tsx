@@ -198,7 +198,7 @@ function Status({ config, event$, connectionId }) {
                             <div>{curSchema}</div>
                         </Tooltip>
                     :
-                        <div>No database selected.</div>
+                        <div>{t('no_database_selected')}</div>
                     }
                 </div>
             }
@@ -242,7 +242,7 @@ export function DataBaseDetail({ connectionId, event$, config, onJson }) {
             const { connectionId: _connectionId, schemaName } = msg.data
             if (_connectionId == connectionId) {
                 addOrActiveTab({
-                    title: t('user_manager'),
+                    title: '$i18n.user_manager',
                     key: 'user-manager-0',
                     type: 'user-manager',
                     data: {
@@ -258,7 +258,7 @@ export function DataBaseDetail({ connectionId, event$, config, onJson }) {
             if (_connectionId == connectionId) {
                 const history_tab = {
                     type: 'history',
-                    title: t('history'),
+                    title: '$i18n.history',
                     key: 'history-0-0',
                 }
                 addOrActiveTab(history_tab)
@@ -269,7 +269,7 @@ export function DataBaseDetail({ connectionId, event$, config, onJson }) {
             if (_connectionId == connectionId) {
                 const history_tab = {
                     type: 'type_sqls',
-                    title: t('sql_manage'),
+                    title: '$i18n.sql_manage',
                     key: 'sqls-0-0',
                 }
                 addOrActiveTab(history_tab)
@@ -280,7 +280,7 @@ export function DataBaseDetail({ connectionId, event$, config, onJson }) {
             if (_connectionId == connectionId) {
                 const history_tab = {
                     type: 'type_info',
-                    title: t('info'),
+                    title: '$i18n.info',
                     key: 'info-0-0',
                 }
                 addOrActiveTab(history_tab)
@@ -522,7 +522,8 @@ export function DataBaseDetail({ connectionId, event$, config, onJson }) {
                         }}
                         items={tabs.map(item => {
                             return {
-                                label: item.title,
+                                // label: item.title,
+                                label: item.title.startsWith('$i18n.') ? t(item.title.replace('$i18n.', '')) : item.title,
                                 key: item.key,
                                 closable: item.closable !== false,
                             }

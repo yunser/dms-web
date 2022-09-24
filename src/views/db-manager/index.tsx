@@ -57,7 +57,7 @@ export function DbManager({ config }) {
     }, [i18n.language])
 
     const tab_workbench = {
-        title: t('workbench'),
+        title: '$i18n.workbench',
         key: 'workbench',
         type: 'workbench',
         data: {},
@@ -244,7 +244,7 @@ export function DbManager({ config }) {
                                             type="text"
                                             onClick={() => {
                                                 addOrActiveTab({
-                                                    title: t('text'),
+                                                    title: '$i18n.text',
                                                     key: 'text-' + uid(16),
                                                     type: 'text',
                                                     data: {
@@ -259,7 +259,7 @@ export function DbManager({ config }) {
                                             type="text"
                                             onClick={() => {
                                                 addOrActiveTab({
-                                                    title: 'Redis Connect',
+                                                    title: 'Redis',
                                                     // key: 'redis-' + uid(16),
                                                     key: 'redis-connect',
                                                     type: 'redis-connect',
@@ -291,7 +291,7 @@ export function DbManager({ config }) {
                                             type="text"
                                             onClick={() => {
                                                 addOrActiveTab({
-                                                    title: t('help'),
+                                                    title: '$i18n.help',
                                                     key: 'help',
                                                     type: 'help',
                                                     data: {
@@ -339,8 +339,11 @@ export function DbManager({ config }) {
                             )
                         }}
                         items={tabs.map(item => {
+                            const staticLabels = {
+                                '__workbench__': t('workbench'),
+                            }
                             return {
-                                label: item.title,
+                                label: item.title.startsWith('$i18n.') ? t(item.title.replace('$i18n.', '')) : item.title,
                                 key: item.key,
                                 closable: item.closable !== false,
                             }
