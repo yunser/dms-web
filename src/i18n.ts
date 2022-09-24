@@ -213,6 +213,7 @@ i18n
                     'priv.group.other': 'Other',
                     select_all: 'Select All',
                     unselect_all: 'Unselect All',
+                    share: 'Share',
                 }
             },
             zh: {
@@ -419,6 +420,7 @@ i18n
                     'priv.group.other': '其他',
                     select_all: '全选',
                     unselect_all: '取消全选',
+                    share: '分享',
                 }
             }
         },

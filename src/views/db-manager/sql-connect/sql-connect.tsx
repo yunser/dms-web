@@ -13,6 +13,7 @@ import { DatabaseOutlined, ExportOutlined, FolderOutlined, PlusOutlined, ReloadO
 import { uid } from 'uid';
 import { CodeDebuger } from '../code-debug';
 import { ColorSelector } from '../color-selector';
+import copy from 'copy-to-clipboard';
 
 
 
@@ -609,6 +610,10 @@ export function SqlConnector({ config, onConnnect, onJson }) {
                                                         key: 'key_edit',
                                                     },
                                                     {
+                                                        label: t('share'),
+                                                        key: 'key_share',
+                                                    },
+                                                    {
                                                         label: t('delete'),
                                                         key: 'key_delete',
                                                     },
@@ -622,6 +627,19 @@ export function SqlConnector({ config, onConnnect, onJson }) {
                                                         // console.log('_item', nodeData)
                                                         setModalVisible(true)
                                                         setModalItem(nodeData.data)
+                                                    }
+                                                    else if (key == 'key_share') {
+                                                        console.log('_item', nodeData.data)
+                                                        const { data } = nodeData
+                                                        const shareContent = `${t('host')}: ${data.host}
+${t('port')}: ${data.port}
+${t('user')}: ${data.user}
+${t('password')}: ${data.password}`
+                                                        copy(shareContent)
+                                                        message.info(t('copied'))
+
+                                                        // setModalVisible(true)
+                                                        // setModalItem(nodeData.data)
                                                     }
                                                     else if (key == 'key_delete') {
                                                         // console.log('_item', nodeData)
