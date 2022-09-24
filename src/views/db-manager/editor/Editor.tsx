@@ -30,6 +30,16 @@ export const Editor: VFC = ({ lang = 'sql',
             const { theme } = msg.data
             console.log('type_theme_changed', msg.data, editorRef)
             monaco.editor.setTheme(theme == 'light' ? 'vs-light' : 'vs-dark')
+            // monaco.editor.defineTheme('myTheme', {
+            //     base: 'vs',
+            //     inherit: true,
+            //     rules: [{ background: 'EDF9FA' }],
+            //     colors: {
+            //         'editor.lineHighlightBackground': '#00000000',
+            //         'editor.lineHighlightBorder': '#00000000'
+            //     }
+            // })
+            // monaco.editor.setTheme('myTheme')
             if (editorRef.current) {
                 console.log('editor', editor)
                 // monaco.editor.
@@ -62,6 +72,7 @@ export const Editor: VFC = ({ lang = 'sql',
                 minimap: {
                     enabled: false,
                 },
+                // renderLineHighlight: "line",
                 // tabSize: 4,
             })
             // console.log('_editor/mmm', _editor.getModel())

@@ -198,3 +198,15 @@ input:-webkit-autofill:focus
 .ant-input-sm {
     height: 32px !important;
 } */
+
+.theme-light .margin-view-overlays {
+    background-color: #f7f7f7;
+    /* background-color: #f9f9f9; */
+    /* background-color: var(--color-f9); */
+}
+.theme-dark .margin-view-overlays {
+    background-color: #222;
+}
+.view-line {
+    /* background-color: #eaf2fe; */
+}
