@@ -1,5 +1,5 @@
 import { Button, Descriptions, Input, message, Modal, Popover, Space, Table, Tabs } from 'antd';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import styles from './text.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
@@ -11,27 +11,64 @@ import { FormatPainterOutlined } from '@ant-design/icons';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { DownloadOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
+import { useEventEmitter } from 'ahooks';
 // import { saveAs } from 'file-saver'
+
+function SelectionInfo({ event$ }) {
+
+    const [selection, setSelection] = useState({
+        endLineNumber: 1,  
+        endColumn: 1,
+        textLength: 0,
+    })
+
+    event$.useSubscription(msg => {
+        // console.log('SelectionInfo/onmessage', msg)
+        // console.log(val);
+        if (msg.type == 'event_update_use') {
+        }
+        const { selection } = msg.data
+        setSelection(selection)
+    })
+    
+    return (
+        <div>
+            {!!selection &&
+                <div className={styles.selection}>
+                    <div>行 {selection.endLineNumber}</div>
+                    <div>列 {selection.endColumn}</div>
+                    {selection.textLength > 0 &&
+                        <span>已选择 {selection.textLength}</span>
+                    }
+                </div>
+            }
+        </div>
+    )
+}
 
 export function TextEditor({ config, event$, data = {} }) {
     const { defaultJson = '' } = data
     const { t } = useTranslation()
 
     const [code] = useState(defaultJson)
-    const [code2, setCode2] = useState('')
+    // const [code2, setCode2] = useState('')
     const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
     
+    const code_ref = useRef('')
+
     function getCode() {
-        return code2
+        return code_ref.current
     }
 
     function setCodeASD(code) {
-        setCode2(code)
+        code_ref.current = code
     }
 
+    const selectionEvent = useEventEmitter()
+    
     return (
         <div className={styles.jsonBox}>
-            <div className={styles.toolBox}>
+            <div className={styles.header}>
                 <Space>
                     <Button
                         size="small"
@@ -76,6 +113,22 @@ export function TextEditor({ config, event$, data = {} }) {
                     onEditor={editor => {
                         setEditor(editor)
                     }}
+                    onSelectionChange={({selection, selectionTextLength}) => {
+                        console.log('selection', selection)
+                        selectionEvent.emit({
+                            data: {
+                                selection: {
+                                    ...selection,
+                                    textLength: selectionTextLength,
+                                }
+                            }
+                        })
+                    }}
+                />
+            </div>
+            <div className={styles.footer}>
+                <SelectionInfo
+                    event$={selectionEvent}
                 />
             </div>
             {/* <article className={styles.article}>
