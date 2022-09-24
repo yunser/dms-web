@@ -569,6 +569,39 @@ export function ExecDetail(props) {
         setRowModalItem(list[rowKey])
     }
 
+    function duplicateRow() {
+        const rowKey = selectedRowKeys[0]
+        console.log('复制', list[rowKey])
+        // console.log('list', list)
+        // setRowEditItem(list[rowKey])
+        const targetRow = list[rowKey]
+        let newRow = {
+            ...list[rowKey],
+            _idx: list.length,
+            isNew: true,
+        }
+        fields.forEach((field, idx) => {
+            newRow[idx] = {
+                fieldName: field.name,
+                value: null,
+                newValue: targetRow[idx].newValue || targetRow[idx].value || null,
+            }
+        })
+        setList([
+            ...list,
+            newRow,
+        ])
+        setEditing(true)
+
+        // var div = document.getElementById('wenti-body-div');
+        setTimeout(() => {
+            const tableBox = tableBoxRef.current
+            if (tableBox) {
+                tableBox.scrollTop = tableBox.scrollHeight
+            }
+        }, 1)
+    }
+
     function selectionEdit() {
         const rowKey = selectedRowKeys[0]
         console.log('rowKey', rowKey)
@@ -653,7 +686,6 @@ export function ExecDetail(props) {
                                 // console.log('change.newItem', newItem)
                                 // console.log('change.key', key)
                                 // console.log('change.list', list)
-                                // console.log('change.item._idx', item._idx)
                                 list[item._idx][key] = newItem
                                 setList([
                                     ...list,
@@ -674,24 +706,6 @@ export function ExecDetail(props) {
         }
         // console.log('ExecDetail/useMemo/End', new Date().getTime() - startTime.getTime())
         return columns
-        // return results.map((result, rowIdx) => {
-        //     let item = {
-        //         _idx: rowIdx,
-        //     }
-        //     // idx = 0
-        //     fields.forEach((field, idx) => {
-        //         const key = '' + idx
-        //         item[key] = {
-        //             fieldName: field.name,
-        //             value: result[idx],
-        //             index: idx,
-        //         }
-        //     })
-        //     // for (let field of fields) {
-        //     //     idx++
-        //     // }
-        //     return item
-        // })
         
     }, [fields, list])
 
@@ -771,6 +785,15 @@ export function ExecDetail(props) {
                                             selectionEdit()
                                         }}
                                     >{t('edit')}</Button>
+                                }
+                                {tableEditable &&
+                                    <Button
+                                        size="small"
+                                        disabled={!(selectedRowKeys.length == 1)}
+                                        onClick={() => {
+                                            duplicateRow()
+                                        }}
+                                    >{t('row_duplicate')}</Button>
                                 }
                                 {tableEditable &&
                                     <Button
@@ -891,12 +914,6 @@ export function ExecDetail(props) {
                                 dataSource={filteredList}
                                 pagination={false}
                                 columns={filteredColumns}
-                                // columns={[
-                                //     {
-                                //         title: 'Name',
-                                //         dataIndex: '_idx',
-                                //     }
-                                // ]}
                                 bordered
                                 style={{
                                     maxWidth: getMaxWidth(columns.length),
@@ -910,7 +927,7 @@ export function ExecDetail(props) {
                                     selectedRowKeys,
                                     hideSelectAll: true,
                                     fixed: true,
-                                    renderCell(_value, _item, _idx) {
+                                    renderCell(_value, _item, rowIdx) {
                                         // return (
                                         //     <div>
                                         //         <Button>1</Button>
@@ -963,7 +980,7 @@ export function ExecDetail(props) {
                                                         }
                                                     }
                                                 }}
-                                                text={_idx + 1} color="#999" />
+                                                text={rowIdx + 1} color="#999" />
                                         )
                                     },
                                     columnWidth: 0,
