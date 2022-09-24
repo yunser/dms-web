@@ -98,6 +98,7 @@ function HeaderCell({ name }) {
         </div>
     )
 }
+
 function Cell({ item, editing, onChange }) {
     // console.log('Cell.item', item)
     // TODO 先 run 再 explain item 就会为空，不清楚原因
@@ -236,16 +237,19 @@ export function ExecDetail(props) {
     const { 
         sql,
         // loading, 
-        results = [],
+        results: _results = [],
         fields = [],
         result, 
-        list: _list = [],
+        // list: _list = [],
         error,
         hasReq,
         tableName,
         dbName,
         
     } = data || {}
+
+    // const [rowCount] = useState(_results.length)
+    const [results, setResults] = useState(_results)
 
     const tableEditable = useMemo(() => {
         const lowerSql = sql.toLowerCase()
@@ -274,12 +278,34 @@ export function ExecDetail(props) {
     const tableInfoList = useRef([])
     // console.log('tableInfo_will', tableInfoList)
 
+    const g_dataRef = useRef({})
     const [modelCode, setModalCode] = useState('')
     const [rowEditItem, setRowEditItem] = useState(null)
     const [rowModalItem, setRowModalItem] = useState(null)
     const tableBoxRef = useRef(null)
     const [editing, setEditing] = useState(false)
-    const [list, setList] = useState(_list)
+    const [list, setList] = useState([])
+    useEffect(() => {
+        const list = results.map((result, rowIdx) => {
+            let item = {
+                _idx: rowIdx,
+            }
+            // idx = 0
+            fields.forEach((field, idx) => {
+                const key = '' + idx
+                item[key] = {
+                    fieldName: field.name,
+                    value: result[idx],
+                    index: idx,
+                }
+            })
+            // for (let field of fields) {
+            //     idx++
+            // }
+            return item
+        })
+        setList(list)
+    }, [results])
     const [removedRows, setRemovedRows] = useState([])
 
     const [selectedRowKeys, setSelectedRowKeys] = useState([])
@@ -302,6 +328,27 @@ export function ExecDetail(props) {
 
     function resetSubmit() {
 
+    }
+
+    async function updateRows({ schemaName, tableName, pkField, ids }) {
+        console.log('updateRows', schemaName, tableName, ids)
+        // const sql = `SELECT * FROM \`${schemaName}\`.\`${tableName}\` WHERE \`${pkField}\` IN (${ids.join(', ')})`
+        console.log('sql', sql)
+        let res = await request.post(`${config.host}/mysql/execSql`, {
+            connectionId,
+            sql,
+            tableName,
+            dbName: schemaName,
+            logger: false,
+        }, {
+            // noMessage: true,
+        })
+        console.log('oldResult', result)
+        if (res.success) {
+            console.log('newResult', res.data)
+            setResults(res.data.results)
+            setEditing(false)
+        }
     }
 
     useEffect(() => {
@@ -332,9 +379,11 @@ export function ExecDetail(props) {
             return
         }
 
+        g_dataRef.current.pkField = pkField
 
+        const changedKeys = []
         console.log('list', list)
-        const results = list.map(row => {
+        const sqls = list.map(row => {
             // let 
             if (row.isNew) {
                 const updatedFields = []
@@ -389,16 +438,23 @@ export function ExecDetail(props) {
             // })
             if (updatedFields.length) {
                 let sql = `UPDATE \`${dbName}\`.\`${tableName}\` SET ${updatedFields.join(', ')} WHERE \`${pkField}\` = '${row[pkColIdx].value}';`
+                changedKeys.push(row[pkColIdx].value)
+                
                 return sql
             }
         })
             .filter(item => item)
         if (removedRows.length) {
-            results.push(...removedRows)
+            sqls.push(...removedRows)
         }
-        console.log('results', results.join('\n'))
+        console.log('sqls', sqls.join('\n'))
 
-        setModalCode(results.join('\n'))
+        console.log('changedKeys', changedKeys)
+        g_dataRef.current.changedKeys = changedKeys
+        g_dataRef.current.tableName = tableName
+        g_dataRef.current.schemaName = dbName
+
+        setModalCode(sqls.join('\n'))
     }
 
     function addRow() {
@@ -428,7 +484,7 @@ export function ExecDetail(props) {
     }
 
     function exportJson() {
-        const results = list.map(row => {
+        const resultList = list.map(row => {
             // let 
             const rowObj: any = {}
             const updatedFields = []
@@ -442,8 +498,8 @@ export function ExecDetail(props) {
         })
             // .filter(item => item)
             // .join('\n')
-        console.log('results', results)
-        const content = JSON.stringify(results, null, 4)
+        console.log('results', resultList)
+        const content = JSON.stringify(resultList, null, 4)
         onJson && onJson(content)
         // copy(content)
         // message.success('Copied')
@@ -455,7 +511,7 @@ export function ExecDetail(props) {
         // for (let field of fields) {
         //     headers.push(field.name)
         // }
-        const results = list.map((row, rowIdx) => {
+        const bodyRows = list.map((row, rowIdx) => {
             const rows = []
             for (let rowKey in row) {
                 if (rowIdx == 0 && rowKey == '_idx') {
@@ -474,7 +530,7 @@ export function ExecDetail(props) {
         // console.log('results', results)
         const table = [
             headers,
-            ...results,
+            ...bodyRows,
         ]
         // console.log('table', table)
         const content = table.map(row => row.join(',')).join('\n')
@@ -616,7 +672,7 @@ export function ExecDetail(props) {
         //     return item
         // })
         
-    }, [results, fields, list])
+    }, [fields, list])
 
     console.log('rowModalItem', rowModalItem)
 
@@ -874,7 +930,7 @@ export function ExecDetail(props) {
                             {!!rawExecResult ?
                                 <div style={{ color: 'green' }}>{!!rawExecResult.info ? rawExecResult.info : `影响行数：${rawExecResult.affectedRows}`}</div>
                             :
-                                <div>{_list.length} {t('rows')}</div>
+                                <div>{results.length} {t('rows')}</div>
                             }
                             <Popover
                                 title="SQL"
@@ -904,6 +960,19 @@ export function ExecDetail(props) {
                     dbName={dbName}
                     onClose={() => {
                         setModalCode('')
+                    }}
+                    onSuccess={() => {
+                        console.log('成功了，刷新数据', g_dataRef)
+                        // changedKeys
+                        // pkField
+                        console.log('成功了，刷新数据/sql', sql)
+                        console.log('成功了，刷新数据/time', result.time)
+                        updateRows({
+                            schemaName: g_dataRef.current.schemaName,
+                            tableName: g_dataRef.current.tableName,
+                            pkField: g_dataRef.current.pkField,
+                            ids: g_dataRef.current.changedKeys,
+                        })
                     }}
                 />
             }

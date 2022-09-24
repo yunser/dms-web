@@ -181,6 +181,8 @@ function SqlBox({ config, event$, connectionId, onJson, className, defaultSql = 
         const removedCommentCode = removeComment(execCode)
         const lines = removedCommentCode.split(';').filter(item => item.trim())
         let lineIdx = 0
+        // const successKeys = []
+        // let isAllSuccess = true
         for (let rawLine of lines) {
             // const noCommentLine = removeComment(rawLine)
             // console.log('noCommentLine', noCommentLine)
@@ -271,26 +273,6 @@ function SqlBox({ config, event$, connectionId, onJson, className, defaultSql = 
                 window._startTime = new Date()
                 // console.log(res)
                 const { results, fields, columns: rawColumns } = res.data
-                const list = results.map((result, rowIdx) => {
-                    let item = {
-                        _idx: rowIdx,
-                    }
-                    // idx = 0
-                    fields.forEach((field, idx) => {
-                        const key = '' + idx
-                        item[key] = {
-                            fieldName: field.name,
-                            value: result[idx],
-                            index: idx,
-                        }
-                    })
-                    // for (let field of fields) {
-                    //     idx++
-                    // }
-                    return item
-                })
-
-                // setList(list)
                 // setFields(fields)
 
                 const tabKey = uid(16)
@@ -304,7 +286,6 @@ function SqlBox({ config, event$, connectionId, onJson, className, defaultSql = 
                         loading: false,
                         fields,
                         result: res.data,
-                        list,
                         error: '',
                         hasReq: true,
                         results,
