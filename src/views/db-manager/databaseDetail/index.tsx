@@ -48,20 +48,13 @@ import { SqlQuickPanel } from '../sql-quick/sql-quick'
 //     'maxWait': 1000
 // })
 
-const { TabPane } = Tabs
-
 // interface DatabaseDetailProps extends FormComponentProps {
 //     dispatch: Dispatch<any>;
 //     loading: boolean;
 //     user: UserStateType;
 // }
 
-// interface DadabaseDetailState {
-//     table: any,
-//     activeKey: string,
-//     tabs: Array<TabProps>,
-//     asd: string,
-// }
+
 
 interface TabProps {
     type: string,
@@ -521,9 +514,17 @@ export function DataBaseDetail({ connectionId, event$, config, onJson }) {
                             )
                         }}
                         items={tabs.map(item => {
+                            const labelText = item.title.startsWith('$i18n.') ? t(item.title.replace('$i18n.', '')) : item.title
                             return {
                                 // label: item.title,
-                                label: item.title.startsWith('$i18n.') ? t(item.title.replace('$i18n.', '')) : item.title,
+                                label: (
+                                    <div
+                                        className={styles.tabLabel}
+                                        title={labelText}
+                                    >
+                                        {labelText}
+                                    </div>
+                                ),
                                 key: item.key,
                                 closable: item.closable !== false,
                             }
