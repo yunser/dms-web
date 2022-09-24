@@ -214,6 +214,7 @@ i18n
                     select_all: 'Select All',
                     unselect_all: 'Unselect All',
                     share: 'Share',
+                    account_limit: 'Account Limits',
                 }
             },
             zh: {
@@ -421,6 +422,7 @@ i18n
                     select_all: '全选',
                     unselect_all: '取消全选',
                     share: '分享',
+                    account_limit: '账号限制',
                 }
             }
         },

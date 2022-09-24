@@ -1,4 +1,4 @@
-import { Button, Checkbox, Col, Descriptions, Divider, Dropdown, Form, Input, InputProps, Menu, message, Modal, Popover, Row, Select, Space, Table, Tabs, Tooltip, Tree } from 'antd';
+import { Button, Checkbox, Col, Descriptions, Divider, Dropdown, Form, Input, InputNumber, InputProps, Menu, message, Modal, Popover, Row, Select, Space, Table, Tabs, Tooltip, Tree } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './user-list.module.less';
 import _, { debounce } from 'lodash';
@@ -508,6 +508,7 @@ export function UserEditModal({ config, connectionId, onSuccess, onCancel, item,
     const [perModalItem, setPerModalItem] = useState(false)
     const [removedDbPers, setRemovedDbPers] = useState([])
     const [form] = Form.useForm()
+    const [limitForm] = Form.useForm()
     const [execSql, setExecSql] = useState('')
     useEffect(() => {
         if (item) {
@@ -515,12 +516,21 @@ export function UserEditModal({ config, connectionId, onSuccess, onCancel, item,
                 ...item,
                 password: item.authentication_string,
             })
+            limitForm.setFieldsValue({
+                ...item,
+            })
         }
         else {
             form.setFieldsValue({
                 User: '',
                 Host: '',
                 password: '',
+            })
+            limitForm.setFieldsValue({
+                max_questions: 0,
+                max_updates: 0,
+                max_connections: 0,
+                max_user_connections: 0,
             })
         }
     }, [item])
@@ -734,10 +744,14 @@ ORDER BY \`Db\` ASC;`,
             key: 'database',
         },
     ]
-    // if (editType == 'update') {
-    //     tabs.push(...[
-    //     ])
-    // }
+    if (editType == 'update') {
+        tabs.push(...[
+            {
+                label: t('account_limit'),
+                key: 'account_limit',
+            },
+        ])
+    }
 
     return (
         <div>
@@ -951,6 +965,43 @@ ORDER BY \`Db\` ASC;`,
                                                     x: true,
                                                 }}
                                             />
+                                        </div>
+                                    }
+                                    {item.key == 'account_limit' &&
+                                        <div className={styles.formBox}>
+                                            <Form
+                                                form={limitForm}
+                                                labelCol={{ span: 8 }}
+                                                wrapperCol={{ span: 16 }}
+                                                initialValues={{
+                                                    port: 3306,
+                                                }}
+                                            >
+                                                <Form.Item
+                                                    name="max_questions"
+                                                    label={t('每小时最多的查询数')}
+                                                >
+                                                    <InputNumber />
+                                                </Form.Item>
+                                                <Form.Item
+                                                    name="max_updates"
+                                                    label={t('每小时最多的更新数')}
+                                                >
+                                                    <InputNumber />
+                                                </Form.Item>
+                                                <Form.Item
+                                                    name="max_connections"
+                                                    label={t('每小时最多的连接数')}
+                                                >
+                                                    <InputNumber />
+                                                </Form.Item>
+                                                <Form.Item
+                                                    name="max_user_connections"
+                                                    label={t('最多用户的连接数')}
+                                                >
+                                                    <InputNumber />
+                                                </Form.Item>
+                                            </Form>
                                         </div>
                                     }
                                 </div>
