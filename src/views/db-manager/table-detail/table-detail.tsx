@@ -1,4 +1,4 @@
-import { Button, Checkbox, Descriptions, Form, Input, message, Select, Space, Table, Tabs } from 'antd';
+import { Button, Checkbox, Descriptions, Form, Input, message, Modal, Select, Space, Table, Tabs } from 'antd';
 import React, { useMemo } from 'react';
 import { VFC, useRef, useState, useEffect } from 'react';
 import { request } from '../utils/http';
@@ -28,6 +28,100 @@ function hasValue(value) {
 //         </div>
 //     )
 // }
+
+function ColumnSelector({ value: _value, onChange, options }) {
+    const [modalVisible, setModalVisible] = useState(false)
+    const [value, setValue] = useState([])
+    // const [columns] = useState
+    const columns = [
+        {
+            title: 'Index Column',
+            dataIndex: 'label',
+        },
+        {
+            title: 'Position',
+            dataIndex: 'position',
+            render(_value, item) {
+                const idx = value.findIndex(v => v == item.value)
+                // if (idx)
+                return (
+                    <div className={styles.ColumnSelectorCheck}>
+                        <Checkbox
+                            className={styles.checkbox}
+                            checked={idx != -1}
+                            onClick={() => {
+                                let newValue
+                                if (value.includes(item.value)) {
+                                    newValue = value.filter(v => v != item.value)
+                                }
+                                else {
+                                    newValue = [
+                                        ...value,
+                                        item.value
+                                    ]
+                                }
+                                setValue(newValue)
+                            }}
+                        />
+                        <div className={styles.index}>{idx == -1 ? '' : (idx + 1)}</div>
+                    </div>
+                )
+            }
+        },
+    ]
+    
+    
+    useEffect(() => {
+        setValue([..._value])
+    }, [_value, modalVisible])
+    return (
+        <>
+            <div className={styles.ColumnSelector}
+                onClick={() => {
+                    setModalVisible(true)
+                }}
+            >
+                {_value.join(', ')}
+            </div>
+            <Modal
+                open={modalVisible}
+                title="选择列"
+                onCancel={() => {
+                    setModalVisible(false)
+                }}
+                // footer={null}
+                onOk={() => {
+                    setModalVisible(false)
+                    onChange && onChange(value)
+                }}
+            >
+                <div className={styles.ColumnSelectorModal}
+                    onClick={(e) => {
+                        e.stopPropagation()
+                        e.preventDefault()
+                    }}
+                >
+                    <Table
+                        dataSource={options}
+                        columns={columns}
+                        size="small"
+                        pagination={false}
+                        scroll={{
+                            y: 480,
+                        }}
+                        // rowSelection={{
+                        //     selectedRowKeys: value,
+                        //     onChange(selectedRowKeys) {
+                        //         onChange && onChange(selectedRowKeys)
+                        //     }
+                        // }}
+                        rowKey="value"
+                    />
+                </div>
+            </Modal>
+        </>
+    )
+}
 
 
 function Cell({ value, selectOptions, index, dataIndex, onChange }) {
@@ -185,10 +279,10 @@ function Cell({ value, selectOptions, index, dataIndex, onChange }) {
                     : dataIndex == 'columns' ?
                         <div>
                             {/* {inputValue} */}
-                            <Select
-                                size="small"
-                                mode="multiple"
-                                // key={value}
+                            <ColumnSelector
+                                // size="small"
+                                // mode="multiple"
+                                // maxTagCount="responsive"
                                 value={inputValue}
                                 onChange={v => {
                                     console.log('Select.value', v)
@@ -200,9 +294,9 @@ function Cell({ value, selectOptions, index, dataIndex, onChange }) {
                                     })
                                 }}
                                 options={selectOptions}
-                                style={{
-                                    width: 240,
-                                }}
+                                // style={{
+                                //     width: 400,
+                                // }}
                             />
                         </div>
                     :
@@ -550,7 +644,7 @@ export function TableDetail({ config, connectionId, event$, dbName, tableName: o
                     // .trim()
                     // .split(', ')
                     .map(item => `\`${item}\``)
-                    .join('')
+                    .join(', ')
                 const commentSql = hasValue(idxRow.comment.newValue || idxRow.comment.value) ? `COMMENT '${idxRow.comment.newValue || idxRow.comment.value}'` : ''
                 const idxSql = (idxRow.type2.newValue || idxRow.type2.value) == 'Unique' ? 'UNIQUE INDEX' : 'INDEX'
                 console.log('idxRow.type2', idxRow.type2)
@@ -816,6 +910,7 @@ ${rowSqls.join(' ,\n')}
         {
             title: t('index_name'),
             dataIndex: 'name',
+            width: 240,
             render(value, _item, index) {
                 return (
                     <Cell
@@ -836,6 +931,7 @@ ${rowSqls.join(' ,\n')}
         {
             title: t('type'),
             dataIndex: 'type2',
+            width: 160,
             // render: EditableCellRender({
             //     dataIndex: 'type2',
             //     onChange: onIndexCellChange,
@@ -865,6 +961,7 @@ ${rowSqls.join(' ,\n')}
         {
             title: t('index_columns'),
             dataIndex: 'columns',
+            width: 400,
             // render: EditableCellRender({
             //     dataIndex: 'columns',
             //     onChange: onIndexCellChange,
