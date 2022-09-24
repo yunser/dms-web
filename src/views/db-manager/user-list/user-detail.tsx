@@ -13,7 +13,7 @@ import { SorterResult } from 'antd/lib/table/interface';
 import { request } from '../utils/http';
 
 export function UserDetail({ config, connectionId, userName, onTab, data = {} }: any) {
-    console.warn('SqlTree/render')
+    // console.warn('SqlTree/render')
     
     const { defaultJson = '' } = data
     const { t } = useTranslation()

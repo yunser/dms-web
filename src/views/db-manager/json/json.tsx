@@ -16,7 +16,11 @@ import { useEventEmitter } from 'ahooks';
 
 function SelectionInfo({ event$ }) {
 
-    const [selection, setSelection] = useState(null)
+    const [selection, setSelection] = useState({
+        endLineNumber: 1,  
+        endColumn: 1,
+        textLength: 0,
+    })
 
     event$.useSubscription(msg => {
         // console.log('SelectionInfo/onmessage', msg)

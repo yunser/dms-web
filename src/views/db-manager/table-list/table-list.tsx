@@ -220,7 +220,7 @@ function DebounceInput(props: InputProps) {
 
 
 export function TableList({ config, onJson, connectionId, onTab, dbName, data = {} }: any) {
-    console.warn('SqlTree/render')
+    // console.warn('SqlTree/render')
     
     const { defaultJson = '' } = data
     const { t } = useTranslation()

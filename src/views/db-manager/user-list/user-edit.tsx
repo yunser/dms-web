@@ -344,6 +344,8 @@ const all_permissions = [
 ]
 // console.log('all_permissions', all_permissions.length)
 
+const globalPrivs = all_permissions
+
 function DbModal({ config, connectionId, onOk, onCancel }) {
     const { t } = useTranslation()
     const [form] = Form.useForm()
@@ -492,13 +494,12 @@ function PermissionEditModal({ value, onCancel, onOk }) {
 
 export function UserEditModal({ config, connectionId, onSuccess, onCancel, item, onTab, data = {} }: any) {
     
-    console.warn('SqlTree/render')
+    // console.warn('SqlTree/render')
     
     const editType = item ? 'update' : 'create'
-    const { defaultJson = '' } = data
+    // const { defaultJson = '' } = data
     const { t } = useTranslation()
 
-    const [sortedInfo, setSortedInfo] = useState({});
     const [loading, setLoading] = useState(false)
     const [curTab, setCurTab] = useState('basic')
     // const [curTab, setCurTab] = useState('global')
@@ -506,7 +507,6 @@ export function UserEditModal({ config, connectionId, onSuccess, onCancel, item,
     const [perModalVisible, setPerModalVisible] = useState(false)
     const [perModalItem, setPerModalItem] = useState(false)
     const [removedDbPers, setRemovedDbPers] = useState([])
-    const [indeterminate, setIndeterminate] = useState(true)
     const [form] = Form.useForm()
     const [execSql, setExecSql] = useState('')
     useEffect(() => {
@@ -525,12 +525,29 @@ export function UserEditModal({ config, connectionId, onSuccess, onCancel, item,
         }
     }, [item])
     const [list, setList] = useState([])
-    const [checkOptions, setCheckOptions] = useState([])
     const [checkGroups, setCheckGroups] = useState([])
     const [checkValues, setCheckValues] = useState([])
-    const [truePermissions, setTruePermissions] = useState([])
     const [dbModalVisible, setDbModalVisible] = useState(false)
     
+    useEffect(() => {
+        const optsGroup = _.groupBy(globalPrivs, item => {
+            console.log('item', )
+            return item.type || 'other'
+        })
+        console.log('optsGroup', optsGroup)
+        setCheckGroups(Object.keys(optsGroup).map(groupName => {
+            return {
+                name: groupName,
+                options: optsGroup[groupName].map(per => {
+                    return {
+                        label: per.name,
+                        value: per.col,
+                    }
+                }),
+            }
+        }))
+        
+    }, [])
 
     async function loadData() {
         // console.log('props', this.props.match.params.name)
@@ -544,7 +561,6 @@ export function UserEditModal({ config, connectionId, onSuccess, onCancel, item,
             return
         }
         setLoading(true)
-        setSortedInfo({})
         setRemovedDbPers([])
         
         let res = await request.post(`${config.host}/mysql/execSqlSimple`, {
@@ -560,7 +576,6 @@ ORDER BY \`Db\` ASC;`,
             console.log('res', list)
 
             let count = 0
-            const truePermissions = all_permissions
             for (let itemKey in item) {
                 // console.log('itemKey', itemKey)
                 if (itemKey.match(/_priv$/)) {
@@ -579,7 +594,7 @@ ORDER BY \`Db\` ASC;`,
 
             const checkOptions = []
             const checkValues = []
-            for (let per of truePermissions) {
+            for (let per of globalPrivs) {
                 checkOptions.push({
                     label: per.name,
                     value: per.col,
@@ -588,31 +603,12 @@ ORDER BY \`Db\` ASC;`,
                     checkValues.push(per.col)
                 }
             }
-            const optsGroup = _.groupBy(truePermissions, item => {
-                console.log('item', )
-                return item.type || 'other'
-            })
-            console.log('optsGroup', optsGroup)
-            setCheckGroups(Object.keys(optsGroup).map(groupName => {
-                return {
-                    name: groupName,
-                    options: optsGroup[groupName].map(per => {
-                        return {
-                            label: per.name,
-                            value: per.col,
-                        }
-                    }),
-                }
-            }))
-            setCheckOptions(checkOptions)
             setCheckValues(checkValues)
-            setTruePermissions(truePermissions)
-
-
+            
             setList(list.map(item => {
                 const _permissions = []
                 // const permissions = []
-                for (let per of truePermissions) {
+                for (let per of globalPrivs) {
                     if (item[per.col] == 'Y') {
                         // permissions.push(per.name)
                         _permissions.push(per)
@@ -626,6 +622,7 @@ ORDER BY \`Db\` ASC;`,
                     // permissions: permissions.join(', '),
                 }
             }))
+            
 
             
         }
@@ -728,13 +725,13 @@ ORDER BY \`Db\` ASC;`,
             label: t('login_info'),
             key: 'basic',
         },
+        {
+            label: t('global_privilege'),
+            key: 'global',
+        },
     ]
     if (editType == 'update') {
         tabs.push(...[
-            {
-                label: t('global_privilege'),
-                key: 'global',
-            },
             {
                 label: t('schema_privilege'),
                 key: 'database',
@@ -750,7 +747,14 @@ ORDER BY \`Db\` ASC;`,
                 width={1200}
                 onCancel={onCancel}
                 onOk={async () => {
-                    const values = await form.validateFields()
+                    let values
+                    try {
+                        values = await form.validateFields()
+                    }
+                    catch (err) {
+                        setCurTab('basic')
+                        return
+                    }
                     const updates = []
                     const uh = `'${values.User}'@'${values.Host || '%'}'`
                     if (editType == 'create') {
@@ -770,11 +774,11 @@ ORDER BY \`Db\` ASC;`,
                     // 修改全局权限
                     const addPer = []
                     const delPer = []
-                    for (let per of truePermissions) {
-                        if (item[per.col] == 'Y' && !checkValues.includes(per.col)) {
+                    for (let per of globalPrivs) {
+                        if (item && item[per.col] == 'Y' && !checkValues.includes(per.col)) {
                             delPer.push(per.code)
                         }
-                        if (item[per.col] == 'N' && checkValues.includes(per.col)) {
+                        if ((!item || item[per.col] == 'N') && checkValues.includes(per.col)) {
                             addPer.push(per.code)
                         }
                     }
@@ -942,7 +946,6 @@ ORDER BY \`Db\` ASC;`,
                                                     console.log('Various parameters', pagination, filters, sorter);
                                                     // setFilteredInfo(filters);
                                                     console.log('sorter', sorter)
-                                                    setSortedInfo(sorter)
                                                 }}
                                                 scroll={{
                                                     x: true,
