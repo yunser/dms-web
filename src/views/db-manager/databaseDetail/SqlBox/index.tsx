@@ -73,7 +73,6 @@ function SqlBox({ config, event$, connectionId, onJson, className, defaultSql = 
     }
     const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
     const [code, setCode] = useState(defaultSql)
-    const code_ref = useRef(defaultSql)
     const [codeLoading, setCodeLoading] = useState(false)
     const [tab, setTab] = useState({
         // activeKey: execResults[0]?.key,
@@ -81,7 +80,8 @@ function SqlBox({ config, event$, connectionId, onJson, className, defaultSql = 
         execResults: []
     })
     const { activeKey, execResults } = tab
-
+    
+    const code_ref = useRef(defaultSql)
     function getCode() {
         return code_ref.current
     }

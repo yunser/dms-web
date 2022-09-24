@@ -8,7 +8,9 @@ import { getTheme } from '../../../theme'
 suggestionInit()
 
 export const Editor: VFC = ({ lang = 'sql', 
-    event$, connectionId, value, 
+    event$,
+    connectionId,
+    value, 
     onChange,
     onEditor,
     onSelectionChange,
@@ -21,7 +23,7 @@ export const Editor: VFC = ({ lang = 'sql',
     // value = { code }
     //  = { e => setCode(e.target.value)}
     
-    event$.useSubscription(msg => {
+    event$ && event$.useSubscription(msg => {
         console.log('dbManager/onmessage', msg)
         // console.log(val);
         if (msg.type == 'type_theme_changed') {

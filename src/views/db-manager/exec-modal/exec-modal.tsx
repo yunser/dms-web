@@ -9,6 +9,8 @@ import classNames from 'classnames'
 import copy from 'copy-to-clipboard';
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
+import { Editor } from '../editor/Editor';
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
 const { TabPane } = Tabs
 const { TextArea } = Input
@@ -29,10 +31,21 @@ export function ExecModal({ config, connectionId, sql, onClose, onSuccess, table
         // }
 
     ])
+    const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
+
     console.log('resultTabs', resultTabs)
     useEffect(() => {
         setModalCode(sql)
     }, [sql])
+
+    const code_ref = useRef(sql)
+    function getCode() {
+        return code_ref.current
+    }
+
+    function setCodeASD(code) {
+        code_ref.current = code
+    }
 
 
     function resetSubmit() {
@@ -44,7 +57,7 @@ export function ExecModal({ config, connectionId, sql, onClose, onSuccess, table
         
         setResultModalVisible(true)
 
-        const lines = modelCode.split(';').map(item => item.trim()).filter(item => item)
+        const lines = getCode().split(';').map(item => item.trim()).filter(item => item)
         let lineIdx = 0
         let newTabs = []
         console.log('lines', lines)
@@ -99,7 +112,7 @@ export function ExecModal({ config, connectionId, sql, onClose, onSuccess, table
                     title={t('submit_modify')}
                     maskClosable={false}
                     visible={true}
-                    width={800}
+                    width={1200}
                     okText={t('run')}
                     // onOk={handleOk}
                     // okButtonProps={{
@@ -115,13 +128,25 @@ export function ExecModal({ config, connectionId, sql, onClose, onSuccess, table
                 >
                     <div className={styles.safeTip}>{t('confirm_sql')}</div>
 
-                    <TextArea
+                    <div className={styles.codeBox}>
+                        <Editor
+                            // event$={event$}
+                            connectionId={connectionId}
+                            value={modelCode}
+                            onChange={value => setCodeASD(value)}
+                            onEditor={editor => {
+                                // console.warn('ExecDetail/setEditor')
+                                setEditor(editor)
+                            }}
+                        />
+                    </div>                    
+                    {/* <TextArea
                         // className={styles.textarea} 
                         value={modelCode}
                         rows={4}
                     // disabled
                         onChange={e => setModalCode(e.target.value)}
-                    />
+                    /> */}
                     {/* <p>Some contents...</p>
                     <p>Some contents...</p>
                     <p>Some contents...</p> */}
@@ -183,7 +208,9 @@ export function ExecModal({ config, connectionId, sql, onClose, onSuccess, table
                     {/* </Tabs> */}
                     {resultTabs.map(item => {
                         return (
-                            <div>
+                            <div
+                                key={item.key}
+                            >
                                 {resultActiveKey == item.key &&
                                     <div className={styles.modalResultBox}>
                                         <div className={styles.sqlBox}>
