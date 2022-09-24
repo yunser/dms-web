@@ -17,7 +17,7 @@ export const Editor: VFC = ({ lang = 'sql',
 }) => {
 	const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
     const editorRef = useRef(null)
-	const monacoEl = useRef(null);
+	const containerRef = useRef(null);
 
     console.warn('Editor/render')
     // value = { code }
@@ -37,12 +37,24 @@ export const Editor: VFC = ({ lang = 'sql',
         }
     }, [editor])
 
+    useEffect(() => {
+        const handleResize = () => {
+            // console.log('resize2', editor, editorRef.current)
+            editorRef.current?.layout()
+            // focus
+        }
+        window.addEventListener('resize', handleResize)
+        return () => {
+            window.removeEventListener('resize', handleResize)
+        }
+    }, [editor, editorRef, editorRef.current])
+
 	useEffect(() => {
         let _editor = editor
-		if (monacoEl && !editor && !editorRef.current) {
+		if (containerRef && !editor && !editorRef.current) {
             console.log('dispose/create')
             const theme = getTheme()
-            _editor = monaco.editor.create(monacoEl.current!, {
+            _editor = monaco.editor.create(containerRef.current!, {
                 value: `{}`,
                 theme: theme == 'light' ? 'vs-light' : 'vs-dark',
                 // language: 'json',
@@ -91,6 +103,7 @@ export const Editor: VFC = ({ lang = 'sql',
             // console.log('_editor', _editor)
 			setEditor(_editor);
             editorRef.current = _editor
+            // console.log('赋值了啊', editorRef.current)
             onEditor && onEditor(_editor)
             setTimeout(() => {
                 _editor?.focus()
@@ -114,17 +127,20 @@ export const Editor: VFC = ({ lang = 'sql',
             // console.log('editor.dispose')
             // console.log('dispose/dispose')
             editor?.dispose()
-            editorRef.current = null
+            // console.log('取消赋值')
+            // 下面两句会导致编辑器对象获取不到
+            // editorRef.current = null
+            // setEditor(null)
+
             // window.g_completionItemProvider && window.g_completionItemProvider.dispose()
-            setEditor(null)
         }
-    }, [monacoEl.current, value]);
+    }, [containerRef.current, value]);
 
 
 	return (
         <div
             className={styles.Editor}
-            ref={monacoEl}
+            ref={containerRef}
         ></div>
     )
 };
