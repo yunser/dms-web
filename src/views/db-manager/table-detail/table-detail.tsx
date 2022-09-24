@@ -624,6 +624,7 @@ export function TableDetail({ config, connectionId, event$, dbName, tableName: o
                 idxSqls.push(`DROP INDEX \`${removedIndex.name.value}\``)
             }
         }
+        console.log('indexes', indexes)
         // 新增索引逻辑
         for (let idxRow of indexes) {
             const checkFields = [
@@ -648,7 +649,12 @@ export function TableDetail({ config, connectionId, event$, dbName, tableName: o
                 const commentSql = hasValue(idxRow.comment.newValue || idxRow.comment.value) ? `COMMENT '${idxRow.comment.newValue || idxRow.comment.value}'` : ''
                 const idxSql = (idxRow.type2.newValue || idxRow.type2.value) == 'Unique' ? 'UNIQUE INDEX' : 'INDEX'
                 console.log('idxRow.type2', idxRow.type2)
-                idxSqls.push(`ADD ${idxSql} \`${idxRow['name'].newValue || idxRow['name'].value}\` (${columnsSql}) ${commentSql}`)
+                if (editType == 'create') {
+                    idxSqls.push(`${idxSql} \`${idxRow['name'].newValue || idxRow['name'].value}\` (${columnsSql}) ${commentSql}`)
+                }
+                else {
+                    idxSqls.push(`ADD ${idxSql} \`${idxRow['name'].newValue || idxRow['name'].value}\` (${columnsSql}) ${commentSql}`)
+                }
             }
             if (idxRow.__new) {
                 addIndex()
@@ -682,7 +688,7 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')}`
         else {
             newNameRef.current = values.TABLE_NAME
             sql = `CREATE TABLE \`${dbName}\`.\`${values.TABLE_NAME}\` (
-${rowSqls.join(' ,\n')}
+${[...rowSqls, ...idxSqls].join(' ,\n')}
 ) ${attrSqls.join(' ,\n')}`
         }
         console.log('sql', sql)
@@ -1124,12 +1130,16 @@ ${rowSqls.join(' ,\n')}
             label: t('columns'),
             key: 'columns',
         },
-    ]
-    if (editType == 'update') {
-        tabs.push({
+        {
             label: t('indexes'),
             key: 'index',
-        })
+        }
+    ]
+    if (editType == 'update') {
+        // tabs.push({
+        //     label: t('indexes'),
+        //     key: 'index',
+        // })
         tabs.push({
             label: t('partition'),
             key: 'partition',
