@@ -285,6 +285,7 @@ export function ExecDetail(props) {
     const tableBoxRef = useRef(null)
     const [editing, setEditing] = useState(false)
     const [list, setList] = useState([])
+    const [filterKeyword, setFilterKeyword] = useState('')
     useEffect(() => {
         const list = results.map((result, rowIdx) => {
             let item = {
@@ -310,6 +311,24 @@ export function ExecDetail(props) {
 
     const [selectedRowKeys, setSelectedRowKeys] = useState([])
 
+    const filteredList = useMemo(() => {
+        console.log('list', list)
+        if (!filterKeyword) {
+            return list
+        }
+        const _filterKeyword = filterKeyword.toLowerCase()
+        return list.filter(item => {
+
+            for (let key in item) {
+                if (item[key] && item[key].value 
+                    // && item[key].value.includes
+                    && (('' + item[key].value).toLowerCase()).includes(_filterKeyword)) {
+                    return true
+                }
+            }
+            return false
+        })
+    }, [list, filterKeyword])
     async function loadTableInfo() {
         if (dbName && tableName) {
             let res = await request.post(`${config.host}/mysql/tableInfo`, {
@@ -812,6 +831,24 @@ export function ExecDetail(props) {
                                     Export CSV
                                 </Button> */}
                             </Space>
+                            <Space>
+                                <Input.Search
+                                    placeholder={t('filter_row')}
+                                    size="small"
+                                    allowClear
+                                    onChange={e => {
+                                        const value = e.target.value
+                                        console.log('onChange', value)
+                                        if (!value) {
+                                            setFilterKeyword('')
+                                        }
+                                    }}
+                                    onSearch={value => {
+                                        console.log('onSearch', value)
+                                        setFilterKeyword(value)
+                                    }}
+                                />
+                            </Space>
                         </div>
                     }
                     {!rawExecResult ?
@@ -822,7 +859,7 @@ export function ExecDetail(props) {
                             {/* TTT */}
                             <Table
                                 // loading={loading}
-                                dataSource={list}
+                                dataSource={filteredList}
                                 pagination={false}
                                 columns={columns}
                                 // columns={[

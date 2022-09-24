@@ -220,6 +220,7 @@ i18n
                     'limit.max_connections': 'Max. Connections',
                     'limit.max_user_connections': 'Max. User Connections',
                     no_database_selected: 'No database selected',
+                    filter_row: 'Filter Rows',
                 }
             },
             zh: {
@@ -433,6 +434,7 @@ i18n
                     'limit.max_connections': '每小时最大连接数',
                     'limit.max_user_connections': '用户最大连接数',
                     no_database_selected: '没有选择数据库',
+                    filter_row: '过滤行',
                 }
             }
         },
