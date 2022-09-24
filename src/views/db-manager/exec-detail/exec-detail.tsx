@@ -798,10 +798,10 @@ export function ExecDetail(props) {
                                             <SimpleCell
                                                 onClick={(e) => {
                                                     // console.log('_value', _value)
-                                                    console.log('e', e)
+                                                    // console.log('e', e)
                                                     
                                                     const itemKey = _item._idx
-                                                    console.log('itemKey', itemKey)
+                                                    // console.log('itemKey', itemKey)
                                                     // 多选
 
                                                     if (e.metaKey) {

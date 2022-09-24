@@ -47,111 +47,130 @@ const all_permissions = [
         name: 'Select',
         col: 'Select_priv',
         code: 'SELECT',
+        schemaPriv: true,
     },
     // INSERT：表示授予用户可以使用 INSERT 语句向特定数据库中所有表添加数据行的权限。
     {
         name: 'Insert',
         col: 'Insert_priv',
         code: 'INSERT',
+        schemaPriv: true,
     },
     // UPDATE：表示授予用户可以使用 UPDATE 语句更新特定数据库中所有数据表的值的权限。
     {
         name: 'Update',
         col: 'Update_priv',
         code: 'UPDATE',
+        schemaPriv: true,
     },
     // DELETE：表示授予用户可以使用 DELETE 语句删除特定数据库中所有表的数据行的权限。
     {
         name: 'Delete',
         col: 'Delete_priv',
         code: 'DELETE',
+        schemaPriv: true,
     },
     // CREATE：表示授权用户可以使用 CREATE TABLE 语句在特定数据库中创建新表的权限。
     {
         name: 'Create',
         col: 'Create_priv',
         code: 'CREATE',
+        schemaPriv: true,
     },
     // DROP：表示授予用户可以删除特定数据库中所有表和视图的权限。
     {
         name: 'Drop',
         col: 'Drop_priv',
         code: 'DROP',
+        schemaPriv: true,
     },
     {
         name: 'Grant Option',
         col: 'Grant_priv',
         code: 'GRANT OPTION',
+        schemaPriv: true,
     },
     // REFERENCES：表示授予用户可以创建指向特定的数据库中的表外键的权限。
     {
         name: 'References',
         col: 'References_priv',
         code: 'REFERENCES',
+        schemaPriv: true,
     },
     // INDEX：表示授予用户可以在特定数据库中的所有数据表上定义和删除索引的权限。
     {
         name: 'Index',
         col: 'Index_priv',
         code: 'INDEX',
+        schemaPriv: true,
     },
     // ALTER：表示授予用户可以使用 ALTER TABLE 语句修改特定数据库中所有数据表的权限。 
     {
         name: 'Alter',
         col: 'Alter_priv',
         code: 'ALTER',
+        schemaPriv: true,
     },
     // CREATE TEMPORARY TABLES：表示授予用户可以在特定数据库中创建临时表的权限。
     {
         name: 'Create Temporary Table',
         col: 'Create_tmp_table_priv',
         code: 'CREATE TEMPORARY TABLES',
+        schemaPriv: true,
     },
     // LOCK TABLES：表示授予用户可以锁定特定数据库的已有数据表的权限。
     {
         name: 'Lock Tables',
         col: 'Lock_tables_priv',
         code: 'LOCK TABLES',
+        schemaPriv: true,
     },
     // CREATE VIEW：表示授予用户可以在特定数据库中创建新的视图的权限。
     {
         name: 'Create View',
         col: 'Create_view_priv',
         code: 'CREATE VIEW',
+        schemaPriv: true,
     },
     // SHOW VIEW：表示授予用户可以查看特定数据库中已有视图的视图定义的权限。
     {
         name: 'Show View',
         col: 'Show_view_priv',
         code: 'SHOW VIEW',
+        schemaPriv: true,
     },
     // CREATE ROUTINE：表示授予用户可以为特定的数据库创建存储过程和存储函数的权限。
     {
         name: 'Create Routine',
         col: 'Create_routine_priv',
         code: 'CREATE ROUTINE',
+        schemaPriv: true,
     },
     // ALTER ROUTINE：表示授予用户可以更新和删除数据库中已有的存储过程和存储函数的权限。 
     {
         name: 'Alter Routine',
         col: 'Alter_routine_priv',
         code: 'ALTER ROUTINE',
+        schemaPriv: true,
     },
     // EXECUTE ROUTINE：表示授予用户可以调用特定数据库的存储过程和存储函数的权限。
     {
         name: 'Execute',
         col: 'Execute_priv',
         code: 'EXECUTE',
+        schemaPriv: true,
     },
     {
         name: 'Event',
         col: 'Event_priv',
         code: 'EVENT',
+        schemaPriv: true,
     },
     {
         name: 'Trigger',
         col: 'Trigger_priv',
         code: 'TRIGGER',
+        schemaPriv: true,
     },
     {
         name: 'Reload',
@@ -288,7 +307,7 @@ function PermissionEditModal({ value, onCancel, onOk }) {
 
         // const checkValues = []
         const checkOptions = []
-        for (let per of all_permissions) {
+        for (let per of all_permissions.filter(p => p.schemaPriv)) {
             checkOptions.push({
                 label: per.name,
                 value: per.col,
@@ -380,7 +399,6 @@ export function UserEditModal({ config, connectionId, onSuccess, onCancel, item,
         if (!item) {
             return
         }
-        const userName = item.User
         setLoading(true)
         setSortedInfo({})
         setRemovedDbPers([])
@@ -389,7 +407,7 @@ export function UserEditModal({ config, connectionId, onSuccess, onCancel, item,
             connectionId,
             sql: `SELECT *
 FROM \`mysql\`.\`db\`
-WHERE \`User\` = '${userName}'
+WHERE \`User\` = '${item.User}' AND \`Host\` = '${item.Host}'
 ORDER BY \`Db\` ASC;`,
         })
         if (res.success) {
@@ -400,7 +418,7 @@ ORDER BY \`Db\` ASC;`,
             let count = 0
             const truePermissions = []
             for (let itemKey in item) {
-                console.log('itemKey', itemKey)
+                // console.log('itemKey', itemKey)
                 if (itemKey.match(/_priv$/)) {
                     const fPer = all_permissions.find(item => item.col == itemKey)
 
