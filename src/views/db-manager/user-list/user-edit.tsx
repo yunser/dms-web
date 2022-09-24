@@ -743,15 +743,15 @@ ORDER BY \`Db\` ASC;`,
             label: t('schema_privilege'),
             key: 'database',
         },
+        {
+            label: t('account_limit'),
+            key: 'account_limit',
+        },
     ]
-    if (editType == 'update') {
-        tabs.push(...[
-            {
-                label: t('account_limit'),
-                key: 'account_limit',
-            },
-        ])
-    }
+    // if (editType == 'update') {
+    //     tabs.push(...[
+    //     ])
+    // }
 
     return (
         <div>
@@ -760,6 +760,7 @@ ORDER BY \`Db\` ASC;`,
                 title={editType == 'update' ? t('user_update') : t('user_create')}
                 width={1200}
                 onCancel={onCancel}
+                maskClosable={false}
                 onOk={async () => {
                     let values
                     try {
@@ -767,6 +768,14 @@ ORDER BY \`Db\` ASC;`,
                     }
                     catch (err) {
                         setCurTab('basic')
+                        return
+                    }
+                    let limitValues
+                    try {
+                        limitValues = await limitForm.validateFields()
+                    }
+                    catch (err) {
+                        setCurTab('account_limit')
                         return
                     }
                     const updates = []
@@ -845,7 +854,43 @@ ORDER BY \`Db\` ASC;`,
                         }
                         
                     }
-
+                    // Account Limits
+                    const limits = []
+                    if (editType == 'create') {
+                    }
+                    else {
+                    // if (editType == 'update') {
+                        // if (limitValues.)
+                        // console.log('limitValues.max_questions != item.max_questions', limitValues.max_questions, item.max_questions)
+                    }
+                    if (limitValues.max_questions != (item ? item.max_questions : 0)) {
+                        limits.push({
+                            key: 'MAX_QUERIES_PER_HOUR',
+                            value: limitValues.max_questions
+                        })
+                    }
+                    if (limitValues.max_updates != (item ? item.max_updates : 0)) {
+                        limits.push({
+                            key: 'MAX_UPDATES_PER_HOUR',
+                            value: limitValues.max_updates
+                        })
+                    }
+                    if (limitValues.max_connections != (item ? item.max_connections : 0)) {
+                        limits.push({
+                            key: 'MAX_CONNECTIONS_PER_HOUR',
+                            value: limitValues.max_connections
+                        })
+                    }
+                    if (limitValues.max_user_connections != (item ? item.max_user_connections : 0)) {
+                        limits.push({
+                            key: 'MAX_USER_CONNECTIONS',
+                            value: limitValues.max_user_connections
+                        })
+                    }
+                    console.log('limits', limits)
+                    if (limits.length) {
+                        updates.push(`ALTER USER ${uh} WITH ${limits.map(limit => `${limit.key} ${limit.value}`).join(' ')};`)
+                    }
                     if (!updates.length) {
                         message.info(t('no_change'))
                         // onCancel && onCancel()
@@ -979,25 +1024,29 @@ ORDER BY \`Db\` ASC;`,
                                             >
                                                 <Form.Item
                                                     name="max_questions"
-                                                    label={t('每小时最多的查询数')}
+                                                    label={t('limit.max_questions')}
+                                                    rules={[ { required: true, }, ]}
                                                 >
                                                     <InputNumber />
                                                 </Form.Item>
                                                 <Form.Item
                                                     name="max_updates"
-                                                    label={t('每小时最多的更新数')}
+                                                    label={t('limit.max_updates')}
+                                                    rules={[ { required: true, }, ]}
                                                 >
                                                     <InputNumber />
                                                 </Form.Item>
                                                 <Form.Item
                                                     name="max_connections"
-                                                    label={t('每小时最多的连接数')}
+                                                    label={t('limit.max_connections')}
+                                                    rules={[ { required: true, }, ]}
                                                 >
                                                     <InputNumber />
                                                 </Form.Item>
                                                 <Form.Item
                                                     name="max_user_connections"
-                                                    label={t('最多用户的连接数')}
+                                                    label={t('limit.max_user_connections')}
+                                                    rules={[ { required: true, }, ]}
                                                 >
                                                     <InputNumber />
                                                 </Form.Item>

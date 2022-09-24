@@ -215,6 +215,10 @@ i18n
                     unselect_all: 'Unselect All',
                     share: 'Share',
                     account_limit: 'Account Limits',
+                    'limit.max_questions': 'Max. Queries',
+                    'limit.max_updates': 'Max. Updates',
+                    'limit.max_connections': 'Max. Connections',
+                    'limit.max_user_connections': 'Max. User Connections',
                 }
             },
             zh: {
@@ -423,6 +427,10 @@ i18n
                     unselect_all: '取消全选',
                     share: '分享',
                     account_limit: '账号限制',
+                    'limit.max_questions': '每小时最大查询数',
+                    'limit.max_updates': '每小时最大更新数',
+                    'limit.max_connections': '每小时最大连接数',
+                    'limit.max_user_connections': '用户最大连接数',
                 }
             }
         },
