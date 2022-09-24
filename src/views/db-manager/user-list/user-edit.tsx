@@ -889,6 +889,7 @@ ORDER BY \`Db\` ASC;`,
                     }
                     console.log('limits', limits)
                     if (limits.length) {
+                        // updates.push(`/* ${t('account_limit')} */`)
                         updates.push(`ALTER USER ${uh} WITH ${limits.map(limit => `${limit.key} ${limit.value}`).join(' ')};`)
                     }
                     if (!updates.length) {

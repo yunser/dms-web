@@ -18,6 +18,14 @@
 
     --color-bg-left2: #fff;
     --color-text-3: rgba(0, 0, 0, .45);
+
+    --color-success: #52c41a;
+    --color-error: #ff4d4f;
+    /* --ant-success-color: #52c41a;
+    --ant-success-color-hover: #73d13d;
+    --ant-success-color-active: #389e0d; */
+    /* --ant-error-color-hover: #ff7875;
+    --ant-error-color-active: #d9363e; */
 }
 .theme-dark {
     --border-color: rgba(255, 255, 255, .12);
@@ -34,6 +42,9 @@
 
     --color-bg-left2: #1d1d1d;
     --color-text-3: rgba(255, 255, 255, .45);
+
+    --color-success: #49aa19;
+    --color-error: #a61d24;
 }
 body {
     transition: background-color .3s;

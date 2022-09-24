@@ -107,7 +107,8 @@ FROM \`mysql\`.\`user\``,
                                 setEditUserItem(item)
                             }}
                         >
-                            {t('detail')} / {t('edit')}
+                            {/* {t('detail')} /  */}
+                            {t('edit')}
                         </Button>
                         <Button
                             danger
