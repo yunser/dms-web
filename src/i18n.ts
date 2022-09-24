@@ -222,6 +222,9 @@ i18n
                     no_database_selected: 'No database selected',
                     filter_row: 'Filter Rows',
                     filter_column: 'Filter Columns',
+                    column_select: 'Select Columns',
+                    index_column: 'Index Columns',
+                    position: 'Position',
                 }
             },
             zh: {
@@ -437,6 +440,9 @@ i18n
                     no_database_selected: '没有选择数据库',
                     filter_row: '过滤行',
                     filter_column: '过滤列',
+                    column_select: '选择列',
+                    index_column: '索引列',
+                    position: '顺序',
                 }
             }
         },
@@ -455,5 +461,6 @@ i18n
     });
 
 export { i18n }
+
 
 

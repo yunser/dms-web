@@ -30,16 +30,17 @@ function hasValue(value) {
 // }
 
 function ColumnSelector({ value: _value, onChange, options }) {
+    const { t } = useTranslation()
     const [modalVisible, setModalVisible] = useState(false)
     const [value, setValue] = useState([])
     // const [columns] = useState
     const columns = [
         {
-            title: 'Index Column',
+            title: t('index_column'),
             dataIndex: 'label',
         },
         {
-            title: 'Position',
+            title: t('position'),
             dataIndex: 'position',
             render(_value, item) {
                 const idx = value.findIndex(v => v == item.value)
@@ -85,7 +86,7 @@ function ColumnSelector({ value: _value, onChange, options }) {
             </div>
             <Modal
                 open={modalVisible}
-                title="选择列"
+                title={t('column_select')}
                 onCancel={() => {
                     setModalVisible(false)
                 }}
