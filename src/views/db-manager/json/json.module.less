@@ -3,12 +3,30 @@
     // padding: 16px;
     display: flex;
     flex-direction: column;
-}
-.toolBox {
-    height: 40px;
-    border-bottom: 1px solid var(--border-color);
-    padding: 8px 16px;
-}
-.editorBox {
-    flex: 1 0 auto;
+    .header {
+        height: 40px;
+        border-bottom: 1px solid var(--border-color);
+        padding: 8px 16px;
+    }
+    .editorBox {
+        flex: 1 0 auto;
+        // border: 1px solid #f00;
+    }
+    .footer {
+        flex: 0 0 32px;
+        height: 0;
+        background-color: var(--color-eee);
+        // border: 1px solid #f00;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        padding: 0 16px;
+        .selection {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            color: var(--color-text-3);
+        }
+    }
 }

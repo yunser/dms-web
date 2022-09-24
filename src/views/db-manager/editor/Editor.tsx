@@ -7,11 +7,17 @@ import { getTheme } from '../../../theme'
 
 suggestionInit()
 
-export const Editor: VFC = ({ lang = 'sql', event$, connectionId, value, onChange, onEditor }) => {
+export const Editor: VFC = ({ lang = 'sql', 
+    event$, connectionId, value, 
+    onChange,
+    onEditor,
+    onSelectionChange,
+}) => {
 	const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
     const editorRef = useRef(null)
 	const monacoEl = useRef(null);
 
+    console.warn('Editor/render')
     // value = { code }
     //  = { e => setCode(e.target.value)}
     
@@ -55,6 +61,28 @@ export const Editor: VFC = ({ lang = 'sql', event$, connectionId, value, onChang
                 // console.log('onDidFocusEditorText')
                 window.g_editorConnectionId = connectionId
             })
+            _editor.onDidChangeCursorSelection((event) => {
+                // console.log('onDidChangeCursorSelection', event)
+                // window.g_editorConnectionId = connectionId
+                const { selection } = event
+                // endColumn: 5
+                // endLineNumber: 1
+                // positionColumn: 5
+                // positionLineNumber: 1
+                // selectionStartColumn: 5
+                // selectionStartLineNumber: 1
+                // startColumn: 5
+                // startLineNumber: 1
+                const selectionValue = _editor.getModel().getValueInRange(selection)
+                // console.log('selectionValue', selectionValue)
+
+                onSelectionChange && onSelectionChange({
+                    selection,
+                    selectionTextLength: selectionValue.length,
+                })
+
+            })
+            
             // _editor.onDidBlurEditorText((event) => {
             //     console.log('onDidBlurEditorText')
             // })
@@ -82,7 +110,7 @@ export const Editor: VFC = ({ lang = 'sql', event$, connectionId, value, onChang
         // }
 		return () => {
             // console.log('editor.dispose')
-            console.log('dispose/dispose')
+            // console.log('dispose/dispose')
             editor?.dispose()
             editorRef.current = null
             // window.g_completionItemProvider && window.g_completionItemProvider.dispose()
