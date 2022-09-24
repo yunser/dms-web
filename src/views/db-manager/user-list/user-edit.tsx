@@ -1,4 +1,4 @@
-import { Button, Checkbox, Descriptions, Dropdown, Form, Input, InputProps, Menu, message, Modal, Popover, Select, Space, Table, Tabs, Tooltip, Tree } from 'antd';
+import { Button, Checkbox, Col, Descriptions, Dropdown, Form, Input, InputProps, Menu, message, Modal, Popover, Row, Select, Space, Table, Tabs, Tooltip, Tree } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './user-list.module.less';
 import _, { debounce } from 'lodash';
@@ -17,7 +17,41 @@ import { uid } from 'uid';
 
 
 
+function CheckboxGroupPro({ optionGroups, value, onChange }) {
+    const { t } = useTranslation()
+    return (
+        <Checkbox.Group
+            // options={checkOptions}
+            value={value}
+            onChange={value => {
+                onChange && onChange(value)
+            }}
+        >
+            {optionGroups.map(group => {
+                const span = 4
+                // const groupName
+                return (
+                    <div>
+                        <div className={styles.groupName}>{t('priv.group.' + group.name)}</div>
+                        <Row>
+                            {group.options.map(opt => {
+                                return (
+                                    <Col span={opt.value == 'Create_tmp_table_priv' ? (span * 2) : span}>
+                                        <Checkbox value={opt.value}>
+                                            {opt.label}
+                                            {/* :{opt.value} */}
+                                        </Checkbox>
+                                    </Col>
 
+                                )
+                            })}
+                        </Row>
+                    </div>
+                )
+            })}
+        </Checkbox.Group>
+    )
+}
 
 
 
@@ -48,6 +82,7 @@ const all_permissions = [
         col: 'Select_priv',
         code: 'SELECT',
         schemaPriv: true,
+        type: 'object',
     },
     // INSERT：表示授予用户可以使用 INSERT 语句向特定数据库中所有表添加数据行的权限。
     {
@@ -55,6 +90,7 @@ const all_permissions = [
         col: 'Insert_priv',
         code: 'INSERT',
         schemaPriv: true,
+        type: 'object',
     },
     // UPDATE：表示授予用户可以使用 UPDATE 语句更新特定数据库中所有数据表的值的权限。
     {
@@ -62,6 +98,7 @@ const all_permissions = [
         col: 'Update_priv',
         code: 'UPDATE',
         schemaPriv: true,
+        type: 'object',
     },
     // DELETE：表示授予用户可以使用 DELETE 语句删除特定数据库中所有表的数据行的权限。
     {
@@ -69,6 +106,7 @@ const all_permissions = [
         col: 'Delete_priv',
         code: 'DELETE',
         schemaPriv: true,
+        type: 'object',
     },
     // CREATE：表示授权用户可以使用 CREATE TABLE 语句在特定数据库中创建新表的权限。
     {
@@ -76,6 +114,7 @@ const all_permissions = [
         col: 'Create_priv',
         code: 'CREATE',
         schemaPriv: true,
+        type: 'ddl',
     },
     // DROP：表示授予用户可以删除特定数据库中所有表和视图的权限。
     {
@@ -83,19 +122,16 @@ const all_permissions = [
         col: 'Drop_priv',
         code: 'DROP',
         schemaPriv: true,
+        type: 'ddl',
     },
-    {
-        name: 'Grant Option',
-        col: 'Grant_priv',
-        code: 'GRANT OPTION',
-        schemaPriv: true,
-    },
+    
     // REFERENCES：表示授予用户可以创建指向特定的数据库中的表外键的权限。
     {
         name: 'References',
         col: 'References_priv',
         code: 'REFERENCES',
         schemaPriv: true,
+        type: 'ddl',
     },
     // INDEX：表示授予用户可以在特定数据库中的所有数据表上定义和删除索引的权限。
     {
@@ -103,6 +139,7 @@ const all_permissions = [
         col: 'Index_priv',
         code: 'INDEX',
         schemaPriv: true,
+        type: 'ddl',
     },
     // ALTER：表示授予用户可以使用 ALTER TABLE 语句修改特定数据库中所有数据表的权限。 
     {
@@ -110,41 +147,25 @@ const all_permissions = [
         col: 'Alter_priv',
         code: 'ALTER',
         schemaPriv: true,
+        type: 'ddl',
     },
-    // CREATE TEMPORARY TABLES：表示授予用户可以在特定数据库中创建临时表的权限。
-    {
-        name: 'Create Temporary Table',
-        col: 'Create_tmp_table_priv',
-        code: 'CREATE TEMPORARY TABLES',
-        schemaPriv: true,
-    },
-    // LOCK TABLES：表示授予用户可以锁定特定数据库的已有数据表的权限。
-    {
-        name: 'Lock Tables',
-        col: 'Lock_tables_priv',
-        code: 'LOCK TABLES',
-        schemaPriv: true,
-    },
+    
     // CREATE VIEW：表示授予用户可以在特定数据库中创建新的视图的权限。
     {
         name: 'Create View',
         col: 'Create_view_priv',
         code: 'CREATE VIEW',
         schemaPriv: true,
+        type: 'ddl',
     },
-    // SHOW VIEW：表示授予用户可以查看特定数据库中已有视图的视图定义的权限。
-    {
-        name: 'Show View',
-        col: 'Show_view_priv',
-        code: 'SHOW VIEW',
-        schemaPriv: true,
-    },
+    
     // CREATE ROUTINE：表示授予用户可以为特定的数据库创建存储过程和存储函数的权限。
     {
         name: 'Create Routine',
         col: 'Create_routine_priv',
         code: 'CREATE ROUTINE',
         schemaPriv: true,
+        type: 'ddl',
     },
     // ALTER ROUTINE：表示授予用户可以更新和删除数据库中已有的存储过程和存储函数的权限。 
     {
@@ -152,6 +173,7 @@ const all_permissions = [
         col: 'Alter_routine_priv',
         code: 'ALTER ROUTINE',
         schemaPriv: true,
+        type: 'ddl',
     },
     // EXECUTE ROUTINE：表示授予用户可以调用特定数据库的存储过程和存储函数的权限。
     {
@@ -159,75 +181,118 @@ const all_permissions = [
         col: 'Execute_priv',
         code: 'EXECUTE',
         schemaPriv: true,
+        type: 'object',
+    },
+    // SHOW VIEW：表示授予用户可以查看特定数据库中已有视图的视图定义的权限。
+    {
+        name: 'Show View',
+        col: 'Show_view_priv',
+        code: 'SHOW VIEW',
+        schemaPriv: true,
+        type: 'object',
     },
     {
         name: 'Event',
         col: 'Event_priv',
         code: 'EVENT',
         schemaPriv: true,
+        type: 'ddl',
     },
     {
         name: 'Trigger',
         col: 'Trigger_priv',
         code: 'TRIGGER',
         schemaPriv: true,
+        type: 'ddl',
     },
     {
         name: 'Reload',
         col: 'Reload_priv',
         code: 'RELOAD',
+        type: 'sys',
     },
     {
         name: 'Shutdown',
         col: 'Shutdown_priv',
         code: 'SHUTDOWN',
+        type: 'sys',
     },
     {
         name: 'Super',
         col: 'Super_priv',
         code: 'SUPER',
+        type: 'sys',
     },
     {
         name: 'Show Databases',
         col: 'Show_db_priv',
         code: 'SHOW DATABASES',
+        type: 'sys',
     },
     {
         name: 'File',
         col: 'File_priv',
         code: 'FILE',
+        type: 'sys',
     },
     {
         name: 'Process',
         col: 'Process_priv',
         code: 'PROCESS',
+        type: 'sys',
     },
     {
         name: 'Replication Slave',
         col: 'Repl_slave_priv',
         code: 'REPLICATION SLAVE',
+        type: 'sys',
     },
     {
         name: 'Replication Client',
         col: 'Repl_client_priv',
         code: 'REPLICATION CLIENT',
+        type: 'sys',
     },
     {
         name: 'Create User',
         col: 'Create_user_priv',
         code: 'CREATE USER',
+        type: 'sys',
     },
     {
         name: 'Create Tablespace',
         col: 'Create_tablespace_priv',
         code: 'CREATE TABLESPACE',
+        type: 'sys',
+    },
+    
+    {
+        name: 'Grant Option',
+        col: 'Grant_priv',
+        code: 'GRANT OPTION',
+        schemaPriv: true,
+        type: 'other',
+    },
+    // LOCK TABLES：表示授予用户可以锁定特定数据库的已有数据表的权限。
+    {
+        name: 'Lock Tables',
+        col: 'Lock_tables_priv',
+        code: 'LOCK TABLES',
+        schemaPriv: true,
+        type: 'other',
+    },
+    // CREATE TEMPORARY TABLES：表示授予用户可以在特定数据库中创建临时表的权限。
+    {
+        name: 'Create Temporary Table',
+        col: 'Create_tmp_table_priv',
+        code: 'CREATE TEMPORARY TABLES',
+        schemaPriv: true,
+        type: 'other',
     },
     
     
-    
-    
 ]
-
+console.log('all_permissions', all_permissions.length)
 function DbModal({ config, connectionId, onOk, onCancel }) {
     const { t } = useTranslation()
     const [form] = Form.useForm()
@@ -299,8 +364,8 @@ function PermissionEditModal({ value, onCancel, onOk }) {
 
     const { t } = useTranslation()
     const [checkValues, setCheckValues] = useState([])
-    const [checkOptions, setCheckOptions] = useState([])
-    
+    const [checkOpts, setCheckOpts] = useState([])
+    const [checkGroups, setCheckGroups] = useState([])
     console.log('value?', value)
 
     useEffect(() => {
@@ -316,14 +381,33 @@ function PermissionEditModal({ value, onCancel, onOk }) {
             //     checkValues.push(per.col)
             // }
         }
-        setCheckOptions(checkOptions)
+        const schemaPrivs = all_permissions.filter(p => p.schemaPriv)
+        console.log('schemaPrivs', schemaPrivs)
+        const optsGroup = _.groupBy(schemaPrivs, item => {
+            console.log('item', )
+            return item.type || 'other'
+        })
+        // setCheckOpts('optsGroup', optsGroup)
+        setCheckGroups(Object.keys(optsGroup).map(groupName => {
+            return {
+                name: groupName,
+                options: optsGroup[groupName].map(per => {
+                    return {
+                        label: per.name,
+                        value: per.col,
+                    }
+                }),
+            }
+        }))
         setCheckValues(value.map(item => item.col))
     }, [])
     
+    // console.log('checkGroups', checkGroups)
     return (
         <Modal
             title={t('privilege_edit')}
             open={true}
+            width={1000}
             onCancel={onCancel}
             onOk={() => {
                 console.log('ok', checkValues)
@@ -335,8 +419,15 @@ function PermissionEditModal({ value, onCancel, onOk }) {
             }}
         >
             <div className={styles.perBox}>
-                <Checkbox.Group
-                    options={checkOptions}
+                {/* <Checkbox.Group
+                    options={checkOpts}
+                    value={checkValues}
+                    onChange={value => {
+                        setCheckValues(value)
+                    }}
+                /> */}
+                <CheckboxGroupPro
+                    optionGroups={checkGroups}
                     value={checkValues}
                     onChange={value => {
                         setCheckValues(value)
@@ -358,12 +449,13 @@ export function UserEditModal({ config, connectionId, onSuccess, onCancel, item,
 
     const [sortedInfo, setSortedInfo] = useState({});
     const [loading, setLoading] = useState(false)
-    const [curTab, setCurTab] = useState('basic')
-    // const [curTab, setCurTab] = useState('global')
+    // const [curTab, setCurTab] = useState('basic')
+    const [curTab, setCurTab] = useState('global')
     // const [curTab, setCurTab] = useState('database')
     const [perModalVisible, setPerModalVisible] = useState(false)
     const [perModalItem, setPerModalItem] = useState(false)
     const [removedDbPers, setRemovedDbPers] = useState([])
+    const [indeterminate, setIndeterminate] = useState(true)
     const [form] = Form.useForm()
     const [execSql, setExecSql] = useState('')
     useEffect(() => {
@@ -383,6 +475,7 @@ export function UserEditModal({ config, connectionId, onSuccess, onCancel, item,
     }, [item])
     const [list, setList] = useState([])
     const [checkOptions, setCheckOptions] = useState([])
+    const [checkGroups, setCheckGroups] = useState([])
     const [checkValues, setCheckValues] = useState([])
     const [truePermissions, setTruePermissions] = useState([])
     const [dbModalVisible, setDbModalVisible] = useState(false)
@@ -416,7 +509,7 @@ ORDER BY \`Db\` ASC;`,
             console.log('res', list)
 
             let count = 0
-            const truePermissions = []
+            const truePermissions = all_permissions
             for (let itemKey in item) {
                 // console.log('itemKey', itemKey)
                 if (itemKey.match(/_priv$/)) {
@@ -424,7 +517,7 @@ ORDER BY \`Db\` ASC;`,
 
                     count++
                     if (fPer) {
-                        truePermissions.push(fPer)
+                        // truePermissions.push(fPer)
                     }
                     else {
                         console.warn('权限没加上', itemKey)
@@ -444,6 +537,22 @@ ORDER BY \`Db\` ASC;`,
                     checkValues.push(per.col)
                 }
             }
+            const optsGroup = _.groupBy(truePermissions, item => {
+                console.log('item', )
+                return item.type || 'other'
+            })
+            console.log('optsGroup', optsGroup)
+            setCheckGroups(Object.keys(optsGroup).map(groupName => {
+                return {
+                    name: groupName,
+                    options: optsGroup[groupName].map(per => {
+                        return {
+                            label: per.name,
+                            value: per.col,
+                        }
+                    }),
+                }
+            }))
             setCheckOptions(checkOptions)
             setCheckValues(checkValues)
             setTruePermissions(truePermissions)
@@ -742,8 +851,8 @@ ORDER BY \`Db\` ASC;`,
                                     }
                                     {item.key == 'global' &&
                                         <div>
-                                            <Checkbox.Group
-                                                options={checkOptions}
+                                            <CheckboxGroupPro
+                                                optionGroups={checkGroups}
                                                 value={checkValues}
                                                 onChange={value => {
                                                     setCheckValues(value)

@@ -207,6 +207,10 @@ i18n
                     privilege_edit: 'Update Privileges',
                     no_change: 'No changed',
                     login_name: 'Login Name',
+                    'priv.group.object': 'Object',
+                    'priv.group.ddl': 'DDL',
+                    'priv.group.sys': 'System',
+                    'priv.group.other': 'Other',
                 }
             },
             zh: {
@@ -407,6 +411,10 @@ i18n
                     privilege_edit: '编辑权限',
                     no_change: '没有任何修改',
                     login_name: '用户名',
+                    'priv.group.object': '对象',
+                    'priv.group.ddl': 'DDL',
+                    'priv.group.sys': '系统',
+                    'priv.group.other': '其他',
                 }
             }
         },
