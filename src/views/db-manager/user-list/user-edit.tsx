@@ -729,15 +729,15 @@ ORDER BY \`Db\` ASC;`,
             label: t('global_privilege'),
             key: 'global',
         },
+        {
+            label: t('schema_privilege'),
+            key: 'database',
+        },
     ]
-    if (editType == 'update') {
-        tabs.push(...[
-            {
-                label: t('schema_privilege'),
-                key: 'database',
-            },
-        ])
-    }
+    // if (editType == 'update') {
+    //     tabs.push(...[
+    //     ])
+    // }
 
     return (
         <div>
