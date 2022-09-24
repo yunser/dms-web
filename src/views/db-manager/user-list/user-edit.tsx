@@ -526,11 +526,12 @@ ORDER BY \`Db\` ASC;`,
                             type="link"
                             size="small"
                             onClick={() => {
-                                // setExecSql(`DROP USER '${item.User}'@'${item.Host}';`)
-                                setRemovedDbPers([
-                                    ...removedDbPers,
-                                    item,
-                                ])
+                                if (!item.__new) {
+                                    setRemovedDbPers([
+                                        ...removedDbPers,
+                                        item,
+                                    ])
+                                }
                                 setList(list.filter(_item => _item.__id != item.__id))
                             }}
                         >
