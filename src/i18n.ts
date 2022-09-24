@@ -211,6 +211,8 @@ i18n
                     'priv.group.ddl': 'DDL',
                     'priv.group.sys': 'System',
                     'priv.group.other': 'Other',
+                    select_all: 'Select All',
+                    unselect_all: 'Unselect All',
                 }
             },
             zh: {
@@ -415,6 +417,8 @@ i18n
                     'priv.group.ddl': 'DDL',
                     'priv.group.sys': '系统',
                     'priv.group.other': '其他',
+                    select_all: '全选',
+                    unselect_all: '取消全选',
                 }
             }
         },

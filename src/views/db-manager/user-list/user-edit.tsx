@@ -1,4 +1,4 @@
-import { Button, Checkbox, Col, Descriptions, Dropdown, Form, Input, InputProps, Menu, message, Modal, Popover, Row, Select, Space, Table, Tabs, Tooltip, Tree } from 'antd';
+import { Button, Checkbox, Col, Descriptions, Divider, Dropdown, Form, Input, InputProps, Menu, message, Modal, Popover, Row, Select, Space, Table, Tabs, Tooltip, Tree } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './user-list.module.less';
 import _, { debounce } from 'lodash';
@@ -30,9 +30,59 @@ function CheckboxGroupPro({ optionGroups, value, onChange }) {
             {optionGroups.map(group => {
                 const span = 4
                 // const groupName
+                // let isAll = true
+                let count = 0
+                // const groupValues = []
+                for (let opt of group.options) {
+                    if (value.includes(opt.value)) {
+                        // groupValues.push(opt.value)
+                        count++
+                    }
+                }
+                const isAll = count == group.options.length
                 return (
-                    <div>
-                        <div className={styles.groupName}>{t('priv.group.' + group.name)}</div>
+                    <div className={styles.checkboxGroup}>
+                        <div className={styles.groupHeader}>
+                            <div className={styles.groupName}>{t('priv.group.' + group.name)}</div>
+                            <a
+                                onClick={() => {
+                                    if (isAll) {
+                                        // Uncheck all
+                                        const newValue = [...value].filter(value => !group.options.find(opt => opt.value == value))
+                                        // for (let opt of group.options) {
+                                        //     if (!) {
+                                        //         newValue.push(opt.value)
+                                        //     }
+                                        // }
+                                        onChange && onChange(newValue)
+                                    }
+                                    else {
+                                        // Check all
+                                        const newValue = [...value]
+                                        for (let opt of group.options) {
+                                            if (!value.includes(opt.value)) {
+                                                newValue.push(opt.value)
+                                            }
+                                        }
+                                        onChange && onChange(newValue)
+                                    }
+                                }}
+                            >
+                                {/* <div>count:{count}</div> */}
+                                {/* <div>{groupValues.join(',')}</div> */}
+                                
+                                {isAll ? t('unselect_all') : t('select_all')}
+                            </a>
+                            {/* <Checkbox
+                                value="121212"
+                                // indeterminate={false}
+                                // onChange={onCheckAllChange}
+                                checked={true}
+                            >
+                                Check all
+                            </Checkbox> */}
+                            {/* <Divider /> */}
+                        </div>
                         <Row>
                             {group.options.map(opt => {
                                 return (
@@ -292,7 +342,8 @@ const all_permissions = [
     
     
 ]
-console.log('all_permissions', all_permissions.length)
+// console.log('all_permissions', all_permissions.length)
+
 function DbModal({ config, connectionId, onOk, onCancel }) {
     const { t } = useTranslation()
     const [form] = Form.useForm()
@@ -366,7 +417,7 @@ function PermissionEditModal({ value, onCancel, onOk }) {
     const [checkValues, setCheckValues] = useState([])
     const [checkOpts, setCheckOpts] = useState([])
     const [checkGroups, setCheckGroups] = useState([])
-    console.log('value?', value)
+    // console.log('value?', value)
 
     useEffect(() => {
 
@@ -449,8 +500,8 @@ export function UserEditModal({ config, connectionId, onSuccess, onCancel, item,
 
     const [sortedInfo, setSortedInfo] = useState({});
     const [loading, setLoading] = useState(false)
-    // const [curTab, setCurTab] = useState('basic')
-    const [curTab, setCurTab] = useState('global')
+    const [curTab, setCurTab] = useState('basic')
+    // const [curTab, setCurTab] = useState('global')
     // const [curTab, setCurTab] = useState('database')
     const [perModalVisible, setPerModalVisible] = useState(false)
     const [perModalItem, setPerModalItem] = useState(false)

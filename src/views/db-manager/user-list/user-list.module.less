@@ -28,9 +28,17 @@
     overflow: auto;
 }
 
-
-.groupName {
-    font-weight: bold;
-    font-size: 16px;
-    margin-bottom: 12px;
+.checkboxGroup {
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 16px;
+    .groupHeader {
+        display: flex;
+        align-items: center;
+        margin-bottom: 12px;
+        .groupName {
+            font-weight: bold;
+            font-size: 16px;
+            margin-right: 16px;
+        }
+    }
 }
