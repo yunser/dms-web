@@ -85,7 +85,7 @@ export function HistoryList({ config, onSql }) {
         {
             title: t('exec_time'),
             dataIndex: 'execTime',
-            width: 100,
+            width: 120,
         },
         {
             title: t('message'),
@@ -235,7 +235,7 @@ export function HistoryList({ config, onSql }) {
                     x: 1800,
                 }}
             />
-            <CodeDebuger path="src/views/db-manager/history/history.tsx" />
+            <CodeDebuger path="src/views/db-manager/sql-history/history.tsx" />
         </div>
     )
 }

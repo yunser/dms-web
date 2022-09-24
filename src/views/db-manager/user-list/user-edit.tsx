@@ -7,7 +7,7 @@ import classNames from 'classnames'
 import { useTranslation } from 'react-i18next';
 import { Editor } from '../editor/Editor';
 import { IconButton } from '../icon-button';
-import { DatabaseOutlined, FormatPainterOutlined, ReloadOutlined, TableOutlined, UnorderedListOutlined } from '@ant-design/icons';
+import { DatabaseOutlined, FormatPainterOutlined, PlusOutlined, ReloadOutlined, TableOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import { suggestionAdd } from '../suggestion';
 import { SorterResult } from 'antd/lib/table/interface';
 import { request } from '../utils/http';
@@ -210,6 +210,7 @@ const all_permissions = [
 ]
 
 function DbModal({ config, connectionId, onOk, onCancel }) {
+    const { t } = useTranslation()
     const [form] = Form.useForm()
     const [options, setOptions] = useState([])
     async function loadDbList() {
@@ -240,7 +241,7 @@ function DbModal({ config, connectionId, onOk, onCancel }) {
 
     return (
         <Modal
-            title="选择数据库"
+            title={t('schema_select')}
             open={true}
             onCancel={onCancel}
             onOk={async () => {
@@ -263,7 +264,7 @@ function DbModal({ config, connectionId, onOk, onCancel }) {
             >
                 <Form.Item
                     name="schema"
-                    label="数据库"
+                    label={t('schema')}
                     rules={[ { required: true, }, ]}
                 >
                     <Select
@@ -277,6 +278,7 @@ function DbModal({ config, connectionId, onOk, onCancel }) {
 
 function PermissionEditModal({ value, onCancel, onOk }) {
 
+    const { t } = useTranslation()
     const [checkValues, setCheckValues] = useState([])
     const [checkOptions, setCheckOptions] = useState([])
     
@@ -301,7 +303,7 @@ function PermissionEditModal({ value, onCancel, onOk }) {
     
     return (
         <Modal
-            title="编辑权限"
+            title={t('privilege_edit')}
             open={true}
             onCancel={onCancel}
             onOk={() => {
@@ -337,12 +339,12 @@ export function UserEditModal({ config, connectionId, onSuccess, onCancel, item,
 
     const [sortedInfo, setSortedInfo] = useState({});
     const [loading, setLoading] = useState(false)
-    // const [curTab, setCurTab] = useState('basic')
+    const [curTab, setCurTab] = useState('basic')
     // const [curTab, setCurTab] = useState('global')
+    // const [curTab, setCurTab] = useState('database')
     const [perModalVisible, setPerModalVisible] = useState(false)
     const [perModalItem, setPerModalItem] = useState(false)
     const [removedDbPers, setRemovedDbPers] = useState([])
-    const [curTab, setCurTab] = useState('database')
     const [form] = Form.useForm()
     const [execSql, setExecSql] = useState('')
     useEffect(() => {
@@ -476,14 +478,14 @@ ORDER BY \`Db\` ASC;`,
     
     const columns = [
         {
-            title: t('Db'),
+            title: t('schema'),
             dataIndex: 'Db',
-            with: 160,
+            width: 160,
         },
         {
-            title: t('permissions'),
+            title: t('permission'),
             dataIndex: '_permissions',
-            with: 640,
+            width: 640,
             render(value) {
                 return (
                     <div>{value.map(it => it.name).join((', '))}</div>
@@ -491,7 +493,7 @@ ORDER BY \`Db\` ASC;`,
             }
         },
         {
-            title: '操作',
+            title: t('actions'),
             dataIndex: 'op',
             fixed: 'right',
             render(_value, item) {
@@ -544,18 +546,18 @@ ORDER BY \`Db\` ASC;`,
 
     const tabs = [
         {
-            label: t('基本设置'),
+            label: t('login_info'),
             key: 'basic',
         },
     ]
     if (editType == 'update') {
         tabs.push(...[
             {
-                label: t('全局权限'),
+                label: t('global_privilege'),
                 key: 'global',
             },
             {
-                label: t('数据库权限'),
+                label: t('schema_privilege'),
                 key: 'database',
             },
         ])
@@ -565,7 +567,7 @@ ORDER BY \`Db\` ASC;`,
         <div>
             <Modal
                 open={true}
-                title="编辑用户"
+                title={editType == 'update' ? t('user_update') : t('user_create')}
                 width={1200}
                 onCancel={onCancel}
                 onOk={async () => {
@@ -648,8 +650,8 @@ ORDER BY \`Db\` ASC;`,
                     }
 
                     if (!updates.length) {
-                        message.info('No changed.')
-                        onCancel && onCancel()
+                        message.info(t('no_change'))
+                        // onCancel && onCancel()
                         return
                     }
                     setExecSql(updates.join('\n'))
@@ -693,21 +695,23 @@ ORDER BY \`Db\` ASC;`,
                                             >
                                                 <Form.Item
                                                     name="User"
-                                                    label="User"
+                                                    label={t('login_name')}
                                                     rules={[ { required: true, }, ]}
                                                 >
                                                     <Input />
                                                 </Form.Item>
                                                 <Form.Item
                                                     name="Host"
-                                                    label="Host"
+                                                    label={t('host')}
                                                     rules={[ { required: editType == 'update', }, ]}
                                                 >
-                                                    <Input />
+                                                    <Input
+                                                        placeholder="%"
+                                                    />
                                                 </Form.Item>
                                                 <Form.Item
                                                     name="password"
-                                                    label="Password"
+                                                    label={t('password')}
                                                     rules={[ { required: true, }, ]}
                                                 >
                                                     <Input
@@ -730,14 +734,22 @@ ORDER BY \`Db\` ASC;`,
                                     }
                                     {item.key == 'database' &&
                                         <div>
-                                            <Button
-                                                size="small"
-                                                onClick={() => {
-                                                    setDbModalVisible(true)
-                                                }}
-                                            >
-                                                新增
-                                            </Button>
+                                            <div style={{
+                                                marginBottom: 8
+                                            }}>
+                                                <Space>
+                                                    <IconButton
+                                                        tooltip={t('add')}
+                                                        // size="small"
+                                                        className={styles.refresh}
+                                                        onClick={() => {
+                                                            setDbModalVisible(true)
+                                                        }}
+                                                    >
+                                                        <PlusOutlined />
+                                                    </IconButton>
+                                                </Space>
+                                            </div>
                                             <Table
                                                 className={styles.table}
                                                 dataSource={list}

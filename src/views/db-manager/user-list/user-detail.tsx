@@ -172,7 +172,7 @@ LIMIT 20;`,
         {
             title: t('Db'),
             dataIndex: 'Db',
-            with: 160,
+            width: 160,
         },
         {
             title: t('permissions'),

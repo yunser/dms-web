@@ -76,16 +76,17 @@ FROM \`mysql\`.\`user\``,
         {
             title: t('user'),
             dataIndex: 'User',
-            with: 160,
+            width: 240,
         },
         {
             title: t('host'),
             dataIndex: 'Host',
+            width: 160,
         },
         {
-            title: '操作',
+            title: t('actions'),
             dataIndex: 'op',
-            fixed: 'right',
+            // fixed: 'right',
             render(_value, item) {
                 return (
                     <Space>
@@ -106,7 +107,7 @@ FROM \`mysql\`.\`user\``,
                                 setEditUserItem(item)
                             }}
                         >
-                            查看/{t('edit')}
+                            {t('detail')} / {t('edit')}
                         </Button>
                         <Button
                             danger
