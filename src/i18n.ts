@@ -221,6 +221,7 @@ i18n
                     'limit.max_user_connections': 'Max. User Connections',
                     no_database_selected: 'No database selected',
                     filter_row: 'Filter Rows',
+                    filter_column: 'Filter Columns',
                 }
             },
             zh: {
@@ -435,6 +436,7 @@ i18n
                     'limit.max_user_connections': '用户最大连接数',
                     no_database_selected: '没有选择数据库',
                     filter_row: '过滤行',
+                    filter_column: '过滤列',
                 }
             }
         },

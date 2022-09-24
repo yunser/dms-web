@@ -286,6 +286,7 @@ export function ExecDetail(props) {
     const [editing, setEditing] = useState(false)
     const [list, setList] = useState([])
     const [filterKeyword, setFilterKeyword] = useState('')
+    const [filterColKeyword, setFilterColKeyword] = useState('')
     useEffect(() => {
         const list = results.map((result, rowIdx) => {
             let item = {
@@ -631,6 +632,7 @@ export function ExecDetail(props) {
             columns.push({
                 // title: <div>{field.name}</div>,
                 // title: '' + field.name,
+                __rawTitle: field.name,
                 title: (
                     <HeaderCell name={field.name} />
                 ),
@@ -692,6 +694,17 @@ export function ExecDetail(props) {
         // })
         
     }, [fields, list])
+
+    const filteredColumns = useMemo(() => {
+        console.log('columns', columns)
+        if (!filterColKeyword) {
+            return columns
+        }
+        const _keyword = filterColKeyword.toLowerCase()
+        return columns.filter(col => {
+            return col.__rawTitle.toLowerCase().includes(_keyword)
+        })
+    }, [filterColKeyword, columns])
 
     console.log('rowModalItem', rowModalItem)
 
@@ -833,18 +846,34 @@ export function ExecDetail(props) {
                             </Space>
                             <Space>
                                 <Input.Search
+                                    placeholder={t('filter_column')}
+                                    size="small"
+                                    allowClear
+                                    onChange={e => {
+                                        const value = e.target.value
+                                        // console.log('onChange', value)
+                                        if (!value) {
+                                            setFilterColKeyword('')
+                                        }
+                                    }}
+                                    onSearch={value => {
+                                        // console.log('onSearch', value)
+                                        setFilterColKeyword(value)
+                                    }}
+                                />
+                                <Input.Search
                                     placeholder={t('filter_row')}
                                     size="small"
                                     allowClear
                                     onChange={e => {
                                         const value = e.target.value
-                                        console.log('onChange', value)
+                                        // console.log('onChange', value)
                                         if (!value) {
                                             setFilterKeyword('')
                                         }
                                     }}
                                     onSearch={value => {
-                                        console.log('onSearch', value)
+                                        // console.log('onSearch', value)
                                         setFilterKeyword(value)
                                     }}
                                 />
@@ -861,7 +890,7 @@ export function ExecDetail(props) {
                                 // loading={loading}
                                 dataSource={filteredList}
                                 pagination={false}
-                                columns={columns}
+                                columns={filteredColumns}
                                 // columns={[
                                 //     {
                                 //         title: 'Name',
