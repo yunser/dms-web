@@ -226,6 +226,7 @@ i18n
                     column_select: 'Select Columns',
                     index_column: 'Index Columns',
                     position: 'Position',
+                    clone: 'Clone',
                 }
             },
             zh: {
@@ -445,6 +446,7 @@ i18n
                     column_select: '选择列',
                     index_column: '索引列',
                     position: '顺序',
+                    clone: '副本',
                 }
             }
         },

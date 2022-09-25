@@ -657,7 +657,7 @@ ${t('password')}: ${data.password}`
                                                             editType: 'create',
                                                             item: {
                                                                 ...data,
-                                                                name: data.name + '-clone'
+                                                                name: data.name + `(${t('clone')})`
                                                             },
                                                         })
                                                     }
