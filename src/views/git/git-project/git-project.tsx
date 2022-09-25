@@ -11,27 +11,58 @@ import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { CommitList } from '../commit-list';
 import { BranchList } from '../branch-list';
+import { GitStatus } from '../git-status';
 // import { saveAs } from 'file-saver'
 
 export function GitProject() {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
-
+    const [curTab, setCurTab] = useState('status')
+    // const [curTab, setCurTab] = useState('commit-list')
     const config = {
         host: 'http://localhost:10086',
     }
 
+    const tabs = [
+        {
+            label: '文件状态',
+            key: 'status',
+        },
+        {
+            label: '提交记录',
+            key: 'commit-list',
+        },
+    ]
     return (
         <div className={styles.gitApp}>
             <div className={styles.layoutLeft}>
+                
                 <BranchList
                     config={config}
                 />
             </div>
             <div className={styles.layoutRight}>
-                <CommitList
-                    config={config}
+                <Tabs
+                    activeKey={curTab}
+                    onChange={key => {
+                        setCurTab(key)
+                    }}
+                    items={tabs}
                 />
+                <div>
+                    {curTab == 'status' &&
+                        <div>
+                            <GitStatus
+                                config={config}
+                            />
+                        </div>
+                    }
+                    {curTab == 'commit-list' &&
+                        <CommitList
+                            config={config}
+                        />
+                    }
+                </div>
             </div>
         </div>
     )

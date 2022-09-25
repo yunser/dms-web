@@ -41,7 +41,13 @@ export function CommitList({ config }) {
 
     return (
         <div>
-
+            <Button
+                onClick={() => {
+                    loadList()
+                }}
+            >
+                刷新
+            </Button>
             <div>提交列表:</div>
             <div className={styles.list}>
                 {list.map(item => {

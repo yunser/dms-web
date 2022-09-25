@@ -38,12 +38,10 @@ export function BranchList({ config }) {
 
     useEffect(() => {
         loadList()
-        
     }, [])
 
     return (
         <div>
-
             <div>分支列表:</div>
             <div className={styles.list}>
                 {list.map(item => {
