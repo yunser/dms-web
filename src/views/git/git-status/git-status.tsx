@@ -92,6 +92,7 @@ export function GitStatus({ config, onTab, }) {
         }
     }
 
+
     useEffect(() => {
         loadList()
     }, [])
@@ -106,50 +107,67 @@ export function GitStatus({ config, onTab, }) {
         }
     }
 
-    
+    async function reset(path) {
+        let res = await request.post(`${config.host}/git/reset`, {
+            files: [path],
+        })
+        // console.log('res', res)
+        if (res.success) {
+            loadList()
+        }
+    }
 
     return (
         <div>
             {/* <div>状态:</div> */}
             {!!status &&
-                <div>
-                    <div>
-                        <div>staged:</div>
-                        <div>
-                            {status.staged.map(item => {
+                <div className={styles.statusBox}>
+                    <div className={styles.layoutTop}>
+                        <div className={styles.layoutLeft}>
+                            <div>staged:</div>
+                            <div>
+                                {status.staged.map(item => {
+                                    return (
+                                        <div
+                                            key={item}
+                                        >
+                                            <Checkbox
+                                                checked
+                                                onClick={() => {
+                                                    console.log('add', item)
+                                                    reset(item)
+                                                }}
+                                            />
+                                            {item}
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                            <hr />
+
+                            <div>not_added:</div>
+                            {unstagedList.map(item => {
                                 return (
                                     <div
                                         key={item}
                                     >
                                         <Checkbox
-                                            checked
+                                            checked={false}
+                                            onClick={() => {
+                                                console.log('add', item)
+                                                add(item)
+                                            }}
                                         />
                                         {item}
                                     </div>
                                 )
                             })}
                         </div>
-                        <hr />
+                        <div className={styles.layoutRight}></div>
 
-                        <div>not_added:</div>
-                        {unstagedList.map(item => {
-                            return (
-                                <div
-                                    key={item}
-                                >
-                                    <Checkbox
-                                        checked={false}
-                                        onClick={() => {
-                                            console.log('add', item)
-                                            add(item)
-                                        }}
-                                    />
-                                    {item}
-                                </div>
-                            )
-                        })}
-
-                        <hr />
+                    </div>
+                    <div className={styles.layoutBottom}>
+                        {/* <hr /> */}
                         <Commit
                             config={config}
                             onSuccess={() => {

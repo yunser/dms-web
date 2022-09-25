@@ -51,14 +51,12 @@ export function GitProject() {
                 />
                 <div>
                     {curTab == 'status' &&
-                        <div>
-                            <GitStatus
-                                config={config}
-                                onTab={() => {
-                                    setCurTab('commit-list')
-                                }}
-                            />
-                        </div>
+                        <GitStatus
+                            config={config}
+                            onTab={() => {
+                                setCurTab('commit-list')
+                            }}
+                        />
                     }
                     {curTab == 'commit-list' &&
                         <CommitList
