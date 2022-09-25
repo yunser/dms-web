@@ -41,14 +41,14 @@ export function CommitList({ config, projectPath }) {
     }, [])
 
     return (
-        <div>
-            <Button
+        <div className={styles.commitBox}>
+            {/* <Button
                 onClick={() => {
                     loadList()
                 }}
             >
                 刷新
-            </Button>
+            </Button> */}
             {/* <div>提交列表:</div> */}
             <div className={styles.list}>
                 {list.map(item => {
