@@ -166,6 +166,7 @@ export function GitStatus({ config, projectPath, onTab, }) {
     }
 
     async function diff(path) {
+        setCurFile(path)
         let res = await request.post(`${config.host}/git/diff`, {
             projectPath,
             file: path,
@@ -213,7 +214,6 @@ export function GitStatus({ config, projectPath, onTab, }) {
                                 </div>
 
                             </div>
-                            {/* <hr /> */}
                             <div className={classNames(styles.section, styles.section2)}>
                                 <div className={styles.header}>Not Added</div>
                                 <div className={styles.body}>
@@ -221,7 +221,9 @@ export function GitStatus({ config, projectPath, onTab, }) {
                                         {unstagedList.map(item => {
                                             return (
                                                 <div
-                                                    className={styles.item}
+                                                    className={classNames(styles.item, {
+                                                        [styles.active]: item == curFile
+                                                    })}
                                                     key={item}
                                                 >
                                                     <Checkbox
