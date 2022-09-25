@@ -18,6 +18,67 @@ import { t } from 'i18next';
 import { RowDetailModal } from '../sql-row-detail-modal/sql-row-detail-modal';
 import { RowEditModal } from '../sql-row-edit-modal/sql-row-edit-modal';
 
+function getTextLength(text) {
+    // let width = 0
+    if (text == null) {
+        return 0
+    }
+    // console.log('text', text)
+    let length = 0
+    const _text = '' + text
+    for (let char of _text) {
+        // if (char.match(/\d/)) {
+        //     width += 1  
+        // }
+        // else if (char.match(/[a-zA-Z]/)) {
+        //     width += 1
+        // }
+        // else {
+        //     width += 12.6
+        // }
+        if (char.match(/[\u4E00-\u9FA5]/)) {
+            length += 2
+        }
+        else {
+            length += 1
+        }
+    }
+    return length
+}
+
+function getTextWidth(text) {
+    if (text == null) {
+        return 0
+    }
+    // let width = 0
+    // console.log('text', text)
+    const _text = '' + text
+    // for (let char of _text) {
+    //     if (char.match(/\d/)) {
+    //         width += 10    
+    //     }
+    //     else if (char.match(/[a-zA-Z]/)) {
+    //         width += 10
+    //     }
+    //     else {
+    //         width += 12.6
+    //     }
+    // }
+    // console.log('getTextWidth', _text)
+
+    if (!window.g_canvasForMeasureText) {
+        const canvas = document.createElement('CANVAS') as HTMLCanvasElement
+        canvas.setAttribute('id', 'g_canvasForMeasureText')
+        window.g_canvasForMeasureText = canvas
+    }
+    let canvas = window.g_canvasForMeasureText as HTMLCanvasElement
+    const ctx = canvas.getContext('2d')
+    ctx.font = '14px -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji'
+    const textWidth = ctx.measureText(_text).width
+    // console.log('textWidth', textWidth)
+    return textWidth
+}
+
 const { TabPane } = Tabs
 const { TextArea } = Input
 
@@ -74,7 +135,7 @@ function HeaderCell({ name }) {
                 }
             }}
         >
-            {name}
+            <div className={styles.title}>{name}</div>
             {isHover &&
                 <div className={styles.tool}>
                     <CopyButton
@@ -313,7 +374,7 @@ export function ExecDetail(props) {
     const [selectedRowKeys, setSelectedRowKeys] = useState([])
 
     const filteredList = useMemo(() => {
-        console.log('list', list)
+        // console.log('list', list)
         if (!filterKeyword) {
             return list
         }
@@ -654,14 +715,58 @@ export function ExecDetail(props) {
     }
 
 
-    const columns = useMemo(() => {
+    const { columns, tableWidth } = useMemo(() => {
         // console.warn('ExecDetail/useMemo')
         const startTime = new Date()
         // console.log('useMemo', results, fields, list)
-        let columns = []
-        let idx = 0
+        let columns = [
+            {
+                alwaysShow: true,
+                title: '',
+                dataIndex: '__start',
+                key: '__start',
+                width: 48,
+                render(value: any, item) {
+                    return (
+                        <div></div>
+                    )
+                },
+            }
+        ]
+        let colIdx = 0
+        let totalWidth = 0
+        const topList = list.slice(0, 1000) // 取前 20 条用于计算，避免行太多导致性能问题
+        // console.log('topList', topList)
         for (let field of fields) {
-            const key = '' + idx
+            let width = 280 // UUID 刚好完整显示的宽度 280
+            const cellTexts = [field.name] // 这一列头部和内容的数据
+            const key = '' + colIdx
+            // HACK 加 * 用于修复没有内容的列标题宽度不太够的问题
+            let maxTextLength = getTextLength(field.name + '*')
+            let maxWidthText = field.name + '*'
+            for (let row of topList) {
+                const cellText = row[key].newValue || row[key].value || ''
+                cellTexts.push(cellText)
+                let textWidth = getTextLength(cellText)
+                if (textWidth > maxTextLength) {
+                    maxTextLength = textWidth
+                    maxWidthText = cellText
+                }
+            }
+            let maxTextWidth = getTextWidth(maxWidthText)
+            // console.log('maxTextWidth', maxTextWidth)
+            // console.log('cellTexts', field.name, cellTexts)
+            // for ()
+            width = maxTextWidth + 16
+                + 16 // hack 修复数字列无法完全显示的问题
+            // 至少完整显示 null
+            if (width < 48) {
+                width = 48
+            }
+            if (width > 320) {
+                width = 320
+            }
+            totalWidth += width
             columns.push({
                 // title: <div>{field.name}</div>,
                 // title: '' + field.name,
@@ -671,7 +776,7 @@ export function ExecDetail(props) {
                 ),
                 dataIndex: key,
                 key,
-                // width: 120,
+                width,
                 render(value: any, item) {
                     // console.log('Cell.value?', value)
                     // return (
@@ -702,25 +807,47 @@ export function ExecDetail(props) {
                     )
                 },
             })
-            idx++
+            colIdx++
         }
+        columns.push({
+            alwaysShow: true,
+            title: '',
+            dataIndex: '__end',
+            key: '__end',
+            // width: 
+            render(value: any, item) {
+                return (
+                    <div data-end="true"></div>
+                )
+            },
+        })
         // console.log('ExecDetail/useMemo/End', new Date().getTime() - startTime.getTime())
-        return columns
+        // console.log('totalWidth', totalWidth)
+        const tableMinWidth = document.body.clientWidth - 320
+        // console.log('tableMinWidth', tableMinWidth)
+        return {
+            columns,
+            tableWidth: Math.max(tableMinWidth, totalWidth),
+        }
         
     }, [fields, list])
 
     const filteredColumns = useMemo(() => {
-        console.log('columns', columns)
+        // console.log('columns', columns)
         if (!filterColKeyword) {
             return columns
         }
         const _keyword = filterColKeyword.toLowerCase()
         return columns.filter(col => {
+            // console.log('col.__rawTitle', )
+            if (col.alwaysShow) {
+                return true
+            }
             return col.__rawTitle.toLowerCase().includes(_keyword)
         })
     }, [filterColKeyword, columns])
 
-    console.log('rowModalItem', rowModalItem)
+    // console.log('rowModalItem', rowModalItem)
 
 	return (
         <div className={styles.resultBox}>
@@ -908,6 +1035,7 @@ export function ExecDetail(props) {
                             className={styles.tableBox}
                             ref={tableBoxRef}
                         >
+                            
                             {/* TTT */}
                             <Table
                                 // loading={loading}
@@ -916,7 +1044,8 @@ export function ExecDetail(props) {
                                 columns={filteredColumns}
                                 bordered
                                 style={{
-                                    maxWidth: getMaxWidth(columns.length),
+                                    // maxWidth: getMaxWidth(columns.length),
+                                    maxWidth: tableWidth,
                                     // width: 600,
                                     // height: '300px',
                                     // border: '1px solid #09c',
@@ -990,11 +1119,12 @@ export function ExecDetail(props) {
                                 }}
                                 rowKey="_idx"
                                 scroll={{
-                                    x: true,
-                                    // x: 2000,
-                                    // y: document.body.clientHeight - 396,
+                                    // x: true,
+                                    x: tableWidth,
+                                    y: document.body.clientHeight - 546,
                                 }}
                             />
+                            <div className={styles.topLeft}></div>
                         </div>
                     :
                         <div className={styles.emptyFullBox}>

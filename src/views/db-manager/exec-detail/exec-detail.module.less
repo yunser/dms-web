@@ -71,11 +71,24 @@
     }
 
     .tableBox {
+        position: relative;
         width: 100%;
         height: 100%;
         padding-top: 40px;
         padding-bottom: 40px;
         overflow: auto;
+        // border: 1px solid #f00;
+        .topLeft {
+            position: absolute;
+            left: 0;
+            top: 40px;
+            width: calc(48px - 1px);
+            height: calc(40px - 1px);
+            // background-color: #fafafa;
+            // background-color: #1d1d1d;
+            background-color: var(--color-f9);
+            z-index: 1;
+        }
     }
 
     .header {
@@ -138,7 +151,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     min-width: 64px;
-    max-width: 400px;
+    max-width: 320px;
     // border: 1px solid #f00;
     // padding: 8px;
     padding: 0;
@@ -206,6 +219,12 @@
         right: 0;
         top: -4px;
         background-color: #fff;
+    }
+    .title {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 320px;
     }
 }
 .resultFullBox {
