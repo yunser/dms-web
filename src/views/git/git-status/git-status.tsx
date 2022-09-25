@@ -61,7 +61,7 @@ function Commit({ config, onSuccess }) {
     )
 }
 
-export function GitStatus({ config }) {
+export function GitStatus({ config, onTab, }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
 
@@ -123,7 +123,7 @@ export function GitStatus({ config }) {
                         <hr />
 
                         <div>not_added:</div>
-                        {status.not_added.map(item => {
+                        {status.modified.map(item => {
                             return (
                                 <div>
                                     <Checkbox
@@ -142,7 +142,8 @@ export function GitStatus({ config }) {
                         <Commit
                             config={config}
                             onSuccess={() => {
-                                loadList()
+                                // loadList()
+                                onTab && onTab()
                             }}
                         />
                     </div>

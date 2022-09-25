@@ -54,6 +54,9 @@ export function GitProject() {
                         <div>
                             <GitStatus
                                 config={config}
+                                onTab={() => {
+                                    setCurTab('commit-list')
+                                }}
                             />
                         </div>
                     }
