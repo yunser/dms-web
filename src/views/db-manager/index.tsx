@@ -360,7 +360,9 @@ export function DbManager({ config }) {
                                 '__workbench__': t('workbench'),
                             }
                             return {
-                                label: item.title.startsWith('$i18n.') ? t(item.title.replace('$i18n.', '')) : item.title,
+                                label: (
+                                    <div className={styles.tabLabel}>{item.title.startsWith('$i18n.') ? t(item.title.replace('$i18n.', '')) : item.title}</div>
+                                ),
                                 key: item.key,
                                 closable: item.closable !== false,
                             }
