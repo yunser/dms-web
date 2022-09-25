@@ -1,13 +1,13 @@
 import React, { useState, useId, useEffect, ReactNode, useMemo } from 'react'
 import styles from './index.module.less'
-import { message, Input, Button, Tabs, Space, Form, Checkbox, InputNumber, ConfigProvider, Tree, Empty, Modal } from 'antd'
+import { message, Input, Button, Tabs, Space, Form, Checkbox, InputNumber, ConfigProvider, Tree, Empty, Modal, Dropdown, Menu } from 'antd'
 import storage from './storage'
 import DatabaseList from './databases'
 import { DataBaseDetail } from './databaseDetail'
 import { request } from './utils/http'
 import { useTranslation } from 'react-i18next'
 import { IconButton } from './icon-button'
-import { BulbOutlined, CloseOutlined, DatabaseOutlined, ExportOutlined, FolderOutlined, PlusOutlined } from '@ant-design/icons'
+import { BulbOutlined, CloseOutlined, DatabaseOutlined, EllipsisOutlined, ExportOutlined, FolderOutlined, MenuOutlined, PlusOutlined } from '@ant-design/icons'
 import enUS from 'antd/es/locale/en_US';
 import zhCN from 'antd/es/locale/zh_CN';
 import { EsConnnector } from './es-connectot'
@@ -255,53 +255,70 @@ export function DbManager({ config }) {
                                         >
                                             {t('text')}
                                         </Button>
-                                        <Button
-                                            type="text"
-                                            onClick={() => {
-                                                addOrActiveTab({
-                                                    title: 'Redis',
-                                                    // key: 'redis-' + uid(16),
-                                                    key: 'redis-connect',
-                                                    type: 'redis-connect',
-                                                    data: {
-                                                        // url,
-                                                    },
-                                                })
-                                            }}
+                                        <Dropdown
+                                            overlay={
+                                                <Menu
+                                                    onClick={({ key }) => {
+                                                        if (key == 'help') {
+                                                            addOrActiveTab({
+                                                                title: '$i18n.help',
+                                                                key: 'help',
+                                                                type: 'help',
+                                                                data: {
+                                                                    // url,
+                                                                },
+                                                            })
+                                                        }
+                                                        else if (key == 'elasticsearch') {
+                                                            addOrActiveTab({
+                                                                title: 'Elasticsearch',
+                                                                key: 'key-es',
+                                                                type: 'elasticsearch',
+                                                                data: {},
+                                                                // closable: false,
+                                                            })
+                                                        }
+                                                        else if (key == 'redis') {
+                                                            addOrActiveTab({
+                                                                title: 'Redis',
+                                                                // key: 'redis-' + uid(16),
+                                                                key: 'redis-connect',
+                                                                type: 'redis-connect',
+                                                                data: {
+                                                                    // url,
+                                                                },
+                                                            })
+                                                        }
+                                                    }}
+                                                    items={[
+                                                        {
+                                                            label: t('Redis'),
+                                                            key: 'redis',
+                                                        },
+                                                        {
+                                                            label: t('Elasticsearch'),
+                                                            key: 'elasticsearch',
+                                                        },
+                                                        {
+                                                            type: 'divider',
+                                                        },
+                                                        {
+                                                            label: t('help'),
+                                                            key: 'help',
+                                                        },
+                                                    ]}
+                                                />
+                                            }
                                         >
-                                            Redis
-                                            {/* {t('json')} */}
-                                        </Button>
-                                        <Button
-                                            type="text"
-                                            onClick={() => {
-                                                addOrActiveTab({
-                                                    title: 'Elasticsearch',
-                                                    key: 'key-es',
-                                                    type: 'elasticsearch',
-                                                    data: {},
-                                                    // closable: false,
-                                                })
-                                            }}
-                                        >
-                                            {/* {t('json')} */}
-                                            Elasticsearch
-                                        </Button>
-                                        <Button
-                                            type="text"
-                                            onClick={() => {
-                                                addOrActiveTab({
-                                                    title: '$i18n.help',
-                                                    key: 'help',
-                                                    type: 'help',
-                                                    data: {
-                                                        // url,
-                                                    },
-                                                })
-                                            }}
-                                        >
-                                            {t('help')}
-                                        </Button>
+                                            <IconButton
+                                                onClick={e => e.preventDefault()}
+                                            >
+                                                <EllipsisOutlined />
+                                            </IconButton>
+                                            {/* <a
+                                            >
+                                            </a> */}
+                                        </Dropdown>
                                         <Button
                                             type="text"
                                             onClick={() => {
