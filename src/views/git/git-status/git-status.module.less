@@ -1,9 +1,9 @@
 .statusBox {
-    height: 640px;
-    // border: 1px solid #f00;
+    height: 100%;
     display: flex;
     flex-direction: column;
-    border: 1px solid var(--border-color);
+    // border: 1px solid var(--border-color);
+    // border: 1px solid #f00;
     .layoutTop {
         flex: 1 0 auto;
         height: 0;
@@ -13,6 +13,9 @@
     }
     .layoutBottom {
         flex: 0 0 120px;
+        overflow: hidden;
+        // border: 1px solid #f00;
+        padding: 12px;
     }
     .layoutLeft {
         flex: 0 0 320px;
@@ -22,9 +25,32 @@
         flex-direction: column;
         // border: 1px solid #f00;
         .section {
+            // position: relative;
             flex: 1 0 auto;
             height: 0;
-            overflow: auto;
+            // overflow: auto;
+            // padding-top: 32px;
+            display: flex;
+            flex-direction: column;
+            .header {
+                // position: absolute;
+                // top: 0;
+                // left: 0;
+                // width: 100%;
+                // background-color: #fff;
+                // padding: 8px;
+                flex: 0 0 32px;
+                // border: 1px solid #000;
+                display: flex;
+                align-items: center;
+                padding: 0 8px;
+            }
+            .body {
+                flex: 1 0 auto;
+                height: 0;
+                overflow: auto;
+                // border: 1px solid #f00;
+            }
         }
         .section2 {
             border-top: 1px solid var(--border-color);
@@ -34,24 +60,35 @@
         flex: 1 0 auto;
         // height: 0;
         overflow: auto;
+        padding: 8px;
         // border: 1px solid #f00;
     }
 }
 .list {
     .item {
-        height: 40px;
+        height: 32px;
         display: flex;
+        padding: 0 8px;
         align-items: center;
-        border: 1px solid var(--border-color);
+        font-size: 12px;
+        // border-top: 1px solid var(--border-color);
+        &:hover {
+            background-color: var(--color-f1);
+            // background-color: #f00;
+        }
     }
     .fileName {
         flex: 1 0 auto;
         width: 0;
+        height: 100%;
         // border: 1px solid #f00;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        cursor: pointer;
+        margin-left: 8px;
+        display: flex;
+        align-items: center;
+        // cursor: pointer;
     }
 }
 .current {
@@ -60,4 +97,32 @@
     border-radius: 4px;
     margin-left: 8px;
     background-color: #f00;
+}
+.section2 {
+    .fileName {
+        cursor: pointer;
+    }
+}
+
+.diffBox {
+    // border: 1px solid #f00;
+    font-size: 12px;
+    .line {
+        // border: 1px solid #000;
+    }
+    pre {
+        margin-bottom: 0;
+    }
+    .added {
+        color: #2f7559;
+        background-color: #ebfcf4;
+    }
+    .deleted {
+        color: #c55b38;
+        background-color: #fdf0eb;
+    }
+    .desc {
+        color: #b9b9b9;
+        background-color: #f6f6f6;
+    }
 }

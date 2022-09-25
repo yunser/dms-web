@@ -23,6 +23,7 @@ import { UserList } from './user-list'
 import { TextEditor } from './text'
 import { useEventEmitter } from 'ahooks'
 import { getTheme, toggleTheme } from '../../theme'
+import { GitHome } from '../git/git-home'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -306,10 +307,10 @@ export function DbManager({ config }) {
                                                             label: t('Redis'),
                                                             key: 'redis',
                                                         },
-                                                        // {
-                                                        //     label: t('GIT'),
-                                                        //     key: 'git',
-                                                        // },
+                                                        {
+                                                            label: t('GIT'),
+                                                            key: 'git',
+                                                        },
                                                         {
                                                             label: t('Elasticsearch'),
                                                             key: 'elasticsearch',
@@ -522,7 +523,8 @@ export function DbManager({ config }) {
                                         />
                                     }
                                     {item.type == 'git-project' &&
-                                        <div>GIT</div>
+                                        <GitHome
+                                        />
                                     }
                             </div>
                         )

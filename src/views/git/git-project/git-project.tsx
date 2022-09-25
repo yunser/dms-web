@@ -15,7 +15,7 @@ import { GitStatus } from '../git-status';
 import { RemoteList } from '../remote-list';
 // import { saveAs } from 'file-saver'
 
-export function GitProject() {
+export function GitProject({ projectPath, onList }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [curTab, setCurTab] = useState('status')
@@ -37,28 +37,42 @@ export function GitProject() {
     return (
         <div className={styles.gitApp}>
             <div className={styles.layoutLeft}>
-                
-                <BranchList
-                    config={config}
-                />
-                <hr />
-                <RemoteList
-                    config={config}
-                />
-                
+                {/* <Button
+                    onClick={() => {
+                        onList && onList()
+                    }}
+                >
+                    返回列表</Button> */}
+                <div className={styles.section}>
+                    <div className={styles.header}>分支</div>
+                    <BranchList
+                        config={config}
+                        projectPath={projectPath}
+                    />
+                </div>
+                <div className={styles.section}>
+                    <div className={styles.header}>远程</div>
+                    <RemoteList
+                        config={config}
+                        projectPath={projectPath}
+                    />
+                </div>
             </div>
             <div className={styles.layoutRight}>
-                <Tabs
-                    activeKey={curTab}
-                    onChange={key => {
-                        setCurTab(key)
-                    }}
-                    items={tabs}
-                />
-                <div>
+                <div className={styles.header}>
+                    <Tabs
+                        activeKey={curTab}
+                        onChange={key => {
+                            setCurTab(key)
+                        }}
+                        items={tabs}
+                    />
+                </div>
+                <div className={styles.body}>
                     {curTab == 'status' &&
                         <GitStatus
                             config={config}
+                            projectPath={projectPath}
                             onTab={() => {
                                 setCurTab('commit-list')
                             }}
@@ -67,6 +81,7 @@ export function GitProject() {
                     {curTab == 'commit-list' &&
                         <CommitList
                             config={config}
+                            projectPath={projectPath}
                         />
                     }
                 </div>

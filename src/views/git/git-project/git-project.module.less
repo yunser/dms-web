@@ -1,18 +1,35 @@
 .gitApp {
-    height: 100vh;
+    height: 100%;
     // border: 1px solid #f00;
     display: flex;
     .layoutLeft {
         flex: 0 0 320px;
         border-right: 1px solid var(--border-color);
-        padding: 16px;
+        // border: 1px solid #f00;
+        .section {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
     }
     .layoutRight {
         flex: 1 0 auto;
         // width: 0;
-        padding: 16px;
         // overflow: auto;
         // border: 1px solid #f00;
         overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        .header {
+            flex: 0 0 48px;
+            border-bottom: 1px solid var(--border-color);
+            overflow: hidden;
+            padding: 0 16px;
+        }
+        .body {
+            flex: 1 0 auto;
+            height: 0;
+            // border: 1px solid #f00;
+            // padding: 16px;
+        }
     }
 }

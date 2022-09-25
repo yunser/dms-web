@@ -1,5 +1,7 @@
 * https://github.com/Nick930826/vite-react-app
 
+12
+
 * 随机
     * TODO
         * 背景不可以移动
@@ -14,7 +16,6 @@ A numeric separator is only allowed between two digits.
 
 
 
-https://app.haikei.app/
 
 
 fabricjs 高级篇（自定义类型）

@@ -12,13 +12,48 @@ import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
 // import { saveAs } from 'file-saver'
 
-function Commit({ config, onSuccess }) {
+function DiffText({ text }) {
+    const arr = text.split('\n')
+    return (
+        <div  className={styles.diffBox}>
+            {arr.map(line => {
+                let type = ''
+                if (line.startsWith('@@')) {
+                    type = 'desc'
+                }
+                else if (line.startsWith('+') && !line.startsWith('+++')) {
+                    type = 'added'
+                }
+                else if (line.startsWith('-') && !line.startsWith('---')) {
+                    type = 'deleted'
+                }
+                return (
+                    <div
+                        className={classNames(styles.line, {
+                            [styles[type]]: true,
+                        })}
+                        // style={{
+                        //     color,
+                        //     backgroundColor
+                        // }}
+                    >
+                        <pre>{line}</pre>
+                    </div>
+                )
+            })}       
+            {/* <pre>{text}</pre> */}
+        </div>
+    )
+}
+
+function Commit({ config, projectPath, onSuccess }) {
     const [form] = Form.useForm()
     
     async function submit() {
         const values = await form.validateFields()
         console.log('msg', values)
         let res = await request.post(`${config.host}/git/commit`, {
+            projectPath,
             message: values.message,
         })
         // console.log('res', res)
@@ -34,11 +69,15 @@ function Commit({ config, onSuccess }) {
         <div>
             <Form
                 form={form}
-                labelCol={{ span: 8 }}
-                wrapperCol={{ span: 16 }}
+                // labelCol={{ span: 8 }}
+                // wrapperCol={{ span: 16 }}
+                size="small"
                 initialValues={{
                     port: 3306,
                 }}
+                // style={{
+                //     marginBottom: 0,
+                // }}
                 // layout={{
                 //     labelCol: { span: 0 },
                 //     wrapperCol: { span: 24 },
@@ -46,22 +85,27 @@ function Commit({ config, onSuccess }) {
             >
                 <Form.Item
                     name="message"
-                    label="Message"
+                    // label="Message"
                     rules={[ { required: true, }, ]}
                 >
-                    <Input />
+                    <Input.TextArea
+                        rows={2}
+                    />
+                </Form.Item>
+                <Form.Item>
+                    <Button
+                        size="small"
+                        onClick={() => {
+                            submit()
+                        }}
+                    >Submit</Button>
                 </Form.Item>
             </Form>
-            <Button
-                onClick={() => {
-                    submit()
-                }}
-            >Submit</Button>
         </div>
     )
 }
 
-export function GitStatus({ config, onTab, }) {
+export function GitStatus({ config, projectPath, onTab, }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
 
@@ -72,6 +116,7 @@ export function GitStatus({ config, onTab, }) {
     const [diffText, setDiffText ] = useState('')
     async function loadList() {
         let res = await request.post(`${config.host}/git/status`, {
+            projectPath,
             // connectionId,
             // sql: lineCode,
             // tableName,
@@ -100,6 +145,7 @@ export function GitStatus({ config, onTab, }) {
 
     async function add(path) {
         let res = await request.post(`${config.host}/git/add`, {
+            projectPath,
             files: [path],
         })
         // console.log('res', res)
@@ -110,6 +156,7 @@ export function GitStatus({ config, onTab, }) {
 
     async function reset(path) {
         let res = await request.post(`${config.host}/git/reset`, {
+            projectPath,
             files: [path],
         })
         // console.log('res', res)
@@ -120,6 +167,7 @@ export function GitStatus({ config, onTab, }) {
 
     async function diff(path) {
         let res = await request.post(`${config.host}/git/diff`, {
+            projectPath,
             file: path,
         })
         console.log('res', res)
@@ -130,70 +178,78 @@ export function GitStatus({ config, onTab, }) {
     }
 
     return (
-        <div>
+        <div className={styles.statusBox}>
             {/* <div>状态:</div> */}
             {!!status &&
-                <div className={styles.statusBox}>
+                <>
                     <div className={styles.layoutTop}>
                         <div className={styles.layoutLeft}>
                             <div className={styles.section}>
-                                <div>staged:</div>
-                                <div className={styles.list}>
-                                    {status.staged.map(item => {
-                                        return (
-                                            <div
-                                                key={item}
-                                            >
-                                                <Checkbox
-                                                    checked
-                                                    onClick={() => {
-                                                        console.log('add', item)
-                                                        reset(item)
-                                                    }}
-                                                />
-                                                <div className={styles.fileName}
-                                                    onClick={() => {
-                                                        diff(item)
-                                                    }}
-                                                >{item}</div>
-                                            </div>
-                                        )
-                                    })}
+                                <div className={styles.header}>Staged</div>
+                                <div className={styles.body}>
+                                    <div className={styles.list}>
+                                        {status.staged.map(item => {
+                                            return (
+                                                <div
+                                                    className={styles.item}
+                                                    key={item}
+                                                >
+                                                    <Checkbox
+                                                        checked
+                                                        onClick={() => {
+                                                            console.log('add', item)
+                                                            reset(item)
+                                                        }}
+                                                    />
+                                                    <div className={styles.fileName}
+                                                        onClick={() => {
+                                                            diff(item)
+                                                        }}
+                                                    >{item}</div>
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
                                 </div>
 
                             </div>
                             {/* <hr /> */}
                             <div className={classNames(styles.section, styles.section2)}>
-                                <div>not_added:</div>
-                                <div className={styles.list}>
-                                    {unstagedList.map(item => {
-                                        return (
-                                            <div
-                                                className={styles.item}
-                                                key={item}
-                                            >
-                                                <Checkbox
-                                                    checked={false}
-                                                    onClick={() => {
-                                                        console.log('add', item)
-                                                        add(item)
-                                                    }}
-                                                />
-                                                <div className={styles.fileName}
-                                                    onClick={() => {
-                                                        diff(item)
-                                                    }}
-                                                >{item}</div>
-                                            </div>
-                                        )
-                                    })}
+                                <div className={styles.header}>Not Added</div>
+                                <div className={styles.body}>
+                                    <div className={styles.list}>
+                                        {unstagedList.map(item => {
+                                            return (
+                                                <div
+                                                    className={styles.item}
+                                                    key={item}
+                                                >
+                                                    <Checkbox
+                                                        checked={false}
+                                                        onClick={() => {
+                                                            console.log('add', item)
+                                                            add(item)
+                                                        }}
+                                                    />
+                                                    <div className={styles.fileName}
+                                                        onClick={() => {
+                                                            diff(item)
+                                                        }}
+                                                    >{item}</div>
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
                                 </div>
                             </div>
 
                         </div>
                         <div className={styles.layoutRight}>
                             {!!diffText &&
-                                <pre>{diffText}</pre>
+                                <DiffText
+                                    text={diffText}
+                                />
+                                // <pre>{diffText}</pre>
                             }
                         </div>
 
@@ -202,13 +258,14 @@ export function GitStatus({ config, onTab, }) {
                         {/* <hr /> */}
                         <Commit
                             config={config}
+                            projectPath={projectPath}
                             onSuccess={() => {
                                 // loadList()
                                 onTab && onTab()
                             }}
                         />
                     </div>
-                </div>
+                </>
             }
             {/* <div className={styles.list}>
                 {list.map(item => {

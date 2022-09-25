@@ -12,7 +12,7 @@ import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
 // import { saveAs } from 'file-saver'
 
-export function CommitList({ config }) {
+export function CommitList({ config, projectPath }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
 
@@ -20,6 +20,7 @@ export function CommitList({ config }) {
 
     async function loadList() {
         let res = await request.post(`${config.host}/git/commit/list`, {
+            projectPath,
             // connectionId,
             // sql: lineCode,
             // tableName,
