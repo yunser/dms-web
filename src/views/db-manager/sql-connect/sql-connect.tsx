@@ -453,6 +453,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
                 let newConnects = connections.filter(item => item.id != data.id)
                 setConnections(newConnects)
                 storage.set('connections', newConnects)
+                init()
             }
         })
     }
