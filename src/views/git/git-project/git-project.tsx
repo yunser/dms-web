@@ -10,6 +10,7 @@ import { DownloadOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { CommitList } from '../commit-list';
+import { BranchList } from '../branch-list';
 // import { saveAs } from 'file-saver'
 
 export function GitProject() {
@@ -22,9 +23,16 @@ export function GitProject() {
 
     return (
         <div className={styles.gitApp}>
-            <CommitList
-                config={config}
-            />
+            <div className={styles.layoutLeft}>
+                <BranchList
+                    config={config}
+                />
+            </div>
+            <div className={styles.layoutRight}>
+                <CommitList
+                    config={config}
+                />
+            </div>
         </div>
     )
 }
