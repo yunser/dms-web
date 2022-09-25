@@ -48,7 +48,7 @@ function list2Tree(list) {
                                 color: colorMap[item.color],
                             }}
                         />
-                        {name}
+                        <div className={styles.treeTitle}>{name}</div>
                     </Space>
                 ),
                 key: `dbkey-${item.id}`,
