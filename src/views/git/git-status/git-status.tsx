@@ -67,6 +67,7 @@ export function GitStatus({ config, onTab, }) {
 
     const [status, setStatus] = useState(null)
     // const [current, setCurrent] = useState('')
+    const [unstagedList, setUnstagedList] = useState([])
 
     async function loadList() {
         let res = await request.post(`${config.host}/git/status`, {
@@ -80,8 +81,14 @@ export function GitStatus({ config, onTab, }) {
         })
         // console.log('res', res)
         if (res.success) {
-            setStatus(res.data.status)
+            const { status } = res.data
+            setStatus(status)
             // setCurrent(res.data.current)
+            setUnstagedList(status.modified.filter(file => {
+                console.log('file', file)
+                return !status.staged.includes(file)
+            }))
+            
         }
     }
 
@@ -111,7 +118,9 @@ export function GitStatus({ config, onTab, }) {
                         <div>
                             {status.staged.map(item => {
                                 return (
-                                    <div>
+                                    <div
+                                        key={item}
+                                    >
                                         <Checkbox
                                             checked
                                         />
@@ -123,9 +132,11 @@ export function GitStatus({ config, onTab, }) {
                         <hr />
 
                         <div>not_added:</div>
-                        {status.modified.map(item => {
+                        {unstagedList.map(item => {
                             return (
-                                <div>
+                                <div
+                                    key={item}
+                                >
                                     <Checkbox
                                         checked={false}
                                         onClick={() => {
