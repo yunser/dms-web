@@ -6,6 +6,7 @@
     border: 1px solid var(--border-color);
     .layoutTop {
         flex: 1 0 auto;
+        height: 0;
         // border: 1px solid #f00;
         display: flex;
         border-bottom: 1px solid var(--border-color);
@@ -14,12 +15,25 @@
         flex: 0 0 120px;
     }
     .layoutLeft {
-        flex: 0 0 240px;
+        flex: 0 0 320px;
         // border: 1px solid #f00;
         border-right: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+        // border: 1px solid #f00;
+        .section {
+            flex: 1 0 auto;
+            height: 0;
+            overflow: auto;
+        }
+        .section2 {
+            border-top: 1px solid var(--border-color);
+        }
     }
     .layoutRight {
         flex: 1 0 auto;
+        // height: 0;
+        overflow: auto;
         // border: 1px solid #f00;
     }
 }
@@ -29,6 +43,15 @@
         display: flex;
         align-items: center;
         border: 1px solid var(--border-color);
+    }
+    .fileName {
+        flex: 1 0 auto;
+        width: 0;
+        // border: 1px solid #f00;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        cursor: pointer;
     }
 }
 .current {

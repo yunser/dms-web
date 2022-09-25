@@ -12,6 +12,7 @@ import { useEventEmitter } from 'ahooks';
 import { CommitList } from '../commit-list';
 import { BranchList } from '../branch-list';
 import { GitStatus } from '../git-status';
+import { RemoteList } from '../remote-list';
 // import { saveAs } from 'file-saver'
 
 export function GitProject() {
@@ -40,6 +41,11 @@ export function GitProject() {
                 <BranchList
                     config={config}
                 />
+                <hr />
+                <RemoteList
+                    config={config}
+                />
+                
             </div>
             <div className={styles.layoutRight}>
                 <Tabs

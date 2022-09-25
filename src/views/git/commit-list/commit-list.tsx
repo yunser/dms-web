@@ -48,7 +48,7 @@ export function CommitList({ config }) {
             >
                 刷新
             </Button>
-            <div>提交列表:</div>
+            {/* <div>提交列表:</div> */}
             <div className={styles.list}>
                 {list.map(item => {
                     return (

@@ -65,10 +65,11 @@ export function GitStatus({ config, onTab, }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
 
+    const [curFile, setCurFile] = useState('')
     const [status, setStatus] = useState(null)
     // const [current, setCurrent] = useState('')
     const [unstagedList, setUnstagedList] = useState([])
-
+    const [diffText, setDiffText ] = useState('')
     async function loadList() {
         let res = await request.post(`${config.host}/git/status`, {
             // connectionId,
@@ -117,6 +118,17 @@ export function GitStatus({ config, onTab, }) {
         }
     }
 
+    async function diff(path) {
+        let res = await request.post(`${config.host}/git/diff`, {
+            file: path,
+        })
+        console.log('res', res)
+        if (res.success) {
+            // loadList()
+            setDiffText(res.data)
+        }
+    }
+
     return (
         <div>
             {/* <div>状态:</div> */}
@@ -124,46 +136,66 @@ export function GitStatus({ config, onTab, }) {
                 <div className={styles.statusBox}>
                     <div className={styles.layoutTop}>
                         <div className={styles.layoutLeft}>
-                            <div>staged:</div>
-                            <div>
-                                {status.staged.map(item => {
-                                    return (
-                                        <div
-                                            key={item}
-                                        >
-                                            <Checkbox
-                                                checked
-                                                onClick={() => {
-                                                    console.log('add', item)
-                                                    reset(item)
-                                                }}
-                                            />
-                                            {item}
-                                        </div>
-                                    )
-                                })}
-                            </div>
-                            <hr />
+                            <div className={styles.section}>
+                                <div>staged:</div>
+                                <div className={styles.list}>
+                                    {status.staged.map(item => {
+                                        return (
+                                            <div
+                                                key={item}
+                                            >
+                                                <Checkbox
+                                                    checked
+                                                    onClick={() => {
+                                                        console.log('add', item)
+                                                        reset(item)
+                                                    }}
+                                                />
+                                                <div className={styles.fileName}
+                                                    onClick={() => {
+                                                        diff(item)
+                                                    }}
+                                                >{item}</div>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
 
-                            <div>not_added:</div>
-                            {unstagedList.map(item => {
-                                return (
-                                    <div
-                                        key={item}
-                                    >
-                                        <Checkbox
-                                            checked={false}
-                                            onClick={() => {
-                                                console.log('add', item)
-                                                add(item)
-                                            }}
-                                        />
-                                        {item}
-                                    </div>
-                                )
-                            })}
+                            </div>
+                            {/* <hr /> */}
+                            <div className={classNames(styles.section, styles.section2)}>
+                                <div>not_added:</div>
+                                <div className={styles.list}>
+                                    {unstagedList.map(item => {
+                                        return (
+                                            <div
+                                                className={styles.item}
+                                                key={item}
+                                            >
+                                                <Checkbox
+                                                    checked={false}
+                                                    onClick={() => {
+                                                        console.log('add', item)
+                                                        add(item)
+                                                    }}
+                                                />
+                                                <div className={styles.fileName}
+                                                    onClick={() => {
+                                                        diff(item)
+                                                    }}
+                                                >{item}</div>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+
                         </div>
-                        <div className={styles.layoutRight}></div>
+                        <div className={styles.layoutRight}>
+                            {!!diffText &&
+                                <pre>{diffText}</pre>
+                            }
+                        </div>
 
                     </div>
                     <div className={styles.layoutBottom}>
