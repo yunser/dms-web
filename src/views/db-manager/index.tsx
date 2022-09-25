@@ -289,12 +289,27 @@ export function DbManager({ config }) {
                                                                 },
                                                             })
                                                         }
+                                                        else if (key == 'git') {
+                                                            addOrActiveTab({
+                                                                title: 'GIT',
+                                                                // key: 'redis-' + uid(16),
+                                                                key: 'git-project',
+                                                                type: 'git-project',
+                                                                data: {
+                                                                    // url,
+                                                                },
+                                                            })
+                                                        }
                                                     }}
                                                     items={[
                                                         {
                                                             label: t('Redis'),
                                                             key: 'redis',
                                                         },
+                                                        // {
+                                                        //     label: t('GIT'),
+                                                        //     key: 'git',
+                                                        // },
                                                         {
                                                             label: t('Elasticsearch'),
                                                             key: 'elasticsearch',
@@ -506,8 +521,9 @@ export function DbManager({ config }) {
                                             defaultDatabase={item.data.defaultDatabase}
                                         />
                                     }
-                                    
-                                    
+                                    {item.type == 'git-project' &&
+                                        <div>GIT</div>
+                                    }
                             </div>
                         )
                     })}

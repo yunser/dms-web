@@ -31,6 +31,7 @@ import {
 import { HomePage } from './views/home'
 storage.set('asd', 'asd2')
 import { i18n } from "./i18n";
+import { GitProject } from './views/git/git-project'
 
 export default function App() {
     // const [count, setCount] = useState(0)
@@ -43,6 +44,7 @@ export default function App() {
             <div className="App">
                 <Routes>
                     <Route path="/" element={<HomePage />} />
+                    <Route path="/git" element={<GitProject />} />
                 </Routes>
             </div>
         </Router>
