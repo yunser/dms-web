@@ -245,6 +245,9 @@ export function GitStatus({ config, projectPath, onTab, }) {
 
                         </div>
                         <div className={styles.layoutRight}>
+                            {unstagedList.length == 0 && status && status.staged.length == 0 &&
+                                <div className={styles.empty}>没什么可提交的</div>
+                            }
                             {!!diffText &&
                                 <DiffText
                                     text={diffText}
