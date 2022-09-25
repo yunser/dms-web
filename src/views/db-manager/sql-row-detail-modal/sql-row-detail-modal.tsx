@@ -100,6 +100,7 @@ export function RowDetailModal({ config, connectionId, item, onCancel, onSuccess
                 dataSource={filterList}
                 columns={columns}
                 size="small"
+                bordered
                 pagination={false}
                 rowKey="field"
                 scroll={{

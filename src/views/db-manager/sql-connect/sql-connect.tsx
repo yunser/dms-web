@@ -123,14 +123,14 @@ function list2Tree(list) {
     return treeData.sort(sorter)
 }
 
-function ConnectModal({ config, item, onCancel, onSuccess }) {
+function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
 
     const { t } = useTranslation()
 
     const [loading, setLoading] = useState(false)
 
     const [form] = Form.useForm()
-    const editType = item ? 'update' : 'create'
+    // const editType = item ? 'update' : 'create'
     useEffect(() => {
         if (item) {
             form.setFieldsValue({
@@ -321,7 +321,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
     const [treeData, setTreeData] = useState([])
     const [expandedKeys, setExpandedKeys] = useState<any[]>([])
     const [modalVisible, setModalVisible] = useState(false)
-    const [modalItem, setModalItem] = useState(null)
+    const [modalProps, setModalProps] = useState({})
     const timerRef = useRef<number | null>(null)
     const [connections, setConnections] = useState([
         // {
@@ -428,7 +428,10 @@ export function SqlConnector({ config, onConnnect, onJson }) {
 
     function add() {
         setModalVisible(true)
-        setModalItem(null)
+        setModalProps({
+            item: null,
+            editType: 'create',
+        })
         // const newItem = {
         //     id: uid(32),
         //     name: t('unnamed'),
@@ -467,8 +470,6 @@ export function SqlConnector({ config, onConnnect, onJson }) {
             // if (data) {
             //     const { id } = nodeData.data
             //     storage.set('current_connection_id', id)
-            //     setModalVisible(true)
-            //     setModalItem(data)
             // }
         }
         else if (nodeData.type == 'folder') {
@@ -615,6 +616,10 @@ export function SqlConnector({ config, onConnnect, onJson }) {
                                                         key: 'key_share',
                                                     },
                                                     {
+                                                        label: t('duplicate'),
+                                                        key: 'key_duplicate',
+                                                    },
+                                                    {
                                                         label: t('delete'),
                                                         key: 'key_delete',
                                                     },
@@ -627,7 +632,10 @@ export function SqlConnector({ config, onConnnect, onJson }) {
                                                     else if (key == 'key_edit') {
                                                         // console.log('_item', nodeData)
                                                         setModalVisible(true)
-                                                        setModalItem(nodeData.data)
+                                                        setModalProps({
+                                                            editType: 'update',
+                                                            item: nodeData.data,
+                                                        })
                                                     }
                                                     else if (key == 'key_share') {
                                                         console.log('_item', nodeData.data)
@@ -639,8 +647,19 @@ ${t('password')}: ${data.password}`
                                                         copy(shareContent)
                                                         message.info(t('copied'))
 
-                                                        // setModalVisible(true)
-                                                        // setModalItem(nodeData.data)
+                                                    }
+                                                    else if (key == 'key_duplicate') {
+                                                        console.log('_item', nodeData.data)
+                                                        // remove(nodeData.data)
+                                                        const { data } = nodeData
+                                                        setModalVisible(true)
+                                                        setModalProps({
+                                                            editType: 'create',
+                                                            item: {
+                                                                ...data,
+                                                                name: data.name + '-clone'
+                                                            },
+                                                        })
                                                     }
                                                     else if (key == 'key_delete') {
                                                         // console.log('_item', nodeData)
@@ -699,7 +718,7 @@ ${t('password')}: ${data.password}`
             {modalVisible &&
                 <ConnectModal
                     config={config}
-                    item={modalItem}
+                    {...modalProps}
                     onCancel={() => {
                         setModalVisible(false)
                     }}

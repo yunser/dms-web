@@ -882,6 +882,7 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
         {
             title: t('default'),
             dataIndex: 'COLUMN_DEFAULT',
+            width: 240,
             render: EditableCellRender({
                 dataIndex: 'COLUMN_DEFAULT',
                 onChange: onColumnCellChange,
