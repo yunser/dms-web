@@ -2,14 +2,39 @@
     height: 100%;
     // border: 1px solid #f00;
     overflow: auto;
+    display: flex;
+    flex-direction: column;
+    .layoutTop {
+        flex: 0 0 320px;
+        height: 0;
+        // border: 1px solid #f00;
+        overflow: auto;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .layoutBottom {
+        flex: 1 0 auto;
+        height: 0;
+        // border: 1px solid #f00;
+        padding: 16px;
+    }
 }
 .list {
     border-top: 1px solid var(--border-color);
+    font-size: 12px;
     .item {
         height: 32px;
         padding: 0 16px;
         border-bottom: 1px solid var(--border-color);
         display: flex;
         align-items: center;
+        cursor: pointer;
+        &:hover {
+            background-color: var(--color-f1);
+            // background-color: #f00;
+        }
+        &.active {
+            background-color: #2465d8;
+            color: #fff;
+        }
     }
 }

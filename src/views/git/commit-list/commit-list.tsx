@@ -17,6 +17,7 @@ export function CommitList({ config, projectPath }) {
     const { t } = useTranslation()
 
     const [list, setList] = useState([])
+    const [curCommit, setCurCommit] = useState(null)
 
     async function loadList() {
         let res = await request.post(`${config.host}/git/commit/list`, {
@@ -42,20 +43,40 @@ export function CommitList({ config, projectPath }) {
 
     return (
         <div className={styles.commitBox}>
-            {/* <Button
-                onClick={() => {
-                    loadList()
-                }}
-            >
-                刷新
-            </Button> */}
-            {/* <div>提交列表:</div> */}
-            <div className={styles.list}>
-                {list.map(item => {
-                    return (
-                        <div className={styles.item}>{item.message}</div>
-                    )
-                })}
+            <div className={styles.layoutTop}>
+                {/* <Button
+                    onClick={() => {
+                        loadList()
+                    }}
+                >
+                    刷新
+                </Button> */}
+                <div className={styles.list}>
+                    {list.map(item => {
+                        return (
+                            <div
+                                className={classNames(styles.item, {
+                                    [styles.active]: curCommit && curCommit.hash == item.hash
+                                })}
+                                onClick={() => {
+                                    setCurCommit(item)
+                                }}
+                            >{item.message}</div>
+                        )
+                    })}
+                </div>
+            </div>
+            <div className={styles.layoutBottom}>
+                {!!curCommit &&
+                    <div>
+                        <div>message：{curCommit.message}</div>
+                        <div>body：{curCommit.body}</div>
+                        <div>提交：{curCommit.hash}</div>
+                        <div>作者：{curCommit.author_name} {'<'}{curCommit.author_email}{'>'}</div>
+                        <div>日期：{curCommit.date}</div>
+                        <div>refs：{curCommit.refs}</div>
+                    </div>
+                }
             </div>
         </div>
     )
