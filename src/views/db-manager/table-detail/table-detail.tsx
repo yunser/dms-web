@@ -106,6 +106,7 @@ function ColumnSelector({ value: _value, onChange, options }) {
                         dataSource={options}
                         columns={columns}
                         size="small"
+                        bordered
                         pagination={false}
                         scroll={{
                             y: 480,
@@ -273,7 +274,7 @@ function Cell({ value, selectOptions, index, dataIndex, onChange }) {
                                     },
                                 ]}
                                 style={{
-                                    width: 160,
+                                    width: 96,
                                 }}
                             />
                         </div>
@@ -830,6 +831,7 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
         {
             title: t('column_name'),
             dataIndex: 'COLUMN_NAME',
+            width: 360,
             render: EditableCellRender({
                 dataIndex: 'COLUMN_NAME',
                 onChange: onColumnCellChange,
@@ -912,6 +914,10 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
                 )
             }
         },
+        {
+            title: '',
+            dataIndex: '__empty',
+        },
     ]
     const indexColumns = [
         {
@@ -938,7 +944,7 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
         {
             title: t('type'),
             dataIndex: 'type2',
-            width: 160,
+            width: 120,
             // render: EditableCellRender({
             //     dataIndex: 'type2',
             //     onChange: onIndexCellChange,
@@ -1005,6 +1011,7 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
         {
             title: t('comment'),
             dataIndex: 'comment',
+            width: 320,
             render: EditableCellRender({
                 dataIndex: 'comment',
                 onChange: onIndexCellChange,
@@ -1032,6 +1039,10 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
                     >删除</a>
                 )
             }
+        },
+        {
+            title: '',
+            dataIndex: '__empty',
         },
         
     ]
