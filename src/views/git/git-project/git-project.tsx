@@ -24,7 +24,7 @@ export function GitProject({ config, project, onList }) {
     const { t } = useTranslation()
     const [curTab, setCurTab] = useState('status')
     // const [curTab, setCurTab] = useState('commit-list')
-    
+    const [branchs, setBranchs] = useState([])
 
     const tabs = [
         {
@@ -61,6 +61,9 @@ export function GitProject({ config, project, onList }) {
                     <BranchList
                         config={config}
                         projectPath={projectPath}
+                        onBranch={branchs => {
+                            setBranchs(branchs)
+                        }}
                     />
                 </div>
                 <div className={styles.section}>
@@ -101,6 +104,7 @@ export function GitProject({ config, project, onList }) {
                         <CommitList
                             config={config}
                             projectPath={projectPath}
+                            branchs={branchs}
                         />
                     }
                 </div>

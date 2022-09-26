@@ -1,7 +1,7 @@
-import { Button, Descriptions, Input, message, Modal, Popover, Space, Table, Tabs } from 'antd';
+import { Button, Descriptions, Input, message, Modal, Popover, Space, Table, Tabs, Tag } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './commit-list.module.less';
-import _ from 'lodash';
+import _, { cloneDeep } from 'lodash';
 import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
@@ -12,7 +12,7 @@ import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
 // import { saveAs } from 'file-saver'
 
-export function CommitList({ config, projectPath }) {
+export function CommitList({ config, projectPath, branchs }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
 
@@ -32,7 +32,8 @@ export function CommitList({ config, projectPath }) {
         })
         // console.log('res', res)
         if (res.success) {
-            setList(res.data)
+            const list = res.data
+            setList(list)
         }
     }
 
@@ -40,6 +41,25 @@ export function CommitList({ config, projectPath }) {
         loadList()
         
     }, [])
+
+    const showList = useMemo(() => {
+        console.log('列表', list, branchs)
+        // list hash "489deea0f6bf7e90a7434f4ae22c5e17214bdf5d"
+        // branchs commit: "489deea"
+        const newList = cloneDeep(list)
+        for (let branch of branchs) {
+            const idx = newList.findIndex(item => item.hash.startsWith(branch.commit))
+            if (idx != -1) {
+                if (!newList[idx].branchs) {
+                    newList[idx].branchs = []
+                }
+                newList[idx].branchs.push(branch)
+            }
+        }
+        return newList
+    }, [list, branchs])
+
+    console.log('showList', showList)
 
     return (
         <div className={styles.commitBox}>
@@ -52,7 +72,7 @@ export function CommitList({ config, projectPath }) {
                     刷新
                 </Button> */}
                 <div className={styles.list}>
-                    {list.map(item => {
+                    {showList.map(item => {
                         return (
                             <div
                                 className={classNames(styles.item, {
@@ -61,7 +81,18 @@ export function CommitList({ config, projectPath }) {
                                 onClick={() => {
                                     setCurCommit(item)
                                 }}
-                            >{item.message}</div>
+                            >
+                                {item.branchs?.length > 0 &&
+                                    <Space>
+                                        {item.branchs.map(branch => {
+                                            return (
+                                                <Tag key={branch.name}>{branch.name}</Tag>
+                                            )
+                                        })}
+                                    </Space>
+                                }
+                                {item.message}
+                            </div>
                         )
                     })}
                 </div>

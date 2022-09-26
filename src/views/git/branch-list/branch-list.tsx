@@ -12,7 +12,7 @@ import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
 // import { saveAs } from 'file-saver'
 
-export function BranchList({ config, projectPath }) {
+export function BranchList({ config, projectPath, onBranch }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
 
@@ -32,6 +32,9 @@ export function BranchList({ config, projectPath }) {
         })
         // console.log('res', res)
         if (res.success) {
+
+            // const branchs = []
+            onBranch && onBranch(res.data.list)
             setList(res.data.list.filter(item => {
                 // 不显示远程的分支
                 if (item.name.startsWith(('remotes/'))) {
