@@ -14,16 +14,15 @@ import { BranchList } from '../branch-list';
 import { GitStatus } from '../git-status';
 import { RemoteList } from '../remote-list';
 import { TagList } from '../tag-list';
+import { ProjectEditor } from '../project-edit';
 // import { saveAs } from 'file-saver'
 
-export function GitProject({ projectPath, onList }) {
+export function GitProject({ config, projectPath, onList }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [curTab, setCurTab] = useState('status')
     // const [curTab, setCurTab] = useState('commit-list')
-    const config = {
-        host: 'http://localhost:10086',
-    }
+    
 
     const tabs = [
         {
@@ -38,12 +37,12 @@ export function GitProject({ projectPath, onList }) {
     return (
         <div className={styles.gitApp}>
             <div className={styles.layoutLeft}>
-                {/* <Button
+                <Button
                     onClick={() => {
                         onList && onList()
                     }}
                 >
-                    返回列表</Button> */}
+                    返回列表</Button>
                 <div className={styles.section}>
                     <div className={styles.header}>分支</div>
                     <BranchList
@@ -94,6 +93,7 @@ export function GitProject({ projectPath, onList }) {
                     }
                 </div>
             </div>
+            
         </div>
     )
 }
