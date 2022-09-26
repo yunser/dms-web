@@ -17,15 +17,17 @@ import { TagList } from '../tag-list';
 import { ProjectEditor } from '../project-edit';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { PushModal } from '../push-modal';
+import { PullModal } from '../pull-modal';
 // import { saveAs } from 'file-saver'
 
-export function GitProject({ config, project, onList }) {
+export function GitProject({ config, event$, project, onList }) {
     const projectPath = project.path
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [curTab, setCurTab] = useState('status')
     // const [curTab, setCurTab] = useState('commit-list')
     const [branchs, setBranchs] = useState([])
+    const [pullModalVisible, setPullhModalVisible] = useState(false)
     const [pushModalVisible, setPushModalVisible] = useState(false)
     const tabs = [
         {
@@ -91,6 +93,19 @@ export function GitProject({ config, project, onList }) {
                         items={tabs}
                     />
                     <Space>
+                        {/* <Button
+                            onClick={() => {
+                                event$.emit({
+                                    type: 'event_refresh_commit_list',
+                                    data: {},
+                                })
+                            }}
+                        >刷新提交</Button> */}
+                        <Button
+                            onClick={() => {
+                                setPullhModalVisible(true)
+                            }}
+                        >拉取</Button>
                         <Button
                             onClick={() => {
                                 setPushModalVisible(true)
@@ -111,6 +126,7 @@ export function GitProject({ config, project, onList }) {
                     {curTab == 'commit-list' &&
                         <CommitList
                             config={config}
+                            event$={event$}
                             projectPath={projectPath}
                             branchs={branchs}
                         />
@@ -126,6 +142,26 @@ export function GitProject({ config, project, onList }) {
                     }}
                     onSuccess={() => {
                         setPushModalVisible(false)
+                        event$.emit({
+                            type: 'event_refresh_commit_list',
+                            data: {},
+                        })
+                    }}
+                />
+            }
+            {pullModalVisible &&
+                <PullModal
+                    config={config}
+                    projectPath={projectPath}
+                    onCancel={() => {
+                        setPullhModalVisible(false)
+                    }}
+                    onSuccess={() => {
+                        setPullhModalVisible(false)
+                        event$.emit({
+                            type: 'event_refresh_commit_list',
+                            data: {},
+                        })
                     }}
                 />
             }

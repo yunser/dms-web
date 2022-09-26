@@ -12,13 +12,35 @@ import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
 // import { saveAs } from 'file-saver'
 
-export function CommitList({ config, projectPath,  }) {
+export function CommitList({ config, event$, projectPath,  }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
 
     const [list, setList] = useState([])
     const [curCommit, setCurCommit] = useState(null)
     const [branchs, setBranchs] = useState([])
+
+    
+    async function gitFetch() {
+        loadBranch()
+        let res = await request.post(`${config.host}/git/fetch`, {
+            projectPath,
+            remoteName: 'origin',
+            // connectionId,
+            // sql: lineCode,
+            // tableName,
+            // dbName,
+            // logger: true,
+        }, {
+            // noMessage: true,
+        })
+        console.log('fres', res)
+        if (res.success) {
+            // const list = res.data
+            // setList(list)
+        }
+
+    }
 
     async function loadList() {
         loadBranch()
@@ -61,8 +83,19 @@ export function CommitList({ config, projectPath,  }) {
 
     useEffect(() => {
         loadList()
+        gitFetch()
         
     }, [])
+
+    event$.useSubscription(msg => {
+        console.log('CommitList/onmessage', msg)
+        // console.log(val);
+        if (msg.type == 'event_refresh_commit_list') {
+            // const { json } = msg.data
+            // addJsonTab(json)
+            loadList()
+        }
+    })
 
     const showList = useMemo(() => {
         console.log('列表', list, branchs)

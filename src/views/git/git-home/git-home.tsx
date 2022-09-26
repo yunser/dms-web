@@ -39,6 +39,8 @@ export function GitHome() {
     //     },
     // ]
 
+    const event$ = useEventEmitter()
+
     const [projectModalVisible, setProjectModalVisible] = useState(false)
 
     async function loadList() {
@@ -105,6 +107,7 @@ export function GitHome() {
             {view == 'detail' &&
                 <GitProject
                     config={config}
+                    event$={event$}
                     project={curProject}
                     // projectPath={curProject.path}
                     onList={() => {
