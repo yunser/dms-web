@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { DownloadOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, DownloadOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { CommitList } from '../commit-list';
@@ -15,9 +15,11 @@ import { GitStatus } from '../git-status';
 import { RemoteList } from '../remote-list';
 import { TagList } from '../tag-list';
 import { ProjectEditor } from '../project-edit';
+import { IconButton } from '@/views/db-manager/icon-button';
 // import { saveAs } from 'file-saver'
 
-export function GitProject({ config, projectPath, onList }) {
+export function GitProject({ config, project, onList }) {
+    const projectPath = project.path
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [curTab, setCurTab] = useState('status')
@@ -37,12 +39,23 @@ export function GitProject({ config, projectPath, onList }) {
     return (
         <div className={styles.gitApp}>
             <div className={styles.layoutLeft}>
-                <Button
+                <div className={styles.header}>
+                    <IconButton
+                        tooltip="返回列表"
+                        onClick={() => {
+                            onList && onList()
+                        }}
+                    >
+                        <ArrowLeftOutlined />
+                    </IconButton>
+                    <div className={styles.projectName}>{project.name}</div>
+                </div>
+                {/* <Button
                     onClick={() => {
                         onList && onList()
                     }}
                 >
-                    返回列表</Button>
+                    </Button> */}
                 <div className={styles.section}>
                     <div className={styles.header}>分支</div>
                     <BranchList

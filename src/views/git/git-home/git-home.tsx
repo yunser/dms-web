@@ -105,7 +105,8 @@ export function GitHome() {
             {view == 'detail' &&
                 <GitProject
                     config={config}
-                    projectPath={curProject.path}
+                    project={curProject}
+                    // projectPath={curProject.path}
                     onList={() => {
                         setView('list')
                     }}

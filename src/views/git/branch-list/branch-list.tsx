@@ -32,7 +32,13 @@ export function BranchList({ config, projectPath }) {
         })
         // console.log('res', res)
         if (res.success) {
-            setList(res.data.list)
+            setList(res.data.list.filter(item => {
+                // 不显示远程的分支
+                if (item.name.startsWith(('remotes/'))) {
+                    return false
+                }
+                return true
+            }))
             setCurrent(res.data.current)
         }
     }
