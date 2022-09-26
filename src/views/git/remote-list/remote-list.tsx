@@ -18,23 +18,23 @@ export function RemoteList({ config, projectPath }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
 
-    const [list, setList] = useState([])
     const [modalVisible, setModalVisible] = useState(false)
+    const [remotes, setRemotes] = useState([])
     // const [current, setCurrent] = useState('')
 
-    async function loadList() {
+    async function loadRemotes() {
         let res = await request.post(`${config.host}/git/remote/list`, {
             projectPath,
         })
         // console.log('res', res)
         if (res.success) {
-            setList(res.data)
+            setRemotes(res.data)
             // setCurrent(res.data.current)
         }
     }
 
     useEffect(() => {
-        loadList()
+        loadRemotes()
     }, [])
 
     return (
@@ -52,7 +52,7 @@ export function RemoteList({ config, projectPath }) {
                 </IconButton>
             </div>
             <div className={styles.list}>
-                {list.map(item => {
+                {remotes.map(item => {
                     return (
                         <div className={styles.item}>
                             <div className={styles.name}>{item.name}</div>
@@ -72,7 +72,7 @@ export function RemoteList({ config, projectPath }) {
                     }}
                     onSuccess={() => {
                         setModalVisible(false)
-                        loadList()
+                        loadRemotes()
                     }}
                 />
             }

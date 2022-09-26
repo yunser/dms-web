@@ -16,6 +16,7 @@ import { RemoteList } from '../remote-list';
 import { TagList } from '../tag-list';
 import { ProjectEditor } from '../project-edit';
 import { IconButton } from '@/views/db-manager/icon-button';
+import { PushModal } from '../push-modal';
 // import { saveAs } from 'file-saver'
 
 export function GitProject({ config, project, onList }) {
@@ -25,7 +26,7 @@ export function GitProject({ config, project, onList }) {
     const [curTab, setCurTab] = useState('status')
     // const [curTab, setCurTab] = useState('commit-list')
     const [branchs, setBranchs] = useState([])
-
+    const [pushModalVisible, setPushModalVisible] = useState(false)
     const tabs = [
         {
             label: '文件状态',
@@ -89,6 +90,13 @@ export function GitProject({ config, project, onList }) {
                         }}
                         items={tabs}
                     />
+                    <Space>
+                        <Button
+                            onClick={() => {
+                                setPushModalVisible(true)
+                            }}
+                        >推送</Button>
+                    </Space>
                 </div>
                 <div className={styles.body}>
                     {curTab == 'status' &&
@@ -109,7 +117,18 @@ export function GitProject({ config, project, onList }) {
                     }
                 </div>
             </div>
-            
+            {pushModalVisible &&
+                <PushModal
+                    config={config}
+                    projectPath={projectPath}
+                    onCancel={() => {
+                        setPushModalVisible(false)
+                    }}
+                    onSuccess={() => {
+                        setPushModalVisible(false)
+                    }}
+                />
+            }
         </div>
     )
 }

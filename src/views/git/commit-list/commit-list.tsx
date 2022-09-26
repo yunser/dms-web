@@ -107,8 +107,9 @@ export function CommitList({ config, projectPath,  }) {
                                 {item.branchs?.length > 0 &&
                                     <Space>
                                         {item.branchs.map(branch => {
+                                            const simpleName = branch.name.replace(/^remotes\//, '')
                                             return (
-                                                <Tag key={branch.name}>{branch.name}</Tag>
+                                                <Tag key={branch.name}>{simpleName}</Tag>
                                             )
                                         })}
                                     </Space>

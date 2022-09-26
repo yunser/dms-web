@@ -16,10 +16,10 @@ export function BranchList({ config, projectPath, onBranch }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
 
-    const [list, setList] = useState([])
     const [current, setCurrent] = useState('')
+    const [branches, setBranches] = useState([])
 
-    async function loadList() {
+    async function loadBranches() {
         let res = await request.post(`${config.host}/git/branch`, {
             projectPath,
             // connectionId,
@@ -35,7 +35,7 @@ export function BranchList({ config, projectPath, onBranch }) {
 
             // const branchs = []
             onBranch && onBranch(res.data.list)
-            setList(res.data.list.filter(item => {
+            setBranches(res.data.list.filter(item => {
                 // 不显示远程的分支
                 if (item.name.startsWith(('remotes/'))) {
                     return false
@@ -47,13 +47,13 @@ export function BranchList({ config, projectPath, onBranch }) {
     }
 
     useEffect(() => {
-        loadList()
+        loadBranches()
     }, [])
 
     return (
         <div>
             <div className={styles.list}>
-                {list.map(item => {
+                {branches.map(item => {
                     return (
                         <div className={styles.item}>
                             <div className={styles.status}>
