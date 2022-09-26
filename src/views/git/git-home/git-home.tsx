@@ -23,6 +23,7 @@ export function GitHome() {
     const { t } = useTranslation()
     const [curProject, setCurProject] = useState(null)
     const [view, setView] = useState('list')
+    const [keyword, setKeyword] = useState('')
     // const [curTab, setCurTab] = useState('commit-list')
     const config = {
         host: 'http://localhost:10086',
@@ -38,6 +39,13 @@ export function GitHome() {
     //         path: '/Users/yunser/app/git-auto',
     //     },
     // ]
+    const filterdProjects = useMemo(() => {
+        if (!keyword) {
+            return projects    
+        }
+        return projects.filter(p => p.name.toLowerCase().includes(keyword.toLowerCase()))
+        // return projects
+    }, [projects, keyword])
 
     const event$ = useEventEmitter()
 
@@ -78,29 +86,46 @@ export function GitHome() {
     return (
         <div className={styles.gitApp}>
             {view == 'list' &&
-                <div>
-                    <Button
-                        onClick={() => {
-                            loadList()
-                        }}
-                    >刷新</Button>
-                    <Button
-                        onClick={() => {
-                            setProjectModalVisible(true)
-                        }}
-                    >新建</Button>
-                    <div className={styles.list}>
-                        {projects.map(item => {
-                            return (
-                                <div
-                                    className={styles.item}
+                <div className={styles.listBox}>
+                    <div className={styles.listContent}>
+                        <div className={styles.tool}>
+                            <Space>
+                                <Button
                                     onClick={() => {
-                                        setView('detail')
-                                        setCurProject(item)
+                                        loadList()
                                     }}
-                                >{item.name}</div>
-                            )
-                        })}
+                                >刷新</Button>
+                                <Button
+                                    onClick={() => {
+                                        setProjectModalVisible(true)
+                                    }}
+                                >新建</Button>
+                            </Space>
+                        </div>
+                        <div>
+                            <Input
+                                placeholder="Filter..."
+                                value={keyword}
+                                allowClear
+                                onChange={e => {
+                                    setKeyword(e.target.value)
+                                }}
+                            />
+                        </div>
+                        {/* <div>{keyword}</div> */}
+                        <div className={styles.list}>
+                            {filterdProjects.map(item => {
+                                return (
+                                    <div
+                                        className={styles.item}
+                                        onClick={() => {
+                                            setView('detail')
+                                            setCurProject(item)
+                                        }}
+                                    >{item.name}</div>
+                                )
+                            })}
+                        </div>
                     </div>
                 </div>
             }

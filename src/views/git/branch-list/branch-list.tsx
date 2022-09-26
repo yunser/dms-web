@@ -6,10 +6,11 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { DownloadOutlined } from '@ant-design/icons';
+import { ArrowRightOutlined, DownloadOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
+import { IconButton } from '@/views/db-manager/icon-button';
 // import { saveAs } from 'file-saver'
 
 export function BranchList({ config, projectPath, onBranch }) {
@@ -62,6 +63,34 @@ export function BranchList({ config, projectPath, onBranch }) {
                                 }
                             </div>
                             <div className={styles.name}>{item.name}</div>
+                            <IconButton
+                                tooltip="切换分支"
+                                onClick={() => {
+                                    Modal.confirm({
+                                        title: '切换分支',
+                                        // icon: <ExclamationCircleOutlined />,
+                                        content: `确定将你的工作副本切换为「${item.name}」？`,
+                                        async onOk() {
+                                            
+                                            let ret = await request.post(`${config.host}/git/checkout`, {
+                                                projectPath,
+                                                branchName: item.name,
+                                            })
+                                            // console.log('ret', ret)
+                                            if (ret.success) {
+                                                // message.success('连接成功')
+                                                // onConnnect && onConnnect()
+                                                message.success(t('success'))
+                                                // onClose && onClose()
+                                                // onSuccess && onSuccess()
+                                                loadBranches()
+                                            }
+                                        }
+                                    })
+                                }}
+                            >
+                                <ArrowRightOutlined />
+                            </IconButton>
                         </div>
                     )
                 })}

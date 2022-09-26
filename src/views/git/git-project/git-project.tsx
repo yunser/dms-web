@@ -105,7 +105,7 @@ export function GitProject({ config, event$, project, onList }) {
                             onClick={() => {
                                 setPullhModalVisible(true)
                             }}
-                        >拉取</Button>
+                        >抓取</Button>
                         <Button
                             onClick={() => {
                                 setPushModalVisible(true)
