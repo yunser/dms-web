@@ -13,6 +13,7 @@ import { CommitList } from '../commit-list';
 import { BranchList } from '../branch-list';
 import { GitStatus } from '../git-status';
 import { RemoteList } from '../remote-list';
+import { TagList } from '../tag-list';
 // import { saveAs } from 'file-saver'
 
 export function GitProject({ projectPath, onList }) {
@@ -46,6 +47,13 @@ export function GitProject({ projectPath, onList }) {
                 <div className={styles.section}>
                     <div className={styles.header}>分支</div>
                     <BranchList
+                        config={config}
+                        projectPath={projectPath}
+                    />
+                </div>
+                <div className={styles.section}>
+                    <div className={styles.header}>标签</div>
+                    <TagList
                         config={config}
                         projectPath={projectPath}
                     />
