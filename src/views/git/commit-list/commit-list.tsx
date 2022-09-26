@@ -12,14 +12,16 @@ import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
 // import { saveAs } from 'file-saver'
 
-export function CommitList({ config, projectPath, branchs }) {
+export function CommitList({ config, projectPath,  }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
 
     const [list, setList] = useState([])
     const [curCommit, setCurCommit] = useState(null)
+    const [branchs, setBranchs] = useState([])
 
     async function loadList() {
+        loadBranch()
         let res = await request.post(`${config.host}/git/commit/list`, {
             projectPath,
             // connectionId,
@@ -34,6 +36,26 @@ export function CommitList({ config, projectPath, branchs }) {
         if (res.success) {
             const list = res.data
             setList(list)
+        }
+
+    }
+
+    async function loadBranch() {
+        let res = await request.post(`${config.host}/git/branch`, {
+            projectPath,
+            // connectionId,
+            // sql: lineCode,
+            // tableName,
+            // dbName,
+            // logger: true,
+        }, {
+            // noMessage: true,
+        })
+        // console.log('res', res)
+        if (res.success) {
+
+            // const branchs = []
+            setBranchs(res.data.list)
         }
     }
 
