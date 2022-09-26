@@ -71,7 +71,6 @@ export function GitProject({ config, project, onList }) {
                     />
                 </div>
                 <div className={styles.section}>
-                    <div className={styles.header}>远程</div>
                     <RemoteList
                         config={config}
                         projectPath={projectPath}
