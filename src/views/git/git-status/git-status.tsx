@@ -79,6 +79,7 @@ export function GitStatus({ config, projectPath, onTab, }) {
     const { t } = useTranslation()
 
     const [curFile, setCurFile] = useState('')
+    const [curFileType, setCurFileType] = useState('')
     const [status, setStatus] = useState(null)
     // const [current, setCurrent] = useState('')
     const [unstagedList, setUnstagedList] = useState([])
@@ -141,6 +142,7 @@ export function GitStatus({ config, projectPath, onTab, }) {
 
     async function cat(path) {
         setCurFile(path)
+        setCurFileType('')
         let res = await request.post(`${config.host}/git/cat`, {
             projectPath,
             filePath: path,
@@ -152,11 +154,13 @@ export function GitStatus({ config, projectPath, onTab, }) {
         }
     }
 
-    async function diff(path) {
+    async function diff(path, cached = false) {
         setCurFile(path)
+        setCurFileType(cached ? 'cached' : '')
         let res = await request.post(`${config.host}/git/diff`, {
             projectPath,
             file: path,
+            cached,
         })
         console.log('res', res)
         if (res.success) {
@@ -189,7 +193,9 @@ export function GitStatus({ config, projectPath, onTab, }) {
                                         {status.staged.map(item => {
                                             return (
                                                 <div
-                                                    className={styles.item}
+                                                    className={classNames(styles.item, {
+                                                        [styles.active]: item == curFile && curFileType == 'cached'
+                                                    })}
                                                     key={item}
                                                 >
                                                     <Checkbox
@@ -201,7 +207,7 @@ export function GitStatus({ config, projectPath, onTab, }) {
                                                     />
                                                     <div className={styles.fileName}
                                                         onClick={() => {
-                                                            diff(item)
+                                                            diff(item, true)
                                                         }}
                                                     >{item}</div>
                                                 </div>
@@ -222,6 +228,7 @@ export function GitStatus({ config, projectPath, onTab, }) {
                                         }}
                                     />
                                     <div className={styles.title}>Not Added</div>
+                                    {/* {curFileType} */}
                                 </div>
                                 <div className={styles.body}>
                                     <div className={styles.list}>
@@ -229,7 +236,7 @@ export function GitStatus({ config, projectPath, onTab, }) {
                                             return (
                                                 <div
                                                     className={classNames(styles.item, {
-                                                        [styles.active]: item.path == curFile
+                                                        [styles.active]: item.path == curFile && curFileType == ''
                                                     })}
                                                     key={item.path}
                                                 >
