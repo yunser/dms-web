@@ -115,10 +115,11 @@ export function GitStatus({ config, projectPath, onTab, }) {
         loadList()
     }, [])
 
-    async function add(path) {
+    async function add(files) {
         let res = await request.post(`${config.host}/git/add`, {
             projectPath,
-            files: [path],
+            files,
+            // files: [path],
         })
         // console.log('res', res)
         if (res.success) {
@@ -126,10 +127,11 @@ export function GitStatus({ config, projectPath, onTab, }) {
         }
     }
 
-    async function reset(path) {
+    async function reset(files) {
         let res = await request.post(`${config.host}/git/reset`, {
             projectPath,
-            files: [path],
+            files,
+            // files: [path],
         })
         // console.log('res', res)
         if (res.success) {
@@ -158,7 +160,17 @@ export function GitStatus({ config, projectPath, onTab, }) {
                     <div className={styles.layoutTop}>
                         <div className={styles.layoutLeft}>
                             <div className={styles.section}>
-                                <div className={styles.header}>Staged</div>
+                                <div className={styles.header}>
+                                    <Checkbox
+                                        checked
+                                        disabled={status.staged.length == 0}
+                                        onClick={() => {
+                                            // console.log('add', item.path)
+                                            reset(status.staged)
+                                        }}
+                                    />
+                                    <div className={styles.title}>Staged</div>
+                                </div>
                                 <div className={styles.body}>
                                     <div className={styles.list}>
                                         {status.staged.map(item => {
@@ -171,7 +183,7 @@ export function GitStatus({ config, projectPath, onTab, }) {
                                                         checked
                                                         onClick={() => {
                                                             console.log('add', item)
-                                                            reset(item)
+                                                            reset([item])
                                                         }}
                                                     />
                                                     <div className={styles.fileName}
@@ -187,7 +199,17 @@ export function GitStatus({ config, projectPath, onTab, }) {
 
                             </div>
                             <div className={classNames(styles.section, styles.section2)}>
-                                <div className={styles.header}>Not Added</div>
+                                <div className={styles.header}>
+                                    <Checkbox
+                                        checked={false}
+                                        disabled={unstagedList.length == 0}
+                                        onClick={() => {
+                                            // console.log('add', item.path)
+                                            add(unstagedList.map(item => item.path))
+                                        }}
+                                    />
+                                    <div className={styles.title}>Not Added</div>
+                                </div>
                                 <div className={styles.body}>
                                     <div className={styles.list}>
                                         {unstagedList.map(item => {
@@ -202,7 +224,7 @@ export function GitStatus({ config, projectPath, onTab, }) {
                                                         checked={false}
                                                         onClick={() => {
                                                             console.log('add', item.path)
-                                                            add(item.path)
+                                                            add([item.path])
                                                         }}
                                                     />
                                                     <div className={styles.fileName}
