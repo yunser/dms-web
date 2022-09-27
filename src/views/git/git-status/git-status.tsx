@@ -1,4 +1,4 @@
-import { Button, Checkbox, Descriptions, Form, Input, message, Modal, Popover, Space, Table, Tabs } from 'antd';
+import { Button, Checkbox, Descriptions, Form, Input, message, Modal, Popover, Space, Table, Tabs, Tag } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './git-status.module.less';
 import _, { add } from 'lodash';
@@ -99,10 +99,13 @@ export function GitStatus({ config, projectPath, onTab, }) {
             const { status } = res.data
             setStatus(status)
             // setCurrent(res.data.current)
-            setUnstagedList(status.modified.filter(file => {
-                console.log('file', file)
-                return !status.staged.includes(file)
+            setUnstagedList(status.files.filter(item => {
+                return item.working_dir != ' '
             }))
+            // setUnstagedList(status.modified.filter(file => {
+            //     console.log('file', file)
+            //     return !status.staged.includes(file)
+            // }))
             
         }
     }
@@ -191,22 +194,24 @@ export function GitStatus({ config, projectPath, onTab, }) {
                                             return (
                                                 <div
                                                     className={classNames(styles.item, {
-                                                        [styles.active]: item == curFile
+                                                        [styles.active]: item.path == curFile
                                                     })}
-                                                    key={item}
+                                                    key={item.path}
                                                 >
                                                     <Checkbox
                                                         checked={false}
                                                         onClick={() => {
-                                                            console.log('add', item)
-                                                            add(item)
+                                                            console.log('add', item.path)
+                                                            add(item.path)
                                                         }}
                                                     />
                                                     <div className={styles.fileName}
                                                         onClick={() => {
-                                                            diff(item)
+                                                            diff(item.path)
                                                         }}
-                                                    >{item}</div>
+                                                    >
+                                                        <Tag>{item.working_dir}</Tag>
+                                                        {item.path}</div>
                                                 </div>
                                             )
                                         })}
