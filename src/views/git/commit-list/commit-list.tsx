@@ -42,8 +42,30 @@ export function CommitList({ config, event$, projectPath,  }) {
 
     }
 
+    const [tags, setTags] = useState([])
+    // const [current, setCurrent] = useState('')
+
+    async function loadTags() {
+        let res = await request.post(`${config.host}/git/tag/list`, {
+            projectPath,
+            // connectionId,
+            // sql: lineCode,
+            // tableName,
+            // dbName,
+            // logger: true,
+        }, {
+            // noMessage: true,
+        })
+        // console.log('res', res)
+        if (res.success) {
+            setTags(res.data.list)
+            // setCurrent(res.data.current)
+        }
+    }
+
     async function loadList() {
         loadBranch()
+        // loadTags()
         let res = await request.post(`${config.host}/git/commit/list`, {
             projectPath,
             // connectionId,
@@ -101,7 +123,20 @@ export function CommitList({ config, event$, projectPath,  }) {
         console.log('列表', list, branchs)
         // list hash "489deea0f6bf7e90a7434f4ae22c5e17214bdf5d"
         // branchs commit: "489deea"
+        console.log('tags', tags)
         const newList = cloneDeep(list)
+        for (let item of newList) {
+            // tag: v0.0.1, tag: first
+            const refs = item.refs.split(',')
+            const tags = []
+            for (let ref of refs) {
+                console.log('ref', ref)
+                if (ref.includes('tag')) {
+                    tags.push(ref.split(':')[1])
+                }
+            }
+            item.tags = tags
+        }
         for (let branch of branchs) {
             const idx = newList.findIndex(item => item.hash.startsWith(branch.commit))
             if (idx != -1) {
@@ -112,7 +147,7 @@ export function CommitList({ config, event$, projectPath,  }) {
             }
         }
         return newList
-    }, [list, branchs])
+    }, [list, branchs, tags])
 
     console.log('showList', showList)
 
@@ -143,6 +178,15 @@ export function CommitList({ config, event$, projectPath,  }) {
                                             const simpleName = branch.name.replace(/^remotes\//, '')
                                             return (
                                                 <Tag key={branch.name}>{simpleName}</Tag>
+                                                )
+                                            })}
+                                    </Space>
+                                }
+                                {item.tags?.length > 0 &&
+                                    <Space>
+                                        {item.tags.map(tag => {
+                                            return (
+                                                <Tag key={tag}>{tag}</Tag>
                                             )
                                         })}
                                     </Space>
