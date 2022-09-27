@@ -28,7 +28,7 @@ export function GitHome() {
     const config = {
         host: 'http://localhost:10086',
     }
-    const [projects, setProject] = useState([])
+    const [projects, setProjects] = useState([])
     // const projects = [
     //     {
     //         name: 'dms-new',
@@ -64,7 +64,9 @@ export function GitHome() {
         })
         // console.log('res', res)
         if (res.success) {
-            setProject(res.data.list)
+            setProjects(res.data.list.sort((a, b) => {
+                return a.name.localeCompare(b.name)
+            }))
             // setCurrent(res.data.current)
         }
     }
@@ -117,6 +119,7 @@ export function GitHome() {
                             {filterdProjects.map(item => {
                                 return (
                                     <div
+                                        key={item.id}
                                         className={styles.item}
                                         onClick={() => {
                                             setView('detail')
