@@ -139,6 +139,19 @@ export function GitStatus({ config, projectPath, onTab, }) {
         }
     }
 
+    async function cat(path) {
+        setCurFile(path)
+        let res = await request.post(`${config.host}/git/cat`, {
+            projectPath,
+            filePath: path,
+        })
+        console.log('res', res)
+        if (res.success) {
+            // loadList()
+            setDiffText(res.data.content)
+        }
+    }
+
     async function diff(path) {
         setCurFile(path)
         let res = await request.post(`${config.host}/git/diff`, {
@@ -229,7 +242,12 @@ export function GitStatus({ config, projectPath, onTab, }) {
                                                     />
                                                     <div className={styles.fileName}
                                                         onClick={() => {
-                                                            diff(item.path)
+                                                            if (item.working_dir == '?') {
+                                                                cat(item.path)
+                                                            }
+                                                            else {
+                                                                diff(item.path)
+                                                            }
                                                         }}
                                                     >
                                                         <Tag>{item.working_dir}</Tag>
