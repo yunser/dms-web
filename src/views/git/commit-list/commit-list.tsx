@@ -10,6 +10,7 @@ import { DownloadOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
+import { DiffText } from '../git-diff';
 // import { saveAs } from 'file-saver'
 
 export function CommitList({ config, event$, projectPath,  }) {
@@ -19,8 +20,63 @@ export function CommitList({ config, event$, projectPath,  }) {
     const [list, setList] = useState([])
     const [curCommit, setCurCommit] = useState(null)
     const [branchs, setBranchs] = useState([])
+    const [files, setFiles] = useState([])
+    const [curFile, setCurFile] = useState('')
+    const [fileDiff, setFileDiff] = useState('')
 
-    
+    async function loadFile(file, item) {
+        setCurFile(file)
+        let res = await request.post(`${config.host}/git/commitFileChanged`, {
+            projectPath,
+            commit: (item || curCommit).hash,
+            filePath: file,
+            // connectionId,
+            // sql: lineCode,
+            // tableName,
+            // dbName,
+            // logger: true,
+        }, {
+            // noMessage: true,
+        })
+        console.log('fres', res)
+        if (res.success) {
+            setFileDiff(res.data.res)
+            // const list = res.data
+            // setList(list)
+        }
+        
+    }
+    async function show(item) {
+        setCurCommit(item)
+        console.log('show', item)
+        // item.hash
+        let res = await request.post(`${config.host}/git/show`, {
+            projectPath,
+            commit: item.hash,
+            // connectionId,
+            // sql: lineCode,
+            // tableName,
+            // dbName,
+            // logger: true,
+        }, {
+            // noMessage: true,
+        })
+        console.log('fres', res)
+        if (res.success) {
+            const { files } = res.data
+            setFiles(files)
+            // setFileDiff(res.data.res)
+            // setCurFile('')
+            if (files.length > 0) {
+                setTimeout(() => {
+                    loadFile(files[0], item)
+                }, 0)
+            }
+            // const list = res.data
+            // setList(list)
+        }
+    }
+
     async function gitFetch() {
         loadBranch()
         let res = await request.post(`${config.host}/git/fetch`, {
@@ -80,6 +136,9 @@ export function CommitList({ config, event$, projectPath,  }) {
         if (res.success) {
             const list = res.data
             setList(list)
+            if (list.length > 0) {
+                show(list[0])
+            }
         }
 
     }
@@ -169,7 +228,7 @@ export function CommitList({ config, event$, projectPath,  }) {
                                     [styles.active]: curCommit && curCommit.hash == item.hash
                                 })}
                                 onClick={() => {
-                                    setCurCommit(item)
+                                    show(item)
                                 }}
                             >
                                 {item.branchs?.length > 0 &&
@@ -199,15 +258,39 @@ export function CommitList({ config, event$, projectPath,  }) {
             </div>
             <div className={styles.layoutBottom}>
                 {!!curCommit &&
-                    <div>
-                        <div>message：{curCommit.message}</div>
-                        <div>body：{curCommit.body}</div>
-                        <div>提交：{curCommit.hash}</div>
-                        <div>作者：{curCommit.author_name} {'<'}{curCommit.author_email}{'>'}</div>
-                        <div>日期：{curCommit.date}</div>
-                        <div>refs：{curCommit.refs}</div>
+                    <div className={styles.layoutBottomLeft}>
+                        <div className={styles.infoBox}>
+                            <div>message：{curCommit.message}</div>
+                            <div>body：{curCommit.body}</div>
+                            <div>提交：{curCommit.hash}</div>
+                            <div>作者：{curCommit.author_name} {'<'}{curCommit.author_email}{'>'}</div>
+                            <div>日期：{curCommit.date}</div>
+                            <div>refs：{curCommit.refs}</div>
+                        </div>
+                        <div className={styles.fileBox}>
+                            <div className={styles.files}>
+                                {files.map(file => {
+                                    return (
+                                        <div className={classNames(styles.item, {
+                                            [styles.active]: file == curFile
+                                        })}
+                                            onClick={() => {
+                                                loadFile(file)
+                                            }}
+                                        >{file}</div>
+                                        
+                                    )
+                                })}
+                            </div>
+                        </div>
                     </div>
                 }
+                <div className={styles.layoutBottomRight}>
+                    {/* <pre>{fileDiff}</pre> */}
+                    <DiffText
+                        text={fileDiff}
+                    />
+                </div>
             </div>
         </div>
     )

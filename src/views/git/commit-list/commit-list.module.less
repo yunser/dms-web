@@ -15,6 +15,23 @@
         flex: 1 0 auto;
         height: 0;
         // border: 1px solid #f00;
+        display: flex;
+    }
+    .layoutBottomLeft {
+        flex: 0 0 400px;
+        width: 0;
+        border-right: 1px solid var(--border-color);
+        .infoBox {
+            border-bottom: 1px solid var(--border-color);
+            // border: 1px solid #f00;
+            padding: 16px;
+        }
+        .fileBox {
+
+        }
+    }
+    .layoutBottomRight {
+        flex: 1 0 auto;
         padding: 16px;
     }
 }
@@ -35,6 +52,18 @@
         &.active {
             background-color: #2465d8;
             color: #fff;
+        }
+    }
+}
+
+.files {
+    .item {
+        padding: 8px;
+        border-bottom: 1px solid var(--color-f1);
+        cursor: pointer;
+        &.active {
+            background-color: #2465d8;
+            color: #fff;   
         }
     }
 }

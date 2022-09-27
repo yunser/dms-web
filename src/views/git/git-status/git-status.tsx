@@ -10,41 +10,10 @@ import { DownloadOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
+import { DiffText } from '../git-diff';
 // import { saveAs } from 'file-saver'
 
-function DiffText({ text }) {
-    const arr = text.split('\n')
-    return (
-        <div  className={styles.diffBox}>
-            {arr.map(line => {
-                let type = ''
-                if (line.startsWith('@@')) {
-                    type = 'desc'
-                }
-                else if (line.startsWith('+') && !line.startsWith('+++')) {
-                    type = 'added'
-                }
-                else if (line.startsWith('-') && !line.startsWith('---')) {
-                    type = 'deleted'
-                }
-                return (
-                    <div
-                        className={classNames(styles.line, {
-                            [styles[type]]: true,
-                        })}
-                        // style={{
-                        //     color,
-                        //     backgroundColor
-                        // }}
-                    >
-                        <pre>{line}</pre>
-                    </div>
-                )
-            })}       
-            {/* <pre>{text}</pre> */}
-        </div>
-    )
-}
+
 
 function Commit({ config, projectPath, onSuccess }) {
     const [form] = Form.useForm()
