@@ -1,4 +1,4 @@
-import { Button, Descriptions, Input, message, Modal, Popover, Space, Table, Tabs } from 'antd';
+import { Button, Descriptions, Input, message, Modal, Popover, Space, Table, Tabs, Tag } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './git-home.module.less';
 import _ from 'lodash';
@@ -125,7 +125,12 @@ export function GitHome() {
                                             setView('detail')
                                             setCurProject(item)
                                         }}
-                                    >{item.name}</div>
+                                    >
+                                        <div className={styles.name}>{item.name}</div>
+                                        <div className={styles.branch}>
+                                            <Tag>{item.branch}</Tag>
+                                        </div>
+                                    </div>
                                 )
                             })}
                         </div>

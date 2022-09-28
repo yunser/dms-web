@@ -13,7 +13,7 @@ import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
 // import { saveAs } from 'file-saver'
 
-export function BranchList({ config, projectPath, onBranch }) {
+export function BranchList({ config, event$, projectPath, onBranch }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
 
@@ -50,6 +50,16 @@ export function BranchList({ config, projectPath, onBranch }) {
     useEffect(() => {
         loadBranches()
     }, [])
+
+    event$.useSubscription(msg => {
+        console.log('CommitList/onmessage', msg)
+        // console.log(val);
+        if (msg.type == 'event_refresh_branch') {
+            // const { json } = msg.data
+            // addJsonTab(json)
+            loadBranches()
+        }
+    })
 
     return (
         <div>

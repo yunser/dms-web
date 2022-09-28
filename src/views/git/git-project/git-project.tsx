@@ -18,6 +18,7 @@ import { ProjectEditor } from '../project-edit';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { PushModal } from '../push-modal';
 import { PullModal } from '../pull-modal';
+import { BranchModal } from '../branch-modal';
 // import { saveAs } from 'file-saver'
 
 export function GitProject({ config, event$, project, onList }) {
@@ -27,6 +28,7 @@ export function GitProject({ config, event$, project, onList }) {
     const [curTab, setCurTab] = useState('status')
     // const [curTab, setCurTab] = useState('commit-list')
     const [branchs, setBranchs] = useState([])
+    const [branchModalVisible, setBranchModalVisible] = useState(false)
     const [pullModalVisible, setPullhModalVisible] = useState(false)
     const [pushModalVisible, setPushModalVisible] = useState(false)
     const tabs = [
@@ -63,6 +65,7 @@ export function GitProject({ config, event$, project, onList }) {
                     <div className={styles.header}>分支</div>
                     <BranchList
                         config={config}
+                        event$={event$}
                         projectPath={projectPath}
                         onBranch={branchs => {
                             setBranchs(branchs)
@@ -101,6 +104,11 @@ export function GitProject({ config, event$, project, onList }) {
                                 })
                             }}
                         >刷新提交</Button> */}
+                        <Button
+                            onClick={() => {
+                                setBranchModalVisible(true)
+                            }}
+                        >分支</Button>
                         <Button
                             onClick={() => {
                                 setPullhModalVisible(true)
@@ -160,6 +168,22 @@ export function GitProject({ config, event$, project, onList }) {
                         setPullhModalVisible(false)
                         event$.emit({
                             type: 'event_refresh_commit_list',
+                            data: {},
+                        })
+                    }}
+                />
+            }
+            {branchModalVisible &&
+                <BranchModal
+                    config={config}
+                    projectPath={projectPath}
+                    onCancel={() => {
+                        setBranchModalVisible(false)
+                    }}
+                    onSuccess={() => {
+                        setBranchModalVisible(false)
+                        event$.emit({
+                            type: 'event_refresh_branch',
                             data: {},
                         })
                     }}

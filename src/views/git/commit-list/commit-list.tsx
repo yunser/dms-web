@@ -147,6 +147,8 @@ export function CommitList({ config, event$, projectPath,  }) {
 
     }
 
+    
+
     async function loadBranch() {
         let res = await request.post(`${config.host}/git/branch`, {
             projectPath,
@@ -180,7 +182,19 @@ export function CommitList({ config, event$, projectPath,  }) {
             // addJsonTab(json)
             loadList()
         }
+        else if (msg.type == 'event_refresh_branch') {
+            // const { json } = msg.data
+            // addJsonTab(json)
+            loadList()
+        }
     })
+
+    // event$.useSubscription(msg => {
+    //     console.log('CommitList/onmessage', msg)
+    //     // console.log(val);
+        
+    // })
+
 
     const showList = useMemo(() => {
         console.log('列表', list, branchs)
