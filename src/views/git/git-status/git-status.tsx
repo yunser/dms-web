@@ -15,15 +15,22 @@ import { DiffText } from '../git-diff';
 
 
 
-function Commit({ config, projectPath, onSuccess }) {
-    const [form] = Form.useForm()
-    
+function Commit({ config, gitConfig, projectPath, onSuccess }) {
+    // const [form] = Form.useForm()
+    const [infoVisible, setInfoVisible] = useState(false)
+    const [formData, setFormData] = useState({
+        message: '',
+    })
     async function submit() {
-        const values = await form.validateFields()
-        console.log('msg', values)
+        if (!formData.message) {
+            message.warn('Message required')
+            return
+        }
+        // const values = await form.validateFields()
+        // console.log('msg', values)
         let res = await request.post(`${config.host}/git/commit`, {
             projectPath,
-            message: values.message,
+            message: formData.message,
         })
         // console.log('res', res)
         if (res.success) {
@@ -35,8 +42,49 @@ function Commit({ config, projectPath, onSuccess }) {
     }
 
     return (
-        <div>
-            <Form
+        <div className={styles.commitBox}>
+            {!!gitConfig && infoVisible &&
+                <div className={styles.user}>
+                    {gitConfig.user.name}
+                    {' <'}{gitConfig.user.email}{'>'}
+
+                </div>
+            }
+            <Input.TextArea
+                value={formData.message}
+                onChange={e => {
+                    setFormData({
+                        ...formData,
+                        message: e.target.value,
+                    })
+                }}
+                placeholder="Commit Message"
+                rows={infoVisible ? 4 : 1}
+                onFocus={() => {
+                    setInfoVisible(true)
+                }}
+            />
+            {infoVisible &&
+                <div className={styles.button}>
+                    <Space>
+                        <Button
+                            // type="primary"
+                            size="small"
+                            onClick={() => {
+                                setInfoVisible(false)
+                            }}
+                        >Cancel</Button>
+                        <Button
+                            type="primary"
+                            size="small"
+                            onClick={() => {
+                                submit()
+                            }}
+                        >Submit</Button>
+                    </Space>
+                </div>
+            }
+            {/* <Form
                 form={form}
                 // labelCol={{ span: 8 }}
                 // wrapperCol={{ span: 16 }}
@@ -57,19 +105,12 @@ function Commit({ config, projectPath, onSuccess }) {
                     // label="Message"
                     rules={[ { required: true, }, ]}
                 >
-                    <Input.TextArea
-                        rows={2}
-                    />
+                    
                 </Form.Item>
                 <Form.Item>
-                    <Button
-                        size="small"
-                        onClick={() => {
-                            submit()
-                        }}
-                    >Submit</Button>
+                    
                 </Form.Item>
-            </Form>
+            </Form> */}
         </div>
     )
 }
@@ -78,6 +119,7 @@ export function GitStatus({ config, projectPath, onTab, }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
 
+    const [gitConfig, setConfig] = useState(null)
     const [curFile, setCurFile] = useState('')
     const [curFileType, setCurFileType] = useState('')
     const [status, setStatus] = useState(null)
@@ -114,7 +156,30 @@ export function GitStatus({ config, projectPath, onTab, }) {
 
     useEffect(() => {
         loadList()
+        getConfig()
     }, [])
+
+    async function getConfig() {
+        // loadBranch()
+        let res = await request.post(`${config.host}/git/getConfig`, {
+            projectPath,
+            // remoteName: 'origin',
+            // connectionId,
+            // sql: lineCode,
+            // tableName,
+            // dbName,
+            // logger: true,
+        }, {
+            // noMessage: true,
+        })
+        console.log('getConfig/res', res.data)
+        if (res.success) {
+            setConfig(res.data.config)
+            // const list = res.data
+            // setList(list)
+        }
+
+    }
 
     async function add(files) {
         let res = await request.post(`${config.host}/git/add`, {
@@ -283,6 +348,7 @@ export function GitStatus({ config, projectPath, onTab, }) {
                     <div className={styles.layoutBottom}>
                         {/* <hr /> */}
                         <Commit
+                            gitConfig={gitConfig}
                             config={config}
                             projectPath={projectPath}
                             onSuccess={() => {

@@ -17,6 +17,7 @@ export function CommitList({ config, event$, projectPath,  }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
 
+    
     const [list, setList] = useState([])
     const [curCommit, setCurCommit] = useState(null)
     const [branchs, setBranchs] = useState([])
@@ -46,6 +47,7 @@ export function CommitList({ config, event$, projectPath,  }) {
         }
         
     }
+
     async function show(item) {
         setCurCommit(item)
         console.log('show', item)
@@ -76,6 +78,8 @@ export function CommitList({ config, event$, projectPath,  }) {
             // setList(list)
         }
     }
+
+    
 
     async function gitFetch() {
         loadBranch()
