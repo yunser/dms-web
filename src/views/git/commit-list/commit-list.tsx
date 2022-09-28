@@ -305,6 +305,7 @@ export function CommitList({ config, event$, projectPath,  }) {
                     </div>
                 }
                 <div className={styles.layoutBottomRight}>
+                    {/* <div className={styles.layoutBottomRight}> */}
                     {/* <pre>{fileDiff}</pre> */}
                     <DiffText
                         text={fileDiff}

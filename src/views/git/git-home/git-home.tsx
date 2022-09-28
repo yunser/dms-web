@@ -127,9 +127,11 @@ export function GitHome() {
                                         }}
                                     >
                                         <div className={styles.name}>{item.name}</div>
-                                        <div className={styles.branch}>
-                                            <Tag>{item.branch}</Tag>
-                                        </div>
+                                        {!!item.branch &&
+                                            <div className={styles.branch}>
+                                                <Tag>{item.branch}</Tag>
+                                            </div>
+                                        }
                                     </div>
                                 )
                             })}

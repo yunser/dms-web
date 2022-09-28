@@ -75,10 +75,10 @@ export function GitProject({ config, event$, project, onList }) {
                     />
                 </div>
                 <div className={styles.section}>
-                    <div className={styles.header}>标签</div>
                     <TagList
                         config={config}
                         projectPath={projectPath}
+                        event$={event$}
                     />
                 </div>
                 <div className={styles.section}>

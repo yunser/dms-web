@@ -6,16 +6,19 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { DownloadOutlined } from '@ant-design/icons';
+import { DownloadOutlined, PlusOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
+import { IconButton } from '@/views/db-manager/icon-button';
+import { TagEditor } from '../tag-edit';
 // import { saveAs } from 'file-saver'
 
-export function TagList({ config, projectPath }) {
+export function TagList({ config, event$, projectPath }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
 
+    const [modalVisible, setModalVisible] = useState(false)
     const [tags, setTags] = useState([])
     // const [current, setCurrent] = useState('')
 
@@ -43,6 +46,17 @@ export function TagList({ config, projectPath }) {
 
     return (
         <div>
+            <div className={styles.header}>
+                标签
+                <IconButton
+                    tooltip="新建标签"
+                    onClick={() => {
+                        setModalVisible(true)
+                    }}
+                >
+                    <PlusOutlined />
+                </IconButton>
+            </div>
             <div className={styles.list}>
                 {tags.map(item => {
                     return (
@@ -57,6 +71,23 @@ export function TagList({ config, projectPath }) {
                     )
                 })}
             </div>
+            {modalVisible &&
+                <TagEditor
+                    projectPath={projectPath}
+                    config={config}
+                    onCancel={() => {
+                        setModalVisible(false)
+                    }}
+                    onSuccess={() => {
+                        setModalVisible(false)
+                        loadTags()
+                        event$.emit({
+                            type: 'event_refresh_commit_list',
+                            data: {},
+                        })
+                    }}
+                />
+            }
         </div>
     )
 }
