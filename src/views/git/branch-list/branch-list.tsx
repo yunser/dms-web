@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { ArrowRightOutlined, DownloadOutlined } from '@ant-design/icons';
+import { ArrowRightOutlined, DeleteOutlined, DownloadOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
@@ -67,40 +67,77 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
                 {branches.map(item => {
                     return (
                         <div className={styles.item}>
-                            <div className={styles.status}>
-                                {item.name == current &&
-                                    <div className={styles.current}></div>
-                                }
+                            <div className={styles.left}>
+                                <div className={styles.status}>
+                                    {item.name == current &&
+                                        <div className={styles.current}></div>
+                                    }
+                                </div>
+                                <div className={styles.name}>{item.name}</div>
                             </div>
-                            <div className={styles.name}>{item.name}</div>
-                            <IconButton
-                                tooltip="切换分支"
-                                onClick={() => {
-                                    Modal.confirm({
-                                        title: '切换分支',
-                                        // icon: <ExclamationCircleOutlined />,
-                                        content: `确定将你的工作副本切换为「${item.name}」？`,
-                                        async onOk() {
-                                            
-                                            let ret = await request.post(`${config.host}/git/checkout`, {
-                                                projectPath,
-                                                branchName: item.name,
-                                            })
-                                            // console.log('ret', ret)
-                                            if (ret.success) {
-                                                // message.success('连接成功')
-                                                // onConnnect && onConnnect()
-                                                message.success(t('success'))
-                                                // onClose && onClose()
-                                                // onSuccess && onSuccess()
-                                                loadBranches()
+                            <Space>
+                                <IconButton
+                                    tooltip="切换分支"
+                                    onClick={() => {
+                                        Modal.confirm({
+                                            title: '切换分支',
+                                            // icon: <ExclamationCircleOutlined />,
+                                            content: `确定将你的工作副本切换为「${item.name}」？`,
+                                            async onOk() {
+                                                
+                                                let ret = await request.post(`${config.host}/git/checkout`, {
+                                                    projectPath,
+                                                    branchName: item.name,
+                                                })
+                                                // console.log('ret', ret)
+                                                if (ret.success) {
+                                                    // message.success('连接成功')
+                                                    // onConnnect && onConnnect()
+                                                    message.success(t('success'))
+                                                    // onClose && onClose()
+                                                    // onSuccess && onSuccess()
+                                                    loadBranches()
+                                                }
                                             }
-                                        }
-                                    })
-                                }}
-                            >
-                                <ArrowRightOutlined />
-                            </IconButton>
+                                        })
+                                    }}
+                                >
+                                    <ArrowRightOutlined />
+                                </IconButton>
+                                <IconButton
+                                    tooltip="切换分支"
+                                    disabled={item.name == current}
+                                    onClick={() => {
+                                        Modal.confirm({
+                                            title: '删除分支',
+                                            // icon: <ExclamationCircleOutlined />,
+                                            content: `确定删除分支「${item.name}」？`,
+                                            async onOk() {
+                                                
+                                                let ret = await request.post(`${config.host}/git/branch/delete`, {
+                                                    projectPath,
+                                                    name: item.name,
+                                                })
+                                                // console.log('ret', ret)
+                                                if (ret.success) {
+                                                    // message.success('连接成功')
+                                                    // onConnnect && onConnnect()
+                                                    message.success(t('success'))
+                                                    // onClose && onClose()
+                                                    // onSuccess && onSuccess()
+                                                    // loadBranches()
+                                                    event$.emit({
+                                                        type: 'event_refresh_branch',
+                                                        data: {},
+                                                    })
+                                                }
+                                            }
+                                        })
+                                    }}
+                                >
+                                    <DeleteOutlined />
+                                </IconButton>
+                            </Space>
                         </div>
                     )
                 })}
