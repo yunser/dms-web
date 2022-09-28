@@ -11,6 +11,7 @@ import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
 import { DiffText } from '../git-diff';
+import moment from 'moment';
 // import { saveAs } from 'file-saver'
 
 export function CommitList({ config, event$, projectPath,  }) {
@@ -282,7 +283,7 @@ export function CommitList({ config, event$, projectPath,  }) {
                             <div>body：{curCommit.body}</div>
                             <div>提交：{curCommit.hash}</div>
                             <div>作者：{curCommit.author_name} {'<'}{curCommit.author_email}{'>'}</div>
-                            <div>日期：{curCommit.date}</div>
+                            <div>日期：{curCommit.date ? moment(curCommit.date).format('YYYY-MM-DD HH:mm:ss') : '--'}</div>
                             <div>refs：{curCommit.refs}</div>
                         </div>
                         <div className={styles.fileBox}>
