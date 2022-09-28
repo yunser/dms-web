@@ -1,4 +1,4 @@
-import { Button, Checkbox, Descriptions, Form, Input, message, Modal, Popover, Space, Table, Tabs, Tag } from 'antd';
+import { Button, Checkbox, Descriptions, Dropdown, Form, Input, Menu, message, Modal, Popover, Space, Table, Tabs, Tag } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './git-status.module.less';
 import _, { add } from 'lodash';
@@ -6,11 +6,12 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { DownloadOutlined } from '@ant-design/icons';
+import { DownloadOutlined, EllipsisOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
 import { DiffText } from '../git-diff';
+import { IconButton } from '@/views/db-manager/icon-button';
 // import { saveAs } from 'file-saver'
 
 
@@ -205,6 +206,26 @@ export function GitStatus({ config, projectPath, onTab, }) {
         }
     }
 
+    async function checkoutFile(path) {
+        Modal.confirm({
+            // title: 'Confirm',
+            // icon: <ExclamationCircleOutlined />,
+            content: `确认丢弃文件「${path}」的所有更改?`,
+            async onOk() {
+                let res = await request.post(`${config.host}/git/checkoutFile`, {
+                    projectPath,
+                    filePath: path,
+                })
+                console.log('res', res)
+                if (res.success) {
+                    // loadList()
+                    // setDiffText(res.data.content)
+                    loadList()
+                }
+            }
+        })
+    }
+    
     async function cat(path) {
         setCurFile(path)
         setCurFileType('')
@@ -323,7 +344,43 @@ export function GitStatus({ config, projectPath, onTab, }) {
                                                         }}
                                                     >
                                                         <Tag>{item.working_dir}</Tag>
-                                                        {item.path}</div>
+                                                        <div>{item.path}</div></div>
+                                                        {/* <Button
+                                                            size="small"
+                                                            onClick={() => {
+                                                                checkoutFile(item.path)
+                                                            }}
+                                                        >
+                                                            checkout</Button> */}
+                                                        <Dropdown
+                                                            overlay={
+                                                                <Menu
+                                                                    items={[
+                                                                        {
+                                                                            label: '丢弃文件',
+                                                                            key: 'key_checkout_file',
+                                                                        },
+                                                                    ]}
+                                                                    onClick={({ key }) => {
+                                                                        if (key == 'key_checkout_file') {
+                                                                            checkoutFile(item.path)
+
+                                                                        }
+                                                                    }}
+                                                                />
+                                                            }
+                                                        >
+                                                            <IconButton
+                                                                onClick={e => e.preventDefault()}
+                                                            >
+                                                                <EllipsisOutlined />
+                                                            </IconButton>
+                                                            {/* <a onClick={e => e.preventDefault()}>
+                                                            <Space>
+                                                                Hover me
+                                                            </Space>
+                                                            </a> */}
+                                                        </Dropdown>
                                                 </div>
                                             )
                                         })}
