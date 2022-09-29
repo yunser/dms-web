@@ -17,7 +17,7 @@ import { TagList } from '../tag-list';
 import { request } from '@/views/db-manager/utils/http';
 // import { saveAs } from 'file-saver'
 
-export function ProjectEditor({ config, item, sourceType = 'exist', onSuccess, onCancel, onList }) {
+export function ProjectEditor({ config, item, createType, sourceType = 'exist', onSuccess, onCancel, onList }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [loading, setLoading] = useState(false)
@@ -46,6 +46,7 @@ export function ProjectEditor({ config, item, sourceType = 'exist', onSuccess, o
                 url: values.url,
                 name: values.name,
                 path: values.path,
+                init: createType == 'init',
             })
         }
         else {

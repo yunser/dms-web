@@ -53,6 +53,7 @@ export function GitHome() {
     const [cloneModalVisible, setCloneModalVisible] = useState(false)
     const [projectItem, setProjectItem] = useState(null)
     const [projectModalVisible, setProjectModalVisible] = useState(false)
+    const [createType, setCreateType] = useState(false)
 
     async function loadList() {
         let res = await request.post(`${config.host}/git/project/list`, {
@@ -146,15 +147,26 @@ export function GitHome() {
                                                     label: '添加已经存在的本地仓库',
                                                     key: 'add_exists',
                                                 },
+                                                {
+                                                    label: '创建本地仓库',
+                                                    key: 'create_git',
+                                                },
                                             ]}
                                             onClick={({ key }) => {
                                                 if (key == 'add_exists') {
                                                     setProjectModalVisible(true)
                                                     setProjectItem(null)
+                                                    setCreateType('exists')
                                                 }
-                                                if (key == 'clone_from_url') {
+                                                else if (key == 'clone_from_url') {
                                                     setCloneModalVisible(true)
                                                     setProjectItem(null)
+                                                    setCreateType('clone')
+                                                }
+                                                else if (key == 'create_git') {
+                                                    setProjectModalVisible(true)
+                                                    setProjectItem(null)
+                                                    setCreateType('init')
                                                 }
                                             }}
                                         />
@@ -260,6 +272,7 @@ export function GitHome() {
                 <ProjectEditor
                     config={config}
                     item={projectItem}
+                    createType={createType}
                     onCancel={() => {
                         setProjectModalVisible(false)
                     }}
