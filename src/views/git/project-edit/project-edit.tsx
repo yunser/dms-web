@@ -55,9 +55,9 @@ export function ProjectEditor({ config, sourceType = 'exist', onSuccess, onCance
     useEffect(() => {
 
         form.setFieldsValue({
-            url: 'git@github.com:yunser/git-auto3.git',
-            path: '/Users/yunser/app/git-auto3',
-            name: 'git-auto3',
+            // url: 'git@github.com:yunser/git-auto3.git',
+            // path: '/Users/yunser/app/git-auto3',
+            // name: 'git-auto3',
         })
     }, [])
 

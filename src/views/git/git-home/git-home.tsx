@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { DownloadOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { DownloadOutlined, EllipsisOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { CommitList } from '../commit-list';
@@ -76,6 +76,32 @@ export function GitHome() {
     useEffect(() => {
         loadList()
     }, [])
+
+    async function deleteProject(item) {
+        Modal.confirm({
+            title: '',
+            // icon: <ExclamationCircleOutlined />,
+            content: `${t('delete')}「${item.name}」?（不会删除项目文件）`,
+            async onOk() {
+                let res = await request.post(`${config.host}/git/project/delete`, {
+                    id: item.id,
+                })
+                console.log('get/res', res.data)
+                if (res.success) {
+                    message.success(t('success'))
+                    // onSuccess && onSuccess()
+                    loadList()
+                    // loadKeys()
+                    // setResult(null)
+                    // setResult({
+                    //     key: item,
+                    //     ...res.data,
+                    // })
+                    // setInputValue(res.data.value)
+                }
+            }
+        })
+    }
 
     const tabs = [
         {
@@ -161,11 +187,42 @@ export function GitHome() {
                                         }}
                                     >
                                         <div className={styles.name}>{item.name}</div>
-                                        {!!item.branch &&
-                                            <div className={styles.branch}>
-                                                <Tag>{item.branch}</Tag>
-                                            </div>
-                                        }
+                                        <Space>
+                                            {!!item.branch &&
+                                                <div className={styles.branch}>
+                                                    <Tag>{item.branch}</Tag>
+                                                </div>
+                                            }
+                                            <Dropdown
+                                                overlay={
+                                                    <Menu
+                                                        items={[
+                                                            {
+                                                                label: '删除',
+                                                                key: 'delete',
+                                                            },
+                                                        ]}
+                                                        onClick={({ key, domEvent }) => {
+                                                            // domEvent.preventDefault()
+                                                            domEvent.stopPropagation()
+                                                            if (key == 'delete') {
+                                                                deleteProject(item)
+                                                            }
+                                                        }}
+                                                    />
+                                                }
+                                            >
+                                                <IconButton
+                                                    tooltip={t('add')}
+                                                    className={styles.refresh}
+                                                    // onClick={() => {
+                                                    //     setProjectModalVisible(true)
+                                                    // }}
+                                                >
+                                                    <EllipsisOutlined />
+                                                </IconButton>
+                                            </Dropdown>
+                                        </Space>
                                     </div>
                                 )
                             })}
