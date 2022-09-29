@@ -17,13 +17,13 @@ import { TagList } from '../tag-list';
 import { request } from '@/views/db-manager/utils/http';
 // import { saveAs } from 'file-saver'
 
-export function ProjectEditor({ config, sourceType = 'exist', onSuccess, onCancel, onList }) {
+export function ProjectEditor({ config, item, sourceType = 'exist', onSuccess, onCancel, onList }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [loading, setLoading] = useState(false)
     const [curTab, setCurTab] = useState('status')
     // const [curTab, setCurTab] = useState('commit-list')
-    
+    const editType = item ? 'update' : 'create'
     const [form] = Form.useForm()
 
     const tabs = [
@@ -40,17 +40,41 @@ export function ProjectEditor({ config, sourceType = 'exist', onSuccess, onCance
     async function handleOk() {
         setLoading(true)
         const values = await form.validateFields()
-        let res = await request.post(`${config.host}/git/project/create`, {
-            url: values.url,
-            name: values.name,
-            path: values.path,
-        })
+        let res
+        if (editType == 'create') {
+            res = await request.post(`${config.host}/git/project/create`, {
+                url: values.url,
+                name: values.name,
+                path: values.path,
+            })
+        }
+        else {
+            res = await request.post(`${config.host}/git/project/update`, {
+                id: item.id,
+                data: {
+                    name: values.name,
+                },
+            })
+        }
         // console.log('res', res)
         if (res.success) {
             onSuccess && onSuccess()
         }
         setLoading(false)
     }
+
+    useEffect(() => {
+        if (item) {
+            form.setFieldsValue({
+                ...item,
+            })
+        }
+        else {
+            form.setFieldsValue({
+                ...item,
+            })
+        }
+    }, [item])
 
     useEffect(() => {
 
@@ -102,7 +126,9 @@ export function ProjectEditor({ config, sourceType = 'exist', onSuccess, onCance
                     label="Path"
                     rules={[ { required: true, }, ]}
                 >
-                    <Input />
+                    <Input
+                        disabled={editType == 'update'}
+                    />
                 </Form.Item>
             </Form>
         </Modal>

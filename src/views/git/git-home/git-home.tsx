@@ -51,6 +51,7 @@ export function GitHome() {
     const event$ = useEventEmitter()
 
     const [cloneModalVisible, setCloneModalVisible] = useState(false)
+    const [projectItem, setProjectItem] = useState(null)
     const [projectModalVisible, setProjectModalVisible] = useState(false)
 
     async function loadList() {
@@ -76,6 +77,11 @@ export function GitHome() {
     useEffect(() => {
         loadList()
     }, [])
+
+    function editProject(item) {
+        setProjectModalVisible(true)
+        setProjectItem(item)
+    }
 
     async function deleteProject(item) {
         Modal.confirm({
@@ -144,9 +150,11 @@ export function GitHome() {
                                             onClick={({ key }) => {
                                                 if (key == 'add_exists') {
                                                     setProjectModalVisible(true)
+                                                    setProjectItem(null)
                                                 }
                                                 if (key == 'clone_from_url') {
                                                     setCloneModalVisible(true)
+                                                    setProjectItem(null)
                                                 }
                                             }}
                                         />
@@ -198,6 +206,10 @@ export function GitHome() {
                                                     <Menu
                                                         items={[
                                                             {
+                                                                label: '编辑',
+                                                                key: 'edit',
+                                                            },
+                                                            {
                                                                 label: '删除',
                                                                 key: 'delete',
                                                             },
@@ -208,12 +220,15 @@ export function GitHome() {
                                                             if (key == 'delete') {
                                                                 deleteProject(item)
                                                             }
+                                                            else if (key == 'edit') {
+                                                                editProject(item)
+                                                            }
                                                         }}
                                                     />
                                                 }
                                             >
                                                 <IconButton
-                                                    tooltip={t('add')}
+                                                    // tooltip={t('add')}
                                                     className={styles.refresh}
                                                     // onClick={() => {
                                                     //     setProjectModalVisible(true)
@@ -244,6 +259,7 @@ export function GitHome() {
             {projectModalVisible &&
                 <ProjectEditor
                     config={config}
+                    item={projectItem}
                     onCancel={() => {
                         setProjectModalVisible(false)
                     }}
