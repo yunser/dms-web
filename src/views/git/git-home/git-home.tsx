@@ -1,4 +1,4 @@
-import { Button, Descriptions, Input, message, Modal, Popover, Space, Table, Tabs, Tag } from 'antd';
+import { Button, Descriptions, Dropdown, Input, Menu, message, Modal, Popover, Space, Table, Tabs, Tag } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './git-home.module.less';
 import _ from 'lodash';
@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { DownloadOutlined } from '@ant-design/icons';
+import { DownloadOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { CommitList } from '../commit-list';
@@ -16,6 +16,7 @@ import { RemoteList } from '../remote-list';
 import { GitProject } from '../git-project';
 import { request } from '@/views/db-manager/utils/http';
 import { ProjectEditor } from '../project-edit';
+import { IconButton } from '@/views/db-manager/icon-button';
 // import { saveAs } from 'file-saver'
 
 export function GitHome() {
@@ -49,6 +50,7 @@ export function GitHome() {
 
     const event$ = useEventEmitter()
 
+    const [cloneModalVisible, setCloneModalVisible] = useState(false)
     const [projectModalVisible, setProjectModalVisible] = useState(false)
 
     async function loadList() {
@@ -92,21 +94,53 @@ export function GitHome() {
                     <div className={styles.listContent}>
                         <div className={styles.tool}>
                             <Space>
-                                <Button
+                                <IconButton
+                                    tooltip={t('refresh')}
                                     onClick={() => {
                                         loadList()
                                     }}
-                                >刷新</Button>
-                                <Button
-                                    onClick={() => {
-                                        setProjectModalVisible(true)
-                                    }}
-                                >新建</Button>
+                                >
+                                    <ReloadOutlined />
+                                </IconButton>
+                                <Dropdown
+                                    overlay={
+                                        <Menu
+                                            items={[
+                                                {
+                                                    label: '从 URL 克隆',
+                                                    key: 'clone_from_url',
+                                                },
+                                                {
+                                                    label: '添加已经存在的本地仓库',
+                                                    key: 'add_exists',
+                                                },
+                                            ]}
+                                            onClick={({ key }) => {
+                                                if (key == 'add_exists') {
+                                                    setProjectModalVisible(true)
+                                                }
+                                                if (key == 'clone_from_url') {
+                                                    setCloneModalVisible(true)
+                                                }
+                                            }}
+                                        />
+                                    }
+                                >
+                                    <IconButton
+                                        tooltip={t('add')}
+                                        className={styles.refresh}
+                                        // onClick={() => {
+                                        //     setProjectModalVisible(true)
+                                        // }}
+                                    >
+                                        <PlusOutlined />
+                                    </IconButton>
+                                </Dropdown>
                             </Space>
                         </div>
                         <div>
                             <Input
-                                placeholder="Filter..."
+                                placeholder={t('filter')}
                                 value={keyword}
                                 allowClear
                                 onChange={e => {
@@ -158,6 +192,19 @@ export function GitHome() {
                     }}
                     onSuccess={() => {
                         setProjectModalVisible(false)
+                        loadList()
+                    }}
+                />
+            }
+            {cloneModalVisible &&
+                <ProjectEditor
+                    config={config}
+                    sourceType="clone"
+                    onCancel={() => {
+                        setCloneModalVisible(false)
+                    }}
+                    onSuccess={() => {
+                        setCloneModalVisible(false)
                         loadList()
                     }}
                 />

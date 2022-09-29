@@ -1,5 +1,5 @@
 import { Button, Descriptions, Form, Input, message, Modal, Popover, Space, Table, Tabs } from 'antd';
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './project-edit.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
@@ -17,9 +17,10 @@ import { TagList } from '../tag-list';
 import { request } from '@/views/db-manager/utils/http';
 // import { saveAs } from 'file-saver'
 
-export function ProjectEditor({ config, onSuccess, onCancel, onList }) {
+export function ProjectEditor({ config, sourceType = 'exist', onSuccess, onCancel, onList }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
+    const [loading, setLoading] = useState(false)
     const [curTab, setCurTab] = useState('status')
     // const [curTab, setCurTab] = useState('commit-list')
     
@@ -37,8 +38,10 @@ export function ProjectEditor({ config, onSuccess, onCancel, onList }) {
     ]
 
     async function handleOk() {
+        setLoading(true)
         const values = await form.validateFields()
         let res = await request.post(`${config.host}/git/project/create`, {
+            url: values.url,
             name: values.name,
             path: values.path,
         })
@@ -46,7 +49,17 @@ export function ProjectEditor({ config, onSuccess, onCancel, onList }) {
         if (res.success) {
             onSuccess && onSuccess()
         }
+        setLoading(false)
     }
+
+    useEffect(() => {
+
+        form.setFieldsValue({
+            url: 'git@github.com:yunser/git-auto3.git',
+            path: '/Users/yunser/app/git-auto3',
+            name: 'git-auto3',
+        })
+    }, [])
 
     return (
         <Modal
@@ -54,6 +67,7 @@ export function ProjectEditor({ config, onSuccess, onCancel, onList }) {
             title="新建项目"
             onCancel={onCancel}
             onOk={handleOk}
+            confirmLoading={loading}
         >
             <Form
                 form={form}
@@ -67,6 +81,15 @@ export function ProjectEditor({ config, onSuccess, onCancel, onList }) {
                 //     wrapperCol: { span: 24 },
                 // }}
             >
+                {sourceType == 'clone' &&
+                    <Form.Item
+                        name="url"
+                        label="URL"
+                        rules={[ { required: true, }, ]}
+                    >
+                        <Input />
+                    </Form.Item>
+                }
                 <Form.Item
                     name="name"
                     label="Name"

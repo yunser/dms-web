@@ -9,13 +9,17 @@
 .list {
     // padding: 16px;
     margin-top: 16px;
+    border: 1px solid var(--border-color);
     .item {
         padding: 16px 16px;
-        border: 1px solid var(--border-color);
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: space-between;
+        border-bottom: 1px solid var(--border-color);
+        &:last-child {
+            border-bottom: none;
+        }
         &:hover {
             background-color: var(--color-f9);
         }

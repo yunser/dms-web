@@ -21,14 +21,19 @@
         flex: 0 0 400px;
         width: 0;
         border-right: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
         .infoBox {
+            flex: 0 0 120px;
             border-bottom: 1px solid var(--border-color);
-            // border: 1px solid #f00;
             padding: 16px;
             font-size: 12px;
+            // border: 1px solid #f00;
         }
         .fileBox {
-
+            flex: 1 0 auto;   
+            height: 0;
+            overflow: auto;
         }
     }
     .layoutBottomRight {
