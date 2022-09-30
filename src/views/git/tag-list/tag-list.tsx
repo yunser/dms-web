@@ -1,4 +1,4 @@
-import { Button, Descriptions, Input, message, Modal, Popover, Space, Table, Tabs } from 'antd';
+import { Button, Descriptions, Empty, Input, message, Modal, Popover, Space, Table, Tabs } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './tag-list.module.less';
 import _ from 'lodash';
@@ -12,6 +12,7 @@ import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { TagEditor } from '../tag-edit';
+import { FullCenterBox } from '@/views/db-manager/redis-client';
 // import { saveAs } from 'file-saver'
 
 export function TagList({ config, event$, projectPath }) {
@@ -57,20 +58,28 @@ export function TagList({ config, event$, projectPath }) {
                     <PlusOutlined />
                 </IconButton>
             </div>
-            <div className={styles.list}>
-                {tags.map(item => {
-                    return (
-                        <div className={styles.item}>
-                            <div className={styles.status}>
-                                {/* {item.name == current &&
-                                    <div className={styles.current}></div>
-                                } */}
+            {tags.length == 0 ?
+                <FullCenterBox
+                    height={160}
+                >
+                    <Empty />
+                </FullCenterBox>
+            :
+                <div className={styles.list}>
+                    {tags.map(item => {
+                        return (
+                            <div className={styles.item}>
+                                <div className={styles.status}>
+                                    {/* {item.name == current &&
+                                        <div className={styles.current}></div>
+                                    } */}
+                                </div>
+                                <div className={styles.name}>{item.name}</div>
                             </div>
-                            <div className={styles.name}>{item.name}</div>
-                        </div>
-                    )
-                })}
-            </div>
+                        )
+                    })}
+                </div>
+            }
             {modalVisible &&
                 <TagEditor
                     projectPath={projectPath}

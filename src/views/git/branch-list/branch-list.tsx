@@ -1,4 +1,4 @@
-import { Button, Descriptions, Input, message, Modal, Popover, Space, Table, Tabs } from 'antd';
+import { Button, Descriptions, Empty, Input, message, Modal, Popover, Space, Table, Tabs } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './branch-list.module.less';
 import _ from 'lodash';
@@ -11,6 +11,7 @@ import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
+import { FullCenterBox } from '@/views/db-manager/redis-client';
 // import { saveAs } from 'file-saver'
 
 export function BranchList({ config, event$, projectPath, onBranch }) {
@@ -63,85 +64,93 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
 
     return (
         <div>
-            <div className={styles.list}>
-                {branches.map(item => {
-                    return (
-                        <div className={styles.item}>
-                            <div className={styles.left}>
-                                <div className={styles.status}>
-                                    {item.name == current &&
-                                        <div className={styles.current}></div>
-                                    }
+            {branches.length == 0 ?
+                <FullCenterBox
+                    height={160}
+                >
+                    <Empty />
+                </FullCenterBox>
+            :
+                <div className={styles.list}>
+                    {branches.map(item => {
+                        return (
+                            <div className={styles.item}>
+                                <div className={styles.left}>
+                                    <div className={styles.status}>
+                                        {item.name == current &&
+                                            <div className={styles.current}></div>
+                                        }
+                                    </div>
+                                    <div className={styles.name}>{item.name}</div>
                                 </div>
-                                <div className={styles.name}>{item.name}</div>
-                            </div>
-                            <Space>
-                                <IconButton
-                                    tooltip="切换分支"
-                                    onClick={() => {
-                                        Modal.confirm({
-                                            title: '切换分支',
-                                            // icon: <ExclamationCircleOutlined />,
-                                            content: `确定将你的工作副本切换为「${item.name}」？`,
-                                            async onOk() {
-                                                
-                                                let ret = await request.post(`${config.host}/git/checkout`, {
-                                                    projectPath,
-                                                    branchName: item.name,
-                                                })
-                                                // console.log('ret', ret)
-                                                if (ret.success) {
-                                                    // message.success('连接成功')
-                                                    // onConnnect && onConnnect()
-                                                    message.success(t('success'))
-                                                    // onClose && onClose()
-                                                    // onSuccess && onSuccess()
-                                                    loadBranches()
-                                                }
-                                            }
-                                        })
-                                    }}
-                                >
-                                    <ArrowRightOutlined />
-                                </IconButton>
-                                <IconButton
-                                    tooltip="切换分支"
-                                    disabled={item.name == current}
-                                    onClick={() => {
-                                        Modal.confirm({
-                                            title: '删除分支',
-                                            // icon: <ExclamationCircleOutlined />,
-                                            content: `确定删除分支「${item.name}」？`,
-                                            async onOk() {
-                                                
-                                                let ret = await request.post(`${config.host}/git/branch/delete`, {
-                                                    projectPath,
-                                                    name: item.name,
-                                                })
-                                                // console.log('ret', ret)
-                                                if (ret.success) {
-                                                    // message.success('连接成功')
-                                                    // onConnnect && onConnnect()
-                                                    message.success(t('success'))
-                                                    // onClose && onClose()
-                                                    // onSuccess && onSuccess()
-                                                    // loadBranches()
-                                                    event$.emit({
-                                                        type: 'event_refresh_branch',
-                                                        data: {},
+                                <Space>
+                                    <IconButton
+                                        tooltip="切换分支"
+                                        onClick={() => {
+                                            Modal.confirm({
+                                                title: '切换分支',
+                                                // icon: <ExclamationCircleOutlined />,
+                                                content: `确定将你的工作副本切换为「${item.name}」？`,
+                                                async onOk() {
+                                                    
+                                                    let ret = await request.post(`${config.host}/git/checkout`, {
+                                                        projectPath,
+                                                        branchName: item.name,
                                                     })
+                                                    // console.log('ret', ret)
+                                                    if (ret.success) {
+                                                        // message.success('连接成功')
+                                                        // onConnnect && onConnnect()
+                                                        message.success(t('success'))
+                                                        // onClose && onClose()
+                                                        // onSuccess && onSuccess()
+                                                        loadBranches()
+                                                    }
                                                 }
-                                            }
-                                        })
-                                    }}
-                                >
-                                    <DeleteOutlined />
-                                </IconButton>
-                            </Space>
-                        </div>
-                    )
-                })}
-            </div>
+                                            })
+                                        }}
+                                    >
+                                        <ArrowRightOutlined />
+                                    </IconButton>
+                                    <IconButton
+                                        tooltip="切换分支"
+                                        disabled={item.name == current}
+                                        onClick={() => {
+                                            Modal.confirm({
+                                                title: '删除分支',
+                                                // icon: <ExclamationCircleOutlined />,
+                                                content: `确定删除分支「${item.name}」？`,
+                                                async onOk() {
+                                                    
+                                                    let ret = await request.post(`${config.host}/git/branch/delete`, {
+                                                        projectPath,
+                                                        name: item.name,
+                                                    })
+                                                    // console.log('ret', ret)
+                                                    if (ret.success) {
+                                                        // message.success('连接成功')
+                                                        // onConnnect && onConnnect()
+                                                        message.success(t('success'))
+                                                        // onClose && onClose()
+                                                        // onSuccess && onSuccess()
+                                                        // loadBranches()
+                                                        event$.emit({
+                                                            type: 'event_refresh_branch',
+                                                            data: {},
+                                                        })
+                                                    }
+                                                }
+                                            })
+                                        }}
+                                    >
+                                        <DeleteOutlined />
+                                    </IconButton>
+                                </Space>
+                            </div>
+                        )
+                    })}
+                </div>
+            }
         </div>
     )
 }

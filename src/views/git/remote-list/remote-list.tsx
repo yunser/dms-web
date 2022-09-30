@@ -1,4 +1,4 @@
-import { Button, Descriptions, Input, message, Modal, Popover, Space, Table, Tabs } from 'antd';
+import { Button, Descriptions, Empty, Input, message, Modal, Popover, Space, Table, Tabs } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './remote-list.module.less';
 import _ from 'lodash';
@@ -12,6 +12,7 @@ import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { RemoteEditor } from '../remote-edit';
+import { FullCenterBox } from '@/views/db-manager/redis-client';
 // import { saveAs } from 'file-saver'
 
 export function RemoteList({ config, projectPath }) {
@@ -51,18 +52,26 @@ export function RemoteList({ config, projectPath }) {
                     <PlusOutlined />
                 </IconButton>
             </div>
-            <div className={styles.list}>
-                {remotes.map(item => {
-                    return (
-                        <div className={styles.item}>
-                            <div className={styles.name}>{item.name}</div>
-                            {/* {item.name == current &&
-                                <div className={styles.current}></div>
-                            } */}
-                        </div>
-                    )
-                })}
-            </div>
+            {remotes.length == 0 ?
+                <FullCenterBox
+                    height={160}
+                >
+                    <Empty />
+                </FullCenterBox>
+            :
+                <div className={styles.list}>
+                    {remotes.map(item => {
+                        return (
+                            <div className={styles.item}>
+                                <div className={styles.name}>{item.name}</div>
+                                {/* {item.name == current &&
+                                    <div className={styles.current}></div>
+                                } */}
+                            </div>
+                        )
+                    })}
+                </div>
+            }
             {modalVisible &&
                 <RemoteEditor
                     projectPath={projectPath}

@@ -1,4 +1,4 @@
-import { Button, Descriptions, Input, message, Modal, Popover, Space, Table, Tabs, Tag } from 'antd';
+import { Button, Descriptions, Empty, Input, message, Modal, Popover, Space, Table, Tabs, Tag } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './commit-list.module.less';
 import _, { cloneDeep } from 'lodash';
@@ -12,6 +12,7 @@ import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
 import { DiffText } from '../git-diff';
 import moment from 'moment';
+import { FullCenterBox } from '@/views/db-manager/redis-client';
 // import { saveAs } from 'file-saver'
 
 export function CommitList({ config, event$, projectPath,  }) {
@@ -239,41 +240,49 @@ export function CommitList({ config, event$, projectPath,  }) {
                 >
                     刷新
                 </Button> */}
-                <div className={styles.list}>
-                    {showList.map(item => {
-                        return (
-                            <div
-                                className={classNames(styles.item, {
-                                    [styles.active]: curCommit && curCommit.hash == item.hash
-                                })}
-                                onClick={() => {
-                                    show(item)
-                                }}
-                            >
-                                {item.branchs?.length > 0 &&
-                                    <Space>
-                                        {item.branchs.map(branch => {
-                                            const simpleName = branch.name.replace(/^remotes\//, '')
-                                            return (
-                                                <Tag key={branch.name}>{simpleName}</Tag>
+                {showList.length == 0 ?
+                    <FullCenterBox
+                        // height={160}
+                    >
+                        <Empty />
+                    </FullCenterBox>
+                :
+                    <div className={styles.list}>
+                        {showList.map(item => {
+                            return (
+                                <div
+                                    className={classNames(styles.item, {
+                                        [styles.active]: curCommit && curCommit.hash == item.hash
+                                    })}
+                                    onClick={() => {
+                                        show(item)
+                                    }}
+                                >
+                                    {item.branchs?.length > 0 &&
+                                        <Space>
+                                            {item.branchs.map(branch => {
+                                                const simpleName = branch.name.replace(/^remotes\//, '')
+                                                return (
+                                                    <Tag key={branch.name}>{simpleName}</Tag>
+                                                    )
+                                                })}
+                                        </Space>
+                                    }
+                                    {item.tags?.length > 0 &&
+                                        <Space>
+                                            {item.tags.map(tag => {
+                                                return (
+                                                    <Tag key={tag}>{tag}</Tag>
                                                 )
                                             })}
-                                    </Space>
-                                }
-                                {item.tags?.length > 0 &&
-                                    <Space>
-                                        {item.tags.map(tag => {
-                                            return (
-                                                <Tag key={tag}>{tag}</Tag>
-                                            )
-                                        })}
-                                    </Space>
-                                }
-                                {item.message}
-                            </div>
-                        )
-                    })}
-                </div>
+                                        </Space>
+                                    }
+                                    {item.message}
+                                </div>
+                            )
+                        })}
+                    </div>
+                }
             </div>
             <div className={styles.layoutBottom}>
                 {!!curCommit &&

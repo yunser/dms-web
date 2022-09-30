@@ -1,4 +1,4 @@
-import { Button, Checkbox, Descriptions, Dropdown, Form, Input, Menu, message, Modal, Popover, Space, Table, Tabs, Tag } from 'antd';
+import { Button, Checkbox, Descriptions, Dropdown, Empty, Form, Input, Menu, message, Modal, Popover, Space, Table, Tabs, Tag } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './git-status.module.less';
 import _, { add } from 'lodash';
@@ -12,6 +12,7 @@ import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
 import { DiffText } from '../git-diff';
 import { IconButton } from '@/views/db-manager/icon-button';
+import { FullCenterBox } from '@/views/db-manager/redis-client';
 // import { saveAs } from 'file-saver'
 
 
@@ -22,6 +23,8 @@ function Commit({ config, gitConfig, projectPath, onSuccess }) {
     const [formData, setFormData] = useState({
         message: '',
     })
+
+    
     async function submit() {
         if (!formData.message) {
             message.warn('Message required')
@@ -127,6 +130,13 @@ export function GitStatus({ config, projectPath, onTab, }) {
     // const [current, setCurrent] = useState('')
     const [unstagedList, setUnstagedList] = useState([])
     const [diffText, setDiffText ] = useState('')
+    const canCommit = !(unstagedList.length == 0 && status?.staged?.length == 0)
+
+    useEffect(() => {
+        loadList()
+        getConfig()
+    }, [])
+
     async function loadList() {
         let res = await request.post(`${config.host}/git/status`, {
             projectPath,
@@ -153,12 +163,6 @@ export function GitStatus({ config, projectPath, onTab, }) {
             
         }
     }
-
-
-    useEffect(() => {
-        loadList()
-        getConfig()
-    }, [])
 
     async function getConfig() {
         // loadBranch()
@@ -261,137 +265,143 @@ export function GitStatus({ config, projectPath, onTab, }) {
             {!!status &&
                 <>
                     <div className={styles.layoutTop}>
-                        <div className={styles.layoutLeft}>
-                            <div className={styles.section}>
-                                <div className={styles.header}>
-                                    <Checkbox
-                                        checked
-                                        disabled={status.staged.length == 0}
-                                        onClick={() => {
-                                            // console.log('add', item.path)
-                                            reset(status.staged)
-                                        }}
-                                    />
-                                    <div className={styles.title}>Staged</div>
-                                </div>
-                                <div className={styles.body}>
-                                    <div className={styles.list}>
-                                        {status.staged.map(item => {
-                                            return (
-                                                <div
-                                                    className={classNames(styles.item, {
-                                                        [styles.active]: item == curFile && curFileType == 'cached'
-                                                    })}
-                                                    key={item}
-                                                >
-                                                    <Checkbox
-                                                        checked
-                                                        onClick={() => {
-                                                            console.log('add', item)
-                                                            reset([item])
-                                                        }}
-                                                    />
-                                                    <div className={styles.fileName}
-                                                        onClick={() => {
-                                                            diff(item, true)
-                                                        }}
-                                                    >{item}</div>
-                                                </div>
-                                            )
-                                        })}
+                        {canCommit &&
+                            <div className={styles.layoutLeft}>
+                                <div className={styles.section}>
+                                    <div className={styles.header}>
+                                        <Checkbox
+                                            checked
+                                            disabled={status.staged.length == 0}
+                                            onClick={() => {
+                                                // console.log('add', item.path)
+                                                reset(status.staged)
+                                            }}
+                                        />
+                                        <div className={styles.title}>Staged</div>
                                     </div>
-                                </div>
-
-                            </div>
-                            <div className={classNames(styles.section, styles.section2)}>
-                                <div className={styles.header}>
-                                    <Checkbox
-                                        checked={false}
-                                        disabled={unstagedList.length == 0}
-                                        onClick={() => {
-                                            // console.log('add', item.path)
-                                            add(unstagedList.map(item => item.path))
-                                        }}
-                                    />
-                                    <div className={styles.title}>Not Added</div>
-                                    {/* {curFileType} */}
-                                </div>
-                                <div className={styles.body}>
-                                    <div className={styles.list}>
-                                        {unstagedList.map(item => {
-                                            return (
-                                                <div
-                                                    className={classNames(styles.item, {
-                                                        [styles.active]: item.path == curFile && curFileType == ''
-                                                    })}
-                                                    key={item.path}
-                                                >
-                                                    <Checkbox
-                                                        checked={false}
-                                                        onClick={() => {
-                                                            console.log('add', item.path)
-                                                            add([item.path])
-                                                        }}
-                                                    />
-                                                    <div className={styles.fileName}
-                                                        onClick={() => {
-                                                            if (item.working_dir == '?') {
-                                                                cat(item.path)
-                                                            }
-                                                            else {
-                                                                diff(item.path)
-                                                            }
-                                                        }}
+                                    <div className={styles.body}>
+                                        <div className={styles.list}>
+                                            {status.staged.map(item => {
+                                                return (
+                                                    <div
+                                                        className={classNames(styles.item, {
+                                                            [styles.active]: item == curFile && curFileType == 'cached'
+                                                        })}
+                                                        key={item}
                                                     >
-                                                        <Tag>{item.working_dir}</Tag>
-                                                        <div>{item.path}</div></div>
-                                                        {/* <Button
-                                                            size="small"
+                                                        <Checkbox
+                                                            checked
                                                             onClick={() => {
-                                                                checkoutFile(item.path)
+                                                                console.log('add', item)
+                                                                reset([item])
+                                                            }}
+                                                        />
+                                                        <div className={styles.fileName}
+                                                            onClick={() => {
+                                                                diff(item, true)
+                                                            }}
+                                                        >{item}</div>
+                                                    </div>
+                                                )
+                                            })}
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div className={classNames(styles.section, styles.section2)}>
+                                    <div className={styles.header}>
+                                        <Checkbox
+                                            checked={false}
+                                            disabled={unstagedList.length == 0}
+                                            onClick={() => {
+                                                // console.log('add', item.path)
+                                                add(unstagedList.map(item => item.path))
+                                            }}
+                                        />
+                                        <div className={styles.title}>Not Added</div>
+                                        {/* {curFileType} */}
+                                    </div>
+                                    <div className={styles.body}>
+                                        <div className={styles.list}>
+                                            {unstagedList.map(item => {
+                                                return (
+                                                    <div
+                                                        className={classNames(styles.item, {
+                                                            [styles.active]: item.path == curFile && curFileType == ''
+                                                        })}
+                                                        key={item.path}
+                                                    >
+                                                        <Checkbox
+                                                            checked={false}
+                                                            onClick={() => {
+                                                                console.log('add', item.path)
+                                                                add([item.path])
+                                                            }}
+                                                        />
+                                                        <div className={styles.fileName}
+                                                            onClick={() => {
+                                                                if (item.working_dir == '?') {
+                                                                    cat(item.path)
+                                                                }
+                                                                else {
+                                                                    diff(item.path)
+                                                                }
                                                             }}
                                                         >
-                                                            checkout</Button> */}
-                                                        <Dropdown
-                                                            overlay={
-                                                                <Menu
-                                                                    items={[
-                                                                        {
-                                                                            label: '丢弃文件',
-                                                                            key: 'key_checkout_file',
-                                                                        },
-                                                                    ]}
-                                                                    onClick={({ key }) => {
-                                                                        if (key == 'key_checkout_file') {
-                                                                            checkoutFile(item.path)
-
-                                                                        }
-                                                                    }}
-                                                                />
-                                                            }
-                                                        >
-                                                            <IconButton
-                                                                onClick={e => e.preventDefault()}
+                                                            <Tag>{item.working_dir}</Tag>
+                                                            <div>{item.path}</div></div>
+                                                            {/* <Button
+                                                                size="small"
+                                                                onClick={() => {
+                                                                    checkoutFile(item.path)
+                                                                }}
                                                             >
-                                                                <EllipsisOutlined />
-                                                            </IconButton>
-                                                            {/* <a onClick={e => e.preventDefault()}>
-                                                            <Space>
-                                                                Hover me
-                                                            </Space>
-                                                            </a> */}
-                                                        </Dropdown>
-                                                </div>
-                                            )
-                                        })}
+                                                                checkout</Button> */}
+                                                            <Dropdown
+                                                                overlay={
+                                                                    <Menu
+                                                                        items={[
+                                                                            {
+                                                                                label: '丢弃文件',
+                                                                                key: 'key_checkout_file',
+                                                                            },
+                                                                        ]}
+                                                                        onClick={({ key }) => {
+                                                                            if (key == 'key_checkout_file') {
+                                                                                checkoutFile(item.path)
+
+                                                                            }
+                                                                        }}
+                                                                    />
+                                                                }
+                                                            >
+                                                                <IconButton
+                                                                    onClick={e => e.preventDefault()}
+                                                                >
+                                                                    <EllipsisOutlined />
+                                                                </IconButton>
+                                                                {/* <a onClick={e => e.preventDefault()}>
+                                                                <Space>
+                                                                    Hover me
+                                                                </Space>
+                                                                </a> */}
+                                                            </Dropdown>
+                                                    </div>
+                                                )
+                                            })}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                        </div>
+                            </div>
+                        }
                         <div className={styles.layoutRight}>
-                            {unstagedList.length == 0 && status && status.staged.length == 0 &&
-                                <div className={styles.empty}>没什么可提交的</div>
+                            {!canCommit &&
+                                <FullCenterBox>
+                                    <Empty
+                                        description="没什么可提交的"
+                                    />
+                                </FullCenterBox>
                             }
                             {!!diffText &&
                                 <DiffText
@@ -402,18 +412,20 @@ export function GitStatus({ config, projectPath, onTab, }) {
                         </div>
 
                     </div>
-                    <div className={styles.layoutBottom}>
-                        {/* <hr /> */}
-                        <Commit
-                            gitConfig={gitConfig}
-                            config={config}
-                            projectPath={projectPath}
-                            onSuccess={() => {
-                                // loadList()
-                                onTab && onTab()
-                            }}
-                        />
-                    </div>
+                    {canCommit &&
+                        <div className={styles.layoutBottom}>
+                            {/* <hr /> */}
+                            <Commit
+                                gitConfig={gitConfig}
+                                config={config}
+                                projectPath={projectPath}
+                                onSuccess={() => {
+                                    // loadList()
+                                    onTab && onTab()
+                                }}
+                            />
+                        </div>
+                    }
                 </>
             }
             {/* <div className={styles.list}>
