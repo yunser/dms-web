@@ -113,7 +113,7 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
                                         <ArrowRightOutlined />
                                     </IconButton>
                                     <IconButton
-                                        tooltip="切换分支"
+                                        tooltip="删除分支"
                                         disabled={item.name == current}
                                         onClick={() => {
                                             Modal.confirm({
