@@ -122,7 +122,7 @@ function Commit({ config, gitConfig, projectPath, onSuccess }) {
     )
 }
 
-export function GitStatus({ config, projectPath, onTab, }) {
+export function GitStatus({ config, event$, projectPath, onTab, }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
 
@@ -139,6 +139,8 @@ export function GitStatus({ config, projectPath, onTab, }) {
         loadStatuses()
         getConfig()
     }, [])
+
+
 
     async function loadStatuses() {
         setCurFile('')
@@ -168,6 +170,16 @@ export function GitStatus({ config, projectPath, onTab, }) {
             
         }
     }
+
+    event$.useSubscription(msg => {
+        console.log('CommitList/onmessage', msg)
+        // console.log(val);
+        if (msg.type == 'event_refresh_status') {
+            // const { json } = msg.data
+            // addJsonTab(json)
+            loadStatuses()
+        }
+    })
 
     async function getConfig() {
         // loadBranch()

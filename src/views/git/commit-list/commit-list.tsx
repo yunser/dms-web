@@ -1,4 +1,4 @@
-import { Button, Descriptions, Empty, Input, message, Modal, Popover, Space, Table, Tabs, Tag } from 'antd';
+import { Button, Descriptions, Dropdown, Empty, Input, Menu, message, Modal, Popover, Space, Table, Tabs, Tag } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './commit-list.module.less';
 import _, { cloneDeep } from 'lodash';
@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { CopyOutlined, DownloadOutlined } from '@ant-design/icons';
+import { CopyOutlined, DownloadOutlined, EllipsisOutlined, PlusOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
@@ -17,6 +17,7 @@ import { FullCenterBox } from '@/views/db-manager/redis-client';
 import { Gitgraph } from '@gitgraph/react'
 import { CopyButton } from '@/views/db-manager/copy-button';
 import { IconButton } from '@/views/db-manager/icon-button';
+import { ResetModal } from '../reset-modal';
 
 
 export function CommitList({ config, event$, projectPath,  }) {
@@ -27,10 +28,12 @@ export function CommitList({ config, event$, projectPath,  }) {
     const [list, setList] = useState([])
     const [curCommit, setCurCommit] = useState(null)
     const [branchs, setBranchs] = useState([])
+    const [curBranch, setCurBranch] = useState('')
     const [files, setFiles] = useState([])
     const [curFile, setCurFile] = useState('')
     const [fileDiff, setFileDiff] = useState('')
-
+    const [resetModalVisible, setResetModalVisible] = useState(false)
+    const [resetCommit, setResetCommit] = useState('')
     async function loadFile(file, item) {
         setCurFile(file)
         let res = await request.post(`${config.host}/git/commitFileChanged`, {
@@ -170,6 +173,7 @@ export function CommitList({ config, event$, projectPath,  }) {
         if (res.success) {
 
             // const branchs = []
+            setCurBranch(res.data.current)
             setBranchs(res.data.list)
         }
     }
@@ -287,26 +291,53 @@ export function CommitList({ config, event$, projectPath,  }) {
                                         show(item)
                                     }}
                                 >
-                                    {item.branchs?.length > 0 &&
-                                        <Space>
-                                            {item.branchs.map(branch => {
-                                                const simpleName = branch.name.replace(/^remotes\//, '')
-                                                return (
-                                                    <Tag key={branch.name}>{simpleName}</Tag>
+                                    <div className={styles.left}>
+                                        {item.branchs?.length > 0 &&
+                                            <Space>
+                                                {item.branchs.map(branch => {
+                                                    const simpleName = branch.name.replace(/^remotes\//, '')
+                                                    return (
+                                                        <Tag key={branch.name}>{simpleName}</Tag>
+                                                        )
+                                                    })}
+                                            </Space>
+                                        }
+                                        {item.tags?.length > 0 &&
+                                            <Space>
+                                                {item.tags.map(tag => {
+                                                    return (
+                                                        <Tag key={tag}>{tag}</Tag>
                                                     )
                                                 })}
-                                        </Space>
-                                    }
-                                    {item.tags?.length > 0 &&
-                                        <Space>
-                                            {item.tags.map(tag => {
-                                                return (
-                                                    <Tag key={tag}>{tag}</Tag>
-                                                )
-                                            })}
-                                        </Space>
-                                    }
-                                    {item.message}
+                                            </Space>
+                                        }
+                                        {item.message}
+                                    </div>
+                                    <Dropdown
+                                        trigger={['click']}
+                                        overlay={
+                                            <Menu
+                                                items={[
+                                                    {
+                                                        label: '将当前分支重置到这次提交',
+                                                        key: 'reset_commit',
+                                                    },
+                                                ]}
+                                                onClick={({ key }) => {
+                                                    if (key == 'reset_commit') {
+                                                        setResetModalVisible(true)
+                                                        setResetCommit(item)
+                                                    }
+                                                }}
+                                            />
+                                        }
+                                    >
+                                        <IconButton
+                                            // onClick={e => e.preventDefault()}
+                                        >
+                                            <EllipsisOutlined />
+                                        </IconButton>
+                                    </Dropdown>
                                 </div>
                             )
                         })}
@@ -320,8 +351,8 @@ export function CommitList({ config, event$, projectPath,  }) {
                             <div>message：{curCommit.message}</div>
                             <div>body：{curCommit.body}</div>
                             <div>
+                                {t('git.hash')}：{curCommit.hash}
                                 <Space>
-                                    {t('git.hash')}：{curCommit.hash}
                                     <CopyButton
                                         text={curCommit.hash}
                                     >
@@ -361,6 +392,25 @@ export function CommitList({ config, event$, projectPath,  }) {
                     />
                 </div>
             </div>
+            {resetModalVisible &&
+                <ResetModal
+                    config={config}
+                    projectPath={projectPath}
+                    curBranch={curBranch}
+                    resetCommit={resetCommit}
+                    onCancel={() => {
+                        setResetModalVisible(false)
+                    }}
+                    onSuccess={() => {
+                        setResetModalVisible(false)
+                        loadList()
+                        event$.emit({
+                            type: 'event_refresh_status',
+                            data: {},
+                        })
+                    }}
+                />
+            }
         </div>
     )
 }

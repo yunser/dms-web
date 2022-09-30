@@ -154,6 +154,7 @@ export function GitProject({ config, event$, project, onList }) {
                                     <GitStatus
                                         config={config}
                                         projectPath={projectPath}
+                                        event$={event$}
                                         onTab={() => {
                                             setCurTab('commit-list')
                                         }}
