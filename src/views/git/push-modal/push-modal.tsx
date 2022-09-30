@@ -20,7 +20,7 @@ export function PushModal({ config, projectPath, onSuccess, onCancel }) {
     const [remotes, setRemotes] = useState([])
     // const [current, setCurrent] = useState('')
     const [loading, setLoading] = useState(false)
-
+    const [error, setError] = useState('')
     async function loadRemotes() {
         let res = await request.post(`${config.host}/git/remote/list`, {
             projectPath,
@@ -84,19 +84,25 @@ export function PushModal({ config, projectPath, onSuccess, onCancel }) {
     console.log('remotes', remotes)
 
     async function handleOk() {
-        setLoading(true)
         const values = await form.validateFields()
+        setLoading(true)
+        setError('')
         console.log('values', values)
         let res = await request.post(`${config.host}/git/push`, {
             projectPath,
             remoteName: values.remoteName,
             branchName: values.branchName,
+        }, {
+            noMessage: true,
         })
-        // console.log('res', res)
+        console.log('res', res.data)
         if (res.success) {
             // setRemotes(res.data)
             onSuccess && onSuccess()
             // setCurrent(res.data.current)
+        }
+        else {
+            setError(res.data.message)
         }
         setLoading(false)
     }
@@ -106,6 +112,7 @@ export function PushModal({ config, projectPath, onSuccess, onCancel }) {
             <Modal
                 open={true}
                 title="推送"
+                width={640}
                 onCancel={onCancel}
                 onOk={handleOk}
                 confirmLoading={loading}
@@ -151,6 +158,11 @@ export function PushModal({ config, projectPath, onSuccess, onCancel }) {
                         />
                     </Form.Item>
                 </Form>
+                {!!error &&
+                    <div className={styles.error}>
+                        <pre>{error}</pre>
+                    </div>
+                }
             </Modal>
         </div>
     )
