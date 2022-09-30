@@ -129,23 +129,36 @@ export function GitProject({ config, event$, project, onList }) {
                     </Space>
                 </div>
                 <div className={styles.body}>
-                    {curTab == 'status' &&
-                        <GitStatus
-                            config={config}
-                            projectPath={projectPath}
-                            onTab={() => {
-                                setCurTab('commit-list')
-                            }}
-                        />
-                    }
-                    {curTab == 'commit-list' &&
-                        <CommitList
-                            config={config}
-                            event$={event$}
-                            projectPath={projectPath}
-                            branchs={branchs}
-                        />
-                    }
+                    {tabs.map(item => {
+                        return (
+                            <div
+                                className={styles.tabContent}
+                                key={item.key}
+                                style={{
+                                    // visibility: item.key == activeKey ? 'visible' : 'hidden',
+                                    display: item.key == curTab ? undefined : 'none',
+                                }}
+                            >
+                                {item.key == 'status' &&
+                                    <GitStatus
+                                        config={config}
+                                        projectPath={projectPath}
+                                        onTab={() => {
+                                            setCurTab('commit-list')
+                                        }}
+                                    />
+                                }
+                                {item.key == 'commit-list' &&
+                                    <CommitList
+                                        config={config}
+                                        event$={event$}
+                                        projectPath={projectPath}
+                                        branchs={branchs}
+                                    />
+                                }
+                            </div>
+                        )
+                    })}
                 </div>
             </div>
             {pushModalVisible &&
