@@ -125,7 +125,9 @@ export function GitHome() {
             {view == 'list' &&
                 <div className={styles.listBox}>
                     <div className={styles.listContent}>
-                        <div className={styles.tool}>
+                        <div className={styles.tool}
+                            
+                        >
                             <Space>
                                 <IconButton
                                     tooltip={t('refresh')}
@@ -207,13 +209,19 @@ export function GitHome() {
                                         }}
                                     >
                                         <div className={styles.name}>{item.name}</div>
-                                        <Space>
+                                        <Space
+                                            onClick={(e) => {
+                                                e.preventDefault()
+                                                e.stopPropagation()
+                                            }}
+                                        >
                                             {!!item.branch &&
                                                 <div className={styles.branch}>
                                                     <Tag>{item.branch}</Tag>
                                                 </div>
                                             }
                                             <Dropdown
+                                                trigger={['click']}
                                                 overlay={
                                                     <Menu
                                                         items={[
