@@ -443,6 +443,10 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                     // loadList()
                                     onTab && onTab()
                                     loadStatuses()
+                                    event$.emit({
+                                        type: 'event_refresh_commit_list',
+                                        data: {},
+                                    })
                                 }}
                             />
                         </div>
