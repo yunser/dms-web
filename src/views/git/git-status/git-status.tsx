@@ -380,11 +380,6 @@ export function GitStatus({ config, projectPath, onTab, }) {
                                                                 >
                                                                     <EllipsisOutlined />
                                                                 </IconButton>
-                                                                {/* <a onClick={e => e.preventDefault()}>
-                                                                <Space>
-                                                                    Hover me
-                                                                </Space>
-                                                                </a> */}
                                                             </Dropdown>
                                                     </div>
                                                 )

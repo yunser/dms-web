@@ -1,4 +1,4 @@
-import { Button, Descriptions, Empty, Input, message, Modal, Popover, Space, Table, Tabs } from 'antd';
+import { Button, Descriptions, Dropdown, Empty, Input, Menu, message, Modal, Popover, Space, Table, Tabs } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './tag-list.module.less';
 import _ from 'lodash';
@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { DeleteOutlined, DownloadOutlined, PlusOutlined } from '@ant-design/icons';
+import { DeleteOutlined, DownloadOutlined, EllipsisOutlined, PlusOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
@@ -39,6 +39,35 @@ export function TagList({ config, event$, projectPath }) {
             setTags(res.data.list)
             // setCurrent(res.data.current)
         }
+    }
+
+    async function deleteItem(item) {
+        Modal.confirm({
+            title: '删除标签',
+            // icon: <ExclamationCircleOutlined />,
+            content: `确定删除标签「${item.name}」？`,
+            async onOk() {
+                
+                let ret = await request.post(`${config.host}/git/tag/delete`, {
+                    projectPath,
+                    name: item.name,
+                })
+                // console.log('ret', ret)
+                if (ret.success) {
+                    // message.success('连接成功')
+                    // onConnnect && onConnnect()
+                    message.success(t('success'))
+                    // onClose && onClose()
+                    // onSuccess && onSuccess()
+                    // loadBranches()
+                    loadTags()
+                    event$.emit({
+                        type: 'event_refresh_branch',
+                        data: {},
+                    })
+                }
+            }
+        })
     }
 
     useEffect(() => {
@@ -78,40 +107,40 @@ export function TagList({ config, event$, projectPath }) {
                                     <div className={styles.name}>{item.name}</div>
                                 </div>
                                 <Space>
-                                    <IconButton
+                                    <Dropdown
+                                        trigger={['click']}
+                                        overlay={
+                                            <Menu
+                                                items={[
+                                                    {
+                                                        label: '删除标签',
+                                                        key: 'delete',
+                                                    },
+                                                ]}
+                                                onClick={({ key }) => {
+                                                    if (key == 'delete') {
+                                                        deleteItem(item)
+
+                                                    }
+                                                }}
+                                            />
+                                        }
+                                    >
+                                        <IconButton
+                                            onClick={e => e.preventDefault()}
+                                        >
+                                            <EllipsisOutlined />
+                                        </IconButton>
+                                    </Dropdown>
+                                    {/* <IconButton
                                         tooltip="删除标签"
                                         // disabled={item.name == current}
                                         onClick={() => {
-                                            Modal.confirm({
-                                                title: '删除标签',
-                                                // icon: <ExclamationCircleOutlined />,
-                                                content: `确定删除标签「${item.name}」？`,
-                                                async onOk() {
-                                                    
-                                                    let ret = await request.post(`${config.host}/git/tag/delete`, {
-                                                        projectPath,
-                                                        name: item.name,
-                                                    })
-                                                    // console.log('ret', ret)
-                                                    if (ret.success) {
-                                                        // message.success('连接成功')
-                                                        // onConnnect && onConnnect()
-                                                        message.success(t('success'))
-                                                        // onClose && onClose()
-                                                        // onSuccess && onSuccess()
-                                                        // loadBranches()
-                                                        loadTags()
-                                                        event$.emit({
-                                                            type: 'event_refresh_branch',
-                                                            data: {},
-                                                        })
-                                                    }
-                                                }
-                                            })
+                                            
                                         }}
                                     >
                                         <DeleteOutlined />
-                                    </IconButton>
+                                    </IconButton> */}
                                 </Space>
                             </div>
                         )
