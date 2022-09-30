@@ -92,6 +92,7 @@ export function PushModal({ config, projectPath, onSuccess, onCancel }) {
             projectPath,
             remoteName: values.remoteName,
             branchName: values.branchName,
+            mode: values.mode,
         }, {
             noMessage: true,
         })
@@ -155,6 +156,20 @@ export function PushModal({ config, projectPath, onSuccess, onCancel }) {
                                     value: r.name,
                                 }
                             })}
+                        />
+                    </Form.Item>
+                    <Form.Item
+                        name="mode"
+                        label="模式"
+                        // rules={[ { required: true, }, ]}
+                    >
+                        <Select
+                            options={[
+                                {
+                                    label: '强制推送',
+                                    value: 'force',
+                                }
+                            ]}
                         />
                     </Form.Item>
                 </Form>
