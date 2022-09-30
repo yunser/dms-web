@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { DownloadOutlined } from '@ant-design/icons';
+import { CopyOutlined, DownloadOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
@@ -15,6 +15,8 @@ import moment from 'moment';
 import { FullCenterBox } from '@/views/db-manager/redis-client';
 // import { saveAs } from 'file-saver'
 import { Gitgraph } from '@gitgraph/react'
+import { CopyButton } from '@/views/db-manager/copy-button';
+import { IconButton } from '@/views/db-manager/icon-button';
 
 
 export function CommitList({ config, event$, projectPath,  }) {
@@ -317,7 +319,18 @@ export function CommitList({ config, event$, projectPath,  }) {
                         <div className={styles.infoBox}>
                             <div>message：{curCommit.message}</div>
                             <div>body：{curCommit.body}</div>
-                            <div>{t('git.hash')}：{curCommit.hash}</div>
+                            <div>
+                                <Space>
+                                    {t('git.hash')}：{curCommit.hash}
+                                    <CopyButton
+                                        text={curCommit.hash}
+                                    >
+                                        <IconButton title={t('copy')}>
+                                            <CopyOutlined />
+                                        </IconButton>
+                                    </CopyButton>
+                                </Space>
+                            </div>
                             <div>{t('git.author')}：{curCommit.author_name} {'<'}{curCommit.author_email}{'>'}</div>
                             <div>{t('time')}：{curCommit.date ? moment(curCommit.date).format('YYYY-MM-DD HH:mm:ss') : '--'}</div>
                             <div>refs：{curCommit.refs}</div>
