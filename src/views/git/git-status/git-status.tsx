@@ -136,11 +136,13 @@ export function GitStatus({ config, projectPath, onTab, }) {
     const canCommit = !(unstagedList.length == 0 && status?.staged?.length == 0)
 
     useEffect(() => {
-        loadList()
+        loadStatuses()
         getConfig()
     }, [])
 
-    async function loadList() {
+    async function loadStatuses() {
+        setCurFile('')
+        setDiffText('')
         let res = await request.post(`${config.host}/git/status`, {
             projectPath,
             // connectionId,
@@ -197,7 +199,7 @@ export function GitStatus({ config, projectPath, onTab, }) {
         })
         // console.log('res', res)
         if (res.success) {
-            loadList()
+            loadStatuses()
         }
     }
 
@@ -209,7 +211,7 @@ export function GitStatus({ config, projectPath, onTab, }) {
         })
         // console.log('res', res)
         if (res.success) {
-            loadList()
+            loadStatuses()
         }
     }
 
@@ -227,7 +229,7 @@ export function GitStatus({ config, projectPath, onTab, }) {
                 if (res.success) {
                     // loadList()
                     // setDiffText(res.data.content)
-                    loadList()
+                    loadStatuses()
                 }
             }
         })
@@ -403,9 +405,16 @@ export function GitStatus({ config, projectPath, onTab, }) {
                                 </FullCenterBox>
                             }
                             {!!diffText &&
-                                <DiffText
-                                    text={diffText}
-                                />
+                                <>
+                                    <div className={styles.header}>
+                                        {curFile}
+                                    </div>
+                                    <div className={styles.body}>
+                                        <DiffText
+                                            text={diffText}
+                                        />
+                                    </div>
+                                </>
                                 // <pre>{diffText}</pre>
                             }
                         </div>
@@ -421,6 +430,7 @@ export function GitStatus({ config, projectPath, onTab, }) {
                                 onSuccess={() => {
                                     // loadList()
                                     onTab && onTab()
+                                    loadStatuses()
                                 }}
                             />
                         </div>
