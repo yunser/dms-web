@@ -168,15 +168,6 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
                                             <EllipsisOutlined />
                                         </IconButton>
                                     </Dropdown>
-                                    {/* <IconButton
-                                        tooltip="删除分支"
-                                        disabled={item.name == current}
-                                        onClick={() => {
-                                            
-                                        }}
-                                    >
-                                        <DeleteOutlined />
-                                    </IconButton> */}
                                 </Space>
                             </div>
                         )

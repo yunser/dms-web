@@ -403,12 +403,12 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                                                         items={[
                                                                             ...(item.working_dir == '?' ? [
                                                                                 {
-                                                                                    label: '删除文件',
+                                                                                    label: t('git.delete_file'),
                                                                                     key: 'remove_file',
                                                                                 },
                                                                             ] : [
                                                                                 {
-                                                                                    label: '丢弃文件',
+                                                                                    label: t('git.discard_change'),
                                                                                     key: 'key_checkout_file',
                                                                                 },
                                                                             ])
@@ -444,7 +444,7 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                             {!canCommit &&
                                 <FullCenterBox>
                                     <Empty
-                                        description="没什么可提交的"
+                                        description={t('git.submit.empty')}
                                     />
                                 </FullCenterBox>
                             }

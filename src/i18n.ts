@@ -249,6 +249,7 @@ i18n
                     'git.staged': 'Staged',
                     'git.unstage': 'Unstage',
                     'git.submit': 'Submit',
+                    'git.submit.empty': 'Nothing to Commit',
                     'git.commit_message': 'Commit Message',
                     'git.changes': 'Changes',
                     'git.author': 'Author',
@@ -257,6 +258,8 @@ i18n
                     'git.create_local_repository': 'Create New Repository',
                     'git.add_exists_local_repository': 'Add Existing Repository',
                     'git.mode': 'Mode',
+                    'git.delete_file': 'Delete File',
+                    'git.discard_change': 'Discard Changes',
                 }
             },
             zh: {
@@ -499,6 +502,7 @@ i18n
                     'git.staged': '已暂存文件',
                     'git.unstage': '未暂存文件',
                     'git.submit': '提交',
+                    'git.submit.empty': '没什么可提交的',
                     'git.commit_message': '提交内容',
                     'git.changes': '文件状态',
                     'git.author': '作者',
@@ -507,6 +511,8 @@ i18n
                     'git.create_local_repository': '创建本地仓库',
                     'git.add_exists_local_repository': '添加已经存在的本地仓库',
                     'git.mode': '模式',
+                    'git.delete_file': '删除文件',
+                    'git.discard_change': '丢弃文件',
                 }
             }
         },
