@@ -227,6 +227,27 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
         }
     }
 
+    async function removeFile(path) {
+        Modal.confirm({
+            // title: 'Confirm',
+            // icon: <ExclamationCircleOutlined />,
+            title: `确认删除文件「${path}」?`,
+            content: '这个文件不在版本控制内，若被删除，将无法找回',
+            async onOk() {
+                let res = await request.post(`${config.host}/git/deleteFile`, {
+                    projectPath,
+                    filePath: path,
+                })
+                console.log('res', res)
+                if (res.success) {
+                    // loadList()
+                    // setDiffText(res.data.content)
+                    loadStatuses()
+                }
+            }
+        })
+    }
+
     async function checkoutFile(path) {
         Modal.confirm({
             // title: 'Confirm',
@@ -379,16 +400,26 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                                                 overlay={
                                                                     <Menu
                                                                         items={[
-                                                                            {
-                                                                                label: '丢弃文件',
-                                                                                key: 'key_checkout_file',
-                                                                            },
+                                                                            ...(item.working_dir == '?' ? [
+                                                                                {
+                                                                                    label: '删除文件',
+                                                                                    key: 'remove_file',
+                                                                                },
+                                                                            ] : [
+                                                                                {
+                                                                                    label: '丢弃文件',
+                                                                                    key: 'key_checkout_file',
+                                                                                },
+                                                                            ])
                                                                         ]}
                                                                         onClick={({ key }) => {
                                                                             if (key == 'key_checkout_file') {
                                                                                 checkoutFile(item.path)
-
                                                                             }
+                                                                            if (key == 'remove_file') {
+                                                                                removeFile(item.path)
+                                                                            }
+                                                                            
                                                                         }}
                                                                     />
                                                                 }
