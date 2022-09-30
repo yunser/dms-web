@@ -69,12 +69,14 @@ export function TagList({ config, event$, projectPath }) {
                     {tags.map(item => {
                         return (
                             <div className={styles.item}>
-                                <div className={styles.status}>
-                                    {/* {item.name == current &&
-                                        <div className={styles.current}></div>
-                                    } */}
+                                <div className={styles.left}>
+                                    <div className={styles.status}>
+                                        {/* {item.name == current &&
+                                            <div className={styles.current}></div>
+                                        } */}
+                                    </div>
+                                    <div className={styles.name}>{item.name}</div>
                                 </div>
-                                <div className={styles.name}>{item.name}</div>
                                 <Space>
                                     <IconButton
                                         tooltip="删除标签"
