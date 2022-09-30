@@ -79,7 +79,7 @@ export function TagList({ config, event$, projectPath }) {
             <div className={styles.header}>
                 <div>{t('git.tag')}</div>
                 <IconButton
-                    tooltip="新建标签"
+                    tooltip={t('git.tag.create')}
                     onClick={() => {
                         setModalVisible(true)
                     }}
@@ -113,7 +113,7 @@ export function TagList({ config, event$, projectPath }) {
                                             <Menu
                                                 items={[
                                                     {
-                                                        label: '删除标签',
+                                                        label: t('git.tag.delete'),
                                                         key: 'delete',
                                                     },
                                                 ]}

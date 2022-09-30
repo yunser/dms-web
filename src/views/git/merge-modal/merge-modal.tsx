@@ -1,6 +1,6 @@
 import { Button, Descriptions, Form, Input, message, Modal, Popover, Select, Space, Table, Tabs } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import styles from './pull-modal.module.less';
+import styles from './merge-modal.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
 // console.log('lodash', _)
@@ -101,16 +101,16 @@ export function MergeModal({ config, projectPath, onSuccess, onCancel }) {
         <div>
             <Modal
                 open={true}
-                title="合并分支"
+                title={t('git.merge.merge_branch')}
                 onCancel={onCancel}
                 onOk={handleOk}
                 confirmLoading={loading}
                 maskClosable={false}
-                okText="合并"
+                okText={t('git.merge')}
                 // footer={null}
             >
                 {/* {loading ? 'Pulling' : 'Pull Finished'} */}
-                <div>合并以下分支到 {current} 分支</div>
+                <div className={styles.help}>合并以下分支到 {current} 分支</div>
                 <Form
                     form={form}
                     labelCol={{ span: 8 }}
@@ -125,7 +125,7 @@ export function MergeModal({ config, projectPath, onSuccess, onCancel }) {
                 >
                     <Form.Item
                         name="branch"
-                        label="合并分支"
+                        label={t('git.branch')}
                         rules={[ { required: true, }, ]}
                     >
                         <Select

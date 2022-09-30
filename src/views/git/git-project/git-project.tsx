@@ -129,7 +129,7 @@ export function GitProject({ config, event$, project, onList }) {
                                 setBranchModalVisible(true)
                             }}
                         >
-                            {t('git.branch')}
+                            {t('git.branches')}
                         </Button>
                         <Button
                             size="small"

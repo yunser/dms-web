@@ -42,7 +42,7 @@ export function TagEditor({ config, projectPath, onSuccess, onCancel, onList }) 
     return (
         <Modal
             visible={true}
-            title="新建标签"
+            title={t('git.tag.create')}
             onCancel={onCancel}
             onOk={handleOk}
             maskClosable={false}
@@ -61,7 +61,7 @@ export function TagEditor({ config, projectPath, onSuccess, onCancel, onList }) 
             >
                 <Form.Item
                     name="name"
-                    label="Name"
+                    label={t('name')}
                     rules={[ { required: true, }, ]}
                 >
                     <Input />

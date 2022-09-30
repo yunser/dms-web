@@ -42,7 +42,7 @@ export function RemoteEditor({ config, projectPath, onSuccess, onCancel, onList 
     return (
         <Modal
             visible={true}
-            title="新建远程"
+            title={t('git.remote.create')}
             onCancel={onCancel}
             onOk={handleOk}
             maskClosable={false}
@@ -61,14 +61,14 @@ export function RemoteEditor({ config, projectPath, onSuccess, onCancel, onList 
             >
                 <Form.Item
                     name="name"
-                    label="Name"
+                    label={t('name')}
                     rules={[ { required: true, }, ]}
                 >
                     <Input />
                 </Form.Item>
                 <Form.Item
                     name="url"
-                    label="URL"
+                    label={t('url')}
                     rules={[ { required: true, }, ]}
                 >
                     <Input />

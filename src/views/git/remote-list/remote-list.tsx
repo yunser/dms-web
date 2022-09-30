@@ -42,9 +42,9 @@ export function RemoteList({ config, projectPath }) {
         <div className={styles.remoteBox}>
             {/* <div>远程列表:</div> */}
             <div className={styles.header}>
-                <div>{t('git.remote')}</div>
+                <div>{t('git.remotes')}</div>
                 <IconButton
-                    tooltip="新建远程"
+                    tooltip={t('git.remote.create')}
                     onClick={() => {
                         setModalVisible(true)
                     }}

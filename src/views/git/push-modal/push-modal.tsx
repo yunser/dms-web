@@ -112,7 +112,7 @@ export function PushModal({ config, projectPath, onSuccess, onCancel }) {
         <div>
             <Modal
                 open={true}
-                title="推送"
+                title={t('git.push')}
                 width={640}
                 onCancel={onCancel}
                 onOk={handleOk}
@@ -132,7 +132,7 @@ export function PushModal({ config, projectPath, onSuccess, onCancel }) {
                 >
                     <Form.Item
                         name="remoteName"
-                        label="远程"
+                        label={t('git.remote')}
                         rules={[ { required: true, }, ]}
                     >
                         <Select
@@ -146,7 +146,7 @@ export function PushModal({ config, projectPath, onSuccess, onCancel }) {
                     </Form.Item>
                     <Form.Item
                         name="branchName"
-                        label="推送分支"
+                        label={t('git.push.push_branch')}
                         rules={[ { required: true, }, ]}
                     >
                         <Select
@@ -160,8 +160,7 @@ export function PushModal({ config, projectPath, onSuccess, onCancel }) {
                     </Form.Item>
                     <Form.Item
                         name="mode"
-                        label="模式"
-                        // rules={[ { required: true, }, ]}
+                        label={t('git.mode')}
                     >
                         <Select
                             options={[

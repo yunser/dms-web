@@ -57,7 +57,7 @@ export function BranchModal({ config, projectPath, onSuccess, onCancel }) {
         <div>
             <Modal
                 open={true}
-                title="新建分支"
+                title={t('git.branch.create')}
                 onCancel={onCancel}
                 onOk={handleOk}
                 confirmLoading={loading}
@@ -79,7 +79,7 @@ export function BranchModal({ config, projectPath, onSuccess, onCancel }) {
                 >
                     <Form.Item
                         name="name"
-                        label="新分支"
+                        label={t('git.branch.name')}
                         rules={[ { required: true, }, ]}
                     >
                         <Input />

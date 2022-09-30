@@ -132,15 +132,15 @@ export function GitHome() {
                                         <Menu
                                             items={[
                                                 {
-                                                    label: '从 URL 克隆',
+                                                    label: t('git.clone_from_url'),
                                                     key: 'clone_from_url',
                                                 },
                                                 {
-                                                    label: '添加已经存在的本地仓库',
+                                                    label: t('git.add_exists_local_repository'),
                                                     key: 'add_exists',
                                                 },
                                                 {
-                                                    label: '创建本地仓库',
+                                                    label: t('git.create_local_repository'),
                                                     key: 'create_git',
                                                 },
                                             ]}
@@ -216,11 +216,11 @@ export function GitHome() {
                                                     <Menu
                                                         items={[
                                                             {
-                                                                label: '编辑',
+                                                                label: t('edit'),
                                                                 key: 'edit',
                                                             },
                                                             {
-                                                                label: '删除',
+                                                                label: t('delete'),
                                                                 key: 'delete',
                                                             },
                                                         ]}

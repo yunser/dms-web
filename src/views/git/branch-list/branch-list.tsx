@@ -64,7 +64,7 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
 
     async function deleteItem(item) {
         Modal.confirm({
-            title: '删除分支',
+            title: t('git.branch.delete'),
             // icon: <ExclamationCircleOutlined />,
             content: `确定删除分支「${item.name}」？`,
             async onOk() {
@@ -93,7 +93,7 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
     return (
         <div className={styles.branchBox}>
             <div className={styles.header}>
-                {t('git.branch')}
+                {t('git.branches')}
             </div>
             {branches.length == 0 ?
                 <FullCenterBox
@@ -149,7 +149,7 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
                                             <Menu
                                                 items={[
                                                     {
-                                                        label: '删除分支',
+                                                        label: t('git.branch.delete'),
                                                         key: 'delete',
                                                     },
                                                 ]}
