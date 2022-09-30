@@ -33,6 +33,8 @@ export function GitProject({ config, event$, project, onList }) {
     const [branchModalVisible, setBranchModalVisible] = useState(false)
     const [pullModalVisible, setPullhModalVisible] = useState(false)
     const [pushModalVisible, setPushModalVisible] = useState(false)
+    const [allKey, setAllKey] = useState('0')
+
     const tabs = [
         {
             label: t('git.changes'),
@@ -43,8 +45,21 @@ export function GitProject({ config, event$, project, onList }) {
             key: 'commit-list',
         },
     ]
+
+    event$.useSubscription(msg => {
+        console.log('CommitList/onmessage', msg)
+        // console.log(val);
+        if (msg.type == 'event_refresh_all') {
+            // const { json } = msg.data
+            // addJsonTab(json)
+            setAllKey('' + new Date().getTime())
+        }
+    })
+    
     return (
-        <div className={styles.gitApp}>
+        <div className={styles.gitApp}
+            key={allKey}
+        >
             <div className={styles.layoutLeft}>
                 <div className={styles.header}>
                     <IconButton
@@ -97,14 +112,17 @@ export function GitProject({ config, event$, project, onList }) {
                         items={tabs}
                     />
                     <Space>
-                        {/* <Button
+                        <Button
+                            size="small"
                             onClick={() => {
                                 event$.emit({
-                                    type: 'event_refresh_commit_list',
+                                    type: 'event_refresh_all',
                                     data: {},
                                 })
                             }}
-                        >刷新提交</Button> */}
+                        >
+                            {t('refresh')}
+                        </Button>
                         <Button
                             size="small"
                             onClick={() => {
@@ -218,6 +236,7 @@ export function GitProject({ config, event$, project, onList }) {
                             type: 'event_refresh_branch',
                             data: {},
                         })
+                        
                     }}
                 />
             }

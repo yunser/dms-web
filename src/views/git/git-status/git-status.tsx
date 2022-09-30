@@ -17,7 +17,7 @@ import { FullCenterBox } from '@/views/db-manager/redis-client';
 
 
 
-function Commit({ config, gitConfig, projectPath, onSuccess }) {
+function Commit({ config, stagedLength, gitConfig, projectPath, onSuccess }) {
     // const [form] = Form.useForm()
     const { t } = useTranslation()
     const [infoVisible, setInfoVisible] = useState(false)
@@ -84,6 +84,7 @@ function Commit({ config, gitConfig, projectPath, onSuccess }) {
                         <Button
                             type="primary"
                             size="small"
+                            disabled={stagedLength == 0}
                             onClick={() => {
                                 submit()
                             }}
@@ -470,6 +471,7 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                 gitConfig={gitConfig}
                                 config={config}
                                 projectPath={projectPath}
+                                stagedLength={status.staged.length}
                                 onSuccess={() => {
                                     // loadList()
                                     onTab && onTab()
