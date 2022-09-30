@@ -25,16 +25,6 @@ export function RemoteEditor({ config, projectPath, onSuccess, onCancel, onList 
     
     const [form] = Form.useForm()
 
-    const tabs = [
-        {
-            label: '文件状态',
-            key: 'status',
-        },
-        {
-            label: '提交记录',
-            key: 'commit-list',
-        },
-    ]
 
     async function handleOk() {
         const values = await form.validateFields()

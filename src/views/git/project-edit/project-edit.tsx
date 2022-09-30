@@ -26,16 +26,6 @@ export function ProjectEditor({ config, item, createType, sourceType = 'exist', 
     const editType = item ? 'update' : 'create'
     const [form] = Form.useForm()
 
-    const tabs = [
-        {
-            label: '文件状态',
-            key: 'status',
-        },
-        {
-            label: '提交记录',
-            key: 'commit-list',
-        },
-    ]
 
     async function handleOk() {
         setLoading(true)

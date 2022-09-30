@@ -35,11 +35,11 @@ export function GitProject({ config, event$, project, onList }) {
     const [pushModalVisible, setPushModalVisible] = useState(false)
     const tabs = [
         {
-            label: '文件状态',
+            label: t('git.changes'),
             key: 'status',
         },
         {
-            label: '提交记录',
+            label: t('git.commit'),
             key: 'commit-list',
         },
     ]
@@ -64,7 +64,6 @@ export function GitProject({ config, event$, project, onList }) {
                 >
                     </Button> */}
                 <div className={styles.section}>
-                    <div className={styles.header}>分支</div>
                     <BranchList
                         config={config}
                         event$={event$}
@@ -107,25 +106,37 @@ export function GitProject({ config, event$, project, onList }) {
                             }}
                         >刷新提交</Button> */}
                         <Button
+                            size="small"
                             onClick={() => {
                                 setBranchModalVisible(true)
                             }}
-                        >分支</Button>
+                        >
+                            {t('git.branch')}
+                        </Button>
                         <Button
+                            size="small"
                             onClick={() => {
                                 setMergeModalVisible(true)
                             }}
-                        >合并</Button>
+                        >
+                            {t('git.merge')}
+                        </Button>
                         <Button
+                            size="small"
                             onClick={() => {
                                 setPullhModalVisible(true)
                             }}
-                        >抓取</Button>
+                        >
+                            {t('git.fetch')}
+                        </Button>
                         <Button
+                            size="small"
                             onClick={() => {
                                 setPushModalVisible(true)
                             }}
-                        >推送</Button>
+                        >
+                            {t('git.push')}
+                        </Button>
                     </Space>
                 </div>
                 <div className={styles.body}>

@@ -14,6 +14,8 @@ import { DiffText } from '../git-diff';
 import moment from 'moment';
 import { FullCenterBox } from '@/views/db-manager/redis-client';
 // import { saveAs } from 'file-saver'
+import { Gitgraph } from '@gitgraph/react'
+
 
 export function CommitList({ config, event$, projectPath,  }) {
     // const { defaultJson = '' } = data
@@ -230,6 +232,31 @@ export function CommitList({ config, event$, projectPath,  }) {
 
     console.log('showList', showList)
 
+    // return (
+    //     <div>
+    //         <Gitgraph>
+    //             {(gitgraph) => {
+    //                 // Simulate git commands with Gitgraph API.
+    //                 const master = gitgraph.branch("master");
+    //                 master.commit("Initial commit");
+
+    //                 const develop = master.branch("develop");
+    //                 develop.commit("Add TypeScript");
+
+    //                 const aFeature = develop.branch("a-feature");
+    //                 aFeature
+    //                 .commit("Make it work")
+    //                 .commit("Make it right")
+    //                 .commit("Make it fast");
+
+    //                 develop.merge(aFeature);
+    //                 develop.commit("Prepare v1");
+
+    //                 master.merge(develop).tag("v1.0.0");
+    //             }}
+    //         </Gitgraph>
+    //     </div>
+    // )
     return (
         <div className={styles.commitBox}>
             <div className={styles.layoutTop}>
@@ -290,9 +317,9 @@ export function CommitList({ config, event$, projectPath,  }) {
                         <div className={styles.infoBox}>
                             <div>message：{curCommit.message}</div>
                             <div>body：{curCommit.body}</div>
-                            <div>提交：{curCommit.hash}</div>
-                            <div>作者：{curCommit.author_name} {'<'}{curCommit.author_email}{'>'}</div>
-                            <div>日期：{curCommit.date ? moment(curCommit.date).format('YYYY-MM-DD HH:mm:ss') : '--'}</div>
+                            <div>{t('git.hash')}：{curCommit.hash}</div>
+                            <div>{t('git.author')}：{curCommit.author_name} {'<'}{curCommit.author_email}{'>'}</div>
+                            <div>{t('time')}：{curCommit.date ? moment(curCommit.date).format('YYYY-MM-DD HH:mm:ss') : '--'}</div>
                             <div>refs：{curCommit.refs}</div>
                         </div>
                         <div className={styles.fileBox}>

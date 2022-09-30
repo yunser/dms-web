@@ -42,7 +42,7 @@ export function RemoteList({ config, projectPath }) {
         <div className={styles.remoteBox}>
             {/* <div>远程列表:</div> */}
             <div className={styles.header}>
-                远程
+                <div>{t('git.remote')}</div>
                 <IconButton
                     tooltip="新建远程"
                     onClick={() => {

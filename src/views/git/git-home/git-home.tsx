@@ -110,16 +110,6 @@ export function GitHome() {
         })
     }
 
-    const tabs = [
-        {
-            label: '文件状态',
-            key: 'status',
-        },
-        {
-            label: '提交记录',
-            key: 'commit-list',
-        },
-    ]
     return (
         <div className={styles.gitApp}>
             {view == 'list' &&

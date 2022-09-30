@@ -91,7 +91,10 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
     }
 
     return (
-        <div>
+        <div className={styles.branchBox}>
+            <div className={styles.header}>
+                {t('git.branch')}
+            </div>
             {branches.length == 0 ?
                 <FullCenterBox
                     height={160}

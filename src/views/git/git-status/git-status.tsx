@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { DownloadOutlined, EllipsisOutlined } from '@ant-design/icons';
+import { DownloadOutlined, EllipsisOutlined, UserOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
@@ -19,6 +19,7 @@ import { FullCenterBox } from '@/views/db-manager/redis-client';
 
 function Commit({ config, gitConfig, projectPath, onSuccess }) {
     // const [form] = Form.useForm()
+    const { t } = useTranslation()
     const [infoVisible, setInfoVisible] = useState(false)
     const [formData, setFormData] = useState({
         message: '',
@@ -49,6 +50,8 @@ function Commit({ config, gitConfig, projectPath, onSuccess }) {
         <div className={styles.commitBox}>
             {!!gitConfig && infoVisible &&
                 <div className={styles.user}>
+                    <UserOutlined />
+                    {' '}
                     {gitConfig.user.name}
                     {' <'}{gitConfig.user.email}{'>'}
 
@@ -62,7 +65,7 @@ function Commit({ config, gitConfig, projectPath, onSuccess }) {
                         message: e.target.value,
                     })
                 }}
-                placeholder="Commit Message"
+                placeholder={t('git.commit_message')}
                 rows={infoVisible ? 4 : 1}
                 onFocus={() => {
                     setInfoVisible(true)
@@ -77,14 +80,14 @@ function Commit({ config, gitConfig, projectPath, onSuccess }) {
                             onClick={() => {
                                 setInfoVisible(false)
                             }}
-                        >Cancel</Button>
+                        >{t('cancel')}</Button>
                         <Button
                             type="primary"
                             size="small"
                             onClick={() => {
                                 submit()
                             }}
-                        >Submit</Button>
+                        >{t('git.submit')}</Button>
                     </Space>
                 </div>
             }
@@ -277,7 +280,7 @@ export function GitStatus({ config, projectPath, onTab, }) {
                                                 reset(status.staged)
                                             }}
                                         />
-                                        <div className={styles.title}>Staged</div>
+                                        <div className={styles.title}>{t('git.staged')}</div>
                                     </div>
                                     <div className={styles.body}>
                                         <div className={styles.list}>
@@ -318,7 +321,7 @@ export function GitStatus({ config, projectPath, onTab, }) {
                                                 add(unstagedList.map(item => item.path))
                                             }}
                                         />
-                                        <div className={styles.title}>Not Added</div>
+                                        <div className={styles.title}>{t('git.unstage')}</div>
                                         {/* {curFileType} */}
                                     </div>
                                     <div className={styles.body}>
@@ -358,6 +361,7 @@ export function GitStatus({ config, projectPath, onTab, }) {
                                                             >
                                                                 checkout</Button> */}
                                                             <Dropdown
+                                                                trigger={['click']}
                                                                 overlay={
                                                                     <Menu
                                                                         items={[

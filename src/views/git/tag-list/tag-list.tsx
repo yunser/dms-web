@@ -77,7 +77,7 @@ export function TagList({ config, event$, projectPath }) {
     return (
         <div>
             <div className={styles.header}>
-                标签
+                <div>{t('git.tag')}</div>
                 <IconButton
                     tooltip="新建标签"
                     onClick={() => {

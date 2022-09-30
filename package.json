@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "^4.7.0",
+    "@gitgraph/react": "^1.6.0",
     "@huse/transition-state": "^1.1.1",
     "@yunser/random-util": "^0.0.1",
     "@yunser/style-reset": "0.0.2",
