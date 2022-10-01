@@ -1,4 +1,4 @@
-import { Button, Descriptions, Empty, Input, message, Modal, Popover, Space, Table, Tabs } from 'antd';
+import { Button, Descriptions, Dropdown, Empty, Input, Menu, message, Modal, Popover, Space, Table, Tabs } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './remote-list.module.less';
 import _ from 'lodash';
@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { DownloadOutlined, PlusOutlined } from '@ant-design/icons';
+import { DownloadOutlined, EllipsisOutlined, PlusOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
@@ -38,6 +38,35 @@ export function RemoteList({ config, projectPath }) {
         loadRemotes()
     }, [])
 
+    async function deleteItem(item) {
+        Modal.confirm({
+            title: t('git.remote.delete'),
+            // icon: <ExclamationCircleOutlined />,
+            content: `${t('git.remote.delete.confirm')}「${item.name}」？`,
+            async onOk() {
+                
+                let ret = await request.post(`${config.host}/git/command`, {
+                    projectPath,
+                    commands: ['remote', 'remove', item.name],
+                })
+                // console.log('ret', ret)
+                if (ret.success) {
+                    // message.success('连接成功')
+                    // onConnnect && onConnnect()
+                    message.success(t('success'))
+                    // onClose && onClose()
+                    // onSuccess && onSuccess()
+                    // loadBranches()
+                    loadRemotes()
+                    // event$.emit({
+                    //     type: 'event_refresh_branch',
+                    //     data: {},
+                    // })
+                }
+            }
+        })
+    }
+
     return (
         <div className={styles.remoteBox}>
             {/* <div>远程列表:</div> */}
@@ -64,6 +93,33 @@ export function RemoteList({ config, projectPath }) {
                         return (
                             <div className={styles.item}>
                                 <div className={styles.name}>{item.name}</div>
+                                <Space>
+                                    <Dropdown
+                                        trigger={['click']}
+                                        overlay={
+                                            <Menu
+                                                items={[
+                                                    {
+                                                        label: t('git.remote.delete'),
+                                                        key: 'delete',
+                                                    },
+                                                ]}
+                                                onClick={({ key }) => {
+                                                    if (key == 'delete') {
+                                                        deleteItem(item)
+
+                                                    }
+                                                }}
+                                            />
+                                        }
+                                    >
+                                        <IconButton
+                                            onClick={e => e.preventDefault()}
+                                        >
+                                            <EllipsisOutlined />
+                                        </IconButton>
+                                    </Dropdown>
+                                </Space>
                                 {/* {item.name == current &&
                                     <div className={styles.current}></div>
                                 } */}
