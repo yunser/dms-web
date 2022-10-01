@@ -66,7 +66,7 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
         Modal.confirm({
             title: t('git.branch.delete'),
             // icon: <ExclamationCircleOutlined />,
-            content: `确定删除分支「${item.name}」？`,
+            content: `${t('git.branch.delete.confirm')}「${item.name}」？`,
             async onOk() {
                 
                 let ret = await request.post(`${config.host}/git/branch/delete`, {
@@ -117,28 +117,28 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
                                 <Space>
                                     <IconButton
                                         tooltip="切换分支"
-                                        onClick={() => {
-                                            Modal.confirm({
-                                                title: '切换分支',
-                                                // icon: <ExclamationCircleOutlined />,
-                                                content: `确定将你的工作副本切换为「${item.name}」？`,
-                                                async onOk() {
+                                        onClick={async () => {
+                                            // Modal.confirm({
+                                            //     title: '切换分支',
+                                            //     // icon: <ExclamationCircleOutlined />,
+                                            //     content: `确定将你的工作副本切换为「${item.name}」？`,
+                                            //     async onOk() {
                                                     
-                                                    let ret = await request.post(`${config.host}/git/checkout`, {
-                                                        projectPath,
-                                                        branchName: item.name,
-                                                    })
-                                                    // console.log('ret', ret)
-                                                    if (ret.success) {
-                                                        // message.success('连接成功')
-                                                        // onConnnect && onConnnect()
-                                                        message.success(t('success'))
-                                                        // onClose && onClose()
-                                                        // onSuccess && onSuccess()
-                                                        loadBranches()
-                                                    }
-                                                }
+                                            //     }
+                                            // })
+                                            let ret = await request.post(`${config.host}/git/checkout`, {
+                                                projectPath,
+                                                branchName: item.name,
                                             })
+                                            // console.log('ret', ret)
+                                            if (ret.success) {
+                                                // message.success('连接成功')
+                                                // onConnnect && onConnnect()
+                                                message.success(t('success'))
+                                                // onClose && onClose()
+                                                // onSuccess && onSuccess()
+                                                loadBranches()
+                                            }
                                         }}
                                     >
                                         <ArrowRightOutlined />

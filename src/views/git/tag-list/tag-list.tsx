@@ -43,9 +43,9 @@ export function TagList({ config, event$, projectPath }) {
 
     async function deleteItem(item) {
         Modal.confirm({
-            title: '删除标签',
+            title: t('git.tag.delete'),
             // icon: <ExclamationCircleOutlined />,
-            content: `确定删除标签「${item.name}」？`,
+            content: `${t('git.tag.delete.confirm')}「${item.name}」？`,
             async onOk() {
                 
                 let ret = await request.post(`${config.host}/git/tag/delete`, {

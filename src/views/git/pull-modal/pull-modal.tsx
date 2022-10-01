@@ -155,14 +155,14 @@ export function PullModal({ config, projectPath, onSuccess, onCancel }) {
                     </Form.Item>
                     <Form.Item
                         // name="remoteName2"
-                        label={t('拉取的远程分支')}
+                        label={t('git.pull.remoteBranch')}
                         // rules={[ { required: true, }, ]}
                     >
                         {current}
                     </Form.Item>
                     <Form.Item
                         // name="remoteName2"
-                        label={t('拉取到的本地分支')}
+                        label={t('git.pull.localBranch')}
                         // rules={[ { required: true, }, ]}
                     >
                         {current}

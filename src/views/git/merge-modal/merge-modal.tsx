@@ -105,12 +105,12 @@ export function MergeModal({ config, projectPath, onSuccess, onCancel }) {
                 onCancel={onCancel}
                 onOk={handleOk}
                 confirmLoading={loading}
-                maskClosable={false}
+                // maskClosable={false}
                 okText={t('git.merge')}
                 // footer={null}
             >
                 {/* {loading ? 'Pulling' : 'Pull Finished'} */}
-                <div className={styles.help}>合并以下分支到 {current} 分支</div>
+                {/* <div className={styles.help}>合并以下分支到 {current} 分支</div> */}
                 <Form
                     form={form}
                     labelCol={{ span: 8 }}
@@ -136,6 +136,21 @@ export function MergeModal({ config, projectPath, onSuccess, onCancel }) {
                                 }
                             })}
                         />
+                    </Form.Item>
+                    <Form.Item
+                        // name="branch"
+                        label={t('git.merge.toBranch')}
+                        // rules={[ { required: true, }, ]}
+                    >
+                        {current}
+                        {/* <Select
+                            options={branches.map(r => {
+                                return {
+                                    label: r.name,
+                                    value: r.name,
+                                }
+                            })}
+                        /> */}
                     </Form.Item>
                 </Form>
             </Modal>
