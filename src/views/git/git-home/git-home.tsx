@@ -216,6 +216,11 @@ export function GitHome() {
                                                         e.stopPropagation()
                                                     }}
                                                 >
+                                                    {!!item.changes && item.changes > 0 &&
+                                                        <div className={styles.branch}>
+                                                            <div className={styles.changes}>{item.changes}</div>
+                                                        </div>
+                                                    }
                                                     {!!item.branch &&
                                                         <div className={styles.branch}>
                                                             <Tag>{item.branch}</Tag>

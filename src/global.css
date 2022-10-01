@@ -12,6 +12,7 @@
     --color-f6: #f6f6f6;
     --color-f9: #fafafa;
     --color-eee: #eee;
+    --color-5: #5f5f5f;
     --color-85: rgba(0, 0, 0, 0.85);
     --color-table-hover: #bee6ff;
     --color-table-selected: #bbd8f7;
@@ -19,6 +20,7 @@
 
     --color-bg-left2: #fff;
     --color-text-3: rgba(0, 0, 0, .45);
+    --color-text-reverse: #fff;
 
     --color-success: #52c41a;
     --color-error: #ff4d4f;
@@ -37,6 +39,7 @@
     --color-f9: #1d1d1d;
     /* --color-eee: #1d1d1d; */
     --color-eee: #333;
+    --color-5: #5f5f5f;
     --color-85: rgba(255, 255, 255, 0.85);
     --color-bg-left: #222;
     --color-table-hover: #333;
@@ -44,6 +47,7 @@
 
     --color-bg-left2: #1d1d1d;
     --color-text-3: rgba(255, 255, 255, .45);
+    --color-text-reverse: #000;
 
     --color-success: #49aa19;
     --color-error: #a61d24;
