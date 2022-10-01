@@ -25,8 +25,20 @@ export function ProjectEditor({ config, item, createType, sourceType = 'exist', 
     // const [curTab, setCurTab] = useState('commit-list')
     const editType = item ? 'update' : 'create'
     const [form] = Form.useForm()
+    const [userConfig, setUserConfig] = useState('')
 
+    async function loadUserHome() {
+        let res = await request.post(`${config.host}/git/userConfig`, {
+        })
+        if (res.success) {
+            console.log('res.data', res.data)
+            setUserConfig(res.data)
+        }
+    }
 
+    useEffect(() => {
+        loadUserHome()
+    }, [])
     async function handleOk() {
         setLoading(true)
         const values = await form.validateFields()
@@ -57,6 +69,7 @@ export function ProjectEditor({ config, item, createType, sourceType = 'exist', 
     async function autoInput() {
         const url = form.getFieldValue('url')
         const name = form.getFieldValue('name')
+        const path = form.getFieldValue('path')
         if (name) {
             return
         }
@@ -75,12 +88,18 @@ export function ProjectEditor({ config, item, createType, sourceType = 'exist', 
 
             const last = aftersplit(url, '/')
             console.log('last', last)
+            console.log('userHome', userConfig)
             // git-auto-8.git
             const gitName = last.split('.')[0]
-
             form.setFieldsValue({
                 name: gitName,
             })
+            if (gitName && userConfig && !path) {
+                const _path = `${userConfig.userHome}${userConfig.fileSeparator}${gitName}`
+                form.setFieldsValue({
+                    path: _path,
+                })
+            }
         }
     }
     
