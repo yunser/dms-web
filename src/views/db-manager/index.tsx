@@ -67,7 +67,7 @@ export function DbManager({ config }) {
 
     const tabs_default = [
         tab_workbench,
-        tab_mySql,
+        // tab_mySql,
         // {
         //     title: 'Elasticsearch',
         //     key: 'key-es',
@@ -100,7 +100,7 @@ export function DbManager({ config }) {
     
     const [tabs, setTabs] = useState(tabs_default)
     const [activeKey, setActiveKey] = useState(() => {
-        return tabs[1].key
+        return tabs[0].key
     })
 
     

@@ -40,7 +40,8 @@ export function PullModal({ config, projectPath, onSuccess, onCancel }) {
     }
 
     const [branches, setBranches] = useState([])
-
+    const [current, setCurrent] = useState('')
+    
     async function loadBranches() {
         let res = await request.post(`${config.host}/git/branch`, {
             projectPath,
@@ -59,36 +60,45 @@ export function PullModal({ config, projectPath, onSuccess, onCancel }) {
             // onBranch && onBranch(res.data.list)
             const curBranch = res.data.current
             console.log('curBranch', curBranch)
+            setCurrent(curBranch)
             setBranches(res.data.list.filter(item => {
                 // 不显示远程的分支
                 if (item.name.startsWith(('remotes/'))) {
                     return false
                 }
+                if (curBranch && item.name == curBranch) {
+                    return false
+                }
+                // 不显示当前分支
                 return true
             }))
-            if (curBranch) {
-                form.setFieldsValue({
-                    branchName: curBranch,
-                })
-            }
+            // if (curBranch) {
+            //     form.setFieldsValue({
+            //         branchName: curBranch,
+            //     })
+            // }
             // setCurrent(res.data.current)
         }
     }
 
     
-    
+    useEffect(() => {
+        loadRemotes()
+        loadBranches()
+    }, [])
 
+    
     console.log('remotes', remotes)
 
     async function pull() {
+        const values = await form.validateFields()
         setLoading(true)
-        // const values = await form.validateFields()
         // console.log('values', values)
         // return
         let res = await request.post(`${config.host}/git/pull`, {
             projectPath,
-            // remoteName: values.remoteName,
-            // branchName: values.branchName,
+            remoteName: values.remoteName,
+            branchName: current,
         })
         console.log('pull/res', res)
         if (res.success) {
@@ -102,20 +112,62 @@ export function PullModal({ config, projectPath, onSuccess, onCancel }) {
     useEffect(() => {
         // loadRemotes()
         // loadBranches()
-        pull()
+        // pull()
     }, [])
 
     return (
         <div>
             <Modal
                 open={true}
-                title="拉取"
+                title={t('git.pull')}
                 onCancel={onCancel}
-                // onOk={handleOk}
+                onOk={pull}
                 confirmLoading={loading}
-                footer={null}
+                // footer={null}
             >
-                {loading ? 'Pulling' : 'Pull Finished'}
+                {/* <div className={styles.help}>合并以下分支到 {current} 分支</div> */}
+                {/* {loading ? 'Pulling' : 'Pull Finished'} */}
+                <Form
+                    form={form}
+                    labelCol={{ span: 8 }}
+                    wrapperCol={{ span: 16 }}
+                    initialValues={{
+                        port: 3306,
+                    }}
+                    // layout={{
+                    //     labelCol: { span: 0 },
+                    //     wrapperCol: { span: 24 },
+                    // }}
+                >
+                    <Form.Item
+                        name="remoteName"
+                        label={t('git.remote')}
+                        rules={[ { required: true, }, ]}
+                    >
+                        <Select
+                            options={remotes.map(r => {
+                                return {
+                                    label: r.name,
+                                    value: r.name,
+                                }
+                            })}
+                        />
+                    </Form.Item>
+                    <Form.Item
+                        // name="remoteName2"
+                        label={t('拉取的远程分支')}
+                        // rules={[ { required: true, }, ]}
+                    >
+                        {current}
+                    </Form.Item>
+                    <Form.Item
+                        // name="remoteName2"
+                        label={t('拉取到的本地分支')}
+                        // rules={[ { required: true, }, ]}
+                    >
+                        {current}
+                    </Form.Item>
+                </Form>
             </Modal>
         </div>
     )

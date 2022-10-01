@@ -145,7 +145,7 @@ export function GitProject({ config, event$, project, onList }) {
                                 setPullhModalVisible(true)
                             }}
                         >
-                            {t('git.fetch')}
+                            {t('git.pull')}
                         </Button>
                         <Button
                             size="small"
