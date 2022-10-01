@@ -99,6 +99,7 @@ export function GitProject({ config, event$, project, onList }) {
                 <div className={styles.section}>
                     <RemoteList
                         config={config}
+                        event$={event$}
                         projectPath={projectPath}
                     />
                 </div>
@@ -211,6 +212,7 @@ export function GitProject({ config, event$, project, onList }) {
             {pushModalVisible &&
                 <PushModal
                     config={config}
+                    event$={event$}
                     projectPath={projectPath}
                     onCancel={() => {
                         setPushModalVisible(false)
@@ -226,6 +228,7 @@ export function GitProject({ config, event$, project, onList }) {
             }
             {pullModalVisible &&
                 <PullModal
+                event$={event$}
                     config={config}
                     projectPath={projectPath}
                     onCancel={() => {
@@ -243,6 +246,7 @@ export function GitProject({ config, event$, project, onList }) {
             {branchModalVisible &&
                 <BranchModal
                     config={config}
+                    event$={event$}
                     projectPath={projectPath}
                     onCancel={() => {
                         setBranchModalVisible(false)
@@ -260,6 +264,7 @@ export function GitProject({ config, event$, project, onList }) {
             {mergeModalVisible &&
                 <MergeModal
                     config={config}
+                    event$={event$}
                     projectPath={projectPath}
                     onCancel={() => {
                         setMergeModalVisible(false)

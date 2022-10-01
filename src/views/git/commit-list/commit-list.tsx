@@ -51,6 +51,12 @@ export function CommitList({ config, event$, projectPath,  }) {
         // console.log('fres', res)
         if (res.success) {
             setFileDiff(res.data.res)
+            event$.emit({
+                type: 'event_reload_history',
+                data: {
+                    commands: res.data.commands,
+                }
+            })
             // const list = res.data
             // setList(list)
         }
@@ -83,6 +89,12 @@ export function CommitList({ config, event$, projectPath,  }) {
                     loadFile(files[0], item)
                 }, 0)
             }
+            event$.emit({
+                type: 'event_reload_history',
+                data: {
+                    commands: res.data.commands,
+                }
+            })
             // const list = res.data
             // setList(list)
         }

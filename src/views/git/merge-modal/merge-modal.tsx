@@ -12,7 +12,7 @@ import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
 // import { saveAs } from 'file-saver'
 
-export function MergeModal({ config, projectPath, onSuccess, onCancel }) {
+export function MergeModal({ config, event$, projectPath, onSuccess, onCancel }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
 
@@ -87,6 +87,12 @@ export function MergeModal({ config, projectPath, onSuccess, onCancel }) {
             // setRemotes(res.data)
             onSuccess && onSuccess()
             // setCurrent(res.data.current)
+            event$.emit({
+                type: 'event_reload_history',
+                data: {
+                    commands: res.data.commands,
+                }
+            })
         }
         setLoading(false)
     }

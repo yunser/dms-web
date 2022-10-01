@@ -15,7 +15,7 @@ import { RemoteEditor } from '../remote-edit';
 import { FullCenterBox } from '@/views/db-manager/redis-client';
 // import { saveAs } from 'file-saver'
 
-export function RemoteList({ config, projectPath }) {
+export function RemoteList({ config, event$, projectPath }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
 
@@ -45,12 +45,12 @@ export function RemoteList({ config, projectPath }) {
             content: `${t('git.remote.delete.confirm')}「${item.name}」？`,
             async onOk() {
                 
-                let ret = await request.post(`${config.host}/git/command`, {
+                let res = await request.post(`${config.host}/git/command`, {
                     projectPath,
                     commands: ['remote', 'remove', item.name],
                 })
                 // console.log('ret', ret)
-                if (ret.success) {
+                if (res.success) {
                     // message.success('连接成功')
                     // onConnnect && onConnnect()
                     message.success(t('success'))
@@ -58,6 +58,12 @@ export function RemoteList({ config, projectPath }) {
                     // onSuccess && onSuccess()
                     // loadBranches()
                     loadRemotes()
+                    event$.emit({
+                        type: 'event_reload_history',
+                        data: {
+                            commands: res.data.commands,
+                        }
+                    })
                     // event$.emit({
                     //     type: 'event_refresh_branch',
                     //     data: {},
@@ -136,6 +142,7 @@ export function RemoteList({ config, projectPath }) {
                 <RemoteEditor
                     projectPath={projectPath}
                     config={config}
+                    event$={event$}
                     onCancel={() => {
                         setModalVisible(false)
                     }}

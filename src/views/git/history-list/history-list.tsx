@@ -148,7 +148,7 @@ export function HistoryList({ config, event$, projectPath }) {
                     })}
                 </div>
             }
-            {modalVisible &&
+            {/* {modalVisible &&
                 <RemoteEditor
                     projectPath={projectPath}
                     config={config}
@@ -160,7 +160,7 @@ export function HistoryList({ config, event$, projectPath }) {
                         loadRemotes()
                     }}
                 />
-            }
+            } */}
         </div>
     )
 }

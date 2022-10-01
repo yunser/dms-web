@@ -17,7 +17,7 @@ import { TagList } from '../tag-list';
 import { request } from '@/views/db-manager/utils/http';
 // import { saveAs } from 'file-saver'
 
-export function RemoteEditor({ config, projectPath, onSuccess, onCancel, onList }) {
+export function RemoteEditor({ config, event$, projectPath, onSuccess, onCancel, onList }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [curTab, setCurTab] = useState('status')
@@ -36,6 +36,12 @@ export function RemoteEditor({ config, projectPath, onSuccess, onCancel, onList 
         // console.log('res', res)
         if (res.success) {
             onSuccess && onSuccess()
+            event$.emit({
+                type: 'event_reload_history',
+                data: {
+                    commands: res.data.commands,
+                }
+            })
         }
     }
 

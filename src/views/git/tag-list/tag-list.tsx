@@ -48,12 +48,12 @@ export function TagList({ config, event$, projectPath }) {
             content: `${t('git.tag.delete.confirm')}「${item.name}」？`,
             async onOk() {
                 
-                let ret = await request.post(`${config.host}/git/tag/delete`, {
+                let res = await request.post(`${config.host}/git/tag/delete`, {
                     projectPath,
                     name: item.name,
                 })
                 // console.log('ret', ret)
-                if (ret.success) {
+                if (res.success) {
                     // message.success('连接成功')
                     // onConnnect && onConnnect()
                     message.success(t('success'))
@@ -64,6 +64,12 @@ export function TagList({ config, event$, projectPath }) {
                     event$.emit({
                         type: 'event_refresh_branch',
                         data: {},
+                    })
+                    event$.emit({
+                        type: 'event_reload_history',
+                        data: {
+                            commands: res.data.commands,
+                        }
                     })
                 }
             }
@@ -155,6 +161,7 @@ export function TagList({ config, event$, projectPath }) {
                 <TagEditor
                     projectPath={projectPath}
                     config={config}
+                    event$={event$}
                     onCancel={() => {
                         setModalVisible(false)
                     }}

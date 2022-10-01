@@ -69,12 +69,12 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
             content: `${t('git.branch.delete.confirm')}「${item.name}」？`,
             async onOk() {
                 
-                let ret = await request.post(`${config.host}/git/branch/delete`, {
+                let res = await request.post(`${config.host}/git/branch/delete`, {
                     projectPath,
                     name: item.name,
                 })
                 // console.log('ret', ret)
-                if (ret.success) {
+                if (res.success) {
                     // message.success('连接成功')
                     // onConnnect && onConnnect()
                     message.success(t('success'))
@@ -84,6 +84,12 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
                     event$.emit({
                         type: 'event_refresh_branch',
                         data: {},
+                    })
+                    event$.emit({
+                        type: 'event_reload_history',
+                        data: {
+                            commands: res.data.commands,
+                        }
                     })
                 }
             }
@@ -131,18 +137,24 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
                                                     
                                             //     }
                                             // })
-                                            let ret = await request.post(`${config.host}/git/checkout`, {
+                                            let res = await request.post(`${config.host}/git/checkout`, {
                                                 projectPath,
                                                 branchName: item.name,
                                             })
                                             // console.log('ret', ret)
-                                            if (ret.success) {
+                                            if (res.success) {
                                                 // message.success('连接成功')
                                                 // onConnnect && onConnnect()
                                                 message.success(t('success'))
                                                 // onClose && onClose()
                                                 // onSuccess && onSuccess()
                                                 loadBranches()
+                                                event$.emit({
+                                                    type: 'event_reload_history',
+                                                    data: {
+                                                        commands: res.data.commands,
+                                                    }
+                                                })
                                             }
                                         }}
                                     >
