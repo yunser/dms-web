@@ -141,8 +141,6 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
         getConfig()
     }, [])
 
-
-
     async function loadStatuses() {
         setCurFile('')
         setDiffText('')
@@ -213,6 +211,12 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
         // console.log('res', res)
         if (res.success) {
             loadStatuses()
+            event$.emit({
+                type: 'event_reload_history',
+                data: {
+                    commands: res.data.commands,
+                }
+            })
         }
     }
 
@@ -225,6 +229,12 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
         // console.log('res', res)
         if (res.success) {
             loadStatuses()
+            event$.emit({
+                type: 'event_reload_history',
+                data: {
+                    commands: res.data.commands,
+                }
+            })
         }
     }
 
@@ -264,6 +274,12 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                     // loadList()
                     // setDiffText(res.data.content)
                     loadStatuses()
+                    event$.emit({
+                        type: 'event_reload_history',
+                        data: {
+                            commands: res.data.commands,
+                        }
+                    })
                 }
             }
         })
@@ -272,6 +288,7 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
     async function cat(path) {
         setCurFile(path)
         setCurFileType('')
+        setDiffText('')
         let res = await request.post(`${config.host}/git/cat`, {
             projectPath,
             filePath: path,
@@ -286,6 +303,7 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
     async function diff(path, cached = false) {
         setCurFile(path)
         setCurFileType(cached ? 'cached' : '')
+        setDiffText('')
         let res = await request.post(`${config.host}/git/diff`, {
             projectPath,
             file: path,
@@ -294,7 +312,13 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
         // console.log('res', res)
         if (res.success) {
             // loadList()
-            setDiffText(res.data)
+            setDiffText(res.data.content)
+            event$.emit({
+                type: 'event_reload_history',
+                data: {
+                    commands: res.data.commands,
+                }
+            })
         }
     }
 

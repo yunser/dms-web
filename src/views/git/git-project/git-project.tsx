@@ -20,6 +20,7 @@ import { PushModal } from '../push-modal';
 import { PullModal } from '../pull-modal';
 import { BranchModal } from '../branch-modal';
 import { MergeModal } from '../merge-modal';
+import { HistoryList } from '../history-list';
 // import { saveAs } from 'file-saver'
 
 export function GitProject({ config, event$, project, onList }) {
@@ -98,6 +99,13 @@ export function GitProject({ config, event$, project, onList }) {
                 <div className={styles.section}>
                     <RemoteList
                         config={config}
+                        projectPath={projectPath}
+                    />
+                </div>
+                <div className={styles.section}>
+                    <HistoryList
+                        config={config}
+                        event$={event$}
                         projectPath={projectPath}
                     />
                 </div>

@@ -30,21 +30,24 @@ import {
 } from "react-router-dom";
 import { HomePage } from './views/home'
 storage.set('asd', 'asd2')
-import { i18n } from "./i18n";
-import { GitProject } from './views/git/git-project'
+import { GitHome } from './views/git/git-home'
 
+function GitPage() {
+    return (
+        <div style={{ height: '100vh' }}>
+            <GitHome />
+        </div>
+    )
+}
 export default function App() {
     // const [count, setCount] = useState(0)
 
     return (
         <Router>
-            {/* 小区抄表率 */}
-            {/* 小区抄表率 */}
-            {/* <App /> */}
             <div className="App">
                 <Routes>
                     <Route path="/" element={<HomePage />} />
-                    <Route path="/git" element={<GitProject />} />
+                    <Route path="/git" element={<GitPage />} />
                 </Routes>
             </div>
         </Router>

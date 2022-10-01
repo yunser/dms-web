@@ -1,0 +1,34 @@
+.remoteBox {
+    .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+}
+.list {
+    padding-top: 16px;
+    max-height: 240px;
+    overflow: auto;
+    .item {
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-left: 16px;
+        
+        // border: 1px solid var(--border-color);
+    }
+    .command {
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+.current {
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    margin-left: 8px;
+    background-color: #f00;
+}
