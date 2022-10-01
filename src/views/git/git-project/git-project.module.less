@@ -7,11 +7,13 @@
         border-right: 1px solid var(--border-color);
         // border: 1px solid #f00;
         overflow: auto;
+        background-color: var(--color-f6);
         .header {
+            height: 40px;
             // border: 1px solid #000;
             display: flex;
             align-items: center;
-            padding: 8px 8px;
+            padding: 0 8px;
             border-bottom: 1px solid var(--border-color);
             .projectName {
                 margin-left: 8px;
@@ -34,13 +36,16 @@
         display: flex;
         flex-direction: column;
         .header {
-            flex: 0 0 48px;
+            flex: 0 0 40px;
             border-bottom: 1px solid var(--border-color);
             overflow: hidden;
-            padding: 0 16px;
+            padding: 0 16px 0 0;
             display: flex;
             align-items: center;
             justify-content: space-between;
+        }
+        .tab {
+            margin-top: 15px;
         }
         .body {
             flex: 1 0 auto;

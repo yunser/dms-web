@@ -105,11 +105,15 @@ export function GitProject({ config, event$, project, onList }) {
             <div className={styles.layoutRight}>
                 <div className={styles.header}>
                     <Tabs
+                        className={styles.tab}
                         activeKey={curTab}
                         onChange={key => {
                             setCurTab(key)
                         }}
+                        tabBarGutter={-1}
                         items={tabs}
+                        type="card"
+                        size="large"
                     />
                     <Space>
                         <Button

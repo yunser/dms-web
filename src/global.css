@@ -9,6 +9,7 @@
     /* --color-f1: #f1f1f1; */
     --color-bg: #fff;
     --color-f1: rgba(0, 0, 0, .08);
+    --color-f6: #f6f6f6;
     --color-f9: #fafafa;
     --color-eee: #eee;
     --color-85: rgba(0, 0, 0, 0.85);
@@ -32,6 +33,7 @@
     --color-bg: #000;
     /* --color-f1: #000; */
     --color-f1: rgba(255, 255, 255, .08);
+    --color-f6: #1d1d1d;
     --color-f9: #1d1d1d;
     /* --color-eee: #1d1d1d; */
     --color-eee: #333;
