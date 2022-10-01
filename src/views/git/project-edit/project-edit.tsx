@@ -79,7 +79,7 @@ export function ProjectEditor({ config, item, createType, sourceType = 'exist', 
     return (
         <Modal
             visible={true}
-            title="新建项目"
+            title={t('git.repository.create')}
             onCancel={onCancel}
             onOk={handleOk}
             confirmLoading={loading}

@@ -2,14 +2,37 @@
     height: 100%;
     // border: 1px solid #f00;
 }
+
+
+.listBox {
+    height: 100%;
+    // border: 1px solid #f00;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .listContent {
+        width: 640px;
+        height: 100%;
+        // border: 1px solid #f00;
+        display: flex;
+        flex-direction: column;
+        padding-bottom: 16px;
+    }
+}
+
 .tool {
+    flex: 0 0 auto;
     margin-top: 16px;
     margin-bottom: 16px;
 }
 .list {
+    flex: 1 0 auto;
+    height: 0;
     // padding: 16px;
     margin-top: 16px;
     border: 1px solid var(--border-color);
+    // border: 1px solid #f00;
+    overflow: auto;
     .item {
         padding: 16px 16px;
         cursor: pointer;
@@ -23,16 +46,5 @@
         &:hover {
             background-color: var(--color-f9);
         }
-    }
-}
-
-.listBox {
-    // border: 1px solid #f00;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    .listContent {
-        width: 640px;
-        // border: 1px solid #f00;
     }
 }

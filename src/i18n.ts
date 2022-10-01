@@ -254,12 +254,13 @@ i18n
                     'git.changes': 'Changes',
                     'git.author': 'Author',
                     'git.hash': 'Hash',
-                    'git.clone_from_url': 'Clone from URL',
+                    'git.clone_from_url': 'Clone Repository',
                     'git.create_local_repository': 'Create New Repository',
                     'git.add_exists_local_repository': 'Add Existing Repository',
                     'git.mode': 'Mode',
                     'git.delete_file': 'Delete File',
                     'git.discard_change': 'Discard Changes',
+                    'git.repository.create': 'Create Repository',
                 }
             },
             zh: {
@@ -507,12 +508,13 @@ i18n
                     'git.changes': '文件状态',
                     'git.author': '作者',
                     'git.hash': '哈希',
-                    'git.clone_from_url': '从 URL 克隆',
+                    'git.clone_from_url': '从 URL 克隆仓库',
                     'git.create_local_repository': '创建本地仓库',
                     'git.add_exists_local_repository': '添加已经存在的本地仓库',
                     'git.mode': '模式',
                     'git.delete_file': '删除文件',
                     'git.discard_change': '丢弃文件',
+                    'git.repository.create': '新建仓库',
                 }
             }
         },
