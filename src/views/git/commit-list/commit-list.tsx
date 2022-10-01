@@ -48,7 +48,7 @@ export function CommitList({ config, event$, projectPath,  }) {
         }, {
             // noMessage: true,
         })
-        console.log('fres', res)
+        // console.log('fres', res)
         if (res.success) {
             setFileDiff(res.data.res)
             // const list = res.data
@@ -235,7 +235,7 @@ export function CommitList({ config, event$, projectPath,  }) {
                     })
                 }
             }
-            console.log('branches', branches)
+            // console.log('branches', branches)
             item.branches = branches
         }
         // for (let branch of branchs) {
