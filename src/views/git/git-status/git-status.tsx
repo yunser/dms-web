@@ -17,7 +17,7 @@ import { FullCenterBox } from '@/views/db-manager/redis-client';
 
 
 
-function Commit({ config, stagedLength, gitConfig, projectPath, onSuccess }) {
+function Commit({ config, event$, stagedLength, gitConfig, projectPath, onSuccess }) {
     // const [form] = Form.useForm()
     const { t } = useTranslation()
     const [infoVisible, setInfoVisible] = useState(false)
@@ -41,6 +41,12 @@ function Commit({ config, stagedLength, gitConfig, projectPath, onSuccess }) {
         if (res.success) {
             message.success('success')
             onSuccess && onSuccess()
+            event$.emit({
+                type: 'event_reload_history',
+                data: {
+                    commands: res.data.commands,
+                }
+            })
             // setStatus(res.data.status)
             // setCurrent(res.data.current)
         }
@@ -297,6 +303,12 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
         if (res.success) {
             // loadList()
             setDiffText(res.data.content)
+            event$.emit({
+                type: 'event_reload_history',
+                data: {
+                    commands: res.data.commands,
+                }
+            })
         }
     }
 
@@ -508,6 +520,7 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                             <Commit
                                 gitConfig={gitConfig}
                                 config={config}
+                                event$={event$}
                                 projectPath={projectPath}
                                 stagedLength={status.staged.length}
                                 onSuccess={() => {
