@@ -117,6 +117,28 @@
         align-items: center;
         cursor: pointer;
     }
+    .icon {
+        margin-right: 8px;
+        // border: 1px solid #000;
+        font-size: 12px;
+        width: 16px;
+        height: 16px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        line-height: 1;
+        border-radius: 2px;
+        color: #fff;
+        &.added {
+            background-color: #604c7e;
+        }
+        &.modified {
+            background-color: #efc35b;
+        }
+        &.deleted {
+            background-color: #c14e3f;
+        }
+    }
 }
 .current {
     width: 8px;

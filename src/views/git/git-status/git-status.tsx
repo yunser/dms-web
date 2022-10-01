@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { DownloadOutlined, EllipsisOutlined, UserOutlined } from '@ant-design/icons';
+import { DownloadOutlined, EllipsisOutlined, MinusOutlined, QuestionOutlined, UserOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
@@ -239,7 +239,7 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                     projectPath,
                     filePath: path,
                 })
-                console.log('res', res)
+                // console.log('res', res)
                 if (res.success) {
                     // loadList()
                     // setDiffText(res.data.content)
@@ -259,7 +259,7 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                     projectPath,
                     filePath: path,
                 })
-                console.log('res', res)
+                // console.log('res', res)
                 if (res.success) {
                     // loadList()
                     // setDiffText(res.data.content)
@@ -276,7 +276,7 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
             projectPath,
             filePath: path,
         })
-        console.log('res', res)
+        // console.log('res', res)
         if (res.success) {
             // loadList()
             setDiffText(res.data.content)
@@ -291,7 +291,7 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
             file: path,
             cached,
         })
-        console.log('res', res)
+        // console.log('res', res)
         if (res.success) {
             // loadList()
             setDiffText(res.data)
@@ -387,8 +387,22 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                                                 }
                                                             }}
                                                         >
-                                                            <Tag>{item.working_dir}</Tag>
-                                                            <div>{item.path}</div></div>
+                                                            {item.working_dir == '?' ?
+                                                                <div className={classNames(styles.icon, styles.added)}>
+                                                                    <QuestionOutlined />
+                                                                </div>
+                                                            : item.working_dir == 'M' ?
+                                                                <div className={classNames(styles.icon, styles.modified)}>
+                                                                    <EllipsisOutlined />
+                                                                </div>
+                                                            : item.working_dir == 'D' ?
+                                                                <div className={classNames(styles.icon, styles.deleted)}>
+                                                                    <MinusOutlined />
+                                                                </div>
+                                                            :
+                                                                <Tag>{item.working_dir}</Tag>
+                                                            }
+                                                            <div className={styles.path}>{item.path}</div></div>
                                                             {/* <Button
                                                                 size="small"
                                                                 onClick={() => {

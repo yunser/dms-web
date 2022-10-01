@@ -257,7 +257,7 @@ i18n
                     'git.staged': 'Staged',
                     'git.unstage': 'Unstage',
                     'git.submit': 'Submit',
-                    'git.submit.empty': 'Nothing to Commit',
+                    'git.submit.empty': 'Nothing to commit',
                     'git.commit_message': 'Commit Message',
                     'git.changes': 'Changes',
                     'git.author': 'Author',

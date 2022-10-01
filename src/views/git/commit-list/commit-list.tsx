@@ -246,8 +246,8 @@ export function CommitList({ config, event$, projectPath,  }) {
         itemHeight: 32,
         overscan: 10,
     });
-    console.log('showList.le', showList.length)
-    console.log('vList', vList)
+    // console.log('showList.le', showList.length)
+    // console.log('vList', vList)
 
     // console.log('showList', showList)
 
