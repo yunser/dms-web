@@ -18,7 +18,7 @@ import { Gitgraph } from '@gitgraph/react'
 import { CopyButton } from '@/views/db-manager/copy-button';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { ResetModal } from '../reset-modal';
-
+import { useVirtualList } from 'ahooks'
 
 export function CommitList({ config, event$, projectPath,  }) {
     // const { defaultJson = '' } = data
@@ -207,17 +207,17 @@ export function CommitList({ config, event$, projectPath,  }) {
 
 
     const showList = useMemo(() => {
-        console.log('列表', list, branchs)
+        // console.log('列表', list, branchs)
         // list hash "489deea0f6bf7e90a7434f4ae22c5e17214bdf5d"
         // branchs commit: "489deea"
-        console.log('tags', tags)
+        // console.log('tags', tags)
         const newList = cloneDeep(list)
         for (let item of newList) {
             // tag: v0.0.1, tag: first
             const refs = item.refs.split(',')
             const tags = []
             for (let ref of refs) {
-                console.log('ref', ref)
+                // console.log('ref', ref)
                 if (ref.includes('tag')) {
                     tags.push(ref.split(':')[1])
                 }
@@ -234,9 +234,22 @@ export function CommitList({ config, event$, projectPath,  }) {
             }
         }
         return newList
+            // .splice(0, 100)
     }, [list, branchs, tags])
 
-    console.log('showList', showList)
+    const containerRef = useRef(null);
+    const wrapperRef = useRef(null);
+    // const originalList = useMemo(() => Array.from(Array(99999).keys()), []);
+    const [vList] = useVirtualList(showList, {
+        containerTarget: containerRef,
+        wrapperTarget: wrapperRef,
+        itemHeight: 32,
+        overscan: 10,
+    });
+    console.log('showList.le', showList.length)
+    console.log('vList', vList)
+
+    // console.log('showList', showList)
 
     // return (
     //     <div>
@@ -280,68 +293,95 @@ export function CommitList({ config, event$, projectPath,  }) {
                         <Empty />
                     </FullCenterBox>
                 :
-                    <div className={styles.list}>
-                        {showList.map(item => {
-                            return (
-                                <div
-                                    className={classNames(styles.item, {
-                                        [styles.active]: curCommit && curCommit.hash == item.hash
-                                    })}
-                                    onClick={() => {
-                                        show(item)
-                                    }}
-                                >
-                                    <div className={styles.left}>
-                                        {item.branchs?.length > 0 &&
-                                            <Space>
-                                                {item.branchs.map(branch => {
-                                                    const simpleName = branch.name.replace(/^remotes\//, '')
-                                                    return (
-                                                        <Tag key={branch.name}>{simpleName}</Tag>
+                    <div
+                        ref={containerRef}
+                        style={{
+                            height: '100%',
+                            overflow: 'auto',
+                            // border: '1px solid',
+                        }}>
+                        <div className={styles.list} ref={wrapperRef}>
+                        {/* {vList.map((item) => (
+                            <div
+                            style={{
+                                height: 52,
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                border: '1px solid #e8e8e8',
+                                marginBottom: 8,
+                            }}
+                            key={ele.index}
+                            >
+                            Row: {ele.data}
+                            </div>
+                        ))} */}
+                            {vList.map(vItem => {
+                                const item = vItem.data
+                                return (
+                                    <div
+                                        className={classNames(styles.item, {
+                                            [styles.active]: curCommit && curCommit.hash == item.hash
+                                        })}
+                                        onClick={() => {
+                                            show(item)
+                                        }}
+                                        key={item.hash}
+                                    >
+                                        <div className={styles.left}>
+                                            {item.branchs?.length > 0 &&
+                                                <Space>
+                                                    {item.branchs.map(branch => {
+                                                        const simpleName = branch.name.replace(/^remotes\//, '')
+                                                        return (
+                                                            <Tag key={branch.name}>{simpleName}</Tag>
+                                                            )
+                                                        })}
+                                                </Space>
+                                            }
+                                            {item.tags?.length > 0 &&
+                                                <Space>
+                                                    {item.tags.map(tag => {
+                                                        return (
+                                                            <Tag key={tag}>{tag}</Tag>
                                                         )
                                                     })}
-                                            </Space>
-                                        }
-                                        {item.tags?.length > 0 &&
-                                            <Space>
-                                                {item.tags.map(tag => {
-                                                    return (
-                                                        <Tag key={tag}>{tag}</Tag>
-                                                    )
-                                                })}
-                                            </Space>
-                                        }
-                                        {item.message}
-                                    </div>
-                                    <Dropdown
-                                        trigger={['click']}
-                                        overlay={
-                                            <Menu
-                                                items={[
-                                                    {
-                                                        label: '将当前分支重置到这次提交',
-                                                        key: 'reset_commit',
-                                                    },
-                                                ]}
-                                                onClick={({ key }) => {
-                                                    if (key == 'reset_commit') {
-                                                        setResetModalVisible(true)
-                                                        setResetCommit(item)
-                                                    }
-                                                }}
-                                            />
-                                        }
-                                    >
-                                        <IconButton
-                                            // onClick={e => e.preventDefault()}
+                                                </Space>
+                                            }
+                                            {item.message}
+                                        </div>
+                                        <Dropdown
+                                            trigger={['click']}
+                                            overlay={
+                                                <Menu
+                                                    items={[
+                                                        {
+                                                            label: '将当前分支重置到这次提交',
+                                                            key: 'reset_commit',
+                                                        },
+                                                    ]}
+                                                    onClick={({ key }) => {
+                                                        if (key == 'reset_commit') {
+                                                            setResetModalVisible(true)
+                                                            setResetCommit(item)
+                                                        }
+                                                    }}
+                                                />
+                                            }
                                         >
-                                            <EllipsisOutlined />
-                                        </IconButton>
-                                    </Dropdown>
-                                </div>
-                            )
-                        })}
+                                            <IconButton
+                                                // onClick={e => e.preventDefault()}
+                                            >
+                                                <EllipsisOutlined />
+                                            </IconButton>
+                                        </Dropdown>
+                                    </div>
+                                )
+                            })}
+                        </div>
                     </div>
+                    // <div className={styles.list}>
+                    // </div>
                 }
             </div>
             <div className={styles.layoutBottom}>

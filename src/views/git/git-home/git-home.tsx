@@ -1,4 +1,4 @@
-import { Button, Descriptions, Dropdown, Input, Menu, message, Modal, Popover, Space, Table, Tabs, Tag } from 'antd';
+import { Button, Descriptions, Dropdown, Empty, Input, Menu, message, Modal, Popover, Space, Table, Tabs, Tag } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './git-home.module.less';
 import _ from 'lodash';
@@ -17,6 +17,7 @@ import { GitProject } from '../git-project';
 import { request } from '@/views/db-manager/utils/http';
 import { ProjectEditor } from '../project-edit';
 import { IconButton } from '@/views/db-manager/icon-button';
+import { FullCenterBox } from '@/views/db-manager/redis-client';
 // import { saveAs } from 'file-saver'
 
 export function GitHome() {
@@ -68,6 +69,7 @@ export function GitHome() {
         })
         // console.log('res', res)
         if (res.success) {
+            // setProjects([])
             setProjects(res.data.list.sort((a, b) => {
                 return a.name.localeCompare(b.name)
             }))
@@ -188,73 +190,81 @@ export function GitHome() {
                             />
                         </div>
                         {/* <div>{keyword}</div> */}
-                        <div className={styles.listWrap}>
-                            <div className={styles.list}>
-                                {filterdProjects.map(item => {
-                                    return (
-                                        <div
-                                            key={item.id}
-                                            className={styles.item}
-                                            onClick={() => {
-                                                setView('detail')
-                                                setCurProject(item)
-                                            }}
-                                        >
-                                            <div className={styles.name}>{item.name}</div>
-                                            <Space
-                                                onClick={(e) => {
-                                                    e.preventDefault()
-                                                    e.stopPropagation()
+                        {filterdProjects.length == 0 ?
+                            <FullCenterBox
+                                height={320}
+                            >
+                                <Empty />
+                            </FullCenterBox>
+                        :
+                            <div className={styles.listWrap}>
+                                <div className={styles.list}>
+                                    {filterdProjects.map(item => {
+                                        return (
+                                            <div
+                                                key={item.id}
+                                                className={styles.item}
+                                                onClick={() => {
+                                                    setView('detail')
+                                                    setCurProject(item)
                                                 }}
                                             >
-                                                {!!item.branch &&
-                                                    <div className={styles.branch}>
-                                                        <Tag>{item.branch}</Tag>
-                                                    </div>
-                                                }
-                                                <Dropdown
-                                                    trigger={['click']}
-                                                    overlay={
-                                                        <Menu
-                                                            items={[
-                                                                {
-                                                                    label: t('edit'),
-                                                                    key: 'edit',
-                                                                },
-                                                                {
-                                                                    label: t('delete'),
-                                                                    key: 'delete',
-                                                                },
-                                                            ]}
-                                                            onClick={({ key, domEvent }) => {
-                                                                // domEvent.preventDefault()
-                                                                domEvent.stopPropagation()
-                                                                if (key == 'delete') {
-                                                                    deleteProject(item)
-                                                                }
-                                                                else if (key == 'edit') {
-                                                                    editProject(item)
-                                                                }
-                                                            }}
-                                                        />
-                                                    }
+                                                <div className={styles.name}>{item.name}</div>
+                                                <Space
+                                                    onClick={(e) => {
+                                                        e.preventDefault()
+                                                        e.stopPropagation()
+                                                    }}
                                                 >
-                                                    <IconButton
-                                                        // tooltip={t('add')}
-                                                        className={styles.refresh}
-                                                        // onClick={() => {
-                                                        //     setProjectModalVisible(true)
-                                                        // }}
+                                                    {!!item.branch &&
+                                                        <div className={styles.branch}>
+                                                            <Tag>{item.branch}</Tag>
+                                                        </div>
+                                                    }
+                                                    <Dropdown
+                                                        trigger={['click']}
+                                                        overlay={
+                                                            <Menu
+                                                                items={[
+                                                                    {
+                                                                        label: t('edit'),
+                                                                        key: 'edit',
+                                                                    },
+                                                                    {
+                                                                        label: t('delete'),
+                                                                        key: 'delete',
+                                                                    },
+                                                                ]}
+                                                                onClick={({ key, domEvent }) => {
+                                                                    // domEvent.preventDefault()
+                                                                    domEvent.stopPropagation()
+                                                                    if (key == 'delete') {
+                                                                        deleteProject(item)
+                                                                    }
+                                                                    else if (key == 'edit') {
+                                                                        editProject(item)
+                                                                    }
+                                                                }}
+                                                            />
+                                                        }
                                                     >
-                                                        <EllipsisOutlined />
-                                                    </IconButton>
-                                                </Dropdown>
-                                            </Space>
-                                        </div>
-                                    )
-                                })}
+                                                        <IconButton
+                                                            // tooltip={t('add')}
+                                                            className={styles.refresh}
+                                                            // onClick={() => {
+                                                            //     setProjectModalVisible(true)
+                                                            // }}
+                                                        >
+                                                            <EllipsisOutlined />
+                                                        </IconButton>
+                                                    </Dropdown>
+                                                </Space>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
                             </div>
-                        </div>
+                        }
                     </div>
                 </div>
             }
