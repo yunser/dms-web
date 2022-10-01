@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { CopyOutlined, DownloadOutlined, EllipsisOutlined, PlusOutlined } from '@ant-design/icons';
+import { BranchesOutlined, CopyOutlined, DownloadOutlined, EllipsisOutlined, PlusOutlined, TagOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
@@ -27,7 +27,7 @@ export function CommitList({ config, event$, projectPath,  }) {
     
     const [list, setList] = useState([])
     const [curCommit, setCurCommit] = useState(null)
-    const [branchs, setBranchs] = useState([])
+    // const [branchs, setBranchs] = useState([])
     const [curBranch, setCurBranch] = useState('')
     const [files, setFiles] = useState([])
     const [curFile, setCurFile] = useState('')
@@ -111,26 +111,26 @@ export function CommitList({ config, event$, projectPath,  }) {
 
     }
 
-    const [tags, setTags] = useState([])
+    // const [tags, setTags] = useState([])
     // const [current, setCurrent] = useState('')
 
-    async function loadTags() {
-        let res = await request.post(`${config.host}/git/tag/list`, {
-            projectPath,
-            // connectionId,
-            // sql: lineCode,
-            // tableName,
-            // dbName,
-            // logger: true,
-        }, {
-            // noMessage: true,
-        })
-        // console.log('res', res)
-        if (res.success) {
-            setTags(res.data.list)
-            // setCurrent(res.data.current)
-        }
-    }
+    // async function loadTags() {
+    //     let res = await request.post(`${config.host}/git/tag/list`, {
+    //         projectPath,
+    //         // connectionId,
+    //         // sql: lineCode,
+    //         // tableName,
+    //         // dbName,
+    //         // logger: true,
+    //     }, {
+    //         // noMessage: true,
+    //     })
+    //     // console.log('res', res)
+    //     if (res.success) {
+    //         setTags(res.data.list)
+    //         // setCurrent(res.data.current)
+    //     }
+    // }
 
     async function loadList() {
         loadBranch()
@@ -174,7 +174,7 @@ export function CommitList({ config, event$, projectPath,  }) {
 
             // const branchs = []
             setCurBranch(res.data.current)
-            setBranchs(res.data.list)
+            // setBranchs(res.data.list)
         }
     }
 
@@ -224,18 +224,32 @@ export function CommitList({ config, event$, projectPath,  }) {
             }
             item.tags = tags
         }
-        for (let branch of branchs) {
-            const idx = newList.findIndex(item => item.hash.startsWith(branch.commit))
-            if (idx != -1) {
-                if (!newList[idx].branchs) {
-                    newList[idx].branchs = []
+        for (let item of newList) {
+            const refs = item.refs.split(',').filter(item => item)
+            const branches = []
+            for (let ref of refs) {
+                // console.log('ref', ref)
+                if (!ref.includes('tag')) {
+                    branches.push({
+                        name: ref,
+                    })
                 }
-                newList[idx].branchs.push(branch)
             }
+            console.log('branches', branches)
+            item.branches = branches
         }
+        // for (let branch of branchs) {
+        //     const idx = newList.findIndex(item => item.hash.startsWith(branch.commit))
+        //     if (idx != -1) {
+        //         if (!newList[idx].branchs) {
+        //             newList[idx].branchs = []
+        //         }
+        //         newList[idx].branchs.push(branch)
+        //     }
+        // }
         return newList
             // .splice(0, 100)
-    }, [list, branchs, tags])
+    }, [list])
 
     const containerRef = useRef(null);
     const wrapperRef = useRef(null);
@@ -329,24 +343,39 @@ export function CommitList({ config, event$, projectPath,  }) {
                                         key={item.hash}
                                     >
                                         <div className={styles.left}>
-                                            {item.branchs?.length > 0 &&
-                                                <Space>
-                                                    {item.branchs.map(branch => {
-                                                        const simpleName = branch.name.replace(/^remotes\//, '')
+                                            {item.branches?.length > 0 &&
+                                                <div className={styles.tags}>
+                                                    {item.branches.map(branch => {
+                                                        const simpleName = branch.name
+                                                        // const simpleName = branch.name.replace(/^remotes\//, '')
                                                         return (
-                                                            <Tag key={branch.name}>{simpleName}</Tag>
+                                                            <Tag
+                                                                key={branch.name}
+                                                                color="blue"
+                                                            >
+                                                                <BranchesOutlined />
+                                                                {' '}
+                                                                {simpleName}
+                                                            </Tag>
                                                             )
                                                         })}
-                                                </Space>
+                                                </div>
                                             }
                                             {item.tags?.length > 0 &&
-                                                <Space>
+                                                <div className={styles.tags}>
                                                     {item.tags.map(tag => {
                                                         return (
-                                                            <Tag key={tag}>{tag}</Tag>
+                                                            <Tag
+                                                                color="green"
+                                                                key={tag}
+                                                            >
+                                                                <TagOutlined />
+                                                                {' '}
+                                                                {tag}
+                                                            </Tag>
                                                         )
                                                     })}
-                                                </Space>
+                                                </div>
                                             }
                                             {item.message}
                                         </div>
@@ -388,8 +417,12 @@ export function CommitList({ config, event$, projectPath,  }) {
                 {!!curCommit &&
                     <div className={styles.layoutBottomLeft}>
                         <div className={styles.infoBox}>
-                            <div>message：{curCommit.message}</div>
-                            <div>body：{curCommit.body}</div>
+                            <div className={styles.msg}>
+                                <div>{curCommit.message}</div>
+                                {!!curCommit.body &&
+                                    <div>{curCommit.body}</div>
+                                }
+                            </div>
                             <div>
                                 {t('git.hash')}：{curCommit.hash}
                                 <Space>
@@ -404,7 +437,7 @@ export function CommitList({ config, event$, projectPath,  }) {
                             </div>
                             <div>{t('git.author')}：{curCommit.author_name} {'<'}{curCommit.author_email}{'>'}</div>
                             <div>{t('time')}：{curCommit.date ? moment(curCommit.date).format('YYYY-MM-DD HH:mm:ss') : '--'}</div>
-                            <div>refs：{curCommit.refs}</div>
+                            <div>{t('git.refs')}：{curCommit.refs}</div>
                         </div>
                         <div className={styles.fileBox}>
                             <div className={styles.files}>

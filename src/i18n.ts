@@ -269,6 +269,7 @@ i18n
                     'git.delete_file': 'Delete File',
                     'git.discard_change': 'Discard Changes',
                     'git.repository.create': 'Create Repository',
+                    'git.refs': 'Refs',
                 }
             },
             zh: {
@@ -531,6 +532,7 @@ i18n
                     'git.delete_file': '删除文件',
                     'git.discard_change': '丢弃文件',
                     'git.repository.create': '新建仓库',
+                    'git.refs': '引用',
                 }
             }
         },
