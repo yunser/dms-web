@@ -26,6 +26,7 @@ export function ProjectEditor({ config, item, createType, sourceType = 'exist', 
     const editType = item ? 'update' : 'create'
     const [form] = Form.useForm()
     const [userConfig, setUserConfig] = useState('')
+    const [error, setError] = useState('')
 
     async function loadUserHome() {
         let res = await request.post(`${config.host}/git/userConfig`, {
@@ -40,8 +41,9 @@ export function ProjectEditor({ config, item, createType, sourceType = 'exist', 
         loadUserHome()
     }, [])
     async function handleOk() {
-        setLoading(true)
         const values = await form.validateFields()
+        setLoading(true)
+        setError('')
         let res
         if (editType == 'create') {
             res = await request.post(`${config.host}/git/project/create`, {
@@ -49,6 +51,8 @@ export function ProjectEditor({ config, item, createType, sourceType = 'exist', 
                 name: values.name,
                 path: values.path,
                 init: createType == 'init',
+            }, {
+                noMessage: true,
             })
         }
         else {
@@ -57,11 +61,16 @@ export function ProjectEditor({ config, item, createType, sourceType = 'exist', 
                 data: {
                     name: values.name,
                 },
+            }, {
+                noMessage: true,
             })
         }
         // console.log('res', res)
         if (res.success) {
             onSuccess && onSuccess()
+        }
+        else {
+            setError(res.data.message)
         }
         setLoading(false)
     }
@@ -174,6 +183,12 @@ export function ProjectEditor({ config, item, createType, sourceType = 'exist', 
                     />
                 </Form.Item>
             </Form>
+
+            {!!error &&
+                    <div className={styles.error}>
+                        <pre>{error}</pre>
+                    </div>
+                }
         </Modal>
     )
 }
