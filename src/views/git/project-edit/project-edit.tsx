@@ -54,6 +54,36 @@ export function ProjectEditor({ config, item, createType, sourceType = 'exist', 
         setLoading(false)
     }
 
+    async function autoInput() {
+        const url = form.getFieldValue('url')
+        const name = form.getFieldValue('name')
+        if (name) {
+            return
+        }
+        console.log('url', url)
+        // git@github.com:yunser/git-auto-8.git
+        const m = url.match(/\/([\d\D]+?).git$/)
+        if (m) {
+            // if (m &)
+            function aftersplit(text: string, sep: string = '.') {
+                const idx = text.lastIndexOf(sep)
+                if (idx == -1) {
+                    return text.replaceAll('`', '')
+                }
+                return text.substring(idx + 1).replaceAll('`', '')
+            }
+
+            const last = aftersplit(url, '/')
+            console.log('last', last)
+            // git-auto-8.git
+            const gitName = last.split('.')[0]
+
+            form.setFieldsValue({
+                name: gitName,
+            })
+        }
+    }
+    
     useEffect(() => {
         if (item) {
             form.setFieldsValue({
@@ -83,6 +113,7 @@ export function ProjectEditor({ config, item, createType, sourceType = 'exist', 
             onCancel={onCancel}
             onOk={handleOk}
             confirmLoading={loading}
+            maskClosable={false}
         >
             <Form
                 form={form}
@@ -102,7 +133,9 @@ export function ProjectEditor({ config, item, createType, sourceType = 'exist', 
                         label="URL"
                         rules={[ { required: true, }, ]}
                     >
-                        <Input />
+                        <Input
+                            onBlur={autoInput}
+                        />
                     </Form.Item>
                 }
                 <Form.Item

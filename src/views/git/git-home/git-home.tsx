@@ -128,6 +128,7 @@ export function GitHome() {
                                     <ReloadOutlined />
                                 </IconButton>
                                 <Dropdown
+                                    trigger={['click']}
                                     overlay={
                                         <Menu
                                             items={[
@@ -165,7 +166,7 @@ export function GitHome() {
                                     }
                                 >
                                     <IconButton
-                                        tooltip={t('add')}
+                                        // tooltip={t('add')}
                                         className={styles.refresh}
                                         // onClick={() => {
                                         //     setProjectModalVisible(true)
@@ -187,70 +188,72 @@ export function GitHome() {
                             />
                         </div>
                         {/* <div>{keyword}</div> */}
-                        <div className={styles.list}>
-                            {filterdProjects.map(item => {
-                                return (
-                                    <div
-                                        key={item.id}
-                                        className={styles.item}
-                                        onClick={() => {
-                                            setView('detail')
-                                            setCurProject(item)
-                                        }}
-                                    >
-                                        <div className={styles.name}>{item.name}</div>
-                                        <Space
-                                            onClick={(e) => {
-                                                e.preventDefault()
-                                                e.stopPropagation()
+                        <div className={styles.listWrap}>
+                            <div className={styles.list}>
+                                {filterdProjects.map(item => {
+                                    return (
+                                        <div
+                                            key={item.id}
+                                            className={styles.item}
+                                            onClick={() => {
+                                                setView('detail')
+                                                setCurProject(item)
                                             }}
                                         >
-                                            {!!item.branch &&
-                                                <div className={styles.branch}>
-                                                    <Tag>{item.branch}</Tag>
-                                                </div>
-                                            }
-                                            <Dropdown
-                                                trigger={['click']}
-                                                overlay={
-                                                    <Menu
-                                                        items={[
-                                                            {
-                                                                label: t('edit'),
-                                                                key: 'edit',
-                                                            },
-                                                            {
-                                                                label: t('delete'),
-                                                                key: 'delete',
-                                                            },
-                                                        ]}
-                                                        onClick={({ key, domEvent }) => {
-                                                            // domEvent.preventDefault()
-                                                            domEvent.stopPropagation()
-                                                            if (key == 'delete') {
-                                                                deleteProject(item)
-                                                            }
-                                                            else if (key == 'edit') {
-                                                                editProject(item)
-                                                            }
-                                                        }}
-                                                    />
-                                                }
+                                            <div className={styles.name}>{item.name}</div>
+                                            <Space
+                                                onClick={(e) => {
+                                                    e.preventDefault()
+                                                    e.stopPropagation()
+                                                }}
                                             >
-                                                <IconButton
-                                                    // tooltip={t('add')}
-                                                    className={styles.refresh}
-                                                    // onClick={() => {
-                                                    //     setProjectModalVisible(true)
-                                                    // }}
+                                                {!!item.branch &&
+                                                    <div className={styles.branch}>
+                                                        <Tag>{item.branch}</Tag>
+                                                    </div>
+                                                }
+                                                <Dropdown
+                                                    trigger={['click']}
+                                                    overlay={
+                                                        <Menu
+                                                            items={[
+                                                                {
+                                                                    label: t('edit'),
+                                                                    key: 'edit',
+                                                                },
+                                                                {
+                                                                    label: t('delete'),
+                                                                    key: 'delete',
+                                                                },
+                                                            ]}
+                                                            onClick={({ key, domEvent }) => {
+                                                                // domEvent.preventDefault()
+                                                                domEvent.stopPropagation()
+                                                                if (key == 'delete') {
+                                                                    deleteProject(item)
+                                                                }
+                                                                else if (key == 'edit') {
+                                                                    editProject(item)
+                                                                }
+                                                            }}
+                                                        />
+                                                    }
                                                 >
-                                                    <EllipsisOutlined />
-                                                </IconButton>
-                                            </Dropdown>
-                                        </Space>
-                                    </div>
-                                )
-                            })}
+                                                    <IconButton
+                                                        // tooltip={t('add')}
+                                                        className={styles.refresh}
+                                                        // onClick={() => {
+                                                        //     setProjectModalVisible(true)
+                                                        // }}
+                                                    >
+                                                        <EllipsisOutlined />
+                                                    </IconButton>
+                                                </Dropdown>
+                                            </Space>
+                                        </div>
+                                    )
+                                })}
+                            </div>
                         </div>
                     </div>
                 </div>
