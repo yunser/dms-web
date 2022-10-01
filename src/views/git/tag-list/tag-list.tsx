@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { DeleteOutlined, DownloadOutlined, EllipsisOutlined, PlusOutlined } from '@ant-design/icons';
+import { DeleteOutlined, DownloadOutlined, EllipsisOutlined, PlusOutlined, TagOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
@@ -77,7 +77,11 @@ export function TagList({ config, event$, projectPath }) {
     return (
         <div>
             <div className={styles.header}>
-                <div>{t('git.tag')}</div>
+                <div>
+                    <TagOutlined />
+                    {'    '}
+                    {t('git.tag')}
+                </div>
                 <IconButton
                     tooltip={t('git.tag.create')}
                     onClick={() => {

@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { ArrowRightOutlined, DeleteOutlined, DownloadOutlined, EllipsisOutlined } from '@ant-design/icons';
+import { ArrowRightOutlined, BranchesOutlined, DeleteOutlined, DownloadOutlined, EllipsisOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
@@ -93,7 +93,12 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
     return (
         <div className={styles.branchBox}>
             <div className={styles.header}>
-                {t('git.branches')}
+                <div>
+                    <BranchesOutlined />
+                    {'    '}
+                    {t('git.branches')}
+                </div>
+                <div></div>
             </div>
             {branches.length == 0 ?
                 <FullCenterBox

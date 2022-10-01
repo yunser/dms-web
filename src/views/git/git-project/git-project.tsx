@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { ArrowLeftOutlined, DownloadOutlined } from '@ant-design/icons';
+import { ArrowDownOutlined, ArrowLeftOutlined, ArrowUpOutlined, BranchesOutlined, DownloadOutlined, PullRequestOutlined, ReloadOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { CommitList } from '../commit-list';
@@ -120,6 +120,7 @@ export function GitProject({ config, event$, project, onList }) {
                                     data: {},
                                 })
                             }}
+                            icon={<ReloadOutlined />}
                         >
                             {t('refresh')}
                         </Button>
@@ -128,6 +129,7 @@ export function GitProject({ config, event$, project, onList }) {
                             onClick={() => {
                                 setBranchModalVisible(true)
                             }}
+                            icon={<BranchesOutlined />}
                         >
                             {t('git.branches')}
                         </Button>
@@ -136,11 +138,13 @@ export function GitProject({ config, event$, project, onList }) {
                             onClick={() => {
                                 setMergeModalVisible(true)
                             }}
+                            icon={<PullRequestOutlined />}
                         >
                             {t('git.merge')}
                         </Button>
                         <Button
                             size="small"
+                            icon={<ArrowDownOutlined />}
                             onClick={() => {
                                 setPullhModalVisible(true)
                             }}
@@ -149,6 +153,7 @@ export function GitProject({ config, event$, project, onList }) {
                         </Button>
                         <Button
                             size="small"
+                            icon={<ArrowUpOutlined />}
                             onClick={() => {
                                 setPushModalVisible(true)
                             }}

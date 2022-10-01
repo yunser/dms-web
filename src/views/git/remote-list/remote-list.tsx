@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { DownloadOutlined, EllipsisOutlined, PlusOutlined } from '@ant-design/icons';
+import { CloudOutlined, DownloadOutlined, EllipsisOutlined, PlusOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
@@ -71,7 +71,11 @@ export function RemoteList({ config, projectPath }) {
         <div className={styles.remoteBox}>
             {/* <div>远程列表:</div> */}
             <div className={styles.header}>
-                <div>{t('git.remotes')}</div>
+                <div>
+                    <CloudOutlined />
+                    {'    '}
+                    {t('git.remotes')}
+                </div>
                 <IconButton
                     tooltip={t('git.remote.create')}
                     onClick={() => {
