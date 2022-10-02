@@ -117,7 +117,10 @@ export function TagList({ config, event$, projectPath }) {
                 <div className={styles.list}>
                     {tags.map(item => {
                         return (
-                            <div className={styles.item}>
+                            <div 
+                                className={styles.item}
+                                key={item.name}
+                            >
                                 <div className={styles.left}>
                                     <div className={styles.status}>
                                         {/* {item.name == current &&

@@ -13,7 +13,7 @@ export const CopyButton: FC<Props> = ({text, children}) => {
     const copy = useCallback(() => setNoticing(true), [setNoticing]);
 
     return (
-        <Tooltip visible={noticing} title="Copied">
+        <Tooltip open={noticing} title="Copied">
             <CopyToClipboard text={text} onCopy={copy}>
                 {children}
             </CopyToClipboard>

@@ -17,7 +17,7 @@ export function DiffText({ text }) {
     return (
         <div className={styles.diffBox}>
             <div className={styles.lines}>
-                {arr.map(line => {
+                {arr.map((line, index) => {
                     let type = ''
                     if (line.startsWith('@@')) {
                         type = 'desc'
@@ -33,6 +33,7 @@ export function DiffText({ text }) {
                             className={classNames(styles.lineWrap, {
                                 [styles[type]]: true,
                             })}
+                            key={index}
                         >
                             <div
                                 className={styles.line}

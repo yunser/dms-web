@@ -101,7 +101,10 @@ export function RemoteList({ config, event$, projectPath }) {
                 <div className={styles.list}>
                     {remotes.map(item => {
                         return (
-                            <div className={styles.item}>
+                            <div
+                                className={styles.item}
+                                key={item.name}
+                            >
                                 <div className={styles.name}>{item.name}</div>
                                 <Space>
                                     <Dropdown

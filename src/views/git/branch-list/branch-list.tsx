@@ -90,7 +90,10 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
                 <div className={styles.list}>
                     {branches.map(item => {
                         return (
-                            <div className={styles.item}>
+                            <div 
+                                className={styles.item}
+                                key={item.name}
+                            >
                                 <div className={styles.left}>
                                     <div className={styles.status}>
                                         {item.name == current &&

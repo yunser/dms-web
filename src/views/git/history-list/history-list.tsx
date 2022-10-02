@@ -114,7 +114,10 @@ export function HistoryList({ config, event$, projectPath }) {
                 <div className={styles.list}>
                     {histories.map(item => {
                         return (
-                            <div className={styles.item}>
+                            <div
+                                className={styles.item}
+                                key={item.id}
+                            >
                                 <div className={styles.command}>{item.command}</div>
                                 {/* <Space>
                                     <Dropdown

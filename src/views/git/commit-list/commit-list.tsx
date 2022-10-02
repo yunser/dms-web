@@ -486,9 +486,11 @@ export function CommitList({ config, event$, projectPath,  }) {
                             <div className={styles.files}>
                                 {files.map(file => {
                                     return (
-                                        <div className={classNames(styles.item, {
-                                            [styles.active]: file == curFile
-                                        })}
+                                        <div
+                                            key={file}
+                                            className={classNames(styles.item, {
+                                                [styles.active]: file == curFile
+                                            })}
                                             onClick={() => {
                                                 loadFile(file)
                                             }}
