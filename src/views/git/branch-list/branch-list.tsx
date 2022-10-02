@@ -12,12 +12,15 @@ import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/db-manager/redis-client';
+import { BranchDeleteModal } from '../branch-delete';
 // import { saveAs } from 'file-saver'
 
 export function BranchList({ config, event$, projectPath, onBranch }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
 
+    const [branchDeleteModalVisible, setBranchDeleteModalVisible] = useState(false)
+    const [editBranch, setEditBranch] = useState(null)
     const [current, setCurrent] = useState('')
     const [branches, setBranches] = useState([])
 
@@ -63,37 +66,8 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
     })
 
     async function deleteItem(item) {
-        Modal.confirm({
-            title: t('git.branch.delete'),
-            // icon: <ExclamationCircleOutlined />,
-            content: `${t('git.branch.delete.confirm')}「${item.name}」？`,
-            async onOk() {
-                
-                let res = await request.post(`${config.host}/git/branch/delete`, {
-                    projectPath,
-                    name: item.name,
-                })
-                // console.log('ret', ret)
-                if (res.success) {
-                    // message.success('连接成功')
-                    // onConnnect && onConnnect()
-                    message.success(t('success'))
-                    // onClose && onClose()
-                    // onSuccess && onSuccess()
-                    // loadBranches()
-                    event$.emit({
-                        type: 'event_refresh_branch',
-                        data: {},
-                    })
-                    event$.emit({
-                        type: 'event_reload_history',
-                        data: {
-                            commands: res.data.commands,
-                        }
-                    })
-                }
-            }
-        })
+        setBranchDeleteModalVisible(true)
+        setEditBranch(item)
     }
 
     return (
@@ -197,6 +171,20 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
                         )
                     })}
                 </div>
+            }
+            {branchDeleteModalVisible &&
+                <BranchDeleteModal
+                    config={config}
+                    event$={event$}
+                    projectPath={projectPath}
+                    branch={editBranch}
+                    onCancel={() => {
+                        setBranchDeleteModalVisible(false)
+                    }}
+                    onSuccess={() => {
+                        setBranchDeleteModalVisible(false)
+                    }}
+                />
             }
         </div>
     )
