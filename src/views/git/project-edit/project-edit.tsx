@@ -104,11 +104,27 @@ export function ProjectEditor({ config, item, createType, sourceType = 'exist', 
                 name: gitName,
             })
             if (gitName && userConfig && !path) {
-                const _path = `${userConfig.userHome}${userConfig.fileSeparator}${gitName}`
+                const folder = userConfig.defaultClonePath || userConfig.userHome
+                const _path = `${folder}${userConfig.fileSeparator}${gitName}`
                 form.setFieldsValue({
                     path: _path,
                 })
             }
+        }
+    }
+
+    async function autoInput2() {
+        const name = form.getFieldValue('name')
+        const path = form.getFieldValue('path')
+        // if (name) {
+        //     return
+        // }
+        if (name && !path) {
+            const folder = userConfig.defaultClonePath || userConfig.userHome
+            const _path = `${folder}${userConfig.fileSeparator}${name}`
+            form.setFieldsValue({
+                path: _path,
+            })
         }
     }
     
@@ -171,7 +187,9 @@ export function ProjectEditor({ config, item, createType, sourceType = 'exist', 
                     label="Name"
                     rules={[ { required: true, }, ]}
                 >
-                    <Input />
+                    <Input
+                        onBlur={autoInput2}
+                    />
                 </Form.Item>
                 <Form.Item
                     name="path"

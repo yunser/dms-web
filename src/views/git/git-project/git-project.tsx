@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { ArrowDownOutlined, ArrowLeftOutlined, ArrowUpOutlined, BranchesOutlined, DownloadOutlined, PullRequestOutlined, ReloadOutlined } from '@ant-design/icons';
+import { ArrowDownOutlined, ArrowLeftOutlined, ArrowUpOutlined, BranchesOutlined, DownloadOutlined, PullRequestOutlined, ReloadOutlined, SettingOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { CommitList } from '../commit-list';
@@ -21,6 +21,7 @@ import { PullModal } from '../pull-modal';
 import { BranchModal } from '../branch-modal';
 import { MergeModal } from '../merge-modal';
 import { HistoryList } from '../history-list';
+import { UserSetting } from '../user-setting';
 // import { saveAs } from 'file-saver'
 
 export function GitProject({ config, event$, project, onList }) {
@@ -34,6 +35,7 @@ export function GitProject({ config, event$, project, onList }) {
     const [branchModalVisible, setBranchModalVisible] = useState(false)
     const [pullModalVisible, setPullhModalVisible] = useState(false)
     const [pushModalVisible, setPushModalVisible] = useState(false)
+    const [userSettingModalVisible, setUserSettingModalVisible] = useState(false)
     const [allKey, setAllKey] = useState('0')
 
     const tabs = [
@@ -173,6 +175,14 @@ export function GitProject({ config, event$, project, onList }) {
                         >
                             {t('git.push')}
                         </Button>
+                        <IconButton
+                            tooltip={t('setting')}
+                            onClick={() => {
+                                setUserSettingModalVisible(true)
+                            }}
+                        >
+                            <SettingOutlined />
+                        </IconButton>
                     </Space>
                 </div>
                 <div className={styles.body}>
@@ -271,6 +281,27 @@ export function GitProject({ config, event$, project, onList }) {
                     }}
                     onSuccess={() => {
                         setMergeModalVisible(false)
+                        event$.emit({
+                            type: 'event_refresh_commit_list',
+                            data: {},
+                        })
+                        event$.emit({
+                            type: 'event_refresh_branch',
+                            data: {},
+                        })
+                    }}
+                />
+            }
+            {userSettingModalVisible &&
+                <UserSetting
+                    config={config}
+                    event$={event$}
+                    projectPath={projectPath}
+                    onCancel={() => {
+                        setUserSettingModalVisible(false)
+                    }}
+                    onSuccess={() => {
+                        setUserSettingModalVisible(false)
                         event$.emit({
                             type: 'event_refresh_commit_list',
                             data: {},

@@ -274,6 +274,8 @@ i18n
                     'git.discard_change': 'Discard Changes',
                     'git.repository.create': 'Create Repository',
                     'git.refs': 'Refs',
+                    'user_setting': 'User Setting',
+                    'default_clone_path': 'Default Clone Path',
                 }
             },
             zh: {
@@ -541,6 +543,8 @@ i18n
                     'git.discard_change': '丢弃文件',
                     'git.repository.create': '新建仓库',
                     'git.refs': '引用',
+                    'user_setting': '偏好设置',
+                    'default_clone_path': '默认克隆路径',
                 }
             }
         },
