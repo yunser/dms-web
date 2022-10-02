@@ -19,12 +19,13 @@ import { CopyButton } from '@/views/db-manager/copy-button';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { ResetModal } from '../reset-modal';
 import { useVirtualList } from 'ahooks'
+import { TagEditor } from '../tag-edit';
 
 export function CommitList({ config, event$, projectPath,  }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
 
-    
+    const [tagModalVisible, setTagModalVisible] = useState(false)
     const [list, setList] = useState([])
     const [curCommit, setCurCommit] = useState(null)
     // const [branchs, setBranchs] = useState([])
@@ -397,7 +398,11 @@ export function CommitList({ config, event$, projectPath,  }) {
                                                 <Menu
                                                     items={[
                                                         {
-                                                            label: '将当前分支重置到这次提交',
+                                                            label: t('git.tag.create'),
+                                                            key: 'tag_create',
+                                                        },
+                                                        {
+                                                            label: t('git.branch.reset_to_commit'),
                                                             key: 'reset_commit',
                                                         },
                                                     ]}
@@ -405,6 +410,10 @@ export function CommitList({ config, event$, projectPath,  }) {
                                                         if (key == 'reset_commit') {
                                                             setResetModalVisible(true)
                                                             setResetCommit(item)
+                                                        }
+                                                        else if (key == 'tag_create') {
+                                                            setTagModalVisible(true)
+                                                            // setTag(true)
                                                         }
                                                     }}
                                                 />
@@ -491,6 +500,26 @@ export function CommitList({ config, event$, projectPath,  }) {
                         loadList()
                         event$.emit({
                             type: 'event_refresh_status',
+                            data: {},
+                        })
+                    }}
+                />
+            }
+            {tagModalVisible &&
+                <TagEditor
+                    projectPath={projectPath}
+                    commit={curCommit}
+                    config={config}
+                    event$={event$}
+                    onCancel={() => {
+                        setTagModalVisible(false)
+                    }}
+                    onSuccess={() => {
+                        setTagModalVisible(false)
+                        loadList()
+                        // loadTags()
+                        event$.emit({
+                            type: 'event_refresh_tag',
                             data: {},
                         })
                     }}

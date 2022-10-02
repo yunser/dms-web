@@ -127,7 +127,7 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
                                 </div>
                                 <Space>
                                     <IconButton
-                                        tooltip="切换分支"
+                                        tooltip={t('git.branch.switch')}
                                         onClick={async () => {
                                             // Modal.confirm({
                                             //     title: '切换分支',

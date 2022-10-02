@@ -42,7 +42,7 @@ export function GitProject({ config, event$, project, onList }) {
             key: 'status',
         },
         {
-            label: t('git.commit'),
+            label: t('git.commits'),
             key: 'commit-list',
         },
     ]

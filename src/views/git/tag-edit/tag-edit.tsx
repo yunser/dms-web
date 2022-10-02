@@ -17,7 +17,7 @@ import { TagList } from '../tag-list';
 import { request } from '@/views/db-manager/utils/http';
 // import { saveAs } from 'file-saver'
 
-export function TagEditor({ config, event$, projectPath, onSuccess, onCancel, onList }) {
+export function TagEditor({ config, commit, event$, projectPath, onSuccess, onCancel, onList }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [curTab, setCurTab] = useState('status')
@@ -25,14 +25,17 @@ export function TagEditor({ config, event$, projectPath, onSuccess, onCancel, on
     
     const [form] = Form.useForm()
 
-
+    console.log('commitHash', commit)
     async function handleOk() {
         const values = await form.validateFields()
-        let res = await request.post(`${config.host}/git/tag/create`, {
+        const reqData = {
             projectPath,
             name: values.name,
-            // url: values.url,
-        })
+        }
+        if (commit) {
+            reqData.commit = commit.hash
+        }
+        let res = await request.post(`${config.host}/git/tag/create`, reqData)
         // console.log('res', res)
         if (res.success) {
             onSuccess && onSuccess()
@@ -51,12 +54,13 @@ export function TagEditor({ config, event$, projectPath, onSuccess, onCancel, on
             title={t('git.tag.create')}
             onCancel={onCancel}
             onOk={handleOk}
+            width={560}
             maskClosable={false}
         >
             <Form
                 form={form}
-                labelCol={{ span: 8 }}
-                wrapperCol={{ span: 16 }}
+                labelCol={{ span: 4 }}
+                wrapperCol={{ span: 20 }}
                 initialValues={{
                     port: 3306,
                 }}
@@ -72,6 +76,16 @@ export function TagEditor({ config, event$, projectPath, onSuccess, onCancel, on
                 >
                     <Input />
                 </Form.Item>
+                {!!commit &&
+                    <Form.Item
+                        // name="name"
+                        label={t('git.commit')}
+                        // rules={[ { required: true, }, ]}
+                    >
+                        {commit.hash}
+                    </Form.Item>
+                }
+                
                 {/* <Form.Item
                     name="url"
                     label="URL"

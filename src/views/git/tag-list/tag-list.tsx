@@ -19,7 +19,7 @@ export function TagList({ config, event$, projectPath }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
 
-    const [modalVisible, setModalVisible] = useState(false)
+    const [tagModalVisible, setTagModalVisible] = useState(false)
     const [tags, setTags] = useState([])
     // const [current, setCurrent] = useState('')
 
@@ -80,6 +80,16 @@ export function TagList({ config, event$, projectPath }) {
         loadTags()
     }, [])
 
+    event$.useSubscription(msg => {
+        console.log('CommitList/onmessage', msg)
+        // console.log(val);
+        if (msg.type == 'event_refresh_tag') {
+            // const { json } = msg.data
+            // addJsonTab(json)
+            loadTags()
+        }
+    })
+
     return (
         <div>
             <div className={styles.header}>
@@ -91,7 +101,7 @@ export function TagList({ config, event$, projectPath }) {
                 <IconButton
                     tooltip={t('git.tag.create')}
                     onClick={() => {
-                        setModalVisible(true)
+                        setTagModalVisible(true)
                     }}
                 >
                     <PlusOutlined />
@@ -142,31 +152,22 @@ export function TagList({ config, event$, projectPath }) {
                                             <EllipsisOutlined />
                                         </IconButton>
                                     </Dropdown>
-                                    {/* <IconButton
-                                        tooltip="删除标签"
-                                        // disabled={item.name == current}
-                                        onClick={() => {
-                                            
-                                        }}
-                                    >
-                                        <DeleteOutlined />
-                                    </IconButton> */}
                                 </Space>
                             </div>
                         )
                     })}
                 </div>
             }
-            {modalVisible &&
+            {tagModalVisible &&
                 <TagEditor
                     projectPath={projectPath}
                     config={config}
                     event$={event$}
                     onCancel={() => {
-                        setModalVisible(false)
+                        setTagModalVisible(false)
                     }}
                     onSuccess={() => {
-                        setModalVisible(false)
+                        setTagModalVisible(false)
                         loadTags()
                         event$.emit({
                             type: 'event_refresh_commit_list',
