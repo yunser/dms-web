@@ -22,6 +22,20 @@ import { useVirtualList } from 'ahooks'
 import { TagEditor } from '../tag-edit';
 import { BranchModal } from '../branch-modal';
 
+function Hash({ hash }) {
+    const top6Char = hash.substring(0, 6)
+    const otherChar = hash.substring(6)
+    return (
+        <>
+            {/* <span>{hash}</span> */}
+            {/* <hr /> */}
+            <span className={styles.hashPrefix}>{top6Char}</span> 
+            {/* <hr /> */}
+            <span>{otherChar}</span>
+        </>
+    )
+}
+
 export function CommitList({ config, event$, projectPath,  }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
@@ -453,7 +467,7 @@ export function CommitList({ config, event$, projectPath,  }) {
                                 }
                             </div>
                             <div>
-                                {t('git.hash')}：{curCommit.hash}
+                                {t('git.hash')}：<Hash hash={curCommit.hash} />
                                 <Space>
                                     <CopyButton
                                         text={curCommit.hash}
