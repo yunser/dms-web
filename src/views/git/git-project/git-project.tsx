@@ -228,7 +228,7 @@ export function GitProject({ config, event$, project, onList }) {
             }
             {pullModalVisible &&
                 <PullModal
-                event$={event$}
+                    event$={event$}
                     config={config}
                     projectPath={projectPath}
                     onCancel={() => {

@@ -12,7 +12,7 @@ import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
 // import { saveAs } from 'file-saver'
 
-export function BranchModal({ config, event$, projectPath, onSuccess, onCancel }) {
+export function BranchModal({ config, event$, projectPath, commit, onSuccess, onCancel }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
 
@@ -34,10 +34,14 @@ export function BranchModal({ config, event$, projectPath, onSuccess, onCancel }
         // const values = await form.validateFields()
         // console.log('values', values)
         // return
-        let res = await request.post(`${config.host}/git/branch/create`, {
+        const reqData = {
             projectPath,
             name: values.name,
-        })
+        }
+        if (commit) {
+            reqData.commit = commit.hash
+        }
+        let res = await request.post(`${config.host}/git/branch/create`, reqData)
         console.log('pull/res', res)
         if (res.success) {
             // setRemotes(res.data)
@@ -73,8 +77,8 @@ export function BranchModal({ config, event$, projectPath, onSuccess, onCancel }
                 {/* {loading ? 'Pulling' : 'Pull Finished'} */}
                 <Form
                     form={form}
-                    labelCol={{ span: 8 }}
-                    wrapperCol={{ span: 16 }}
+                    labelCol={{ span: 6 }}
+                    wrapperCol={{ span: 18 }}
                     initialValues={{
                         port: 3306,
                     }}
@@ -90,6 +94,15 @@ export function BranchModal({ config, event$, projectPath, onSuccess, onCancel }
                     >
                         <Input />
                     </Form.Item>
+                    {!!commit &&
+                    <Form.Item
+                        // name="name"
+                        label={t('git.commit')}
+                        // rules={[ { required: true, }, ]}
+                    >
+                        {commit.hash}
+                    </Form.Item>
+                }
                 </Form>
             </Modal>
         </div>

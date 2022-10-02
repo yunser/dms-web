@@ -20,12 +20,14 @@ import { IconButton } from '@/views/db-manager/icon-button';
 import { ResetModal } from '../reset-modal';
 import { useVirtualList } from 'ahooks'
 import { TagEditor } from '../tag-edit';
+import { BranchModal } from '../branch-modal';
 
 export function CommitList({ config, event$, projectPath,  }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
 
     const [tagModalVisible, setTagModalVisible] = useState(false)
+    const [branchModalVisible, setBranchModalVisible] = useState(false)
     const [list, setList] = useState([])
     const [curCommit, setCurCommit] = useState(null)
     // const [branchs, setBranchs] = useState([])
@@ -398,6 +400,10 @@ export function CommitList({ config, event$, projectPath,  }) {
                                                 <Menu
                                                     items={[
                                                         {
+                                                            label: t('git.branch.create'),
+                                                            key: 'branch_create',
+                                                        },
+                                                        {
                                                             label: t('git.tag.create'),
                                                             key: 'tag_create',
                                                         },
@@ -413,7 +419,9 @@ export function CommitList({ config, event$, projectPath,  }) {
                                                         }
                                                         else if (key == 'tag_create') {
                                                             setTagModalVisible(true)
-                                                            // setTag(true)
+                                                        }
+                                                        else if (key == 'branch_create') {
+                                                            setBranchModalVisible(true)
                                                         }
                                                     }}
                                                 />
@@ -522,6 +530,25 @@ export function CommitList({ config, event$, projectPath,  }) {
                             type: 'event_refresh_tag',
                             data: {},
                         })
+                    }}
+                />
+            }
+            {branchModalVisible &&
+                <BranchModal
+                    config={config}
+                    event$={event$}
+                    projectPath={projectPath}
+                    commit={curCommit}
+                    onCancel={() => {
+                        setBranchModalVisible(false)
+                    }}
+                    onSuccess={() => {
+                        setBranchModalVisible(false)
+                        event$.emit({
+                            type: 'event_refresh_branch',
+                            data: {},
+                        })
+                        
                     }}
                 />
             }

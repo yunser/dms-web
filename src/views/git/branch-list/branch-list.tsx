@@ -155,6 +155,12 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
                                                         commands: res.data.commands,
                                                     }
                                                 })
+                                                event$.emit({
+                                                    type: 'event_refresh_commit_list',
+                                                    data: {
+                                                        commands: res.data.commands,
+                                                    }
+                                                })
                                             }
                                         }}
                                     >

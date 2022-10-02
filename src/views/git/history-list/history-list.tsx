@@ -41,7 +41,7 @@ export function HistoryList({ config, event$, projectPath }) {
             const { commands } = msg.data
             // console.log('commands', commands)
             setHistories([
-                ...commands,
+                ...commands.reverse(),
                 ...histories,
             ])
         }
