@@ -168,6 +168,7 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
                                                     {
                                                         label: t('git.branch.delete'),
                                                         key: 'delete',
+                                                        disabled: item.name == current,
                                                     },
                                                 ]}
                                                 onClick={({ key }) => {
