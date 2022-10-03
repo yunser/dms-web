@@ -22,13 +22,14 @@ export function FileHome() {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [list, setList] = useState<File[]>([])
-
+    const [curPath, setCurPath] = useState('')
     const config = {
         host: 'http://localhost:10086'
     }
 
     async function loadList() {
         let res = await request.post(`${config.host}/file/list`, {
+            path: curPath,
             // projectPath,
             // connectionId,
             // sql: lineCode,
@@ -53,13 +54,28 @@ export function FileHome() {
         }
     }
 
+    function back() {
+        console.log('cur', curPath)
+        const idx = curPath.lastIndexOf('/') // TODO
+        const newPath = curPath.substring(0, idx)
+        console.log('newPath', newPath)
+        setCurPath(newPath)
+    }
+
     useEffect(() => {
         loadList()
-    }, [])
+    }, [curPath])
 
     return (
         <div className={styles.fileBox}>
             <div className={styles.header}>
+                <Button
+                    onClick={() => {
+                        back()
+                    }}
+                >
+                    返回
+                </Button>
                 <Button
                     onClick={() => {
                         loadList()
@@ -69,12 +85,22 @@ export function FileHome() {
                 </Button>
                 {/* <div className={styles.}>
                 </div> */}
+                {curPath}
             </div>
             <div className={styles.body}>
                 <div className={styles.list}>
                     {list.map(item => {
                         return (
-                            <div className={styles.item}>
+                            <div className={styles.item}
+                                onClick={() => {
+                                    if (item.type == 'FILE') {
+
+                                    }
+                                    else {
+                                        setCurPath(item.path)
+                                    }
+                                }}
+                            >
                                 <div className={styles.icon}>
                                     {item.type == 'FILE' ?
                                         <FileOutlined />
