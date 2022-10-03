@@ -13,13 +13,39 @@
     .body {
         flex: 1 0 auto;
         height: 0;
-        overflow: auto;
+        // overflow: auto;
+        display: flex;
+        flex-direction: column;
+        .bodyHeader {
+            height: 32px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            // border: 1px solid #000;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .bodyBody {
+            flex: 1 0 auto;
+            height: 0;
+            overflow: auto;
+        }
+        .cell {
+            // border: 1px solid #000;
+        }
+        .name {
+            width: 480px;
+            display: flex;
+            align-items: center;
+        }
+        .updateTime {
+            width: 240px;   
+        }
     }
 }
 
 .list {
     // padding: 16px;
-    border: 1px solid var(--border-color);
+    // border: 1px solid var(--border-color);
     // border: 1px solid #f00;
     border-radius: 4px;
     .item {

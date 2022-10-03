@@ -12,7 +12,9 @@ import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/db-manager/redis-client';
+import moment from 'moment';
 // import { saveAs } from 'file-saver'
+import filesize from 'file-size'
 
 interface File {
     name: string
@@ -88,32 +90,53 @@ export function FileHome() {
                 {curPath}
             </div>
             <div className={styles.body}>
-                <div className={styles.list}>
-                    {list.map(item => {
-                        return (
-                            <div className={styles.item}
-                                onClick={() => {
-                                    if (item.type == 'FILE') {
+                <div className={styles.bodyHeader}>
+                    <div className={classNames(styles.cell, styles.name)}>文件名</div>
+                    <div className={classNames(styles.cell, styles.updateTime)}>修改时间</div>
+                    <div className={classNames(styles.cell, styles.size)}>大小</div>
+                </div>
+                <div className={styles.bodyBody}>
+                    <div className={styles.list}>
+                        {list.map(item => {
+                            return (
+                                <div className={styles.item}
+                                    onClick={() => {
+                                        if (item.type == 'FILE') {
 
-                                    }
-                                    else {
-                                        setCurPath(item.path)
-                                    }
-                                }}
-                            >
-                                <div className={styles.icon}>
-                                    {item.type == 'FILE' ?
-                                        <FileOutlined />
-                                    :
-                                        <FolderOutlined />
-                                    }
+                                        }
+                                        else {
+                                            setCurPath(item.path)
+                                        }
+                                    }}
+                                >
+                                    <div className={classNames(styles.cell, styles.name)}>
+                                        <div className={styles.icon}>
+                                            {item.type == 'FILE' ?
+                                                <FileOutlined />
+                                            :
+                                                <FolderOutlined />
+                                            }
+                                        </div>
+                                        <div className={styles.name}>
+                                            {item.name}
+                                        </div>
+                                    </div>
+                                    <div className={classNames(styles.cell, styles.updateTime)}>
+                                        {moment(item.updateTime).format('YYYY-MM-DD HH:mm')}
+                                    </div>
+                                    <div className={classNames(styles.cell, styles.size)}>
+                                        {/* {item.size} */}
+                                        {item.type == 'FILE' ?
+                                            filesize(item.size, { fixed: 1, }).human()
+                                        :
+                                            '--'
+                                        }
+                                        {/* {} */}
+                                    </div>
                                 </div>
-                                <div className={styles.name}>
-                                    {item.name}
-                                </div>
-                            </div>
-                        )
-                    })}
+                            )
+                        })}
+                    </div>
                 </div>
             </div>
         </div>
