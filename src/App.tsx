@@ -31,6 +31,7 @@ import {
 import { HomePage } from './views/home'
 storage.set('asd', 'asd2')
 import { GitHome } from './views/git/git-home'
+import { FileHome } from './views/file/file-home'
 
 function GitPage() {
     return (
@@ -39,6 +40,15 @@ function GitPage() {
         </div>
     )
 }
+
+function FilePage() {
+    return (
+        <div style={{ height: '100vh' }}>
+            <FileHome />
+        </div>
+    )
+}
+
 export default function App() {
     // const [count, setCount] = useState(0)
 
@@ -48,6 +58,7 @@ export default function App() {
                 <Routes>
                     <Route path="/" element={<HomePage />} />
                     <Route path="/git" element={<GitPage />} />
+                    <Route path="/file" element={<FilePage />} />
                 </Routes>
             </div>
         </Router>
