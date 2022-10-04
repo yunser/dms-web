@@ -112,13 +112,13 @@ export function SshConnect() {
         setProjectItem(item)
     }
 
-    async function deleteProject(item) {
+    async function deleteItem(item) {
         Modal.confirm({
             title: '',
             // icon: <ExclamationCircleOutlined />,
-            content: `${t('delete')}「${item.name}」?（不会删除项目文件）`,
+            content: `${t('delete')}「${item.name}」?`,
             async onOk() {
-                let res = await request.post(`${config.host}/git/project/delete`, {
+                let res = await request.post(`${config.host}/ssh/connection/delete`, {
                     id: item.id,
                 })
                 console.log('get/res', res.data)
@@ -228,6 +228,15 @@ export function SshConnect() {
                                                         }}
                                                     >
                                                         {t('edit')}
+                                                    </Button>
+                                                    <Button
+                                                        danger
+                                                        size="small"
+                                                        onClick={() => {
+                                                            deleteItem(item)
+                                                        }}
+                                                    >
+                                                        {t('delete')}
                                                     </Button>
                                                     
                                                     {/* {!!item.changes && item.changes > 0 &&
