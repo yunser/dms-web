@@ -19,10 +19,18 @@ import { FileDetail } from '../file-detail';
 import { FileNameModal } from '../file-name-edit';
 import { FileEdit } from '../file-edit';
 import copy from 'copy-to-clipboard';
+import { FileRenameModal } from '../file-rename';
 
 interface File {
     name: string
     path: string
+}
+
+function getParentPath(curPath) {
+    const idx = curPath.lastIndexOf('/') // TODO
+    const newPath = curPath.substring(0, idx)
+    console.log('newPath', newPath)
+    return newPath || '/'
 }
 
 export function FileList({ config, item, sourceType }) {
@@ -31,7 +39,10 @@ export function FileList({ config, item, sourceType }) {
     const [list, setList] = useState<File[]>([])
     const [error, setError] = useState('')
     
-    const defaultPath = item.username == 'root' ? '/root' : `/home/${item.username}`
+    const defaultPath = item ? 
+        (item.username == 'root' ? '/root' : `/home/${item.username}`)
+    :
+        ''
 
     const [curPath, setCurPath] = useState(defaultPath)
     const [loading, setLoading] = useState(false)
@@ -43,6 +54,8 @@ export function FileList({ config, item, sourceType }) {
     const [folderType, setFolderType] = useState('')
     const [activeItem, setActiveItem] = useState(null)
     const [connected, setConnected] = useState(false)
+    const [renameModalVisible, setRenameModalVisible] = useState(false)
+    const [renameItem, setRenameItem] = useState(null)
 
     async function connect() {
         console.log('flow/1', )
@@ -113,10 +126,8 @@ export function FileList({ config, item, sourceType }) {
 
     function back() {
         console.log('cur', curPath)
-        const idx = curPath.lastIndexOf('/') // TODO
-        const newPath = curPath.substring(0, idx)
-        console.log('newPath', newPath)
-        setCurPath(newPath || '/')
+        
+        setCurPath(getParentPath(curPath))
     }
 
     async function deleteItem(item) {
@@ -260,11 +271,19 @@ export function FileList({ config, item, sourceType }) {
                                                         copy(item.path)
                                                         message.info(t('copied'))
                                                     }
+                                                    else if (key == 'rename') {
+                                                        setRenameModalVisible(true)
+                                                        setRenameItem(item)
+                                                    }
                                                 }}
                                                 items={[
                                                     {
                                                         label: t('open_with_text_editor'),
                                                         key: 'edit',
+                                                    },
+                                                    {
+                                                        label: t('rename'),
+                                                        key: 'rename',
                                                     },
                                                     {
                                                         label: t('delete'),
@@ -380,6 +399,21 @@ export function FileList({ config, item, sourceType }) {
                     }}
                     onSuccess={() => {
                         setFolderVisible(false)
+                        loadList()
+                    }}
+                />
+            }
+            {renameModalVisible &&
+                <FileRenameModal
+                    config={config}
+                    item={renameItem}
+                    type={folderType}
+                    sourceType={sourceType}
+                    onCancel={() => {
+                        setRenameModalVisible(false)
+                    }}
+                    onSuccess={() => {
+                        setRenameModalVisible(false)
                         loadList()
                     }}
                 />
