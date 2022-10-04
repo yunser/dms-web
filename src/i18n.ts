@@ -277,6 +277,7 @@ i18n
                     'user_setting': 'User Setting',
                     'default_clone_path': 'Default Clone Path',
                     'file': 'File',
+                    'title': 'Title',
                 }
             },
             zh: {
@@ -547,6 +548,7 @@ i18n
                     'user_setting': '偏好设置',
                     'default_clone_path': '默认克隆路径',
                     'file': '文件',
+                    'title': '标题',
                 }
             }
         },

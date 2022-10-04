@@ -158,9 +158,10 @@ export function SshConnect() {
                                 <IconButton
                                     // tooltip={t('add')}
                                     className={styles.refresh}
-                                    // onClick={() => {
-                                    //     setProjectModalVisible(true)
-                                    // }}
+                                    onClick={() => {
+                                        setModalVisible(true)
+                                        setModalItem(null)
+                                    }}
                                 >
                                     <PlusOutlined />
                                 </IconButton>
@@ -391,27 +392,22 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
         // setLoading(true)
         let _connections
         if (editType == 'create') {
-            const connections = storage.get('redis-connections', [])
-            if (connections.length) {
-                _connections = connections
-            }
-            else {
-                _connections = []
-            }
-            _connections.unshift({
-                id: uid(32),
+            let res = await request.post(`${config.host}/ssh/connection/create`, {
+                // id: item.id,
+                // data: {
+                // }
                 name: values.name || t('unnamed'),
                 host: values.host || 'localhost',
-                port: values.port || 6379,
-                // user: values.user,
+                port: values.port || 22,
                 password: values.password,
-                userName: values.userName,
-                defaultDatabase: values.defaultDatabase || 0,
-                // db: values.db,
+                username: values.username,
             })
+            if (res.success) {
+                onSuccess && onSuccess()
+            }
         }
         else {
-            let res = await request.post(`${config.host}/ssh/connection/edit`, {
+            let res = await request.post(`${config.host}/ssh/connection/update`, {
                 id: item.id,
                 data: {
                     name: values.name || t('unnamed'),
@@ -420,10 +416,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
                     password: values.password,
                     username: values.username,
                 }
-            }, {
-                // noMessage: true,
             })
-            // console.log('res', res)
             if (res.success) {
                 onSuccess && onSuccess()
             }
@@ -434,8 +427,8 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
         const values = await form.validateFields()
         setLoading(true)
         const reqData = {
-            host: values.host || 'localhost',
-            port: values.port || 6379,
+            host: values.host,
+            port: values.port || 22,
             // user: values.user,
             password: values.password,
             userName: values.userName,
@@ -515,10 +508,10 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
                 <Form.Item
                     name="host"
                     label={t('host')}
-                    // rules={[ { required: true, }, ]}
+                    rules={[ { required: true, }, ]}
                 >
                     <Input
-                        placeholder="localhost"
+                        // placeholder="localhost"
                     />
                 </Form.Item>
                 <Form.Item
@@ -527,7 +520,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
                     // rules={[{ required: true, },]}
                 >
                     <InputNumber
-                        placeholder="6379"
+                        placeholder="22"
                     />
                 </Form.Item>
                 {/* <Form.Item
@@ -540,6 +533,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
                 <Form.Item
                     name="username"
                     label={t('user_name')}
+                    rules={[{ required: true, },]}
                 >
                     <Input />
                 </Form.Item>
