@@ -107,7 +107,7 @@ export function FileList({ config, item, sourceType }) {
         const idx = curPath.lastIndexOf('/') // TODO
         const newPath = curPath.substring(0, idx)
         console.log('newPath', newPath)
-        setCurPath(newPath)
+        setCurPath(newPath || '/')
     }
 
     async function deleteItem(item) {
