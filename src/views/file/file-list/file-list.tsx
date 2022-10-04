@@ -1,4 +1,4 @@
-import { Button, Descriptions, Dropdown, Empty, Input, Menu, message, Modal, Popover, Space, Table, Tabs, Tag } from 'antd';
+import { Button, Descriptions, Dropdown, Empty, Input, Menu, message, Modal, Popover, Space, Spin, Table, Tabs, Tag } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './file-list.module.less';
 import _ from 'lodash';
@@ -29,6 +29,7 @@ export function FileList({ config, item, sourceType }) {
     const { t } = useTranslation()
     const [list, setList] = useState<File[]>([])
     const [curPath, setCurPath] = useState('')
+    const [loading, setLoading] = useState(false)
     const [fileDetailModalVisible, setFileDetialModalVisible] = useState(false)
     const [fileModalPath, setFileModalPath] = useState('')
     const [fileEditModalVisible, setFileEditModalVisible] = useState(false)
@@ -64,6 +65,7 @@ export function FileList({ config, item, sourceType }) {
     }, [item])
 
     async function loadList() {
+        setLoading(true)
         let res = await request.post(`${config.host}/file/list`, {
             path: curPath,
             sourceType,
@@ -89,6 +91,7 @@ export function FileList({ config, item, sourceType }) {
             setList(list)
             // setCurrent(res.data.current)
         }
+        setLoading(false)
     }
 
     useEffect(() => {
@@ -145,7 +148,7 @@ export function FileList({ config, item, sourceType }) {
             <div className={styles.header}>
                 <div className={styles.headerLeft}>
                     <IconButton
-                        tooltip="返回"
+                        tooltip={t('back')}
                         onClick={() => {
                             back()
                         }}
@@ -153,7 +156,7 @@ export function FileList({ config, item, sourceType }) {
                         <LeftOutlined />
                     </IconButton>
                     <IconButton
-                        tooltip="刷新"
+                        tooltip={t('refresh')}
                         onClick={() => {
                             loadList()
                         }}
@@ -176,11 +179,11 @@ export function FileList({ config, item, sourceType }) {
                                 }}
                                 items={[
                                     {
-                                        label: t('文件'),
+                                        label: t('file'),
                                         key: 'create_file',
                                     },
                                     {
-                                        label: t('文件夹'),
+                                        label: t('folder'),
                                         key: 'create_folder',
                                     },
                                 ]}
@@ -188,7 +191,7 @@ export function FileList({ config, item, sourceType }) {
                         }
                     >
                         <IconButton
-                            tooltip="新建"
+                            tooltip={t('add')}
                         >
                             <PlusOutlined />
                         </IconButton>
@@ -196,17 +199,23 @@ export function FileList({ config, item, sourceType }) {
                     <div className={styles.path}>{curPath}</div>
                 </div>
                 {sourceType == 'ssh' &&
-                    <div>{connected ? '已链接' : '未连接'}</div>
+                    <div>{connected ? t('connected') : t('connect_unknown')}</div>
                 }
             </div>
             <div className={styles.body}>
                 <div className={styles.bodyHeader}>
-                    <div className={classNames(styles.cell, styles.name)}>文件名</div>
-                    <div className={classNames(styles.cell, styles.updateTime)}>修改时间</div>
-                    <div className={classNames(styles.cell, styles.size)}>大小</div>
+                    <div className={classNames(styles.cell, styles.name)}>{t('name')}</div>
+                    <div className={classNames(styles.cell, styles.updateTime)}>{t('update_time')}</div>
+                    <div className={classNames(styles.cell, styles.size)}>{t('size')}</div>
                 </div>
                 <div className={styles.bodyBody}>
-                    {list.length == 0 ?
+                    {loading ?
+                        <FullCenterBox
+                            height={240}
+                        >
+                            <Spin />
+                        </FullCenterBox>
+                    : list.length == 0 ?
                         <FullCenterBox>
                             <Empty />
                         </FullCenterBox>
@@ -228,11 +237,11 @@ export function FileList({ config, item, sourceType }) {
                                                 }}
                                                 items={[
                                                     {
-                                                        label: t('用文本编辑器打开'),
+                                                        label: t('open_with_text_editor'),
                                                         key: 'edit',
                                                     },
                                                     {
-                                                        label: t('删除'),
+                                                        label: t('delete'),
                                                         key: 'delete_file',
                                                     },
                                                 ]}

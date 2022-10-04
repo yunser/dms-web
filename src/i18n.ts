@@ -278,6 +278,9 @@ i18n
                     'default_clone_path': 'Default Clone Path',
                     'file': 'File',
                     'title': 'Title',
+                    'back': 'Back',
+                    'size': 'Size',
+                    'open_with_text_editor': 'Open with Text Editor',
                 }
             },
             zh: {
@@ -549,6 +552,9 @@ i18n
                     'default_clone_path': '默认克隆路径',
                     'file': '文件',
                     'title': '标题',
+                    'back': '返回',
+                    'size': '大小',
+                    'open_with_text_editor': '用文本编辑器打开',
                 }
             }
         },

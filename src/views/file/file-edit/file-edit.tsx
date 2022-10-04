@@ -62,6 +62,7 @@ export function FileEdit({ config, path, sourceType, onSuccess, onCancel }) {
         <Modal
             title={path}
             open={true}
+            width={1200}
             onCancel={onCancel}
             onOk={handleOk}
             maskClosable={false}
@@ -69,7 +70,7 @@ export function FileEdit({ config, path, sourceType, onSuccess, onCancel }) {
         >
             <Input.TextArea
                 value={content}
-                rows={4}
+                rows={16}
                 onChange={e => {
                     setContent(e.target.value)
                 }}

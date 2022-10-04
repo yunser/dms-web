@@ -156,7 +156,7 @@ export function SshConnect() {
                                     <ReloadOutlined />
                                 </IconButton>
                                 <IconButton
-                                    // tooltip={t('add')}
+                                    tooltip={t('add')}
                                     className={styles.refresh}
                                     onClick={() => {
                                         setModalVisible(true)
