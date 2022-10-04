@@ -158,26 +158,61 @@ export function FileList({ config, item, sourceType }) {
 
     useEffect(() => {
         function handleKeyDown(e) {
-            console.log('e', e.code)
-            if (e.code == 'ArrowDown') {
-                let idx = -1
-                if (activeItem) {
-                    idx = list.findIndex(item => item.name == activeItem.name)
+            console.log('e', e.code, e)
+            console.log('e/e.keyCode', e.keyCode)
+            console.log('e.srcElement', e.srcElement.nodeName)
+            if (e.srcElement.nodeName == 'INPUT' || e.srcElement.nodeName == 'TEXTAREA') {
+                return
+            }
+            // 数字 48-57
+            // 字母 a-z 65-90
+            function keyCode2Text(keyCode) {
+                if (keyCode >= 48 && keyCode <= 57) {
+                    return '0123456789'.charAt(keyCode - 48)
                 }
-                if (idx < list.length - 1) {
-                    const newIdx = idx + 1
-                    setActiveItem(list[newIdx])
+                if (keyCode >= 65 && keyCode <= 90) {
+                    return 'abcdefghijklmnopqrstuvwxyz'.charAt(keyCode - 65)
+                }
+                return '?'
+            }
+
+            if ((e.keyCode >= 48 && e.keyCode <= 57) || (e.keyCode >= 65 && e.keyCode <= 90)) {
+                const idx = list.findIndex(item => item.name.toLowerCase().startsWith(keyCode2Text(e.keyCode)))
+                if (idx != -1) {
+                    setActiveItem(list[idx])
+                }
+            }
+            else if (e.code == 'ArrowDown') {
+                if (e.metaKey) {
+                    if (activeItem.type != 'FILE') {
+                        viewItem(activeItem)
+                    }
+                }
+                else {
+                    let idx = -1
+                    if (activeItem) {
+                        idx = list.findIndex(item => item.name == activeItem.name)
+                    }
+                    if (idx < list.length - 1) {
+                        const newIdx = idx + 1
+                        setActiveItem(list[newIdx])
+                    }
                 }
             }
             else if (e.code == 'ArrowUp') {
-                let idx = list.length
-                if (activeItem) {
-                    idx = list.findIndex(item => item.name == activeItem.name)
+                if (e.metaKey) {
+                    back()
                 }
-                // console.log('idx', idx)
-                if (idx > 0) {
-                    const newIdx = idx - 1
-                    setActiveItem(list[newIdx])
+                else {
+                    let idx = list.length
+                    if (activeItem) {
+                        idx = list.findIndex(item => item.name == activeItem.name)
+                    }
+                    // console.log('idx', idx)
+                    if (idx > 0) {
+                        const newIdx = idx - 1
+                        setActiveItem(list[newIdx])
+                    }
                 }
             }
             else if (e.code == 'Space') {
