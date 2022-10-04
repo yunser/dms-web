@@ -32,6 +32,7 @@ import { HomePage } from './views/home'
 storage.set('asd', 'asd2')
 import { GitHome } from './views/git/git-home'
 import { FileHome } from './views/file/file-home'
+import { SshHome } from './views/ssh/ssh-home'
 
 function GitPage() {
     return (
@@ -49,6 +50,15 @@ function FilePage() {
     )
 }
 
+function SshPage() {
+    return (
+        <div style={{ height: '100vh' }}>
+            <SshHome />
+        </div>
+    )
+}
+
+
 export default function App() {
     // const [count, setCount] = useState(0)
 
@@ -59,6 +69,7 @@ export default function App() {
                     <Route path="/" element={<HomePage />} />
                     <Route path="/git" element={<GitPage />} />
                     <Route path="/file" element={<FilePage />} />
+                    <Route path="/ssh" element={<SshPage />} />
                 </Routes>
             </div>
         </Router>

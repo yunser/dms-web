@@ -1,6 +1,6 @@
 import { Button, Descriptions, Dropdown, Empty, Input, Menu, message, Modal, Popover, Space, Table, Tabs, Tag } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import styles from './file-home.module.less';
+import styles from './file-detail.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
 // console.log('lodash', _)
@@ -21,27 +21,36 @@ interface File {
     name: string
 }
 
-export function FileHome() {
+export function FileDetail({ config, path, onCancel }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [list, setList] = useState<File[]>([])
-    const [curPath, setCurPath] = useState('')
-    const config = {
-        host: 'http://localhost:10086'
+    const [content, setContent] = useState('')
+
+    async function loadDetail() {
+        let res = await request.post(`${config.host}/file/read`, {
+            path,
+        }, {
+            // noMessage: true,
+        })
+        // console.log('res', res)
+        if (res.success) {
+            setContent(res.data.content)
+        }
     }
 
+    useEffect(() => {
+        loadDetail()
+    }, [])
+
     return (
-        <div className={styles.fileLayout}>
-            <div className={styles.layoutLeft}>
-                <FileList
-                    config={config}
-                />
-            </div>
-            <div className={styles.layoutRight}>
-                <FileList
-                    config={config}
-                />
-            </div>
-        </div>
+        <Modal
+            title={path}
+            open={true}
+            onCancel={onCancel}
+            footer={null}
+        >
+            <pre>{content}</pre>
+        </Modal>
     )
 }

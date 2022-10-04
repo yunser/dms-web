@@ -1,0 +1,86 @@
+.fileBox {
+    height: 100%;
+    // border: 1px solid #f00;
+    display: flex;
+    flex-direction: column;
+    .header {
+        flex: 0 0 40px;
+        // border: 1px solid #f00;
+        padding: 0 16px;
+        display: flex;
+        align-items: center;
+        .path {
+            // border: 1px solid #000;
+            margin-left: 16px;
+        }
+    }
+    .body {
+        flex: 1 0 auto;
+        height: 0;
+        // overflow: auto;
+        display: flex;
+        flex-direction: column;
+        .bodyHeader {
+            height: 32px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            // border: 1px solid #000;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .bodyBody {
+            flex: 1 0 auto;
+            height: 0;
+            overflow: auto;
+        }
+        .cell {
+            // border: 1px solid #000;
+        }
+        .name {
+            width: 480px;
+            display: flex;
+            align-items: center;
+        }
+        .updateTime {
+            width: 240px;   
+        }
+        .label {
+            max-width: 320px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+}
+
+.list {
+    // padding: 16px;
+    // border: 1px solid var(--border-color);
+    // border: 1px solid #f00;
+    border-radius: 4px;
+    .item {
+        height: 40px;
+        padding: 0 16px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        // justify-content: space-between;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        &:last-child {
+            border-bottom: none;
+        }
+        &:hover {
+            background-color: var(--color-f9);
+        }
+    }
+    .icon {
+        // height: 48px;
+        // border: 1px solid #000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-right: 8px;
+    }
+}
