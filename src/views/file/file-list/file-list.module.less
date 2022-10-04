@@ -4,7 +4,7 @@
     display: flex;
     flex-direction: column;
     &:active {
-        border: 1px solid #f00;
+        // border: 1px solid #f00;
     }
     .header {
         flex: 0 0 40px;
@@ -64,7 +64,7 @@
     .item {
         height: 40px;
         padding: 0 16px;
-        cursor: pointer;
+        // cursor: pointer;
         display: flex;
         align-items: center;
         // justify-content: space-between;
@@ -76,6 +76,10 @@
         }
         &:hover {
             background-color: var(--color-f9);
+        }
+        &.active {
+            color: #fff;
+            background-color: #2466d8;
         }
     }
     .icon {

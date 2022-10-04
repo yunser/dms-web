@@ -47,6 +47,7 @@ export function FileNameModal({ config, path, onSuccess, sourceType, onCancel })
             // connectionId: connectionId,
             path,
             name: values.name,
+            sourceType,
             // field: '',
             // value: 'New Item',
             // dbName,

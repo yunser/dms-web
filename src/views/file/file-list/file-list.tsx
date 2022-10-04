@@ -31,6 +31,8 @@ export function FileList({ config, sourceType }) {
     const [fileModalVisible, setFileModalVisible] = useState(false)
     const [fileModalPath, setFileModalPath] = useState('')
     const [folderVisible, setFolderVisible] = useState(false)
+    const [activeItem, setActiveItem] = useState(null)
+
     async function loadList() {
         let res = await request.post(`${config.host}/file/list`, {
             path: curPath,
@@ -65,6 +67,30 @@ export function FileList({ config, sourceType }) {
         const newPath = curPath.substring(0, idx)
         console.log('newPath', newPath)
         setCurPath(newPath)
+    }
+
+    async function deleteItem(item) {
+        Modal.confirm({
+            // title: 'Confirm',
+            // icon: <ExclamationCircleOutlined />,
+            content: `${t('delete')}「${item.name}」?`,
+            async onOk() {
+                
+                let ret = await request.post(`${config.host}/file/delete`, {
+                    sourceType,
+                    path: item.path,
+                })
+                // console.log('ret', ret)
+                if (ret.success) {
+                    // message.success('连接成功')
+                    // onConnnect && onConnnect()
+                    // message.success(t('success'))
+                    // onClose && onClose()
+                    // onSuccess && onSuccess()
+                    loadList()
+                }
+            }
+        })
     }
 
     useEffect(() => {
@@ -131,51 +157,78 @@ export function FileList({ config, sourceType }) {
                         <div className={styles.list}>
                             {list.map(item => {
                                 return (
-                                    <div className={styles.item}
-                                        onClick={() => {
-                                            if (item.type == 'FILE') {
-                                                if (sourceType == 'local') {
+                                    <Dropdown
+                                        trigger={['contextMenu']}
+                                        overlay={
+                                            <Menu
+                                                onClick={({ key }) => {
+                                                    if (key == 'delete_file') {
+                                                        deleteItem(item)
+                                                    }
+                                                }}
+                                                items={[
+                                                    {
+                                                        label: t('删除'),
+                                                        key: 'delete_file',
+                                                    },
+                                                ]}
+                                            />
+                                        }
+                                    >
+                                        <div className={classNames(styles.item, {
+                                            [styles.active]: activeItem && activeItem.name == item.name
+                                        })}
+                                            onClick={() => {
+                                                setActiveItem(item)
+                                            }}
+                                            onContextMenu={() => {
+                                                setActiveItem(item)
+                                            }}
+                                            onDoubleClick={() => {
+                                                if (item.type == 'FILE') {
+                                                    if (sourceType == 'local') {
 
+                                                    }
+                                                    else {
+                                                        if (item.size > 1 * 1024 * 1024) {
+                                                            message.info('文件太大，暂不支持查看')
+                                                            return
+                                                        }
+                                                    }
+                                                    setFileModalVisible(true)
+                                                    setFileModalPath(item.path)
                                                 }
                                                 else {
-                                                    if (item.size > 1 * 1024 * 1024) {
-                                                        message.info('文件太大，暂不支持查看')
-                                                        return
+                                                    setCurPath(item.path)
+                                                }
+                                            }}
+                                        >
+                                            <div className={classNames(styles.cell, styles.name)}>
+                                                <div className={styles.icon}>
+                                                    {item.type == 'FILE' ?
+                                                        <FileOutlined />
+                                                    :
+                                                        <FolderOutlined />
                                                     }
-                                                }
-                                                setFileModalVisible(true)
-                                                setFileModalPath(item.path)
-                                            }
-                                            else {
-                                                setCurPath(item.path)
-                                            }
-                                        }}
-                                    >
-                                        <div className={classNames(styles.cell, styles.name)}>
-                                            <div className={styles.icon}>
+                                                </div>
+                                                <div className={styles.label}>
+                                                    {item.name}
+                                                </div>
+                                            </div>
+                                            <div className={classNames(styles.cell, styles.updateTime)}>
+                                                {moment(item.updateTime).format('YYYY-MM-DD HH:mm')}
+                                            </div>
+                                            <div className={classNames(styles.cell, styles.size)}>
+                                                {/* {item.size} */}
                                                 {item.type == 'FILE' ?
-                                                    <FileOutlined />
+                                                    filesize(item.size, { fixed: 1, }).human()
                                                 :
-                                                    <FolderOutlined />
+                                                    '--'
                                                 }
-                                            </div>
-                                            <div className={styles.label}>
-                                                {item.name}
+                                                {/* {} */}
                                             </div>
                                         </div>
-                                        <div className={classNames(styles.cell, styles.updateTime)}>
-                                            {moment(item.updateTime).format('YYYY-MM-DD HH:mm')}
-                                        </div>
-                                        <div className={classNames(styles.cell, styles.size)}>
-                                            {/* {item.size} */}
-                                            {item.type == 'FILE' ?
-                                                filesize(item.size, { fixed: 1, }).human()
-                                            :
-                                                '--'
-                                            }
-                                            {/* {} */}
-                                        </div>
-                                    </div>
+                                    </Dropdown>
                                 )
                             })}
                         </div>
