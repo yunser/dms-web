@@ -16,6 +16,7 @@ import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/db-manager/redis-client';
 import { SshDetail } from '../ssh-home';
 // import { saveAs } from 'file-saver'
+import { FileList } from '../../file/file-list'
 
 export function SshConnect() {
     // const { defaultJson = '' } = data
@@ -77,6 +78,8 @@ export function SshConnect() {
     useEffect(() => {
         loadList()
     }, [])
+
+    
 
     function editProject(item) {
         setProjectModalVisible(true)
@@ -220,6 +223,15 @@ export function SshConnect() {
                                                     >
                                                         SSH
                                                     </Button>
+                                                    <Button
+                                                        size="small"
+                                                        onClick={() => {
+                                                            setView('sftp')
+                                                            setCurItem(item)
+                                                        }}
+                                                    >
+                                                        SFTP
+                                                    </Button>
                                                     {/* {!!item.changes && item.changes > 0 &&
                                                         <div className={styles.branch}>
                                                             <div className={styles.changes}>{item.changes}</div>
@@ -289,6 +301,13 @@ export function SshConnect() {
                     onBack={() => {
                         setView('list')
                     }}
+                />
+            }
+            {view == 'sftp' &&
+                <FileList
+                    config={config}
+                    sourceType="ssh"
+                    item={curItem}
                 />
             }
             {/* {projectModalVisible &&

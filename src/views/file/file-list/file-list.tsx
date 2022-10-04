@@ -23,7 +23,7 @@ interface File {
     path: string
 }
 
-export function FileList({ config, sourceType }) {
+export function FileList({ config, item, sourceType }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [list, setList] = useState<File[]>([])
@@ -33,6 +33,30 @@ export function FileList({ config, sourceType }) {
     const [folderVisible, setFolderVisible] = useState(false)
     const [folderType, setFolderType] = useState('')
     const [activeItem, setActiveItem] = useState(null)
+    const [connected, setConnected] = useState(false)
+
+    async function connect() {
+        console.log('flow/1', )
+        let ret = await request.post(`${config.host}/sftp/connect`, {
+            ...item,
+            // path: item.path,
+            // type: item.type,
+        })
+        console.log('connect/res', ret)
+        if (ret.success) {
+            // message.success('连接成功')
+            // onConnnect && onConnnect()
+            // message.success(t('success'))
+            // onClose && onClose()
+            // onSuccess && onSuccess()
+            // loadList()
+            setConnected(true)
+        }
+    }
+    
+    useEffect(() => {
+        connect()
+    }, [item])
 
     async function loadList() {
         let res = await request.post(`${config.host}/file/list`, {
@@ -61,6 +85,13 @@ export function FileList({ config, sourceType }) {
             // setCurrent(res.data.current)
         }
     }
+
+    useEffect(() => {
+        if (sourceType == 'ssh' && !connected) {
+            return
+        }
+        loadList()
+    }, [curPath, connected])
 
     function back() {
         console.log('cur', curPath)
@@ -95,63 +126,70 @@ export function FileList({ config, sourceType }) {
         })
     }
 
-    useEffect(() => {
-        loadList()
-    }, [curPath])
+    
 
+    if (sourceType == 'ssh' && !item) {
+        return <div>No item</div>
+    }
+    
     return (
         <div className={styles.fileBox}>
             <div className={styles.header}>
-                <IconButton
-                    tooltip="返回"
-                    onClick={() => {
-                        back()
-                    }}
-                >
-                    <LeftOutlined />
-                </IconButton>
-                <IconButton
-                    tooltip="刷新"
-                    onClick={() => {
-                        loadList()
-                    }}
-                >
-                    <ReloadOutlined />
-                </IconButton>
-                <Dropdown
-                    trigger={['click']}
-                    overlay={
-                        <Menu
-                            onClick={({ key }) => {
-                                if (key == 'create_folder') {
-                                    setFolderVisible(true)
-                                    setFolderType('FOLDER')
-                                }
-                                else if (key == 'create_file') {
-                                    setFolderVisible(true)
-                                    setFolderType('FILE')
-                                }
-                            }}
-                            items={[
-                                {
-                                    label: t('文件'),
-                                    key: 'create_file',
-                                },
-                                {
-                                    label: t('文件夹'),
-                                    key: 'create_folder',
-                                },
-                            ]}
-                        />
-                    }
-                >
+                <div className={styles.headerLeft}>
                     <IconButton
-                        tooltip="新建"
+                        tooltip="返回"
+                        onClick={() => {
+                            back()
+                        }}
                     >
-                        <PlusOutlined />
+                        <LeftOutlined />
                     </IconButton>
-                </Dropdown>
-                <div className={styles.path}>{curPath}</div>
+                    <IconButton
+                        tooltip="刷新"
+                        onClick={() => {
+                            loadList()
+                        }}
+                    >
+                        <ReloadOutlined />
+                    </IconButton>
+                    <Dropdown
+                        trigger={['click']}
+                        overlay={
+                            <Menu
+                                onClick={({ key }) => {
+                                    if (key == 'create_folder') {
+                                        setFolderVisible(true)
+                                        setFolderType('FOLDER')
+                                    }
+                                    else if (key == 'create_file') {
+                                        setFolderVisible(true)
+                                        setFolderType('FILE')
+                                    }
+                                }}
+                                items={[
+                                    {
+                                        label: t('文件'),
+                                        key: 'create_file',
+                                    },
+                                    {
+                                        label: t('文件夹'),
+                                        key: 'create_folder',
+                                    },
+                                ]}
+                            />
+                        }
+                    >
+                        <IconButton
+                            tooltip="新建"
+                        >
+                            <PlusOutlined />
+                        </IconButton>
+                    </Dropdown>
+                    <div className={styles.path}>{curPath}</div>
+                </div>
+                {sourceType == 'ssh' &&
+                    <div>{connected ? '已链接' : '未连接'}</div>
+                }
             </div>
             <div className={styles.body}>
                 <div className={styles.bodyHeader}>
