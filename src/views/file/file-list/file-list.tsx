@@ -31,6 +31,7 @@ export function FileList({ config, sourceType }) {
     const [fileModalVisible, setFileModalVisible] = useState(false)
     const [fileModalPath, setFileModalPath] = useState('')
     const [folderVisible, setFolderVisible] = useState(false)
+    const [folderType, setFolderType] = useState('')
     const [activeItem, setActiveItem] = useState(null)
 
     async function loadList() {
@@ -79,6 +80,7 @@ export function FileList({ config, sourceType }) {
                 let ret = await request.post(`${config.host}/file/delete`, {
                     sourceType,
                     path: item.path,
+                    type: item.type,
                 })
                 // console.log('ret', ret)
                 if (ret.success) {
@@ -123,9 +125,18 @@ export function FileList({ config, sourceType }) {
                             onClick={({ key }) => {
                                 if (key == 'create_folder') {
                                     setFolderVisible(true)
+                                    setFolderType('FOLDER')
+                                }
+                                else if (key == 'create_file') {
+                                    setFolderVisible(true)
+                                    setFolderType('FILE')
                                 }
                             }}
                             items={[
+                                {
+                                    label: t('文件'),
+                                    key: 'create_file',
+                                },
                                 {
                                     label: t('文件夹'),
                                     key: 'create_folder',
@@ -249,6 +260,7 @@ export function FileList({ config, sourceType }) {
                 <FileNameModal
                     config={config}
                     path={curPath}
+                    type={folderType}
                     sourceType={sourceType}
                     onCancel={() => {
                         setFolderVisible(false)

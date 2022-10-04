@@ -21,7 +21,7 @@ interface File {
     name: string
 }
 
-export function FileNameModal({ config, path, onSuccess, sourceType, onCancel }) {
+export function FileNameModal({ config, type, path, onSuccess, sourceType, onCancel }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [list, setList] = useState<File[]>([])
@@ -48,6 +48,7 @@ export function FileNameModal({ config, path, onSuccess, sourceType, onCancel })
             path,
             name: values.name,
             sourceType,
+            type,
             // field: '',
             // value: 'New Item',
             // dbName,
@@ -63,7 +64,7 @@ export function FileNameModal({ config, path, onSuccess, sourceType, onCancel })
 
     return (
         <Modal
-            title="新建文件夹"
+            title={type == 'FILE' ? '新建文件' : '新建文件夹'}
             open={true}
             onCancel={onCancel}
             onOk={handleOk}
