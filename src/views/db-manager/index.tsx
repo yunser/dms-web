@@ -24,6 +24,7 @@ import { TextEditor } from './text'
 import { useEventEmitter } from 'ahooks'
 import { getTheme, toggleTheme } from '../../theme'
 import { GitHome } from '../git/git-home'
+import { SshConnect } from '../ssh/ssh-connect'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -301,6 +302,17 @@ export function DbManager({ config }) {
                                                                 },
                                                             })
                                                         }
+                                                        else if (key == 'ssh') {
+                                                            addOrActiveTab({
+                                                                title: 'SSH/SFTP',
+                                                                // key: 'redis-' + uid(16),
+                                                                key: 'ssh-home-0',
+                                                                type: 'ssh-connect',
+                                                                data: {
+                                                                    // url,
+                                                                },
+                                                            })
+                                                        }
                                                     }}
                                                     items={[
                                                         {
@@ -310,6 +322,10 @@ export function DbManager({ config }) {
                                                         {
                                                             label: t('GIT'),
                                                             key: 'git',
+                                                        },
+                                                        {
+                                                            label: t('SSH/SFTP'),
+                                                            key: 'ssh',
                                                         },
                                                         {
                                                             label: t('Elasticsearch'),
@@ -524,6 +540,10 @@ export function DbManager({ config }) {
                                     }
                                     {item.type == 'git-project' &&
                                         <GitHome
+                                        />
+                                    }
+                                    {item.type == 'ssh-connect' &&
+                                        <SshConnect
                                         />
                                     }
                             </div>
