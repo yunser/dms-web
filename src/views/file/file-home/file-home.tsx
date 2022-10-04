@@ -35,11 +35,13 @@ export function FileHome() {
             <div className={styles.layoutLeft}>
                 <FileList
                     config={config}
+                    sourceType="local"
                 />
             </div>
             <div className={styles.layoutRight}>
                 <FileList
                     config={config}
+                    sourceType="ssh"
                 />
             </div>
         </div>

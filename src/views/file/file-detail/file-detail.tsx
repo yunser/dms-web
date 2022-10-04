@@ -21,7 +21,7 @@ interface File {
     name: string
 }
 
-export function FileDetail({ config, path, onCancel }) {
+export function FileDetail({ config, path, sourceType, onCancel }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [list, setList] = useState<File[]>([])
@@ -30,6 +30,7 @@ export function FileDetail({ config, path, onCancel }) {
     async function loadDetail() {
         let res = await request.post(`${config.host}/file/read`, {
             path,
+            sourceType,
         }, {
             // noMessage: true,
         })

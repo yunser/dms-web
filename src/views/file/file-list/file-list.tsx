@@ -16,23 +16,25 @@ import moment from 'moment';
 // import { saveAs } from 'file-saver'
 import filesize from 'file-size'
 import { FileDetail } from '../file-detail';
+import { FileNameModal } from '../file-name-edit';
 
 interface File {
     name: string
     path: string
 }
 
-export function FileList({ config }) {
+export function FileList({ config, sourceType }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [list, setList] = useState<File[]>([])
     const [curPath, setCurPath] = useState('')
     const [fileModalVisible, setFileModalVisible] = useState(false)
     const [fileModalPath, setFileModalPath] = useState('')
-
+    const [folderVisible, setFolderVisible] = useState(false)
     async function loadList() {
         let res = await request.post(`${config.host}/file/list`, {
             path: curPath,
+            sourceType,
             // projectPath,
             // connectionId,
             // sql: lineCode,
@@ -88,6 +90,30 @@ export function FileList({ config }) {
                 >
                     <ReloadOutlined />
                 </IconButton>
+                <Dropdown
+                    trigger={['click']}
+                    overlay={
+                        <Menu
+                            onClick={({ key }) => {
+                                if (key == 'create_folder') {
+                                    setFolderVisible(true)
+                                }
+                            }}
+                            items={[
+                                {
+                                    label: t('文件夹'),
+                                    key: 'create_folder',
+                                },
+                            ]}
+                        />
+                    }
+                >
+                    <IconButton
+                        tooltip="新建"
+                    >
+                        <PlusOutlined />
+                    </IconButton>
+                </Dropdown>
                 <div className={styles.path}>{curPath}</div>
             </div>
             <div className={styles.body}>
@@ -108,6 +134,15 @@ export function FileList({ config }) {
                                     <div className={styles.item}
                                         onClick={() => {
                                             if (item.type == 'FILE') {
+                                                if (sourceType == 'local') {
+
+                                                }
+                                                else {
+                                                    if (item.size > 1 * 1024 * 1024) {
+                                                        message.info('文件太大，暂不支持查看')
+                                                        return
+                                                    }
+                                                }
                                                 setFileModalVisible(true)
                                                 setFileModalPath(item.path)
                                             }
@@ -151,8 +186,23 @@ export function FileList({ config }) {
                 <FileDetail
                     config={config}
                     path={fileModalPath}
+                    sourceType={sourceType}
                     onCancel={() => {
                         setFileModalVisible(false)
+                    }}
+                />
+            }
+            {folderVisible &&
+                <FileNameModal
+                    config={config}
+                    path={curPath}
+                    sourceType={sourceType}
+                    onCancel={() => {
+                        setFolderVisible(false)
+                    }}
+                    onSuccess={() => {
+                        setFolderVisible(false)
+                        loadList()
                     }}
                 />
             }
