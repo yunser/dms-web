@@ -17,6 +17,7 @@ import moment from 'moment';
 import filesize from 'file-size'
 import { FileDetail } from '../file-detail';
 import { FileNameModal } from '../file-name-edit';
+import { FileEdit } from '../file-edit';
 
 interface File {
     name: string
@@ -28,8 +29,10 @@ export function FileList({ config, item, sourceType }) {
     const { t } = useTranslation()
     const [list, setList] = useState<File[]>([])
     const [curPath, setCurPath] = useState('')
-    const [fileModalVisible, setFileModalVisible] = useState(false)
+    const [fileDetailModalVisible, setFileDetialModalVisible] = useState(false)
     const [fileModalPath, setFileModalPath] = useState('')
+    const [fileEditModalVisible, setFileEditModalVisible] = useState(false)
+    
     const [folderVisible, setFolderVisible] = useState(false)
     const [folderType, setFolderType] = useState('')
     const [activeItem, setActiveItem] = useState(null)
@@ -128,7 +131,10 @@ export function FileList({ config, item, sourceType }) {
         })
     }
 
-    
+    async function editItem(item) {
+        setFileEditModalVisible(true)
+        setFileModalPath(item.path)
+    }
 
     if (sourceType == 'ssh' && !item) {
         return <div>No item</div>
@@ -216,8 +222,15 @@ export function FileList({ config, item, sourceType }) {
                                                     if (key == 'delete_file') {
                                                         deleteItem(item)
                                                     }
+                                                    else if (key == 'edit') {
+                                                        editItem(item)
+                                                    }
                                                 }}
                                                 items={[
+                                                    {
+                                                        label: t('用文本编辑器打开'),
+                                                        key: 'edit',
+                                                    },
                                                     {
                                                         label: t('删除'),
                                                         key: 'delete_file',
@@ -246,7 +259,7 @@ export function FileList({ config, item, sourceType }) {
                                                             return
                                                         }
                                                     }
-                                                    setFileModalVisible(true)
+                                                    setFileDetialModalVisible(true)
                                                     setFileModalPath(item.path)
                                                 }
                                                 else {
@@ -286,13 +299,27 @@ export function FileList({ config, item, sourceType }) {
                     }
                 </div>
             </div>
-            {fileModalVisible &&
+            {fileDetailModalVisible &&
                 <FileDetail
                     config={config}
                     path={fileModalPath}
                     sourceType={sourceType}
                     onCancel={() => {
-                        setFileModalVisible(false)
+                        setFileDetialModalVisible(false)
+                    }}
+                />
+            }
+            {fileEditModalVisible &&
+                <FileEdit
+                    config={config}
+                    path={fileModalPath}
+                    sourceType={sourceType}
+                    onCancel={() => {
+                        setFileEditModalVisible(false)
+                    }}
+                    onSuccess={() => {
+                        setFileEditModalVisible(false)
+                        loadList()
                     }}
                 />
             }
