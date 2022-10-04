@@ -281,6 +281,8 @@ i18n
                     'back': 'Back',
                     'size': 'Size',
                     'open_with_text_editor': 'Open with Text Editor',
+                    'file.copy_name': 'Copy Name',
+                    'file.copy_path': 'Copy Path',
                 }
             },
             zh: {
@@ -555,6 +557,8 @@ i18n
                     'back': '返回',
                     'size': '大小',
                     'open_with_text_editor': '用文本编辑器打开',
+                    'file.copy_name': '复制名称',
+                    'file.copy_path': '复制路径',
                 }
             }
         },

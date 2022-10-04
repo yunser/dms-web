@@ -18,6 +18,7 @@ import filesize from 'file-size'
 import { FileDetail } from '../file-detail';
 import { FileNameModal } from '../file-name-edit';
 import { FileEdit } from '../file-edit';
+import copy from 'copy-to-clipboard';
 
 interface File {
     name: string
@@ -234,6 +235,14 @@ export function FileList({ config, item, sourceType }) {
                                                     else if (key == 'edit') {
                                                         editItem(item)
                                                     }
+                                                    else if (key == 'copy_name') {
+                                                        copy(item.name)
+                                                        message.info(t('copied'))
+                                                    }
+                                                    else if (key == 'copy_path') {
+                                                        copy(item.path)
+                                                        message.info(t('copied'))
+                                                    }
                                                 }}
                                                 items={[
                                                     {
@@ -243,6 +252,17 @@ export function FileList({ config, item, sourceType }) {
                                                     {
                                                         label: t('delete'),
                                                         key: 'delete_file',
+                                                    },
+                                                    {
+                                                        type: 'divider',
+                                                    },
+                                                    {
+                                                        label: t('file.copy_name'),
+                                                        key: 'copy_name',
+                                                    },
+                                                    {
+                                                        label: t('file.copy_path'),
+                                                        key: 'copy_path',
                                                     },
                                                 ]}
                                             />
