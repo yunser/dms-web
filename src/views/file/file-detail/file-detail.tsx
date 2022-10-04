@@ -42,7 +42,7 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
 
     useEffect(() => {
         loadDetail()
-    }, [])
+    }, [path])
 
     return (
         <Modal

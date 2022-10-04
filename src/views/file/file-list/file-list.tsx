@@ -174,10 +174,20 @@ export function FileList({ config, item, sourceType }) {
                 if (activeItem) {
                     idx = list.findIndex(item => item.name == activeItem.name)
                 }
-                console.log('idx', idx)
+                // console.log('idx', idx)
                 if (idx > 0) {
                     const newIdx = idx - 1
                     setActiveItem(list[newIdx])
+                }
+            }
+            else if (e.code == 'Space') {
+                if (fileDetailModalVisible) {
+                    setFileDetialModalVisible(false)
+                }
+                else {
+                    if (activeItem) {
+                        viewItem(activeItem)
+                    }
                 }
             }
         }
@@ -185,7 +195,26 @@ export function FileList({ config, item, sourceType }) {
         return () => {
             window.removeEventListener('keydown', handleKeyDown)
         }
-    }, [activeItem, list])
+    }, [activeItem, list, fileDetailModalVisible])
+
+    async function viewItem(item) {
+        if (item.type == 'FILE') {
+            if (sourceType == 'local') {
+
+            }
+            else {
+                if (item.size > 1 * 1024 * 1024) {
+                    message.info('文件太大，暂不支持查看')
+                    return
+                }
+            }
+            setFileDetialModalVisible(true)
+            setFileModalPath(item.path)
+        }
+        else {
+            setCurPath(item.path)
+        }
+    }
 
     async function editItem(item) {
         setFileEditModalVisible(true)
@@ -346,22 +375,7 @@ export function FileList({ config, item, sourceType }) {
                                                 setActiveItem(item)
                                             }}
                                             onDoubleClick={() => {
-                                                if (item.type == 'FILE') {
-                                                    if (sourceType == 'local') {
-
-                                                    }
-                                                    else {
-                                                        if (item.size > 1 * 1024 * 1024) {
-                                                            message.info('文件太大，暂不支持查看')
-                                                            return
-                                                        }
-                                                    }
-                                                    setFileDetialModalVisible(true)
-                                                    setFileModalPath(item.path)
-                                                }
-                                                else {
-                                                    setCurPath(item.path)
-                                                }
+                                                viewItem(item)
                                             }}
                                         >
                                             <div className={classNames(styles.cell, styles.name)}>
