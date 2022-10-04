@@ -29,6 +29,7 @@ export function FileList({ config, item, sourceType }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [list, setList] = useState<File[]>([])
+    const [error, setError] = useState('')
     
     const defaultPath = item.username == 'root' ? '/root' : `/home/${item.username}`
 
@@ -71,6 +72,7 @@ export function FileList({ config, item, sourceType }) {
     async function loadList() {
         setLoading(true)
         setList([])
+        setError('')
         let res = await request.post(`${config.host}/file/list`, {
             path: curPath,
             sourceType,
@@ -81,7 +83,7 @@ export function FileList({ config, item, sourceType }) {
             // dbName,
             // logger: true,
         }, {
-            // noMessage: true,
+            noMessage: true,
         })
         // console.log('res', res)
         if (res.success) {
@@ -95,6 +97,9 @@ export function FileList({ config, item, sourceType }) {
                 })
             setList(list)
             // setCurrent(res.data.current)
+        }
+        else {
+            setError(res.data.message)
         }
         setLoading(false)
     }
@@ -220,6 +225,12 @@ export function FileList({ config, item, sourceType }) {
                             height={240}
                         >
                             <Spin />
+                        </FullCenterBox>
+                    : !!error ?
+                        <FullCenterBox
+                            height={320}
+                        >
+                            <div className={styles.error}>{error}</div>
                         </FullCenterBox>
                     : list.length == 0 ?
                         <FullCenterBox>
