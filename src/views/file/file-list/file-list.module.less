@@ -2,9 +2,19 @@
     height: 100%;
     // border: 1px solid #f00;
     display: flex;
-    flex-direction: column;
     &:active {
         // border: 1px solid #f00;
+    }
+    .side {
+        flex: 0 0 240px;
+        border-right: 1px solid var(--border-color);
+    }
+    .main {
+        flex: 1 0 auto;
+        width: 0;
+        display: flex;
+        flex-direction: column;
+        // border: 1px solid #000;
     }
     .header {
         flex: 0 0 40px;
@@ -64,7 +74,22 @@
         }
     }
 }
-
+.sideList {
+    .item {
+        // border: 1px solid #000;
+        height: 40px;
+        padding: 0 16px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        &:hover {
+            background-color: var(--color-f9);
+        }
+    }
+    .icon {
+        margin-right: 8px;
+    }
+}
 .list {
     // padding: 16px;
     // border: 1px solid var(--border-color);

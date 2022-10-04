@@ -36,6 +36,7 @@ export function FileHome() {
                 <FileList
                     config={config}
                     sourceType="local"
+                    showSide={true}
                 />
             </div>
             {/* <div className={styles.layoutRight}>
