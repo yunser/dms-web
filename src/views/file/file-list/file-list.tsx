@@ -86,6 +86,7 @@ export function FileList({ config, item, sourceType }) {
         setLoading(true)
         setList([])
         setError('')
+        setActiveItem(null)
         let res = await request.post(`${config.host}/file/list`, {
             path: curPath,
             sourceType,
@@ -154,6 +155,37 @@ export function FileList({ config, item, sourceType }) {
             }
         })
     }
+
+    useEffect(() => {
+        function handleKeyDown(e) {
+            console.log('e', e.code)
+            if (e.code == 'ArrowDown') {
+                let idx = -1
+                if (activeItem) {
+                    idx = list.findIndex(item => item.name == activeItem.name)
+                }
+                if (idx < list.length - 1) {
+                    const newIdx = idx + 1
+                    setActiveItem(list[newIdx])
+                }
+            }
+            else if (e.code == 'ArrowUp') {
+                let idx = list.length
+                if (activeItem) {
+                    idx = list.findIndex(item => item.name == activeItem.name)
+                }
+                console.log('idx', idx)
+                if (idx > 0) {
+                    const newIdx = idx - 1
+                    setActiveItem(list[newIdx])
+                }
+            }
+        }
+        window.addEventListener('keydown', handleKeyDown)
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown)
+        }
+    }, [activeItem, list])
 
     async function editItem(item) {
         setFileEditModalVisible(true)
