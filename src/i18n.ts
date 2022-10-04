@@ -276,6 +276,7 @@ i18n
                     'git.refs': 'Refs',
                     'user_setting': 'User Setting',
                     'default_clone_path': 'Default Clone Path',
+                    'file': 'File',
                 }
             },
             zh: {
@@ -545,6 +546,7 @@ i18n
                     'git.refs': '引用',
                     'user_setting': '偏好设置',
                     'default_clone_path': '默认克隆路径',
+                    'file': '文件',
                 }
             }
         },

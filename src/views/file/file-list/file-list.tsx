@@ -55,7 +55,9 @@ export function FileList({ config, item, sourceType }) {
     }
     
     useEffect(() => {
-        connect()
+        if (sourceType == 'ssh') {
+            connect()
+        }
     }, [item])
 
     async function loadList() {

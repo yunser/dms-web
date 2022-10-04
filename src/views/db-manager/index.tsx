@@ -25,6 +25,7 @@ import { useEventEmitter } from 'ahooks'
 import { getTheme, toggleTheme } from '../../theme'
 import { GitHome } from '../git/git-home'
 import { SshConnect } from '../ssh/ssh-connect'
+import { FileHome } from '../file/file-home'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -313,6 +314,17 @@ export function DbManager({ config }) {
                                                                 },
                                                             })
                                                         }
+                                                        else if (key == 'file') {
+                                                            addOrActiveTab({
+                                                                title: t('file'),
+                                                                // key: 'redis-' + uid(16),
+                                                                key: 'file-home-0',
+                                                                type: 'file-home',
+                                                                data: {
+                                                                    // url,
+                                                                },
+                                                            })
+                                                        }
                                                     }}
                                                     items={[
                                                         {
@@ -326,6 +338,10 @@ export function DbManager({ config }) {
                                                         {
                                                             label: t('SSH/SFTP'),
                                                             key: 'ssh',
+                                                        },
+                                                        {
+                                                            label: t('file'),
+                                                            key: 'file',
                                                         },
                                                         {
                                                             label: t('Elasticsearch'),
@@ -544,6 +560,10 @@ export function DbManager({ config }) {
                                     }
                                     {item.type == 'ssh-connect' &&
                                         <SshConnect
+                                        />
+                                    }
+                                    {item.type == 'file-home' &&
+                                        <FileHome
                                         />
                                     }
                             </div>

@@ -38,12 +38,12 @@ export function FileHome() {
                     sourceType="local"
                 />
             </div>
-            <div className={styles.layoutRight}>
+            {/* <div className={styles.layoutRight}>
                 <FileList
                     config={config}
                     sourceType="ssh"
                 />
-            </div>
+            </div> */}
         </div>
     )
 }
