@@ -14,12 +14,13 @@ import { request } from '@/views/db-manager/utils/http';
 // import { ProjectEditor } from '../project-edit';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/db-manager/redis-client';
+import { SshDetail } from '../ssh-home';
 // import { saveAs } from 'file-saver'
 
 export function SshConnect() {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
-    const [curProject, setCurProject] = useState(null)
+    const [curItem, setCurItem] = useState(null)
     const [view, setView] = useState('list')
     const [keyword, setKeyword] = useState('')
     // const [curTab, setCurTab] = useState('commit-list')
@@ -200,8 +201,7 @@ export function SshConnect() {
                                                 key={item.id}
                                                 className={styles.item}
                                                 onClick={() => {
-                                                    // setView('detail')
-                                                    // setCurProject(item)
+                                                    
                                                 }}
                                             >
                                                 <div className={styles.name}>{item.name}</div>
@@ -211,6 +211,15 @@ export function SshConnect() {
                                                         e.stopPropagation()
                                                     }}
                                                 >
+                                                    <Button
+                                                        size="small"
+                                                        onClick={() => {
+                                                            setView('detail')
+                                                            setCurItem(item)
+                                                        }}
+                                                    >
+                                                        SSH
+                                                    </Button>
                                                     {/* {!!item.changes && item.changes > 0 &&
                                                         <div className={styles.branch}>
                                                             <div className={styles.changes}>{item.changes}</div>
@@ -268,17 +277,20 @@ export function SshConnect() {
                     </div>
                 </div>
             }
-            {/* {view == 'detail' &&
-                <GitProject
+            {view == 'detail' &&
+                <SshDetail
                     config={config}
                     event$={event$}
-                    project={curProject}
+                    item={curItem}
                     // projectPath={curProject.path}
                     onList={() => {
                         setView('list')
                     }}
+                    onBack={() => {
+                        setView('list')
+                    }}
                 />
-            } */}
+            }
             {/* {projectModalVisible &&
                 <ProjectEditor
                     config={config}

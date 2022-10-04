@@ -22,20 +22,20 @@ interface File {
     name: string
 }
 
-export function SshHome() {
+export function SshDetail({ config, item, onBack }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [list, setList] = useState<File[]>([])
     const [curPath, setCurPath] = useState('')
     const [term, setTerm] = useState(null)
-    const config = {
-        host: 'http://localhost:10086'
-    }
+    // const config = {
+    //     host: 'http://localhost:10086'
+    // }
 
     const xtermRef = useRef<Terminal>(null)
     const _xterm = xtermRef.current
     const wsRef = useRef(null)
-    const _ws = wsRef.current
+    // const _ws = wsRef.current
 
     // async function loadList() {
     //     let res = await request.post(`${config.host}/file/list`, {
@@ -74,11 +74,14 @@ export function SshHome() {
         xterm.open(document.getElementById('terminal'));
         xterm.onData(data =>  {
             console.log('onData', data)
-            console.log('_ws', _ws)
+            // console.log('_ws', _ws)
             console.log('wsRef', wsRef)
-            if (_ws) {
+            if (wsRef.current) {
                 console.log('send')
-                wsRef.current.send(data)
+                wsRef.current.send(JSON.stringify({
+                    type: 'command',
+                    data,
+                }))
             }
         })
         // xterm.writeln('Welcome to use webssh!')
@@ -131,6 +134,11 @@ export function SshHome() {
         }
         ws.onopen = () => {
             console.log('onopen', )
+            ws.send(JSON.stringify({
+                type: 'connect',
+                data: item,
+            }))
+            console.log('sended')
             // // 连接成功后
             // this.initTerm()
         }
@@ -144,7 +152,7 @@ export function SshHome() {
         }
         wsRef.current = ws
         return () => {
-            ws.close()
+            // ws.close()
         }
     }, [term])
 
@@ -171,19 +179,24 @@ export function SshHome() {
     // })
 
     return (
-        <div className={styles.fileBox}>
-            {/* ssh */}
-            {/* <button
-                onClick={() => {
-                    _xterm.write('1212')
-                }}
-            >
-                hello
-            </button> */}
-            {/* <hr /> */}
-            {/* 命令行234 */}
-            <div  id="terminal"></div>
-            
+        <div>
+            <div className={styles.terminalBox}>
+                {/* ssh */}
+                {/* <button
+                    onClick={() => {
+                        _xterm.write('1212')
+                    }}
+                >
+                    hello
+                </button> */}
+                {/* <hr /> */}
+                {/* 命令行234 */}
+                <div  id="terminal"></div>
+                
+            </div>
+            <Button onClick={() => {
+                onBack && onBack()
+            }}>返回</Button>
         </div>
     )
 }

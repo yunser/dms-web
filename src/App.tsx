@@ -32,7 +32,8 @@ import { HomePage } from './views/home'
 storage.set('asd', 'asd2')
 import { GitHome } from './views/git/git-home'
 import { FileHome } from './views/file/file-home'
-import { SshHome } from './views/ssh/ssh-home'
+import { SshDetail } from './views/ssh/ssh-home'
+import { SshConnect } from './views/ssh/ssh-connect'
 
 function GitPage() {
     return (
@@ -53,7 +54,7 @@ function FilePage() {
 function SshPage() {
     return (
         <div style={{ height: '100vh' }}>
-            <SshHome />
+            <SshConnect />
         </div>
     )
 }
