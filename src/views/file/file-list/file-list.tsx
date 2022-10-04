@@ -29,7 +29,10 @@ export function FileList({ config, item, sourceType }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [list, setList] = useState<File[]>([])
-    const [curPath, setCurPath] = useState('')
+    
+    const defaultPath = item.username == 'root' ? '/root' : `/home/${item.username}`
+
+    const [curPath, setCurPath] = useState(defaultPath)
     const [loading, setLoading] = useState(false)
     const [fileDetailModalVisible, setFileDetialModalVisible] = useState(false)
     const [fileModalPath, setFileModalPath] = useState('')
@@ -67,6 +70,7 @@ export function FileList({ config, item, sourceType }) {
 
     async function loadList() {
         setLoading(true)
+        setList([])
         let res = await request.post(`${config.host}/file/list`, {
             path: curPath,
             sourceType,
@@ -150,6 +154,7 @@ export function FileList({ config, item, sourceType }) {
                 <div className={styles.headerLeft}>
                     <IconButton
                         tooltip={t('back')}
+                        disabled={curPath == '/'}
                         onClick={() => {
                             back()
                         }}
@@ -225,6 +230,7 @@ export function FileList({ config, item, sourceType }) {
                             {list.map(item => {
                                 return (
                                     <Dropdown
+                                        key={item.name}
                                         trigger={['contextMenu']}
                                         overlay={
                                             <Menu

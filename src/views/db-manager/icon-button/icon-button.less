@@ -1,14 +1,15 @@
 .ant-icon-button {
-    width: 24px !important;
+    width: 32px !important;
     
     // height: 24px;
     display: flex !important;
     justify-content: center !important;
     align-items: center !important;
-    border: 1px solid transparent !important;
     // background-color: #09c;
     color: var(--color-85);
     background-color: transparent !important;
+    border: 1px solid transparent !important;
+    // border: 1px solid #000 !important;
     &:hover,
     &:focus {
         // color: #1a68a3;
@@ -23,7 +24,15 @@
         // min-width: 24px;
         border-radius: 4px !important;
     }
+    &[disabled] {
+        border: 1px solid transparent !important;
+    }
     .anticon-reload {
         // background-color: #f00;
+    }
+    button {
+        width: 32px !important;
+        padding: 0 !important;
+        border: 1px solid transparent !important;
     }
 }

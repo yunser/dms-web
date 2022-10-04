@@ -283,6 +283,10 @@ i18n
                     'open_with_text_editor': 'Open with Text Editor',
                     'file.copy_name': 'Copy Name',
                     'file.copy_path': 'Copy Path',
+                    'redis': 'Redis',
+                    'git': 'Git',
+                    'elasticsearch': 'Elasticsearch',
+                    'ssh/sftp': 'SSH/SFTP',
                 }
             },
             zh: {
@@ -559,6 +563,10 @@ i18n
                     'open_with_text_editor': '用文本编辑器打开',
                     'file.copy_name': '复制名称',
                     'file.copy_path': '复制路径',
+                    'redis': 'Redis',
+                    'git': 'Git',
+                    'elasticsearch': 'Elasticsearch',
+                    'ssh/sftp': 'SSH/SFTP',
                 }
             }
         },
@@ -577,6 +585,3 @@ i18n
     });
 
 export { i18n }
-
-
-

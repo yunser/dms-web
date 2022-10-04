@@ -328,15 +328,15 @@ export function DbManager({ config }) {
                                                     }}
                                                     items={[
                                                         {
-                                                            label: t('Redis'),
+                                                            label: t('redis'),
                                                             key: 'redis',
                                                         },
                                                         {
-                                                            label: t('GIT'),
+                                                            label: t('git'),
                                                             key: 'git',
                                                         },
                                                         {
-                                                            label: t('SSH/SFTP'),
+                                                            label: t('ssh/sftp'),
                                                             key: 'ssh',
                                                         },
                                                         {
@@ -344,7 +344,7 @@ export function DbManager({ config }) {
                                                             key: 'file',
                                                         },
                                                         {
-                                                            label: t('Elasticsearch'),
+                                                            label: t('elasticsearch'),
                                                             key: 'elasticsearch',
                                                         },
                                                         {
