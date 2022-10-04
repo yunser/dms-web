@@ -51,7 +51,13 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
             onCancel={onCancel}
             footer={null}
         >
-            <pre>{content}</pre>
+            {content == '' ?
+                <FullCenterBox>
+                    <Empty />
+                </FullCenterBox>
+            :
+                <pre>{content}</pre>
+            }
         </Modal>
     )
 }
