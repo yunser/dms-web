@@ -1,4 +1,4 @@
-import { Button, Descriptions, Dropdown, Empty, Input, Menu, message, Modal, Popover, Space, Table, Tabs, Tag } from 'antd';
+import { Button, Descriptions, Dropdown, Empty, Input, Menu, message, Modal, Popover, Space, Spin, Table, Tabs, Tag } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './file-detail.module.less';
 import _ from 'lodash';
@@ -24,12 +24,13 @@ interface File {
 export function FileDetail({ config, path, sourceType, onCancel }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
-    const [list, setList] = useState<File[]>([])
+    const [loading, setLoading] = useState(false)
     const [content, setContent] = useState('')
     const isImage = path.endsWith('.png') || path.endsWith('.jpg')
         || path.endsWith('.gif')
 
     async function loadDetail() {
+        setLoading(true)
         let res = await request.post(`${config.host}/file/read`, {
             path,
             sourceType,
@@ -40,6 +41,7 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
         if (res.success) {
             setContent(res.data.content)
         }
+        setLoading(false)
     }
 
 
@@ -58,7 +60,11 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
             onCancel={onCancel}
             footer={null}
         >
-            {isImage ?
+            {loading ?
+                <FullCenterBox>
+                    <Spin />
+                </FullCenterBox>
+            : isImage ?
                 <div className={styles.imgBox}>
                     <img className={styles.img} src={`${config.host}/file/imagePreview?sourceType=${sourceType}&path=${encodeURIComponent(path)}`} />
                 </div>
