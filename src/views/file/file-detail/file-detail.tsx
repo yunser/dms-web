@@ -16,6 +16,7 @@ import moment from 'moment';
 // import { saveAs } from 'file-saver'
 import filesize from 'file-size'
 import { FileList } from '../file-list'
+import { marked } from 'marked'
 
 interface File {
     name: string
@@ -28,6 +29,7 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
     const [content, setContent] = useState('')
     const isImage = path.endsWith('.png') || path.endsWith('.jpg')
         || path.endsWith('.gif')
+    const isMarkdown = path.endsWith('.md')
 
     async function loadDetail() {
         setLoading(true)
@@ -43,6 +45,7 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
         }
         setLoading(false)
     }
+
 
 
 
@@ -68,6 +71,14 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
                 <FullCenterBox>
                     <Spin />
                 </FullCenterBox>
+            : isMarkdown ?
+                <div>
+                    <div className={styles.article} dangerouslySetInnerHTML={{
+                        __html: marked.parse(content)
+                    }}>
+
+                    </div>
+                </div>
             : isImage ?
                 <div className={styles.imgBox}>
                     <img className={styles.img} src={`${config.host}/file/imagePreview?sourceType=${sourceType}&path=${encodeURIComponent(path)}`} />
