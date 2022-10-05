@@ -189,7 +189,7 @@ export function FileList({ config, item, showSide = false, sourceType }) {
     }
 
     useEffect(() => {
-        function handleKeyDown(e) {
+        function handleKeyDown(e: KeyboardEvent) {
             console.log('e', e.code, e)
             console.log('e/e.keyCode', e.keyCode)
             console.log('e.srcElement', e.srcElement.nodeName)
@@ -256,6 +256,8 @@ export function FileList({ config, item, showSide = false, sourceType }) {
                         viewItem(activeItem)
                     }
                 }
+                e.stopPropagation()
+                e.preventDefault()
             }
         }
         window.addEventListener('keydown', handleKeyDown)

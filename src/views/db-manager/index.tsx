@@ -33,6 +33,7 @@ const { TextArea } = Input
 const { TabPane } = Tabs
 
 window._terminalCount = 0
+window._fileCount = 0
 
 const tab_mySql = {
     title: 'MySQL',
@@ -317,9 +318,9 @@ export function DbManager({ config }) {
                                                         }
                                                         else if (key == 'file') {
                                                             addOrActiveTab({
-                                                                title: t('file'),
+                                                                title: t('file') + `-${(window._fileCount++) + 1}`,
                                                                 // key: 'redis-' + uid(16),
-                                                                key: 'file-home-0',
+                                                                key: `file-${uid(16)}`,
                                                                 type: 'file-home',
                                                                 data: {
                                                                     // url,

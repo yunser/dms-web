@@ -47,10 +47,14 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
 
 
     useEffect(() => {
+        // hack 经常会因为 path 为空接口报错
+        if (!path) {
+            return
+        }
         if (!isImage) {
             loadDetail()
         }
-    }, [path])
+    }, [path, isImage])
 
     return (
         <Modal
