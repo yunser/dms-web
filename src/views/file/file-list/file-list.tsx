@@ -33,6 +33,43 @@ function getParentPath(curPath) {
     return newPath || '/'
 }
 
+function CollectionList({ config, onItemClick }) {
+
+    const [list, setList] = useState([])
+
+    async function loadList() {
+        let res = await request.post(`${config.host}/file/collection/list`, {
+        }, {
+            noMessage: true,
+        })
+        // console.log('res', res)
+        if (res.success) {
+            setList(res.data.list)
+        }
+    }
+
+    useEffect(() => {
+        loadList()
+    }, [])
+
+    return (
+        <div className={styles.collList}>
+            {list.map(item => {
+                return (
+                    <div className={styles.item}
+                        onClick={() => {
+                            onItemClick && onItemClick(item)  
+                        }}
+                    >
+                        <FolderOutlined className={styles.icon} />
+                        {item.name}
+                    </div>
+                )
+            })}
+        </div>
+    )
+}
+
 export function FileList({ config, event$, item, showSide = false, sourceType }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
@@ -347,6 +384,12 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
                             </div>
                         </div>
                     }
+                    <CollectionList
+                        config={config}
+                        onItemClick={item => {
+                            setCurPath(item.path)
+                        }}
+                    />
                 </div>
             }
             <div className={styles.main}>

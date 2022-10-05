@@ -75,11 +75,27 @@
     }
 }
 .sideList {
+    padding-top: 8px;
     .item {
         // border: 1px solid #000;
         height: 40px;
         padding: 0 16px;
-        border-bottom: 1px solid var(--border-color);
+        // border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        &:hover {
+            background-color: var(--color-f9);
+        }
+    }
+    .icon {
+        margin-right: 8px;
+    }
+}
+.collList {
+    .item {
+        height: 40px;
+        padding: 0 16px;
+        // border-bottom: 1px solid var(--border-color);
         display: flex;
         align-items: center;
         &:hover {
