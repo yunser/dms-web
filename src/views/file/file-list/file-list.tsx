@@ -49,7 +49,7 @@ export function FileList({ config, item, showSide = false, sourceType }) {
     const [fileDetailModalVisible, setFileDetialModalVisible] = useState(false)
     const [fileModalPath, setFileModalPath] = useState('')
     const [fileEditModalVisible, setFileEditModalVisible] = useState(false)
-    
+    const [keyword, setKeyword] = useState('')
     const [folderVisible, setFolderVisible] = useState(false)
     const [folderType, setFolderType] = useState('')
     const [activeItem, setActiveItem] = useState(null)
@@ -58,6 +58,14 @@ export function FileList({ config, item, showSide = false, sourceType }) {
     const [renameItem, setRenameItem] = useState(null)
     const [info, setInfo] = useState(null)
 
+    const filteredList = useMemo(() => {
+        if (!keyword) {
+            return list
+        }
+        return list.filter(item => {
+            return item.name.toLowerCase().includes(keyword.toLowerCase())
+        })
+    }, [list, keyword])
     async function connect() {
         console.log('flow/1', )
         let ret = await request.post(`${config.host}/sftp/connect`, {
@@ -378,9 +386,20 @@ export function FileList({ config, item, showSide = false, sourceType }) {
                         </Dropdown>
                         <div className={styles.path}>{curPath}</div>
                     </div>
-                    {sourceType == 'ssh' &&
-                        <div>{connected ? t('connected') : t('connect_unknown')}</div>
-                    }
+                    <Space>
+                        <Input
+                            placeholder={t('filter')}
+                            value={keyword}
+                            allowClear
+                            size="small"
+                            onChange={e => {
+                                setKeyword(e.target.value)
+                            }}
+                        />
+                        {sourceType == 'ssh' &&
+                            <div>{connected ? t('connected') : t('connect_unknown')}</div>
+                        }
+                    </Space>
                 </div>
                 <div className={styles.body}>
                     <div className={styles.bodyHeader}>
@@ -403,13 +422,13 @@ export function FileList({ config, item, showSide = false, sourceType }) {
                             >
                                 <div className={styles.error}>{error}</div>
                             </FullCenterBox>
-                        : list.length == 0 ?
+                        : filteredList.length == 0 ?
                             <FullCenterBox>
                                 <Empty />
                             </FullCenterBox>
                         :
                             <div className={styles.list}>
-                                {list.map(item => {
+                                {filteredList.map(item => {
                                     return (
                                         <Dropdown
                                             key={item.name}
