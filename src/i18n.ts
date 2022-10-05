@@ -292,6 +292,7 @@ i18n
                     'ssh/sftp': 'SSH/SFTP',
                     'terminal': 'Terminal',
                     'terminal.open_in_terminal': 'Open in Terminal',
+                    'upload': 'Upload',
                 }
             },
             zh: {
@@ -577,6 +578,7 @@ i18n
                     'ssh/sftp': 'SSH/SFTP',
                     'terminal': '终端',
                     'terminal.open_in_terminal': '在终端打开',
+                    'upload': '上传',
                 }
             }
         },

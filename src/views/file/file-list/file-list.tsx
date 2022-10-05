@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { CodeOutlined, CreditCardOutlined, DownloadOutlined, EllipsisOutlined, FileOutlined, FolderOutlined, HomeOutlined, LeftOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { CodeOutlined, CreditCardOutlined, DownloadOutlined, EllipsisOutlined, FileOutlined, FolderOutlined, HomeOutlined, LeftOutlined, PlusOutlined, ReloadOutlined, UploadOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
@@ -399,6 +399,45 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
                                 }}
                             >
                                 <CodeOutlined />
+                            </IconButton>
+                        }
+                        {sourceType != 'local' &&
+                            <IconButton
+                                tooltip={t('upload')}
+                                onClick={() => {
+                                    const input = document.createElement('input')
+                                    input.type = 'file'
+                                    input.addEventListener('change', (e) => { 
+                                        const file = e.target.files[0]
+                                        let formData = new FormData()
+                                        console.log('file', file)
+                                        formData.append('file', file)
+                                        formData.append('path', curPath + '/' + file.name)
+
+                                        // fetch('http://192.168.31.212:8000/api/file', {
+                                        fetch(`${config.host}/file/upload`, {
+                                            method: "POST",
+                                            mode: 'cors',
+                                            // headers: {
+                                            //     'Content-Type': 'application/x-www-form-urlencoded'
+                                            //     // 'Content-Type': 'multipart/form-data'
+                                            // },
+                                            // body: JSON.stringify({
+                                            //     text,
+                                            // })
+                                            body: formData,
+                                        }).then(() => {
+                                            console.log('已上传')
+                                            loadList()
+                                            // Toast.info('已上传')
+                                            // setFileKey('' + new Date().getTime())
+                                            input.remove()
+                                        })
+                                    })
+                                    input.click()
+                                }}
+                            >
+                                <UploadOutlined />
                             </IconButton>
                         }
                         <div className={styles.path}>{curPath}</div>
