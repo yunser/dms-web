@@ -163,6 +163,21 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
         setCurPath(getParentPath(curPath))
     }
 
+    function downloadItem(item) {
+        const downloadUrl = `${config.host}/file/download?sourceType=${sourceType}&fileName=${encodeURIComponent(item.name)}&path=${encodeURIComponent(item.path)}`
+        const link = document.createElement("a")
+        // let temp = res.headers["content-disposition"].split(";")[1].split("filename=")[1];
+        // const fileName = decodeURIComponent(temp);  
+        // console.log('fileName_',fileName)
+        link.style.display = "none"
+        link.href = downloadUrl
+        link.setAttribute('download', item.name)
+        link.setAttribute('target', '_blank')
+        document.body.appendChild(link)
+        link.click()
+        console.log('link', link)
+    }
+
     async function deleteItem(item) {
         Modal.confirm({
             // title: 'Confirm',
@@ -510,11 +525,23 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
                                                             setRenameModalVisible(true)
                                                             setRenameItem(item)
                                                         }
+                                                        else if (key == 'download') {
+                                                            downloadItem(item)
+                                                        }
                                                     }}
                                                     items={[
                                                         {
                                                             label: t('open_with_text_editor'),
                                                             key: 'edit',
+                                                        },
+                                                        ...(sourceType == 'ssh' ? [
+                                                            {
+                                                                label: t('download'),
+                                                                key: 'download',
+                                                            },
+                                                        ] : []),
+                                                        {
+                                                            type: 'divider',
                                                         },
                                                         {
                                                             label: t('rename'),
