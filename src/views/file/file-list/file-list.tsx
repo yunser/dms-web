@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { CodeOutlined, CreditCardOutlined, DownloadOutlined, EllipsisOutlined, FileOutlined, FolderOutlined, HomeOutlined, LeftOutlined, PlusOutlined, ReloadOutlined, UploadOutlined } from '@ant-design/icons';
+import { CodeOutlined, CreditCardOutlined, DownloadOutlined, EllipsisOutlined, FileOutlined, FileSearchOutlined, FileWordOutlined, FolderOutlined, HomeOutlined, LeftOutlined, PlusOutlined, ReloadOutlined, UploadOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
@@ -215,6 +215,23 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
         console.log('link', link)
     }
 
+    async function openInFinder(path) {
+        let ret = await request.post(`${config.host}/file/openInFinder`, {
+            sourceType,
+            path,
+            // type: item.type,
+        })
+        // console.log('ret', ret)
+        if (ret.success) {
+            // message.success('连接成功')
+            // onConnnect && onConnnect()
+            // message.success(t('success'))
+            // onClose && onClose()
+            // onSuccess && onSuccess()
+            loadList()
+        }
+    }
+
     async function deleteItem(item) {
         Modal.confirm({
             // title: 'Confirm',
@@ -376,6 +393,14 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
                             </div>
                             <div className={styles.item}
                                 onClick={() => {
+                                    setCurPath(info.homePath + '/' + 'Documents')
+                                }}
+                            >
+                                <FileWordOutlined className={styles.icon} />
+                                {t('file.document')}
+                            </div>
+                            <div className={styles.item}
+                                onClick={() => {
                                     setCurPath(info.homePath)
                                 }}
                             >
@@ -458,6 +483,16 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
                                 }}
                             >
                                 <CodeOutlined />
+                            </IconButton>
+                        }
+                        {sourceType == 'local' &&
+                            <IconButton
+                                tooltip={t('file.open_in_finder')}
+                                onClick={() => {
+                                    openInFinder(curPath)
+                                }}
+                            >
+                                <FileSearchOutlined />
                             </IconButton>
                         }
                         {sourceType != 'local' &&
