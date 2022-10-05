@@ -24,7 +24,7 @@ interface File {
     name: string
 }
 
-export function SshDetail({ config, local = false, item, onBack }) {
+export function SshDetail({ config, local = false, defaultPath, item, onBack }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [list, setList] = useState<File[]>([])
@@ -154,7 +154,10 @@ export function SshDetail({ config, local = false, item, onBack }) {
             console.log('onopen', )
             ws.send(JSON.stringify({
                 type: 'connect',
-                data: item || null,
+                data: {
+                    ...((item || {})),
+                    defaultPath,
+                },
             }))
             console.log('sended')
             // // 连接成功后
@@ -227,13 +230,13 @@ export function SshDetail({ config, local = false, item, onBack }) {
                 <div id={termIdRef.current}></div>
                 
             </div>
-            {!local &&
+            {/* {!local &&
                 <div className={styles.toolBox}>
                     <Button onClick={() => {
                         onBack && onBack()
                     }}>返回</Button>
                 </div>
-            }
+            } */}
         </div>
     )
 }

@@ -42,7 +42,7 @@ function InputPassword(props) {
     )
 }
 
-export function SshConnect() {
+export function SshConnect({ config, event$ }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [modalVisible, setModalVisible] = useState(false)
@@ -51,9 +51,9 @@ export function SshConnect() {
     const [view, setView] = useState('list')
     const [keyword, setKeyword] = useState('')
     // const [curTab, setCurTab] = useState('commit-list')
-    const config = {
-        host: 'http://localhost:10086',
-    }
+    // const config = {
+    //     host: 'http://localhost:10086',
+    // }
     const [projects, setProjects] = useState([])
     // const projects = [
     //     {
@@ -73,7 +73,7 @@ export function SshConnect() {
         // return projects
     }, [projects, keyword])
 
-    const event$ = useEventEmitter()
+    // const event$ = useEventEmitter()
 
     const [cloneModalVisible, setCloneModalVisible] = useState(false)
     const [projectItem, setProjectItem] = useState(null)

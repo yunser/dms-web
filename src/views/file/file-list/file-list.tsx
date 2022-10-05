@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { CreditCardOutlined, DownloadOutlined, EllipsisOutlined, FileOutlined, FolderOutlined, HomeOutlined, LeftOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { CodeOutlined, CreditCardOutlined, DownloadOutlined, EllipsisOutlined, FileOutlined, FolderOutlined, HomeOutlined, LeftOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
@@ -33,7 +33,7 @@ function getParentPath(curPath) {
     return newPath || '/'
 }
 
-export function FileList({ config, item, showSide = false, sourceType }) {
+export function FileList({ config, event$, item, showSide = false, sourceType }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [list, setList] = useState<File[]>([])
@@ -386,6 +386,21 @@ export function FileList({ config, item, showSide = false, sourceType }) {
                                 <PlusOutlined />
                             </IconButton>
                         </Dropdown>
+                        {sourceType == 'local' &&
+                            <IconButton
+                                tooltip={t('terminal.open_in_terminal')}
+                                onClick={() => {
+                                    event$.emit({
+                                        type: 'event_open_terminal',
+                                        data: {
+                                            path: curPath,
+                                        }
+                                    })
+                                }}
+                            >
+                                <CodeOutlined />
+                            </IconButton>
+                        }
                         <div className={styles.path}>{curPath}</div>
                     </div>
                     <Space>

@@ -21,20 +21,21 @@ interface File {
     name: string
 }
 
-export function FileHome() {
+export function FileHome({ config, event$ }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [list, setList] = useState<File[]>([])
     const [curPath, setCurPath] = useState('')
-    const config = {
-        host: 'http://localhost:10086'
-    }
+    // const config = {
+    //     host: 'http://localhost:10086'
+    // }
 
     return (
         <div className={styles.fileLayout}>
             <div className={styles.layoutLeft}>
                 <FileList
                     config={config}
+                    event$={event$}
                     sourceType="local"
                     showSide={true}
                 />

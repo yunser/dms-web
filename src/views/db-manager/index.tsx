@@ -121,12 +121,28 @@ export function DbManager({ config }) {
         })
     }
 
+    function openTerminal(path) {
+        addOrActiveTab({
+            title: t('terminal') + `-${(window._terminalCount++) + 1}`,
+            // key: 'redis-' + uid(16),
+            key: `terminal-${uid(16)}`,
+            type: 'terminal',
+            data: {
+                path,
+            },
+        })
+    }
+
     event$.useSubscription(msg => {
         console.log('dbManager/onmessage', msg)
         // console.log(val);
         if (msg.type == 'event_show_json') {
             const { json } = msg.data
             addJsonTab(json)
+        }
+        else if (msg.type == 'event_open_terminal') {
+            const { path } = msg.data
+            openTerminal(path)
         }
     })
 
@@ -328,15 +344,7 @@ export function DbManager({ config }) {
                                                             })
                                                         }
                                                         else if (key == 'terminal') {
-                                                            addOrActiveTab({
-                                                                title: t('terminal') + `-${(window._terminalCount++) + 1}`,
-                                                                // key: 'redis-' + uid(16),
-                                                                key: `terminal-${uid(16)}`,
-                                                                type: 'terminal',
-                                                                data: {
-                                                                    // url,
-                                                                },
-                                                            })
+                                                            openTerminal()
                                                         }
                                                     }}
                                                     items={[
@@ -577,15 +585,20 @@ export function DbManager({ config }) {
                                     }
                                     {item.type == 'ssh-connect' &&
                                         <SshConnect
+                                            config={config}
+                                            event$={event$}
                                         />
                                     }
                                     {item.type == 'file-home' &&
                                         <FileHome
+                                            config={config}
+                                            event$={event$}
                                         />
                                     }
                                     {item.type == 'terminal' &&
                                         <SshDetail
                                             local={true}
+                                            defaultPath={item.data.path}
                                         />
                                     }
                             </div>

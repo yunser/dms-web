@@ -291,6 +291,7 @@ i18n
                     'elasticsearch': 'Elasticsearch',
                     'ssh/sftp': 'SSH/SFTP',
                     'terminal': 'Terminal',
+                    'terminal.open_in_terminal': 'Open in Terminal',
                 }
             },
             zh: {
@@ -575,6 +576,7 @@ i18n
                     'elasticsearch': 'Elasticsearch',
                     'ssh/sftp': 'SSH/SFTP',
                     'terminal': '终端',
+                    'terminal.open_in_terminal': '在终端打开',
                 }
             }
         },
