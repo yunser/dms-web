@@ -290,6 +290,7 @@ i18n
                     'git': 'Git',
                     'elasticsearch': 'Elasticsearch',
                     'ssh/sftp': 'SSH/SFTP',
+                    'terminal': 'Terminal',
                 }
             },
             zh: {
@@ -573,6 +574,7 @@ i18n
                     'git': 'Git',
                     'elasticsearch': 'Elasticsearch',
                     'ssh/sftp': 'SSH/SFTP',
+                    'terminal': '终端',
                 }
             }
         },

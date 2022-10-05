@@ -26,6 +26,7 @@ import { getTheme, toggleTheme } from '../../theme'
 import { GitHome } from '../git/git-home'
 import { SshConnect } from '../ssh/ssh-connect'
 import { FileHome } from '../file/file-home'
+import { SshDetail } from '../ssh/ssh-home'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -325,6 +326,17 @@ export function DbManager({ config }) {
                                                                 },
                                                             })
                                                         }
+                                                        else if (key == 'terminal') {
+                                                            addOrActiveTab({
+                                                                title: t('terminal'),
+                                                                // key: 'redis-' + uid(16),
+                                                                key: 'terminal-home-0',
+                                                                type: 'terminal',
+                                                                data: {
+                                                                    // url,
+                                                                },
+                                                            })
+                                                        }
                                                     }}
                                                     items={[
                                                         {
@@ -342,6 +354,10 @@ export function DbManager({ config }) {
                                                         {
                                                             label: t('file'),
                                                             key: 'file',
+                                                        },
+                                                        {
+                                                            label: t('terminal'),
+                                                            key: 'terminal',
                                                         },
                                                         {
                                                             label: t('elasticsearch'),
@@ -564,6 +580,11 @@ export function DbManager({ config }) {
                                     }
                                     {item.type == 'file-home' &&
                                         <FileHome
+                                        />
+                                    }
+                                    {item.type == 'terminal' &&
+                                        <SshDetail
+                                            local={true}
                                         />
                                     }
                             </div>
