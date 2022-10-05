@@ -27,6 +27,7 @@ import { GitHome } from '../git/git-home'
 import { SshConnect } from '../ssh/ssh-connect'
 import { FileHome } from '../file/file-home'
 import { SshDetail } from '../ssh/ssh-home'
+import { MarkdownEditor } from './markdown'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -378,7 +379,17 @@ export function DbManager({ config }) {
                                                         }
                                                         else if (key == 'about') {
                                                             setAboutVisible(true)
-                                                            
+                                                        }
+                                                        else if (key == 'markdown') {
+                                                            addOrActiveTab({
+                                                                title: t('markdown') + `-${(window._fileCount++) + 1}`,
+                                                                // key: 'redis-' + uid(16),
+                                                                key: `markdown-${uid(16)}`,
+                                                                type: 'markdown',
+                                                                data: {
+                                                                    // url,
+                                                                },
+                                                            })
                                                         }
                                                     }}
                                                     items={[
@@ -401,6 +412,10 @@ export function DbManager({ config }) {
                                                         {
                                                             label: t('terminal'),
                                                             key: 'terminal',
+                                                        },
+                                                        {
+                                                            label: t('markdown'),
+                                                            key: 'markdown',
                                                         },
                                                         {
                                                             label: t('elasticsearch'),
@@ -578,6 +593,13 @@ export function DbManager({ config }) {
                                     }
                                     {item.type == 'text' &&
                                         <TextEditor
+                                            config={config}
+                                            event$={event$}
+                                            data={item.data}
+                                        />
+                                    }
+                                    {item.type == 'markdown' &&
+                                        <MarkdownEditor
                                             config={config}
                                             event$={event$}
                                             data={item.data}

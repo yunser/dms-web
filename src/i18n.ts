@@ -295,6 +295,7 @@ i18n
                     'upload': 'Upload',
                     'open': 'Open',
                     'about': 'About',
+                    'markdown': 'Markdown',
                 }
             },
             zh: {
@@ -583,6 +584,7 @@ i18n
                     'upload': '上传',
                     'open': '打开',
                     'about': '关于',
+                    'markdown': 'Markdown',
                 }
             }
         },

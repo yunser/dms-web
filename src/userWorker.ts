@@ -12,6 +12,8 @@ import 'monaco-editor/esm/vs/basic-languages/sql/sql.contribution';
 import 'monaco-editor/esm/vs/language/json/monaco.contribution.js';
 // 支持 Redis
 import 'monaco-editor/esm/vs/basic-languages/redis/redis.contribution.js';
+// 支持 Markdown
+import 'monaco-editor/esm/vs/basic-languages/markdown/markdown.contribution.js';
 // 代码提示必不可少
 import 'monaco-editor/esm/vs/editor/contrib/suggest/browser/suggestController.js';
 import 'monaco-editor/esm/vs/editor/contrib/suggest/browser/suggestInlineCompletions.js';
