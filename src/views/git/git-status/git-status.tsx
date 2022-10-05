@@ -39,7 +39,7 @@ function Commit({ config, event$, stagedLength, gitConfig, projectPath, onSucces
         })
         // console.log('res', res)
         if (res.success) {
-            message.success('success')
+            // message.success('success')
             onSuccess && onSuccess()
             event$.emit({
                 type: 'event_reload_history',
