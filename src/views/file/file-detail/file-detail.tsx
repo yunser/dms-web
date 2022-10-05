@@ -30,9 +30,10 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
     const isImage = path.endsWith('.png') || path.endsWith('.jpg')
         || path.endsWith('.gif')
     const isMarkdown = path.endsWith('.md')
+    const isAudio = path.endsWith('.mp3')
     const isVideo = path.endsWith('.mp4')
 
-    const isText = !isImage && !isVideo
+    const isText = !isImage && !isAudio && !isVideo
 
     async function loadDetail() {
         setLoading(true)
@@ -74,6 +75,20 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
                 <FullCenterBox>
                     <Spin />
                 </FullCenterBox>
+            : isAudio ?
+                <div className={styles.audioBox}>
+                    <audio
+                        className={styles.video}
+                        src={`${config.host}/file/imagePreview?sourceType=${sourceType}&path=${encodeURIComponent(path)}`}
+                        controls
+                        autoPlay
+                    ></audio>
+                    <div className={styles.article} dangerouslySetInnerHTML={{
+                        __html: marked.parse(content)
+                    }}>
+
+                    </div>
+                </div>
             : isVideo ?
                 <div className={styles.videoBox}>
                     <video
