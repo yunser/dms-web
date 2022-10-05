@@ -32,7 +32,7 @@ import { SshDetail } from '../ssh/ssh-home'
 const { TextArea } = Input
 const { TabPane } = Tabs
 
-
+window._terminalCount = 0
 
 const tab_mySql = {
     title: 'MySQL',
@@ -328,9 +328,9 @@ export function DbManager({ config }) {
                                                         }
                                                         else if (key == 'terminal') {
                                                             addOrActiveTab({
-                                                                title: t('terminal'),
+                                                                title: t('terminal') + `-${(window._terminalCount++) + 1}`,
                                                                 // key: 'redis-' + uid(16),
-                                                                key: 'terminal-home-0',
+                                                                key: `terminal-${uid(16)}`,
                                                                 type: 'terminal',
                                                                 data: {
                                                                     // url,

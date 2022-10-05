@@ -17,6 +17,7 @@ import moment from 'moment';
 import filesize from 'file-size'
 import { Terminal } from 'xterm'
 import '~xterm/css/xterm.css'
+import { uid } from 'uid';
 
 interface File {
     name: string
@@ -33,8 +34,13 @@ export function SshDetail({ config, local = false, item, onBack }) {
     // }
 
     const xtermRef = useRef<Terminal>(null)
-    const _xterm = xtermRef.current
+    // const _xterm = xtermRef.current
     const wsRef = useRef(null)
+    const termIdRef = useRef('')
+
+    if (!termIdRef.current) {
+        termIdRef.current = `terminal-${uid(32)}`
+    }
     // const _ws = wsRef.current
 
     // async function loadList() {
@@ -71,7 +77,7 @@ export function SshDetail({ config, local = false, item, onBack }) {
             // scrollback: 100, // 当行的滚动超过初始值时保留的行视窗，越大回滚能看的内容越多，
         })
         xtermRef.current = xterm
-        xterm.open(document.getElementById('terminal'));
+        xterm.open(document.getElementById(termIdRef.current) as HTMLElement);
         xterm.onData(data =>  {
             console.log('onData', data)
             // console.log('_ws', _ws)
@@ -147,9 +153,22 @@ export function SshDetail({ config, local = false, item, onBack }) {
             console.log('socket error')
         }
         ws.onmessage = (event) => {
-            console.log('onmessage', event.data.toString())
+            const text = event.data.toString()
+            console.log('onmessage', text)
             // 接收推送的消息
-            _xterm.write(event.data.toString())
+            let msg
+            try {
+                msg = JSON.parse(text)
+            }
+            catch (err) {
+                console.log('JSON.parse err', err)
+                return
+            }
+            const _xterm = xtermRef.current
+            if (msg.type == 'res') {
+                _xterm.write(msg.data)
+            }
+
         }
         wsRef.current = ws
         return () => {
@@ -179,6 +198,8 @@ export function SshDetail({ config, local = false, item, onBack }) {
     //     }
     // })
 
+    console.log('termIdRef.current', termIdRef.current)
+
     return (
         <div>
             <div className={styles.terminalBox}>
@@ -192,7 +213,7 @@ export function SshDetail({ config, local = false, item, onBack }) {
                 </button> */}
                 {/* <hr /> */}
                 {/* 命令行234 */}
-                <div  id="terminal"></div>
+                <div id={termIdRef.current}></div>
                 
             </div>
             {!local &&
