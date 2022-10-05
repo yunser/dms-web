@@ -84,6 +84,9 @@ export function FileList({ config, item, showSide = false, sourceType }) {
     }, [item])
 
     async function loadList() {
+        if (!curPath) {
+            return
+        }
         setLoading(true)
         setList([])
         setError('')
@@ -125,6 +128,7 @@ export function FileList({ config, item, showSide = false, sourceType }) {
         if (res.success) {
             // setProjects([])
             setInfo(res.data)
+            setCurPath(res.data.homePath)
         }
         else {
             setError(res.data.message)
