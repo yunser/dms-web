@@ -293,6 +293,7 @@ i18n
                     'terminal': 'Terminal',
                     'terminal.open_in_terminal': 'Open in Terminal',
                     'upload': 'Upload',
+                    'open': 'Open',
                 }
             },
             zh: {
@@ -579,6 +580,7 @@ i18n
                     'terminal': '终端',
                     'terminal.open_in_terminal': '在终端打开',
                     'upload': '上传',
+                    'open': '打开',
                 }
             }
         },

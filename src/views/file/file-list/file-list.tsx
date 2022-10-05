@@ -528,8 +528,15 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
                                                         else if (key == 'download') {
                                                             downloadItem(item)
                                                         }
+                                                        else if (key == 'open') {
+                                                            viewItem(item)
+                                                        }
                                                     }}
                                                     items={[
+                                                        {
+                                                            label: t('open'),
+                                                            key: 'open',
+                                                        },
                                                         {
                                                             label: t('open_with_text_editor'),
                                                             key: 'edit',
