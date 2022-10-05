@@ -84,6 +84,7 @@ export function SshDetail({ config, item, onBack }) {
                 }))
             }
         })
+        xterm.focus()
         // xterm.writeln('Welcome to use webssh!')
         // xterm.write('Hello from \x1B[1;3;31mxterm.js\x1B[0m $ ')
         // xterm.on('data',(data)=>{

@@ -26,6 +26,8 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
     const { t } = useTranslation()
     const [list, setList] = useState<File[]>([])
     const [content, setContent] = useState('')
+    const isImage = path.endsWith('.png') || path.endsWith('.jpg')
+        || path.endsWith('.gif')
 
     async function loadDetail() {
         let res = await request.post(`${config.host}/file/read`, {
@@ -40,18 +42,28 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
         }
     }
 
+
+
     useEffect(() => {
-        loadDetail()
+        if (!isImage) {
+            loadDetail()
+        }
     }, [path])
 
     return (
         <Modal
             title={path}
             open={true}
+            width={800}
             onCancel={onCancel}
             footer={null}
         >
-            {content == '' ?
+            {isImage ?
+                <div className={styles.imgBox}>
+                    <img className={styles.img} src={`${config.host}/file/imagePreview?path=${encodeURIComponent(path)}`} />
+                </div>
+                // file:///Users/yunser/Desktop/face.jpg
+            : content == '' ?
                 <FullCenterBox>
                     <Empty />
                 </FullCenterBox>
