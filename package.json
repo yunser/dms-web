@@ -51,7 +51,8 @@
     "uid": "^2.0.0",
     "webworkify-webpack": "^2.1.5",
     "xtend": "^4.0.2",
-    "xterm": "^5.0.0"
+    "xterm": "^5.0.0",
+    "xterm-addon-fit": "^0.6.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "22.0.0",

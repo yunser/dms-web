@@ -16,6 +16,7 @@ import moment from 'moment';
 // import { saveAs } from 'file-saver'
 import filesize from 'file-size'
 import { Terminal } from 'xterm'
+import { FitAddon } from 'xterm-addon-fit'
 import '~xterm/css/xterm.css'
 import { uid } from 'uid';
 
@@ -76,14 +77,17 @@ export function SshDetail({ config, local = false, item, onBack }) {
             // cursorStyle: "bar", // 光标样式 'block' | 'underline' | 'bar'
             // scrollback: 100, // 当行的滚动超过初始值时保留的行视窗，越大回滚能看的内容越多，
         })
+        const fitAddon = new FitAddon()
+        xterm.loadAddon(fitAddon)
         xtermRef.current = xterm
         xterm.open(document.getElementById(termIdRef.current) as HTMLElement);
+        fitAddon.fit()
         xterm.onData(data =>  {
-            console.log('onData', data)
+            // console.log('onData', data)
             // console.log('_ws', _ws)
-            console.log('wsRef', wsRef)
+            // console.log('wsRef', wsRef)
             if (wsRef.current) {
-                console.log('send')
+                // console.log('send')
                 wsRef.current.send(JSON.stringify({
                     type: 'command',
                     data,
@@ -125,9 +129,16 @@ export function SshDetail({ config, local = false, item, onBack }) {
 
         setTerm(xterm)
 
+        function handleResize() {
+            fitAddon.fit()
+        }
+
+        window.addEventListener('resize', handleResize)
+
         return () => {
             xtermRef.current = null
             xterm.dispose()
+            window.removeEventListener('resize', handleResize)
         }
     }, [])
 
@@ -154,7 +165,7 @@ export function SshDetail({ config, local = false, item, onBack }) {
         }
         ws.onmessage = (event) => {
             const text = event.data.toString()
-            console.log('onmessage', text)
+            // console.log('onmessage', text)
             // 接收推送的消息
             let msg
             try {
