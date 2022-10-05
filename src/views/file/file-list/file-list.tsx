@@ -385,7 +385,9 @@ export function FileList({ config, item, showSide = false, sourceType }) {
                 <div className={styles.body}>
                     <div className={styles.bodyHeader}>
                         <div className={classNames(styles.cell, styles.name)}>{t('name')}</div>
-                        <div className={classNames(styles.cell, styles.updateTime)}>{t('update_time')}</div>
+                        <div className={classNames(styles.cell, styles.updateTime)}>
+                            {t('update_time')}
+                        </div>
                         <div className={classNames(styles.cell, styles.size)}>{t('size')}</div>
                     </div>
                     <div className={styles.bodyBody}>

@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { DownloadOutlined, EllipsisOutlined, EyeInvisibleOutlined, EyeOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { CodeOutlined, DownloadOutlined, EllipsisOutlined, EyeInvisibleOutlined, EyeOutlined, FileOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 // import { GitProject } from '../git-project';
@@ -195,7 +195,10 @@ export function SshConnect() {
                                                     
                                                 }}
                                             >
-                                                <div className={styles.name}>{item.name}</div>
+                                                <Space>
+                                                    <div className={styles.name}>{item.name}</div>
+                                                    <div className={styles.info}>{item.username}@{item.host}</div>
+                                                </Space>
                                                 <Space
                                                     onClick={(e) => {
                                                         e.preventDefault()
@@ -208,6 +211,7 @@ export function SshConnect() {
                                                             setView('detail')
                                                             setCurItem(item)
                                                         }}
+                                                        icon={<CodeOutlined />}
                                                     >
                                                         SSH
                                                     </Button>
@@ -217,39 +221,12 @@ export function SshConnect() {
                                                             setView('sftp')
                                                             setCurItem(item)
                                                         }}
+                                                        icon={<FileOutlined />}
                                                     >
                                                         SFTP
                                                     </Button>
-                                                    <Button
-                                                        size="small"
-                                                        onClick={() => {
-                                                            setModalVisible(true)
-                                                            setModalItem((item))
-                                                        }}
-                                                    >
-                                                        {t('edit')}
-                                                    </Button>
-                                                    <Button
-                                                        danger
-                                                        size="small"
-                                                        onClick={() => {
-                                                            deleteItem(item)
-                                                        }}
-                                                    >
-                                                        {t('delete')}
-                                                    </Button>
                                                     
-                                                    {/* {!!item.changes && item.changes > 0 &&
-                                                        <div className={styles.branch}>
-                                                            <div className={styles.changes}>{item.changes}</div>
-                                                        </div>
-                                                    }
-                                                    {!!item.branch &&
-                                                        <div className={styles.branch}>
-                                                            <Tag>{item.branch}</Tag>
-                                                        </div>
-                                                    } */}
-                                                    {/* <Dropdown
+                                                    <Dropdown
                                                         trigger={['click']}
                                                         overlay={
                                                             <Menu
@@ -261,16 +238,18 @@ export function SshConnect() {
                                                                     {
                                                                         label: t('delete'),
                                                                         key: 'delete',
+                                                                        danger: true,
                                                                     },
                                                                 ]}
                                                                 onClick={({ key, domEvent }) => {
                                                                     // domEvent.preventDefault()
                                                                     domEvent.stopPropagation()
                                                                     if (key == 'delete') {
-                                                                        deleteProject(item)
+                                                                        deleteItem(item)
                                                                     }
                                                                     else if (key == 'edit') {
-                                                                        editProject(item)
+                                                                        setModalVisible(true)
+                                                                        setModalItem((item))
                                                                     }
                                                                 }}
                                                             />
@@ -285,7 +264,7 @@ export function SshConnect() {
                                                         >
                                                             <EllipsisOutlined />
                                                         </IconButton>
-                                                    </Dropdown> */}
+                                                    </Dropdown>
                                                 </Space>
                                             </div>
                                         )
