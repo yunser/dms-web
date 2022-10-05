@@ -167,7 +167,7 @@ export function SshConnect() {
                                 </IconButton>
                             </Space>
                         </div>
-                        {/* <div>
+                        <div>
                             <Input
                                 placeholder={t('filter')}
                                 value={keyword}
@@ -176,7 +176,7 @@ export function SshConnect() {
                                     setKeyword(e.target.value)
                                 }}
                             />
-                        </div> */}
+                        </div>
                         {filterdProjects.length == 0 ?
                             <FullCenterBox
                                 height={320}
