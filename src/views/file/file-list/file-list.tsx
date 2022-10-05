@@ -296,6 +296,7 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
             setFileModalPath(item.path)
         }
         else {
+            setKeyword('')
             setCurPath(item.path)
         }
     }
