@@ -43,7 +43,35 @@ const tab_mySql = {
     // closable: false,
 }
 
+function AboutModal({ config, ...otherProps }) {
+    
+    const { t } = useTranslation()
+    const [version, setVersion] = useState('')
+    
+    async function loadData() {
+        let res = await request.post(`${config.host}/version`, {
+        })
+        console.log('res', res)
+        if (res.success) {
+            setVersion(res.data.version)
+        }
+    }
 
+    useEffect(() => {
+        loadData()
+    }, [])
+
+    return (
+        <Modal
+            {...otherProps}
+            open={true}
+            title={t('about')}
+            footer={false}
+        >
+            <div>DMS v{version}</div>
+        </Modal>
+    )
+}
 
 export function DbManager({ config }) {
 
@@ -51,6 +79,8 @@ export function DbManager({ config }) {
     const event$ = useEventEmitter()
     const { t, i18n } = useTranslation()
     // console.log('i18n', i18n)
+    const [aboutVisible, setAboutVisible] = useState(false)
+
     // const [lang, setLang] = useState('en')
     const lang = useMemo(() => {
         if (i18n.language.includes('zh')) {
@@ -346,6 +376,10 @@ export function DbManager({ config }) {
                                                         else if (key == 'terminal') {
                                                             openTerminal()
                                                         }
+                                                        else if (key == 'about') {
+                                                            setAboutVisible(true)
+                                                            
+                                                        }
                                                     }}
                                                     items={[
                                                         {
@@ -373,7 +407,12 @@ export function DbManager({ config }) {
                                                             key: 'elasticsearch',
                                                         },
                                                         {
+                                                            // ========
                                                             type: 'divider',
+                                                        },
+                                                        {
+                                                            label: t('about'),
+                                                            key: 'about',
                                                         },
                                                         {
                                                             label: t('help'),
@@ -605,6 +644,14 @@ export function DbManager({ config }) {
                         )
                     })}
                 </div>
+                {aboutVisible &&
+                    <AboutModal
+                        config={config}
+                        onCancel={() => {
+                            setAboutVisible(false)
+                        }}
+                    />
+                }
             </div>
         </ConfigProvider>
     );

@@ -294,6 +294,7 @@ i18n
                     'terminal.open_in_terminal': 'Open in Terminal',
                     'upload': 'Upload',
                     'open': 'Open',
+                    'about': 'About',
                 }
             },
             zh: {
@@ -581,6 +582,7 @@ i18n
                     'terminal.open_in_terminal': '在终端打开',
                     'upload': '上传',
                     'open': '打开',
+                    'about': '关于',
                 }
             }
         },
