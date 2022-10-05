@@ -30,6 +30,9 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
     const isImage = path.endsWith('.png') || path.endsWith('.jpg')
         || path.endsWith('.gif')
     const isMarkdown = path.endsWith('.md')
+    const isVideo = path.endsWith('.mp4')
+
+    const isText = !isImage && !isVideo
 
     async function loadDetail() {
         setLoading(true)
@@ -54,10 +57,10 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
         if (!path) {
             return
         }
-        if (!isImage) {
+        if (isText) {
             loadDetail()
         }
-    }, [path, isImage])
+    }, [path, isText])
 
     return (
         <Modal
@@ -71,6 +74,20 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
                 <FullCenterBox>
                     <Spin />
                 </FullCenterBox>
+            : isVideo ?
+                <div className={styles.videoBox}>
+                    <video
+                        className={styles.video}
+                        src={`${config.host}/file/imagePreview?sourceType=${sourceType}&path=${encodeURIComponent(path)}`}
+                        controls
+                        autoPlay
+                    ></video>
+                    <div className={styles.article} dangerouslySetInnerHTML={{
+                        __html: marked.parse(content)
+                    }}>
+
+                    </div>
+                </div>
             : isMarkdown ?
                 <div>
                     <div className={styles.article} dangerouslySetInnerHTML={{
@@ -81,7 +98,10 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
                 </div>
             : isImage ?
                 <div className={styles.imgBox}>
-                    <img className={styles.img} src={`${config.host}/file/imagePreview?sourceType=${sourceType}&path=${encodeURIComponent(path)}`} />
+                    <img 
+                        className={styles.img} 
+                        src={`${config.host}/file/imagePreview?sourceType=${sourceType}&path=${encodeURIComponent(path)}`}
+                    />
                 </div>
                 // file:///Users/yunser/Desktop/face.jpg
             : content == '' ?
