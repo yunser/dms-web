@@ -60,7 +60,7 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
         >
             {isImage ?
                 <div className={styles.imgBox}>
-                    <img className={styles.img} src={`${config.host}/file/imagePreview?path=${encodeURIComponent(path)}`} />
+                    <img className={styles.img} src={`${config.host}/file/imagePreview?sourceType=${sourceType}&path=${encodeURIComponent(path)}`} />
                 </div>
                 // file:///Users/yunser/Desktop/face.jpg
             : content == '' ?
