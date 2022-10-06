@@ -1,0 +1,47 @@
+.fileLayout {
+    height: 100%;
+    // border: 1px solid #f00;
+    display: flex;
+    .layoutLeft {
+        flex: 1 0 auto;
+        width: 0;
+        border-right: 4px solid var(--border-color);
+    }
+    .layoutRight {
+        flex: 1 0 auto;
+        width: 0;
+    }
+}
+.imgBox {
+    // border: 1px solid #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .img {
+        max-width: 750px;
+        max-height: 750px;
+    }
+}
+.article {
+    ul {
+        padding-left: 16px;
+    }
+    ul li {
+        list-style: disc;
+    }
+}
+.videoBox {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    // border: 1px solid #000;
+    .video {
+        max-width: 100%;
+        max-height: 420px;
+    }
+}
+.audioBox {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

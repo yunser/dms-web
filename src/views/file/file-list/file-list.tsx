@@ -22,6 +22,7 @@ import copy from 'copy-to-clipboard';
 import { FileRenameModal } from '../file-rename';
 import { FileUtil } from '../utils/utl';
 import { FilePathModal } from '../file-path';
+import { FileInfo } from '../file-info';
 
 function lastSplit(text: string, sep: string) {
     const idx = text.lastIndexOf(sep)
@@ -110,6 +111,8 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
     const [fileModalPath, setFileModalPath] = useState('')
     const [fileEditModalVisible, setFileEditModalVisible] = useState(false)
     const [pathModalVisible, setPathModalVisible] = useState(false)
+    const [infoVisible, setInfoVisible] = useState(false)
+    const [fileInfoPath, setFileInfoPath] = useState('')
     const [keyword, setKeyword] = useState('')
     const [folderVisible, setFolderVisible] = useState(false)
     const [folderType, setFolderType] = useState('')
@@ -352,6 +355,12 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
                     return
                 }
             }
+            else if (e.code == 'KeyI') {
+                if (e.metaKey) {
+                    showItemDetail(activeItem)
+                    return
+                }
+            }
             else if (e.code == 'Backspace') {
                 if (e.metaKey) {
                     deleteItem(activeItem)
@@ -416,7 +425,7 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
         }
     }, [activeItem, list, fileDetailModalVisible])
 
-    function copyItem(item) {
+    function copyItem(item: File) {
         if (item.type != 'FILE') {
             message.error('暂不支持复制文件夹')
             return
@@ -427,7 +436,12 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
         setCopiedItem(item)
     }
 
-    function cutItem(item) {
+    function showItemDetail(item: File) {
+        setInfoVisible(true)
+        setFileInfoPath(item.path)
+    }
+
+    function cutItem(item: File) {
         if (item.type != 'FILE') {
             message.error('暂不支持复制文件夹')
             return
@@ -761,6 +775,9 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
                                                         else if (key == 'cut') {
                                                             cutItem(item)
                                                         }
+                                                        else if (key == 'info') {
+                                                            showItemDetail(item)
+                                                        }
                                                     }}
                                                     items={[
                                                         {
@@ -770,6 +787,10 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
                                                         {
                                                             label: t('open_with_text_editor'),
                                                             key: 'edit',
+                                                        },
+                                                        {
+                                                            label: t('info'),
+                                                            key: 'info',
                                                         },
                                                         ...(sourceType == 'ssh' ? [
                                                             {
@@ -869,6 +890,16 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
                     sourceType={sourceType}
                     onCancel={() => {
                         setFileDetialModalVisible(false)
+                    }}
+                />
+            }
+            {infoVisible &&
+                <FileInfo
+                    config={config}
+                    path={fileInfoPath}
+                    sourceType={sourceType}
+                    onCancel={() => {
+                        setInfoVisible(false)
                     }}
                 />
             }
