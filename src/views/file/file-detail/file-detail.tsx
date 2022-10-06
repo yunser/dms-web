@@ -17,6 +17,7 @@ import moment from 'moment';
 import filesize from 'file-size'
 import { FileList } from '../file-list'
 import { marked } from 'marked'
+import { FileUtil } from '../utils/utl';
 
 interface File {
     name: string
@@ -27,11 +28,7 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
     const { t } = useTranslation()
     const [loading, setLoading] = useState(false)
     const [content, setContent] = useState('')
-    const isImage = path.endsWith('.png') 
-        || path.endsWith('.jpg') 
-        || path.endsWith('.svg')
-        || path.endsWith('.gif')
-        || path.endsWith('.webp')
+    const isImage = FileUtil.isImage(path)
     const isMarkdown = path.endsWith('.md')
     const isAudio = path.endsWith('.mp3')
     const isVideo = path.endsWith('.mp4')

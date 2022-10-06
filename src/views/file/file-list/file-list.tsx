@@ -20,6 +20,8 @@ import { FileNameModal } from '../file-name-edit';
 import { FileEdit } from '../file-edit';
 import copy from 'copy-to-clipboard';
 import { FileRenameModal } from '../file-rename';
+import { FileUtil } from '../utils/utl';
+import { FilePathModal } from '../file-path';
 
 function lastSplit(text: string, sep: string) {
     const idx = text.lastIndexOf(sep)
@@ -107,6 +109,7 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
     const [fileDetailModalVisible, setFileDetialModalVisible] = useState(false)
     const [fileModalPath, setFileModalPath] = useState('')
     const [fileEditModalVisible, setFileEditModalVisible] = useState(false)
+    const [pathModalVisible, setPathModalVisible] = useState(false)
     const [keyword, setKeyword] = useState('')
     const [folderVisible, setFolderVisible] = useState(false)
     const [folderType, setFolderType] = useState('')
@@ -662,7 +665,18 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
                                 <UploadOutlined />
                             </IconButton>
                         }
-                        <div className={styles.path}>{curPath}</div>
+                        <div className={styles.path}
+                            onClick={() => {
+                                setPathModalVisible(true)
+                            }}
+                        >
+                            {curPath}
+                            {/* <Input
+                                className={styles.input}
+                                value={curPath}
+
+                            /> */}
+                        </div>
                     </div>
                     <Space>
                         <Input
@@ -707,6 +721,9 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
                         :
                             <div className={styles.list}>
                                 {filteredList.map(item => {
+                                    const isImage = FileUtil.isImage(item.path)
+                                    const isMarkdown = item.path.endsWith('.md')
+
                                     return (
                                         <Dropdown
                                             key={item.name}
@@ -809,10 +826,14 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
                                             >
                                                 <div className={classNames(styles.cell, styles.name)}>
                                                     <div className={styles.icon}>
-                                                        {item.type == 'FILE' ?
-                                                            <FileOutlined />
+                                                        {item.type != 'FILE' ?
+                                                            <div className={classNames('iconfont', 'icon-folder', styles.iconFolder)}></div>
+                                                        : isImage ?
+                                                            <div className={classNames('iconfont', 'icon-image', styles.iconMarkdown)}></div>
+                                                        : isMarkdown ?
+                                                            <div className={classNames('iconfont', 'icon-markdown', styles.iconImage)}></div>
                                                         :
-                                                            <div className={classNames('iconfont', 'icon-folder', styles.iconText)}></div>
+                                                            <FileOutlined />
                                                             // <FolderOutlined />
                                                         }
                                                     </div>
@@ -892,6 +913,19 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
                     onSuccess={() => {
                         setRenameModalVisible(false)
                         loadList()
+                    }}
+                />
+            }
+            {pathModalVisible &&
+                <FilePathModal
+                    config={config}
+                    path={curPath}
+                    onCancel={() => {
+                        setPathModalVisible(false)
+                    }}
+                    onSuccess={(path) => {
+                        setPathModalVisible(false)
+                        setCurPath(path)
                     }}
                 />
             }

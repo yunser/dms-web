@@ -289,6 +289,7 @@ i18n
                     'file.document': 'Documents',
                     'file.download': 'Downloads',
                     'file.home': 'Home',
+                    'file.go_to_path': 'Go to Path',
                     'redis': 'Redis',
                     'git': 'Git',
                     'elasticsearch': 'Elasticsearch',
@@ -300,6 +301,7 @@ i18n
                     'open': 'Open',
                     'about': 'About',
                     'markdown': 'Markdown',
+                    'path': 'Path',
                 }
             },
             zh: {
@@ -582,6 +584,7 @@ i18n
                     'file.document': '文档',
                     'file.download': '下载',
                     'file.home': '主页',
+                    'file.go_to_path': '前往文件夹',
                     'redis': 'Redis',
                     'git': 'Git',
                     'elasticsearch': 'Elasticsearch',
@@ -593,6 +596,7 @@ i18n
                     'open': '打开',
                     'about': '关于',
                     'markdown': 'Markdown',
+                    'path': '路径',
                 }
             }
         },

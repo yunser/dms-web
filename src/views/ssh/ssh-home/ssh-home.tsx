@@ -146,7 +146,7 @@ export function SshDetail({ config, local = false, defaultPath, item, onBack }) 
         if (!term) {
             return
         }
-        const ws = new WebSocket('ws://localhost:2000/')
+        const ws = new WebSocket('ws://localhost:10087/')
         ws.onclose = () => {
             console.log('close socket')
         }
