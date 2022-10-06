@@ -1,10 +1,11 @@
+/* CDN 服务仅供平台体验和调试使用，平台不承诺服务的稳定性，企业客户需下载字体包自行发布使用并做好备份。 */
 @font-face {
-    font-family: 'iconfont';
-    /* Project id 3392709 */
-    src: url('//at.alicdn.com/t/font_3392709_4pukvddjdc6.woff2?t=1652295232036') format('woff2'),
-        url('//at.alicdn.com/t/font_3392709_4pukvddjdc6.woff?t=1652295232036') format('woff'),
-        url('//at.alicdn.com/t/font_3392709_4pukvddjdc6.ttf?t=1652295232036') format('truetype');
+    font-family: 'iconfont';  /* Project id 3688475 */
+    src: url('//at.alicdn.com/t/c/font_3688475_r65zxhlxwer.woff2?t=1665046120388') format('woff2'),
+         url('//at.alicdn.com/t/c/font_3688475_r65zxhlxwer.woff?t=1665046120388') format('woff'),
+         url('//at.alicdn.com/t/c/font_3688475_r65zxhlxwer.ttf?t=1665046120388') format('truetype');
 }
+
 .iconfont {
     font-family: 'iconfont' !important;
     font-size: inherit;
@@ -12,18 +13,6 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
-.iconfont.icon-rect:before {
-    content: '\e790';
-}
-.iconfont.icon-circle:before {
-    content: '\eb99';
-}
-.iconfont.icon-line:before {
-    content: '\e6bb';
-}
-.iconfont.icon-select:before {
-    content: '\e9bc';
-}
-.iconfont.icon-text:before {
-    content: '\e621';
+.iconfont.icon-folder:before {
+    content: '\eac4';
 }

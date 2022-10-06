@@ -812,7 +812,8 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
                                                         {item.type == 'FILE' ?
                                                             <FileOutlined />
                                                         :
-                                                            <FolderOutlined />
+                                                            <div className={classNames('iconfont', 'icon-folder', styles.iconText)}></div>
+                                                            // <FolderOutlined />
                                                         }
                                                     </div>
                                                     <div className={styles.label}>
