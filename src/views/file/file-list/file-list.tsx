@@ -21,12 +21,33 @@ import { FileEdit } from '../file-edit';
 import copy from 'copy-to-clipboard';
 import { FileRenameModal } from '../file-rename';
 
+function lastSplit(text: string, sep: string) {
+    const idx = text.lastIndexOf(sep)
+    if (idx == -1) {
+        return [text]
+    }
+    return [
+        text.substring(0, idx),
+        text.substring(idx + 1),
+    ]
+}
+
+function getCopyName(fileName: string, copyText: string) {
+    const suffix = `-${copyText}`
+    if (fileName.includes('.')) {
+        const [name, ext] = lastSplit(fileName, '.')
+        return `${name}${suffix}.${ext}`
+    }
+    return fileName + suffix
+}
+
 interface File {
     name: string
     path: string
+    type: string
 }
 
-function getParentPath(curPath) {
+function getParentPath(curPath: string) {
     const idx = curPath.lastIndexOf('/') // TODO
     const newPath = curPath.substring(0, idx)
     console.log('newPath', newPath)
@@ -90,6 +111,7 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
     const [folderVisible, setFolderVisible] = useState(false)
     const [folderType, setFolderType] = useState('')
     const [activeItem, setActiveItem] = useState(null)
+    const [copiedItem, setCopiedItem] = useState(null)
     const [connected, setConnected] = useState(false)
     const [renameModalVisible, setRenameModalVisible] = useState(false)
     const [renameItem, setRenameItem] = useState(null)
@@ -200,7 +222,7 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
         setCurPath(getParentPath(curPath))
     }
 
-    function downloadItem(item) {
+    function downloadItem(item: File) {
         const downloadUrl = `${config.host}/file/download?sourceType=${sourceType}&fileName=${encodeURIComponent(item.name)}&path=${encodeURIComponent(item.path)}`
         const link = document.createElement("a")
         // let temp = res.headers["content-disposition"].split(";")[1].split("filename=")[1];
@@ -215,7 +237,7 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
         console.log('link', link)
     }
 
-    async function openInFinder(path) {
+    async function openInFinder(path: string) {
         let ret = await request.post(`${config.host}/file/openInFinder`, {
             sourceType,
             path,
@@ -232,7 +254,7 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
         }
     }
 
-    async function deleteItem(item) {
+    async function deleteItem(item: File) {
         Modal.confirm({
             // title: 'Confirm',
             // icon: <ExclamationCircleOutlined />,
@@ -257,13 +279,14 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
         })
     }
 
-    async function copyPaste(item, toFolder, copyType) {
+    async function copyPaste(item: File, toFolder, copyType, sameNameFile) {
         if (item.type != 'FILE') {
             message.error('暂不支持复制文件夹')
             return
         }
         const fromPath = item.path
-        const toPath = toFolder + '/' + item.name
+        const toPath = toFolder + '/' + (sameNameFile ? getCopyName(item.name, t('copy')) : item.name)
+        // + (sameNameFile ? `-${t('copy')}` : '')
         console.log('cp', fromPath, toPath)
         let ret = await request.post(`${config.host}/file/copy`, {
             sourceType,
@@ -307,13 +330,7 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
             if (e.code == 'KeyC') {
                 if (e.metaKey) {
                     if (activeItem) {
-                        if (activeItem.type != 'FILE') {
-                            message.error('暂不支持复制文件夹')
-                            return
-                        }
-                        console.log('已复制')
-                        window._copiedItem = activeItem
-                        window._copyType = 'copy'
+                        copyItem(activeItem)
                     }
                     return
                 }
@@ -321,24 +338,14 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
             else if (e.code == 'KeyX') {
                 if (e.metaKey) {
                     if (activeItem) {
-                        if (activeItem.type != 'FILE') {
-                            message.error('暂不支持复制文件夹')
-                            return
-                        }
-                        console.log('已复制')
-                        window._copiedItem = activeItem
-                        window._copyType = 'cut'
+                        cutItem(activeItem)
                     }
                     return
                 }
             }
             else if (e.code == 'KeyV') {
                 if (e.metaKey) {
-                    console.log('粘贴', window._copiedItem)
-                    // if (activeItem) {
-                    //     window._copiedPath = activeItem.path
-                    // }
-                    copyPaste(window._copiedItem, curPath, window._copyType)
+                    doPaste()
                     return
                 }
             }
@@ -405,6 +412,46 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
             window.removeEventListener('keydown', handleKeyDown)
         }
     }, [activeItem, list, fileDetailModalVisible])
+
+    function copyItem(item) {
+        if (item.type != 'FILE') {
+            message.error('暂不支持复制文件夹')
+            return
+        }
+        console.log('已复制')
+        window._copiedItem = item
+        window._copyType = 'copy'
+        setCopiedItem(item)
+    }
+
+    function cutItem(item) {
+        if (item.type != 'FILE') {
+            message.error('暂不支持复制文件夹')
+            return
+        }
+        console.log('已复制')
+        window._copiedItem = item
+        window._copyType = 'cut'
+    }
+
+    function doPaste() {
+        console.log('粘贴', window._copiedItem)
+        // if (activeItem) {
+        //     window._copiedPath = activeItem.path
+        // }
+        const sameNameFile = list.find(item => item.name == window._copiedItem.name)
+        if (sameNameFile) {
+            if (window._copyType == 'cut') {
+                message.error('exist')
+                return
+            }
+            console.log('same')
+            // return
+        }
+        copyPaste(window._copiedItem, curPath, window._copyType, sameNameFile)
+        setCopiedItem(null)
+        window._copiedItem = null
+    }
 
     async function viewItem(item) {
         if (item.type == 'FILE') {
@@ -566,6 +613,16 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
                                 <FileSearchOutlined />
                             </IconButton>
                         }
+                        {!!copiedItem &&
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    doPaste()
+                                }}
+                            >
+                                {t('paste')}
+                            </Button>
+                        }
                         {sourceType != 'local' &&
                             <IconButton
                                 tooltip={t('upload')}
@@ -681,6 +738,12 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
                                                         else if (key == 'open') {
                                                             viewItem(item)
                                                         }
+                                                        else if (key == 'copy') {
+                                                            copyItem(item)
+                                                        }
+                                                        else if (key == 'cut') {
+                                                            cutItem(item)
+                                                        }
                                                     }}
                                                     items={[
                                                         {
@@ -699,6 +762,14 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
                                                         ] : []),
                                                         {
                                                             type: 'divider',
+                                                        },
+                                                        {
+                                                            label: t('copy'),
+                                                            key: 'copy',
+                                                        },
+                                                        {
+                                                            label: t('cut'),
+                                                            key: 'cut',
                                                         },
                                                         {
                                                             label: t('rename'),
