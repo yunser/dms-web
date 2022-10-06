@@ -257,7 +257,7 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
         })
     }
 
-    async function copyPaste(item, toFolder) {
+    async function copyPaste(item, toFolder, copyType) {
         if (item.type != 'FILE') {
             message.error('暂不支持复制文件夹')
             return
@@ -269,6 +269,7 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
             sourceType,
             fromPath,
             toPath,
+            copyType,
         })
         // console.log('ret', ret)
         if (ret.success) {
@@ -312,6 +313,21 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
                         }
                         console.log('已复制')
                         window._copiedItem = activeItem
+                        window._copyType = 'copy'
+                    }
+                    return
+                }
+            }
+            else if (e.code == 'KeyX') {
+                if (e.metaKey) {
+                    if (activeItem) {
+                        if (activeItem.type != 'FILE') {
+                            message.error('暂不支持复制文件夹')
+                            return
+                        }
+                        console.log('已复制')
+                        window._copiedItem = activeItem
+                        window._copyType = 'cut'
                     }
                     return
                 }
@@ -322,8 +338,13 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
                     // if (activeItem) {
                     //     window._copiedPath = activeItem.path
                     // }
-                    copyPaste(window._copiedItem, curPath)
+                    copyPaste(window._copiedItem, curPath, window._copyType)
                     return
+                }
+            }
+            else if (e.code == 'Backspace') {
+                if (e.metaKey) {
+                    deleteItem(activeItem)
                 }
             }
             else if (e.code == 'ArrowDown') {
