@@ -257,12 +257,37 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
         })
     }
 
+    async function copyPaste(item, toFolder) {
+        if (item.type != 'FILE') {
+            message.error('暂不支持复制文件夹')
+            return
+        }
+        const fromPath = item.path
+        const toPath = toFolder + '/' + item.name
+        console.log('cp', fromPath, toPath)
+        let ret = await request.post(`${config.host}/file/copy`, {
+            sourceType,
+            fromPath,
+            toPath,
+        })
+        // console.log('ret', ret)
+        if (ret.success) {
+            // onConnnect && onConnnect()
+            message.success(t('success'))
+            // onClose && onClose()
+            // onSuccess && onSuccess()
+            loadList()
+        }
+    }
+
     useEffect(() => {
         function handleKeyDown(e: KeyboardEvent) {
             console.log('e', e.code, e)
             console.log('e/e.keyCode', e.keyCode)
-            console.log('e.srcElement', e.srcElement.nodeName)
-            if (e.srcElement.nodeName == 'INPUT' || e.srcElement.nodeName == 'TEXTAREA') {
+            console.log('e.metaKey', e.metaKey)
+            // console.log('e.srcElement', e.srcElement.nodeName)
+            
+            if (document.activeElement?.nodeName == 'INPUT' || document.activeElement?.nodeName == 'TEXTAREA') {
                 return
             }
             // 数字 48-57
@@ -276,11 +301,29 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
                 }
                 return '?'
             }
+            
 
-            if ((e.keyCode >= 48 && e.keyCode <= 57) || (e.keyCode >= 65 && e.keyCode <= 90)) {
-                const idx = list.findIndex(item => item.name.toLowerCase().startsWith(keyCode2Text(e.keyCode)))
-                if (idx != -1) {
-                    setActiveItem(list[idx])
+            if (e.code == 'KeyC') {
+                if (e.metaKey) {
+                    if (activeItem) {
+                        if (activeItem.type != 'FILE') {
+                            message.error('暂不支持复制文件夹')
+                            return
+                        }
+                        console.log('已复制')
+                        window._copiedItem = activeItem
+                    }
+                    return
+                }
+            }
+            else if (e.code == 'KeyV') {
+                if (e.metaKey) {
+                    console.log('粘贴', window._copiedItem)
+                    // if (activeItem) {
+                    //     window._copiedPath = activeItem.path
+                    // }
+                    copyPaste(window._copiedItem, curPath)
+                    return
                 }
             }
             else if (e.code == 'ArrowDown') {
@@ -327,6 +370,13 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
                 }
                 e.stopPropagation()
                 e.preventDefault()
+            }
+            
+            if ((e.keyCode >= 48 && e.keyCode <= 57) || (e.keyCode >= 65 && e.keyCode <= 90)) {
+                const idx = list.findIndex(item => item.name.toLowerCase().startsWith(keyCode2Text(e.keyCode)))
+                if (idx != -1) {
+                    setActiveItem(list[idx])
+                }
             }
         }
         window.addEventListener('keydown', handleKeyDown)
