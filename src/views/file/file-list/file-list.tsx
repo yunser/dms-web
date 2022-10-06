@@ -256,7 +256,7 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
             // message.success(t('success'))
             // onClose && onClose()
             // onSuccess && onSuccess()
-            loadList()
+            // loadList()
         }
     }
 
@@ -778,6 +778,9 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
                                                         else if (key == 'info') {
                                                             showItemDetail(item)
                                                         }
+                                                        else if (key == 'finder') {
+                                                            openInFinder(item.path)
+                                                        }
                                                     }}
                                                     items={[
                                                         {
@@ -791,6 +794,10 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
                                                         {
                                                             label: t('info'),
                                                             key: 'info',
+                                                        },
+                                                        {
+                                                            label: t('file.open_in_finder'),
+                                                            key: 'finder',
                                                         },
                                                         ...(sourceType == 'ssh' ? [
                                                             {
