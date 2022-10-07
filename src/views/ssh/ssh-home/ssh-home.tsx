@@ -15,9 +15,12 @@ import { FullCenterBox } from '@/views/db-manager/redis-client';
 import moment from 'moment';
 // import { saveAs } from 'file-saver'
 import filesize from 'file-size'
+
 import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
 import { WebLinksAddon } from 'xterm-addon-web-links'
+import { Unicode11Addon } from 'xterm-addon-unicode11'
+
 import '~xterm/css/xterm.css'
 import { uid } from 'uid';
 
@@ -128,6 +131,9 @@ export function SshDetail({ config, local = false, defaultPath, item, onBack }) 
         xterm.loadAddon(fitAddon)
         // const terminal = new Terminal();
         xterm.loadAddon(new WebLinksAddon())
+        const unicode11Addon = new Unicode11Addon();
+        xterm.loadAddon(unicode11Addon)
+        xterm.unicode.activeVersion = '11'
 
         xtermRef.current = xterm
         const elem = document.getElementById(termIdRef.current) as HTMLElement
