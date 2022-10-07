@@ -1,6 +1,6 @@
-import { Button, Descriptions, Dropdown, Empty, Input, Menu, message, Modal, Popover, Space, Table, Tabs, Tag } from 'antd';
+import { Button, Descriptions, Dropdown, Empty, Input, Menu, message, Modal, Popover, Space, Spin, Table, Tabs, Tag } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import styles from './file-detail.module.less';
+import styles from './file-edit.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
 // console.log('lodash', _)
@@ -16,6 +16,7 @@ import moment from 'moment';
 // import { saveAs } from 'file-saver'
 import filesize from 'file-size'
 import { FileList } from '../file-list'
+import { Editor } from '@/views/db-manager/editor/Editor';
 
 interface File {
     name: string
@@ -24,10 +25,14 @@ interface File {
 export function FileEdit({ config, path, sourceType, onSuccess, onCancel }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
-    const [list, setList] = useState<File[]>([])
     const [content, setContent] = useState('')
+    const [loading, setLoading] = useState(true)
 
+    const isJson = path.endsWith('.json')
+    const isJs = path.endsWith('.js')
+    const editorRef = useRef(null)
     async function loadDetail() {
+        setLoading(true)
         let res = await request.post(`${config.host}/file/read`, {
             path,
             sourceType,
@@ -38,6 +43,7 @@ export function FileEdit({ config, path, sourceType, onSuccess, onCancel }) {
         if (res.success) {
             setContent(res.data.content)
         }
+        setLoading(false)
     }
 
     useEffect(() => {
@@ -45,6 +51,7 @@ export function FileEdit({ config, path, sourceType, onSuccess, onCancel }) {
     }, [])
 
     async function handleOk() {
+        const content = editorRef.current.getValue()
         let res = await request.post(`${config.host}/file/write`, {
             path,
             sourceType,
@@ -54,6 +61,7 @@ export function FileEdit({ config, path, sourceType, onSuccess, onCancel }) {
         })
         // console.log('res', res)
         if (res.success) {
+            message.success(t('success'))
             onSuccess && onSuccess()
         }
     }
@@ -63,18 +71,55 @@ export function FileEdit({ config, path, sourceType, onSuccess, onCancel }) {
             title={path}
             open={true}
             width={1200}
+            centered
             onCancel={onCancel}
             onOk={handleOk}
             maskClosable={false}
             // footer={null}
         >
-            <Input.TextArea
+            {/* <Input.TextArea
                 value={content}
                 rows={16}
                 onChange={e => {
                     setContent(e.target.value)
                 }}
-            />
+            /> */}
+            {loading ?
+                <FullCenterBox>
+                    <Spin />
+                </FullCenterBox>
+            :
+                <div className={styles.editorBox}>
+                    <Editor
+                        lang={isJson ? 'json' : isJs ? 'JavaScript' : 'plain'}
+                        value={content}
+                        autoFocus={false}
+                        // value=""
+                        // event$={event$}
+                        // onChange={value => setCodeASD(value)}
+                        // autoFoucs={true}
+                        // destroy={true}
+                        onEditor={editor => {
+                            // setEditor(editor)
+                            // console.log('degg', content == contentRef.current, content, contentRef.current)
+                            // editor.setValue(content)
+                            // content
+                            editorRef.current = editor
+                        }}
+                        // onSelectionChange={({selection, selectionTextLength}) => {
+                        //     console.log('selection', selection)
+                        //     selectionEvent.emit({
+                        //         data: {
+                        //             selection: {
+                        //                 ...selection,
+                        //                 textLength: selectionTextLength,
+                        //             }
+                        //         }
+                        //     })
+                        // }}
+                    />
+                </div>
+            }
         </Modal>
     )
 }
