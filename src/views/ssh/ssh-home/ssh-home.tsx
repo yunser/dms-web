@@ -17,6 +17,7 @@ import moment from 'moment';
 import filesize from 'file-size'
 import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
+import { WebLinksAddon } from 'xterm-addon-web-links'
 import '~xterm/css/xterm.css'
 import { uid } from 'uid';
 
@@ -117,12 +118,17 @@ export function SshDetail({ config, local = false, defaultPath, item, onBack }) 
         const xterm = new Terminal({
             cols: 80,
             rows: 30,
+            allowProposedApi: true,
             // ursorBlink: true, // 关标闪烁
             // cursorStyle: "bar", // 光标样式 'block' | 'underline' | 'bar'
             // scrollback: 100, // 当行的滚动超过初始值时保留的行视窗，越大回滚能看的内容越多，
         })
+        // FitAddon
         const fitAddon = new FitAddon()
         xterm.loadAddon(fitAddon)
+        // const terminal = new Terminal();
+        xterm.loadAddon(new WebLinksAddon())
+
         xtermRef.current = xterm
         const elem = document.getElementById(termIdRef.current) as HTMLElement
         xterm.open(elem)
