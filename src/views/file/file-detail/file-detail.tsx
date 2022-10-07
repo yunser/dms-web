@@ -35,8 +35,7 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
     const isAudio = path.endsWith('.mp3')
     const isVideo = path.endsWith('.mp4')
 
-    const isJson = path.endsWith('.json')
-    const isJs = path.endsWith('.js')
+    
 
     const isPureText = !isImage && !isAudio && !isVideo && !isMarkdown
 
@@ -58,7 +57,6 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
         }
         setLoading(false)
     }
-
 
     // console.log('content', content)
     // console.log('md', marked.parse('123'))
@@ -132,7 +130,7 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
             :
                 <div className={styles.editorBox}>
                     <Editor
-                        lang={isJson ? 'json' : isJs ? 'JavaScript' : 'plain'}
+                        lang={FileUtil.getLang(path)}
                         value={content}
                         autoFocus={false}
                         // value=""

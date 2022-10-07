@@ -17,6 +17,7 @@ import moment from 'moment';
 import filesize from 'file-size'
 import { FileList } from '../file-list'
 import { Editor } from '@/views/db-manager/editor/Editor';
+import { FileUtil } from '../utils/utl';
 
 interface File {
     name: string
@@ -91,7 +92,7 @@ export function FileEdit({ config, path, sourceType, onSuccess, onCancel }) {
             :
                 <div className={styles.editorBox}>
                     <Editor
-                        lang={isJson ? 'json' : isJs ? 'JavaScript' : 'plain'}
+                        lang={FileUtil.getLang(path)}
                         value={content}
                         autoFocus={false}
                         // value=""

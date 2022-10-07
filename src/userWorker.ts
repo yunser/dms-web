@@ -16,6 +16,29 @@ import 'monaco-editor/esm/vs/language/typescript/monaco.contribution.js'
 import 'monaco-editor/esm/vs/basic-languages/redis/redis.contribution.js';
 // 支持 Markdown
 import 'monaco-editor/esm/vs/basic-languages/markdown/markdown.contribution.js';
+// yaml
+import 'monaco-editor/esm/vs/basic-languages/yaml/yaml.contribution.js';
+// html
+import 'monaco-editor/esm/vs/basic-languages/html/html.contribution.js';
+// css
+import 'monaco-editor/esm/vs/basic-languages/css/css.contribution.js';
+// typescript
+import 'monaco-editor/esm/vs/basic-languages/typescript/typescript.contribution.js';
+// javascript
+import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution.js';
+// xml
+import 'monaco-editor/esm/vs/basic-languages/xml/xml.contribution.js';
+// less
+import 'monaco-editor/esm/vs/basic-languages/less/less.contribution.js';
+// scss
+import 'monaco-editor/esm/vs/basic-languages/scss/scss.contribution.js';
+// sql
+import 'monaco-editor/esm/vs/basic-languages/sql/sql.contribution.js';
+// php
+import 'monaco-editor/esm/vs/basic-languages/php/php.contribution.js';
+// java
+import 'monaco-editor/esm/vs/basic-languages/java/java.contribution.js';
+
 // 代码提示必不可少
 import 'monaco-editor/esm/vs/editor/contrib/suggest/browser/suggestController.js';
 import 'monaco-editor/esm/vs/editor/contrib/suggest/browser/suggestInlineCompletions.js';
