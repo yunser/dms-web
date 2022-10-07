@@ -118,6 +118,7 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
     const [folderType, setFolderType] = useState('')
     const [activeItem, setActiveItem] = useState(null)
     const [copiedItem, setCopiedItem] = useState(null)
+    const [connecting, setConnecting] = useState(false)
     const [connected, setConnected] = useState(false)
     const [renameModalVisible, setRenameModalVisible] = useState(false)
     const [renameItem, setRenameItem] = useState(null)
@@ -132,7 +133,8 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
         })
     }, [list, keyword])
     async function connect() {
-        console.log('flow/1', )
+        // console.log('flow/1', )
+        setConnecting(true)
         let ret = await request.post(`${config.host}/sftp/connect`, {
             ...item,
             // path: item.path,
@@ -148,6 +150,7 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
             // loadList()
             setConnected(true)
         }
+        setConnecting(false)
     }
     
     useEffect(() => {
@@ -216,7 +219,7 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
     }, [showSide, sourceType])
 
     useEffect(() => {
-        if (sourceType == 'ssh' && !connected) {
+        if (!connected) {
             return
         }
         loadList()
@@ -966,6 +969,16 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
                         setCurPath(path)
                     }}
                 />
+            }
+            {connecting &&
+                <Modal
+                    open={true}
+                    title={t('connect')}
+                    footer={false}
+                    closable={false}
+                >
+                    {t('connecting')}
+                </Modal>
             }
         </div>
     )

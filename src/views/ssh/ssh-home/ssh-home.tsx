@@ -151,6 +151,7 @@ export function SshDetail({ config, local = false, defaultPath, item, onBack }) 
         const unicode11Addon = new Unicode11Addon();
         xterm.loadAddon(unicode11Addon)
         xterm.unicode.activeVersion = '11'
+        // 🥵
         
         const searchAddon = new SearchAddon()
         xterm.loadAddon(searchAddon)

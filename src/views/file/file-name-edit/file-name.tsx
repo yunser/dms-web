@@ -25,6 +25,7 @@ export function FileNameModal({ config, type, path, onSuccess, sourceType, onCan
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [list, setList] = useState<File[]>([])
+    const [loading, setLoading] = useState(false)
     const [content, setContent] = useState('')
     const [form] = Form.useForm()
 
@@ -43,6 +44,7 @@ export function FileNameModal({ config, type, path, onSuccess, sourceType, onCan
 
     async function handleOk() {
         const values = await form.validateFields()
+        setLoading(true)
         const res = await request.post(`${config.host}/file/create`, {
             // connectionId: connectionId,
             path,
@@ -56,6 +58,7 @@ export function FileNameModal({ config, type, path, onSuccess, sourceType, onCan
         if (res.success) {
             onSuccess && onSuccess()
         }
+        setLoading(false)
     }
 
     useEffect(() => {
@@ -68,6 +71,7 @@ export function FileNameModal({ config, type, path, onSuccess, sourceType, onCan
             open={true}
             onCancel={onCancel}
             onOk={handleOk}
+            confirmLoading={loading}
             // footer={null}
         >
             <Form

@@ -1,4 +1,4 @@
-import { Button, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Space, Table, Tabs, Tag } from 'antd';
+import { Button, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Space, Spin, Table, Tabs, Tag } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './ssh-connect.module.less';
 import _ from 'lodash';
@@ -47,6 +47,7 @@ export function SshConnect({ config, event$ }) {
     const { t } = useTranslation()
     const [modalVisible, setModalVisible] = useState(false)
     const [modalItem, setModalItem] = useState(false)
+    const [loading, setLoading] = useState(false)
     const [curItem, setCurItem] = useState(null)
     const [view, setView] = useState('list')
     const [keyword, setKeyword] = useState('')
@@ -81,6 +82,7 @@ export function SshConnect({ config, event$ }) {
     const [createType, setCreateType] = useState(false)
 
     async function loadList() {
+        setLoading(true)
         let res = await request.post(`${config.host}/ssh/connection/list`, {
             // projectPath,
             // connectionId,
@@ -99,6 +101,7 @@ export function SshConnect({ config, event$ }) {
             }))
             // setCurrent(res.data.current)
         }
+        setLoading(false)
     }
 
     useEffect(() => {
@@ -177,7 +180,13 @@ export function SshConnect({ config, event$ }) {
                                 }}
                             />
                         </div>
-                        {filterdProjects.length == 0 ?
+                        {loading ?
+                            <FullCenterBox
+                                height={320}
+                            >
+                                <Spin />
+                            </FullCenterBox>
+                        : filterdProjects.length == 0 ?
                             <FullCenterBox
                                 height={320}
                             >

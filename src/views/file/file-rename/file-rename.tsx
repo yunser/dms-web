@@ -33,10 +33,13 @@ export function FileRenameModal({ config, type, item, onSuccess, sourceType, onC
     const { t } = useTranslation()
     // const [list, setList] = useState<File[]>([])
     // const [content, setContent] = useState('')
+    const [loading, setLoading] = useState(false)
+
     const [form] = Form.useForm()
 
     async function handleOk() {
         const values = await form.validateFields()
+        setLoading(true)
         const res = await request.post(`${config.host}/file/rename`, {
             // connectionId: connectionId,
             fromPath: item.path,
@@ -50,6 +53,7 @@ export function FileRenameModal({ config, type, item, onSuccess, sourceType, onC
         if (res.success) {
             onSuccess && onSuccess()
         }
+        setLoading(false)
     }
 
     useEffect(() => {
@@ -65,6 +69,7 @@ export function FileRenameModal({ config, type, item, onSuccess, sourceType, onC
             open={true}
             onCancel={onCancel}
             onOk={handleOk}
+            confirmLoading={loading}
             // footer={null}
         >
             <Form
