@@ -109,7 +109,7 @@ i18n
                     data_free: 'Data Free',
                     reconnect: 'Reconnect',
                     connect_error: 'Connect Error',
-                    connect_unknown: 'Un Connect',
+                    connect_unknown: 'Unconnect',
                     connected: 'Connected',
                     loading: 'Loading...',
                     confirm_sql: 'The following is the SQL to be executed, please confirm',

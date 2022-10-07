@@ -78,6 +78,7 @@ export function SshDetail({ config, local = false, defaultPath, item, onBack }) 
     const { t } = useTranslation()
     const [list, setList] = useState<File[]>([])
     const [curPath, setCurPath] = useState('')
+    const [connected, setConnected] = useState(false)
     const [term, setTerm] = useState(null)
     // const config = {
     //     host: 'http://localhost:10086'
@@ -254,6 +255,7 @@ export function SshDetail({ config, local = false, defaultPath, item, onBack }) 
         if (!term) {
             return
         }
+        let first = true
         const ws = new WebSocket('ws://localhost:10087/')
         ws.onclose = () => {
             console.log('close socket')
@@ -302,6 +304,10 @@ export function SshDetail({ config, local = false, defaultPath, item, onBack }) 
             }
             const _xterm = xtermRef.current
             if (msg.type == 'res') {
+                if (first) {
+                    first = false
+                    setConnected(true)
+                }
                 _xterm.write(msg.data)
             }
 
@@ -337,7 +343,7 @@ export function SshDetail({ config, local = false, defaultPath, item, onBack }) 
     console.log('termIdRef.current', termIdRef.current)
 
     return (
-        <div>
+        <div  className={styles.terminalApp}>
             <div className={styles.terminalBox}>
                 {/* ssh */}
                 {/* <button
@@ -364,6 +370,9 @@ export function SshDetail({ config, local = false, defaultPath, item, onBack }) 
                         term.focus()
                     }}
                 />
+            </div>
+            <div className={styles.statusBox}>
+                <div>{connected ? t('connected') : t('connect_unknown')}</div>
             </div>
             {/* {!local &&
                 <div className={styles.toolBox}>
