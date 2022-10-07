@@ -450,9 +450,6 @@ export function DbManager({ config }) {
                                             >
                                                 <EllipsisOutlined />
                                             </IconButton>
-                                            {/* <a
-                                            >
-                                            </a> */}
                                         </Dropdown>
                                         <Button
                                             type="text"

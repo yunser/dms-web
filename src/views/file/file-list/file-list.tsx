@@ -695,6 +695,30 @@ export function FileList({ config, event$, item, showSide = false }) {
                                 <UploadOutlined />
                             </IconButton>
                         }
+                        <Dropdown
+                            overlay={
+                                <Menu
+                                    onClick={({ key }) => {
+                                        if (key == 'copy_path') {
+                                            copy(curPath)
+                                            message.info(t('copied'))
+                                        }
+                                    }}
+                                    items={[
+                                        {
+                                            label: t('file.copy_path'),
+                                            key: 'copy_path',
+                                        },
+                                    ]}
+                                />
+                            }
+                        >
+                            <IconButton
+                                onClick={e => e.preventDefault()}
+                            >
+                                <EllipsisOutlined />
+                            </IconButton>
+                        </Dropdown>
                         <div className={styles.path}
                             onClick={() => {
                                 setPathModalVisible(true)
