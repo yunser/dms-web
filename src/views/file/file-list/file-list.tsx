@@ -94,7 +94,7 @@ function CollectionList({ config, onItemClick }) {
     )
 }
 
-export function FileList({ config, event$, item, showSide = false }) {
+export function FileList({ config, event$, tabKey, item, showSide = false }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [list, setList] = useState<File[]>([])
@@ -125,6 +125,7 @@ export function FileList({ config, event$, item, showSide = false }) {
     const [renameModalVisible, setRenameModalVisible] = useState(false)
     const [renameItem, setRenameItem] = useState(null)
     const [info, setInfo] = useState(null)
+    const rootRef = useRef(null)
 
     const filteredList = useMemo(() => {
         if (!keyword) {
@@ -329,8 +330,20 @@ export function FileList({ config, event$, item, showSide = false }) {
             console.log('e', e.code, e)
             console.log('e/e.keyCode', e.keyCode)
             console.log('e.metaKey', e.metaKey)
+            console.log('tabKey', tabKey, window.__activeKey)
+            if (tabKey != window.__activeKey) {
+                return
+            }
+            // const parent = rootRef.current.parentNode
+
+
+            // console.log('parent', parent)
+            // console.log('parent.style', parent.style.display)
+            // console.log('rootRef', rootRef.current.parent)
             // console.log('e.srcElement', e.srcElement.nodeName)
             
+
+
             if (document.activeElement?.nodeName == 'INPUT' || document.activeElement?.nodeName == 'TEXTAREA') {
                 return
             }
@@ -398,6 +411,8 @@ export function FileList({ config, event$, item, showSide = false }) {
                         setActiveItem(list[newIdx])
                     }
                 }
+                e.stopPropagation()
+                e.preventDefault()
             }
             else if (e.code == 'ArrowUp') {
                 if (e.metaKey) {
@@ -414,6 +429,8 @@ export function FileList({ config, event$, item, showSide = false }) {
                         setActiveItem(list[newIdx])
                     }
                 }
+                e.stopPropagation()
+                e.preventDefault()
             }
             else if (e.code == 'Space') {
                 if (fileDetailModalVisible) {
@@ -521,7 +538,7 @@ export function FileList({ config, event$, item, showSide = false }) {
     //     }
     // ]
     return (
-        <div className={styles.fileBox}>
+        <div ref={rootRef} className={styles.fileBox}>
             {showSide &&
                 <div className={styles.side}>
                     {!!info &&

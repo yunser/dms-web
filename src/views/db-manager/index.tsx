@@ -135,10 +135,13 @@ export function DbManager({ config }) {
     ]
     
     const [tabs, setTabs] = useState(tabs_default)
-    const [activeKey, setActiveKey] = useState(() => {
+    const [activeKey, _setActiveKey] = useState(() => {
         return tabs[0].key
     })
-
+    function setActiveKey(key) {
+        _setActiveKey(key)
+        window.__activeKey = key
+    }
     
     
     function addJsonTab(json: string) {
@@ -653,12 +656,14 @@ export function DbManager({ config }) {
                                         <SshConnect
                                             config={config}
                                             event$={event$}
+                                            tabKey={item.key}
                                         />
                                     }
                                     {item.type == 'file-home' &&
                                         <FileHome
                                             config={config}
                                             event$={event$}
+                                            tabKey={item.key}
                                         />
                                     }
                                     {item.type == 'terminal' &&

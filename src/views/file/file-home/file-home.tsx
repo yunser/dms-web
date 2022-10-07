@@ -21,7 +21,7 @@ interface File {
     name: string
 }
 
-export function FileHome({ config, event$ }) {
+export function FileHome({ tabKey, config, event$ }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [list, setList] = useState<File[]>([])
@@ -34,6 +34,7 @@ export function FileHome({ config, event$ }) {
         <div className={styles.fileLayout}>
             <div className={styles.layoutLeft}>
                 <FileList
+                    tabKey={tabKey}
                     config={config}
                     event$={event$}
                     sourceType="local"

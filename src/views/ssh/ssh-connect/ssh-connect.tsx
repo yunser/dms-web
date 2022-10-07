@@ -42,7 +42,7 @@ function InputPassword(props) {
     )
 }
 
-export function SshConnect({ config, event$ }) {
+export function SshConnect({ config, tabKey, event$ }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [modalVisible, setModalVisible] = useState(false)
@@ -300,6 +300,7 @@ export function SshConnect({ config, event$ }) {
             }
             {view == 'sftp' &&
                 <FileList
+                    tabKey={tabKey}
                     config={config}
                     sourceType="ssh"
                     item={curItem}
