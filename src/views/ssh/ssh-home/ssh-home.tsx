@@ -22,6 +22,7 @@ import { WebLinksAddon } from 'xterm-addon-web-links'
 import { Unicode11Addon } from 'xterm-addon-unicode11'
 import { SearchAddon } from 'xterm-addon-search'
 import { WebglAddon } from 'xterm-addon-webgl'
+import { SerializeAddon } from "xterm-addon-serialize"
 
 import '~xterm/css/xterm.css'
 import { uid } from 'uid';
@@ -139,7 +140,14 @@ export function SshDetail({ config, local = false, defaultPath, item, onBack }) 
         // const terminal = new Terminal();
 
         xterm.loadAddon(new WebLinksAddon())
-        
+
+        const serializeAddon = new SerializeAddon();
+        xterm.loadAddon(serializeAddon)
+
+        // terminal.write("something...", () => {
+        //     console.log(serializeAddon.serialize());
+        // });
+
         const unicode11Addon = new Unicode11Addon();
         xterm.loadAddon(unicode11Addon)
         xterm.unicode.activeVersion = '11'
@@ -233,6 +241,7 @@ export function SshDetail({ config, local = false, defaultPath, item, onBack }) 
             xterm.dispose()
             fitAddon.dispose()
             searchAddon.dispose()
+            serializeAddon.dispose()
             webglAddon.dispose()
             unicode11Addon.dispose()
             // const ele

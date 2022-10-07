@@ -35,6 +35,7 @@ const { TabPane } = Tabs
 
 window._terminalCount = 0
 window._fileCount = 0
+window._sshCount = 0
 
 const tab_mySql = {
     title: 'MySQL',
@@ -354,9 +355,9 @@ export function DbManager({ config }) {
                                                         }
                                                         else if (key == 'ssh') {
                                                             addOrActiveTab({
-                                                                title: 'SSH/SFTP',
+                                                                title: 'SSH/SFTP' + `-${(window._sshCount++) + 1}`,
                                                                 // key: 'redis-' + uid(16),
-                                                                key: 'ssh-home-0',
+                                                                key: `ssh-home-${uid(16)}`,
                                                                 type: 'ssh-connect',
                                                                 data: {
                                                                     // url,
