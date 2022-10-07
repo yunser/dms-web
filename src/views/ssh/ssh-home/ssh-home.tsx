@@ -20,6 +20,8 @@ import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
 import { WebLinksAddon } from 'xterm-addon-web-links'
 import { Unicode11Addon } from 'xterm-addon-unicode11'
+import { SearchAddon } from 'xterm-addon-search'
+import { WebglAddon } from 'xterm-addon-webgl'
 
 import '~xterm/css/xterm.css'
 import { uid } from 'uid';
@@ -126,18 +128,31 @@ export function SshDetail({ config, local = false, defaultPath, item, onBack }) 
             // cursorStyle: "bar", // 光标样式 'block' | 'underline' | 'bar'
             // scrollback: 100, // 当行的滚动超过初始值时保留的行视窗，越大回滚能看的内容越多，
         })
-        // FitAddon
-        const fitAddon = new FitAddon()
-        xterm.loadAddon(fitAddon)
-        // const terminal = new Terminal();
-        xterm.loadAddon(new WebLinksAddon())
-        const unicode11Addon = new Unicode11Addon();
-        xterm.loadAddon(unicode11Addon)
-        xterm.unicode.activeVersion = '11'
 
         xtermRef.current = xterm
         const elem = document.getElementById(termIdRef.current) as HTMLElement
         xterm.open(elem)
+
+        // FitAddon
+        const fitAddon = new FitAddon()
+        xterm.loadAddon(fitAddon)
+        // const terminal = new Terminal();
+
+        xterm.loadAddon(new WebLinksAddon())
+        
+        const unicode11Addon = new Unicode11Addon();
+        xterm.loadAddon(unicode11Addon)
+        xterm.unicode.activeVersion = '11'
+        
+        const searchAddon = new SearchAddon()
+        xterm.loadAddon(searchAddon)
+
+        const webglAddon = new WebglAddon()
+        xterm.loadAddon(webglAddon)
+
+        
+        // searchAddon.findNext('foo');
+
 
         function fit() {
             fitAddon.fit()
@@ -217,6 +232,9 @@ export function SshDetail({ config, local = false, defaultPath, item, onBack }) 
             xtermRef.current = null
             xterm.dispose()
             fitAddon.dispose()
+            searchAddon.dispose()
+            webglAddon.dispose()
+            unicode11Addon.dispose()
             // const ele
             window.removeEventListener('resize', handleResize)
         }
