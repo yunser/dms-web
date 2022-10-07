@@ -409,7 +409,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
                 data: {
                     name: values.name || t('unnamed'),
                     host: values.host || 'localhost',
-                    port: values.port || 6379,
+                    port: values.port || 22,
                     password: values.password,
                     username: values.username,
                 }
@@ -426,14 +426,12 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
         const reqData = {
             host: values.host,
             port: values.port || 22,
-            // user: values.user,
+            username: values.username,
             password: values.password,
-            userName: values.userName,
-            db: values.defaultDatabase || 0,
             test: true,
             // remember: values.remember,
         }
-        let ret = await request.post(`${config.host}/redis/connect`, reqData)
+        let ret = await request.post(`${config.host}/ssh/connect`, reqData)
         // console.log('ret', ret)
         if (ret.success) {
             message.success(t('success'))
@@ -458,14 +456,14 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
                         justifyContent: 'space-between',
                     }}
                 >
-                    <div></div>
-                    {/* <Button key="back"
+                    {/* <div></div> */}
+                    <Button key="back"
                         loading={loading}
                         disabled={loading}
                         onClick={handleTestConnection}
                     >
                         {t('test_connection')}
-                    </Button> */}
+                    </Button>
                     <Space>
                         <Button
                             // key="submit"
