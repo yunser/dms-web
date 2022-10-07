@@ -368,6 +368,14 @@ export function FileList({ config, event$, tabKey, item, showSide = false }) {
                     return
                 }
             }
+            else if (e.code == 'KeyE') {
+                if (e.metaKey) {
+                    if (activeItem) {
+                        editItem(activeItem)
+                    }
+                    return
+                }
+            }
             else if (e.code == 'KeyX') {
                 if (e.metaKey) {
                     if (activeItem) {
@@ -524,8 +532,8 @@ export function FileList({ config, event$, tabKey, item, showSide = false }) {
     }
 
     async function editItem(item) {
-        setFileEditModalVisible(true)
         setFileModalPath(item.path)
+        setFileEditModalVisible(true)
     }
 
     if (sourceType != 'local' && !item) {
