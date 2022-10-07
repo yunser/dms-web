@@ -24,6 +24,48 @@ interface File {
     name: string
 }
 
+function Commands({ config, onClickItem }) {
+    const [list, setList] = useState([
+        // {
+        //     id: '1',
+        //     name: 'get registry',
+        //     command: 'npm config get registry',
+        // }
+    ])
+
+    async function loadList() {
+        let res = await request.post(`${config.host}/ssh/command/list`, {
+        }, {
+            noMessage: true,
+        })
+        // console.log('res', res)
+        if (res.success) {
+            setList(res.data.list)
+        }
+    }
+
+    useEffect(() => {
+        loadList()
+    }, [])
+
+    return (
+        <div className={styles.commands}>
+            {list.map(item => {
+                return (
+                    <div
+                        className={styles.item}
+                        onClick={() => {
+                            onClickItem && onClickItem(item)
+                        }}
+                        key={item.id}
+                    >
+                        {item.name}</div>
+                )
+            })}
+        </div>
+    )
+}
+
 export function SshDetail({ config, local = false, defaultPath, item, onBack }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
@@ -73,6 +115,8 @@ export function SshDetail({ config, local = false, defaultPath, item, onBack }) 
 
     useEffect(() => {
         const xterm = new Terminal({
+            cols: 80,
+            rows: 30,
             // ursorBlink: true, // 关标闪烁
             // cursorStyle: "bar", // 光标样式 'block' | 'underline' | 'bar'
             // scrollback: 100, // 当行的滚动超过初始值时保留的行视窗，越大回滚能看的内容越多，
@@ -80,8 +124,27 @@ export function SshDetail({ config, local = false, defaultPath, item, onBack }) 
         const fitAddon = new FitAddon()
         xterm.loadAddon(fitAddon)
         xtermRef.current = xterm
-        xterm.open(document.getElementById(termIdRef.current) as HTMLElement);
-        fitAddon.fit()
+        const elem = document.getElementById(termIdRef.current) as HTMLElement
+        xterm.open(elem)
+
+        function fit() {
+            fitAddon.fit()
+            if (wsRef.current) {
+                const pd = fitAddon.proposeDimensions()
+                // console.log('_pd', pd)
+                const rect = elem.getBoundingClientRect()
+                wsRef.current.send(JSON.stringify({
+                    type: 'resize',
+                    data: {
+                        ...pd,
+                        width: rect.width,
+                        height: rect.height,
+                    },
+                    //  + '\r'
+                }))
+            }
+        }
+        fit()
         xterm.onData(data =>  {
             // console.log('onData', data)
             // console.log('_ws', _ws)
@@ -130,7 +193,10 @@ export function SshDetail({ config, local = false, defaultPath, item, onBack }) 
         setTerm(xterm)
 
         function handleResize() {
-            fitAddon.fit()
+            fit()
+            // fitAddon.fit()
+            // const pd = fitAddon.proposeDimensions()
+            // console.log('_pd', pd)
         }
 
         window.addEventListener('resize', handleResize)
@@ -138,6 +204,8 @@ export function SshDetail({ config, local = false, defaultPath, item, onBack }) 
         return () => {
             xtermRef.current = null
             xterm.dispose()
+            fitAddon.dispose()
+            // const ele
             window.removeEventListener('resize', handleResize)
         }
     }, [])
@@ -152,11 +220,25 @@ export function SshDetail({ config, local = false, defaultPath, item, onBack }) 
         }
         ws.onopen = () => {
             console.log('onopen', )
+
+            // const pd = fitAddon.proposeDimensions()
+            //     // console.log('_pd', pd)
+            //     wsRef.current.send(JSON.stringify({
+            //         type: 'resize',
+            //         data: pd,
+            //         //  + '\r'
+            //     }))
+
+            const _xterm = xtermRef.current
             ws.send(JSON.stringify({
                 type: 'connect',
                 data: {
                     ...((item || {})),
                     defaultPath,
+                    ptySize: {
+                        rows: _xterm?.rows,
+                        cols: _xterm?.cols,
+                    }
                 },
             }))
             console.log('sended')
@@ -230,6 +312,19 @@ export function SshDetail({ config, local = false, defaultPath, item, onBack }) 
                 <div id={termIdRef.current}></div>
                 
             </div>
+            <div>
+                <Commands
+                    config={config}
+                    onClickItem={item => {
+                        wsRef.current.send(JSON.stringify({
+                            type: 'command',
+                            data: item.command,
+                            //  + '\r'
+                        }))
+                        term.focus()
+                    }}
+                />
+            </div>
             {/* {!local &&
                 <div className={styles.toolBox}>
                     <Button onClick={() => {
@@ -237,6 +332,17 @@ export function SshDetail({ config, local = false, defaultPath, item, onBack }) 
                     }}>返回</Button>
                 </div>
             } */}
+            {/* <Button
+                onClick={() => {
+                    const _xterm = xtermRef.current
+                    // if (msg.type == 'res') {
+                    // }
+                    // _xterm.write("1 \r\u001b[K")
+                    _xterm.write("1 \r\n")
+                }}
+            >
+                调试
+            </Button> */}
         </div>
     )
 }

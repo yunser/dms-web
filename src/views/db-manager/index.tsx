@@ -380,6 +380,9 @@ export function DbManager({ config }) {
                                                         else if (key == 'about') {
                                                             setAboutVisible(true)
                                                         }
+                                                        else if (key == 'setting') {
+                                                            setAboutVisible(true)
+                                                        }
                                                         else if (key == 'markdown') {
                                                             addOrActiveTab({
                                                                 title: t('markdown') + `-${(window._fileCount++) + 1}`,
@@ -429,6 +432,10 @@ export function DbManager({ config }) {
                                                             label: t('about'),
                                                             key: 'about',
                                                         },
+                                                        // {
+                                                        //     label: t('setting'),
+                                                        //     key: 'setting',
+                                                        // },
                                                         {
                                                             label: t('help'),
                                                             key: 'help',
@@ -658,6 +665,7 @@ export function DbManager({ config }) {
                                     }
                                     {item.type == 'terminal' &&
                                         <SshDetail
+                                            config={config}
                                             local={true}
                                             defaultPath={item.data.path}
                                         />
