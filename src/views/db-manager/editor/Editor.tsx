@@ -8,6 +8,7 @@ import { getTheme } from '../../../theme'
 suggestionInit()
 
 export const Editor: VFC = ({ lang = 'sql', 
+    autoFocus = true,
     event$,
     connectionId,
     value, 
@@ -51,7 +52,6 @@ export const Editor: VFC = ({ lang = 'sql',
         const handleResize = () => {
             // console.log('resize2', editor, editorRef.current)
             editorRef.current?.layout()
-            // focus
         }
         window.addEventListener('resize', handleResize)
         return () => {
@@ -116,9 +116,11 @@ export const Editor: VFC = ({ lang = 'sql',
             editorRef.current = _editor
             // console.log('赋值了啊', editorRef.current)
             onEditor && onEditor(_editor)
-            setTimeout(() => {
-                _editor?.focus()
-            }, 0)
+            if (autoFocus) {
+                setTimeout(() => {
+                    _editor?.focus()
+                }, 0)
+            }
 		}
         // if (monacoEl) {
         //     console.log('monacoEl', monacoEl.current.getValue)
@@ -128,6 +130,7 @@ export const Editor: VFC = ({ lang = 'sql',
             if (value != _editor?.getValue()) {
                 // console.log('compare', value, _editor?.getValue())
                 // console.log('setValue', value)
+                console.log('degg/setValue in')
                 _editor.setValue(value)
             }
         }

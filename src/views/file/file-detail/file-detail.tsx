@@ -18,6 +18,7 @@ import filesize from 'file-size'
 import { FileList } from '../file-list'
 import { marked } from 'marked'
 import { FileUtil } from '../utils/utl';
+import { Editor } from '@/views/db-manager/editor/Editor';
 
 interface File {
     name: string
@@ -26,14 +27,15 @@ interface File {
 export function FileDetail({ config, path, sourceType, onCancel }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(true)
     const [content, setContent] = useState('')
+    const contentRef = useRef('')
     const isImage = FileUtil.isImage(path)
     const isMarkdown = path.endsWith('.md')
     const isAudio = path.endsWith('.mp3')
     const isVideo = path.endsWith('.mp4')
 
-    const isText = !isImage && !isAudio && !isVideo
+    const isPureText = !isImage && !isAudio && !isVideo && !isMarkdown
 
     async function loadDetail() {
         setLoading(true)
@@ -45,31 +47,42 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
         })
         // console.log('res', res)
         if (res.success) {
-            setContent(res.data.content)
+            // console.log('res.data.content', res.data.content)
+            const content = res.data.content
+            setContent(content)
+            // console.log('degg/setCOntent', content)
+            contentRef.current = content
         }
         setLoading(false)
     }
 
 
-
+    // console.log('content', content)
+    // console.log('md', marked.parse('123'))
 
     useEffect(() => {
+        console.log('degg/useEffect', path, isPureText)
         // hack 经常会因为 path 为空接口报错
         if (!path) {
             return
         }
-        if (isText) {
+        if (isPureText || isMarkdown) {
             loadDetail()
         }
-    }, [path, isText])
+        else {
+            setLoading(false)
+        }
+    }, [path, isPureText])
 
     return (
         <Modal
             title={path}
             open={true}
-            width={800}
+            width={isPureText ? 1200 : 800}
+            centered={isPureText}
             onCancel={onCancel}
             footer={null}
+            destroyOnClose={true}
         >
             {loading ?
                 <FullCenterBox>
@@ -83,11 +96,6 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
                         controls
                         autoPlay
                     ></audio>
-                    <div className={styles.article} dangerouslySetInnerHTML={{
-                        __html: marked.parse(content)
-                    }}>
-
-                    </div>
                 </div>
             : isVideo ?
                 <div className={styles.videoBox}>
@@ -97,11 +105,6 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
                         controls
                         autoPlay
                     ></video>
-                    <div className={styles.article} dangerouslySetInnerHTML={{
-                        __html: marked.parse(content)
-                    }}>
-
-                    </div>
                 </div>
             : isMarkdown ?
                 <div>
@@ -124,7 +127,36 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
                     <Empty />
                 </FullCenterBox>
             :
-                <pre>{content}</pre>
+                <div className={styles.editorBox}>
+                    <Editor
+                        // lang="plain"
+                        value={content}
+                        autoFocus={false}
+                        // value=""
+                        // event$={event$}
+                        // onChange={value => setCodeASD(value)}
+                        // autoFoucs={true}
+                        // destroy={true}
+                        // onEditor={editor => {
+                        //     // setEditor(editor)
+                        //     // console.log('degg', content == contentRef.current, content, contentRef.current)
+                        //     editor.setValue(content)
+                        //     // content
+                        // }}
+                        // onSelectionChange={({selection, selectionTextLength}) => {
+                        //     console.log('selection', selection)
+                        //     selectionEvent.emit({
+                        //         data: {
+                        //             selection: {
+                        //                 ...selection,
+                        //                 textLength: selectionTextLength,
+                        //             }
+                        //         }
+                        //     })
+                        // }}
+                    />
+                </div>
+                // <pre>{content}</pre>
             }
         </Modal>
     )

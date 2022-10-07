@@ -6,5 +6,6 @@ export const FileUtil = {
             || path.endsWith('.svg')
             || path.endsWith('.gif')
             || path.endsWith('.webp')
+            || path.endsWith('.bmp')
     }
 }

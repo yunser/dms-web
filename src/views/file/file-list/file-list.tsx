@@ -514,8 +514,8 @@ export function FileList({ config, event$, tabKey, item, showSide = false }) {
                     return
                 }
             }
-            setFileDetialModalVisible(true)
             setFileModalPath(item.path)
+            setFileDetialModalVisible(true)
         }
         else {
             setKeyword('')
