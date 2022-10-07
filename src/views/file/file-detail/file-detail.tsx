@@ -35,6 +35,9 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
     const isAudio = path.endsWith('.mp3')
     const isVideo = path.endsWith('.mp4')
 
+    const isJson = path.endsWith('.json')
+    const isJs = path.endsWith('.js')
+
     const isPureText = !isImage && !isAudio && !isVideo && !isMarkdown
 
     async function loadDetail() {
@@ -129,7 +132,7 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
             :
                 <div className={styles.editorBox}>
                     <Editor
-                        // lang="plain"
+                        lang={isJson ? 'json' : isJs ? 'JavaScript' : 'plain'}
                         value={content}
                         autoFocus={false}
                         // value=""
