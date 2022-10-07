@@ -94,11 +94,13 @@ function CollectionList({ config, onItemClick }) {
     )
 }
 
-export function FileList({ config, event$, item, showSide = false, sourceType }) {
+export function FileList({ config, event$, item, showSide = false }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [list, setList] = useState<File[]>([])
     const [error, setError] = useState('')
+
+    const [sourceType, setSourceType] = useState(item ? '' : 'local')
     
     const defaultPath = item ? 
         (item.username == 'root' ? '/root' : `/home/${item.username}`)
@@ -135,13 +137,13 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
     async function connect() {
         // console.log('flow/1', )
         setConnecting(true)
-        let ret = await request.post(`${config.host}/sftp/connect`, {
+        let res = await request.post(`${config.host}/sftp/connect`, {
             ...item,
             // path: item.path,
             // type: item.type,
         })
-        console.log('connect/res', ret)
-        if (ret.success) {
+        console.log('connect/res', res)
+        if (res.success) {
             // message.success('连接成功')
             // onConnnect && onConnnect()
             // message.success(t('success'))
@@ -149,13 +151,17 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
             // onSuccess && onSuccess()
             // loadList()
             setConnected(true)
+            setSourceType(res.data.connectionId)
         }
         setConnecting(false)
     }
     
     useEffect(() => {
-        if (sourceType == 'ssh') {
+        if (!!item) {
             connect()
+        }
+        else {
+            setSourceType('local')
         }
     }, [item])
 
@@ -219,11 +225,16 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
     }, [showSide, sourceType])
 
     useEffect(() => {
-        if (!connected) {
-            return
+        if (item) {
+            if (!sourceType) {
+                return
+            }
+            loadList()
         }
-        loadList()
-    }, [curPath, connected])
+        else {
+            loadList()
+        }
+    }, [curPath, item, sourceType])
 
     function back() {
         console.log('cur', curPath)
@@ -359,8 +370,10 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
                 }
             }
             else if (e.code == 'KeyI') {
-                if (e.metaKey) {
-                    showItemDetail(activeItem)
+                if (e.metaKey && !e.altKey) {
+                    if (activeItem) {
+                        showItemDetail(activeItem)
+                    }
                     return
                 }
             }
@@ -498,7 +511,7 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
         setFileModalPath(item.path)
     }
 
-    if (sourceType == 'ssh' && !item) {
+    if (sourceType != 'local' && !item) {
         return <div>No item</div>
     }
     
@@ -705,7 +718,7 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
                                 setKeyword(e.target.value)
                             }}
                         />
-                        {sourceType == 'ssh' &&
+                        {sourceType != 'local' &&
                             <div>{connected ? t('connected') : t('connect_unknown')}</div>
                         }
                     </Space>
@@ -802,7 +815,7 @@ export function FileList({ config, event$, item, showSide = false, sourceType })
                                                             label: t('file.open_in_finder'),
                                                             key: 'finder',
                                                         },
-                                                        ...(sourceType == 'ssh' ? [
+                                                        ...(sourceType != 'local' ? [
                                                             {
                                                                 label: t('download'),
                                                                 key: 'download',
