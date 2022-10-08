@@ -1,0 +1,37 @@
+{
+  "id": "3688475",
+  "name": "dms",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "6337453",
+      "name": "分栏",
+      "font_class": "fenlan",
+      "unicode": "ec7f",
+      "unicode_decimal": 60543
+    },
+    {
+      "icon_id": "27365167",
+      "name": "markdown",
+      "font_class": "markdown",
+      "unicode": "ec0f",
+      "unicode_decimal": 60431
+    },
+    {
+      "icon_id": "1200184",
+      "name": "图片",
+      "font_class": "tupian",
+      "unicode": "e608",
+      "unicode_decimal": 58888
+    },
+    {
+      "icon_id": "7594865",
+      "name": "24gf-folder",
+      "font_class": "folder",
+      "unicode": "eac4",
+      "unicode_decimal": 60100
+    }
+  ]
+}
