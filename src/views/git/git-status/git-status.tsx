@@ -41,6 +41,9 @@ function Commit({ config, event$, stagedLength, gitConfig, projectPath, onSucces
         if (res.success) {
             // message.success('success')
             onSuccess && onSuccess()
+            setFormData({
+                message: '',
+            })
             event$.emit({
                 type: 'event_reload_history',
                 data: {
