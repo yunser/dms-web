@@ -406,7 +406,9 @@ export function CommitList({ config, event$, projectPath,  }) {
                                                     })}
                                                 </div>
                                             }
-                                            {item.message}
+                                            <div className={styles.msg}>
+                                                {item.message}
+                                            </div>
                                         </div>
                                         <Dropdown
                                             trigger={['click']}
