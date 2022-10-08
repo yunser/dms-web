@@ -93,6 +93,10 @@ export function DbManager({ config }) {
         }
     }, [i18n.language])
 
+    useEffect(() => {
+        document.title = t('site_title')
+    }, [lang])
+
     const tab_workbench = {
         title: '$i18n.workbench',
         key: 'workbench',

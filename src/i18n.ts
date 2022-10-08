@@ -11,6 +11,7 @@ i18n
         resources: {
             en: {
                 translations: {
+                    site_title: 'DMS - Next Generation Data Management System',
                     run: 'Run',
                     connect: 'Connect',
                     explain: 'Explain',
@@ -306,6 +307,7 @@ i18n
             },
             zh: {
                 translations: {
+                    site_title: 'DMS - 下一代数据管理系统',
                     run: '执行',
                     connect: '连接',
                     explain: '执行计划',
