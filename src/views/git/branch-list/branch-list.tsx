@@ -56,7 +56,7 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
     }, [])
 
     event$.useSubscription(msg => {
-        console.log('CommitList/onmessage', msg)
+        // console.log('CommitList/onmessage', msg)
         // console.log(val);
         if (msg.type == 'event_refresh_branch') {
             // const { json } = msg.data

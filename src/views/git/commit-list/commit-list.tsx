@@ -1,4 +1,4 @@
-import { Button, Descriptions, Dropdown, Empty, Input, Menu, message, Modal, Popover, Space, Table, Tabs, Tag } from 'antd';
+import { Button, Descriptions, Dropdown, Empty, Input, Menu, message, Modal, Popover, Space, Spin, Table, Tabs, Tag } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './commit-list.module.less';
 import _, { cloneDeep } from 'lodash';
@@ -42,16 +42,21 @@ export function CommitList({ config, event$, projectPath,  }) {
 
     const [tagModalVisible, setTagModalVisible] = useState(false)
     const [branchModalVisible, setBranchModalVisible] = useState(false)
+    const [listLoading, setListLoading] = useState(false)
     const [list, setList] = useState([])
     const [curCommit, setCurCommit] = useState(null)
     // const [branchs, setBranchs] = useState([])
     const [curBranch, setCurBranch] = useState('')
+    const [fileLoading, setFileLoading] = useState(false)
     const [files, setFiles] = useState([])
     const [curFile, setCurFile] = useState('')
+    const [diffLoading, setDiffLoading] = useState(false)
     const [fileDiff, setFileDiff] = useState('')
     const [resetModalVisible, setResetModalVisible] = useState(false)
     const [resetCommit, setResetCommit] = useState('')
+
     async function loadFile(file, item) {
+        setDiffLoading(true)
         setCurFile(file)
         let res = await request.post(`${config.host}/git/commitFileChanged`, {
             projectPath,
@@ -74,14 +79,15 @@ export function CommitList({ config, event$, projectPath,  }) {
                     commands: res.data.commands,
                 }
             })
-            // const list = res.data
-            // setList(list)
         }
+        setDiffLoading(false)
         
     }
 
     async function show(item) {
+        setFileLoading(true)
         setCurCommit(item)
+        setFileDiff('')
         console.log('show', item)
         // item.hash
         let res = await request.post(`${config.host}/git/show`, {
@@ -112,9 +118,8 @@ export function CommitList({ config, event$, projectPath,  }) {
                     commands: res.data.commands,
                 }
             })
-            // const list = res.data
-            // setList(list)
         }
+        setFileLoading(false)
     }
 
     
@@ -134,8 +139,6 @@ export function CommitList({ config, event$, projectPath,  }) {
         })
         console.log('fres', res)
         if (res.success) {
-            // const list = res.data
-            // setList(list)
         }
 
     }
@@ -162,6 +165,7 @@ export function CommitList({ config, event$, projectPath,  }) {
     // }
 
     async function loadList() {
+        setListLoading(true)
         loadBranch()
         // loadTags()
         let res = await request.post(`${config.host}/git/commit/list`, {
@@ -182,7 +186,7 @@ export function CommitList({ config, event$, projectPath,  }) {
                 show(list[0])
             }
         }
-
+        setListLoading(false)
     }
 
     
@@ -214,7 +218,7 @@ export function CommitList({ config, event$, projectPath,  }) {
     }, [])
 
     event$.useSubscription(msg => {
-        console.log('CommitList/onmessage', msg)
+        // console.log('CommitList/onmessage', msg)
         // console.log(val);
         if (msg.type == 'event_refresh_commit_list') {
             // const { json } = msg.data
@@ -331,7 +335,11 @@ export function CommitList({ config, event$, projectPath,  }) {
                 >
                     刷新
                 </Button> */}
-                {showList.length == 0 ?
+                {listLoading ?
+                    <FullCenterBox>
+                        <Spin />
+                    </FullCenterBox>
+                : showList.length == 0 ?
                     <FullCenterBox
                         // height={160}
                     >
@@ -492,31 +500,43 @@ export function CommitList({ config, event$, projectPath,  }) {
                             <div>{t('git.refs')}：{curCommit.refs}</div>
                         </div>
                         <div className={styles.fileBox}>
-                            <div className={styles.files}>
-                                {files.map(file => {
-                                    return (
-                                        <div
-                                            key={file}
-                                            className={classNames(styles.item, {
-                                                [styles.active]: file == curFile
-                                            })}
-                                            onClick={() => {
-                                                loadFile(file)
-                                            }}
-                                        >{file}</div>
-                                        
-                                    )
-                                })}
-                            </div>
+                            {fileLoading ?
+                                <FullCenterBox>
+                                    <Spin />
+                                </FullCenterBox>
+                            :
+                                <div className={styles.files}>
+                                    {files.map(file => {
+                                        return (
+                                            <div
+                                                key={file}
+                                                className={classNames(styles.item, {
+                                                    [styles.active]: file == curFile
+                                                })}
+                                                onClick={() => {
+                                                    loadFile(file)
+                                                }}
+                                            >{file}</div>
+                                            
+                                        )
+                                    })}
+                                </div>
+                            }
                         </div>
                     </div>
                 }
                 <div className={styles.layoutBottomRight}>
                     {/* <div className={styles.layoutBottomRight}> */}
                     {/* <pre>{fileDiff}</pre> */}
-                    <DiffText
-                        text={fileDiff}
-                    />
+                    {diffLoading ?
+                        <FullCenterBox>
+                            <Spin />
+                        </FullCenterBox>
+                    :
+                        <DiffText
+                            text={fileDiff}
+                        />
+                    }
                 </div>
             </div>
             {resetModalVisible &&

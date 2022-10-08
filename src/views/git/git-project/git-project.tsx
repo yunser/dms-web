@@ -50,7 +50,7 @@ export function GitProject({ config, event$, project, onList }) {
     ]
 
     event$.useSubscription(msg => {
-        console.log('CommitList/onmessage', msg)
+        // console.log('CommitList/onmessage', msg)
         // console.log(val);
         if (msg.type == 'event_refresh_all') {
             // const { json } = msg.data

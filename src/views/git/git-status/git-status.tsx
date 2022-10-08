@@ -1,4 +1,4 @@
-import { Button, Checkbox, Descriptions, Dropdown, Empty, Form, Input, Menu, message, Modal, Popover, Space, Table, Tabs, Tag } from 'antd';
+import { Button, Checkbox, Descriptions, Dropdown, Empty, Form, Input, Menu, message, Modal, Popover, Space, Spin, Table, Tabs, Tag } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './git-status.module.less';
 import _, { add } from 'lodash';
@@ -143,6 +143,7 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
     // const [current, setCurrent] = useState('')
     const [unstagedList, setUnstagedList] = useState([])
     const [diffText, setDiffText ] = useState('')
+    const [diffLoading, setDiffLoading ] = useState(false)
     const canCommit = !(unstagedList.length == 0 && status?.staged?.length == 0)
 
     useEffect(() => {
@@ -180,7 +181,7 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
     }
 
     event$.useSubscription(msg => {
-        console.log('CommitList/onmessage', msg)
+        // console.log('CommitList/onmessage', msg)
         // console.log(val);
         if (msg.type == 'event_refresh_status') {
             // const { json } = msg.data
@@ -261,7 +262,6 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                 // console.log('res', res)
                 if (res.success) {
                     // loadList()
-                    // setDiffText(res.data.content)
                     loadStatuses()
                 }
             }
@@ -281,7 +281,6 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                 // console.log('res', res)
                 if (res.success) {
                     // loadList()
-                    // setDiffText(res.data.content)
                     loadStatuses()
                     event$.emit({
                         type: 'event_reload_history',
@@ -295,6 +294,7 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
     }
     
     async function cat(path) {
+        setDiffLoading(true)
         setCurFile(path)
         setCurFileType('')
         setDiffText('')
@@ -313,9 +313,11 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                 }
             })
         }
+        setDiffLoading(false)
     }
 
     async function diff(path, cached = false) {
+        setDiffLoading(true)
         setCurFile(path)
         setCurFileType(cached ? 'cached' : '')
         setDiffText('')
@@ -335,6 +337,7 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                 }
             })
         }
+        setDiffLoading(false)
     }
 
     return (
@@ -501,7 +504,11 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                     />
                                 </FullCenterBox>
                             }
-                            {!!diffText &&
+                            {diffLoading ?
+                                <FullCenterBox>
+                                    <Spin />
+                                </FullCenterBox>
+                            : !!diffText ?
                                 <>
                                     <div className={styles.header}>
                                         {curFile}
@@ -513,6 +520,8 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                     </div>
                                 </>
                                 // <pre>{diffText}</pre>
+                            :
+                                <div></div>
                             }
                         </div>
 

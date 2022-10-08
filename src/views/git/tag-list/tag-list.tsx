@@ -81,7 +81,7 @@ export function TagList({ config, event$, projectPath }) {
     }, [])
 
     event$.useSubscription(msg => {
-        console.log('CommitList/onmessage', msg)
+        // console.log('CommitList/onmessage', msg)
         // console.log(val);
         if (msg.type == 'event_refresh_tag') {
             // const { json } = msg.data
