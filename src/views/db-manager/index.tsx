@@ -277,14 +277,14 @@ export function DbManager({ config }) {
                             right: (
                                 <div className={styles.langBox}>
                                     <Space>
-                                        <Button
+                                        {/* <Button
                                             type="text"
                                             onClick={() => {
                                                 addOrActiveTab(tab_mySql)
                                             }}
                                         >
                                             MySQL
-                                        </Button>
+                                        </Button> */}
                                         <Button
                                             type="text"
                                             onClick={() => {
@@ -402,8 +402,15 @@ export function DbManager({ config }) {
                                                                 },
                                                             })
                                                         }
+                                                        else if (key == 'mysql') {
+                                                            addOrActiveTab(tab_mySql)
+                                                        }
                                                     }}
                                                     items={[
+                                                        {
+                                                            label: t('mysql'),
+                                                            key: 'mysql',
+                                                        },
                                                         {
                                                             label: t('redis'),
                                                             key: 'redis',

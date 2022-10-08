@@ -1,4 +1,4 @@
-import { Button, Checkbox, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Space, Table, Tabs, Tree } from 'antd';
+import { Button, Checkbox, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Space, Spin, Table, Tabs, Tree } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './sql-connect.module.less';
 import _ from 'lodash';
@@ -14,6 +14,7 @@ import { uid } from 'uid';
 import { CodeDebuger } from '../code-debug';
 import { ColorSelector } from '../color-selector';
 import copy from 'copy-to-clipboard';
+import { FullCenterBox } from '../redis-client';
 
 
 
@@ -128,6 +129,7 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
     const { t } = useTranslation()
 
     const [loading, setLoading] = useState(false)
+    const [testLoading, setTestLoading] = useState(false)
 
     const [form] = Form.useForm()
     // const editType = item ? 'update' : 'create'
@@ -144,6 +146,7 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
         // storage.set('dbInfo', code)
         // message.success('保存成功')
         const values = await form.validateFields()
+        setLoading(true)
         const connections = storage.get('connections', [])
         let newConnects
         const saveOrUpdateData = {
@@ -156,34 +159,58 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
             color: values.color,
         }
         if (editType == 'create') {
-            newConnects = [
-                {
-                    id: uid(32),
-                    ...saveOrUpdateData,
-                },
-                ...connections,
-            ]
+            // newConnects = [
+            //     {
+            //         id: uid(32),
+            //         ...saveOrUpdateData,
+            //     },
+            //     ...connections,
+            // ]
+            let res = await request.post(`${config.host}/mysql/connection/create`, {
+                // id: item.id,
+                // data: {
+                // }
+                ...saveOrUpdateData,
+            })
+            if (res.success) {
+                onSuccess && onSuccess()
+            }
         }
         else {
-            const idx = connections.findIndex(_item => _item.id == item.id)
-            console.log('idx', idx)
-            const newConnect = {
-                ...item,
-                ...saveOrUpdateData,
+            // const idx = connections.findIndex(_item => _item.id == item.id)
+            // console.log('idx', idx)
+            // const newConnect = {
+            //     ...item,
+            //     ...saveOrUpdateData,
+            // }
+            // connections[idx] = newConnect
+            // newConnects = [
+            //     ...connections,
+            // ]
+            let res = await request.post(`${config.host}/mysql/connection/update`, {
+                id: item.id,
+                data: {
+                    ...saveOrUpdateData,
+                    // name: values.name || t('unnamed'),
+                    // host: values.host || 'localhost',
+                    // port: values.port || 22,
+                    // password: values.password,
+                    // username: values.username,
+                }
+            })
+            if (res.success) {
+                onSuccess && onSuccess()
             }
-            connections[idx] = newConnect
-            newConnects = [
-                ...connections,
-            ]
         }
+        setLoading(false)
         // setConnections(newConnects)
-        storage.set('connections', newConnects)
-        onSuccess && onSuccess()
+        // storage.set('connections', newConnects)
+        // onSuccess && onSuccess()
     }
 
     async function handleTestConnection() {
         const values = await form.validateFields()
-        setLoading(true)
+        setTestLoading(true)
         const reqData = {
             host: values.host || 'localhost',
             port: values.port || 6379,
@@ -199,7 +226,7 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
         if (ret.success) {
             message.success(t('success'))
         }
-        setLoading(false)
+        setTestLoading(false)
     }
 
     return (
@@ -218,8 +245,8 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
                     }}
                 >
                     <Button key="back"
-                        loading={loading}
-                        disabled={loading}
+                        loading={testLoading}
+                        disabled={loading || testLoading}
                         onClick={handleTestConnection}
                     >
                         {t('test_connection')}
@@ -228,14 +255,15 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
                         <Button
                             // key="submit"
                             // type="primary"
-                            disabled={loading}
+                            disabled={loading || testLoading}
                             onClick={onCancel}
                         >
                             {t('cancel')}
                         </Button>
                         <Button
                             type="primary"
-                            disabled={loading}
+                            loading={loading}
+                            disabled={loading || testLoading}
                             onClick={save}
                         >
                             {t('ok')}
@@ -323,6 +351,8 @@ export function SqlConnector({ config, onConnnect, onJson }) {
     const [modalVisible, setModalVisible] = useState(false)
     const [modalProps, setModalProps] = useState({})
     const timerRef = useRef<number | null>(null)
+    const [connecting, setConnecting] = useState(false)
+    const [loading, setLoading] = useState(false)
     const [connections, setConnections] = useState([
         // {
         //     id: '1',
@@ -346,25 +376,45 @@ export function SqlConnector({ config, onConnnect, onJson }) {
 
     // }, [connections, keyword])
 
-    async function init() {
-        let connections = storage.get('connections', [])
-        if (keyword) {
-            connections = connections.filter(item => item.name.toLowerCase().includes(keyword.toLowerCase()))
+
+    async function loadList() {
+        // 旧的
+        // let connections = storage.get('connections', [])
+        setLoading(true)
+        let res = await request.post(`${config.host}/mysql/connection/list`, {
+            // projectPath,
+            // connectionId,
+            // sql: lineCode,
+            // tableName,
+            // dbName,
+            // logger: true,
+        }, {
+            // noMessage: true,
+        })
+        // console.log('res', res)
+        if (res.success) {
+            // setProjects([])
+            let connections = res.data.list
+            if (keyword) {
+                connections = connections.filter(item => item.name.toLowerCase().includes(keyword.toLowerCase()))
+            }
+            // const connections = storage.get('connections', [])
+            setConnections(connections)
+            if (connections.length) {
+                const treeData = list2Tree(connections)
+                setTreeData(treeData)
+                setExpandedKeys(treeData.map(item => item.key))
+            } 
+            
         }
-        // const connections = storage.get('connections', [])
-        setConnections(connections)
-        if (connections.length) {
-            const treeData = list2Tree(connections)
-            setTreeData(treeData)
-            setExpandedKeys(treeData.map(item => item.key))
-        }   
+        setLoading(false)  
     }
 
     useEffect(() => {
-        init()
+        loadList()
     }, [keyword])
 
-    const [loading, setLoading] = useState(false)
+    
     
 //     const [code, setCode] = useState(`{
 //     "host": "",
@@ -395,7 +445,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
 //     }, [])
 
     async function _connect(reqData) {
-        setLoading(true)
+        setConnecting(true)
         let ret = await request.post(`${config.host}/mysql/connect`, reqData)
         // console.log('ret', ret)
         if (ret.success) {
@@ -405,7 +455,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
                 curConnect: reqData,
             })
         }
-        setLoading(false)
+        setConnecting(false)
     }
 
     async function connect(data) {
@@ -448,15 +498,31 @@ export function SqlConnector({ config, onConnnect, onJson }) {
         // storage.set('connections', newConnects)
     }
 
-    function remove(data) {
+    function remove(item) {
         Modal.confirm({
-            content: `${t('delete_confirm')} ${data.name}?`,
-            onOk() {
+            content: `${t('delete_confirm')} ${item.name}?`,
+            async onOk() {
                 // console.log('删除', )
-                let newConnects = connections.filter(item => item.id != data.id)
-                setConnections(newConnects)
-                storage.set('connections', newConnects)
-                init()
+                // let newConnects = connections.filter(item => item.id != data.id)
+                // setConnections(newConnects)
+                // storage.set('connections', newConnects)
+                // loadList()
+                let res = await request.post(`${config.host}/mysql/connection/delete`, {
+                    id: item.id,
+                })
+                console.log('get/res', res.data)
+                if (res.success) {
+                    message.success(t('success'))
+                    // onSuccess && onSuccess()
+                    loadList()
+                    // loadKeys()
+                    // setResult(null)
+                    // setResult({
+                    //     key: item,
+                    //     ...res.data,
+                    // })
+                    // setInputValue(res.data.value)
+                }
             }
         })
     }
@@ -546,7 +612,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
                     <Space>
                         <IconButton
                             tooltip={t('refresh')}
-                            onClick={init}
+                            onClick={loadList}
                         >
                             <ReloadOutlined />
                         </IconButton>
@@ -579,7 +645,13 @@ export function SqlConnector({ config, onConnnect, onJson }) {
                 </div>
                 <div className={styles.connections}>
                     {/* {connections.map(ConnectionItem)} */}
-                    {connections.length ?
+                    {loading ?
+                        <FullCenterBox
+                            height={320}
+                        >
+                            <Spin />
+                        </FullCenterBox>
+                    : connections.length ?
                         <Tree
                             treeData={treeData}
                             // checkable
@@ -724,11 +796,11 @@ ${t('password')}: ${data.password}`
                     }}
                     onSuccess={() => {
                         setModalVisible(false)
-                        init()
+                        loadList()
                     }}
                 />
             }
-            {loading &&
+            {connecting &&
                 <Modal
                     open={true}
                     // centered
@@ -736,7 +808,7 @@ ${t('password')}: ${data.password}`
                     title={null}
                     footer={null}
                     onCancel={() => {
-                        setLoading(false)
+                        setConnecting(false)
                     }}
                 >
                     {t('connecting')}
