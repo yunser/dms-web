@@ -20,6 +20,7 @@ export function PullModal({ config, event$, projectPath, onSuccess, onCancel }) 
     const [remotes, setRemotes] = useState([])
     // const [current, setCurrent] = useState('')
     const [loading, setLoading] = useState(false)
+    const [error, setError] = useState('')
 
     async function loadRemotes() {
         let res = await request.post(`${config.host}/git/remote/list`, {
@@ -93,12 +94,15 @@ export function PullModal({ config, event$, projectPath, onSuccess, onCancel }) 
     async function pull() {
         const values = await form.validateFields()
         setLoading(true)
+        setError('')
         // console.log('values', values)
         // return
         let res = await request.post(`${config.host}/git/pull`, {
             projectPath,
             remoteName: values.remoteName,
             branchName: current,
+        }, {
+            noMessage: true,
         })
         console.log('pull/res', res)
         if (res.success) {
@@ -111,6 +115,9 @@ export function PullModal({ config, event$, projectPath, onSuccess, onCancel }) 
                     commands: res.data.commands,
                 }
             })
+        }
+        else {
+            setError(res.data.message)
         }
         setLoading(false)
     }
@@ -128,6 +135,7 @@ export function PullModal({ config, event$, projectPath, onSuccess, onCancel }) 
                 title={t('git.pull')}
                 onCancel={onCancel}
                 onOk={pull}
+                okText={t('git.pull')}
                 confirmLoading={loading}
                 // footer={null}
             >
@@ -174,6 +182,11 @@ export function PullModal({ config, event$, projectPath, onSuccess, onCancel }) 
                         {current}
                     </Form.Item>
                 </Form>
+                {!!error &&
+                    <div className={styles.error}>
+                        <pre>{error}</pre>
+                    </div>
+                }
             </Modal>
         </div>
     )

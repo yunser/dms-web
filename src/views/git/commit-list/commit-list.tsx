@@ -319,6 +319,8 @@ export function CommitList({ config, event$, projectPath,  }) {
     //         </Gitgraph>
     //     </div>
     // )
+    // console.log('curCommit.message', curCommit?.message.replace(/\\n/, '\n'))
+
     return (
         <div className={styles.commitBox}>
             <div className={styles.layoutTop}>
@@ -463,7 +465,12 @@ export function CommitList({ config, event$, projectPath,  }) {
                     <div className={styles.layoutBottomLeft}>
                         <div className={styles.infoBox}>
                             <div className={styles.msg}>
-                                <div>{curCommit.message}</div>
+                                <div>
+                                    {curCommit.message}
+                                    {/* <pre className={styles.pre}></pre> */}
+                                    {/* <pre className={styles.pre}>{'123\n123'}</pre> */}
+                                    
+                                </div>
                                 {!!curCommit.body &&
                                     <div>{curCommit.body}</div>
                                 }
