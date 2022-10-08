@@ -35,6 +35,9 @@ function getLang(path: string) {
     if (path.endsWith('.java')) {
         return 'java'
     }
+    if (path.endsWith('.sh')) {
+        return 'shell'
+    }
     
     const isJson = path.endsWith('.json')
     return isJson ? 'json' : 'plain'
@@ -49,6 +52,7 @@ export const FileUtil = {
             || path.endsWith('.gif')
             || path.endsWith('.webp')
             || path.endsWith('.bmp')
+            || path.endsWith('.ico')
     },
     getLang,
 }

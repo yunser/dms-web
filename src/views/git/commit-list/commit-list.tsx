@@ -130,7 +130,7 @@ export function CommitList({ config, event$, projectPath,  }) {
             // dbName,
             // logger: true,
         }, {
-            // noMessage: true,
+            noMessage: true,
         })
         console.log('fres', res)
         if (res.success) {

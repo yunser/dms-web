@@ -38,6 +38,8 @@ import 'monaco-editor/esm/vs/basic-languages/sql/sql.contribution.js';
 import 'monaco-editor/esm/vs/basic-languages/php/php.contribution.js';
 // java
 import 'monaco-editor/esm/vs/basic-languages/java/java.contribution.js';
+// shell
+import 'monaco-editor/esm/vs/basic-languages/shell/shell.contribution.js';
 
 // 代码提示必不可少
 import 'monaco-editor/esm/vs/editor/contrib/suggest/browser/suggestController.js';
