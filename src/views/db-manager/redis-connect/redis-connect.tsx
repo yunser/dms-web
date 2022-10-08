@@ -1,4 +1,4 @@
-import { Button, Checkbox, Col, Descriptions, Empty, Form, Input, InputNumber, message, Modal, Popover, Row, Space, Spin, Table, Tabs } from 'antd';
+import { Button, Checkbox, Col, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Row, Space, Spin, Table, Tabs } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import styles from './redis-connect.module.less';
 import _ from 'lodash';
@@ -10,7 +10,7 @@ import storage from '../../db-manager/storage'
 import { request } from '../utils/http'
 import { CodeDebuger } from '../code-debug';
 import { uid } from 'uid';
-import { EyeInvisibleOutlined, EyeOutlined, EyeTwoTone, ReloadOutlined } from '@ant-design/icons';
+import { EllipsisOutlined, ExportOutlined, EyeInvisibleOutlined, EyeOutlined, EyeTwoTone, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import { IconButton } from '../icon-button';
 import { FullCenterBox } from '../redis-client';
 
@@ -161,15 +161,25 @@ export function RedisConnect({ config, event$, onConnnect, }) {
                         >
                             <ReloadOutlined />
                         </IconButton>
-                        <Button
+                        {/* <Button
                             size="small"
                             onClick={() => {
-                                setModalVisible(true)
-                                setModalItem(null)
+                                
                             }}
-                        >{t('add')}</Button>
-                        <Button
-                            size="small"
+                        >{t('add')}</Button> */}
+                        <IconButton
+                            tooltip={t('add')}
+                            // size="small"
+                            className={styles.refresh}
+                            onClick={() => {
+                                setModalItem(null)
+                                setModalVisible(true)
+                            }}
+                        >
+                            <PlusOutlined />
+                        </IconButton>
+                        <IconButton
+                            tooltip={t('export_json')}
                             onClick={() => {
                                 event$.emit({
                                     type: 'event_show_json',
@@ -180,8 +190,8 @@ export function RedisConnect({ config, event$, onConnnect, }) {
                                 })
                             }}
                         >
-                            {t('export_json')}
-                        </Button>
+                            <ExportOutlined />
+                        </IconButton>
                     </Space>
                 </div>
                 {loading ?
@@ -212,42 +222,65 @@ export function RedisConnect({ config, event$, onConnnect, }) {
                                         >
                                             {t('connect')}
                                         </Button>
-                                        <Button
+                                        {/* <Button
                                             size="small"
                                             onClick={() => {
-                                                setModalVisible(true)
-                                                setModalItem((item))
+                                                
                                             }}
                                         >
                                             {t('edit')}
-                                        </Button>
-                                        <Button
-                                            danger  
-                                            size="small"
-                                            onClick={() => {
-                                                deleteItem(item)
-                                                // Modal.confirm({
-                                                //     content: `${t('delete')}「${item.name || 'Unnamed'}」?`,
-                                                //     async onOk() {
-                                                //         await deleteItem(item)
-                                                //     }
-                                                // })
-                                                // let _connections
-                                                // const connections = storage.get('redis-connections', [])
-                                                // if (connections.length) {
-                                                //     _connections = connections
-                                                // }
-                                                // else {
-                                                //     _connections = []
-                                                // }
-                                                // _connections = connections.filter((_item => _item.id != item.id))
-                                                // storage.set('redis-connections', _connections)
-                                                // message.success(t('success'))
-                                                // loadList()
-                                            }}
+                                        </Button> */}
+                                        <Dropdown
+                                            trigger={['click']}
+                                            overlay={
+                                                <Menu
+                                                    items={[
+                                                        {
+                                                            label: t('edit'),
+                                                            key: 'edit',
+                                                        },
+                                                        {
+                                                            label: t('delete'),
+                                                            key: 'delete',
+                                                            danger: true,
+                                                        },
+                                                    ]}
+                                                    onClick={({ key, domEvent }) => {
+                                                        // domEvent.preventDefault()
+                                                        domEvent.stopPropagation()
+                                                        if (key == 'delete') {
+                                                            deleteItem(item)
+                                                            // Modal.confirm({
+                                                            //     content: `${t('delete')}「${item.name || 'Unnamed'}」?`,
+                                                            //     async onOk() {
+                                                            //         await deleteItem(item)
+                                                            //     }
+                                                            // })
+                                                            // let _connections
+                                                            // const connections = storage.get('redis-connections', [])
+                                                            // if (connections.length) {
+                                                            //     _connections = connections
+                                                            // }
+                                                            // else {
+                                                            //     _connections = []
+                                                            // }
+                                                            // _connections = connections.filter((_item => _item.id != item.id))
+                                                            // storage.set('redis-connections', _connections)
+                                                            // message.success(t('success'))
+                                                            // loadList()
+                                                        }
+                                                        else if (key == 'edit') {
+                                                            setModalItem((item))
+                                                            setModalVisible(true)
+                                                        }
+                                                    }}
+                                                />
+                                            }
                                         >
-                                            {t('delete')}
-                                        </Button>
+                                            <IconButton>
+                                                <EllipsisOutlined />
+                                            </IconButton>
+                                        </Dropdown>
                                     </Space>
                                 </div>
                             )
