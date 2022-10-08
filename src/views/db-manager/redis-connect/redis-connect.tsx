@@ -1,4 +1,4 @@
-import { Button, Checkbox, Col, Descriptions, Empty, Form, Input, InputNumber, message, Modal, Popover, Row, Space, Table, Tabs } from 'antd';
+import { Button, Checkbox, Col, Descriptions, Empty, Form, Input, InputNumber, message, Modal, Popover, Row, Space, Spin, Table, Tabs } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import styles from './redis-connect.module.less';
 import _ from 'lodash';
@@ -10,8 +10,9 @@ import storage from '../../db-manager/storage'
 import { request } from '../utils/http'
 import { CodeDebuger } from '../code-debug';
 import { uid } from 'uid';
-import { EyeInvisibleOutlined, EyeOutlined, EyeTwoTone } from '@ant-design/icons';
+import { EyeInvisibleOutlined, EyeOutlined, EyeTwoTone, ReloadOutlined } from '@ant-design/icons';
 import { IconButton } from '../icon-button';
+import { FullCenterBox } from '../redis-client';
 
 function InputPassword(props) {
     const [visible, setVisible] = useState(false)
@@ -57,32 +58,38 @@ export function RedisConnect({ config, event$, onConnnect, }) {
 //     "password": ""
 // }`)
 
-    async function init() {
-        const connections = storage.get('redis-connections', [])
-        if (connections.length) {
-            setConnections(connections.sort((a, b) => {
-                return a.name.localeCompare(b.name)
-            }))
-            // const curConneId = storage.get('current_connection_id')
-            // let curConn
-            // if (curConneId) {
-            //     curConn = connections.find(item => item.id === curConneId)
-            // }
-            // if (curConn) {
-            //     loadConnect(curConn)
-            // }
-            // else {
-            //     loadConnect(connections[0])
-            // }
-        }   
+    async function loadList() {
+        // const connections = storage.get('redis-connections', [])
+        setLoading(true)
+        let res = await request.post(`${config.host}/redis/connection/list`, {
+            // projectPath,
+            // connectionId,
+            // sql: lineCode,
+            // tableName,
+            // dbName,
+            // logger: true,
+        }, {
+            // noMessage: true,
+        })
+        // console.log('res', res)
+        if (res.success) {
+            // setProjects([])
+            let connections = res.data.list
+            if (connections.length) {
+                setConnections(connections.sort((a, b) => {
+                    return a.name.localeCompare(b.name)
+                }))
+            }
+        }
+        setLoading(false)
     }
 
     useEffect(() => {
-        init()
+        loadList()
     }, [])
 
     async function  connect(item) {
-        setLoading(true)
+        // setLoading(true)
         // const values = await form.validateFields()
         const reqData = {
             host: item.host,
@@ -106,110 +113,149 @@ export function RedisConnect({ config, event$, onConnnect, }) {
                 defaultDatabase: item.defaultDatabase || 0,
             })
         }
-        setLoading(false)
+        // setLoading(false)
         // else {
         //     message.error('连接失败')
         // }
     }
 
+    function deleteItem(item) {
+        Modal.confirm({
+            content: `${t('delete_confirm')} ${item.name}?`,
+            async onOk() {
+                // console.log('删除', )
+                // let newConnects = connections.filter(item => item.id != data.id)
+                // setConnections(newConnects)
+                // storage.set('connections', newConnects)
+                // loadList()
+                let res = await request.post(`${config.host}/redis/connection/delete`, {
+                    id: item.id,
+                })
+                console.log('get/res', res.data)
+                if (res.success) {
+                    message.success(t('success'))
+                    // onSuccess && onSuccess()
+                    loadList()
+                    // loadKeys()
+                    // setResult(null)
+                    // setResult({
+                    //     key: item,
+                    //     ...res.data,
+                    // })
+                    // setInputValue(res.data.value)
+                }
+            }
+        })
+    }
 
     return (
         <div className={styles.connectBox}>
-            <div style={{
-                marginBottom: 8,
-            }}>
-                <Space>
-                    <Button
-                        size="small"
-                        onClick={() => {
-                            setModalVisible(true)
-                            setModalItem(null)
-                        }}
-                    >{t('add')}</Button>
-                    <Button
-                        size="small"
-                        onClick={() => {
-                            event$.emit({
-                                type: 'event_show_json',
-                                data: {
-                                    json: JSON.stringify(connections, null, 4)
-                                    // connectionId,
-                                },
-                            })
-                        }}
-                    >
-                        {t('export_json')}
-                    </Button>
-                </Space>
-            </div>
-            {connections.length == 0 &&
-                <Empty
-                    description="没有记录"
-                />
-            }
-            <div className={styles.connections}>
-                {connections.map(item => {
-                    return (
-                        <div
-                            key={item.id}
-                            className={styles.item}
+            <div className={styles.container}>
+                <div style={{
+                    marginBottom: 8,
+                }}>
+                    <Space>
+                        <IconButton
+                            tooltip={t('refresh')}
+                            onClick={loadList}
                         >
-                            <div>{item.name || 'Unnamed'}</div>
-                            <Space>
-                                <Button
-                                    size="small"
-                                    onClick={() => {
-                                        connect(item)
-                                    }}
+                            <ReloadOutlined />
+                        </IconButton>
+                        <Button
+                            size="small"
+                            onClick={() => {
+                                setModalVisible(true)
+                                setModalItem(null)
+                            }}
+                        >{t('add')}</Button>
+                        <Button
+                            size="small"
+                            onClick={() => {
+                                event$.emit({
+                                    type: 'event_show_json',
+                                    data: {
+                                        json: JSON.stringify(connections, null, 4)
+                                        // connectionId,
+                                    },
+                                })
+                            }}
+                        >
+                            {t('export_json')}
+                        </Button>
+                    </Space>
+                </div>
+                {loading ?
+                    <FullCenterBox
+                        height={320}
+                    >
+                        <Spin />
+                    </FullCenterBox>
+                : connections.length == 0 ?
+                    <Empty
+                        description="没有记录"
+                    />
+                :
+                    <div className={styles.connections}>
+                        {connections.map(item => {
+                            return (
+                                <div
+                                    key={item.id}
+                                    className={styles.item}
                                 >
-                                    {t('connect')}
-                                </Button>
-                                <Button
-                                    size="small"
-                                    onClick={() => {
-                                        setModalVisible(true)
-                                        setModalItem((item))
-                                    }}
-                                >
-                                    {t('edit')}
-                                </Button>
-                                <Button
-                                    danger  
-                                    size="small"
-                                    onClick={() => {
-                                        Modal.confirm({
-                                            content: `${t('delete')}「${item.name || 'Unnamed'}」?`,
-                                            async onOk() {
-                                                let _connections
-                                                const connections = storage.get('redis-connections', [])
-                                                if (connections.length) {
-                                                    _connections = connections
-                                                }
-                                                else {
-                                                    _connections = []
-                                                }
-                                                _connections = connections.filter((_item => _item.id != item.id))
-                                                storage.set('redis-connections', _connections)
-                                                message.success(t('success'))
-                                                init()
-                                            }
-                                        })
-                                    }}
-                                >
-                                    {t('delete')}
-                                </Button>
-                            </Space>
-                        </div>
-                    )
-                })}
+                                    <div>{item.name || 'Unnamed'}</div>
+                                    <Space>
+                                        <Button
+                                            size="small"
+                                            onClick={() => {
+                                                connect(item)
+                                            }}
+                                        >
+                                            {t('connect')}
+                                        </Button>
+                                        <Button
+                                            size="small"
+                                            onClick={() => {
+                                                setModalVisible(true)
+                                                setModalItem((item))
+                                            }}
+                                        >
+                                            {t('edit')}
+                                        </Button>
+                                        <Button
+                                            danger  
+                                            size="small"
+                                            onClick={() => {
+                                                deleteItem(item)
+                                                // Modal.confirm({
+                                                //     content: `${t('delete')}「${item.name || 'Unnamed'}」?`,
+                                                //     async onOk() {
+                                                //         await deleteItem(item)
+                                                //     }
+                                                // })
+                                                // let _connections
+                                                // const connections = storage.get('redis-connections', [])
+                                                // if (connections.length) {
+                                                //     _connections = connections
+                                                // }
+                                                // else {
+                                                //     _connections = []
+                                                // }
+                                                // _connections = connections.filter((_item => _item.id != item.id))
+                                                // storage.set('redis-connections', _connections)
+                                                // message.success(t('success'))
+                                                // loadList()
+                                            }}
+                                        >
+                                            {t('delete')}
+                                        </Button>
+                                    </Space>
+                                </div>
+                            )
+                        })}
+                    </div>
+                }
             </div>
             
-            {false &&
-                <div className={styles.content}>
-                    
-                    
-                </div>
-            }
             {/* <TextArea className={styles.textarea} value={code} rows={4} 
                 onChange={e => setCode(e.target.value)} /> */}
             {/* <Button type="primary" onClick={help}>帮助</Button> */}
@@ -222,7 +268,7 @@ export function RedisConnect({ config, event$, onConnnect, }) {
                     }}
                     onSuccess={() => {
                         setModalVisible(false)
-                        init()
+                        loadList()
                     }}
                 />
             }
@@ -236,6 +282,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
     const { t } = useTranslation()
 
     const editType = item ? 'update' : 'create'
+    const [testLoading, setTestLoading] = useState(false)
     const [loading, setLoading] = useState(false)
     const [form] = Form.useForm()
 //     const [code, setCode] = useState(`{
@@ -267,54 +314,73 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
 
     async function handleOk() {
         const values = await form.validateFields()
-        // setLoading(true)
+        setLoading(true)
         let _connections
+        const saveOrUpdateData = {
+            name: values.name || t('unnamed'),
+            host: values.host || 'localhost',
+            port: values.port || 6379,
+            // user: values.user,
+            password: values.password,
+            userName: values.userName,
+            defaultDatabase: values.defaultDatabase || 0,
+        }
         if (editType == 'create') {
-            const connections = storage.get('redis-connections', [])
-            if (connections.length) {
-                _connections = connections
-            }
-            else {
-                _connections = []
-            }
-            _connections.unshift({
-                id: uid(32),
-                name: values.name || t('unnamed'),
-                host: values.host || 'localhost',
-                port: values.port || 6379,
-                // user: values.user,
-                password: values.password,
-                userName: values.userName,
-                defaultDatabase: values.defaultDatabase || 0,
-                // db: values.db,
+            // const connections = storage.get('redis-connections', [])
+            // if (connections.length) {
+            //     _connections = connections
+            // }
+            // else {
+            //     _connections = []
+            // }
+            // _connections.unshift({
+            //     id: uid(32),
+                
+            //     // db: values.db,
+            // })
+            let res = await request.post(`${config.host}/redis/connection/create`, {
+                // id: item.id,
+                // data: {
+                // }
+                ...saveOrUpdateData,
             })
+            if (res.success) {
+                onSuccess && onSuccess()
+            }
         }
         else {
-            const connections = storage.get('redis-connections', [])
-            if (connections.length) {
-                _connections = connections
-            }
-            else {
-                _connections = []
-            }
-            const idx = _connections.findIndex(_item => _item.id == item.id)
-            _connections[idx] = {
-                ..._connections[idx],
-                name: values.name || t('unnamed'),
-                host: values.host || 'localhost',
-                port: values.port || 6379,
-                // user: values.user,
-                password: values.password,
-                userName: values.userName,
-                defaultDatabase: values.defaultDatabase || 0,
-                // db: values.db,
+            // const connections = storage.get('redis-connections', [])
+            // if (connections.length) {
+            //     _connections = connections
+            // }
+            // else {
+            //     _connections = []
+            // }
+            // const idx = _connections.findIndex(_item => _item.id == item.id)
+            // _connections[idx] = {
+            //     ..._connections[idx],
+            //     ...saveOrUpdateData,
+            // }
+            let res = await request.post(`${config.host}/redis/connection/update`, {
+                id: item.id,
+                data: {
+                    ...saveOrUpdateData,
+                    // name: values.name || t('unnamed'),
+                    // host: values.host || 'localhost',
+                    // port: values.port || 22,
+                    // password: values.password,
+                    // username: values.username,
+                }
+            })
+            if (res.success) {
+                onSuccess && onSuccess()
             }
             
             
         }
-        // setLoading(false)
-        storage.set('redis-connections', _connections)
-            onSuccess && onSuccess()
+        setLoading(false)
+        // storage.set('redis-connections', _connections)
+        // onSuccess && onSuccess()
         // else {
         //     message.error('Fail')
         // }
@@ -322,7 +388,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
 
     async function handleTestConnection() {
         const values = await form.validateFields()
-        setLoading(true)
+        setTestLoading(true)
         const reqData = {
             host: values.host || 'localhost',
             port: values.port || 6379,
@@ -338,7 +404,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
         if (ret.success) {
             message.success(t('success'))
         }
-        setLoading(false)
+        setTestLoading(false)
     }
 
     return (
@@ -359,8 +425,8 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
                     }}
                 >
                     <Button key="back"
-                        loading={loading}
-                        disabled={loading}
+                        loading={testLoading}
+                        disabled={testLoading || loading}
                         onClick={handleTestConnection}
                     >
                         {t('test_connection')}
@@ -369,14 +435,15 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
                         <Button
                             // key="submit"
                             // type="primary"
-                            disabled={loading}
+                            disabled={testLoading || loading}
                             onClick={onCancel}
                         >
                             {t('cancel')}
                         </Button>
                         <Button
                             type="primary"
-                            disabled={loading}
+                            loading={loading}
+                            disabled={testLoading || loading}
                             onClick={handleOk}
                         >
                             {t('ok')}

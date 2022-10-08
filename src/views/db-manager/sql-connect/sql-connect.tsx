@@ -407,7 +407,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
             } 
             
         }
-        setLoading(false)  
+        setLoading(false)
     }
 
     useEffect(() => {
@@ -498,7 +498,7 @@ export function SqlConnector({ config, onConnnect, onJson }) {
         // storage.set('connections', newConnects)
     }
 
-    function remove(item) {
+    function deleteItem(item) {
         Modal.confirm({
             content: `${t('delete_confirm')} ${item.name}?`,
             async onOk() {
@@ -735,7 +735,7 @@ ${t('password')}: ${data.password}`
                                                     }
                                                     else if (key == 'key_delete') {
                                                         // console.log('_item', nodeData)
-                                                        remove(nodeData.data)
+                                                        deleteItem(nodeData.data)
                                                     }
                                                 }}
                                             >
