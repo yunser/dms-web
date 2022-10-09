@@ -67,7 +67,7 @@ export function FileNameModal({ config, type, path, onSuccess, sourceType, onCan
 
     return (
         <Modal
-            title={type == 'FILE' ? '新建文件' : '新建文件夹'}
+            title={type == 'FILE' ? t('file_new') : t('folder_new')}
             open={true}
             onCancel={onCancel}
             onOk={handleOk}
