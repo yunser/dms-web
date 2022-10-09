@@ -490,6 +490,7 @@ export function FileList({ config, event$, tabKey, item, showSide = false }) {
         console.log('已复制')
         window._copiedItem = item
         window._copyType = 'cut'
+        setCopiedItem(item)
     }
 
     function doPaste() {
