@@ -13,6 +13,7 @@ import { request } from '@/views/db-manager/utils/http';
 import { DiffText } from '../git-diff';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/db-manager/redis-client';
+import { FileUtil } from '@/views/file/utils/utl';
 // import { saveAs } from 'file-saver'
 
 
@@ -142,6 +143,8 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
     const [status, setStatus] = useState(null)
     // const [current, setCurrent] = useState('')
     const [unstagedList, setUnstagedList] = useState([])
+    const [diffItem, setDiffItem ] = useState(null)
+    const [diffType, setDiffType ] = useState('text')
     const [diffText, setDiffText ] = useState('')
     const [diffLoading, setDiffLoading ] = useState(false)
     const canCommit = !(unstagedList.length == 0 && status?.staged?.length == 0)
@@ -298,20 +301,31 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
         setCurFile(path)
         setCurFileType('')
         setDiffText('')
-        let res = await request.post(`${config.host}/git/cat`, {
-            projectPath,
-            filePath: path,
-        })
-        // console.log('res', res)
-        if (res.success) {
-            // loadList()
-            setDiffText(res.data.content)
-            event$.emit({
-                type: 'event_reload_history',
-                data: {
-                    commands: res.data.commands,
-                }
+        setDiffType('')
+        if (FileUtil.isImage(path)) {
+            console.log('img', path)
+            const filePath = projectPath + '/' + path
+            console.log('filePath', filePath)
+            setDiffType('image')
+            setDiffText(`${config.host}/file/imagePreview?sourceType=local&path=${encodeURIComponent(filePath)}`)
+        }
+        else {
+            let res = await request.post(`${config.host}/git/cat`, {
+                projectPath,
+                filePath: path,
             })
+            // console.log('res', res)
+            if (res.success) {
+                // loadList()
+                setDiffType('text')
+                setDiffText(res.data.content)
+                event$.emit({
+                    type: 'event_reload_history',
+                    data: {
+                        commands: res.data.commands,
+                    }
+                })
+            }
         }
         setDiffLoading(false)
     }
@@ -320,6 +334,7 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
         setDiffLoading(true)
         setCurFile(path)
         setCurFileType(cached ? 'cached' : '')
+        setDiffType('')
         setDiffText('')
         let res = await request.post(`${config.host}/git/diff`, {
             projectPath,
@@ -327,15 +342,25 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
             cached,
         })
         // console.log('res', res)
-        if (res.success) {
-            // loadList()
-            setDiffText(res.data.content)
-            event$.emit({
-                type: 'event_reload_history',
-                data: {
-                    commands: res.data.commands,
-                }
-            })
+        if (FileUtil.isImage(path)) {
+            console.log('img', path)
+            const filePath = projectPath + '/' + path
+            console.log('filePath', filePath)
+            setDiffType('image')
+            setDiffText(`${config.host}/file/imagePreview?sourceType=local&path=${encodeURIComponent(filePath)}`)
+        }
+        else {
+            if (res.success) {
+                // loadList()
+                setDiffType('text')
+                setDiffText(res.data.content)
+                event$.emit({
+                    type: 'event_reload_history',
+                    data: {
+                        commands: res.data.commands,
+                    }
+                })
+            }
         }
         setDiffLoading(false)
     }
@@ -422,9 +447,11 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                                         <div className={styles.fileName}
                                                             onClick={() => {
                                                                 if (item.working_dir == '?') {
+                                                                    setDiffItem(item)
                                                                     cat(item.path)
                                                                 }
                                                                 else {
+                                                                    setDiffItem(item)
                                                                     diff(item.path)
                                                                 }
                                                             }}
@@ -508,6 +535,21 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                 <FullCenterBox>
                                     <Spin />
                                 </FullCenterBox>
+                            : diffType == 'image' ?
+                                <>
+                                    <div className={styles.header}>
+                                        {/* After */}
+                                        {curFile}
+                                        {!!diffItem && diffItem.working_dir == 'M' &&
+                                            <div className={styles.after}>{t('git.after')}</div>
+                                        }
+                                    </div>
+                                    <div className={styles.body}>
+                                        <div className={styles.imgBox}>
+                                            <img src={diffText} />
+                                        </div>
+                                    </div>
+                                </>
                             : !!diffText ?
                                 <>
                                     <div className={styles.header}>

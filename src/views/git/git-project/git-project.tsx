@@ -1,4 +1,4 @@
-import { Button, Descriptions, Input, message, Modal, Popover, Space, Table, Tabs } from 'antd';
+import { Button, Descriptions, Dropdown, Input, Menu, message, Modal, Popover, Space, Table, Tabs } from 'antd';
 import React, { useMemo, useRef, useState } from 'react';
 import styles from './git-project.module.less';
 import _ from 'lodash';
@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { ArrowDownOutlined, ArrowLeftOutlined, ArrowUpOutlined, BranchesOutlined, DownloadOutlined, PullRequestOutlined, ReloadOutlined, SettingOutlined } from '@ant-design/icons';
+import { ArrowDownOutlined, ArrowLeftOutlined, ArrowUpOutlined, BranchesOutlined, DownloadOutlined, EllipsisOutlined, PullRequestOutlined, ReloadOutlined, SettingOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { CommitList } from '../commit-list';
@@ -22,6 +22,7 @@ import { BranchModal } from '../branch-modal';
 import { MergeModal } from '../merge-modal';
 import { HistoryList } from '../history-list';
 import { UserSetting } from '../user-setting';
+import { request } from '@/views/db-manager/utils/http';
 // import { saveAs } from 'file-saver'
 
 export function GitProject({ config, event$, project, onList }) {
@@ -59,21 +60,67 @@ export function GitProject({ config, event$, project, onList }) {
         }
     })
     
+    async function openInFinder(path: string) {
+        let ret = await request.post(`${config.host}/file/openInFinder`, {
+            sourceType: 'local',
+            path,
+            // type: item.type,
+        })
+        // console.log('ret', ret)
+        if (ret.success) {
+            // message.success('连接成功')
+            // onConnnect && onConnnect()
+            // message.success(t('success'))
+            // onClose && onClose()
+            // onSuccess && onSuccess()
+            // loadList()
+        }
+    }
+    
     return (
         <div className={styles.gitApp}
             key={allKey}
         >
             <div className={styles.layoutLeft}>
                 <div className={styles.header}>
-                    <IconButton
-                        tooltip="返回列表"
-                        onClick={() => {
-                            onList && onList()
-                        }}
+                    <Space>
+                        <IconButton
+                            // tooltip="返回列表"
+                            tooltip={t('back')}
+                            onClick={() => {
+                                onList && onList()
+                            }}
+                        >
+                            <ArrowLeftOutlined />
+                        </IconButton>
+                        <div className={styles.projectName}>{project.name}</div>
+                    </Space>
+                    <Dropdown
+                        overlay={
+                            <Menu
+                                onClick={({ key }) => {
+                                    if (key == 'open_in_finder') {
+                                        openInFinder(projectPath)
+                                    }
+                                }}
+                                items={[
+                                    {
+                                        label: t('file.open_in_finder'),
+                                        key: 'open_in_finder',
+                                    },
+                                ]}
+                            />
+                        }
                     >
-                        <ArrowLeftOutlined />
-                    </IconButton>
-                    <div className={styles.projectName}>{project.name}</div>
+                        <IconButton
+                            onClick={e => e.preventDefault()}
+                        >
+                            <EllipsisOutlined />
+                        </IconButton>
+                        {/* <a
+                        >
+                        </a> */}
+                    </Dropdown>
                 </div>
                 {/* <Button
                     onClick={() => {
