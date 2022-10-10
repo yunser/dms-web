@@ -19,6 +19,7 @@ import { FileList } from '../file-list'
 import { marked } from 'marked'
 import { FileUtil } from '../utils/utl';
 import { Editor } from '@/views/db-manager/editor/Editor';
+import { ZipList } from '../zip-list';
 
 interface File {
     name: string
@@ -34,6 +35,7 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
     const isMarkdown = path.endsWith('.md')
     const isAudio = path.endsWith('.mp3')
     const isVideo = path.endsWith('.mp4')
+    const isZip = path.endsWith('.zip')
 
     
 
@@ -67,7 +69,7 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
         if (!path) {
             return
         }
-        if (isPureText || isMarkdown) {
+        if (isPureText || isMarkdown || isZip) {
             loadDetail()
         }
         else {
@@ -89,6 +91,14 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
                 <FullCenterBox>
                     <Spin />
                 </FullCenterBox>
+            : isZip ?
+                <div>
+                    <ZipList
+                        config={config}
+                        event$={null}
+                        path={path}
+                    />
+                </div>
             : isAudio ?
                 <div className={styles.audioBox}>
                     <audio
