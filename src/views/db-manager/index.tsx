@@ -28,6 +28,8 @@ import { SshConnect } from '../ssh/ssh-connect'
 import { FileHome } from '../file/file-home'
 import { SshDetail } from '../ssh/ssh-home'
 import { MarkdownEditor } from './markdown'
+import { OssHome } from '../oss/oss-home'
+import { WebDavHome } from '../webdav/webdav-home'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -251,6 +253,264 @@ export function DbManager({ config }) {
         }
     }
 
+    const tabRight = (
+        <div className={styles.langBox}>
+            <Space>
+                {/* <Button
+                    type="text"
+                    onClick={() => {
+                        addOrActiveTab(tab_mySql)
+                    }}
+                >
+                    MySQL
+                </Button> */}
+                <Button
+                    type="text"
+                    onClick={() => {
+                        addOrActiveTab({
+                            title: t('json'),
+                            key: 'json-' + uid(16),
+                            type: 'json',
+                            data: {
+                                // url,
+                            },
+                        })
+                    }}
+                >
+                    {t('json')}
+                </Button>
+                <Button
+                    type="text"
+                    onClick={() => {
+                        addOrActiveTab({
+                            title: '$i18n.text',
+                            key: 'text-' + uid(16),
+                            type: 'text',
+                            data: {
+                                // url,
+                            },
+                        })
+                    }}
+                >
+                    {t('text')}
+                </Button>
+                <Dropdown
+                    overlay={
+                        <Menu
+                            onClick={({ key }) => {
+                                if (key == 'help') {
+                                    addOrActiveTab({
+                                        title: '$i18n.help',
+                                        key: 'help',
+                                        type: 'help',
+                                        data: {
+                                            // url,
+                                        },
+                                    })
+                                }
+                                else if (key == 'elasticsearch') {
+                                    addOrActiveTab({
+                                        title: 'Elasticsearch',
+                                        key: 'key-es',
+                                        type: 'elasticsearch',
+                                        data: {},
+                                        // closable: false,
+                                    })
+                                }
+                                else if (key == 'redis') {
+                                    addOrActiveTab({
+                                        title: 'Redis',
+                                        // key: 'redis-' + uid(16),
+                                        key: 'redis-connect',
+                                        type: 'redis-connect',
+                                        data: {
+                                            // url,
+                                        },
+                                    })
+                                }
+                                else if (key == 'git') {
+                                    addOrActiveTab({
+                                        title: 'GIT',
+                                        // key: 'redis-' + uid(16),
+                                        key: 'git-project',
+                                        type: 'git-project',
+                                        data: {
+                                            // url,
+                                        },
+                                    })
+                                }
+                                else if (key == 'ssh') {
+                                    addOrActiveTab({
+                                        title: 'SSH/SFTP' + `-${(window._sshCount++) + 1}`,
+                                        // key: 'redis-' + uid(16),
+                                        key: `ssh-home-${uid(16)}`,
+                                        type: 'ssh-connect',
+                                        data: {
+                                            // url,
+                                        },
+                                    })
+                                }
+                                else if (key == 'file') {
+                                    addOrActiveTab({
+                                        title: t('file') + `-${(window._fileCount++) + 1}`,
+                                        // key: 'redis-' + uid(16),
+                                        key: `file-${uid(16)}`,
+                                        type: 'file-home',
+                                        data: {
+                                            
+                                            // url,
+                                        },
+                                    })
+                                }
+                                else if (key == 'terminal') {
+                                    openTerminal()
+                                }
+                                else if (key == 'about') {
+                                    setAboutVisible(true)
+                                }
+                                else if (key == 'setting') {
+                                    setAboutVisible(true)
+                                }
+                                else if (key == 'markdown') {
+                                    addOrActiveTab({
+                                        title: t('markdown') + `-${(window._fileCount++) + 1}`,
+                                        // key: 'redis-' + uid(16),
+                                        key: `markdown-${uid(16)}`,
+                                        type: 'markdown',
+                                        data: {
+                                            // url,
+                                        },
+                                    })
+                                }
+                                else if (key == 'mysql') {
+                                    addOrActiveTab(tab_mySql)
+                                }
+                                else if (key == 'oss-home') {
+                                    addOrActiveTab({
+                                        title: t('oss') + `-${(window._fileCount++) + 1}`,
+                                        // key: 'redis-' + uid(16),
+                                        key: `oss-${uid(16)}`,
+                                        type: 'oss-home',
+                                        data: {
+                                            // url,
+                                        },
+                                    })
+                                }
+                                else if (key == 'webdav-home') {
+                                    addOrActiveTab({
+                                        title: t('webdav') + `-${(window._fileCount++) + 1}`,
+                                        // key: 'redis-' + uid(16),
+                                        key: `webdav-${uid(16)}`,
+                                        type: 'webdav-home',
+                                        data: {
+                                            // url,
+                                        },
+                                    })
+                                }
+                            }}
+                            items={[
+                                {
+                                    label: t('mysql'),
+                                    key: 'mysql',
+                                },
+                                {
+                                    label: t('redis'),
+                                    key: 'redis',
+                                },
+                                {
+                                    label: t('git'),
+                                    key: 'git',
+                                },
+                                {
+                                    label: t('ssh/sftp'),
+                                    key: 'ssh',
+                                },
+                                {
+                                    label: t('file'),
+                                    key: 'file',
+                                },
+                                {
+                                    label: t('terminal'),
+                                    key: 'terminal',
+                                },
+                                {
+                                    label: t('markdown'),
+                                    key: 'markdown',
+                                },
+                                {
+                                    label: t('elasticsearch'),
+                                    key: 'elasticsearch',
+                                },
+                                {
+                                    label: t('oss'),
+                                    key: 'oss-home',
+                                },
+                                {
+                                    label: t('webdav'),
+                                    key: 'webdav-home',
+                                },
+                                {
+                                    // ========
+                                    type: 'divider',
+                                },
+                                {
+                                    label: t('about'),
+                                    key: 'about',
+                                },
+                                // {
+                                //     label: t('setting'),
+                                //     key: 'setting',
+                                // },
+                                {
+                                    label: t('help'),
+                                    key: 'help',
+                                },
+                            ]}
+                        />
+                    }
+                >
+                    <IconButton
+                        onClick={e => e.preventDefault()}
+                    >
+                        <EllipsisOutlined />
+                    </IconButton>
+                </Dropdown>
+                <Button
+                    type="text"
+                    onClick={() => {
+                        i18n.changeLanguage(lang == 'zh' ? 'en' : 'zh')
+                    }}
+                >
+                    {lang == 'zh' ? 'English' : '中文'}
+                </Button>
+                <IconButton
+                    size="small"
+                    tooltip={t('toggle_theme')}
+                    onClick={async () => {
+                        toggleTheme()
+                        event$.emit({
+                            type: 'type_theme_changed',
+                            data: {
+                                theme: getTheme(),
+                            }
+                        })
+                        // message.info('正在开发...')
+                        // const code = getCode()
+                        // let res = await request.post(`${config.host}/mysql/sql/create`, {
+                            //     name: '123',
+                            //     sql: code,
+                            // })
+                            // if (res.success) {
+                                //     message.success('保存成功')
+                                // }
+                    }}
+                >
+                    <BulbOutlined />
+                </IconButton>
+            </Space>
+        </div>
+    )
+
     return (
         <ConfigProvider
             locale={lang == 'en' ? enUS : zhCN}
@@ -274,232 +534,7 @@ export function DbManager({ config }) {
                                     DMS
                                 </div>
                             ),
-                            right: (
-                                <div className={styles.langBox}>
-                                    <Space>
-                                        {/* <Button
-                                            type="text"
-                                            onClick={() => {
-                                                addOrActiveTab(tab_mySql)
-                                            }}
-                                        >
-                                            MySQL
-                                        </Button> */}
-                                        <Button
-                                            type="text"
-                                            onClick={() => {
-                                                addOrActiveTab({
-                                                    title: t('json'),
-                                                    key: 'json-' + uid(16),
-                                                    type: 'json',
-                                                    data: {
-                                                        // url,
-                                                    },
-                                                })
-                                            }}
-                                        >
-                                            {t('json')}
-                                        </Button>
-                                        <Button
-                                            type="text"
-                                            onClick={() => {
-                                                addOrActiveTab({
-                                                    title: '$i18n.text',
-                                                    key: 'text-' + uid(16),
-                                                    type: 'text',
-                                                    data: {
-                                                        // url,
-                                                    },
-                                                })
-                                            }}
-                                        >
-                                            {t('text')}
-                                        </Button>
-                                        <Dropdown
-                                            overlay={
-                                                <Menu
-                                                    onClick={({ key }) => {
-                                                        if (key == 'help') {
-                                                            addOrActiveTab({
-                                                                title: '$i18n.help',
-                                                                key: 'help',
-                                                                type: 'help',
-                                                                data: {
-                                                                    // url,
-                                                                },
-                                                            })
-                                                        }
-                                                        else if (key == 'elasticsearch') {
-                                                            addOrActiveTab({
-                                                                title: 'Elasticsearch',
-                                                                key: 'key-es',
-                                                                type: 'elasticsearch',
-                                                                data: {},
-                                                                // closable: false,
-                                                            })
-                                                        }
-                                                        else if (key == 'redis') {
-                                                            addOrActiveTab({
-                                                                title: 'Redis',
-                                                                // key: 'redis-' + uid(16),
-                                                                key: 'redis-connect',
-                                                                type: 'redis-connect',
-                                                                data: {
-                                                                    // url,
-                                                                },
-                                                            })
-                                                        }
-                                                        else if (key == 'git') {
-                                                            addOrActiveTab({
-                                                                title: 'GIT',
-                                                                // key: 'redis-' + uid(16),
-                                                                key: 'git-project',
-                                                                type: 'git-project',
-                                                                data: {
-                                                                    // url,
-                                                                },
-                                                            })
-                                                        }
-                                                        else if (key == 'ssh') {
-                                                            addOrActiveTab({
-                                                                title: 'SSH/SFTP' + `-${(window._sshCount++) + 1}`,
-                                                                // key: 'redis-' + uid(16),
-                                                                key: `ssh-home-${uid(16)}`,
-                                                                type: 'ssh-connect',
-                                                                data: {
-                                                                    // url,
-                                                                },
-                                                            })
-                                                        }
-                                                        else if (key == 'file') {
-                                                            addOrActiveTab({
-                                                                title: t('file') + `-${(window._fileCount++) + 1}`,
-                                                                // key: 'redis-' + uid(16),
-                                                                key: `file-${uid(16)}`,
-                                                                type: 'file-home',
-                                                                data: {
-                                                                    // url,
-                                                                },
-                                                            })
-                                                        }
-                                                        else if (key == 'terminal') {
-                                                            openTerminal()
-                                                        }
-                                                        else if (key == 'about') {
-                                                            setAboutVisible(true)
-                                                        }
-                                                        else if (key == 'setting') {
-                                                            setAboutVisible(true)
-                                                        }
-                                                        else if (key == 'markdown') {
-                                                            addOrActiveTab({
-                                                                title: t('markdown') + `-${(window._fileCount++) + 1}`,
-                                                                // key: 'redis-' + uid(16),
-                                                                key: `markdown-${uid(16)}`,
-                                                                type: 'markdown',
-                                                                data: {
-                                                                    // url,
-                                                                },
-                                                            })
-                                                        }
-                                                        else if (key == 'mysql') {
-                                                            addOrActiveTab(tab_mySql)
-                                                        }
-                                                    }}
-                                                    items={[
-                                                        {
-                                                            label: t('mysql'),
-                                                            key: 'mysql',
-                                                        },
-                                                        {
-                                                            label: t('redis'),
-                                                            key: 'redis',
-                                                        },
-                                                        {
-                                                            label: t('git'),
-                                                            key: 'git',
-                                                        },
-                                                        {
-                                                            label: t('ssh/sftp'),
-                                                            key: 'ssh',
-                                                        },
-                                                        {
-                                                            label: t('file'),
-                                                            key: 'file',
-                                                        },
-                                                        {
-                                                            label: t('terminal'),
-                                                            key: 'terminal',
-                                                        },
-                                                        {
-                                                            label: t('markdown'),
-                                                            key: 'markdown',
-                                                        },
-                                                        {
-                                                            label: t('elasticsearch'),
-                                                            key: 'elasticsearch',
-                                                        },
-                                                        {
-                                                            // ========
-                                                            type: 'divider',
-                                                        },
-                                                        {
-                                                            label: t('about'),
-                                                            key: 'about',
-                                                        },
-                                                        // {
-                                                        //     label: t('setting'),
-                                                        //     key: 'setting',
-                                                        // },
-                                                        {
-                                                            label: t('help'),
-                                                            key: 'help',
-                                                        },
-                                                    ]}
-                                                />
-                                            }
-                                        >
-                                            <IconButton
-                                                onClick={e => e.preventDefault()}
-                                            >
-                                                <EllipsisOutlined />
-                                            </IconButton>
-                                        </Dropdown>
-                                        <Button
-                                            type="text"
-                                            onClick={() => {
-                                                i18n.changeLanguage(lang == 'zh' ? 'en' : 'zh')
-                                            }}
-                                        >
-                                            {lang == 'zh' ? 'English' : '中文'}
-                                        </Button>
-                                        <IconButton
-                                            size="small"
-                                            tooltip={t('toggle_theme')}
-                                            onClick={async () => {
-                                                toggleTheme()
-                                                event$.emit({
-                                                    type: 'type_theme_changed',
-                                                    data: {
-                                                        theme: getTheme(),
-                                                    }
-                                                })
-                                                // message.info('正在开发...')
-                                                // const code = getCode()
-                                                // let res = await request.post(`${config.host}/mysql/sql/create`, {
-                                                    //     name: '123',
-                                                    //     sql: code,
-                                                    // })
-                                                    // if (res.success) {
-                                                        //     message.success('保存成功')
-                                                        // }
-                                            }}
-                                        >
-                                            <BulbOutlined />
-                                        </IconButton>
-                                    </Space>
-                                </div>
-                            )
+                            right: tabRight
                         }}
                         items={tabs.map(item => {
                             const staticLabels = {
@@ -663,6 +698,38 @@ export function DbManager({ config }) {
                                         <GitHome
                                         />
                                     }
+                                    {item.type == 'oss-home' &&
+                                        <OssHome
+                                            onClickItem={item => {
+                                                addOrActiveTab({
+                                                    title: t('oss_file') + `-${(window._fileCount++) + 1}`,
+                                                    // key: 'redis-' + uid(16),
+                                                    key: `file-${uid(16)}`,
+                                                    type: 'file-home',
+                                                    data: {
+                                                        sourceType: 'oss:' + item.bucket,
+                                                        // url,
+                                                    },
+                                                })
+                                            }}
+                                        />
+                                    }
+                                    {item.type == 'webdav-home' &&
+                                        <WebDavHome
+                                            onClickItem={item => {
+                                                addOrActiveTab({
+                                                    title: t('webdav') + `-${(window._fileCount++) + 1}`,
+                                                    // key: 'redis-' + uid(16),
+                                                    key: `webdav-${uid(16)}`,
+                                                    type: 'webdav-home',
+                                                    data: {
+                                                        sourceType: 'oss:' + item.bucket,
+                                                        // url,
+                                                    },
+                                                })
+                                            }}
+                                        />
+                                    }
                                     {item.type == 'ssh-connect' &&
                                         <SshConnect
                                             config={config}
@@ -675,6 +742,7 @@ export function DbManager({ config }) {
                                             config={config}
                                             event$={event$}
                                             tabKey={item.key}
+                                            sourceType={item.data.sourceType}
                                         />
                                     }
                                     {item.type == 'terminal' &&

@@ -169,7 +169,7 @@ export function ZipList({ config, event$, path, tabKey, item, showSide = false }
         setList([])
         setError('')
         setActiveItem(null)
-        let res = await request.post(`${config.host}/zip/list`, {
+        let res = await request.post(`${config.host}/oss/list`, {
             path: curPath,
             zipPath: path,
             sourceType,

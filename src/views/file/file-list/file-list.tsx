@@ -94,18 +94,21 @@ function CollectionList({ config, onItemClick }) {
     )
 }
 
-export function FileList({ config, event$, tabKey, item, showSide = false }) {
+export function FileList({ config, sourceType: _sourceType, event$, tabKey, item, showSide = false }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [list, setList] = useState<File[]>([])
     const [error, setError] = useState('')
 
-    const [sourceType, setSourceType] = useState(item ? '' : 'local')
+    const [sourceType, setSourceType] = useState(_sourceType ? '' : (item ? '' : 'local'))
     
-    const defaultPath = item ? 
-        (item.username == 'root' ? '/root' : `/home/${item.username}`)
-    :
-        ''
+    const defaultPath = 
+    _sourceType 
+        ? '/'
+        : item ? 
+            (item.username == 'root' ? '/root' : `/home/${item.username}`)
+        :
+            ''
 
     const [curPath, setCurPath] = useState(defaultPath)
     const [loading, setLoading] = useState(false)
@@ -127,6 +130,9 @@ export function FileList({ config, event$, tabKey, item, showSide = false }) {
     const [info, setInfo] = useState(null)
     const rootRef = useRef(null)
 
+    console.log('FileList/sourceType', sourceType)
+    console.log('FileList/_sourceType', _sourceType)
+
     const filteredList = useMemo(() => {
         if (!keyword) {
             return list
@@ -135,6 +141,7 @@ export function FileList({ config, event$, tabKey, item, showSide = false }) {
             return item.name.toLowerCase().includes(keyword.toLowerCase())
         })
     }, [list, keyword])
+
     async function connect() {
         // console.log('flow/1', )
         setConnecting(true)
@@ -153,6 +160,47 @@ export function FileList({ config, event$, tabKey, item, showSide = false }) {
             // loadList()
             setConnected(true)
             setSourceType(res.data.connectionId)
+            const defaultPath = 
+                _sourceType 
+                    ? '/'
+                    : item ? 
+                        (item.username == 'root' ? '/root' : `/home/${item.username}`)
+                    :
+                        ''
+            setCurPath(defaultPath)
+        }
+        setConnecting(false)
+    }
+
+    async function ossConnect() {
+        // console.log('flow/1', )
+        setConnecting(true)
+        console.log('ossConnect', _sourceType)
+        const bucket = _sourceType.split(':')[1]
+        // return
+        let res = await request.post(`${config.host}/oss/connect`, {
+            bucket,
+            // path: item.path,
+            // type: item.type,
+        })
+        console.log('connect/res', res)
+        if (res.success) {
+            // message.success('连接成功')
+            // onConnnect && onConnnect()
+            // message.success(t('success'))
+            // onClose && onClose()
+            // onSuccess && onSuccess()
+            // loadList()
+            setConnected(true)
+            setSourceType(res.data.connectionId)
+            const defaultPath = 
+                _sourceType 
+                    ? '/'
+                    : item ? 
+                        (item.username == 'root' ? '/root' : `/home/${item.username}`)
+                    :
+                        ''
+            setCurPath(defaultPath)
         }
         setConnecting(false)
     }
@@ -162,12 +210,25 @@ export function FileList({ config, event$, tabKey, item, showSide = false }) {
             connect()
         }
         else {
-            setSourceType('local')
+            if (_sourceType) {
+                console.log('_sourceType', _sourceType)
+                if (_sourceType != 'local') {
+                    ossConnect()
+                }
+            }
+            else {
+                setSourceType('local')
+            }
         }
     }, [item])
 
     async function loadList() {
         if (!curPath) {
+            console.warn('no curPath')
+            return
+        }
+        if (!sourceType) {
+            console.warn('no sourceType', sourceType)
             return
         }
         setLoading(true)
@@ -537,7 +598,7 @@ export function FileList({ config, event$, tabKey, item, showSide = false }) {
         setFileEditModalVisible(true)
     }
 
-    if (sourceType != 'local' && !item) {
+    if ((sourceType != 'local' && !_sourceType) && !item) {
         return <div>No item</div>
     }
     
