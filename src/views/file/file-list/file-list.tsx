@@ -617,7 +617,7 @@ export function FileList({ config, sourceType: _sourceType, event$, tabKey,
 
             }
             else {
-                if (item.size > 1 * 1024 * 1024) {
+                if (item.size > 10 * 1024 * 1024) {
                     message.info('文件太大，暂不支持查看')
                     return
                 }
