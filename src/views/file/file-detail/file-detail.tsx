@@ -53,6 +53,7 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
         if (res.success) {
             // console.log('res.data.content', res.data.content)
             const content = res.data.content
+            console.log('content', content)
             setContent(content)
             // console.log('degg/setCOntent', content)
             contentRef.current = content

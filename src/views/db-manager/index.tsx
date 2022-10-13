@@ -720,10 +720,11 @@ export function DbManager({ config }) {
                                                 addOrActiveTab({
                                                     title: t('webdav') + `-${(window._fileCount++) + 1}`,
                                                     // key: 'redis-' + uid(16),
-                                                    key: `webdav-${uid(16)}`,
-                                                    type: 'webdav-home',
+                                                    key: `file-${uid(16)}`,
+                                                    type: 'file-home',
                                                     data: {
                                                         sourceType: 'oss:' + item.bucket,
+                                                        webdavItem: item,
                                                         // url,
                                                     },
                                                 })
@@ -743,6 +744,7 @@ export function DbManager({ config }) {
                                             event$={event$}
                                             tabKey={item.key}
                                             sourceType={item.data.sourceType}
+                                            webdavItem={item.data.webdavItem}
                                         />
                                     }
                                     {item.type == 'terminal' &&

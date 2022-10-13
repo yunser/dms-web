@@ -94,7 +94,8 @@ function CollectionList({ config, onItemClick }) {
     )
 }
 
-export function FileList({ config, sourceType: _sourceType, event$, tabKey, item, showSide = false }) {
+export function FileList({ config, sourceType: _sourceType, event$, tabKey, 
+    item, webdavItem, showSide = false }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [list, setList] = useState<File[]>([])
@@ -204,10 +205,47 @@ export function FileList({ config, sourceType: _sourceType, event$, tabKey, item
         }
         setConnecting(false)
     }
+
+    async function webdavConnect(webdavItem) {
+        // console.log('flow/1', )
+        setConnecting(true)
+        console.log('ossConnect', _sourceType)
+        const bucket = _sourceType.split(':')[1]
+        // return
+        let res = await request.post(`${config.host}/webdav/connect`, {
+            // bucket,
+            ...webdavItem,
+            // path: item.path,
+            // type: item.type,
+        })
+        console.log('connect/res', res)
+        if (res.success) {
+            // message.success('连接成功')
+            // onConnnect && onConnnect()
+            // message.success(t('success'))
+            // onClose && onClose()
+            // onSuccess && onSuccess()
+            // loadList()
+            setConnected(true)
+            setSourceType(res.data.connectionId)
+            const defaultPath = 
+                _sourceType 
+                    ? '/'
+                    : item ? 
+                        (item.username == 'root' ? '/root' : `/home/${item.username}`)
+                    :
+                        ''
+            setCurPath(defaultPath)
+        }
+        setConnecting(false)
+    }
     
     useEffect(() => {
         if (!!item) {
             connect()
+        }
+        else if (webdavItem) {
+            webdavConnect(webdavItem)
         }
         else {
             if (_sourceType) {
