@@ -307,6 +307,8 @@ i18n
                     'about': 'About',
                     'markdown': 'Markdown',
                     'path': 'Path',
+                    'oss': 'OSS',
+                    'webdav': 'WebDav',
                 }
             },
             zh: {
@@ -607,6 +609,8 @@ i18n
                     'about': '关于',
                     'markdown': 'Markdown',
                     'path': '路径',
+                    'oss': 'OSS',
+                    'webdav': 'WebDav',
                 }
             }
         },

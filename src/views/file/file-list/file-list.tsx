@@ -94,8 +94,9 @@ function CollectionList({ config, onItemClick }) {
     )
 }
 
-export function FileList({ config, sourceType: _sourceType, event$, tabKey, 
-    item, webdavItem, showSide = false }) {
+export function FileList({ config, sourceType: _sourceType = 'local', event$, tabKey, 
+    item, webdavItem }) {
+    const showSide = _sourceType == 'local'
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [list, setList] = useState<File[]>([])
@@ -248,14 +249,14 @@ export function FileList({ config, sourceType: _sourceType, event$, tabKey,
             webdavConnect(webdavItem)
         }
         else {
-            if (_sourceType) {
+            if (_sourceType == 'local') {
+                setSourceType('local')
+            }
+            else {
                 console.log('_sourceType', _sourceType)
                 if (_sourceType != 'local') {
                     ossConnect()
                 }
-            }
-            else {
-                setSourceType('local')
             }
         }
     }, [item])

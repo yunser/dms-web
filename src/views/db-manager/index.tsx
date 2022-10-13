@@ -357,7 +357,7 @@ export function DbManager({ config }) {
                                         key: `file-${uid(16)}`,
                                         type: 'file-home',
                                         data: {
-                                            
+                                            sourceType: 'local',
                                             // url,
                                         },
                                     })
