@@ -40,10 +40,11 @@ export function FileRenameModal({ config, type, item, onSuccess, sourceType, onC
     async function handleOk() {
         const values = await form.validateFields()
         setLoading(true)
+        const folder = getParentPath(item.path)
         const res = await request.post(`${config.host}/file/rename`, {
             // connectionId: connectionId,
             fromPath: item.path,
-            toPath: getParentPath(item.path) + '/' + values.name,
+            toPath: (folder == '/' ? '/' : (folder + '/')) + values.name,
             sourceType,
             type,
             // field: '',

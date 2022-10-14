@@ -794,6 +794,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                         console.log('file', file)
                                         formData.append('file', file)
                                         formData.append('path', curPath + '/' + file.name)
+                                        formData.append('sourceType', sourceType)
 
                                         // fetch('http://192.168.31.212:8000/api/file', {
                                         fetch(`${config.host}/file/upload`, {
