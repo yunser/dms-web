@@ -125,6 +125,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
     const [folderType, setFolderType] = useState('')
     const [activeItem, setActiveItem] = useState(null)
     const [copiedItem, setCopiedItem] = useState(null)
+    const [uploading, setUploading] = useState(false)
     const [connecting, setConnecting] = useState(false)
     const [connected, setConnected] = useState(false)
     const [renameModalVisible, setRenameModalVisible] = useState(false)
@@ -796,6 +797,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                         formData.append('path', curPath + '/' + file.name)
                                         formData.append('sourceType', sourceType)
 
+                                        setUploading(true)
                                         // fetch('http://192.168.31.212:8000/api/file', {
                                         fetch(`${config.host}/file/upload`, {
                                             method: "POST",
@@ -808,12 +810,14 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                             //     text,
                                             // })
                                             body: formData,
-                                        }).then(() => {
+                                        })
+                                        .then(() => {
                                             console.log('已上传')
                                             loadList()
                                             // Toast.info('已上传')
                                             // setFileKey('' + new Date().getTime())
                                             input.remove()
+                                            setUploading(false)
                                         })
                                     })
                                     input.click()
@@ -1142,6 +1146,16 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                     closable={false}
                 >
                     {t('connecting')}
+                </Modal>
+            }
+            {uploading &&
+                <Modal
+                    open={true}
+                    title={t('upload')}
+                    footer={false}
+                    closable={false}
+                >
+                    {t('uploading')}
                 </Modal>
             }
         </div>
