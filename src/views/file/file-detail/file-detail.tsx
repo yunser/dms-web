@@ -25,6 +25,45 @@ interface File {
     name: string
 }
 
+function ImageViewer({ src }) {
+    
+    const [loading, setLoading] = useState(false)
+    const boxRef = useRef(null)
+    const imgRef = useRef(null)
+
+    useEffect(() => {
+        setLoading(true)
+        const img = new Image()
+        img.onload = () => {
+            setLoading(false)
+            console.log('imgRef', imgRef)
+            // imgRef.current.src = img
+            boxRef.current.appendChild(img)
+        }
+        img.src = src
+    }, [src])
+
+    return (
+        <div>
+            {loading ?
+                <FullCenterBox>
+                    <Spin />
+                </FullCenterBox>
+            :
+                <div 
+                    ref={boxRef}
+                    className={styles.imgBox}
+                ></div>
+                // <img 
+                //     ref={imgRef}
+                //     className={styles.img} 
+                //     // src={src}
+                // />
+            }
+        </div>
+    )
+}
+
 export function FileDetail({ config, path, sourceType, onCancel }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
@@ -127,12 +166,9 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
                     </div>
                 </div>
             : isImage ?
-                <div className={styles.imgBox}>
-                    <img 
-                        className={styles.img} 
-                        src={`${config.host}/file/imagePreview?sourceType=${sourceType}&path=${encodeURIComponent(path)}`}
-                    />
-                </div>
+                <ImageViewer
+                    src={`${config.host}/file/imagePreview?sourceType=${sourceType}&path=${encodeURIComponent(path)}`}
+                />
                 // file:///Users/yunser/Desktop/face.jpg
             : content == '' ?
                 <FullCenterBox>
