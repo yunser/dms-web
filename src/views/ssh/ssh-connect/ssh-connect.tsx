@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { CodeOutlined, DownloadOutlined, EllipsisOutlined, EyeInvisibleOutlined, EyeOutlined, FileOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { CodeOutlined, DownloadOutlined, EllipsisOutlined, ExportOutlined, EyeInvisibleOutlined, EyeOutlined, FileOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 // import { GitProject } from '../git-project';
@@ -141,6 +141,16 @@ export function SshConnect({ config, tabKey, event$ }) {
         })
     }
 
+    function exportAll() {
+        event$.emit({
+            type: 'event_show_json',
+            data: {
+                json: JSON.stringify(projects, null, 4)
+                // connectionId,
+            },
+        })
+    }
+
     return (
         <div className={styles.gitApp}>
             {view == 'list' &&
@@ -160,13 +170,23 @@ export function SshConnect({ config, tabKey, event$ }) {
                                 </IconButton>
                                 <IconButton
                                     tooltip={t('add')}
-                                    className={styles.refresh}
+                                    // className={styles.refresh}
                                     onClick={() => {
                                         setModalVisible(true)
                                         setModalItem(null)
                                     }}
                                 >
                                     <PlusOutlined />
+                                </IconButton>
+                                <IconButton
+                                    tooltip={t('export_json')}
+                                    // size="small"
+                                    // className={styles.refresh}
+                                    onClick={() => {
+                                        exportAll()
+                                    }}
+                                >
+                                    <ExportOutlined />
                                 </IconButton>
                             </Space>
                         </div>
