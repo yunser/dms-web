@@ -159,6 +159,13 @@ function TreeTitle({ keyword, loading = false, nodeData, onAction, onClick, onDo
                                     label: t('table_drop'),
                                     key: 'drop',
                                 },
+                                {
+                                    type: 'divider',
+                                },
+                                {
+                                    label: t('count_all'),
+                                    key: 'count_all',
+                                },
                             ]
                         }
                         onClick={({ item, key, keyPath, domEvent }) => {
@@ -501,6 +508,19 @@ LIMIT 1000;`
         })
     }
 
+    async function countAll(nodeData) {
+        console.log('drop/nodeData', nodeData)
+        
+        // return
+        const tableName = nodeData.key // TODO @p2
+        const sql = `SELECT COUNT(*) FROM \`${nodeData.itemData.TABLE_SCHEMA}\`.\`${tableName}\`;`
+        // setSql(sql)
+        showSqlInNewtab({
+            title: 'DROP TABLE',
+            sql,
+        })
+    }
+
     function schemaUse(nodeData) {
         console.log('nodeData', nodeData)
         // return
@@ -791,6 +811,9 @@ LIMIT 1000;`
                                         }
                                         else if (key == 'drop') {
                                             drop(nodeData)
+                                        }
+                                        else if (key == 'count_all') {
+                                            countAll(nodeData)
                                         }
                                         else if (key == 'table_list') {
                                             event$.emit({
