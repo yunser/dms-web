@@ -14,7 +14,7 @@ import { EsConnnector } from './es-connectot'
 import { EsDetail } from './es-detail'
 import { uid } from 'uid'
 import { Help } from './help'
-import { Json } from './json'
+import { JsonEditor } from './json'
 import { RedisConnect } from './redis-connect'
 import { RedisClient } from './redis-client'
 import { Workbench } from './workbench'
@@ -639,7 +639,7 @@ export function DbManager({ config }) {
                                         />
                                     }
                                     {item.type == 'json' &&
-                                        <Json
+                                        <JsonEditor
                                             config={config}
                                             event$={event$}
                                             data={item.data}

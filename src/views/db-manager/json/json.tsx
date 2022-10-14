@@ -13,6 +13,7 @@ import { DownloadOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 // import { saveAs } from 'file-saver'
+import ReactJson from 'react-json-view'
 
 function SelectionInfo({ event$ }) {
 
@@ -46,14 +47,16 @@ function SelectionInfo({ event$ }) {
     )
 }
 
-export function Json({ config, event$, data = {} }) {
+// function Json
+export function JsonEditor({ config, event$, data = {} }) {
     const { defaultJson = '' } = data
     const { t } = useTranslation()
 
     const [code] = useState(defaultJson)
     // const [code2, setCode2] = useState('')
     const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
-    
+    const [jsonObj, setJsonObj] = useState(null)
+
     const code_ref = useRef('')
 
     function getCode() {
@@ -62,91 +65,111 @@ export function Json({ config, event$, data = {} }) {
 
     function setCodeASD(code) {
         code_ref.current = code
+        try {
+            setJsonObj(JSON.parse(code))
+        }
+        catch (err) {
+            // nothing
+            setJsonObj(null)
+        }
     }
 
     const selectionEvent = useEventEmitter()
+    const contentEvent = useEventEmitter()
 
     return (
         <div className={styles.jsonBox}>
-            <div className={styles.header}>
-                <Space>
-                    {/* <IconButton
-                        size="small"
-                    >
-                        <FormatPainterOutlined />
-                    </IconButton> */}
-                    <Button
-                        size="small"
-                        onClick={() => {
-                            const code = getCode()
-                            const formatedCode = JSON.stringify(JSON.parse(code), null, 4)
-                            editor?.setValue(formatedCode)
-                        }}
-                    >
-                        {t('format')}
-                    </Button>
-                    <Button
-                        size="small"
-                        onClick={() => {
-                            const code = getCode()
-                            const formatedCode = JSON.stringify(JSON.parse(code))
-                            editor?.setValue(formatedCode)
-                        }}
-                    >
-                        {t('compress')}
-                    </Button>
-                    <IconButton
-                        size="small"
-                        tooltip={t('download')}
-                        onClick={() => {
-                            const code = getCode()
-                            // const formatedCode = JSON.stringify(JSON.parse(code))
-                            // editor?.setValue(formatedCode)
-                            const blob = new Blob([code], {type: 'application/json;charset=utf-8'});
-                            saveAs(blob, `${t('unnamed')}.json`)
-                        }}
-                    >
-                        <DownloadOutlined />   
-                    </IconButton>
-                    {/* <Button
-                        size="small"
-                        onClick={() => {
-                            const code = getCode()
-                            const formatedCode = JSON.stringify(JSON.parse(code))
-                            editor?.setValue(formatedCode)
-                        }}
-                    >
-                        <DownloadOutlined />
-                        {t('download')}
-                    </Button> */}
-                </Space>
-            </div>
-            <div className={styles.editorBox}>
-                <Editor
-                    lang="json"
-                    event$={event$}
-                    value={code}
-                    onChange={value => setCodeASD(value)}
-                    // autoFoucs={true}
-                    onEditor={editor => {
-                        setEditor(editor)
-                    }}
-                    onSelectionChange={({selection, selectionTextLength}) => {
-                        // console.log('selection', selection)
-                        selectionEvent.emit({
-                            data: {
-                                selection: {
-                                    ...selection,
-                                    textLength: selectionTextLength,
-                                }
-                            }
-                        })
-                        // setSelection({
-                        //     ...selection,
-                        //     selectionTextLength,
-                        // })
-                    }}
-                />
+            <div className={styles.layoutLeftRight}>
+                <div className={styles.layoutLeft}>
+                    <div className={styles.header}>
+                        <Space>
+                            {/* <IconButton
+                                size="small"
+                            >
+                                <FormatPainterOutlined />
+                            </IconButton> */}
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    const code = getCode()
+                                    const formatedCode = JSON.stringify(JSON.parse(code), null, 4)
+                                    editor?.setValue(formatedCode)
+                                }}
+                            >
+                                {t('format')}
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    const code = getCode()
+                                    const formatedCode = JSON.stringify(JSON.parse(code))
+                                    editor?.setValue(formatedCode)
+                                }}
+                            >
+                                {t('compress')}
+                            </Button>
+                            <IconButton
+                                size="small"
+                                tooltip={t('download')}
+                                onClick={() => {
+                                    const code = getCode()
+                                    // const formatedCode = JSON.stringify(JSON.parse(code))
+                                    // editor?.setValue(formatedCode)
+                                    const blob = new Blob([code], {type: 'application/json;charset=utf-8'});
+                                    saveAs(blob, `${t('unnamed')}.json`)
+                                }}
+                            >
+                                <DownloadOutlined />   
+                            </IconButton>
+                            {/* <Button
+                                size="small"
+                                onClick={() => {
+                                    const code = getCode()
+                                    const formatedCode = JSON.stringify(JSON.parse(code))
+                                    editor?.setValue(formatedCode)
+                                }}
+                            >
+                                <DownloadOutlined />
+                                {t('download')}
+                            </Button> */}
+                        </Space>
+                    </div>
+                    <div className={styles.editorBox}>
+                        <Editor
+                            lang="json"
+                            event$={event$}
+                            value={code}
+                            onChange={value => setCodeASD(value)}
+                            // autoFoucs={true}
+                            onEditor={editor => {
+                                setEditor(editor)
+                            }}
+                            onSelectionChange={({selection, selectionTextLength}) => {
+                                // console.log('selection', selection)
+                                selectionEvent.emit({
+                                    data: {
+                                        selection: {
+                                            ...selection,
+                                            textLength: selectionTextLength,
+                                        }
+                                    }
+                                })
+                                // setSelection({
+                                //     ...selection,
+                                //     selectionTextLength,
+                                // })
+                            }}
+                        />
+                    </div>
+                </div>
+                <div className={styles.layoutRight}>
+                    {!!jsonObj &&
+                        <ReactJson 
+                            src={jsonObj}
+                            displayDataTypes={false}
+                        />
+                    }
+                </div>
             </div>
             <div className={styles.footer}>
                 <SelectionInfo

@@ -1,8 +1,29 @@
 .jsonBox {
     height: 100%;
     // padding: 16px;
+    // border: 1px solid #000;
     display: flex;
     flex-direction: column;
+    .layoutLeftRight {
+        flex: 1 0 auto;
+        height: 0;
+        display: flex;
+    }
+    .layoutLeft {
+        flex: 1 0 auto;
+        width: 0;
+        // border: 1px solid #000;
+        display: flex;
+        flex-direction: column;
+    }
+    .layoutRight {
+        flex: 1 0 auto;
+        width: 0;
+        // border: 1px solid #000;
+        border-left: 1px solid var(--border-color);
+        padding: 12px;
+        overflow: auto;
+    }
     .header {
         height: 40px;
         border-bottom: 1px solid var(--border-color);
@@ -10,6 +31,7 @@
     }
     .editorBox {
         flex: 1 0 auto;
+        height: 0;
         // border: 1px solid #f00;
     }
     .footer {
