@@ -21,7 +21,7 @@ interface File {
     name: string
 }
 
-export function FileHome({ tabKey, sourceType, webdavItem, config, event$ }) {
+export function FileHome({ tabKey, sourceType, webdavItem, ossItem, config, event$ }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [list, setList] = useState<File[]>([])
@@ -40,6 +40,7 @@ export function FileHome({ tabKey, sourceType, webdavItem, config, event$ }) {
                     sourceType={sourceType || 'local'}
                     showSide={true}
                     webdavItem={webdavItem}
+                    ossItem={ossItem}
                 />
             </div>
             {/* <div className={styles.layoutRight}>

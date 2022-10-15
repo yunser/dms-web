@@ -95,7 +95,7 @@ function CollectionList({ config, onItemClick }) {
 }
 
 export function FileList({ config, sourceType: _sourceType = 'local', event$, tabKey, 
-    item, webdavItem }) {
+    item, webdavItem, ossItem }) {
     const showSide = _sourceType == 'local'
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
@@ -176,7 +176,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         setConnecting(false)
     }
 
-    async function ossConnect() {
+    async function ossConnect(ossItem) {
         // console.log('flow/1', )
         setConnecting(true)
         console.log('ossConnect', _sourceType)
@@ -184,6 +184,9 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         // return
         let res = await request.post(`${config.host}/oss/connect`, {
             bucket,
+            region: ossItem.region,
+            accessKeyId: ossItem.accessKeyId,
+            accessKeySecret: ossItem.accessKeySecret,
             // path: item.path,
             // type: item.type,
         })
@@ -257,7 +260,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
             else {
                 console.log('_sourceType', _sourceType)
                 if (_sourceType != 'local') {
-                    ossConnect()
+                    ossConnect(ossItem)
                 }
             }
         }

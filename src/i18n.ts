@@ -312,6 +312,8 @@ i18n
                     'oss': 'OSS',
                     'webdav': 'WebDAV',
                     'processing': 'Processing',
+                    'access_key.create': 'Create AccessKey',
+                    'access_key.update': 'Update AccessKey',
                 }
             },
             zh: {
@@ -617,6 +619,8 @@ i18n
                     'oss': 'OSS',
                     'webdav': 'WebDAV',
                     'processing': '正在处理',
+                    'access_key.create': '创建 AccessKey',
+                    'access_key.update': '编辑 AccessKey',
                 }
             }
         },

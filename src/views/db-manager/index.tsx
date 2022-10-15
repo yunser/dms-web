@@ -528,6 +528,7 @@ export function DbManager({ config }) {
                         onChange={handleTabChange}
                         type="editable-card"
                         hideAdd={true}
+                        tabBarGutter={-1}
                         tabBarExtraContent={{
                             left: (
                                 <div className={styles.logoBox}>
@@ -701,6 +702,8 @@ export function DbManager({ config }) {
                                     {item.type == 'oss-home' &&
                                         <OssHome
                                             onClickItem={item => {
+                                                console.log('item', item)
+                                                // return
                                                 addOrActiveTab({
                                                     // title: t('oss') + `-${(window._fileCount++) + 1}`,
                                                     title: item.name,
@@ -709,6 +712,7 @@ export function DbManager({ config }) {
                                                     type: 'file-home',
                                                     data: {
                                                         sourceType: 'oss:' + item.bucket,
+                                                        ossItem: item,
                                                         // url,
                                                     },
                                                 })
@@ -747,6 +751,7 @@ export function DbManager({ config }) {
                                             tabKey={item.key}
                                             sourceType={item.data.sourceType}
                                             webdavItem={item.data.webdavItem}
+                                            ossItem={item.data.ossItem}
                                         />
                                     }
                                     {item.type == 'terminal' &&
