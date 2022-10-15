@@ -641,6 +641,37 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         setFileEditModalVisible(true)
     }
 
+    function uploadFile({ file, onSuccess }) {
+        let formData = new FormData()
+        console.log('file', file)
+        formData.append('file', file)
+        formData.append('path', curPath + '/' + file.name)
+        formData.append('sourceType', sourceType)
+
+        setUploading(true)
+        // fetch('http://192.168.31.212:8000/api/file', {
+        fetch(`${config.host}/file/upload`, {
+            method: "POST",
+            mode: 'cors',
+            // headers: {
+            //     'Content-Type': 'application/x-www-form-urlencoded'
+            //     // 'Content-Type': 'multipart/form-data'
+            // },
+            // body: JSON.stringify({
+            //     text,
+            // })
+            body: formData,
+        })
+        .then(() => {
+            console.log('已上传')
+            loadList()
+            // Toast.info('已上传')
+            // setFileKey('' + new Date().getTime())
+            onSuccess && onSuccess()
+            setUploading(false)
+        })
+    }
+
     if ((sourceType != 'local' && !_sourceType) && !item) {
         return <div>No item</div>
     }
@@ -804,34 +835,15 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                     input.type = 'file'
                                     input.addEventListener('change', (e) => { 
                                         const file = e.target.files[0]
-                                        let formData = new FormData()
-                                        console.log('file', file)
-                                        formData.append('file', file)
-                                        formData.append('path', curPath + '/' + file.name)
-                                        formData.append('sourceType', sourceType)
-
-                                        setUploading(true)
-                                        // fetch('http://192.168.31.212:8000/api/file', {
-                                        fetch(`${config.host}/file/upload`, {
-                                            method: "POST",
-                                            mode: 'cors',
-                                            // headers: {
-                                            //     'Content-Type': 'application/x-www-form-urlencoded'
-                                            //     // 'Content-Type': 'multipart/form-data'
-                                            // },
-                                            // body: JSON.stringify({
-                                            //     text,
-                                            // })
-                                            body: formData,
-                                        })
-                                        .then(() => {
-                                            console.log('已上传')
-                                            loadList()
-                                            // Toast.info('已上传')
-                                            // setFileKey('' + new Date().getTime())
-                                            input.remove()
-                                            setUploading(false)
-                                        })
+                                        if (file) {
+                                            uploadFile({
+                                                file,
+                                                onSuccess: () => {
+                                                    input.remove()
+                                                }
+                                            })
+                                        }
+                                        
                                     })
                                     input.click()
                                 }}
@@ -892,7 +904,30 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                     </Space>
                 </div>
                 <div className={styles.body}
+                    // onDragOver
+                    onDragOver={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                    }}
+                    onDrop={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        const file = e.dataTransfer.files[0]
+                        console.log('file', file)
+                        uploadFile({ file })
+                        // const reader = new FileReader()
+                        // reader.onload = async () => {
+                        //     console.log(reader.result)
+                        //     const root = JSON.parse((reader.result) as any)
+                        //     const nodes_will = await parseRoot(page)
+                        //     console.log('nodes_will', nodes_will)
 
+                        //     editor.current.setNodes(nodes_will.children)
+                        // }
+                        // reader.readAsText(file, 'utf-8')
+                        // var reader = new FileReader();
+                        //读取成功
+                    }}
                 >
                     <div className={styles.bodyHeader}>
                         <div className={classNames(styles.cell, styles.name)}>{t('name')}</div>
