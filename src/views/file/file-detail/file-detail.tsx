@@ -64,9 +64,9 @@ function PdfViewer({ src }) {
                 }}
             /> */}
             <Document
-                // file={src}
                 className={styles.pdfDoc}
-                file={'https://yunser-public.oss-cn-hangzhou.aliyuncs.com/pdf-article.pdf'}
+                file={src}
+                // file={'https://yunser-public.oss-cn-hangzhou.aliyuncs.com/pdf-article.pdf'}
                 onLoadSuccess={onDocumentLoadSuccess}
                 onLoadError={err => {
                     console.log('onLoadError', err)
