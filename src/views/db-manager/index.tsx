@@ -719,7 +719,8 @@ export function DbManager({ config }) {
                                         <WebDavHome
                                             onClickItem={item => {
                                                 addOrActiveTab({
-                                                    title: t('webdav') + `-${(window._fileCount++) + 1}`,
+                                                    title: item.name,
+                                                    // title: t('webdav') + `-${(window._fileCount++) + 1}`,
                                                     // key: 'redis-' + uid(16),
                                                     key: `file-${uid(16)}`,
                                                     type: 'file-home',
