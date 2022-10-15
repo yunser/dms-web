@@ -126,6 +126,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
     const [activeItem, setActiveItem] = useState(null)
     const [copiedItem, setCopiedItem] = useState(null)
     const [uploading, setUploading] = useState(false)
+    const [processing, setProcessing] = useState(false)
     const [connecting, setConnecting] = useState(false)
     const [connected, setConnected] = useState(false)
     const [renameModalVisible, setRenameModalVisible] = useState(false)
@@ -406,6 +407,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
             message.error('暂不支持复制文件夹')
             return
         }
+        setProcessing(true)
         const fromPath = item.path
         const toPath = toFolder + '/' + (sameNameFile ? getCopyName(item.name, t('copy')) : item.name)
         // + (sameNameFile ? `-${t('copy')}` : '')
@@ -424,6 +426,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
             // onSuccess && onSuccess()
             loadList()
         }
+        setProcessing(false)
     }
 
     useEffect(() => {
@@ -888,7 +891,9 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                         }
                     </Space>
                 </div>
-                <div className={styles.body}>
+                <div className={styles.body}
+
+                >
                     <div className={styles.bodyHeader}>
                         <div className={classNames(styles.cell, styles.name)}>{t('name')}</div>
                         <div className={classNames(styles.cell, styles.updateTime)}>
@@ -1166,6 +1171,16 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                     closable={false}
                 >
                     {t('uploading')}
+                </Modal>
+            }
+            {processing &&
+                <Modal
+                    open={true}
+                    title={t('processing')}
+                    footer={false}
+                    closable={false}
+                >
+                    {t('processing')}
                 </Modal>
             }
         </div>

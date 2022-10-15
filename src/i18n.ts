@@ -311,6 +311,7 @@ i18n
                     'path': 'Path',
                     'oss': 'OSS',
                     'webdav': 'WebDAV',
+                    'processing': 'Processing',
                 }
             },
             zh: {
@@ -615,6 +616,7 @@ i18n
                     'path': '路径',
                     'oss': 'OSS',
                     'webdav': 'WebDAV',
+                    'processing': '正在处理',
                 }
             }
         },
