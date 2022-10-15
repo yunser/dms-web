@@ -52,6 +52,7 @@
     "svg-pathdata": "^6.0.3",
     "typescript-sql": "^0.0.2",
     "uid": "^2.0.0",
+    "vscode-icons-js": "^11.6.1",
     "webworkify-webpack": "^2.1.5",
     "xtend": "^4.0.2",
     "xterm": "^5.0.0",

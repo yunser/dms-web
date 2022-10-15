@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { DownloadOutlined, EllipsisOutlined, KeyOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { DownloadOutlined, EllipsisOutlined, KeyOutlined, PlusOutlined, ReloadOutlined, StarFilled } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 // import { GitProject } from '../git-project';
@@ -348,13 +348,23 @@ export function OssHome({ onClickItem }) {
                                                     }}
                                                 >
                                                     <div className={styles.name}>{item.name}</div>
+                                                    <IconButton
+                                                        // tooltip={t('add')}
+                                                        className={styles.refresh}
+                                                        // onClick={() => {
+                                                        //     setProjectModalVisible(true)
+                                                        // }}
+                                                    >
+                                                        <StarFilled />
+                                                        {/* <EllipsisOutlined /> */}
+                                                    </IconButton>
                                                     <Space
                                                         onClick={(e) => {
                                                             e.preventDefault()
                                                             e.stopPropagation()
                                                         }}
                                                     >
-                                                        {!!item.changes && item.changes > 0 &&
+                                                        {/* {!!item.changes && item.changes > 0 &&
                                                             <div className={styles.branch}>
                                                                 <div className={styles.changes}>{item.changes}</div>
                                                             </div>
@@ -363,7 +373,7 @@ export function OssHome({ onClickItem }) {
                                                             <div className={styles.branch}>
                                                                 <Tag>{item.branch}</Tag>
                                                             </div>
-                                                        }
+                                                        } */}
                                                         {/* <Dropdown
                                                             trigger={['click']}
                                                             overlay={

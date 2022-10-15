@@ -23,6 +23,15 @@ import { FileRenameModal } from '../file-rename';
 import { FileUtil } from '../utils/utl';
 import { FilePathModal } from '../file-path';
 import { FileInfo } from '../file-info';
+import { getIconForFile, getIconForFolder, getIconForOpenFolder } from 'vscode-icons-js';
+
+function myGetIconForFile(path) {
+    const _path = path.toLowerCase()
+    if (_path.endsWith('.webp')) {
+        return 'file_type_image.svg'
+    }
+    return getIconForFile(_path)
+}
 
 function lastSplit(text: string, sep: string) {
     const idx = text.lastIndexOf(sep)
@@ -300,6 +309,12 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                 })
                 .sort((a, b) => {
                     return a.name.localeCompare(b.name)
+                })
+                .map(item => {
+                    return {
+                        ...item,
+                        icon: item.type == 'FILE' ? myGetIconForFile(item.name) : 'default_folder.svg',
+                    }
                 })
             setList(list)
             // setCurrent(res.data.current)
@@ -1077,7 +1092,14 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                 }}
                                             >
                                                 <div className={classNames(styles.cell, styles.name)}>
-                                                    <div className={styles.icon}>
+                                                    <div className={styles.iconBox}>
+                                                        <img className={styles.vscIcon} src={`/vscode-icons/icons/${item.icon}`} />
+                                                        {/* {item.type != 'FILE' ?
+                                                        :
+                                                            <img className={styles.vscIcon} src={`/vscode-icons/icons/${item.icon}`} />
+                                                        } */}
+                                                    </div>
+                                                    {/* <div className={styles.icon}>
                                                         {item.type != 'FILE' ?
                                                             <div className={classNames('iconfont', 'icon-folder', styles.iconFolder)}></div>
                                                         : isImage ?
@@ -1088,9 +1110,10 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                             <FileOutlined />
                                                             // <FolderOutlined />
                                                         }
-                                                    </div>
+                                                    </div> */}
                                                     <div className={styles.label}>
                                                         {item.name}
+                                                        {/* (?{item.icon}) */}
                                                     </div>
                                                 </div>
                                                 <div className={classNames(styles.cell, styles.updateTime)}>
