@@ -1,4 +1,4 @@
-import { Button, Descriptions, Dropdown, Empty, Input, Menu, message, Modal, Popover, Space, Spin, Table, Tabs, Tag } from 'antd';
+import { Button, Descriptions, Dropdown, Empty, Input, Menu, message, Modal, Pagination, Popover, Space, Spin, Table, Tabs, Tag } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './file-detail.module.less';
 import _ from 'lodash';
@@ -20,9 +20,70 @@ import { marked } from 'marked'
 import { FileUtil } from '../utils/utl';
 import { Editor } from '@/views/db-manager/editor/Editor';
 import { ZipList } from '../zip-list';
+import { pdfjs, Document, Page } from 'react-pdf'
 
 interface File {
     name: string
+}
+
+// pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.worker.min.js'
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.js/2.12.313/pdf.worker.min.js'
+
+function PdfViewer({ src }) {
+    const [totalPage, setTotalPage] = useState(0);
+    const [pageNumber, setPageNumber] = useState(1);
+    const [pages, setPages] = useState([])
+
+    function onDocumentLoadSuccess({ numPages }) {
+        console.log('numPages', numPages)
+        setTotalPage(numPages);
+        const pages = []
+        for (let i = 1; i <= numPages; i++) {
+            pages.push({
+                page: i,
+            })
+        }
+        setPages(pages)
+    }
+
+    return (
+        <div>
+            {/* pdf: */}
+            {/* <div>{src}</div> */}
+            {/* <div></div> */}
+            {/* <p>
+                Page {pageNumber} of {totalPage}
+            </p> */}
+            {/* <Button>下一页</Button> */}
+            {/* <Pagination
+                current={pageNumber}
+                pageSize={1}
+                total={totalPage}
+                onChange={page => {
+                    setPageNumber(page)
+                }}
+            /> */}
+            <Document
+                // file={src}
+                className={styles.pdfDoc}
+                file={'https://yunser-public.oss-cn-hangzhou.aliyuncs.com/pdf-article.pdf'}
+                onLoadSuccess={onDocumentLoadSuccess}
+                onLoadError={err => {
+                    console.log('onLoadError', err)
+                }}
+            >
+                {pages.map(item => {
+                    return (
+                        <Page 
+                            className={styles.page}
+                            // pageNumber={pageNumber}
+                            pageNumber={item.page}
+                        />
+                    )
+                })}
+            </Document>
+        </div>
+    )
 }
 
 function ImageViewer({ src }) {
@@ -73,12 +134,14 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
     const isImage = FileUtil.isImage(path)
     const isMarkdown = path.endsWith('.md')
     const isAudio = path.endsWith('.mp3')
+    const isPdf = path.endsWith('.pdf')
     const isVideo = path.endsWith('.mp4')
     const isZip = path.endsWith('.zip')
 
     
 
     const isPureText = !isImage && !isAudio && !isVideo && !isMarkdown
+        && !isPdf
 
     async function loadDetail() {
         setLoading(true)
@@ -165,6 +228,10 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
 
                     </div>
                 </div>
+            : isPdf ?
+                <PdfViewer
+                    src={`${config.host}/file/imagePreview?sourceType=${sourceType}&path=${encodeURIComponent(path)}`}
+                />
             : isImage ?
                 <ImageViewer
                     src={`${config.host}/file/imagePreview?sourceType=${sourceType}&path=${encodeURIComponent(path)}`}

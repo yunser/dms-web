@@ -1,4 +1,4 @@
-import { Button, Descriptions, Dropdown, Empty, Input, Menu, message, Modal, Popover, Space, Spin, Table, Tabs, Tag } from 'antd';
+import { Button, Descriptions, Divider, Dropdown, Empty, Input, Menu, message, Modal, Popover, Space, Spin, Table, Tabs, Tag } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './file-list.module.less';
 import _ from 'lodash';
@@ -685,6 +685,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                 <HomeOutlined className={styles.icon} />
                                 {t('file.home')}
                             </div>
+                            <Divider />
                             <div className={styles.item}
                                 onClick={() => {
                                     setCurPath(info.homePath + '/.yunser/dms-cli')
@@ -693,6 +694,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                 <DatabaseOutlined className={styles.icon} />
                                 DMS - DB
                             </div>
+                            <Divider />
                         </div>
                     }
                     <CollectionList
