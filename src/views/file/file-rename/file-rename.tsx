@@ -71,6 +71,7 @@ export function FileRenameModal({ config, type, item, onSuccess, sourceType, onC
             onCancel={onCancel}
             onOk={handleOk}
             confirmLoading={loading}
+            maskClosable={false}
             // footer={null}
         >
             <Form
