@@ -310,7 +310,7 @@ i18n
                     'markdown': 'Markdown',
                     'path': 'Path',
                     'oss': 'OSS',
-                    'webdav': 'WebDav',
+                    'webdav': 'WebDAV',
                 }
             },
             zh: {
@@ -614,7 +614,7 @@ i18n
                     'markdown': 'Markdown',
                     'path': '路径',
                     'oss': 'OSS',
-                    'webdav': 'WebDav',
+                    'webdav': 'WebDAV',
                 }
             }
         },

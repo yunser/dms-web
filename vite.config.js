@@ -15,6 +15,7 @@ const projectRootDir = path.resolve(__dirname);
 // https://vitejs.dev/config/
 export default defineConfig({
     server: {
+        // host: '192.168.6.7',
         port: 3001,
     },
     // css: {

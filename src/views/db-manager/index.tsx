@@ -438,16 +438,16 @@ export function DbManager({ config }) {
                                     key: 'markdown',
                                 },
                                 {
-                                    label: t('elasticsearch'),
-                                    key: 'elasticsearch',
-                                },
-                                {
                                     label: t('oss'),
                                     key: 'oss-home',
                                 },
                                 {
                                     label: t('webdav'),
                                     key: 'webdav-home',
+                                },
+                                {
+                                    label: t('elasticsearch'),
+                                    key: 'elasticsearch',
                                 },
                                 {
                                     // ========
@@ -702,7 +702,8 @@ export function DbManager({ config }) {
                                         <OssHome
                                             onClickItem={item => {
                                                 addOrActiveTab({
-                                                    title: t('oss_file') + `-${(window._fileCount++) + 1}`,
+                                                    // title: t('oss') + `-${(window._fileCount++) + 1}`,
+                                                    title: item.name,
                                                     // key: 'redis-' + uid(16),
                                                     key: `file-${uid(16)}`,
                                                     type: 'file-home',

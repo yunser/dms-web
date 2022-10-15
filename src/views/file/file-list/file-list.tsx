@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { CodeOutlined, CreditCardOutlined, DownloadOutlined, EllipsisOutlined, FileOutlined, FileSearchOutlined, FileWordOutlined, FolderOutlined, HomeOutlined, LeftOutlined, PlusOutlined, ReloadOutlined, UploadOutlined } from '@ant-design/icons';
+import { CodeOutlined, CreditCardOutlined, DatabaseOutlined, DownloadOutlined, EllipsisOutlined, FileOutlined, FileSearchOutlined, FileWordOutlined, FolderOutlined, HomeOutlined, LeftOutlined, PlusOutlined, ReloadOutlined, UploadOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
@@ -684,6 +684,14 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                             >
                                 <HomeOutlined className={styles.icon} />
                                 {t('file.home')}
+                            </div>
+                            <div className={styles.item}
+                                onClick={() => {
+                                    setCurPath(info.homePath + '/.yunser/dms-cli')
+                                }}
+                            >
+                                <DatabaseOutlined className={styles.icon} />
+                                DMS - DB
                             </div>
                         </div>
                     }
