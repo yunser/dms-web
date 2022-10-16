@@ -315,6 +315,7 @@ i18n
                     'access_key.create': 'Create AccessKey',
                     'access_key.update': 'Update AccessKey',
                     'tcp/udp': 'TCP/UDP',
+                    'upload_image': '上传图片',
                 }
             },
             zh: {
@@ -623,6 +624,7 @@ i18n
                     'access_key.create': '创建 AccessKey',
                     'access_key.update': '编辑 AccessKey',
                     'tcp/udp': 'TCP/UDP',
+                    'upload_image': '上传图片',
                 }
             }
         },

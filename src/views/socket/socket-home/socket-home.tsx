@@ -24,6 +24,8 @@ export function SocketHome({ config, onClickItem }) {
     const [connected, setConnected] = useState(false)
     const [content, setContent] = useState('')
 
+    
+
     async function connect() {
         const values = await form.validateFields()
         setConnecting(true)

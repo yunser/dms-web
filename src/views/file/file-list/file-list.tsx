@@ -24,6 +24,7 @@ import { FileUtil } from '../utils/utl';
 import { FilePathModal } from '../file-path';
 import { FileInfo } from '../file-info';
 import { getIconForFile, getIconForFolder, getIconForOpenFolder } from 'vscode-icons-js';
+import { FilePasteModal } from '../file-paste';
 
 function myGetIconForFile(path) {
     const _path = path.toLowerCase()
@@ -91,7 +92,7 @@ function CollectionList({ config, onItemClick }) {
                 return (
                     <div className={styles.item}
                         onClick={() => {
-                            onItemClick && onItemClick(item)  
+                            onItemClick && onItemClick(item)
                         }}
                     >
                         <FolderOutlined className={styles.icon} />
@@ -103,7 +104,7 @@ function CollectionList({ config, onItemClick }) {
     )
 }
 
-export function FileList({ config, sourceType: _sourceType = 'local', event$, tabKey, 
+export function FileList({ config, sourceType: _sourceType = 'local', event$, tabKey,
     item, webdavItem, ossItem }) {
     const showSide = _sourceType == 'local'
     // const { defaultJson = '' } = data
@@ -112,14 +113,14 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
     const [error, setError] = useState('')
 
     const [sourceType, setSourceType] = useState(_sourceType ? '' : (item ? '' : 'local'))
-    
-    const defaultPath = 
-    _sourceType 
-        ? '/'
-        : item ? 
-            (item.username == 'root' ? '/root' : `/home/${item.username}`)
-        :
-            ''
+
+    const defaultPath =
+        _sourceType
+            ? '/'
+            : item ?
+                (item.username == 'root' ? '/root' : `/home/${item.username}`)
+                :
+                ''
 
     const [curPath, setCurPath] = useState(defaultPath)
     const [loading, setLoading] = useState(false)
@@ -127,19 +128,29 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
     const [fileModalPath, setFileModalPath] = useState('')
     const [fileEditModalVisible, setFileEditModalVisible] = useState(false)
     const [pathModalVisible, setPathModalVisible] = useState(false)
+    
     const [infoVisible, setInfoVisible] = useState(false)
     const [fileInfoPath, setFileInfoPath] = useState('')
+    
     const [keyword, setKeyword] = useState('')
+    
     const [folderVisible, setFolderVisible] = useState(false)
     const [folderType, setFolderType] = useState('')
+
     const [activeItem, setActiveItem] = useState(null)
     const [copiedItem, setCopiedItem] = useState(null)
     const [uploading, setUploading] = useState(false)
     const [processing, setProcessing] = useState(false)
+
     const [connecting, setConnecting] = useState(false)
     const [connected, setConnected] = useState(false)
+
     const [renameModalVisible, setRenameModalVisible] = useState(false)
     const [renameItem, setRenameItem] = useState(null)
+
+    const [pasteVisible, setPasteVisible] = useState(false)
+    const [pasteFile, setPasteFile] = useState(null)
+
     const [info, setInfo] = useState(null)
     const rootRef = useRef(null)
 
@@ -173,12 +184,12 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
             // loadList()
             setConnected(true)
             setSourceType(res.data.connectionId)
-            const defaultPath = 
-                _sourceType 
+            const defaultPath =
+                _sourceType
                     ? '/'
-                    : item ? 
+                    : item ?
                         (item.username == 'root' ? '/root' : `/home/${item.username}`)
-                    :
+                        :
                         ''
             setCurPath(defaultPath)
         }
@@ -209,12 +220,12 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
             // loadList()
             setConnected(true)
             setSourceType(res.data.connectionId)
-            const defaultPath = 
-                _sourceType 
+            const defaultPath =
+                _sourceType
                     ? '/'
-                    : item ? 
+                    : item ?
                         (item.username == 'root' ? '/root' : `/home/${item.username}`)
-                    :
+                        :
                         ''
             setCurPath(defaultPath)
         }
@@ -243,18 +254,18 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
             // loadList()
             setConnected(true)
             setSourceType(res.data.connectionId)
-            const defaultPath = 
-                _sourceType 
+            const defaultPath =
+                _sourceType
                     ? '/'
-                    : item ? 
+                    : item ?
                         (item.username == 'root' ? '/root' : `/home/${item.username}`)
-                    :
+                        :
                         ''
             setCurPath(defaultPath)
         }
         setConnecting(false)
     }
-    
+
     useEffect(() => {
         if (!!item) {
             connect()
@@ -359,7 +370,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
 
     function back() {
         console.log('cur', curPath)
-        
+
         setCurPath(getParentPath(curPath))
     }
 
@@ -401,7 +412,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
             // icon: <ExclamationCircleOutlined />,
             content: `${t('delete')}「${item.name}」?`,
             async onOk() {
-                
+
                 let ret = await request.post(`${config.host}/file/delete`, {
                     sourceType,
                     path: item.path,
@@ -448,6 +459,34 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
     }
 
     useEffect(() => {
+        // let that = this
+        function handlePaste(event) {
+            const items = event.clipboardData && event.clipboardData.items
+            // const file = null
+            if (items && items.length) {
+                // 检索剪切板items
+                console.log('items', items)
+                for (let i = 0; i < items.length; i++) {
+                    const item = items[i]
+                    console.log('type', item.type)
+                    // application/zip
+                    if (items[i].type.indexOf('image') !== -1) {
+                        const file = items[i].getAsFile()
+                        console.log('file', file)
+                        setPasteFile(file)
+                        setPasteVisible(true)
+                        break
+                    }
+                }
+            }
+        }
+        document.addEventListener('paste', handlePaste)
+        return () => {
+            document.removeEventListener('paste', handlePaste)
+        }
+    }, [])
+
+    useEffect(() => {
         function handleKeyDown(e: KeyboardEvent) {
             console.log('e', e.code, e)
             console.log('e/e.keyCode', e.keyCode)
@@ -463,7 +502,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
             // console.log('parent.style', parent.style.display)
             // console.log('rootRef', rootRef.current.parent)
             // console.log('e.srcElement', e.srcElement.nodeName)
-            
+
 
 
             if (document.activeElement?.nodeName == 'INPUT' || document.activeElement?.nodeName == 'TEXTAREA') {
@@ -480,7 +519,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                 }
                 return '?'
             }
-            
+
 
             if (e.code == 'KeyC') {
                 if (e.metaKey) {
@@ -574,7 +613,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                 e.stopPropagation()
                 e.preventDefault()
             }
-            
+
             if ((e.keyCode >= 48 && e.keyCode <= 57) || (e.keyCode >= 65 && e.keyCode <= 90)) {
                 const idx = list.findIndex(item => item.name.toLowerCase().startsWith(keyCode2Text(e.keyCode)))
                 if (idx != -1) {
@@ -617,6 +656,9 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
 
     function doPaste() {
         console.log('粘贴', window._copiedItem)
+        if (!window._copiedItem) {
+            return
+        }
         // if (activeItem) {
         //     window._copiedPath = activeItem.path
         // }
@@ -659,11 +701,11 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         setFileEditModalVisible(true)
     }
 
-    function uploadFile({ file, onSuccess }) {
+    function uploadFile({ file, name, onSuccess = () => {} }) {
         let formData = new FormData()
         console.log('file', file)
         formData.append('file', file)
-        formData.append('path', curPath + '/' + file.name)
+        formData.append('path', curPath + '/' + (name || file.name))
         formData.append('sourceType', sourceType)
 
         setUploading(true)
@@ -680,20 +722,20 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
             // })
             body: formData,
         })
-        .then(() => {
-            console.log('已上传')
-            loadList()
-            // Toast.info('已上传')
-            // setFileKey('' + new Date().getTime())
-            onSuccess && onSuccess()
-            setUploading(false)
-        })
+            .then(() => {
+                console.log('已上传')
+                loadList()
+                // Toast.info('已上传')
+                // setFileKey('' + new Date().getTime())
+                onSuccess && onSuccess()
+                setUploading(false)
+            })
     }
 
     if ((sourceType != 'local' && !_sourceType) && !item) {
         return <div>No item</div>
     }
-    
+
     // const sideList = [
     //     {
     //         path: ''
@@ -851,7 +893,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                 onClick={() => {
                                     const input = document.createElement('input')
                                     input.type = 'file'
-                                    input.addEventListener('change', (e) => { 
+                                    input.addEventListener('change', (e) => {
                                         const file = e.target.files[0]
                                         if (file) {
                                             uploadFile({
@@ -861,7 +903,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                 }
                                             })
                                         }
-                                        
+
                                     })
                                     input.click()
                                 }}
@@ -961,145 +1003,145 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                             >
                                 <Spin />
                             </FullCenterBox>
-                        : !!error ?
-                            <FullCenterBox
-                                height={320}
-                            >
-                                <div className={styles.error}>{error}</div>
-                            </FullCenterBox>
-                        : filteredList.length == 0 ?
-                            <FullCenterBox>
-                                <Empty />
-                            </FullCenterBox>
-                        :
-                            <div className={styles.list}>
-                                {filteredList.map(item => {
-                                    const isImage = FileUtil.isImage(item.path)
-                                    const isMarkdown = item.path.endsWith('.md')
+                            : !!error ?
+                                <FullCenterBox
+                                    height={320}
+                                >
+                                    <div className={styles.error}>{error}</div>
+                                </FullCenterBox>
+                                : filteredList.length == 0 ?
+                                    <FullCenterBox>
+                                        <Empty />
+                                    </FullCenterBox>
+                                    :
+                                    <div className={styles.list}>
+                                        {filteredList.map(item => {
+                                            const isImage = FileUtil.isImage(item.path)
+                                            const isMarkdown = item.path.endsWith('.md')
 
-                                    return (
-                                        <Dropdown
-                                            key={item.name}
-                                            trigger={['contextMenu']}
-                                            overlay={
-                                                <Menu
-                                                    onClick={({ key }) => {
-                                                        if (key == 'delete_file') {
-                                                            deleteItem(item)
-                                                        }
-                                                        else if (key == 'edit') {
-                                                            editItem(item)
-                                                        }
-                                                        else if (key == 'copy_name') {
-                                                            copy(item.name)
-                                                            message.info(t('copied'))
-                                                        }
-                                                        else if (key == 'copy_path') {
-                                                            copy(item.path)
-                                                            message.info(t('copied'))
-                                                        }
-                                                        else if (key == 'rename') {
-                                                            setRenameModalVisible(true)
-                                                            setRenameItem(item)
-                                                        }
-                                                        else if (key == 'download') {
-                                                            downloadItem(item)
-                                                        }
-                                                        else if (key == 'open') {
+                                            return (
+                                                <Dropdown
+                                                    key={item.name}
+                                                    trigger={['contextMenu']}
+                                                    overlay={
+                                                        <Menu
+                                                            onClick={({ key }) => {
+                                                                if (key == 'delete_file') {
+                                                                    deleteItem(item)
+                                                                }
+                                                                else if (key == 'edit') {
+                                                                    editItem(item)
+                                                                }
+                                                                else if (key == 'copy_name') {
+                                                                    copy(item.name)
+                                                                    message.info(t('copied'))
+                                                                }
+                                                                else if (key == 'copy_path') {
+                                                                    copy(item.path)
+                                                                    message.info(t('copied'))
+                                                                }
+                                                                else if (key == 'rename') {
+                                                                    setRenameModalVisible(true)
+                                                                    setRenameItem(item)
+                                                                }
+                                                                else if (key == 'download') {
+                                                                    downloadItem(item)
+                                                                }
+                                                                else if (key == 'open') {
+                                                                    viewItem(item)
+                                                                }
+                                                                else if (key == 'copy') {
+                                                                    copyItem(item)
+                                                                }
+                                                                else if (key == 'cut') {
+                                                                    cutItem(item)
+                                                                }
+                                                                else if (key == 'info') {
+                                                                    showItemDetail(item)
+                                                                }
+                                                                else if (key == 'finder') {
+                                                                    openInFinder(item.path)
+                                                                }
+                                                            }}
+                                                            items={[
+                                                                {
+                                                                    label: t('open'),
+                                                                    key: 'open',
+                                                                },
+                                                                {
+                                                                    label: t('open_with_text_editor'),
+                                                                    key: 'edit',
+                                                                },
+                                                                {
+                                                                    label: t('info'),
+                                                                    key: 'info',
+                                                                },
+                                                                {
+                                                                    label: t('file.open_in_finder'),
+                                                                    key: 'finder',
+                                                                },
+                                                                ...(sourceType != 'local' ? [
+                                                                    {
+                                                                        label: t('download'),
+                                                                        key: 'download',
+                                                                    },
+                                                                ] : []),
+                                                                {
+                                                                    type: 'divider',
+                                                                },
+                                                                {
+                                                                    label: t('copy'),
+                                                                    key: 'copy',
+                                                                },
+                                                                {
+                                                                    label: t('cut'),
+                                                                    key: 'cut',
+                                                                },
+                                                                {
+                                                                    label: t('rename'),
+                                                                    key: 'rename',
+                                                                },
+                                                                {
+                                                                    label: t('delete'),
+                                                                    key: 'delete_file',
+                                                                },
+                                                                {
+                                                                    type: 'divider',
+                                                                },
+                                                                {
+                                                                    label: t('file.copy_name'),
+                                                                    key: 'copy_name',
+                                                                },
+                                                                {
+                                                                    label: t('file.copy_path'),
+                                                                    key: 'copy_path',
+                                                                },
+                                                            ]}
+                                                        />
+                                                    }
+                                                >
+                                                    <div className={classNames(styles.item, {
+                                                        [styles.active]: activeItem && activeItem.name == item.name
+                                                    })}
+                                                        onClick={() => {
+                                                            setActiveItem(item)
+                                                        }}
+                                                        onContextMenu={() => {
+                                                            setActiveItem(item)
+                                                        }}
+                                                        onDoubleClick={() => {
                                                             viewItem(item)
-                                                        }
-                                                        else if (key == 'copy') {
-                                                            copyItem(item)
-                                                        }
-                                                        else if (key == 'cut') {
-                                                            cutItem(item)
-                                                        }
-                                                        else if (key == 'info') {
-                                                            showItemDetail(item)
-                                                        }
-                                                        else if (key == 'finder') {
-                                                            openInFinder(item.path)
-                                                        }
-                                                    }}
-                                                    items={[
-                                                        {
-                                                            label: t('open'),
-                                                            key: 'open',
-                                                        },
-                                                        {
-                                                            label: t('open_with_text_editor'),
-                                                            key: 'edit',
-                                                        },
-                                                        {
-                                                            label: t('info'),
-                                                            key: 'info',
-                                                        },
-                                                        {
-                                                            label: t('file.open_in_finder'),
-                                                            key: 'finder',
-                                                        },
-                                                        ...(sourceType != 'local' ? [
-                                                            {
-                                                                label: t('download'),
-                                                                key: 'download',
-                                                            },
-                                                        ] : []),
-                                                        {
-                                                            type: 'divider',
-                                                        },
-                                                        {
-                                                            label: t('copy'),
-                                                            key: 'copy',
-                                                        },
-                                                        {
-                                                            label: t('cut'),
-                                                            key: 'cut',
-                                                        },
-                                                        {
-                                                            label: t('rename'),
-                                                            key: 'rename',
-                                                        },
-                                                        {
-                                                            label: t('delete'),
-                                                            key: 'delete_file',
-                                                        },
-                                                        {
-                                                            type: 'divider',
-                                                        },
-                                                        {
-                                                            label: t('file.copy_name'),
-                                                            key: 'copy_name',
-                                                        },
-                                                        {
-                                                            label: t('file.copy_path'),
-                                                            key: 'copy_path',
-                                                        },
-                                                    ]}
-                                                />
-                                            }
-                                        >
-                                            <div className={classNames(styles.item, {
-                                                [styles.active]: activeItem && activeItem.name == item.name
-                                            })}
-                                                onClick={() => {
-                                                    setActiveItem(item)
-                                                }}
-                                                onContextMenu={() => {
-                                                    setActiveItem(item)
-                                                }}
-                                                onDoubleClick={() => {
-                                                    viewItem(item)
-                                                }}
-                                            >
-                                                <div className={classNames(styles.cell, styles.name)}>
-                                                    <div className={styles.iconBox}>
-                                                        <img className={styles.vscIcon} src={`/vscode-icons/icons/${item.icon}`} />
-                                                        {/* {item.type != 'FILE' ?
+                                                        }}
+                                                    >
+                                                        <div className={classNames(styles.cell, styles.name)}>
+                                                            <div className={styles.iconBox}>
+                                                                <img className={styles.vscIcon} src={`/vscode-icons/icons/${item.icon}`} />
+                                                                {/* {item.type != 'FILE' ?
                                                         :
                                                             <img className={styles.vscIcon} src={`/vscode-icons/icons/${item.icon}`} />
                                                         } */}
-                                                    </div>
-                                                    {/* <div className={styles.icon}>
+                                                            </div>
+                                                            {/* <div className={styles.icon}>
                                                         {item.type != 'FILE' ?
                                                             <div className={classNames('iconfont', 'icon-folder', styles.iconFolder)}></div>
                                                         : isImage ?
@@ -1111,28 +1153,28 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                             // <FolderOutlined />
                                                         }
                                                     </div> */}
-                                                    <div className={styles.label}>
-                                                        {item.name}
-                                                        {/* (?{item.icon}) */}
+                                                            <div className={styles.label}>
+                                                                {item.name}
+                                                                {/* (?{item.icon}) */}
+                                                            </div>
+                                                        </div>
+                                                        <div className={classNames(styles.cell, styles.updateTime)}>
+                                                            {moment(item.updateTime).format('YYYY-MM-DD HH:mm')}
+                                                        </div>
+                                                        <div className={classNames(styles.cell, styles.size)}>
+                                                            {/* {item.size} */}
+                                                            {item.type == 'FILE' ?
+                                                                filesize(item.size, { fixed: 1, }).human()
+                                                                :
+                                                                '--'
+                                                            }
+                                                            {/* {} */}
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <div className={classNames(styles.cell, styles.updateTime)}>
-                                                    {moment(item.updateTime).format('YYYY-MM-DD HH:mm')}
-                                                </div>
-                                                <div className={classNames(styles.cell, styles.size)}>
-                                                    {/* {item.size} */}
-                                                    {item.type == 'FILE' ?
-                                                        filesize(item.size, { fixed: 1, }).human()
-                                                    :
-                                                        '--'
-                                                    }
-                                                    {/* {} */}
-                                                </div>
-                                            </div>
-                                        </Dropdown>
-                                    )
-                                })}
-                            </div>
+                                                </Dropdown>
+                                            )
+                                        })}
+                                    </div>
                         }
                     </div>
                 </div>
@@ -1243,6 +1285,21 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                 >
                     {t('processing')}
                 </Modal>
+            }
+            {pasteVisible &&
+                <FilePasteModal
+                    file={pasteFile}
+                    onCancel={() => {
+                        setPasteVisible(false)
+                    }}
+                    onOk={({ name }) => {
+                        setPasteVisible(false)
+                        uploadFile({
+                            file: pasteFile,
+                            name,
+                        })
+                    }}
+                />
             }
         </div>
     )
