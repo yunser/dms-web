@@ -315,7 +315,16 @@ i18n
                     'access_key.create': 'Create AccessKey',
                     'access_key.update': 'Update AccessKey',
                     'tcp/udp': 'TCP/UDP',
+                    'http': 'HTTP',
                     'upload_image': '上传图片',
+                    'send': 'Send',
+                    // 'description': 'Description',
+                    'key': 'Key',
+                    // 'value': 'Value',
+                    'no_request': 'No Request',
+                    'pls_input_url': 'Please input URL',
+                    'new_api': 'New API',
+                    'local_mode': 'Local Mode (Data save in Memory)',
                 }
             },
             zh: {
@@ -624,7 +633,16 @@ i18n
                     'access_key.create': '创建 AccessKey',
                     'access_key.update': '编辑 AccessKey',
                     'tcp/udp': 'TCP/UDP',
+                    'http': 'HTTP',
                     'upload_image': '上传图片',
+                    'send': '发送',
+                    // 'description': '描述',
+                    'key': '参数名',
+                    // 'value': '参数值',
+                    'no_request': '未请求',
+                    'pls_input_url': '请输入 URL',
+                    'new_api': '新建接口',
+                    'local_mode': '本地模式（数据保存在内存）',
                 }
             }
         },

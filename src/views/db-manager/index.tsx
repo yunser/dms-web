@@ -31,6 +31,7 @@ import { MarkdownEditor } from './markdown'
 import { OssHome } from '../oss/oss-home'
 import { WebDavHome } from '../webdav/webdav-home'
 import { SocketHome } from '../socket/socket-home'
+import { HttpEditor } from '../http/editor'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -410,9 +411,10 @@ export function DbManager({ config }) {
                                 }
                                 else if (key == 'http-home') {
                                     addOrActiveTab({
-                                        title: t('http') + `-${(window._fileCount++) + 1}`,
+                                        title: t('http'),
+                                        // title: t('http') + `-${(window._fileCount++) + 1}`,
                                         // key: 'redis-' + uid(16),
-                                        key: `http-${uid(16)}`,
+                                        key: `http-0`,
                                         type: 'http-home',
                                         data: {
                                             // url,
@@ -469,10 +471,10 @@ export function DbManager({ config }) {
                                     label: t('webdav'),
                                     key: 'webdav-home',
                                 },
-                                // {
-                                //     label: t('http'),
-                                //     key: 'http-home',
-                                // },
+                                {
+                                    label: t('http'),
+                                    key: 'http-home',
+                                },
                                 {
                                     label: t('tcp/udp'),
                                     key: 'tcp/udp',
@@ -795,6 +797,13 @@ export function DbManager({ config }) {
                                     }
                                     {item.type == 'tcp/udp' &&
                                         <SocketHome
+                                            config={config}
+                                            // local={true}
+                                            // defaultPath={item.data.path}
+                                        />
+                                    }
+                                    {item.type == 'http-home' &&
+                                        <HttpEditor
                                             config={config}
                                             // local={true}
                                             // defaultPath={item.data.path}
