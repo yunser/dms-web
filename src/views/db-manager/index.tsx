@@ -30,6 +30,7 @@ import { SshDetail } from '../ssh/ssh-home'
 import { MarkdownEditor } from './markdown'
 import { OssHome } from '../oss/oss-home'
 import { WebDavHome } from '../webdav/webdav-home'
+import { SocketHome } from '../socket/socket-home'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -407,6 +408,29 @@ export function DbManager({ config }) {
                                         },
                                     })
                                 }
+                                else if (key == 'http-home') {
+                                    addOrActiveTab({
+                                        title: t('http') + `-${(window._fileCount++) + 1}`,
+                                        // key: 'redis-' + uid(16),
+                                        key: `http-${uid(16)}`,
+                                        type: 'http-home',
+                                        data: {
+                                            // url,
+                                        },
+                                    })
+                                }
+                                else if (key == 'tcp/udp') {
+                                    addOrActiveTab({
+                                        title: t('tcp/udp') + `-${(window._fileCount++) + 1}`,
+                                        // key: 'redis-' + uid(16),
+                                        // key: `tcp/udp-${uid(16)}`,
+                                        key: `tcp/udp-0`,
+                                        type: 'tcp/udp',
+                                        data: {
+                                            // url,
+                                        },
+                                    })
+                                }
                             }}
                             items={[
                                 {
@@ -444,6 +468,14 @@ export function DbManager({ config }) {
                                 {
                                     label: t('webdav'),
                                     key: 'webdav-home',
+                                },
+                                // {
+                                //     label: t('http'),
+                                //     key: 'http-home',
+                                // },
+                                {
+                                    label: t('tcp/udp'),
+                                    key: 'tcp/udp',
                                 },
                                 {
                                     label: t('elasticsearch'),
@@ -759,6 +791,13 @@ export function DbManager({ config }) {
                                             config={config}
                                             local={true}
                                             defaultPath={item.data.path}
+                                        />
+                                    }
+                                    {item.type == 'tcp/udp' &&
+                                        <SocketHome
+                                            config={config}
+                                            // local={true}
+                                            // defaultPath={item.data.path}
                                         />
                                     }
                             </div>

@@ -44,8 +44,8 @@ export function EsConnnector({ config, onConnnect }) {
     }, [])
 
     async function  connect() {
-        setLoading(true)
         const values = await form.validateFields()
+        setLoading(true)
         const pureUrl = values.url.replace(/\/$/, '')
         const reqData = {
             url: pureUrl,

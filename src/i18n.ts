@@ -314,6 +314,7 @@ i18n
                     'processing': 'Processing',
                     'access_key.create': 'Create AccessKey',
                     'access_key.update': 'Update AccessKey',
+                    'tcp/udp': 'TCP/UDP',
                 }
             },
             zh: {
@@ -621,6 +622,7 @@ i18n
                     'processing': '正在处理',
                     'access_key.create': '创建 AccessKey',
                     'access_key.update': '编辑 AccessKey',
+                    'tcp/udp': 'TCP/UDP',
                 }
             }
         },
