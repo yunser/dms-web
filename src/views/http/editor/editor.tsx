@@ -16,6 +16,7 @@ import {
     message,
     Empty,
     Modal,
+    Tree,
 } from 'antd';
 // import { LikeOutlined, UserOutlined } from '@ant-design/icons';
 // import type { ProSettings } from '@ant-design/pro-layout';
@@ -32,9 +33,12 @@ import {
 import axios from 'axios'
 import qs from 'qs'
 import { useTranslation, Trans } from "react-i18next";
-import classes from './editor.module.less'
+import styles from './editor.module.less'
 import { t } from 'i18next';
 import { request } from '@/views/db-manager/utils/http';
+import { IconButton } from '@/views/db-manager/icon-button';
+import { ReloadOutlined } from '@ant-design/icons';
+import { useEventEmitter } from 'ahooks';
 
 // const Confirm = 
 const { TabPane } = Tabs;
@@ -51,7 +55,7 @@ function MyTable({ dataSource = [], columns = [], onChange }) {
     return (
         <div>
 
-            <table className={classes.table}>
+            <table className={styles.table}>
                 <thead>
                     <tr>
                         <th>{t('key')}</th>
@@ -119,7 +123,7 @@ function MyTable({ dataSource = [], columns = [], onChange }) {
                 </tbody>
             </table>
             <Button
-                className={classes.add}
+                className={styles.add}
                 onClick={() => {
                     onChange && onChange([
                         ...dataSource,
@@ -135,7 +139,7 @@ function MyTable({ dataSource = [], columns = [], onChange }) {
     )
 }
 
-function Files({ config, serviceInfo, onClickItem }) {
+function Files({ event$, config, serviceInfo, onClickItem }) {
 
     const [files, setFiles] = useState([
         {
@@ -157,6 +161,9 @@ function Files({ config, serviceInfo, onClickItem }) {
             ],
         },
     ])
+    // tree
+    const [treeData, setTreeData] = useState([])
+    const [expandedKeys, setExpandedKeys] = useState([])
 
     async function loadData() {
         // if (!host) {
@@ -164,15 +171,44 @@ function Files({ config, serviceInfo, onClickItem }) {
         // }
         let res = await request.post(`${config.host}/file/list`, {
             path: serviceInfo.rootPath,
+            r: true,
         })
         // console.log('res', res)
         if (res.success) {
             // setList(res.data.list)
-            setFiles(res.data.list)
+            const files = res.data.list
+                .sort((a, b) => {
+                    return a.name.localeCompare(b.name)
+                })
+            setFiles(files)
+
+            function handleList(list) {
+                return list.map(item => {
+                    const ret = {
+                        title: item.name,
+                        key: item.path,
+                        itemData: item,
+                        children: [],
+                    }
+                    if (item && item.children) {
+                        ret.children = handleList(item.children)
+                    }
+                    return ret
+                })
+            }
+            setTreeData(handleList(files))
         }
         // const res = await axios.get(`${host}/file/list`)
         // console.log('res', res.data)
     }
+
+    event$.useSubscription(msg => {
+        // console.log('dbManager/onmessage', msg)
+        // console.log(val);
+        if (msg.type == 'type_reload_file') {
+            loadData()
+        }
+    }, [])
 
     useEffect(() => {
         loadData()
@@ -188,36 +224,62 @@ function Files({ config, serviceInfo, onClickItem }) {
         
 
         return (
-            <div className={classes.fileList}
-            >
-                {list.sort((a, b) => {
-                    return a.name.localeCompare(b.name)
-                }).map(item => {
-                    return (
-                        <div className={classes.item}
-                            
-                        >
-                            <div className={classes.nameBox}
-                                style={{
-                                    paddingLeft: level * 20 + 16,
-                                }}
-                                onClick={() => {
-                                    onClickItem && onClickItem(item)
-                                }}
-                            >
-                                <i className={`iconfont icon-${item.type == 'DIRECTORY' ? 'folder' : 'file'} ${classes.icon}`}></i>
-                                <div className={classes.name}>{item.name}</div>
-                            </div>
-                            {item.children && item.children.length &&
-                                <div className={classes.folder}
-                                >
-                                    <FileList list={item.children} level={level + 1} />
-                                </div>
-                            }
-                        </div>
-                    )
-                })}
+            <div>
+                <div className={styles.header}>
+                    <IconButton
+                        tooltip={t('refresh')}
+                        // size="small"
+                        className={styles.refresh}
+                        onClick={() => {
+                            // loadKey()
+                            loadData()
+                        }}
+                    >
+                        <ReloadOutlined />
+                    </IconButton>
+                </div>
+                <Tree
+                    treeData={treeData}
+                    expandedKeys={expandedKeys}
+                    onExpand={(expandedKeys) => {
+                        setExpandedKeys(expandedKeys)
+                    }}
+                    onSelect={(selectedKeys, info) => {
+                        console.log('info', info.node.itemData)
+                        onClickItem && onClickItem(info.node.itemData)
+                    }}
+                />
             </div>
+            // <div className={classes.fileList}
+            // >
+            //     {list.sort((a, b) => {
+            //         return a.name.localeCompare(b.name)
+            //     }).map(item => {
+            //         return (
+            //             <div className={classes.item}
+                            
+            //             >
+            //                 <div className={classes.nameBox}
+            //                     style={{
+            //                         paddingLeft: level * 20 + 16,
+            //                     }}
+            //                     onClick={() => {
+            //                         onClickItem && onClickItem(item)
+            //                     }}
+            //                 >
+            //                     <i className={`iconfont icon-${item.type == 'DIRECTORY' ? 'folder' : 'file'} ${classes.icon}`}></i>
+            //                     <div className={classes.name}>{item.name}</div>
+            //                 </div>
+            //                 {item.children && item.children.length &&
+            //                     <div className={classes.folder}
+            //                     >
+            //                         <FileList list={item.children} level={level + 1} />
+            //                     </div>
+            //                 }
+            //             </div>
+            //         )
+            //     })}
+            // </div>
         )
     }
 
@@ -440,14 +502,14 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
     console.log('SingleEditor.api', api)
 
     return (
-        <div className={classes.singleEditor}>
+        <div className={styles.singleEditor}>
             {/* <h1>HTTP</h1> */}
-            {!!host &&
-                <div className={classes.nameBox}>
+            {!!serviceInfo &&
+                <div className={styles.nameBox}>
                     {/* 名称： */}
                     {/* {api.name} */}
                     <Input
-                        className={classes.name}
+                        className={styles.name}
                         value={api.name}
                         onChange={e => {
                             setName(e.target.value)
@@ -457,7 +519,7 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
             }
             {/* <Space>
             </Space> */}
-            <div className={classes.headerBox}>
+            <div className={styles.headerBox}>
                 <Select
                     value={method}
                     options={[
@@ -498,22 +560,22 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
                     style={{ width: 560 }}
                 />
                 <Button
-                    className={classes.send}
+                    className={styles.send}
                     type="primary"
                     onClick={doRequest}>{t('send')}</Button>
                 {!!serviceInfo &&
                     <Button
-                        className={classes.send}
+                        className={styles.send}
                         onClick={save}>保存</Button>
                 }
                 {!!host &&
                     <Button
-                        className={classes.send}
+                        className={styles.send}
                         danger
                         onClick={remove}>删除</Button>
                 }
             </div>
-            <div className={classes.requestBox}>
+            <div className={styles.requestBox}>
                 {/* <div>Params</div> */}
                 <Tabs
                     activeKey={reqTab}
@@ -578,7 +640,7 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
                         {/* {(method === MethodKey.Post || method === MethodKey.Put) && (
                         )} */}
                         <div>
-                            <div className={classes.typeBox}>请求内容（application/json）：</div>
+                            <div className={styles.typeBox}>请求内容（application/json）：</div>
                             <Input.TextArea
                                 value={body}
                                 rows={8}
@@ -590,14 +652,14 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
                     </div>
                 }
             </div>
-            <div className={classes.responseBox}>
+            <div className={styles.responseBox}>
                 {!!response ?
                     <div>
                         {loading ? (
                             <div>请求中</div>
                         ) : (
                             <div>
-                                <div className={classes.header}>
+                                <div className={styles.header}>
                                     <Tabs
                                         activeKey={resTab}
                                         onChange={key => {
@@ -648,7 +710,7 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
                         
                     </div>
                 :
-                    <div className={classes.empty}>
+                    <div className={styles.empty}>
                         <Empty description={t('no_request')}></Empty>
                         {/* Empty */}
                     </div>
@@ -722,6 +784,8 @@ export function HttpEditor({ config, host }) {
     const [serviceInfo, setServiceInfo] = useState(null)
     const activeTab = tabs[curTabIdx]
 
+    const event$ = useEventEmitter()
+    
     const onEdit = (targetKey: string, action: 'add' | 'remove') => {
         console.log('onEdit', targetKey, action)
         console.log('onEdit.tabs', tabs)
@@ -761,13 +825,13 @@ export function HttpEditor({ config, host }) {
     console.log('Editor.render')
     console.log('Editor.tabs', tabs.length)
     return (
-        <div className={classes.editor}>
+        <div className={styles.editor}>
             {false &&
-                <div className={classes.editorTop}>
+                <div className={styles.editorTop}>
                     <div>{!!host ? '在线模式（数据保存在服务器）' : t('local_mode')}</div>
                     {/* <ServiceStatus /> */}
                     <Space>
-                        <div className={classes.lang}
+                        <div className={styles.lang}
                             onClick={() => {
                                 i18n.changeLanguage(lang == 'zh' ? 'en' : 'zh')
                             }}
@@ -787,13 +851,14 @@ export function HttpEditor({ config, host }) {
                     </Space>
                 </div>
             }
-            <div className={classes.editorContent}>
+            <div className={styles.editorContent}>
                 {/* !!host &&  */}
                 {!!serviceInfo &&
-                    <div className={classes.editorLeft}>
+                    <div className={styles.editorLeft}>
                         <Files
                             config={config}
                             host={host}
+                            event$={event$}
                             serviceInfo={serviceInfo}
                             onClickItem={async item => {
                                 console.log('item', item)
@@ -843,8 +908,8 @@ export function HttpEditor({ config, host }) {
                         />
                     </div>
                 }
-                <div className={classes.editorRight}>
-                    <div className={classes.editorTabs}>
+                <div className={styles.editorRight}>
+                    <div className={styles.editorTabs}>
                         <Tabs
                             
                             type="editable-card"
@@ -904,6 +969,14 @@ export function HttpEditor({ config, host }) {
                                     path: _path,
                                     content: JSON.stringify(activeTab.api, null, 4)
                                 })
+                                if (res.success) {
+                                    event$.emit({
+                                        type: 'type_reload_file',
+                                        data: {
+                                            // theme: getTheme(),
+                                        }
+                                    })
+                                }
                             }}
                             onRemove={async () => {
                                 // if (activeTab.path) {}
@@ -925,7 +998,7 @@ export function HttpEditor({ config, host }) {
                         />
                     }
                     {activeTab.type == 'TEXT' &&
-                        <div className={classes.contentBox}>
+                        <div className={styles.contentBox}>
                             <pre>{activeTab.content}</pre>
                         </div>
                     }
