@@ -23,6 +23,7 @@ import { MergeModal } from '../merge-modal';
 import { HistoryList } from '../history-list';
 import { UserSetting } from '../user-setting';
 import { request } from '@/views/db-manager/utils/http';
+import { GitStat } from '../git-stat';
 // import { saveAs } from 'file-saver'
 
 export function GitProject({ config, event$, project, onList }) {
@@ -47,6 +48,10 @@ export function GitProject({ config, event$, project, onList }) {
         {
             label: t('git.commits'),
             key: 'commit-list',
+        },
+        {
+            label: t('git.stat'),
+            key: 'git-stat',
         },
     ]
 
@@ -255,6 +260,14 @@ export function GitProject({ config, event$, project, onList }) {
                                 }
                                 {item.key == 'commit-list' &&
                                     <CommitList
+                                        config={config}
+                                        event$={event$}
+                                        projectPath={projectPath}
+                                        branchs={branchs}
+                                    />
+                                }
+                                {item.key == 'git-stat' &&
+                                    <GitStat
                                         config={config}
                                         event$={event$}
                                         projectPath={projectPath}

@@ -20,7 +20,7 @@ import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/db-manager/redis-client';
 // import { saveAs } from 'file-saver'
 
-export function GitHome() {
+export function GitHome({ event$, }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [curProject, setCurProject] = useState(null)
@@ -49,7 +49,7 @@ export function GitHome() {
         // return projects
     }, [projects, keyword])
 
-    const event$ = useEventEmitter()
+    // const event$ = useEventEmitter()
 
     const [cloneModalVisible, setCloneModalVisible] = useState(false)
     const [projectItem, setProjectItem] = useState(null)

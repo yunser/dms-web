@@ -731,6 +731,7 @@ export function DbManager({ config }) {
                                     }
                                     {item.type == 'git-project' &&
                                         <GitHome
+                                            event$={event$}
                                         />
                                     }
                                     {item.type == 'oss-home' &&
