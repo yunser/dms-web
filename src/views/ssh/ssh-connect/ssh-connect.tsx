@@ -322,6 +322,7 @@ export function SshConnect({ config, tabKey, event$ }) {
                 <FileList
                     tabKey={tabKey}
                     config={config}
+                    event$={event$}
                     sourceType="ssh"
                     item={curItem}
                 />

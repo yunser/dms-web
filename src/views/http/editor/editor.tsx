@@ -285,7 +285,10 @@ function Files({ event$, config, serviceInfo, onClickItem }) {
 
     return (
         <div>
-            <FileList list={files} />
+            <FileList
+                list={files}
+                event$={event$}
+            />
         </div>
     )
 }

@@ -326,6 +326,7 @@ i18n
                     'pls_input_url': 'Please input URL',
                     'new_api': 'New API',
                     'local_mode': 'Local Mode (Data save in Memory)',
+                    'add_to_favorite': 'Add to Favorites',
                 }
             },
             zh: {
@@ -645,6 +646,7 @@ i18n
                     'pls_input_url': '请输入 URL',
                     'new_api': '新建接口',
                     'local_mode': '本地模式（数据保存在内存）',
+                    'add_to_favorite': '添加到收藏',
                 }
             }
         },

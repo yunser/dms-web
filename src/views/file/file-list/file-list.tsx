@@ -67,7 +67,7 @@ function getParentPath(curPath: string) {
     return newPath || '/'
 }
 
-function CollectionList({ config, onItemClick }) {
+function CollectionList({ config, event$, onItemClick }) {
 
     const [list, setList] = useState([])
 
@@ -85,6 +85,20 @@ function CollectionList({ config, onItemClick }) {
     useEffect(() => {
         loadList()
     }, [])
+
+    event$ && event$.useSubscription(msg => {
+        console.log('Status/onmessage', msg)
+        // console.log(val);
+        if (msg.type == 'refresh_side') {
+            loadList()
+        }
+        // else if (msg.type == 'event_reload_use') {
+        //     const { connectionId: _connectionId, schemaName } = msg.data
+        //     if (_connectionId == connectionId) {
+        //         heartBeat()
+        //     }
+        // }
+    })
 
     return (
         <div className={styles.collList}>
@@ -106,7 +120,8 @@ function CollectionList({ config, onItemClick }) {
 
 export function FileList({ config, sourceType: _sourceType = 'local', event$, tabKey,
     item, webdavItem, ossItem }) {
-    const showSide = _sourceType == 'local'
+    // const showSide = _sourceType == 'local'
+    const showSide = true
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [list, setList] = useState<File[]>([])
@@ -701,6 +716,19 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         setFileEditModalVisible(true)
     }
 
+    async function favorite(path) {
+        let res = await request.post(`${config.host}/file/collection/create`, {
+            path,
+        })
+        // console.log('res', res)
+        if (res.success) {
+            // setList(res.data.list)
+            event$.emit({
+                type: 'refresh_side'
+            })
+        }
+    }
+
     function uploadFile({ file, name, onSuccess = () => {} }) {
         let formData = new FormData()
         console.log('file', file)
@@ -793,6 +821,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                     }
                     <CollectionList
                         config={config}
+                        event$={event$}
                         onItemClick={item => {
                             setCurPath(item.path)
                         }}
@@ -919,11 +948,18 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                             copy(curPath)
                                             message.info(t('copied'))
                                         }
+                                        if (key == 'add_to_favorite') {
+                                            favorite(curPath)
+                                        }
                                     }}
                                     items={[
                                         {
                                             label: t('file.copy_path'),
                                             key: 'copy_path',
+                                        },
+                                        {
+                                            label: t('add_to_favorite'),
+                                            key: 'add_to_favorite',
                                         },
                                     ]}
                                 />
