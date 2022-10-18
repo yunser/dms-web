@@ -327,6 +327,7 @@ i18n
                     'new_api': 'New API',
                     'local_mode': 'Local Mode (Data save in Memory)',
                     'add_to_favorite': 'Add to Favorites',
+                    'clear': 'Clear',
                 }
             },
             zh: {
@@ -647,6 +648,7 @@ i18n
                     'new_api': '新建接口',
                     'local_mode': '本地模式（数据保存在内存）',
                     'add_to_favorite': '添加到收藏',
+                    'clear': '清空',
                 }
             }
         },

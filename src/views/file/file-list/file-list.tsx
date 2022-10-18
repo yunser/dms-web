@@ -658,6 +658,18 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         setFileInfoPath(item.path)
     }
 
+    async function clearItem(item) {
+        let res = await request.post(`${config.host}/file/write`, {
+            path: item.path,
+            sourceType,
+            content: '',
+        })
+        // console.log('res', res)
+        if (res.success) {
+            loadList()
+        }
+    }
+
     function cutItem(item: File) {
         if (item.type != 'FILE') {
             message.error('暂不支持复制文件夹')
@@ -1098,6 +1110,9 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                 else if (key == 'finder') {
                                                                     openInFinder(item.path)
                                                                 }
+                                                                else if (key == 'clear') {
+                                                                    clearItem(item)
+                                                                }
                                                             }}
                                                             items={[
                                                                 {
@@ -1140,6 +1155,10 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                 {
                                                                     label: t('delete'),
                                                                     key: 'delete_file',
+                                                                },
+                                                                {
+                                                                    label: t('clear'),
+                                                                    key: 'clear',
                                                                 },
                                                                 {
                                                                     type: 'divider',
