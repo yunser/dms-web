@@ -312,6 +312,7 @@ i18n
                     'markdown': 'Markdown',
                     'path': 'Path',
                     'oss': 'OSS',
+                    'oss_info': 'OSS Infomation',
                     'webdav': 'WebDAV',
                     'processing': 'Processing',
                     'access_key.create': 'Create AccessKey',
@@ -330,6 +331,8 @@ i18n
                     'add_to_favorite': 'Add to Favorites',
                     'remove_from_favorite': 'Remove from Favorite',
                     'clear': 'Clear',
+                    'link': 'Link',
+                    'copy_link': 'Copy Link',
                 }
             },
             zh: {
@@ -635,6 +638,7 @@ i18n
                     'markdown': 'Markdown',
                     'path': '路径',
                     'oss': 'OSS',
+                    'oss_info': 'OSS 信息',
                     'webdav': 'WebDAV',
                     'processing': '正在处理',
                     'access_key.create': '创建 AccessKey',
@@ -653,6 +657,8 @@ i18n
                     'add_to_favorite': '添加到收藏',
                     'remove_from_favorite': '取消收藏',
                     'clear': '清空',
+                    'link': '链接',
+                    'copy_link': '复制链接',
                 }
             }
         },

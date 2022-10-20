@@ -25,6 +25,11 @@ import { FilePathModal } from '../file-path';
 import { FileInfo } from '../file-info';
 import { getIconForFile, getIconForFolder, getIconForOpenFolder } from 'vscode-icons-js';
 import { FilePasteModal } from '../file-paste';
+import { OssInfoModal } from '@/views/oss/oss-info/oss-info';
+
+function visibleFilter(list) {
+    return list.filter(item => item.visible != false)
+}
 
 function myGetIconForFile(path) {
     const _path = path.toLowerCase()
@@ -144,6 +149,9 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
     const [fileEditModalVisible, setFileEditModalVisible] = useState(false)
     const [pathModalVisible, setPathModalVisible] = useState(false)
     
+    const [ossInfoItem, setOssInfoItem] = useState(true)
+    const [ossInfoVisible, setOssInfoVisible] = useState(false)
+
     const [infoVisible, setInfoVisible] = useState(false)
     const [fileInfoPath, setFileInfoPath] = useState('')
     
@@ -728,6 +736,11 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         }
     }
 
+    async function viewItemOssInfo(item) {
+        setOssInfoItem(item)
+        setOssInfoVisible(true)
+    }
+
     async function editItem(item) {
         setFileModalPath(item.path)
         setFileEditModalVisible(true)
@@ -1121,8 +1134,11 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                 else if (key == 'open_with_nginx') {
                                                                     openWithLog(item)
                                                                 }
+                                                                else if (key == 'oss_info') {
+                                                                    viewItemOssInfo(item)
+                                                                }
                                                             }}
-                                                            items={[
+                                                            items={visibleFilter([
                                                                 {
                                                                     label: t('open'),
                                                                     key: 'open',
@@ -1130,6 +1146,11 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                 {
                                                                     label: t('open_with_text_editor'),
                                                                     key: 'edit',
+                                                                },
+                                                                {
+                                                                    visible: sourceType.includes('oss'),
+                                                                    label: t('oss_info'),
+                                                                    key: 'oss_info',
                                                                 },
                                                                 // {
                                                                 //     label: t('open_with_nginx'),
@@ -1183,7 +1204,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                     label: t('file.copy_path'),
                                                                     key: 'copy_path',
                                                                 },
-                                                            ]}
+                                                            ])}
                                                         />
                                                     }
                                                 >
@@ -1366,6 +1387,23 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                             name,
                         })
                     }}
+                />
+            }
+            {ossInfoVisible &&
+                <OssInfoModal
+                    config={config}
+                    sourceType={sourceType}
+                    item={ossInfoItem}
+                    onCancel={() => {
+                        setOssInfoVisible(false)
+                    }}
+                    // onOk={({ name }) => {
+                    //     setOssInfoVisible(false)
+                    //     uploadFile({
+                    //         file: pasteFile,
+                    //         name,
+                    //     })
+                    // }}
                 />
             }
         </div>
