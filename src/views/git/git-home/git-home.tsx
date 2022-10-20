@@ -20,6 +20,10 @@ import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/db-manager/redis-client';
 // import { saveAs } from 'file-saver'
 
+function visibleFilter(list) {
+    return list.filter(item => item.visible != false)
+}
+
 export function GitHome({ event$, }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
@@ -120,6 +124,35 @@ export function GitHome({ event$, }) {
                 }
             }
         })
+    }
+
+    async function addToFavorite(item, isFavorite) {
+        let res = await request.post(`${config.host}/git/project/update`, {
+            id: item.id,
+            data: {
+                isFavorite,
+            },
+        })
+        console.log('get/res', res.data)
+        if (res.success) {
+            message.success(t('success'))
+            // onSuccess && onSuccess()
+            loadList()
+            // loadKeys()
+            // setResult(null)
+            // setResult({
+            //     key: item,
+            //     ...res.data,
+            // })
+            // setInputValue(res.data.value)
+        }
+        // Modal.confirm({
+        //     title: '',
+        //     // icon: <ExclamationCircleOutlined />,
+        //     content: `${t('delete')}「${item.name}」?（不会删除项目文件）`,
+        //     async onOk() {
+        //     }
+        // })
     }
 
     return (
@@ -253,7 +286,17 @@ export function GitHome({ event$, }) {
                                                         trigger={['click']}
                                                         overlay={
                                                             <Menu
-                                                                items={[
+                                                                items={visibleFilter([
+                                                                    {
+                                                                        visible: !item.isFavorite,
+                                                                        label: t('add_to_favorite'),
+                                                                        key: 'add_to_favorite',
+                                                                    },
+                                                                    {
+                                                                        visible: !!item.isFavorite,
+                                                                        label: t('remove_from_favorite'),
+                                                                        key: 'remove_from_favorite',
+                                                                    },
                                                                     {
                                                                         label: t('edit'),
                                                                         key: 'edit',
@@ -261,8 +304,9 @@ export function GitHome({ event$, }) {
                                                                     {
                                                                         label: t('delete'),
                                                                         key: 'delete',
+                                                                        danger: true,
                                                                     },
-                                                                ]}
+                                                                ])}
                                                                 onClick={({ key, domEvent }) => {
                                                                     // domEvent.preventDefault()
                                                                     domEvent.stopPropagation()
@@ -271,6 +315,12 @@ export function GitHome({ event$, }) {
                                                                     }
                                                                     else if (key == 'edit') {
                                                                         editProject(item)
+                                                                    }
+                                                                    else if (key == 'add_to_favorite') {
+                                                                        addToFavorite(item, true)
+                                                                    }
+                                                                    else if (key == 'remove_from_favorite') {
+                                                                        addToFavorite(item, false)
                                                                     }
                                                                 }}
                                                             />

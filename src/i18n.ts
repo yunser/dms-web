@@ -279,6 +279,7 @@ i18n
                     'git.delete_file': 'Delete File',
                     'git.discard_change': 'Discard Changes',
                     'git.repository.create': 'Create Repository',
+                    'git.repository.update': 'Update Repository',
                     'git.refs': 'Refs',
                     'git.after': 'After',
                     'git.stat': 'Statistics',
@@ -327,6 +328,7 @@ i18n
                     'new_api': 'New API',
                     'local_mode': 'Local Mode (Data save in Memory)',
                     'add_to_favorite': 'Add to Favorites',
+                    'remove_from_favorite': 'Remove from Favorite',
                     'clear': 'Clear',
                 }
             },
@@ -600,6 +602,7 @@ i18n
                     'git.delete_file': '删除文件',
                     'git.discard_change': '丢弃文件',
                     'git.repository.create': '新建仓库',
+                    'git.repository.update': '编辑仓库',
                     'git.refs': '引用',
                     'git.after': '修改后',
                     'git.stat': '统计',
@@ -648,6 +651,7 @@ i18n
                     'new_api': '新建接口',
                     'local_mode': '本地模式（数据保存在内存）',
                     'add_to_favorite': '添加到收藏',
+                    'remove_from_favorite': '取消收藏',
                     'clear': '清空',
                 }
             }

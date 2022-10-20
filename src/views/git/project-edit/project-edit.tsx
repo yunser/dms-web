@@ -153,7 +153,7 @@ export function ProjectEditor({ config, item, createType, sourceType = 'exist', 
     return (
         <Modal
             visible={true}
-            title={t('git.repository.create')}
+            title={editType == 'create' ? t('git.repository.create') : t('git.repository.update')}
             onCancel={onCancel}
             onOk={handleOk}
             confirmLoading={loading}
