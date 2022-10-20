@@ -67,10 +67,22 @@ export function OssHome({ onClickItem }) {
             }
         })
 
-        if (!keyword) {
-            return buckets    
+        const sorter = (a, b) => {
+            function score(item) {
+                if (item.isFavorite) {
+                    return 100
+                }
+                return 0
+            }
+            return score(b) - score(a)
         }
-        return buckets.filter(p => p.name.toLowerCase().includes(keyword.toLowerCase()))
+        
+        if (!keyword) {
+            return buckets.sort(sorter)
+        }
+        return buckets
+            .filter(p => p.name.toLowerCase().includes(keyword.toLowerCase()))
+            .sort(sorter)
         // return projects
     }, [accessKeys, keyword, selectedKeys])
 
@@ -348,16 +360,17 @@ export function OssHome({ onClickItem }) {
                                                     }}
                                                 >
                                                     <div className={styles.name}>{item.name}</div>
-                                                    <IconButton
-                                                        // tooltip={t('add')}
-                                                        className={styles.refresh}
-                                                        // onClick={() => {
-                                                        //     setProjectModalVisible(true)
-                                                        // }}
-                                                    >
-                                                        <StarFilled />
-                                                        {/* <EllipsisOutlined /> */}
-                                                    </IconButton>
+                                                    {!!item.isFavorite &&
+                                                        // <IconButton
+                                                        //     // tooltip={t('add')}
+                                                        //     className={styles.favoriteIcon}
+                                                        //     // onClick={() => {
+                                                        //     //     setProjectModalVisible(true)
+                                                        //     // }}
+                                                        // >
+                                                        // </IconButton>
+                                                        <StarFilled className={styles.favoriteIcon} />
+                                                    }
                                                     <Space
                                                         onClick={(e) => {
                                                             e.preventDefault()
