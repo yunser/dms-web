@@ -187,6 +187,21 @@ export function DbManager({ config }) {
             const { path } = msg.data
             openTerminal(path)
         }
+        else if (msg.type == 'event_open_folder') {
+            const { path } = msg.data
+            // openTerminal(path)
+            addOrActiveTab({
+                title: t('file') + `-${(window._fileCount++) + 1}`,
+                // key: 'redis-' + uid(16),
+                key: `file-${uid(16)}`,
+                type: 'file-home',
+                data: {
+                    sourceType: 'local',
+                    // url,
+                    path,
+                },
+            })
+        }
     })
 
     function closeTabByKey(key) {
@@ -671,6 +686,7 @@ export function DbManager({ config }) {
                                     {item.type == 'help' &&
                                         <Help
                                             config={config}
+                                            event$={event$}
                                         />
                                     }
                                     {item.type == 'json' &&
@@ -787,6 +803,7 @@ export function DbManager({ config }) {
                                             sourceType={item.data.sourceType}
                                             webdavItem={item.data.webdavItem}
                                             ossItem={item.data.ossItem}
+                                            defaultPath={item.data.path}
                                         />
                                     }
                                     {item.type == 'terminal' &&

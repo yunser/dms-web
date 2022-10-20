@@ -119,7 +119,7 @@ function CollectionList({ config, event$, onItemClick }) {
 }
 
 export function FileList({ config, sourceType: _sourceType = 'local', event$, tabKey,
-    item, webdavItem, ossItem }) {
+    item, webdavItem, ossItem, defaultPath: _defaultPath }) {
     // const showSide = _sourceType == 'local'
     const showSide = true
     // const { defaultJson = '' } = data
@@ -130,11 +130,11 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
     const [sourceType, setSourceType] = useState(_sourceType ? '' : (item ? '' : 'local'))
 
     const defaultPath =
-        _sourceType
-            ? '/'
+        _defaultPath ? _defaultPath
+            : _sourceType ? '/'
             : item ?
-                (item.username == 'root' ? '/root' : `/home/${item.username}`)
-                :
+            (item.username == 'root' ? '/root' : `/home/${item.username}`)
+            :
                 ''
 
     const [curPath, setCurPath] = useState(defaultPath)
@@ -366,7 +366,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
     }
 
     useEffect(() => {
-        if (showSide && sourceType == 'local') {
+        if (showSide && sourceType == 'local' && !_defaultPath) {
             loadInfo()
         }
     }, [showSide, sourceType])
@@ -402,6 +402,11 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         document.body.appendChild(link)
         link.click()
         console.log('link', link)
+    }
+
+    function openWithLog(item) {
+        const downloadUrl = `${config.host}/file/download?sourceType=${sourceType}&fileName=${encodeURIComponent(item.name)}&path=${encodeURIComponent(item.path)}`
+        window.open(`http://localhost:3002?data=${encodeURIComponent(downloadUrl)}`, '_blank')
     }
 
     async function openInFinder(path: string) {
@@ -1113,6 +1118,9 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                 else if (key == 'clear') {
                                                                     clearItem(item)
                                                                 }
+                                                                else if (key == 'open_with_nginx') {
+                                                                    openWithLog(item)
+                                                                }
                                                             }}
                                                             items={[
                                                                 {
@@ -1123,6 +1131,10 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                     label: t('open_with_text_editor'),
                                                                     key: 'edit',
                                                                 },
+                                                                // {
+                                                                //     label: t('open_with_nginx'),
+                                                                //     key: 'open_with_nginx',
+                                                                // },
                                                                 {
                                                                     label: t('info'),
                                                                     key: 'info',
