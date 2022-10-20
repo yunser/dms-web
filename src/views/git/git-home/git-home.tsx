@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { DownloadOutlined, EllipsisOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { DownloadOutlined, EllipsisOutlined, PlusOutlined, ReloadOutlined, StarFilled } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { CommitList } from '../commit-list';
@@ -70,7 +70,17 @@ export function GitHome({ event$, }) {
         // console.log('res', res)
         if (res.success) {
             // setProjects([])
+            function score(item) {
+                if (item.isFavorite) {
+                    return 100
+                }
+                return 0
+            }
             setProjects(res.data.list.sort((a, b) => {
+                // if (a)
+                if (a.isFavorite != b.isFavorite) {
+                    return score(b) - score(a)
+                }
                 return a.name.localeCompare(b.name)
             }))
             // setCurrent(res.data.current)
@@ -209,7 +219,20 @@ export function GitHome({ event$, }) {
                                                     setCurProject(item)
                                                 }}
                                             >
-                                                <div className={styles.name}>{item.name}</div>
+                                                <Space>
+                                                    <div className={styles.name}>{item.name}</div>
+                                                    {!!item.isFavorite &&
+                                                        // <IconButton
+                                                        //     // tooltip={t('add')}
+                                                        //     className={styles.favoriteIcon}
+                                                        //     // onClick={() => {
+                                                        //     //     setProjectModalVisible(true)
+                                                        //     // }}
+                                                        // >
+                                                        // </IconButton>
+                                                        <StarFilled className={styles.favoriteIcon} />
+                                                    }
+                                                </Space>
                                                 <Space
                                                     onClick={(e) => {
                                                         e.preventDefault()

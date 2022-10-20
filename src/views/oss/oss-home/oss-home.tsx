@@ -67,13 +67,13 @@ export function OssHome({ onClickItem }) {
             }
         })
 
-        const sorter = (a, b) => {
-            function score(item) {
-                if (item.isFavorite) {
-                    return 100
-                }
-                return 0
+        function score(item) {
+            if (item.isFavorite) {
+                return 100
             }
+            return 0
+        }
+        const sorter = (a, b) => {
             return score(b) - score(a)
         }
         
