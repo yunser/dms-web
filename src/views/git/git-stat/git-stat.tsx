@@ -60,7 +60,7 @@ function CalenderChart({ list }) {
             },
             series: [
               {
-                data,
+                data: data.reverse(),
                 type: 'line'
               }
             ]
