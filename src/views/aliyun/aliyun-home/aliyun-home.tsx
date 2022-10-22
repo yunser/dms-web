@@ -45,7 +45,7 @@ export function AliyunHome({ config, onClickItem }) {
     const [certList, setCertList] = useState([])
     const [domainList, setDomainList] = useState([])
     const [billingList, setBillingList] = useState([])
-    const [tab, setTab] = useState('ecs')
+    const [tab, setTab] = useState('main')
 
     async function loadData() {
         let res = await request.post(`${config.host}/file/aliyun`, {
@@ -92,7 +92,11 @@ export function AliyunHome({ config, onClickItem }) {
 
     if (!installed) {
         return (
-            <div>未安装 @yunser/aliyun-cli</div>
+            <div className={styles.installBox}>
+                <div>本功能依赖于 <a href="https://github.com/yunser/aliyun-cli" target="_blank">@yunser/aliyun-cli</a>，
+                    请安装并生成数据后，再刷新此页面
+                </div>
+            </div>
         )
     }
 
@@ -221,6 +225,12 @@ export function AliyunHome({ config, onClickItem }) {
         </div>
     )
 
+    const main = (
+        <div>
+            欢迎使用阿里云助手
+        </div>
+    )
+
     return (
         <div className={styles.container} key={tab}>
             <div>
@@ -238,6 +248,11 @@ export function AliyunHome({ config, onClickItem }) {
                     setTab(key)
                 }}
                 items={[
+                    {
+                        label: '概览',
+                        key: 'main',
+                        children: main,
+                    },
                     {
                         label: 'ECS',
                         key: 'ecs',
