@@ -34,6 +34,7 @@ import { SocketHome } from '../socket/socket-home'
 import { HttpEditor } from '../http/editor'
 import { JsonTable } from '../json/json-table'
 import { AliyunHome } from '../aliyun/aliyun-home'
+import { IpHome } from '../ip/ip-home'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -470,6 +471,16 @@ export function DbManager({ config }) {
                                         },
                                     })
                                 }
+                                else if (key == 'ip') {
+                                    addOrActiveTab({
+                                        title: t('ip'),
+                                        key: `ip-0`,
+                                        type: 'ip',
+                                        data: {
+                                            // url,
+                                        },
+                                    })
+                                }
                             }}
                             items={[
                                 {
@@ -523,6 +534,10 @@ export function DbManager({ config }) {
                                 {
                                     label: t('aliyun'),
                                     key: 'aliyun',
+                                },
+                                {
+                                    label: t('ip'),
+                                    key: 'ip',
                                 },
                                 {
                                     label: t('elasticsearch'),
@@ -867,6 +882,13 @@ export function DbManager({ config }) {
                                     }
                                     {item.type == 'aliyun' &&
                                         <AliyunHome
+                                            config={config}
+                                            // local={true}
+                                            // defaultPath={item.data.path}
+                                        />
+                                    }
+                                    {item.type == 'ip' &&
+                                        <IpHome
                                             config={config}
                                             // local={true}
                                             // defaultPath={item.data.path}
