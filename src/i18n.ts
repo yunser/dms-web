@@ -249,6 +249,7 @@ i18n
                     'git.branch.name': 'Branch Name',
                     'git.push': 'Push',
                     'git.push.push_branch': 'Push Branch',
+                    'git.push.force_push': 'Force Push',
                     'git.pull': 'Pull',
                     'git.pull.remoteBranch': 'Remote Branch to pull',
                     'git.pull.localBranch': 'Local Branch to merge',
@@ -333,6 +334,7 @@ i18n
                     'clear': 'Clear',
                     'link': 'Link',
                     'copy_link': 'Copy Link',
+                    'aliyun': 'Alibaba Cloud',
                 }
             },
             zh: {
@@ -575,6 +577,7 @@ i18n
                     'git.branch.name': '分支名',
                     'git.push': '推送',
                     'git.push.push_branch': '推送分支',
+                    'git.push.force_push': '强制推送',
                     'git.pull': '拉取',
                     'git.pull.remoteBranch': '拉取的远程分支',
                     'git.pull.localBranch': '拉取到的本地分支',
@@ -659,6 +662,7 @@ i18n
                     'clear': '清空',
                     'link': '链接',
                     'copy_link': '复制链接',
+                    'aliyun': '阿里云',
                 }
             }
         },

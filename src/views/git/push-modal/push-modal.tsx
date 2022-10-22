@@ -171,7 +171,7 @@ export function PushModal({ config, event$, projectPath, onSuccess, onCancel }) 
                         <Select
                             options={[
                                 {
-                                    label: '强制推送',
+                                    label: t('git.push.force_push'),
                                     value: 'force',
                                 }
                             ]}

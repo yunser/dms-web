@@ -32,6 +32,8 @@ import { OssHome } from '../oss/oss-home'
 import { WebDavHome } from '../webdav/webdav-home'
 import { SocketHome } from '../socket/socket-home'
 import { HttpEditor } from '../http/editor'
+import { JsonTable } from '../json/json-table'
+import { AliyunHome } from '../aliyun/aliyun-home'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -448,6 +450,26 @@ export function DbManager({ config }) {
                                         },
                                     })
                                 }
+                                else if (key == 'json_table') {
+                                    addOrActiveTab({
+                                        title: t('json_table'),
+                                        key: `json_table-0`,
+                                        type: 'json-table',
+                                        data: {
+                                            // url,
+                                        },
+                                    })
+                                }
+                                else if (key == 'aliyun') {
+                                    addOrActiveTab({
+                                        title: t('aliyun'),
+                                        key: `aliyun-0`,
+                                        type: 'aliyun',
+                                        data: {
+                                            // url,
+                                        },
+                                    })
+                                }
                             }}
                             items={[
                                 {
@@ -493,6 +515,14 @@ export function DbManager({ config }) {
                                 {
                                     label: t('tcp/udp'),
                                     key: 'tcp/udp',
+                                },
+                                // {
+                                //     label: t('json_table'),
+                                //     key: 'json_table',
+                                // },
+                                {
+                                    label: t('aliyun'),
+                                    key: 'aliyun',
                                 },
                                 {
                                     label: t('elasticsearch'),
@@ -752,6 +782,7 @@ export function DbManager({ config }) {
                                     }
                                     {item.type == 'oss-home' &&
                                         <OssHome
+                                            event$={event$}
                                             onClickItem={item => {
                                                 console.log('item', item)
                                                 // return
@@ -822,6 +853,20 @@ export function DbManager({ config }) {
                                     }
                                     {item.type == 'http-home' &&
                                         <HttpEditor
+                                            config={config}
+                                            // local={true}
+                                            // defaultPath={item.data.path}
+                                        />
+                                    }
+                                    {item.type == 'json-table' &&
+                                        <JsonTable
+                                            config={config}
+                                            // local={true}
+                                            // defaultPath={item.data.path}
+                                        />
+                                    }
+                                    {item.type == 'aliyun' &&
+                                        <AliyunHome
                                             config={config}
                                             // local={true}
                                             // defaultPath={item.data.path}

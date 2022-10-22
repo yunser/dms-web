@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { DownloadOutlined, EllipsisOutlined, PlusOutlined, ReloadOutlined, StarFilled } from '@ant-design/icons';
+import { DownloadOutlined, EllipsisOutlined, ExportOutlined, PlusOutlined, ReloadOutlined, StarFilled } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { CommitList } from '../commit-list';
@@ -220,6 +220,20 @@ export function GitHome({ event$, }) {
                                         <PlusOutlined />
                                     </IconButton>
                                 </Dropdown>
+                                <IconButton
+                                    tooltip={t('export_json')}
+                                    onClick={() => {
+                                        event$.emit({
+                                            type: 'event_show_json',
+                                            data: {
+                                                json: JSON.stringify(projects, null, 4)
+                                                // connectionId,
+                                            },
+                                        })
+                                    }}
+                                >
+                                    <ExportOutlined />
+                                </IconButton>
                             </Space>
                         </div>
                         <div>

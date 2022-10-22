@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { DownloadOutlined, EllipsisOutlined, KeyOutlined, PlusOutlined, ReloadOutlined, StarFilled } from '@ant-design/icons';
+import { DownloadOutlined, EllipsisOutlined, ExportOutlined, KeyOutlined, PlusOutlined, ReloadOutlined, StarFilled } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 // import { GitProject } from '../git-project';
@@ -16,7 +16,7 @@ import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/db-manager/redis-client';
 // import { saveAs } from 'file-saver'
 
-export function OssHome({ onClickItem }) {
+export function OssHome({ event$, onClickItem }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [curProject, setCurProject] = useState(null)
@@ -29,7 +29,7 @@ export function OssHome({ onClickItem }) {
     const [accessKeys, setAccessKeys] = useState([])
     
 
-    const event$ = useEventEmitter()
+    // const event$ = useEventEmitter()
 
     const [projectItem, setProjectItem] = useState(null)
     const [projectModalVisible, setProjectModalVisible] = useState(false)
@@ -249,6 +249,20 @@ export function OssHome({ onClickItem }) {
                             }}
                         >
                             <PlusOutlined />
+                        </IconButton>
+                        <IconButton
+                            tooltip={t('export_json')}
+                            onClick={() => {
+                                event$.emit({
+                                    type: 'event_show_json',
+                                    data: {
+                                        json: JSON.stringify(accessKeys, null, 4)
+                                        // connectionId,
+                                    },
+                                })
+                            }}
+                        >
+                            <ExportOutlined />
                         </IconButton>
                     </Space>
                 </div>
