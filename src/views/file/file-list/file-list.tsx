@@ -983,8 +983,17 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                             copy(curPath)
                                             message.info(t('copied'))
                                         }
-                                        if (key == 'add_to_favorite') {
+                                        else if (key == 'add_to_favorite') {
                                             favorite(curPath)
+                                        }
+                                        else if (key == 'export_json') {
+                                            event$.emit({
+                                                type: 'event_show_json',
+                                                data: {
+                                                    json: JSON.stringify(list, null, 4)
+                                                    // connectionId,
+                                                },
+                                            })
                                         }
                                     }}
                                     items={[
@@ -995,6 +1004,10 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                         {
                                             label: t('add_to_favorite'),
                                             key: 'add_to_favorite',
+                                        },
+                                        {
+                                            label: t('export_json'),
+                                            key: 'export_json',
                                         },
                                     ]}
                                 />
