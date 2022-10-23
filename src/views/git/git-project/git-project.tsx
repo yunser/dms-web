@@ -53,6 +53,10 @@ export function GitProject({ config, event$, project, onList }) {
             label: t('git.stat'),
             key: 'git-stat',
         },
+        {
+            label: t('more'),
+            key: 'git-more',
+        },
     ]
 
     event$.useSubscription(msg => {
@@ -273,6 +277,13 @@ export function GitProject({ config, event$, project, onList }) {
                                         projectPath={projectPath}
                                         branchs={branchs}
                                     />
+                                }
+                                {item.key == 'git-more' &&
+                                    <div className={styles.moreBox}>
+                                        <a href="https://git-scm.com/doc" target="_blank">
+                                            {t('doc')}
+                                        </a>
+                                    </div>
                                 }
                             </div>
                         )
