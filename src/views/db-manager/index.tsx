@@ -1,4 +1,4 @@
-import React, { useState, useId, useEffect, ReactNode, useMemo } from 'react'
+import React, { useState, useId, useEffect, ReactNode, useMemo, useRef } from 'react'
 import styles from './index.module.less'
 import { message, Input, Button, Tabs, Space, Form, Checkbox, InputNumber, ConfigProvider, Tree, Empty, Modal, Dropdown, Menu } from 'antd'
 import storage from './storage'
@@ -35,6 +35,7 @@ import { HttpEditor } from '../http/editor'
 import { JsonTable } from '../json/json-table'
 import { AliyunHome } from '../aliyun/aliyun-home'
 import { IpHome } from '../ip/ip-home'
+import { Commander } from '../commander'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -89,7 +90,7 @@ export function DbManager({ config }) {
     const { t, i18n } = useTranslation()
     // console.log('i18n', i18n)
     const [aboutVisible, setAboutVisible] = useState(false)
-
+    const commanderRef = useRef(null)
     // const [lang, setLang] = useState('en')
     const lang = useMemo(() => {
         if (i18n.language.includes('zh')) {
@@ -227,6 +228,39 @@ export function DbManager({ config }) {
         setActiveKey(tab.key)
     }
 
+    function showJsonTab() {
+        addOrActiveTab({
+            title: t('json'),
+            key: 'json-' + uid(16),
+            type: 'json',
+            data: {
+                // url,
+            },
+        })
+    }
+
+    function showTextTab() {
+        addOrActiveTab({
+            title: '$i18n.text',
+            key: 'text-' + uid(16),
+            type: 'text',
+            data: {
+                // url,
+            },
+        })
+    }
+
+    function showIpTab() {
+        addOrActiveTab({
+            title: t('ip'),
+            key: `ip-0`,
+            type: 'ip',
+            data: {
+                // url,
+            },
+        })
+    }
+
     function handleTabChange(key: string) {
         console.log('set key', key)
         setActiveKey(key)
@@ -279,41 +313,10 @@ export function DbManager({ config }) {
                 {/* <Button
                     type="text"
                     onClick={() => {
-                        addOrActiveTab(tab_mySql)
-                    }}
-                >
-                    MySQL
-                </Button> */}
-                <Button
-                    type="text"
-                    onClick={() => {
-                        addOrActiveTab({
-                            title: t('json'),
-                            key: 'json-' + uid(16),
-                            type: 'json',
-                            data: {
-                                // url,
-                            },
-                        })
-                    }}
-                >
-                    {t('json')}
-                </Button>
-                <Button
-                    type="text"
-                    onClick={() => {
-                        addOrActiveTab({
-                            title: '$i18n.text',
-                            key: 'text-' + uid(16),
-                            type: 'text',
-                            data: {
-                                // url,
-                            },
-                        })
                     }}
                 >
                     {t('text')}
-                </Button>
+                </Button> */}
                 <Dropdown
                     overlay={
                         <Menu
@@ -472,20 +475,37 @@ export function DbManager({ config }) {
                                     })
                                 }
                                 else if (key == 'ip') {
-                                    addOrActiveTab({
-                                        title: t('ip'),
-                                        key: `ip-0`,
-                                        type: 'ip',
-                                        data: {
-                                            // url,
-                                        },
-                                    })
+                                    showIpTab()
+                                }
+                                else if (key == 'command') {
+                                    commanderRef.current?.show()
+                                }
+                                else if (key == 'json') {
+                                    showJsonTab()
+                                }
+                                else if (key == 'text') {
+                                    showTextTab()
                                 }
                             }}
                             items={[
                                 {
+                                    label: t('command'),
+                                    key: 'command',
+                                },
+                                {
+                                    type: 'divider',
+                                },
+                                {
                                     label: t('mysql'),
                                     key: 'mysql',
+                                },
+                                {
+                                    label: t('json'),
+                                    key: 'json',
+                                },
+                                {
+                                    label: t('text'),
+                                    key: 'text',
                                 },
                                 {
                                     label: t('redis'),
@@ -544,7 +564,6 @@ export function DbManager({ config }) {
                                     key: 'elasticsearch',
                                 },
                                 {
-                                    // ========
                                     type: 'divider',
                                 },
                                 {
@@ -736,9 +755,10 @@ export function DbManager({ config }) {
                                     }
                                     {item.type == 'json' &&
                                         <JsonEditor
-                                            config={config}
+                                            // config={config}
                                             event$={event$}
                                             data={item.data}
+                                            key={item.key}
                                         />
                                     }
                                     {item.type == 'text' &&
@@ -906,6 +926,45 @@ export function DbManager({ config }) {
                         }}
                     />
                 }
+
+                <Commander
+                    commands={[
+                        {
+                            name: 'IP',
+                            command: 'ip',
+                        },
+                        {
+                            name: t('about'),
+                            command: 'about',
+                        },
+                        {
+                            name: 'JSON',
+                            command: 'json',
+                        },
+                        {
+                            name: t('text'),
+                            command: 'text',
+                        },
+                    ]}
+                    onCommand={command => {
+                        console.log('command', command)
+                        if (command == 'ip') {
+                            showIpTab()
+                        }
+                        else if (command == 'about') {
+                            setAboutVisible(true)
+                        }
+                        else if (command == 'json') {
+                            showJsonTab()
+                        }
+                        else if (command == 'text') {
+                            showTextTab()
+                        }
+                    }}
+                    onRef={ref => {
+                        commanderRef.current = ref
+                    }}
+                />
             </div>
         </ConfigProvider>
     );

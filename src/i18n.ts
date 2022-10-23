@@ -336,6 +336,7 @@ i18n
                     'link': 'Link',
                     'copy_link': 'Copy Link',
                     'aliyun': 'Alibaba Cloud',
+                    'command.search': 'Search Commands',
                 }
             },
             zh: {
@@ -665,6 +666,7 @@ i18n
                     'link': '链接',
                     'copy_link': '复制链接',
                     'aliyun': '阿里云',
+                    'command.search': '搜索命令',
                 }
             }
         },

@@ -48,7 +48,8 @@ function SelectionInfo({ event$ }) {
 }
 
 // function Json
-export function JsonEditor({ config, event$, data = {} }) {
+export function JsonEditor({ key, event$, data = {} }) {
+    console.warn('JsonEditor/render', data)
     const { defaultJson = '' } = data
     const { t } = useTranslation()
 

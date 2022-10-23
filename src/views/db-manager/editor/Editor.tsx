@@ -16,9 +16,8 @@ export const Editor: VFC = ({ lang = 'sql',
     onEditor,
     onSelectionChange,
 }) => {
-	const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
     const editorRef = useRef(null)
-	const containerRef = useRef(null);
+	const containerRef = useRef<HTMLElement>(null);
 
     console.warn('Editor/render')
     // value = { code }
@@ -42,11 +41,10 @@ export const Editor: VFC = ({ lang = 'sql',
             // })
             // monaco.editor.setTheme('myTheme')
             if (editorRef.current) {
-                console.log('editor', editor)
                 // monaco.editor.
             }
         }
-    }, [editor])
+    }, [])
 
     useEffect(() => {
         const handleResize = () => {
@@ -57,12 +55,14 @@ export const Editor: VFC = ({ lang = 'sql',
         return () => {
             window.removeEventListener('resize', handleResize)
         }
-    }, [editor, editorRef, editorRef.current])
+    }, [editorRef, editorRef.current])
 
 	useEffect(() => {
-        let _editor = editor
-		if (containerRef && !editor && !editorRef.current) {
-            console.log('dispose/create')
+        let _editor = null
+        console.log('Editor/life/check', containerRef.current)
+		if (containerRef && !editorRef.current) {
+            console.log('Editor/life/create')
+            console.log('Editor/life/html', containerRef.current?.innerHTML)
             const theme = getTheme()
             _editor = monaco.editor.create(containerRef.current!, {
                 value: `{}`,
@@ -112,7 +112,6 @@ export const Editor: VFC = ({ lang = 'sql',
             //     console.log('onDidBlurEditorText')
             // })
             // console.log('_editor', _editor)
-			setEditor(_editor);
             editorRef.current = _editor
             // console.log('赋值了啊', editorRef.current)
             onEditor && onEditor(_editor)
@@ -121,35 +120,48 @@ export const Editor: VFC = ({ lang = 'sql',
                     _editor?.focus()
                 }, 0)
             }
+            console.log('Editor/life/created')
+            setTimeout(() => {
+                editorRef.current?.layout()
+
+            }, 0)
 		}
-        // if (monacoEl) {
-        //     console.log('monacoEl', monacoEl.current.getValue)
+        // if (_editor && (value || value === '')) {
+        //     // console.log('editor', _editor.getValue)
+        //     if (value != _editor?.getValue()) {
+        //         // console.log('compare', value, _editor?.getValue())
+        //         // console.log('setValue', value)
+        //         console.log('degg/setValue in')
+        //         _editor.setValue(value)
+        //     }
         // }
+		return () => {
+            console.log('Editor/life/dispose', editorRef.current)
+            console.log('Editor/life/editorRef.current', editorRef.current)
+            
+            editorRef.current?.dispose()
+            editorRef.current = null
+            if (containerRef.current) {
+                containerRef.current.innerHTML = ''
+            }
+            // console.log('取消赋值')
+            // 下面两句会导致编辑器对象获取不到
+            // editorRef.current = null
+
+            // window.g_completionItemProvider && window.g_completionItemProvider.dispose()
+        }
+    }, [containerRef.current]);
+
+    useEffect(() => {
+        const _editor = editorRef.current
         if (_editor && (value || value === '')) {
             // console.log('editor', _editor.getValue)
             if (value != _editor?.getValue()) {
-                // console.log('compare', value, _editor?.getValue())
-                // console.log('setValue', value)
                 console.log('degg/setValue in')
                 _editor.setValue(value)
             }
         }
-        // if (monacoEl && value) {
-        //     monacoEl.setValue(value)
-        // }
-		return () => {
-            // console.log('editor.dispose')
-            // console.log('dispose/dispose')
-            editor?.dispose()
-            // console.log('取消赋值')
-            // 下面两句会导致编辑器对象获取不到
-            // editorRef.current = null
-            // setEditor(null)
-
-            // window.g_completionItemProvider && window.g_completionItemProvider.dispose()
-        }
     }, [containerRef.current, value]);
-
 
 	return (
         <div

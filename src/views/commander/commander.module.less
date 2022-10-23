@@ -1,0 +1,119 @@
+:root {
+    --color-red-0: #f00;
+    --button-bg-color: var(--color-red-0);
+    --button-radius: 2px;
+}
+
+.layoutPage {
+    position: fixed;
+    // width: 100vw;
+    // height: 100vh;
+    // position: relative;
+    // user-select: none;
+    padding: 16px;
+    .table {
+        margin-bottom: 24px;
+        td,
+        th {
+            padding: 16px;
+            border: 1px solid #000;
+        }
+    }
+}
+.parent {
+    border: 1px solid #000;
+    display: flex;
+}
+.left {
+    width: 300px;
+    border: 1px solid #000;
+    padding: 32px;
+    flex-shrink: 0;
+}
+.right {
+    flex-grow: 1;
+    border: 1px solid #000;
+    padding: 32px;
+    overflow: auto;
+}
+.more {
+    width: 500px;
+    padding: 32px;
+    margin-top: 32px;
+    border: 1px solid #000;
+}
+
+@font-face {
+    font-family: "IconFont";
+    src: url('data:application/octet-stream;base64,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') format('truetype');
+}
+
+.iconfont {
+    font-family: "IconFont" !important;
+    font-size: 16px;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-search:before {
+    content: "\e900";
+}
+
+.mask {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: center;
+}
+.content {
+    margin-top: 160px;
+    background-color: #fff;
+    box-shadow: rgb(0 0 0 / 20%) 0px 6px 20px;
+    overflow: hidden;
+    border-radius: 4px;
+    width: 400px;;
+}
+.searchBox {
+    height: 56px;
+    display: flex;
+    align-items: center;
+    // border: 1px solid #f00;
+    padding: 0 24px;
+    .icon {
+        margin-right: 8px;
+        font-size: 24px;
+        color: #aaa;
+    }
+    .input {
+        flex: 1;
+        padding: 4px 8px;
+        // border: 1px solid rgba;
+        border: none;
+        outline: none;
+    }
+}
+
+.results {
+    .item {
+        height: 56px;
+        padding: 0 24px;
+        // border: 1px solid #000;
+        display: flex;
+        align-items: center;
+        font-size: 14px;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        &:hover {
+            background-color: #f1f1f1;
+        }
+        &.active {
+            color: #fff;
+            background-color: #2465d8;
+        }
+    }
+}
