@@ -239,6 +239,174 @@ export function DbManager({ config }) {
         })
     }
 
+    function handleCommand(key) {
+        if (key == 'help') {
+            addOrActiveTab({
+                title: '$i18n.help',
+                key: 'help',
+                type: 'help',
+                data: {
+                    // url,
+                },
+            })
+        }
+        else if (key == 'elasticsearch') {
+            addOrActiveTab({
+                title: 'Elasticsearch',
+                key: 'key-es',
+                type: 'elasticsearch',
+                data: {},
+                // closable: false,
+            })
+        }
+        else if (key == 'redis') {
+            addOrActiveTab({
+                title: 'Redis',
+                // key: 'redis-' + uid(16),
+                key: 'redis-connect',
+                type: 'redis-connect',
+                data: {
+                    // url,
+                },
+            })
+        }
+        else if (key == 'git') {
+            addOrActiveTab({
+                title: 'GIT',
+                // key: 'redis-' + uid(16),
+                key: 'git-project',
+                type: 'git-project',
+                data: {
+                    // url,
+                },
+            })
+        }
+        else if (key == 'ssh') {
+            addOrActiveTab({
+                title: 'SSH/SFTP' + `-${(window._sshCount++) + 1}`,
+                // key: 'redis-' + uid(16),
+                key: `ssh-home-${uid(16)}`,
+                type: 'ssh-connect',
+                data: {
+                    // url,
+                },
+            })
+        }
+        else if (key == 'file') {
+            addOrActiveTab({
+                title: t('file') + `-${(window._fileCount++) + 1}`,
+                // key: 'redis-' + uid(16),
+                key: `file-${uid(16)}`,
+                type: 'file-home',
+                data: {
+                    sourceType: 'local',
+                    // url,
+                },
+            })
+        }
+        else if (key == 'terminal') {
+            openTerminal()
+        }
+        else if (key == 'about') {
+            setAboutVisible(true)
+        }
+        else if (key == 'setting') {
+            setAboutVisible(true)
+        }
+        else if (key == 'markdown') {
+            addOrActiveTab({
+                title: t('markdown') + `-${(window._fileCount++) + 1}`,
+                // key: 'redis-' + uid(16),
+                key: `markdown-${uid(16)}`,
+                type: 'markdown',
+                data: {
+                    // url,
+                },
+            })
+        }
+        else if (key == 'mysql') {
+            addOrActiveTab(tab_mySql)
+        }
+        else if (key == 'oss-home') {
+            addOrActiveTab({
+                title: t('oss') + `-${(window._fileCount++) + 1}`,
+                // key: 'redis-' + uid(16),
+                key: `oss-${uid(16)}`,
+                type: 'oss-home',
+                data: {
+                    // url,
+                },
+            })
+        }
+        else if (key == 'webdav-home') {
+            addOrActiveTab({
+                title: t('webdav') + `-${(window._fileCount++) + 1}`,
+                // key: 'redis-' + uid(16),
+                key: `webdav-${uid(16)}`,
+                type: 'webdav-home',
+                data: {
+                    // url,
+                },
+            })
+        }
+        else if (key == 'http-home') {
+            addOrActiveTab({
+                title: t('http'),
+                // title: t('http') + `-${(window._fileCount++) + 1}`,
+                // key: 'redis-' + uid(16),
+                key: `http-0`,
+                type: 'http-home',
+                data: {
+                    // url,
+                },
+            })
+        }
+        else if (key == 'tcp/udp') {
+            addOrActiveTab({
+                title: t('tcp/udp') + `-${(window._fileCount++) + 1}`,
+                // key: 'redis-' + uid(16),
+                // key: `tcp/udp-${uid(16)}`,
+                key: `tcp/udp-0`,
+                type: 'tcp/udp',
+                data: {
+                    // url,
+                },
+            })
+        }
+        else if (key == 'json_table') {
+            addOrActiveTab({
+                title: t('json_table'),
+                key: `json_table-0`,
+                type: 'json-table',
+                data: {
+                    // url,
+                },
+            })
+        }
+        else if (key == 'aliyun') {
+            addOrActiveTab({
+                title: t('aliyun'),
+                key: `aliyun-0`,
+                type: 'aliyun',
+                data: {
+                    // url,
+                },
+            })
+        }
+        else if (key == 'ip') {
+            showIpTab()
+        }
+        else if (key == 'command') {
+            commanderRef.current?.show()
+        }
+        else if (key == 'json') {
+            showJsonTab()
+        }
+        else if (key == 'text') {
+            showTextTab()
+        }
+    }
+
     function showTextTab() {
         addOrActiveTab({
             title: '$i18n.text',
@@ -261,6 +429,76 @@ export function DbManager({ config }) {
         })
     }
 
+    const funCommands = [
+        {
+            label: t('mysql'),
+            key: 'mysql',
+        },
+        {
+            label: t('json'),
+            key: 'json',
+        },
+        {
+            label: t('text'),
+            key: 'text',
+        },
+        {
+            label: t('redis'),
+            key: 'redis',
+        },
+        {
+            label: t('git'),
+            key: 'git',
+        },
+        {
+            label: t('ssh/sftp'),
+            key: 'ssh',
+        },
+        {
+            label: t('file'),
+            key: 'file',
+        },
+        {
+            label: t('terminal'),
+            key: 'terminal',
+        },
+        {
+            label: t('markdown'),
+            key: 'markdown',
+        },
+        {
+            label: t('oss'),
+            key: 'oss-home',
+        },
+        {
+            label: t('webdav'),
+            key: 'webdav-home',
+        },
+        {
+            label: t('http'),
+            key: 'http-home',
+        },
+        {
+            label: t('tcp/udp'),
+            key: 'tcp/udp',
+        },
+        // {
+        //     label: t('json_table'),
+        //     key: 'json_table',
+        // },
+        {
+            label: t('aliyun'),
+            key: 'aliyun',
+        },
+        {
+            label: t('ip'),
+            key: 'ip',
+        },
+        {
+            label: t('elasticsearch'),
+            key: 'elasticsearch',
+        },
+    ]
     function handleTabChange(key: string) {
         console.log('set key', key)
         setActiveKey(key)
@@ -321,171 +559,7 @@ export function DbManager({ config }) {
                     overlay={
                         <Menu
                             onClick={({ key }) => {
-                                if (key == 'help') {
-                                    addOrActiveTab({
-                                        title: '$i18n.help',
-                                        key: 'help',
-                                        type: 'help',
-                                        data: {
-                                            // url,
-                                        },
-                                    })
-                                }
-                                else if (key == 'elasticsearch') {
-                                    addOrActiveTab({
-                                        title: 'Elasticsearch',
-                                        key: 'key-es',
-                                        type: 'elasticsearch',
-                                        data: {},
-                                        // closable: false,
-                                    })
-                                }
-                                else if (key == 'redis') {
-                                    addOrActiveTab({
-                                        title: 'Redis',
-                                        // key: 'redis-' + uid(16),
-                                        key: 'redis-connect',
-                                        type: 'redis-connect',
-                                        data: {
-                                            // url,
-                                        },
-                                    })
-                                }
-                                else if (key == 'git') {
-                                    addOrActiveTab({
-                                        title: 'GIT',
-                                        // key: 'redis-' + uid(16),
-                                        key: 'git-project',
-                                        type: 'git-project',
-                                        data: {
-                                            // url,
-                                        },
-                                    })
-                                }
-                                else if (key == 'ssh') {
-                                    addOrActiveTab({
-                                        title: 'SSH/SFTP' + `-${(window._sshCount++) + 1}`,
-                                        // key: 'redis-' + uid(16),
-                                        key: `ssh-home-${uid(16)}`,
-                                        type: 'ssh-connect',
-                                        data: {
-                                            // url,
-                                        },
-                                    })
-                                }
-                                else if (key == 'file') {
-                                    addOrActiveTab({
-                                        title: t('file') + `-${(window._fileCount++) + 1}`,
-                                        // key: 'redis-' + uid(16),
-                                        key: `file-${uid(16)}`,
-                                        type: 'file-home',
-                                        data: {
-                                            sourceType: 'local',
-                                            // url,
-                                        },
-                                    })
-                                }
-                                else if (key == 'terminal') {
-                                    openTerminal()
-                                }
-                                else if (key == 'about') {
-                                    setAboutVisible(true)
-                                }
-                                else if (key == 'setting') {
-                                    setAboutVisible(true)
-                                }
-                                else if (key == 'markdown') {
-                                    addOrActiveTab({
-                                        title: t('markdown') + `-${(window._fileCount++) + 1}`,
-                                        // key: 'redis-' + uid(16),
-                                        key: `markdown-${uid(16)}`,
-                                        type: 'markdown',
-                                        data: {
-                                            // url,
-                                        },
-                                    })
-                                }
-                                else if (key == 'mysql') {
-                                    addOrActiveTab(tab_mySql)
-                                }
-                                else if (key == 'oss-home') {
-                                    addOrActiveTab({
-                                        title: t('oss') + `-${(window._fileCount++) + 1}`,
-                                        // key: 'redis-' + uid(16),
-                                        key: `oss-${uid(16)}`,
-                                        type: 'oss-home',
-                                        data: {
-                                            // url,
-                                        },
-                                    })
-                                }
-                                else if (key == 'webdav-home') {
-                                    addOrActiveTab({
-                                        title: t('webdav') + `-${(window._fileCount++) + 1}`,
-                                        // key: 'redis-' + uid(16),
-                                        key: `webdav-${uid(16)}`,
-                                        type: 'webdav-home',
-                                        data: {
-                                            // url,
-                                        },
-                                    })
-                                }
-                                else if (key == 'http-home') {
-                                    addOrActiveTab({
-                                        title: t('http'),
-                                        // title: t('http') + `-${(window._fileCount++) + 1}`,
-                                        // key: 'redis-' + uid(16),
-                                        key: `http-0`,
-                                        type: 'http-home',
-                                        data: {
-                                            // url,
-                                        },
-                                    })
-                                }
-                                else if (key == 'tcp/udp') {
-                                    addOrActiveTab({
-                                        title: t('tcp/udp') + `-${(window._fileCount++) + 1}`,
-                                        // key: 'redis-' + uid(16),
-                                        // key: `tcp/udp-${uid(16)}`,
-                                        key: `tcp/udp-0`,
-                                        type: 'tcp/udp',
-                                        data: {
-                                            // url,
-                                        },
-                                    })
-                                }
-                                else if (key == 'json_table') {
-                                    addOrActiveTab({
-                                        title: t('json_table'),
-                                        key: `json_table-0`,
-                                        type: 'json-table',
-                                        data: {
-                                            // url,
-                                        },
-                                    })
-                                }
-                                else if (key == 'aliyun') {
-                                    addOrActiveTab({
-                                        title: t('aliyun'),
-                                        key: `aliyun-0`,
-                                        type: 'aliyun',
-                                        data: {
-                                            // url,
-                                        },
-                                    })
-                                }
-                                else if (key == 'ip') {
-                                    showIpTab()
-                                }
-                                else if (key == 'command') {
-                                    commanderRef.current?.show()
-                                }
-                                else if (key == 'json') {
-                                    showJsonTab()
-                                }
-                                else if (key == 'text') {
-                                    showTextTab()
-                                }
+                                handleCommand(key)
                             }}
                             items={[
                                 {
@@ -495,74 +569,7 @@ export function DbManager({ config }) {
                                 {
                                     type: 'divider',
                                 },
-                                {
-                                    label: t('mysql'),
-                                    key: 'mysql',
-                                },
-                                {
-                                    label: t('json'),
-                                    key: 'json',
-                                },
-                                {
-                                    label: t('text'),
-                                    key: 'text',
-                                },
-                                {
-                                    label: t('redis'),
-                                    key: 'redis',
-                                },
-                                {
-                                    label: t('git'),
-                                    key: 'git',
-                                },
-                                {
-                                    label: t('ssh/sftp'),
-                                    key: 'ssh',
-                                },
-                                {
-                                    label: t('file'),
-                                    key: 'file',
-                                },
-                                {
-                                    label: t('terminal'),
-                                    key: 'terminal',
-                                },
-                                {
-                                    label: t('markdown'),
-                                    key: 'markdown',
-                                },
-                                {
-                                    label: t('oss'),
-                                    key: 'oss-home',
-                                },
-                                {
-                                    label: t('webdav'),
-                                    key: 'webdav-home',
-                                },
-                                {
-                                    label: t('http'),
-                                    key: 'http-home',
-                                },
-                                {
-                                    label: t('tcp/udp'),
-                                    key: 'tcp/udp',
-                                },
-                                // {
-                                //     label: t('json_table'),
-                                //     key: 'json_table',
-                                // },
-                                {
-                                    label: t('aliyun'),
-                                    key: 'aliyun',
-                                },
-                                {
-                                    label: t('ip'),
-                                    key: 'ip',
-                                },
-                                {
-                                    label: t('elasticsearch'),
-                                    key: 'elasticsearch',
-                                },
+                                ...funCommands,
                                 {
                                     type: 'divider',
                                 },
@@ -929,37 +936,48 @@ export function DbManager({ config }) {
 
                 <Commander
                     commands={[
-                        {
-                            name: 'IP',
-                            command: 'ip',
-                        },
+                        ...funCommands.map(item => {
+                            return {
+                                name: item.label,
+                                command: item.key,
+                            }
+                        }),
+                        // {
+                        //     name: t('mysql'),
+                        //     command: 'mysql',
+                        // },
+                        // {
+                        //     name: 'IP',
+                        //     command: 'ip',
+                        // },
                         {
                             name: t('about'),
                             command: 'about',
                         },
-                        {
-                            name: 'JSON',
-                            command: 'json',
-                        },
-                        {
-                            name: t('text'),
-                            command: 'text',
-                        },
+                        // {
+                        //     name: 'JSON',
+                        //     command: 'json',
+                        // },
+                        // {
+                        //     name: t('text'),
+                        //     command: 'text',
+                        // },
                     ]}
                     onCommand={command => {
                         console.log('command', command)
-                        if (command == 'ip') {
-                            showIpTab()
-                        }
-                        else if (command == 'about') {
-                            setAboutVisible(true)
-                        }
-                        else if (command == 'json') {
-                            showJsonTab()
-                        }
-                        else if (command == 'text') {
-                            showTextTab()
-                        }
+                        handleCommand(command)
+                        // if (command == 'ip') {
+                        //     showIpTab()
+                        // }
+                        // else if (command == 'about') {
+                        //     setAboutVisible(true)
+                        // }
+                        // else if (command == 'json') {
+                        //     showJsonTab()
+                        // }
+                        // else if (command == 'text') {
+                        //     showTextTab()
+                        // }
                     }}
                     onRef={ref => {
                         commanderRef.current = ref

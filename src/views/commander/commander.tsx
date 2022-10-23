@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react'
 
 import classes from './commander.module.less'
 import classNames from 'classnames'
-import { message, Modal } from 'antd'
+import { Empty, message, Modal } from 'antd'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import storage from '../db-manager/storage'
+import { FullCenterBox } from '../db-manager/redis-client'
 
 function ModalContent({ commands, onCommand, onCancel }) {
     const { t } = useTranslation()
@@ -21,11 +23,12 @@ function ModalContent({ commands, onCommand, onCancel }) {
     const actions = [
         ...commands.map(item => {
             return {
-                id: item.command,
+                command: item.command,
                 name: item.name,
                 onItemClick() {
                     onCommand && onCommand(item.command)
                     // message.info('About')
+                    storage.set('command_latest', item.command)
                 }
             }
         }),
@@ -56,11 +59,28 @@ function ModalContent({ commands, onCommand, onCancel }) {
     ]
 
     const results = useMemo(() => {
-        if (!keyword) {
-            return actions
+        const commandLatest = storage.get('command_latest')
+        console.log('commandLatest', commandLatest)
+        function score(item) {
+            console.log('item', item)
+            console.log('a.command == commandLatest', item.command, commandLatest)
+            if (item.command == commandLatest) {
+                return 1
+            }
+            return 0
         }
-        return actions.filter(item => item.name.toLowerCase().includes(keyword.toLowerCase()))
-    }, [keyword])
+
+        function sorter(a, b) {
+            return score(b) - score(a)
+        }
+        if (!keyword) {
+            console.log('actions', actions)
+            return actions.sort(sorter)
+        }
+        return actions
+            .filter(item => item.name.toLowerCase().includes(keyword.toLowerCase()))
+            // .sort(sorter)
+    }, [actions, keyword])
 
     function afterItemClick() {
         onCancel()
@@ -136,20 +156,34 @@ function ModalContent({ commands, onCommand, onCancel }) {
                         />
                     </div>
                     <div className={classes.results}>
-                        {results.map((result, idx) => {
-                            return (
-                                <div className={classNames(classes.item, {
-                                    [classes.active]: idx == curIndex,
-                                })}
-                                    onClick={() => {
-                                        result.onItemClick && result.onItemClick()
-                                        afterItemClick()
-                                    }}
+                        {results.length == 0 ?
+                            <div>
+                                <FullCenterBox
+                                    height={240}
                                 >
-                                    <div className={classes.name}>{result.name}</div>
-                                </div>
-                            )
-                        })}
+                                    <Empty />
+                                </FullCenterBox>
+                            </div>
+                        :
+                            <>
+                                {results.map((result, idx) => {
+                                    return (
+                                        <div 
+                                            key={result.command}
+                                            className={classNames(classes.item, {
+                                                [classes.active]: idx == curIndex,
+                                            })}
+                                            onClick={() => {
+                                                result.onItemClick && result.onItemClick()
+                                                afterItemClick()
+                                            }}
+                                        >
+                                            <div className={classes.name}>{result.name}</div>
+                                        </div>
+                                    )
+                                })}
+                            </>
+                        }
                     </div>
                 </div>
             </div>
