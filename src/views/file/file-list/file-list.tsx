@@ -672,15 +672,20 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
     }
 
     async function clearItem(item) {
-        let res = await request.post(`${config.host}/file/write`, {
-            path: item.path,
-            sourceType,
-            content: '',
+        Modal.confirm({
+            content: `${t('clear')}「${item.name}」?`,
+            async onOk() {
+                let res = await request.post(`${config.host}/file/write`, {
+                    path: item.path,
+                    sourceType,
+                    content: '',
+                })
+                // console.log('res', res)
+                if (res.success) {
+                    loadList()
+                }
+            }
         })
-        // console.log('res', res)
-        if (res.success) {
-            loadList()
-        }
     }
 
     function cutItem(item: File) {
@@ -1186,6 +1191,9 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                 {
                                                                     label: t('rename'),
                                                                     key: 'rename',
+                                                                },
+                                                                {
+                                                                    type: 'divider',
                                                                 },
                                                                 {
                                                                     label: t('delete'),
