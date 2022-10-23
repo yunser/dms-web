@@ -21,6 +21,7 @@ import { FileUtil } from '../utils/utl';
 import { Editor } from '@/views/db-manager/editor/Editor';
 import { ZipList } from '../zip-list';
 import { pdfjs, Document, Page } from 'react-pdf'
+import { read, writeFileXLSX, utils } from "xlsx";
 
 interface File {
     name: string
@@ -125,6 +126,144 @@ function ImageViewer({ src }) {
     )
 }
 
+function XlsxViewer({ src, content }) {
+
+    const [table, setTable] = useState({
+        header: [],
+        body: [],
+    })
+    // async function process_RS(stream) {
+    //     /* collect data */
+    //     const buffers = [];
+    //     const reader = stream.getReader();
+    //     for(;;) {
+    //       const res = await reader.read();
+    //       if(res.value) buffers.push(res.value);
+    //       if(res.done) break;
+    //     }
+      
+    //     /* concat */
+    //     const out = new Uint8Array(buffers.reduce((acc, v) => acc + v.length, 0));
+      
+    //     let off = 0;
+    //     for(const u8 of arr) {
+    //       out.set(u8, off);
+    //       off += u8.length;
+    //     }
+      
+    //     return out;
+    //   }
+    
+    function dealWorkBook(wb) {
+        //wb.SheetNames[0]是获取Sheets中第一个Sheet的名字
+        //wb.Sheets[Sheet名]获取第一个Sheet的数据
+        let result = utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]])
+        // console.log(result)
+        // console.log('result', result)
+        if (result.length) {
+            const header = Object.keys(result[0])
+            const body = []
+            for (let item of result) {
+                const row = header.map(key => item[key])
+                // for (let key of header) {
+                //     row.push()
+                // }
+                body.push(row)
+                
+            }
+            setTable({
+                header,
+                body,
+            })
+
+        }
+    }
+        // function arr2arr (arr) {
+        //     console.log('before', arr)
+        //     let result = []
+        //     let keys = []
+        //     for (let key in arr[0]) {
+        //         keys.push(key)
+        //     }
+        //     result.push(keys)
+        //     for (let item of arr) {
+        //         console.log('item', item)
+        //         let newItem = []
+        //         for (let key of keys) {
+        //             console.log('key', key)
+        //             newItem.push(item[key])
+        //         }
+        //         result.push(newItem)
+        //     }
+        //     console.log('after', result)
+        //     return result
+        // }
+
+    async function readData() {
+        fetch(src)
+            .then(async res => {
+                // console.log('res', res)
+                return res.arrayBuffer()
+                // const u8aData = await process_RS(res.body)
+                // const workbook = read(u8aData)
+                // console.log('workbook', workbook)
+            })
+            .then(res => {
+                // console.log('res2', res)
+                const workbook = read(res, {
+                    type: 'binary',
+                })
+                // console.log('workbook', workbook)
+                dealWorkBook(workbook)
+            })
+    }
+
+    useEffect(() => {
+        readData()
+    }, [src])
+    // const workbook = read('', {
+    //     // type: type?: 'base64' | 'binary' | 'buffer' | 'file' | 'array' | 'string';
+        
+    // })
+    return (
+        <div>
+            <div className={styles.tableBox}>
+                <table className={styles.table}>
+                    <thead>
+                        <tr>
+                            {table.header.map((cell, idx) => {
+                                return (
+                                    <th key={idx}>{cell}</th>
+                                )
+                            })}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {table.body.map((row, idx) => {
+                            return (
+                                <tr key={idx}>
+                                    {row.map((cell, idx) => {
+                                        return (
+                                            <td
+                                                key={idx}
+                                            >{cell}</td>
+                                        )
+                                    })}
+                                    {/* <td>1</td> */}
+                                </tr>
+                            )
+                        })}
+                        {/* <tr>
+                            <td>1</td>
+                            <td>1</td>
+                        </tr> */}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    )
+}
+
 function TableViewer({ content }) {
 
     const table = useMemo(() => {
@@ -183,6 +322,7 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
     const isVideo = path.endsWith('.mp4')
     const isZip = path.endsWith('.zip')
     const isTable = path.endsWith('.csv')
+    const isXlsx = path.endsWith('.xlsx')
 
     
 
@@ -201,7 +341,7 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
         if (res.success) {
             // console.log('res.data.content', res.data.content)
             const content = res.data.content
-            console.log('content', content)
+            // console.log('content', content)
             setContent(content)
             // console.log('degg/setCOntent', content)
             contentRef.current = content
@@ -252,6 +392,12 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
                 <div>
                     <TableViewer
                         content={content}
+                    />
+                </div>
+            : isXlsx ?
+                <div>
+                    <XlsxViewer
+                        src={`${config.host}/file/imagePreview?sourceType=${sourceType}&path=${encodeURIComponent(path)}`}
                     />
                 </div>
             : isAudio ?
