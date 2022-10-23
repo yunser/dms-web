@@ -22,6 +22,7 @@ import { Editor } from '@/views/db-manager/editor/Editor';
 import { ZipList } from '../zip-list';
 import { pdfjs, Document, Page } from 'react-pdf'
 import { read, writeFileXLSX, utils } from "xlsx";
+import copy from 'copy-to-clipboard';
 
 interface File {
     name: string
@@ -445,34 +446,47 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
                     <Empty />
                 </FullCenterBox>
             :
-                <div className={styles.editorBox}>
-                    <Editor
-                        lang={FileUtil.getLang(path)}
-                        value={content}
-                        autoFocus={false}
-                        // value=""
-                        // event$={event$}
-                        // onChange={value => setCodeASD(value)}
-                        // autoFoucs={true}
-                        // destroy={true}
-                        // onEditor={editor => {
-                        //     // setEditor(editor)
-                        //     // console.log('degg', content == contentRef.current, content, contentRef.current)
-                        //     editor.setValue(content)
-                        //     // content
-                        // }}
-                        // onSelectionChange={({selection, selectionTextLength}) => {
-                        //     console.log('selection', selection)
-                        //     selectionEvent.emit({
-                        //         data: {
-                        //             selection: {
-                        //                 ...selection,
-                        //                 textLength: selectionTextLength,
-                        //             }
-                        //         }
-                        //     })
-                        // }}
-                    />
+                <div>
+                    <div className={styles.toolBox}>
+                        <Button
+                            size="small" 
+                            onClick={() => {
+                                copy(content)
+                                message.info(t('copied'))
+                            }}
+                        >
+                            {t('copy')}
+                        </Button>
+                    </div>
+                    <div className={styles.editorBox}>
+                        <Editor
+                            lang={FileUtil.getLang(path)}
+                            value={content}
+                            autoFocus={false}
+                            // value=""
+                            // event$={event$}
+                            // onChange={value => setCodeASD(value)}
+                            // autoFoucs={true}
+                            // destroy={true}
+                            // onEditor={editor => {
+                            //     // setEditor(editor)
+                            //     // console.log('degg', content == contentRef.current, content, contentRef.current)
+                            //     editor.setValue(content)
+                            //     // content
+                            // }}
+                            // onSelectionChange={({selection, selectionTextLength}) => {
+                            //     console.log('selection', selection)
+                            //     selectionEvent.emit({
+                            //         data: {
+                            //             selection: {
+                            //                 ...selection,
+                            //                 textLength: selectionTextLength,
+                            //             }
+                            //         }
+                            //     })
+                            // }}
+                        />
+                    </div>
                 </div>
                 // <pre>{content}</pre>
             }
