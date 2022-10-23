@@ -125,6 +125,51 @@ function ImageViewer({ src }) {
     )
 }
 
+function TableViewer({ content }) {
+
+    const table = useMemo(() => {
+        return content.split('\n').map(line => line.split(','))
+    }, [content])
+
+    return (
+        <div>
+            <div className={styles.tableBox}>
+                <table className={styles.table}>
+                    {/* <thead>
+                        <tr>
+                            {table.header.map((cell, idx) => {
+                                return (
+                                    <th key={idx}>{cell}</th>
+                                )
+                            })}
+                        </tr>
+                    </thead> */}
+                    <tbody>
+                        {table.map((row, idx) => {
+                            return (
+                                <tr key={idx}>
+                                    {row.map((cell, idx) => {
+                                        return (
+                                            <td
+                                                key={idx}
+                                            >{cell}</td>
+                                        )
+                                    })}
+                                    {/* <td>1</td> */}
+                                </tr>
+                            )
+                        })}
+                        {/* <tr>
+                            <td>1</td>
+                            <td>1</td>
+                        </tr> */}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    )
+}
+
 export function FileDetail({ config, path, sourceType, onCancel }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
@@ -137,6 +182,7 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
     const isPdf = path.endsWith('.pdf')
     const isVideo = path.endsWith('.mp4')
     const isZip = path.endsWith('.zip')
+    const isTable = path.endsWith('.csv')
 
     
 
@@ -200,6 +246,12 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
                         config={config}
                         event$={null}
                         path={path}
+                    />
+                </div>
+            : isTable ?
+                <div>
+                    <TableViewer
+                        content={content}
                     />
                 </div>
             : isAudio ?
