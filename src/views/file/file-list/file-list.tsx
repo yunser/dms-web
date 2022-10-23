@@ -36,6 +36,9 @@ function myGetIconForFile(path) {
     if (_path.endsWith('.webp')) {
         return 'file_type_image.svg'
     }
+    if (_path.endsWith('.mid')) {
+        return 'file_type_audio.svg'
+    }
     return getIconForFile(_path)
 }
 
