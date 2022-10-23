@@ -271,6 +271,23 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
         })
     }
 
+    async function openInFinder(path: string) {
+        let ret = await request.post(`${config.host}/file/openInFinder`, {
+            // sourceType,
+            path,
+            // type: item.type,
+        })
+        // console.log('ret', ret)
+        if (ret.success) {
+            // message.success('连接成功')
+            // onConnnect && onConnnect()
+            // message.success(t('success'))
+            // onClose && onClose()
+            // onSuccess && onSuccess()
+            // loadList()
+        }
+    }
+
     async function checkoutFile(path) {
         Modal.confirm({
             // title: 'Confirm',
@@ -494,16 +511,22 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                                                                     label: t('git.discard_change'),
                                                                                     key: 'key_checkout_file',
                                                                                 },
-                                                                            ])
+                                                                            ]),
+                                                                            {
+                                                                                label: t('file.open_in_finder'),
+                                                                                key: 'finder',
+                                                                            },
                                                                         ]}
                                                                         onClick={({ key }) => {
                                                                             if (key == 'key_checkout_file') {
                                                                                 checkoutFile(item.path)
                                                                             }
-                                                                            if (key == 'remove_file') {
+                                                                            else if (key == 'remove_file') {
                                                                                 removeFile(item.path)
                                                                             }
-                                                                            
+                                                                            else if (key == 'finder') {
+                                                                                openInFinder(item.path)
+                                                                            }
                                                                         }}
                                                                     />
                                                                 }

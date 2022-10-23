@@ -180,6 +180,40 @@ export function DbManager({ config }) {
         })
     }
 
+
+    useEffect(() => {
+        function handleKeyDown(e: KeyboardEvent) {
+            console.log('e', e.code, e)
+            if (document.activeElement?.nodeName == 'INPUT' || document.activeElement?.nodeName == 'TEXTAREA') {
+                return
+            }
+
+            if (e.code == 'KeyW') {
+                if (e.metaKey) {
+                    // if (activeItem) {
+                    //     copyItem(activeItem)
+                    // }
+                    console.log('okk')
+                    // https://stackoverflow.com/questions/21695682/is-it-possible-to-catch-ctrlw-shortcut-and-prevent-tab-closing
+                    e.stopPropagation()
+                    e.preventDefault()
+                    // alert((1))
+                    // return
+                }
+            }
+            else if (e.code == 'KeyV') {
+                // if (e.metaKey) {
+                //     doPaste()
+                //     return
+                // }
+            }
+        }
+        window.addEventListener('keydown', handleKeyDown)
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown)
+        }
+    }, [])
+
     event$.useSubscription(msg => {
         console.log('dbManager/onmessage', msg)
         // console.log(val);
