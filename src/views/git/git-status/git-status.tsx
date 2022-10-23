@@ -80,6 +80,12 @@ function Commit({ config, event$, stagedLength, gitConfig, projectPath, onSucces
                 onFocus={() => {
                     setInfoVisible(true)
                 }}
+                onKeyDown={e => {
+                    // console.log('e', e.code)
+                    if (e.code == 'Enter' && e.metaKey) {
+                        submit()
+                    }
+                }}
             />
             {infoVisible &&
                 <div className={styles.button}>
