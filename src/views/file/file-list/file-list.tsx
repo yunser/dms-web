@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { CodeOutlined, CreditCardOutlined, DatabaseOutlined, DownloadOutlined, EllipsisOutlined, FileOutlined, FileSearchOutlined, FileWordOutlined, FolderOutlined, HomeOutlined, LeftOutlined, PlusOutlined, ReloadOutlined, UploadOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, CodeOutlined, CreditCardOutlined, DatabaseOutlined, DownloadOutlined, EllipsisOutlined, FileOutlined, FileSearchOutlined, FileWordOutlined, FolderOutlined, HomeOutlined, LeftOutlined, PlusOutlined, ReloadOutlined, UploadOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
@@ -36,9 +36,16 @@ function myGetIconForFile(path) {
     if (_path.endsWith('.webp')) {
         return 'file_type_image.svg'
     }
+    if (_path.endsWith('.pic')) {
+        return 'file_type_image.svg'
+    }
     if (_path.endsWith('.mid')) {
         return 'file_type_audio.svg'
     }
+    if (_path.endsWith('.apk')) {
+        return 'folder_type_android.svg'
+    }
+    
     return getIconForFile(_path)
 }
 
@@ -839,6 +846,14 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                             </div>
                             <div className={styles.item}
                                 onClick={() => {
+                                    setCurPath('/Applications')
+                                }}
+                            >
+                                <AppstoreOutlined className={styles.icon} />
+                                {t('file.app')}
+                            </div>
+                            <div className={styles.item}
+                                onClick={() => {
                                     setCurPath(info.homePath)
                                 }}
                             >
@@ -1270,6 +1285,9 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                             <div className={styles.label}>
                                                                 {item.name}
                                                                 {/* (?{item.icon}) */}
+                                                                {!!item.isSymbolicLink &&
+                                                                    <Tag color="blue" style={{ marginLeft: 8 }}>link</Tag>
+                                                                }
                                                             </div>
                                                         </div>
                                                         <div className={classNames(styles.cell, styles.updateTime)}>

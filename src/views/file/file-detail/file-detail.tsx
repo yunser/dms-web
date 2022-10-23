@@ -324,6 +324,7 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
         // || path.endsWith('.mid')
     const isPdf = path.endsWith('.pdf')
     const isVideo = path.endsWith('.mp4')
+        || path.endsWith('.3gp')
     const isZip = path.endsWith('.zip')
     const isTable = path.endsWith('.csv')
     const isXlsx = path.endsWith('.xlsx')

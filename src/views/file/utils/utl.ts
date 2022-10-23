@@ -55,6 +55,7 @@ export const FileUtil = {
             || _path.endsWith('.webp')
             || _path.endsWith('.bmp')
             || _path.endsWith('.ico')
+            || _path.endsWith('.pic')
     },
     getLang,
 }
