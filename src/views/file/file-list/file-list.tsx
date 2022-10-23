@@ -1160,10 +1160,12 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                     label: t('info'),
                                                                     key: 'info',
                                                                 },
-                                                                {
-                                                                    label: t('file.open_in_finder'),
-                                                                    key: 'finder',
-                                                                },
+                                                                ...(sourceType == 'local' ? [
+                                                                    {
+                                                                        label: t('file.open_in_finder'),
+                                                                        key: 'finder',
+                                                                    },
+                                                                ] : []),
                                                                 ...(sourceType != 'local' ? [
                                                                     {
                                                                         label: t('download'),

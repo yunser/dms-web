@@ -318,6 +318,7 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
     const isImage = FileUtil.isImage(path)
     const isMarkdown = path.endsWith('.md')
     const isAudio = path.endsWith('.mp3')
+        || path.endsWith('.wav')
     const isPdf = path.endsWith('.pdf')
     const isVideo = path.endsWith('.mp4')
     const isZip = path.endsWith('.zip')
@@ -327,7 +328,7 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
     
 
     const isPureText = !isImage && !isAudio && !isVideo && !isMarkdown
-        && !isPdf
+        && !isPdf && !isXlsx
 
     async function loadDetail() {
         setLoading(true)
