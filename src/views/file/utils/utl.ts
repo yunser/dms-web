@@ -56,6 +56,8 @@ export const FileUtil = {
             || _path.endsWith('.bmp')
             || _path.endsWith('.ico')
             || _path.endsWith('.pic')
+            || _path.endsWith('.avif')
+            || _path.endsWith('.raw')
     },
     getLang,
 }

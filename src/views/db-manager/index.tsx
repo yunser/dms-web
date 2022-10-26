@@ -36,6 +36,7 @@ import { JsonTable } from '../json/json-table'
 import { AliyunHome } from '../aliyun/aliyun-home'
 import { IpHome } from '../ip/ip-home'
 import { Commander } from '../commander'
+import { SwaggerHome } from '../swagger/swagger-home'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -439,6 +440,16 @@ export function DbManager({ config }) {
         else if (key == 'text') {
             showTextTab()
         }
+        else if (key == 'swagger') {
+            addOrActiveTab({
+                title: t('swagger'),
+                key: `swagger-0`,
+                type: 'swagger',
+                data: {
+                    // url,
+                },
+            })
+        }
     }
 
     function showTextTab() {
@@ -523,6 +534,10 @@ export function DbManager({ config }) {
         {
             label: t('aliyun'),
             key: 'aliyun',
+        },
+        {
+            label: t('swagger'),
+            key: 'swagger',
         },
         {
             label: t('ip'),
@@ -950,6 +965,13 @@ export function DbManager({ config }) {
                                     }
                                     {item.type == 'ip' &&
                                         <IpHome
+                                            config={config}
+                                            // local={true}
+                                            // defaultPath={item.data.path}
+                                        />
+                                    }
+                                    {item.type == 'swagger' &&
+                                        <SwaggerHome
                                             config={config}
                                             // local={true}
                                             // defaultPath={item.data.path}

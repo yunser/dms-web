@@ -339,6 +339,7 @@ i18n
                     'aliyun': 'Alibaba Cloud',
                     'command.search': 'Search Commands',
                     'doc': 'Documentation',
+                    'swagger': 'Swagger',
                 }
             },
             zh: {
@@ -671,6 +672,7 @@ i18n
                     'aliyun': '阿里云',
                     'command.search': '搜索命令',
                     'doc': '文档',
+                    'swagger': 'Swagger',
                 }
             }
         },

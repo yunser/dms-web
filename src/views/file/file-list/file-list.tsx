@@ -39,6 +39,9 @@ function myGetIconForFile(path) {
     if (_path.endsWith('.pic')) {
         return 'file_type_image.svg'
     }
+    if (_path.endsWith('.raw')) {
+        return 'file_type_image.svg'
+    }
     if (_path.endsWith('.mid')) {
         return 'file_type_audio.svg'
     }
@@ -602,6 +605,13 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                     deleteItem(activeItem)
                 }
             }
+            // else if (e.code == 'keyN') {
+            //     if (e.metaKey) {
+            //         console.log('nn', )
+            //     }
+            //     e.stopPropagation()
+            //     e.preventDefault()
+            // }
             else if (e.code == 'ArrowDown') {
                 if (e.metaKey) {
                     if (activeItem.type != 'FILE') {
