@@ -105,10 +105,15 @@ function PathItemDetail({ pathItem, api }: {
         {
             title: 'HTTP Status Code',
             dataIndex: 'httpStatus',
+            width: 160,
         },
         {
             title: 'Reason',
             dataIndex: 'description',
+        },
+        {
+            title: '',
+            dataIndex: '__empty__',
         },
         
     ]

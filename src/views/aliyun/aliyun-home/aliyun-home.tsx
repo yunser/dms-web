@@ -45,13 +45,16 @@ export function AliyunHome({ config, onClickItem }) {
     const [certList, setCertList] = useState([])
     const [domainList, setDomainList] = useState([])
     const [billingList, setBillingList] = useState([])
+    const [tencentServerList, setTencentServerList] = useState([])
+    const [tencentMysqlList, setTencentMysqlList] = useState([])
+    const [tencentLighthouseList, setTencentLighthouseList] = useState([])
     const [tab, setTab] = useState('main')
 
     async function loadData() {
         let res = await request.post(`${config.host}/file/aliyun`, {
         })
         if (res.success) {
-            const { installed, ecs, rds, cert, domain, billing } = res.data
+            const { installed, ecs, rds, cert, domain, billing, tencentServer, tencentMysql, tencentLighthouse } = res.data
             setInstalled(installed)
             setEcsList(ecs.sort((a, b) => {
                 function score(item) {
@@ -80,6 +83,24 @@ export function AliyunHome({ config, onClickItem }) {
             setBillingList(billing.sort((a, b) => {
                 function score(item) {
                     return - parseFloat(item.availableAmount.replace(/,/, ''))
+                }
+                return score(b) - score(a)
+            }))
+            setTencentServerList(tencentServer.sort((a, b) => {
+                function score(item) {
+                    return - moment(item.ExpiredTime).toDate().getTime()
+                }
+                return score(b) - score(a)
+            }))
+            setTencentMysqlList(tencentMysql.sort((a, b) => {
+                function score(item) {
+                    return - moment(item.DeadlineTime).toDate().getTime()
+                }
+                return score(b) - score(a)
+            }))
+            setTencentLighthouseList(tencentLighthouse.sort((a, b) => {
+                function score(item) {
+                    return - moment(item.ExpiredTime).toDate().getTime()
                 }
                 return score(b) - score(a)
             }))
@@ -206,15 +227,89 @@ export function AliyunHome({ config, onClickItem }) {
                 dataSource={billingList}
                 columns={[
                     {
-                        title: '名称',
+                        title: '实例名称',
                         dataIndex: 'name',
                         width: 240,
                         ellipsis: true,
                     },
                     {
-                        title: '可用余额',
+                        title: '到期时间',
                         dataIndex: 'availableAmount',
-                        // render: ExpireTimeRender,
+                    },
+                    {
+                        title: '',
+                        dataIndex: '__empty__',
+                    },
+                ]}
+            />
+        </div>
+    )
+
+    const tencentServer = (
+        <div>
+            <Table
+                dataSource={tencentServerList}
+                columns={[
+                    {
+                        title: '名称',
+                        dataIndex: 'InstanceName',
+                        width: 240,
+                        ellipsis: true,
+                    },
+                    {
+                        title: '到期时间',
+                        dataIndex: 'ExpiredTime',
+                        render: ExpireTimeRender,
+                    },
+                    {
+                        title: '',
+                        dataIndex: '__empty__',
+                    },
+                ]}
+            />
+        </div>
+    )
+
+    const tencentMysql = (
+        <div>
+            <Table
+                dataSource={tencentMysqlList}
+                columns={[
+                    {
+                        title: '名称',
+                        dataIndex: 'InstanceName',
+                        width: 240,
+                        ellipsis: true,
+                    },
+                    {
+                        title: '到期时间',
+                        dataIndex: 'DeadlineTime',
+                        render: ExpireTimeRender,
+                    },
+                    {
+                        title: '',
+                        dataIndex: '__empty__',
+                    },
+                ]}
+            />
+        </div>
+    )
+
+    const tencentLighthouse = (
+        <div>
+            <Table
+                dataSource={tencentLighthouseList}
+                columns={[
+                    {
+                        title: '名称',
+                        dataIndex: 'InstanceName',
+                        width: 240,
+                        ellipsis: true,
+                    },
+                    {
+                        title: '到期时间',
+                        dataIndex: 'ExpiredTime',
+                        render: ExpireTimeRender,
                     },
                     {
                         title: '',
@@ -277,6 +372,21 @@ export function AliyunHome({ config, onClickItem }) {
                         label: 'Billing',
                         key: 'billing',
                         children: billing,
+                    },
+                    {
+                        label: '腾讯服务器',
+                        key: 'tencent-server',
+                        children: tencentServer,
+                    },
+                    {
+                        label: '腾讯 MySQL',
+                        key: 'tencent-mysql',
+                        children: tencentMysql,
+                    },
+                    {
+                        label: '腾讯轻量服务器',
+                        key: 'tencent-lighthouse',
+                        children: tencentLighthouse,
                     },
                 ]}
             />
