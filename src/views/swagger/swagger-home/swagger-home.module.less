@@ -1,212 +1,92 @@
-.swaggerApp {
+.gitApp {
     height: 100%;
-    // padding: 16px;
-    // display: flex;
-    // justify-content: center;
-    // align-items: center;
-    overflow: auto;
+    // border: 1px solid #f00;
     display: flex;
     .layoutLeft {
         flex: 0 0 320px;
-        border: 1px solid var(--border-color);
-        overflow: auto;
+        border-right: 1px solid var(--border-color);
+        padding: 16px 0;
+        .header {
+            padding: 0 16px;
+            margin-bottom: 12px;
+        }
     }
     .layoutRight {
         flex: 1 0 auto;
-        // border: 1px solid #000;
-        overflow: auto;
-        padding: 16px;
-        
-    }
-    .docHome {
-        padding: 16px;
-        margin-bottom: 24px;
-    }
-    .docHeader {
-        // padding: 16px;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        .docTitle {
-            font-size: 32px;
-            margin-right: 8px;
-        }
-        margin-bottom: 16px;
+        width: 0;
     }
 }
 
-.tags {
-    .tagItem {
-        border: 1px solid var(--border-color);
+.treeTitle {
+    width: 280px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    .name {
+        // margin-left: 8px;
     }
-    .tagItemHeader {
-        // border: 1px solid #000;
-        padding: 4px 16px;
-        .name {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-size: 16px;
-        }
-        .desc {
-            color: #888;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-size: 12px;
-        }
-    }
-    .paths {
-        .pathItem {
-            padding: 4px 16px;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            cursor: pointer;
-            // border: 1px solid #f00;
-            &:hover {
-                background-color: #f1f1f1;
-            }
-            &.active {
-                color: #fff;
-                background-color: #3467d1;
-            }
-        }
-        .method {
-            flex: 0 0 64px;
-            // border: 1px solid #000;
-            border-radius: 4px;
-            padding: 0 8px;
-            // width: 64px;
-            margin-right: 8px;
-            font-size: 12px;
-            color: #fff;
-            background-color: #f00;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            &.GET {
-                background-color: #4ba254;
-            }
-            &.POST {
-                background-color: #72aff8;
-            }
-            &.PUT {
-                background-color: #f0a44a;
-            }
-            &.DELETE {
-                background-color: #e74f47;
-            }
-        }
-        .path {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-size: 12px;
-        }
+}
+.listBox {
+    height: 100%;
+    // border: 1px solid #f00;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .listContent {
+        width: 640px;
+        height: 100%;
+        // border: 1px solid #f00;
+        display: flex;
+        flex-direction: column;
+        padding-bottom: 16px;
     }
 }
 
 .tool {
-    // margin-bottom: 16px;
-    padding: 16px;
-    // border: 1px solid #000;
-}
-.items {
-    .item {
-        // border: 1px solid #000;
-        border-top: 1px solid var(--border-color);
-        padding: 16px;
-    }
-    .itemHeader {
-        padding: 4px;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        margin-bottom: 8px;
-        border-radius: 2px;
-        .method {
-            // border: 1px solid #000;
-            margin-right: 8px;
-            color: #fff;
-            // background-color: #000;
-            width: 64px;
-            height: 32px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-radius: 4px;
-            &.GET {
-                background-color: #4ba254;
-            }
-            &.POST {
-                background-color: #72aff8;
-            }
-            &.PUT {
-                background-color: #f0a44a;
-            }
-            &.DELETE {
-                background-color: #e74f47;
-            }
-        }
-        .path {
-            font-weight: bold;
-            // font-size: 16px;
-        }
-        .summary {
-            padding-left: 16px;
-            color: #888;
-        }
-    }
-}
-
-.detailBox {
-    .header {
-        display: flex;
-        align-items: center;
-        margin-bottom: 16px;
-        .path {
-            font-size: 16px;
-        }
-        .method {
-            flex: 0 0 64px;
-            // border: 1px solid #000;
-            border-radius: 4px;
-            padding: 0 8px;
-            // width: 64px;
-            margin-right: 8px;
-            font-size: 12px;
-            color: #fff;
-            background-color: #f00;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            &.GET {
-                background-color: #4ba254;
-            }
-            &.POST {
-                background-color: #72aff8;
-            }
-            &.PUT {
-                background-color: #f0a44a;
-            }
-            &.DELETE {
-                background-color: #e74f47;
-            }
-        }
-    }
-    .tags {
-        // margin-bottom: 16px;
-        margin-left: 16px;
-    }
-}
-.sectionTitle {
-    font-size: 20px;
-    margin-bottom: 16px;
+    flex: 0 0 auto;
     margin-top: 16px;
+    margin-bottom: 16px;
 }
-.parameters {
+.listWrap {
+    flex: 1 0 auto;
+    height: 0;
+    margin-top: 16px;
+    overflow: auto;
+    // border: 1px solid #f00;
+}
+.list {
+    // padding: 16px;
+    border: 1px solid var(--border-color);
+    // border: 1px solid #f00;
+    border-radius: 4px;
     .item {
-        border: 1px solid #000;
+        height: 48px;
+        padding: 0 16px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--border-color);
+        &:last-child {
+            border-bottom: none;
+        }
+        &:hover {
+            background-color: var(--color-f9);
+        }
+    }
+    .changes {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 16px;
+        // border: 1px solid #000;
+        font-size: 12px;
+        padding: 0 4px;
+        border-radius: 4px;
+        color: var(--color-text-reverse);
+        background-color: var(--color-5);
+    }
+    .favoriteIcon {
+        color: #e89f3c;
     }
 }
