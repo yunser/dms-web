@@ -178,7 +178,7 @@ function PathItemDetail({ pathItem, api }: {
     ))
 }
 
-export function SwaggerDetail({ project }) {
+export function SwaggerDetail({ config, project }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [curIp, setCurIp] = useState('--')
@@ -205,50 +205,54 @@ export function SwaggerDetail({ project }) {
     }, [curTag, items, keyword])
 
     async function loadData() {
-        let res = await request.get(project.url)
-        // let res = await request.get('https://petstore.swagger.io/v2/swagger.json')
-        // console.log('res', res)
-        const api: OpenAPIObject = res.data
-        setApi(api)
-        const items = []
-        for (let path in api.paths) {
-            const pathItem: PathItemObject = api.paths[path]
-            // console.log('pathItem', pathItem)
-            // console.log('pathItem.delete', pathItem.delete)
-            if (pathItem.get) {
-                items.push({
-                    ...pathItem.get,
-                    path,
-                    method: 'GET',
-                })
+        let res = await request.post(`${config.host}/http/proxy`, {
+            url: project.url
+        })
+        if (res.success) {
+            // let res = await request.get('https://petstore.swagger.io/v2/swagger.json')
+            // console.log('res', res)
+            const api: OpenAPIObject = res.data
+            setApi(api)
+            const items = []
+            for (let path in api.paths) {
+                const pathItem: PathItemObject = api.paths[path]
+                // console.log('pathItem', pathItem)
+                // console.log('pathItem.delete', pathItem.delete)
+                if (pathItem.get) {
+                    items.push({
+                        ...pathItem.get,
+                        path,
+                        method: 'GET',
+                    })
+                }
+                if (pathItem.post) {
+                    items.push({
+                        ...pathItem.post,
+                        path,
+                        method: 'POST',
+                    })
+                }
+                if (pathItem.put) {
+                    items.push({
+                        ...pathItem.put,
+                        path,
+                        method: 'PUT',
+                    })
+                }
+                if (pathItem.delete) {
+                    // console.log('push-del', )
+                    items.push({
+                        ...pathItem.delete,
+                        path,
+                        method: 'DELETE',
+                    })
+                }
             }
-            if (pathItem.post) {
-                items.push({
-                    ...pathItem.post,
-                    path,
-                    method: 'POST',
-                })
-            }
-            if (pathItem.put) {
-                items.push({
-                    ...pathItem.put,
-                    path,
-                    method: 'PUT',
-                })
-            }
-            if (pathItem.delete) {
-                // console.log('push-del', )
-                items.push({
-                    ...pathItem.delete,
-                    path,
-                    method: 'DELETE',
-                })
-            }
+            setItems(items)
+            // if (res.success) {
+            //     setCurIp(res.data)
+            // }
         }
-        setItems(items)
-        // if (res.success) {
-        //     setCurIp(res.data)
-        // }
     }
 
     useEffect(() => {
@@ -298,7 +302,11 @@ export function SwaggerDetail({ project }) {
     }, [tagList, keyword])
 
     if (!api) {
-        return <div>--</div>
+        return (
+            <FullCenterBox>
+                <Spin />
+            </FullCenterBox>
+        )
     }
 
     // console.log('tagList', tagList)
