@@ -43,31 +43,10 @@ export function SwaggerHome({ event$, onClickItem }) {
     const [ loading, setLoading ] = useState(false)
 
     console.log('render/selectedKeys', selectedKeys)
-    const filterdBuckets = useMemo(() => {
+    
 
-        let filterAccessKeys = accessKeys
-        if (selectedKeys.length) {
-            const key0 = selectedKeys[0]
-            console.log('key0', key0, accessKeys)
-            filterAccessKeys = accessKeys.filter(item => item.id == key0)
-
-        }
-
-        let buckets = []
-        filterAccessKeys.forEach(ak => {
-            for (let bucket of ak.buckets) {
-                buckets.push({
-                    ...bucket,
-                    // accessKey: {
-                    // },
-                    // 兼容列表点击
-                    bucket: bucket.name,
-                    accessKeyId: ak.accessKeyId,
-                    accessKeySecret: ak.accessKeySecret,
-                })
-            }
-        })
-
+    const [list, setList] = useState([])
+    const filterdList = useMemo(() => {
         function score(item) {
             if (item.isFavorite) {
                 return 100
@@ -75,20 +54,18 @@ export function SwaggerHome({ event$, onClickItem }) {
             return 0
         }
         const sorter = (a, b) => {
-            return score(b) - score(a)
+            // return score(b) - score(a)
+            return a.name.localeCompare(b.name)
         }
         
         if (!keyword) {
-            return buckets.sort(sorter)
+            return list.sort(sorter)
         }
-        return buckets
+        return list
             .filter(p => p.name.toLowerCase().includes(keyword.toLowerCase()))
             .sort(sorter)
-        // return projects
-    }, [accessKeys, keyword, selectedKeys])
-
-    const [list, setList] = useState([])
-
+    }, [list, keyword])
+    
     async function loadList() {
         setLoading(true)
         setTreeData([])
@@ -183,7 +160,7 @@ export function SwaggerHome({ event$, onClickItem }) {
                                 </IconButton>
                             </Space>
                         </div>
-                        {/* <div>
+                        <div>
                             <Input
                                 placeholder={t('filter')}
                                 value={keyword}
@@ -192,9 +169,8 @@ export function SwaggerHome({ event$, onClickItem }) {
                                     setKeyword(e.target.value)
                                 }}
                             />
-                        </div> */}
-                        {/* <div>{keyword}</div> */}
-                        {list.length == 0 ?
+                        </div>
+                        {filterdList.length == 0 ?
                             <FullCenterBox
                                 height={320}
                             >
@@ -203,7 +179,7 @@ export function SwaggerHome({ event$, onClickItem }) {
                         :
                             <div className={styles.listWrap}>
                                 <div className={styles.list}>
-                                    {list.map(item => {
+                                    {filterdList.map(item => {
                                         return (
                                             <div
                                                 key={item.id}
@@ -214,18 +190,21 @@ export function SwaggerHome({ event$, onClickItem }) {
                                                     // onClickItem && onClickItem(item)
                                                 }}
                                             >
-                                                <div className={styles.name}>{item.name}</div>
-                                                {!!item.isFavorite &&
-                                                    // <IconButton
-                                                    //     // tooltip={t('add')}
-                                                    //     className={styles.favoriteIcon}
-                                                    //     // onClick={() => {
-                                                    //     //     setProjectModalVisible(true)
-                                                    //     // }}
-                                                    // >
-                                                    // </IconButton>
-                                                    <StarFilled className={styles.favoriteIcon} />
-                                                }
+                                                <div className={styles.content}>
+                                                    <div className={styles.name}>{item.name}</div>
+                                                    {!!item.isFavorite &&
+                                                        // <IconButton
+                                                        //     // tooltip={t('add')}
+                                                        //     className={styles.favoriteIcon}
+                                                        //     // onClick={() => {
+                                                        //     //     setProjectModalVisible(true)
+                                                        //     // }}
+                                                        // >
+                                                        // </IconButton>
+                                                        <StarFilled className={styles.favoriteIcon} />
+                                                    }
+                                                    <div className={styles.url}>{item.url}</div>
+                                                </div>
                                                 <Space
                                                     onClick={(e) => {
                                                         e.preventDefault()
