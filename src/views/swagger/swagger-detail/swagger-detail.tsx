@@ -41,11 +41,17 @@ function getMock(schema, api) {
         return 1.1
     }
     if (schema.type == 'object') {
-        if (schema.properties) {
-            const attrs = Object.keys(schema.properties)
+        if (schema.properties || schema.additionalProperties) {
+            const props = schema.properties || []
+            const attrs = Object.keys(props)
             const obj = {}
             for (let attr of attrs) {
-                obj[attr] = getMock(schema.properties[attr], api)
+                obj[attr] = getMock(props[attr], api)
+            }
+            if (schema.additionalProperties) {
+                obj['additionalProp1'] = getMock(schema.additionalProperties, api)
+                obj['additionalProp2'] = getMock(schema.additionalProperties, api)
+                obj['additionalProp3'] = getMock(schema.additionalProperties, api)
             }
             return obj
         }
@@ -93,17 +99,18 @@ function getType(schema, api) {
         return 'File'
     }
     if (schema.type == 'object') {
-        if (schema.properties) {
-            const attrs = Object.keys(schema.properties)
-            // const obj = {}
-            // for (let attr of attrs) {
-            //     obj[attr] = getType(schema.properties[attr], api)
-            // }
-            // return obj
+        if (schema.properties || schema.additionalProperties) {
+            const props = schema.properties || []
+            const attrs = Object.keys(props)
             return (
                 <div className={styles.obj}>
                     <div className={styles.name}>
-                        {schema.xml.name} {'{'}
+                        {!!schema.xml?.name &&
+                            <span>
+                                {schema.xml?.name} 
+                            </span>
+                        }
+                        {'{'}
                     </div>
                     <div className={styles.attrs}>
                         {attrs.map(attr => {
@@ -113,10 +120,19 @@ function getType(schema, api) {
                                     key={attr}
                                 >
                                     <div className={styles.attrName}>{attr}:</div>
-                                    {getType(schema.properties[attr], api)}
+                                    {getType(props[attr], api)}
                                 </div>
                             )
                         })}
+                        {!!schema.additionalProperties &&
+                            <div
+                                className={styles.item}
+                                // key={attr}
+                            >
+                                <div className={styles.attrName}>{'< * >'}:</div>
+                                {getType(schema.additionalProperties, api)}
+                            </div>
+                        }
                     </div>
                     <div>
                         {'}'}
@@ -257,6 +273,35 @@ function PathItemDetail({ pathItem, api }: {
             title: 'Reason',
             dataIndex: 'description',
             width: 400,
+        },
+        {
+            title: 'Model',
+            dataIndex: 'model',
+            width: 400,
+            render(value, item) {
+                // if (item.type) {
+                //     return <TypeRender schema={item} api={api} />
+                // }
+                if (item.schema) {
+                    return <TypeRender schema={item.schema} api={api} />
+                }
+                return <div>--</div>
+            }
+        },
+        {
+            title: 'Example Value',
+            dataIndex: 'model',
+            key: 'example',
+            width: 400,
+            render(value, item) {
+                // if (item.type) {
+                //     return <TypeRender schema={item} api={api} />
+                // }
+                if (item.schema) {
+                    return <MockRender schema={item.schema} api={api} />
+                }
+                return <div>--</div>
+            }
         },
         {
             title: '',
