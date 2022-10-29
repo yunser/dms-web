@@ -80,14 +80,26 @@ function getMock(schema, api) {
     return '?' + schema.type
 }
 
-function getType(schema, api) {
+function getType(schema, api, level = 0) {
+    
     if (schema.type == 'string') {
         return 'String'
     }
     if (schema.type == 'array') {
-        return [getType(schema.items, api)]
+        return (
+            <div className={styles.array}>
+                {'Array ['}
+                <div className={styles.arrayItems}>
+                    {getType(schema.items, api, level + 1)}
+                </div>
+                {']'}
+            </div>
+        )
     }
     if (schema.type == 'integer') {
+        if (schema.format) {
+            return `Integer(${schema.format})`
+        }
         return 'Integer'
     }
     if (schema.type == 'boolean') {
@@ -100,15 +112,19 @@ function getType(schema, api) {
         return 'File'
     }
     if (schema.type == 'object') {
+        if (level > 8) {
+            return 'Object {}'
+        }
+
         if (schema.properties || schema.additionalProperties) {
             const props = schema.properties || []
             const attrs = Object.keys(props)
             return (
-                <div className={styles.obj}>
+                <div className={classNames(styles.obj, [styles['level-' + level]])}>
                     <div className={styles.name}>
                         {!!schema.xml?.name &&
                             <span>
-                                {schema.xml?.name} 
+                                {schema.xml?.name} {' '}
                             </span>
                         }
                         {'{'}
@@ -121,7 +137,7 @@ function getType(schema, api) {
                                     key={attr}
                                 >
                                     <div className={styles.attrName}>{attr}:</div>
-                                    {getType(props[attr], api)}
+                                    {getType(props[attr], api, level + 1)}
                                 </div>
                             )
                         })}
@@ -131,7 +147,7 @@ function getType(schema, api) {
                                 // key={attr}
                             >
                                 <div className={styles.attrName}>{'< * >'}:</div>
-                                {getType(schema.additionalProperties, api)}
+                                {getType(schema.additionalProperties, api,  level + 1)}
                             </div>
                         }
                     </div>
@@ -142,7 +158,7 @@ function getType(schema, api) {
             )
         }
         console.log('??？', schema)
-        return '??'
+        return 'Object {}'
     }
     if (typeof schema == 'object' && schema.$ref) {
         const { $ref } = schema
@@ -150,7 +166,7 @@ function getType(schema, api) {
             const type = $ref.replace('#/definitions/', '')
             const def = api.definitions[type]
             if (def) {
-                return getType(def, api)
+                return getType(def, api, level + 1)
                 // return <TypeRender schema={def} />
             }
             // const obj = 
@@ -192,6 +208,32 @@ function MockRender({ schema, api }) {
                 </CopyButton>
             </div>
         </code>
+    )
+}
+
+function Models({ api }: { api: OpenAPIObject }) {
+
+    const list = Object.keys(api.definitions).map(key => {
+        return {
+            ...api.definitions[key],
+            name: key,
+        }
+    })
+
+    return (
+        <div className={styles.models}>
+            {list.map(item => {
+                return (
+                    <div
+                        key={item.name}
+                        className={styles.modelItem}
+                    >
+                        <div className={styles.modelName}>{item.name}</div>
+                        <TypeRender schema={item} api={api} />
+                    </div>
+                )
+            })}
+        </div>
     )
 }
 
@@ -420,7 +462,7 @@ export function SwaggerDetail({ config, project, onHome }) {
     const [detailVisible, setDetailVisible] = useState(false)
     const [keyword, setKeyword] = useState('')
     const [curTag, setCurTag] = useState('')
-
+    const [curTab, setCurTab] = useState('info')
     const filteredItems = useMemo(() => {
 
         let all = items
@@ -534,6 +576,16 @@ export function SwaggerDetail({ config, project, onHome }) {
         )
     }
 
+    // let apiInfo = null
+    // let models = null
+    // if (!detailVisible) {
+    //     apiInfo = (
+                
+    //     )
+    //     models = (
+            
+    //     )
+    // }
     // console.log('tagList', tagList)
     return (
         <div className={styles.swaggerApp}>
@@ -658,50 +710,87 @@ export function SwaggerDetail({ config, project, onHome }) {
                         api={api}
                     />
                 :
-                    <div id="info" className={styles.docHome}>
-                        <div className={styles.docHeader}>
-                            <div className={styles.docTitle}>{api.info.title}</div>
-                            <Tag>v{api.info.version}</Tag>
+                    <div className={styles.tabs}>
+                        <div className={styles.tabHeader}>
+                            <Tabs
+                                activeKey={curTab}
+                                onChange={key => {
+                                    setCurTab(key)
+                                }}
+                                type="card"
+                                items={[
+                                    {
+                                        label: 'Info',
+                                        key: 'info',
+                                        // children: apiInfo,
+                                    },
+                                    {
+                                        label: 'Models',
+                                        key: 'models',
+                                        // children: models,
+                                    },
+                                ]}
+                            />
                         </div>
-                        <div className={styles.desc}>
-                            {/* {api.info.description} */}
-                            <div className={styles.article} dangerouslySetInnerHTML={{
-                                __html: marked.parse(api.info.description)
-                            }}>
+                        <div className={styles.tabContent}>
+                            {curTab == 'info' &&
+                                <div id="info" className={styles.docHome}>
+                                    <div className={styles.docHeader}>
+                                        <div className={styles.docTitle}>{api.info.title}</div>
+                                        <Tag>v{api.info.version}</Tag>
+                                    </div>
+                                    <div className={styles.desc}>
+                                        {/* {api.info.description} */}
+                                        <div 
+                                            className={styles.article} 
+                                            dangerouslySetInnerHTML={{
+                                                __html: marked.parse(api.info.description)
+                                            }}
+                                        >
+                    
+                                        </div>
+                                    </div>
+                    
+                                    <Descriptions column={1}>
+                                        <Descriptions.Item label="Base Path">
+                                            {api.basePath}
+                                        </Descriptions.Item>
+                                        {!!api.info.license &&
+                                            <Descriptions.Item label="License">
+                                                <a href={api.info.license.url} target="_blank">{api.info.license.name}</a>
+                                            </Descriptions.Item>
+                                        }
+                                        <Descriptions.Item label="Contact">
+                                            {api.info.contact?.email}
+                                        </Descriptions.Item>
+                                        {!!api.info.termsOfService &&
+                                            <Descriptions.Item label="Terms of service">
+                                                <a href={api.info.termsOfService} target="_blank">{api.info.termsOfService}</a>
+                                            </Descriptions.Item>
+                                        }
+                                        {!!api.schemes &&
+                                            <Descriptions.Item label="Schemes">
+                                                {api.schemes.join(', ')}
+                                            </Descriptions.Item>
+                                        }
+                                        <Descriptions.Item label="Swagger version">
+                                            v{api.swagger}
+                                        </Descriptions.Item>
+                                        <Descriptions.Item label="URL">
+                                            {project.url}
+                                        </Descriptions.Item>
+                                    </Descriptions>
+                                </div>  
+                            }
+                            {curTab == 'models' &&
+                                <div>
+                                    <Models api={api} />
+                                </div>
+                            }
+                        </div>
 
                     </div>
-                        </div>
-
-                        <Descriptions column={1}>
-                            <Descriptions.Item label="Base Path">
-                                {api.basePath}
-                            </Descriptions.Item>
-                            {!!api.info.license &&
-                                <Descriptions.Item label="License">
-                                    <a href={api.info.license.url} target="_blank">{api.info.license.name}</a>
-                                </Descriptions.Item>
-                            }
-                            <Descriptions.Item label="Contact">
-                                {api.info.contact?.email}
-                            </Descriptions.Item>
-                            {!!api.info.termsOfService &&
-                                <Descriptions.Item label="Terms of service">
-                                    <a href={api.info.termsOfService} target="_blank">{api.info.termsOfService}</a>
-                                </Descriptions.Item>
-                            }
-                            {!!api.schemes &&
-                                <Descriptions.Item label="Schemes">
-                                    {api.schemes.join(', ')}
-                                </Descriptions.Item>
-                            }
-                            <Descriptions.Item label="Swagger version">
-                                v{api.swagger}
-                            </Descriptions.Item>
-                            <Descriptions.Item label="URL">
-                                {project.url}
-                            </Descriptions.Item>
-                        </Descriptions>
-                    </div>   
+                    
                 }
             </div>
             {/* {detailVisible &&
