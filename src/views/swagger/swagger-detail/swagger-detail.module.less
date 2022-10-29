@@ -12,15 +12,24 @@
         overflow: auto;
     }
     .layoutRight {
+        position: relative;
         flex: 1 0 auto;
+        width: 0;
         // border: 1px solid #000;
         overflow: auto;
         padding: 16px;
-        
+        .close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+        }
     }
     .docHome {
         padding: 16px;
         margin-bottom: 24px;
+        .desc {
+            margin-bottom: 24px;
+        }
     }
     .docHeader {
         // padding: 16px;
@@ -37,7 +46,8 @@
 
 .tags {
     .tagItem {
-        border: 1px solid var(--border-color);
+        border-top: 1px solid var(--border-color);
+        padding-bottom: 8px;
     }
     .tagItemHeader {
         // border: 1px solid #000;
@@ -65,7 +75,7 @@
             cursor: pointer;
             // border: 1px solid #f00;
             &:hover {
-                background-color: #f1f1f1;
+                background-color: var(--color-f1);
             }
             &.active {
                 color: #fff;
@@ -208,5 +218,20 @@
 .parameters {
     .item {
         border: 1px solid #000;
+    }
+}
+
+
+.obj {
+    .attrs {
+        padding-left: 16px;
+    }   
+    .item {
+        // border: 1px solid #000;
+        display: flex;
+        // align-items: center;
+    }
+    .attrName {
+        margin-right: 8px;
     }
 }

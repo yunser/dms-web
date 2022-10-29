@@ -358,9 +358,6 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
         setLoading(false)
     }
 
-    // console.log('content', content)
-    // console.log('md', marked.parse('123'))
-
     useEffect(() => {
         console.log('degg/useEffect', path, isPureText)
         // hack 经常会因为 path 为空接口报错

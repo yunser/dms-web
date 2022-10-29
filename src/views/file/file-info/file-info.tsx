@@ -5,18 +5,10 @@ import _ from 'lodash';
 import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { DownloadOutlined, EllipsisOutlined, FileOutlined, FolderOutlined, LeftOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
-import saveAs from 'file-saver';
-import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
-import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/db-manager/redis-client';
 import moment from 'moment';
 // import { saveAs } from 'file-saver'
-import filesize from 'file-size'
-import { FileList } from '../file-list'
-import { marked } from 'marked'
 import { FileUtil } from '../utils/utl';
 
 interface File {

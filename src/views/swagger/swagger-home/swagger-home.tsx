@@ -293,6 +293,9 @@ export function SwaggerHome({ event$, onClickItem }) {
                     config={config}
                     event$={event$}
                     project={curProject}
+                    onHome={() => {
+                        setView('list')
+                    }}
                     // projectPath={curProject.path}
                     // onList={() => {
                     //     setView('list')

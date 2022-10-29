@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { DownloadOutlined, EllipsisOutlined, KeyOutlined, PlusOutlined, ReloadOutlined, StarFilled } from '@ant-design/icons';
+import { CloseCircleOutlined, CloseOutlined, DownloadOutlined, EllipsisOutlined, HomeOutlined, KeyOutlined, PlusOutlined, ReloadOutlined, StarFilled } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 // import { GitProject } from '../git-project';
@@ -18,8 +18,9 @@ import moment from 'moment';
 // import { saveAs } from 'file-saver'
 
 import { OpenAPIObject, PathItemObject } from 'openapi3-ts'
+import { marked } from 'marked';
 
-function getMock(schema) {
+function getMock(schema, api) {
     if (schema.type == 'string') {
         return 'string'
     }
@@ -28,10 +29,13 @@ function getMock(schema) {
         // for (let attr of schema) {
 
         // }
-        return [getMock(schema.items)]
+        return [getMock(schema.items, api)]
     }
     if (schema.type == 'integer') {
         return 1
+    }
+    if (schema.type == 'boolean') {
+        return true
     }
     if (schema.type == 'number') {
         return 1.1
@@ -41,21 +45,122 @@ function getMock(schema) {
             const attrs = Object.keys(schema.properties)
             const obj = {}
             for (let attr of attrs) {
-                obj[attr] = getMock(schema.properties[attr])
+                obj[attr] = getMock(schema.properties[attr], api)
             }
             return obj
         }
+        console.log('??？', schema)
         return '??'
     }
+    if (typeof schema == 'object' && schema.$ref) {
+        const { $ref } = schema
+        if ($ref && $ref.startsWith('#/definitions/')) {
+            const type = $ref.replace('#/definitions/', '')
+            const def = api.definitions[type]
+            if (def) {
+                return getMock(def, api)
+                // return <TypeRender schema={def} />
+            }
+            // const obj = 
+            // return <div>{type}</div>
+        }
+        return schema.$ref
+    }
+    if (schema.type == 'file') {
+        return '--'
+    }
+    console.log('??', schema)
     return '?' + schema.type
 }
-function TypeRender({ schema }) {
+
+function getType(schema, api) {
+    if (schema.type == 'string') {
+        return 'String'
+    }
+    if (schema.type == 'array') {
+        return [getType(schema.items, api)]
+    }
+    if (schema.type == 'integer') {
+        return 'Integer'
+    }
+    if (schema.type == 'boolean') {
+        return 'Boolean'
+    }
+    if (schema.type == 'number') {
+        return 'Number'
+    }
+    if (schema.type == 'file') {
+        return 'File'
+    }
+    if (schema.type == 'object') {
+        if (schema.properties) {
+            const attrs = Object.keys(schema.properties)
+            // const obj = {}
+            // for (let attr of attrs) {
+            //     obj[attr] = getType(schema.properties[attr], api)
+            // }
+            // return obj
+            return (
+                <div className={styles.obj}>
+                    <div className={styles.name}>
+                        {schema.xml.name} {'{'}
+                    </div>
+                    <div className={styles.attrs}>
+                        {attrs.map(attr => {
+                            return (
+                                <div
+                                    className={styles.item}
+                                    key={attr}
+                                >
+                                    <div className={styles.attrName}>{attr}:</div>
+                                    {getType(schema.properties[attr], api)}
+                                </div>
+                            )
+                        })}
+                    </div>
+                    <div>
+                        {'}'}
+                    </div>
+                </div>
+            )
+        }
+        console.log('??？', schema)
+        return '??'
+    }
+    if (typeof schema == 'object' && schema.$ref) {
+        const { $ref } = schema
+        if ($ref && $ref.startsWith('#/definitions/')) {
+            const type = $ref.replace('#/definitions/', '')
+            const def = api.definitions[type]
+            if (def) {
+                return getType(def, api)
+                // return <TypeRender schema={def} />
+            }
+            // const obj = 
+            // return <div>{type}</div>
+        }
+        // return <div>{item.schema.$ref}</div>
+        return $ref
+    }
+    console.log('??', schema)
+    return '?' + schema.type
+}
+
+
+function TypeRender({ schema, api }) {
+    return <div>{getType(schema, api)}</div>
+}
+
+function MockRender({ schema, api }) {
     // if (schema.type == 'object') {
     //     const attrs = 
     // }
     // if "type": "object",
-    const mock = getMock(schema)
-    return <pre>{JSON.stringify(mock, null, 4)}</pre>
+    const mock = getMock(schema, api)
+    if (typeof mock == 'number' || typeof mock == 'string') {
+        return <div>{mock}</div>    
+    }
+    return <pre style={{ marginBottom: 0 }}>{JSON.stringify(mock, null, 4)}</pre>
 }
 
 function PathItemDetail({ pathItem, api }: { 
@@ -67,37 +172,52 @@ function PathItemDetail({ pathItem, api }: {
         {
             title: 'name',
             dataIndex: 'name',
+            width: 240,
         },
         {
             title: 'Description',
             dataIndex: 'description',
+            width: 400,
+            // ellipsis: true
         },
         {
             title: 'Parameter Type',
             dataIndex: 'in',
+            width: 240,
         },
         {
             title: 'Data Type',
             dataIndex: 'type',
+            width: 240,
             render(value, item) {
                 if (item.type) {
-                    return <div>{item.type}</div>
+                    return <TypeRender schema={item} api={api} />
                 }
                 if (item.schema) {
-                    const { $ref } = item.schema
-                    if ($ref && $ref.startsWith('#/definitions/')) {
-                        const type = $ref.replace('#/definitions/', '')
-                        const def = api.definitions[type]
-                        if (def) {
-                            return <TypeRender schema={def} />
-                        }
-                        // const obj = 
-                        return <div>{type}</div>
-                    }
-                    return <div>{item.schema.$ref}</div>
+                    return <TypeRender schema={item.schema} api={api} />
                 }
                 return <div>--</div>
             }
+        },
+        {
+            title: 'Mock',
+            dataIndex: 'type',
+            key: 'type2',
+            width: 240,
+            render(value, item) {
+                if (item.type) {
+                    return <MockRender schema={item} api={api} />
+                    // return <div>{getMock(item, api)}</div>
+                }
+                if (item.schema) {
+                    return <MockRender schema={item.schema} api={api} />
+                }
+                return <div>--</div>
+            }
+        },
+        {
+            title: '',
+            dataIndex: '__empty__',
         },
     ]
 
@@ -110,6 +230,7 @@ function PathItemDetail({ pathItem, api }: {
         {
             title: 'Reason',
             dataIndex: 'description',
+            width: 400,
         },
         {
             title: '',
@@ -178,7 +299,7 @@ function PathItemDetail({ pathItem, api }: {
     ))
 }
 
-export function SwaggerDetail({ config, project }) {
+export function SwaggerDetail({ config, project, onHome }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [curIp, setCurIp] = useState('--')
@@ -209,15 +330,11 @@ export function SwaggerDetail({ config, project }) {
             url: project.url
         })
         if (res.success) {
-            // let res = await request.get('https://petstore.swagger.io/v2/swagger.json')
-            // console.log('res', res)
             const api: OpenAPIObject = res.data
             setApi(api)
             const items = []
             for (let path in api.paths) {
                 const pathItem: PathItemObject = api.paths[path]
-                // console.log('pathItem', pathItem)
-                // console.log('pathItem.delete', pathItem.delete)
                 if (pathItem.get) {
                     items.push({
                         ...pathItem.get,
@@ -249,9 +366,6 @@ export function SwaggerDetail({ config, project }) {
                 }
             }
             setItems(items)
-            // if (res.success) {
-            //     setCurIp(res.data)
-            // }
         }
     }
 
@@ -408,6 +522,25 @@ export function SwaggerDetail({ config, project }) {
                     </>
                 }
                 {detailVisible ?
+                    <IconButton 
+                        className={styles.close}
+                        onClick={() => {
+                            setDetailVisible(false)
+                        }}
+                    >
+                        <CloseOutlined />
+                    </IconButton>
+                :
+                    <IconButton 
+                        className={styles.close}
+                        onClick={() => {
+                            onHome && onHome()
+                        }}
+                        >
+                        <HomeOutlined />
+                    </IconButton>
+                }
+                {detailVisible ?
                     <PathItemDetail 
                         pathItem={detailItem}
                         api={api}
@@ -416,11 +549,43 @@ export function SwaggerDetail({ config, project }) {
                     <div id="info" className={styles.docHome}>
                         <div className={styles.docHeader}>
                             <div className={styles.docTitle}>{api.info.title}</div>
-                            <Tag>{api.info.version}</Tag>
+                            <Tag>v{api.info.version}</Tag>
                         </div>
-                        <div>{api.info.description}</div>
-                        <div>basePath: {api.basePath}</div>
-                        {/* <div>version:{api.swagger}</div> */}
+                        <div className={styles.desc}>
+                            {/* {api.info.description} */}
+                            <div className={styles.article} dangerouslySetInnerHTML={{
+                                __html: marked.parse(api.info.description)
+                            }}>
+
+                    </div>
+                        </div>
+
+                        <Descriptions column={1}>
+                            <Descriptions.Item label="Base Path">
+                                {api.basePath}
+                            </Descriptions.Item>
+                            {!!api.info.license &&
+                                <Descriptions.Item label="License">
+                                    <a href={api.info.license.url} target="_blank">{api.info.license.name}</a>
+                                </Descriptions.Item>
+                            }
+                            <Descriptions.Item label="Contact">
+                                {api.info.contact?.email}
+                            </Descriptions.Item>
+                            {!!api.info.termsOfService &&
+                                <Descriptions.Item label="Terms of service">
+                                    <a href={api.info.termsOfService} target="_blank">{api.info.termsOfService}</a>
+                                </Descriptions.Item>
+                            }
+                            {!!api.schemes &&
+                                <Descriptions.Item label="Schemes">
+                                    {api.schemes.join(', ')}
+                                </Descriptions.Item>
+                            }
+                            <Descriptions.Item label="Swagger version">
+                                v{api.swagger}
+                            </Descriptions.Item>
+                        </Descriptions>
                     </div>   
                 }
             </div>
