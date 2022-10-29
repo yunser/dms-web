@@ -57,7 +57,7 @@ function getMock(schema, api) {
             return obj
         }
         console.log('??？', schema)
-        return '??'
+        return {}
     }
     if (typeof schema == 'object' && schema.$ref) {
         const { $ref } = schema
@@ -776,8 +776,8 @@ export function SwaggerDetail({ config, project, onHome }) {
                                         <Descriptions.Item label="Swagger version">
                                             v{api.swagger}
                                         </Descriptions.Item>
-                                        <Descriptions.Item label="URL">
-                                            {project.url}
+                                        <Descriptions.Item label="Source">
+                                        <a href={project.url} target="_blank">{project.url}</a>
                                         </Descriptions.Item>
                                     </Descriptions>
                                 </div>  

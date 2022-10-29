@@ -95,7 +95,7 @@ export function SwaggerHome({ event$, onClickItem }) {
         setAccessKeys([])
         setSelectedKeys([])
         
-        let res = await request.post(`${config.host}/file/swagger`, {
+        let res = await request.post(`${config.host}/swagger/list`, {
             // projectPath,
             // connectionId,
             // sql: lineCode,
@@ -114,6 +114,37 @@ export function SwaggerHome({ event$, onClickItem }) {
         setLoading(false)
     }
 
+    function editProject(item) {
+        setModalItem(item)
+        setModalVisible(true)
+    }
+
+    async function deleteProject(item) {
+        Modal.confirm({
+            title: '',
+            // icon: <ExclamationCircleOutlined />,
+            content: `${t('delete')}「${item.name}」?`,
+            async onOk() {
+                let res = await request.post(`${config.host}/swagger/delete`, {
+                    id: item.id,
+                })
+                console.log('get/res', res.data)
+                if (res.success) {
+                    message.success(t('success'))
+                    // onSuccess && onSuccess()
+                    loadList()
+                    // loadKeys()
+                    // setResult(null)
+                    // setResult({
+                    //     key: item,
+                    //     ...res.data,
+                    // })
+                    // setInputValue(res.data.value)
+                }
+            }
+        })
+    }
+
     useEffect(() => {
         loadList()
     }, [])
@@ -129,55 +160,27 @@ export function SwaggerHome({ event$, onClickItem }) {
                             
                         >
                             <Space>
-                                
-                                {/* <Dropdown
-                                    trigger={['click']}
-                                    overlay={
-                                        <Menu
-                                            items={[
-                                                {
-                                                    label: t('git.clone_from_url'),
-                                                    key: 'clone_from_url',
-                                                },
-                                                {
-                                                    label: t('git.add_exists_local_repository'),
-                                                    key: 'add_exists',
-                                                },
-                                                {
-                                                    label: t('git.create_local_repository'),
-                                                    key: 'create_git',
-                                                },
-                                            ]}
-                                            onClick={({ key }) => {
-                                                if (key == 'add_exists') {
-                                                    setProjectModalVisible(true)
-                                                    setProjectItem(null)
-                                                    setCreateType('exists')
-                                                }
-                                                else if (key == 'clone_from_url') {
-                                                    setCloneModalVisible(true)
-                                                    setProjectItem(null)
-                                                    setCreateType('clone')
-                                                }
-                                                else if (key == 'create_git') {
-                                                    setProjectModalVisible(true)
-                                                    setProjectItem(null)
-                                                    setCreateType('init')
-                                                }
-                                            }}
-                                        />
-                                    }
+                                <IconButton
+                                    tooltip={t('refresh')}
+                                    // size="small"
+                                    className={styles.refresh}
+                                    onClick={() => {
+                                        // loadKey()
+                                        loadList()
+                                    }}
                                 >
-                                    <IconButton
-                                        // tooltip={t('add')}
-                                        className={styles.refresh}
-                                        // onClick={() => {
-                                        //     setProjectModalVisible(true)
-                                        // }}
-                                    >
-                                        <PlusOutlined />
-                                    </IconButton>
-                                </Dropdown> */}
+                                    <ReloadOutlined />
+                                </IconButton>
+                                <IconButton
+                                    // tooltip={t('add')}
+                                    className={styles.refresh}
+                                    onClick={() => {
+                                        setModalItem(null)
+                                        setModalVisible(true)
+                                    }}
+                                >
+                                    <PlusOutlined />
+                                </IconButton>
                             </Space>
                         </div>
                         {/* <div>
@@ -239,7 +242,7 @@ export function SwaggerHome({ event$, onClickItem }) {
                                                             <Tag>{item.branch}</Tag>
                                                         </div>
                                                     } */}
-                                                    {/* <Dropdown
+                                                    <Dropdown
                                                         trigger={['click']}
                                                         overlay={
                                                             <Menu
@@ -251,6 +254,7 @@ export function SwaggerHome({ event$, onClickItem }) {
                                                                     {
                                                                         label: t('delete'),
                                                                         key: 'delete',
+                                                                        danger: true,
                                                                     },
                                                                 ]}
                                                                 onClick={({ key, domEvent }) => {
@@ -275,7 +279,7 @@ export function SwaggerHome({ event$, onClickItem }) {
                                                         >
                                                             <EllipsisOutlined />
                                                         </IconButton>
-                                                    </Dropdown> */}
+                                                    </Dropdown>
                                                 </Space>
                                             </div>
                                         )
@@ -387,11 +391,10 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
         let _connections
         const saveOrUpdateData = {
             name: values.name || t('unnamed'),
-            accessKeyId: values.accessKeyId,
-            accessKeySecret: values.accessKeySecret,
+            url: values.url,
         }
         if (editType == 'create') {
-            let res = await request.post(`${config.host}/oss/accessKey/create`, {
+            let res = await request.post(`${config.host}/swagger/create`, {
                 ...saveOrUpdateData,
             })
             if (res.success) {
@@ -399,7 +402,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
             }
         }
         else {
-            let res = await request.post(`${config.host}/oss/accessKey/update`, {
+            let res = await request.post(`${config.host}/swagger/update`, {
                 id: item.id,
                 data: {
                     ...saveOrUpdateData,
@@ -432,7 +435,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
 
     return (
         <Modal
-            title={editType == 'create' ? t('access_key.create') : t('access_key.update')}
+            title={editType == 'create' ? t('create') : t('update')}
             visible={true}
             maskClosable={false}
             onCancel={onCancel}
@@ -492,30 +495,14 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
                     <Input />
                 </Form.Item>
                 <Form.Item
-                    name="accessKeyId"
-                    label="AccessKey ID"
+                    name="url"
+                    label="URL"
                     rules={[ { required: true, }, ]}
                 >
                     <Input
                         // placeholder="localhost"
                     />
                 </Form.Item>
-                <Form.Item
-                    name="accessKeySecret"
-                    label="AccessKey Secret"
-                    rules={[ { required: true, }, ]}
-                >
-                    <Input
-                        // placeholder="localhost"
-                    />
-                </Form.Item>
-                {/* <Form.Item
-                    name="password"
-                    label={t('password')}
-                    rules={[{ required: true, },]}
-                >
-                    <InputPassword />
-                </Form.Item> */}
             </Form>
         </Modal>
     );
