@@ -463,6 +463,8 @@ export function SwaggerDetail({ config, project, onHome }) {
     const [keyword, setKeyword] = useState('')
     const [curTag, setCurTag] = useState('')
     const [curTab, setCurTab] = useState('info')
+    const [error, setError] = useState('')
+
     const filteredItems = useMemo(() => {
 
         let all = items
@@ -479,11 +481,19 @@ export function SwaggerDetail({ config, project, onHome }) {
     }, [curTag, items, keyword])
 
     async function loadData() {
+        setError('')
         let res = await request.post(`${config.host}/http/proxy`, {
-            url: project.url
+            url: project.url,
+        }, {
+            noMessage: true,
         })
+        console.log('proxy/res', res)
         if (res.success) {
             const api: OpenAPIObject = res.data
+            if (!api.openapi && !api.swagger) {
+                setError(`${project.url} is not a OpenAPI/Swagger URL`)
+                return
+            }
             setApi(api)
             const items = []
             for (let path in api.paths) {
@@ -519,6 +529,9 @@ export function SwaggerDetail({ config, project, onHome }) {
                 }
             }
             setItems(items)
+        }
+        else {
+            setError(res.data?.message || res.data?.msg || res.statusText || 'Unknown Error')
         }
     }
 
@@ -568,6 +581,30 @@ export function SwaggerDetail({ config, project, onHome }) {
             // .filter(item => item.name.toLowerCase().includes(kw))
     }, [tagList, keyword])
 
+    
+    if (!!error) {
+        return (
+            <div className={styles.errorBox}>
+                <div className={styles.msg}>{error}</div>
+                <IconButton 
+                    className={styles.close}
+                    onClick={() => {
+                        onHome && onHome()
+                    }}
+                    >
+                    <HomeOutlined />
+                </IconButton>
+                {/* <Button
+                    onClick={() => {
+                        onHome && onHome()
+                    }}
+                >
+                    Home
+                </Button> */}
+            </div>
+        )
+    }
+    
     if (!api) {
         return (
             <FullCenterBox>
@@ -575,7 +612,6 @@ export function SwaggerDetail({ config, project, onHome }) {
             </FullCenterBox>
         )
     }
-
     // let apiInfo = null
     // let models = null
     // if (!detailVisible) {
