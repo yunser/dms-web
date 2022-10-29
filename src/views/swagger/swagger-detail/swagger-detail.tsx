@@ -270,7 +270,12 @@ function PathItemDetail({ pathItem, api }: {
 
     return ((
         <div className={styles.detailBox}>
-            <div className={styles.header}>
+            <div
+                className={classNames(styles.header, {
+                    [styles.deprecated]: pathItem.deprecated,
+                })}
+            >
+            
                 {/* <div>{pathItem.method}</div> */}
                 <div className={classNames(styles.method, styles[pathItem.method])}>{pathItem.method}</div>
                 <div className={styles.path}>{pathItem.path}</div>
@@ -486,7 +491,8 @@ export function SwaggerDetail({ config, project, onHome }) {
                                     {tag.items.map(pathItem => {
                                         return (
                                             <div className={classNames(styles.pathItem, {
-                                                [styles.active]: detailItem && detailItem.path == pathItem.path && detailItem.method == pathItem.method
+                                                [styles.active]: detailItem && detailItem.path == pathItem.path && detailItem.method == pathItem.method,
+                                                [styles.deprecated]: pathItem.deprecated,
                                             })}
                                                 onClick={() => {
                                                     setDetailItem(pathItem)
@@ -600,6 +606,9 @@ export function SwaggerDetail({ config, project, onHome }) {
                             }
                             <Descriptions.Item label="Swagger version">
                                 v{api.swagger}
+                            </Descriptions.Item>
+                            <Descriptions.Item label="URL">
+                                {project.url}
                             </Descriptions.Item>
                         </Descriptions>
                     </div>   
