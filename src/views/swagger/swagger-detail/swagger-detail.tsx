@@ -226,6 +226,22 @@ function PathItemDetail({ pathItem, api }: {
             title: 'HTTP Status Code',
             dataIndex: 'httpStatus',
             width: 160,
+            render(value) {
+                console.log('value', typeof value, value, value.startsWith('2'))
+                let color
+                if (value.startsWith('2')) {
+                    color = 'green'
+                }
+                else if (value.startsWith('4') || value.startsWith('5')) {
+                    color = 'red'
+                }
+                else {
+                    // color = 'red'
+                }
+                return (
+                    <div style={{ color }}>{value}</div>
+                )
+            }
         },
         {
             title: 'Reason',
