@@ -173,6 +173,16 @@ function PathItemDetail({ pathItem, api }: {
             title: 'name',
             dataIndex: 'name',
             width: 240,
+            render(value, item) {
+                return (
+                    <div>
+                        {value}
+                        {item.required &&
+                            <div className={styles.required}>*</div>
+                        }
+                    </div>
+                )
+            }
         },
         {
             title: 'Description',
