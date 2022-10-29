@@ -909,11 +909,32 @@ export function SwaggerDetail({ config, project, onHome }) {
                                                 {api.schemes.join(', ')}
                                             </Descriptions.Item>
                                         }
+                                        {!!api.externalDocs &&
+                                            <Descriptions.Item label="External Docs">
+                                                <a href={api.externalDocs.url} target="_blank">{api.externalDocs.description}</a>
+                                            </Descriptions.Item>
+                                        }
+                                        {!!api.host &&
+                                            <Descriptions.Item label="Host">
+                                                <a href={api.host} target="_blank">{api.host}</a>
+                                            </Descriptions.Item>
+                                        }
+                                        {!!api.servers &&
+                                            <Descriptions.Item label="Servers">
+                                                <ul className={styles.servers}>
+                                                    {api.servers.map(server => {
+                                                        return (
+                                                            <li className={styles.item}>{server.url}</li>
+                                                        )
+                                                    })}
+                                                </ul>
+                                            </Descriptions.Item>
+                                        }
                                         <Descriptions.Item label="Version">
                                             {api.openapi ? 'OpenAPI' : 'Swagger'} v{api.openapi || api.swagger}
                                         </Descriptions.Item>
                                         <Descriptions.Item label="Source">
-                                        <a href={project.url} target="_blank">{project.url}</a>
+                                            <a href={project.url} target="_blank">{project.url}</a>
                                         </Descriptions.Item>
                                     </Descriptions>
                                 </div>  
