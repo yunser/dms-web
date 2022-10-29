@@ -27,9 +27,10 @@
     }
     .docHome {
         padding: 16px;
-        margin-bottom: 24px;
+        // margin-bottom: 32px;
         .desc {
-            margin-bottom: 24px;
+            margin-bottom: 48px;
+            border-bottom: 1px solid var(--border-color);
         }
     }
     .docHeader {
@@ -188,6 +189,7 @@
         display: flex;
         align-items: center;
         margin-bottom: 16px;
+        // border: 1px solid #000;
         &.deprecated {
             .path {
                 text-decoration: line-through;
@@ -236,6 +238,11 @@
                 background-color: #e74f47;
             }
         }
+    }
+    .summary {
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 8px;
     }
     .tags {
         // margin-bottom: 16px;
@@ -361,5 +368,11 @@
     .msg {
         color: red;
         margin-bottom: 16px;
+    }
+}
+
+.requestBody {
+    .desc {
+        margin-bottom: 12px;
     }
 }

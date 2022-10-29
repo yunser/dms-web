@@ -61,9 +61,19 @@ function getMock(schema, api) {
     }
     if (typeof schema == 'object' && schema.$ref) {
         const { $ref } = schema
-        if ($ref && $ref.startsWith('#/definitions/')) {
+        if ($ref && $ref.startsWith('#/components/schemas/')) {
+            const type = $ref.replace('#/components/schemas/', '')
+            const def = getModelsMap(api)[type]
+            if (def) {
+                return getMock(def, api)
+                // return <TypeRender schema={def} />
+            }
+            // const obj = 
+            // return <div>{type}</div>
+        }
+        else if ($ref && $ref.startsWith('#/definitions/')) {
             const type = $ref.replace('#/definitions/', '')
-            const def = api.definitions[type]
+            const def = getModelsMap(api)[type]
             if (def) {
                 return getMock(def, api)
                 // return <TypeRender schema={def} />
@@ -162,9 +172,19 @@ function getType(schema, api, level = 0) {
     }
     if (typeof schema == 'object' && schema.$ref) {
         const { $ref } = schema
-        if ($ref && $ref.startsWith('#/definitions/')) {
+        if ($ref && $ref.startsWith('#/components/schemas/')) {
+            const type = $ref.replace('#/components/schemas/', '')
+            const def = getModelsMap(api)[type]
+            if (def) {
+                return getType(def, api, level + 1)
+                // return <TypeRender schema={def} />
+            }
+            // const obj = 
+            // return <div>{type}</div>
+        }
+        else if ($ref && $ref.startsWith('#/definitions/')) {
             const type = $ref.replace('#/definitions/', '')
-            const def = api.definitions[type]
+            const def = getModelsMap(api)[type]
             if (def) {
                 return getType(def, api, level + 1)
                 // return <TypeRender schema={def} />
@@ -211,11 +231,60 @@ function MockRender({ schema, api }) {
     )
 }
 
+function getModelsMap(api: OpenAPIObject) {
+    return api.components?.schemas || api.definitions || {}
+}
+
+function RequestBody({ requestBody, api }) {
+    if (!requestBody.content['application/json']) {
+        return '--'
+    }
+    const { schema } = requestBody.content['application/json']
+
+    const columns = [
+        {
+            title: 'Model',
+            dataIndex: 'model',
+            render() {
+                return (
+                    <div>
+                        <TypeRender schema={schema} api={api} />
+                    </div>
+                )
+            },
+        },
+        {
+            title: 'Example Value',
+            dataIndex: 'a',
+            render() {
+                return (
+                    <div>
+                        <MockRender schema={schema} api={api} />
+                    </div>
+                )
+            },
+        },
+    ]
+
+    return (
+        <div>
+            <Table
+                dataSource={[{}]}
+                columns={columns}
+                bordered
+                size="small"
+            />
+        </div>
+    )
+}
+
 function Models({ api }: { api: OpenAPIObject }) {
 
-    const list = Object.keys(api.definitions).map(key => {
+    const modelsMap = getModelsMap(api)
+
+    const list = Object.keys(modelsMap).map(key => {
         return {
-            ...api.definitions[key],
+            ...modelsMap[key],
             name: key,
         }
     })
@@ -350,8 +419,16 @@ function PathItemDetail({ pathItem, api }: {
                 // if (item.type) {
                 //     return <TypeRender schema={item} api={api} />
                 // }
-                if (item.schema) {
-                    return <TypeRender schema={item.schema} api={api} />
+                let schema
+                if (item['content']?.['application/json']?.schema) {
+                    schema = item.content['application/json']['schema']
+                }
+                else {
+                    schema = item.schema
+                }
+                if (schema) {
+                    console.log('schema?', schema)
+                    return <TypeRender schema={schema} api={api} />
                 }
                 return <div>--</div>
             }
@@ -365,8 +442,15 @@ function PathItemDetail({ pathItem, api }: {
                 // if (item.type) {
                 //     return <TypeRender schema={item} api={api} />
                 // }
-                if (item.schema) {
-                    return <MockRender schema={item.schema} api={api} />
+                let schema
+                if (item['content']?.['application/json']?.schema) {
+                    schema = item.content['application/json']['schema']
+                }
+                else {
+                    schema = item.schema
+                }
+                if (schema) {
+                    return <MockRender schema={schema} api={api} />
                 }
                 return <div>--</div>
             }
@@ -419,25 +503,41 @@ function PathItemDetail({ pathItem, api }: {
                     })}
                 </div>
             </div>
-            <div>{pathItem.summary}</div>
+            <div className={styles.summary}>{pathItem.summary}</div>
+            <div>{pathItem.description}</div>
 
-            <div className={styles.sectionTitle}>Parameters</div>
-            {/* <div className={styles.parameters}>
-                {pathItem.parameters?.map(param => {
-                    return (
-                        <div className={styles.item}>
-                            {param.name}
-                        </div>
-                    )
-                })}
-            </div> */}
-            <Table
-                dataSource={pathItem.parameters || []}
-                columns={paramColumns}
-                pagination={false}
-                bordered
-                size="small"
-            />
+            {(pathItem.parameters || []).length > 0 &&
+                <>
+                    <div className={styles.sectionTitle}>Parameters</div>
+                    <Table
+                        dataSource={pathItem.parameters || []}
+                        columns={paramColumns}
+                        pagination={false}
+                        bordered
+                        size="small"
+                    />
+                </>
+            }
+
+            {!!pathItem.requestBody &&
+                <div className={styles.requestBody}>
+                    <div className={styles.sectionTitle}>
+                        Request body
+                        {!!pathItem.requestBody.required &&
+                            <div className={styles.required}>*</div>
+                        }
+                    </div>
+                    <div className={styles.desc}>{pathItem.requestBody.description}</div>
+                    <RequestBody 
+                        requestBody={pathItem.requestBody}
+                        api={api}
+                    />
+                </div>
+            }
+
+
+
+
 
             <div className={styles.sectionTitle}>Response Messages</div>
             {/* <div>Response Messages</div> */}
@@ -809,8 +909,8 @@ export function SwaggerDetail({ config, project, onHome }) {
                                                 {api.schemes.join(', ')}
                                             </Descriptions.Item>
                                         }
-                                        <Descriptions.Item label="Swagger version">
-                                            v{api.swagger}
+                                        <Descriptions.Item label="Version">
+                                            {api.openapi ? 'OpenAPI' : 'Swagger'} v{api.openapi || api.swagger}
                                         </Descriptions.Item>
                                         <Descriptions.Item label="Source">
                                         <a href={project.url} target="_blank">{project.url}</a>

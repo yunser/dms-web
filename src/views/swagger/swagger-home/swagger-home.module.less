@@ -76,16 +76,32 @@
     }
     .content {
         flex: 1 0 auto;
+        width: 0;
         // border: 1px solid #000;
         display: flex;
         flex-direction: row;
         align-items: center;
+        overflow: hidden;
+
+    }
+    .name {
+        white-space: nowrap;
     }
     .url {
+        flex: 1 0 auto;
+        width: 0;
         color: var(--color-text-3);
         margin-left: 24px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        // border: 1px solid #000;
     }
     .favoriteIcon {
         color: #e89f3c;
+    }
+    .right {
+        flex: 0 1 32px;
+        // border: 1px solid #f00;
     }
 }

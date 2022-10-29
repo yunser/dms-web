@@ -206,6 +206,7 @@ export function SwaggerHome({ event$, onClickItem }) {
                                                     <div className={styles.url}>{item.url}</div>
                                                 </div>
                                                 <Space
+                                                    className={styles.right}
                                                     onClick={(e) => {
                                                         e.preventDefault()
                                                         e.stopPropagation()
