@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { CloseCircleOutlined, CloseOutlined, DownloadOutlined, EllipsisOutlined, HomeOutlined, KeyOutlined, PlusOutlined, ReloadOutlined, StarFilled } from '@ant-design/icons';
+import { CloseCircleOutlined, CloseOutlined, CopyOutlined, DownloadOutlined, EllipsisOutlined, HomeOutlined, KeyOutlined, PlusOutlined, ReloadOutlined, StarFilled } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 // import { GitProject } from '../git-project';
@@ -19,6 +19,7 @@ import moment from 'moment';
 
 import { OpenAPIObject, PathItemObject } from 'openapi3-ts'
 import { marked } from 'marked';
+import { CopyButton } from '@/views/db-manager/copy-button';
 
 function getMock(schema, api) {
     if (schema.type == 'string') {
@@ -176,7 +177,22 @@ function MockRender({ schema, api }) {
     if (typeof mock == 'number' || typeof mock == 'string') {
         return <div>{mock}</div>    
     }
-    return <pre style={{ marginBottom: 0 }}>{JSON.stringify(mock, null, 4)}</pre>
+    const code = JSON.stringify(mock, null, 4)
+    return (
+        <code className={styles.code}>
+            <pre style={{ marginBottom: 0 }}>{code}</pre>
+            <div className={styles.copyBtn}>
+                <CopyButton
+                    size="small"
+                    text={code}
+                >
+                    <IconButton title="复制">
+                        <CopyOutlined />
+                    </IconButton>
+                </CopyButton>
+            </div>
+        </code>
+    )
 }
 
 function PathItemDetail({ pathItem, api }: { 
@@ -191,12 +207,22 @@ function PathItemDetail({ pathItem, api }: {
             width: 240,
             render(value, item) {
                 return (
-                    <div>
+                    <Space className={styles.copyCell}>
                         {value}
-                        {item.required &&
+                        {!!item.required &&
                             <div className={styles.required}>*</div>
                         }
-                    </div>
+                        <div className={styles.copyBtn}>
+                            <CopyButton
+                                size="small"
+                                text={value}
+                            >
+                                <IconButton title="复制">
+                                    <CopyOutlined />
+                                </IconButton>
+                            </CopyButton>
+                        </div>
+                    </Space>
                 )
             }
         },
@@ -331,9 +357,18 @@ function PathItemDetail({ pathItem, api }: {
                 })}
             >
             
-                {/* <div>{pathItem.method}</div> */}
                 <div className={classNames(styles.method, styles[pathItem.method])}>{pathItem.method}</div>
                 <div className={styles.path}>{pathItem.path}</div>
+                <div className={styles.copyBtn}>
+                    <CopyButton
+                        size="small"
+                        text={pathItem.path}
+                    >
+                        <IconButton title="复制">
+                            <CopyOutlined />
+                        </IconButton>
+                    </CopyButton>
+                </div>
                 <div className={styles.tags}>
                     {(pathItem.tags || []).map(tag => {
                         return (

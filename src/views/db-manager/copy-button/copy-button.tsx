@@ -4,17 +4,18 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 import {useTransitionState} from '@huse/transition-state';
 
 interface Props {
+    className?: string;
     text: string;
     children: ReactElement;
 }
 
-export const CopyButton: FC<Props> = ({text, children}) => {
+export const CopyButton: FC<Props> = ({className, text, children}) => {
     const [noticing, setNoticing] = useTransitionState(false, 1000);
     const copy = useCallback(() => setNoticing(true), [setNoticing]);
 
     return (
         <Tooltip open={noticing} title="Copied">
-            <CopyToClipboard text={text} onCopy={copy}>
+            <CopyToClipboard className={className} text={text} onCopy={copy}>
                 {children}
             </CopyToClipboard>
         </Tooltip>

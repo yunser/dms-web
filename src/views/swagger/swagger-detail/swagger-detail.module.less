@@ -197,6 +197,14 @@
                 text-decoration: line-through;
             } 
         }
+        &:hover {
+            .copyBtn {
+                visibility: visible;
+            }    
+        }
+        .copyBtn {
+            visibility: hidden;
+        }
         .path {
             font-size: 16px;
         }
@@ -262,4 +270,34 @@
     display: inline-block;
     color: red;
     margin-left: 4px;
+}
+
+.copyCell {
+    &:hover {
+        .copyBtn {
+            // display: block;
+            visibility: visible;
+        }
+    }
+    .copyBtn {
+        height: 32px;
+        visibility: hidden;
+        // display: none;
+    }
+}
+
+.code {
+    position: relative;
+    padding: 12px;
+    &:hover {
+        .copyBtn {
+            display: block;
+        }
+    }
+    .copyBtn {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        display: none;
+    }
 }
