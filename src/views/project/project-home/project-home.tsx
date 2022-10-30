@@ -102,7 +102,7 @@ export function ProjectHome({ event$, onClickItem }) {
             // icon: <ExclamationCircleOutlined />,
             content: `${t('delete')}「${item.name}」?`,
             async onOk() {
-                let res = await request.post(`${config.host}/swagger/delete`, {
+                let res = await request.post(`${config.host}/project/delete`, {
                     id: item.id,
                 })
                 console.log('get/res', res.data)
@@ -371,10 +371,10 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
         let _connections
         const saveOrUpdateData = {
             name: values.name || t('unnamed'),
-            url: values.url,
+            // url: values.url,
         }
         if (editType == 'create') {
-            let res = await request.post(`${config.host}/swagger/create`, {
+            let res = await request.post(`${config.host}/project/create`, {
                 ...saveOrUpdateData,
             })
             if (res.success) {
@@ -382,7 +382,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
             }
         }
         else {
-            let res = await request.post(`${config.host}/swagger/update`, {
+            let res = await request.post(`${config.host}/project/update`, {
                 id: item.id,
                 data: {
                     ...saveOrUpdateData,
@@ -474,7 +474,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
                 >
                     <Input />
                 </Form.Item>
-                <Form.Item
+                {/* <Form.Item
                     name="url"
                     label="URL"
                     rules={[ { required: true, }, ]}
@@ -482,7 +482,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
                     <Input
                         // placeholder="localhost"
                     />
-                </Form.Item>
+                </Form.Item> */}
             </Form>
         </Modal>
     );
