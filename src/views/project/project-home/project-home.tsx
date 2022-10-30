@@ -14,7 +14,7 @@ import { request } from '@/views/db-manager/utils/http';
 // import { ProjectEditor } from '../project-edit';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/db-manager/redis-client';
-import { SwaggerDetail } from '../swagger-detail';
+import { ProjectDetail } from '../project-detail';
 // import { saveAs } from 'file-saver'
 
 export function ProjectHome({ event$, onClickItem }) {
@@ -273,7 +273,7 @@ export function ProjectHome({ event$, onClickItem }) {
                 // </div>
             }
             {view == 'detail' &&
-                <SwaggerDetail
+                <ProjectDetail
                     config={config}
                     event$={event$}
                     project={curProject}

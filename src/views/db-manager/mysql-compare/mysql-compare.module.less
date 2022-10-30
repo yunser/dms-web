@@ -1,0 +1,79 @@
+.resultBox {
+    height: 100%;
+    padding: 17px;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    .container {
+        // width: 640px;
+        max-width: 640px;
+    }
+}
+
+.results {
+    .item {
+        border-bottom: 1px solid var(--border-color);
+    }
+    .header {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding: 12px 0;
+    }
+    .type {
+        margin-left: 16px;
+        &.deleted {
+            color: red;
+        }
+        &.same {
+            color: green;
+        }
+        &.added {
+            color: blue;
+        }
+        &.changed {
+            color: orange;
+        }
+    }
+}
+.columnBox {
+    padding-left: 32px;
+}
+
+.cellType {
+    &.deleted {
+        color: red;
+    }
+    &.same {
+        color: green;
+    }
+    &.changed {
+        color: orange;
+    }
+    &.added {
+        color: blue;
+    }
+}
+.statBox {
+    border: 1px solid var(--border-color);
+    padding: 16px;
+    margin-bottom: 16px;
+    .item {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+    .deleted {
+        color: red;
+        margin-left: 8px;
+    }
+    .changed {
+        color: orange;
+        margin-left: 8px;
+    }
+    .added {
+        color: blue;
+        margin-left: 8px;
+    }
+}

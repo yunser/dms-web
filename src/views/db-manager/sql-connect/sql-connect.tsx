@@ -341,7 +341,7 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
     )
 }
 
-export function SqlConnector({ config, onConnnect, onJson }) {
+export function SqlConnector({ config, event$, onConnnect, onJson }) {
     const { t } = useTranslation()
 
     // TODO clear
@@ -782,6 +782,15 @@ ${t('password')}: ${data.password}`
                 </div>
             </div>
             <div className={styles.layoutRight}>
+                <Button
+                    onClick={() => {
+                        event$.emit({
+                            type: 'event_mysql_compare',
+                        })
+                    }}
+                >
+                    数据库结构对比
+                </Button>
                 <CodeDebuger path="src/views/db-manager/sql-connect/sql-connect.tsx" />
             </div>
             {/* <TextArea className={styles.textarea} value={code} rows={4} 

@@ -38,6 +38,7 @@ import { IpHome } from '../ip/ip-home'
 import { Commander } from '../commander'
 import { SwaggerHome } from '../swagger/swagger-home'
 import { ProjectHome } from '../project/project-home'
+import { MysqlCompare } from './mysql-compare'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -239,6 +240,15 @@ export function DbManager({ config }) {
                     sourceType: 'local',
                     // url,
                     path,
+                },
+            })
+        }
+        else if (msg.type == 'event_mysql_compare') {
+            addOrActiveTab({
+                title: t('mysql-compare'),
+                key: `mysql-compare-0`,
+                type: 'mysql-compare',
+                data: {
                 },
             })
         }
@@ -777,6 +787,7 @@ export function DbManager({ config }) {
                                         <SqlConnector
                                             config={config}
                                             onJson={json => addJsonTab(json)}
+                                            event$={event$}
                                             onConnnect={({ id, curConnect }) => {
                                                 // TODO 通过 setTimeout 解决这个问题，原因未知
                                                 // Can't perform a React state update on an unmounted component. This is a no-op, but it indicates a memory leak in your application. To fix, cancel all subscriptions and asynchronous tasks in a useEffect cleanup function
@@ -816,6 +827,17 @@ export function DbManager({ config }) {
                                             onJson={json => {
                                                 addJsonTab(json)
                                             }}
+                                        />
+                                    }
+                                    {item.type == 'mysql-compare' &&
+                                        <MysqlCompare
+                                            // event$={event$}
+                                            config={config}
+                                            // dbName={item.data.name}
+                                            // connectionId={item.data.connectionId}
+                                            // onJson={json => {
+                                            //     addJsonTab(json)
+                                            // }}
                                         />
                                     }
                                     {item.type == 'help' &&
