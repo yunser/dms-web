@@ -1,4 +1,4 @@
-import { Button, Descriptions, Input, message, Modal, Popover, Select, Space, Table, Tabs } from 'antd';
+import { Button, Descriptions, Input, message, Modal, Popover, Select, Space, Spin, Table, Tabs } from 'antd';
 import React, { useMemo } from 'react';
 import { VFC, useRef, useState, useEffect } from 'react';
 import { request } from '../utils/http';
@@ -13,6 +13,7 @@ import moment from 'moment'
 import { IconButton } from '../icon-button';
 import { ReloadOutlined } from '@ant-design/icons';
 import { CodeDebuger } from '../code-debug';
+import { FullCenterBox } from '../redis-client';
 
 const { TabPane } = Tabs
 const { TextArea } = Input
@@ -52,26 +53,26 @@ function DbSelector({ config, onSuccess }) {
         }
     }
 
-    async function getTableData(schemaName) {
-        const connection = connections.find(item => item.id == connectionId)
-        let res = await request.post(`${config.host}/mysql/connectionCompareData`, {
-            ...connection,
-            schemaName,
-        })
-        // console.log('res', res)
-        if (res.success) {
-            onSuccess && onSuccess(res.data)
-            // setProjects([])
-            // let connections = res.data.list
-            // setConnections(connections)
-            // setSchemas(res.data.map(item => {
-            //     return {
-            //         label: item.SCHEMA_NAME,
-            //         value: item.SCHEMA_NAME,
-            //     }
-            // }))
-        }
-    }
+    // async function getTableData(schemaName) {
+    //     const connection = connections.find(item => item.id == connectionId)
+    //     let res = await request.post(`${config.host}/mysql/connectionCompareData`, {
+    //         ...connection,
+    //         schemaName,
+    //     })
+    //     // console.log('res', res)
+    //     if (res.success) {
+    //         onSuccess && onSuccess(res.data)
+    //         // setProjects([])
+    //         // let connections = res.data.list
+    //         // setConnections(connections)
+    //         // setSchemas(res.data.map(item => {
+    //         //     return {
+    //         //         label: item.SCHEMA_NAME,
+    //         //         value: item.SCHEMA_NAME,
+    //         //     }
+    //         // }))
+    //     }
+    // }
 
 
     useEffect(() => {
@@ -88,31 +89,36 @@ function DbSelector({ config, onSuccess }) {
 
     return (
         <div>
-            <Select
-                options={connections.sort((a, b) => a.name.localeCompare(b.name)).map(item => {
-                    return {
-                        label: item.name,
-                        value: item.id,
-                    }
-                })}
-                style={{
-                    width: 240,
-                }}
-                onChange={value => {
-                    console.log('value', value)
-                    setConnectionId(value)
-                }}
-            />
-            <Select
-                options={schemas}
-                style={{
-                    width: 240,
-                }}
-                onChange={value => {
-                    // console.log('value', value)
-                    getTableData(value)
-                }}
-            />
+            <Space>
+                <Select
+                    options={connections.sort((a, b) => a.name.localeCompare(b.name)).map(item => {
+                        return {
+                            label: item.name,
+                            value: item.id,
+                        }
+                    })}
+                    style={{
+                        width: 240,
+                    }}
+                    onChange={value => {
+                        console.log('value', value)
+                        setConnectionId(value)
+                    }}
+                />
+                <Select
+                    options={schemas}
+                    style={{
+                        width: 240,
+                    }}
+                    onChange={schemaName => {
+                        // getTableData(schemaName)
+                        onSuccess && onSuccess({
+                            connectionId,
+                            schemaName,
+                        })
+                    }}
+                />
+            </Space>
         </div>
     )
 }
@@ -434,20 +440,30 @@ export function MysqlCompare({ config, connectionId, onSql }) {
     }
 
     async function compare() {
-        const results = await compareDatabaseTables(db1Data.tables, db2Data.tables, db1Data.columns, db2Data.columns)
-        console.log('results', results)
-        setResults(results.sort((a, b) => {
-            function score(item) {
-                const typeScoreMap = {
-                    same: 0,
-                    added: 2,
-                    deleted: 2,
-                    changed: 1,
+        setLoading(true)
+        console.log('db1Data', db1Data, db2Data)
+        let res = await request.post(`${config.host}/mysql/connectionCompareData`, {
+            db1Data,
+            db2Data,
+        })
+        if (res.success) {
+            const { db1Result, db2Result } = res.data
+            const results = await compareDatabaseTables(db1Result.tables, db2Result.tables, db1Result.columns, db2Result.columns)
+            console.log('results', results)
+            setResults(results.sort((a, b) => {
+                function score(item) {
+                    const typeScoreMap = {
+                        same: 0,
+                        added: 2,
+                        deleted: 2,
+                        changed: 1,
+                    }
+                    return typeScoreMap[item.type] || 0
                 }
-                return typeScoreMap[item.type] || 0
-            }
-            return score(b) - score(a)
-        }))
+                return score(b) - score(a)
+            }))
+        }
+        setLoading(false)
     }
     
     useEffect(() => {
@@ -457,73 +473,87 @@ export function MysqlCompare({ config, connectionId, onSql }) {
     console.log('stat', stat)
     return (
         <div className={styles.resultBox}>
-            <div>
-                数据库1：
-                <DbSelector
-                    config={config}
-                    onSuccess={data => {
-                        setDb1Data(data)
-                    }}
-                />
-            </div>
-            <div>
-                数据库2：
-                <DbSelector
-                    config={config}
-                    onSuccess={data => {
-                        setDb2Data(data)
-                    }}
-                />
-            </div>
-            {!!db1Data && !!db2Data &&
+            {/* {results.length == 0 &&
+            } */}
+            <Space className={styles.formBox} direction="vertical">
                 <div>
-                    <Button 
-                        type="primary"
-                        onClick={() => {
-                            compare()
+                    数据库1：
+                    <DbSelector
+                        config={config}
+                        onSuccess={data => {
+                            setDb1Data(data)
                         }}
-                    >Compare</Button>
+                    />
                 </div>
-            }
-            <div className={styles.container}>
-                {/* <div></div> */}
-                {/* <div>结果：</div> */}
-                {!!stat &&
-                    <div className={styles.statBox}>
-                        {/* <div>统计</div> */}
-                        <div className={styles.item}>
-                            {stat.added} 
-                            <div className={styles.added}>added</div>
-                        </div>
-                        <div className={styles.item}>
-                            {stat.deleted} 
-                            <div className={styles.deleted}>deleted</div>
-                        </div>
-                        <div className={styles.item}>{stat.changed} 
-                            <div className={styles.changed}>changed</div>
-                        </div>
+                <div>
+                    数据库2：
+                    <DbSelector
+                        config={config}
+                        onSuccess={data => {
+                            setDb2Data(data)
+                        }}
+                    />
+                </div>
+                {!!db1Data && !!db2Data &&
+                    <div>
+                        <Button 
+                            type="primary"
+                            onClick={() => {
+                                compare()
+                            }}
+                        >Compare</Button>
                     </div>
                 }
-                {results.length &&
-                    <div className={styles.results}>
-                        {results.map(item => {
-                            return (
-                                <div 
-                                    className={styles.item}
-                                >
-                                    <div className={styles.header}>
-                                        <div className={styles.tableName}>{item.tableName}</div>
-                                        <div className={classNames(styles.type, styles[item.type])}>{item.type}</div>
+            </Space>
+            {loading ?
+                <FullCenterBox
+                    height={240}
+                >
+                    <Spin />
+                </FullCenterBox>
+            : results.length > 0 ?
+                <div className={styles.container}>
+                    {/* <div></div> */}
+                    {/* <div>结果：</div> */}
+                    {!!stat &&
+                        <div className={styles.statBox}>
+                            {/* <div>统计</div> */}
+                            <div className={styles.item}>
+                                {stat.added} 
+                                <div className={styles.added}>added</div>
+                            </div>
+                            <div className={styles.item}>
+                                {stat.deleted} 
+                                <div className={styles.deleted}>deleted</div>
+                            </div>
+                            <div className={styles.item}>{stat.changed} 
+                                <div className={styles.changed}>changed</div>
+                            </div>
+                        </div>
+                    }
+                    {results.length > 0 &&
+                        <div className={styles.results}>
+                            {results.map(item => {
+                                return (
+                                    <div 
+                                        className={styles.item}
+                                    >
+                                        <div className={styles.header}>
+                                            <div className={styles.tableName}>{item.tableName}</div>
+                                            <div className={classNames(styles.type, styles[item.type])}>{item.type}</div>
+                                        </div>
+                                        {item.type == 'changed' &&
+                                            <ColumnTable data={item.columns} />
+                                        }
                                     </div>
-                                    {item.type == 'changed' &&
-                                        <ColumnTable data={item.columns} />
-                                    }
-                                </div>
-                            )
-                        })}
-                    </div>
-                }
-            </div>
+                                )
+                            })}
+                        </div>
+                    }
+                </div>
+            :
+                <div></div>
+            }
         </div>
     )
 }
