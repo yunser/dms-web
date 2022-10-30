@@ -340,6 +340,7 @@ i18n
                     'command.search': 'Search Commands',
                     'doc': 'Documentation',
                     'swagger': 'Swagger',
+                    'project': 'Project',
                 }
             },
             zh: {
@@ -673,6 +674,7 @@ i18n
                     'command.search': '搜索命令',
                     'doc': '文档',
                     'swagger': 'Swagger',
+                    'project': '项目',
                 }
             }
         },

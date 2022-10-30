@@ -37,6 +37,7 @@ import { AliyunHome } from '../aliyun/aliyun-home'
 import { IpHome } from '../ip/ip-home'
 import { Commander } from '../commander'
 import { SwaggerHome } from '../swagger/swagger-home'
+import { ProjectHome } from '../project/project-home'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -450,6 +451,16 @@ export function DbManager({ config }) {
                 },
             })
         }
+        else if (key == 'project') {
+            addOrActiveTab({
+                title: t('project'),
+                key: `project-0`,
+                type: 'project-home',
+                data: {
+                    // url,
+                },
+            })
+        }
     }
 
     function showTextTab() {
@@ -519,14 +530,10 @@ export function DbManager({ config }) {
             label: t('webdav'),
             key: 'webdav-home',
         },
-        {
-            label: t('http'),
-            key: 'http-home',
-        },
-        {
-            label: t('tcp/udp'),
-            key: 'tcp/udp',
-        },
+        // {
+        //     label: t('http'),
+        //     key: 'http-home',
+        // },
         // {
         //     label: t('json_table'),
         //     key: 'json_table',
@@ -542,6 +549,14 @@ export function DbManager({ config }) {
         {
             label: t('ip'),
             key: 'ip',
+        },
+        {
+            label: t('project'),
+            key: 'project',
+        },
+        {
+            label: t('tcp/udp'),
+            key: 'tcp/udp',
         },
         {
             label: t('elasticsearch'),
@@ -972,6 +987,13 @@ export function DbManager({ config }) {
                                     }
                                     {item.type == 'swagger' &&
                                         <SwaggerHome
+                                            config={config}
+                                            // local={true}
+                                            // defaultPath={item.data.path}
+                                        />
+                                    }
+                                    {item.type == 'project-home' &&
+                                        <ProjectHome
                                             config={config}
                                             // local={true}
                                             // defaultPath={item.data.path}

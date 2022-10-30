@@ -227,13 +227,13 @@ export function AliyunHome({ config, onClickItem }) {
                 dataSource={billingList}
                 columns={[
                     {
-                        title: '实例名称',
+                        title: '名称',
                         dataIndex: 'name',
                         width: 240,
                         ellipsis: true,
                     },
                     {
-                        title: '到期时间',
+                        title: '可用余额',
                         dataIndex: 'availableAmount',
                     },
                     {
@@ -322,7 +322,7 @@ export function AliyunHome({ config, onClickItem }) {
 
     const main = (
         <div>
-            欢迎使用阿里云助手
+            欢迎使用阿里云/腾讯云助手
         </div>
     )
 
