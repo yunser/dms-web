@@ -8,8 +8,18 @@
         padding: 8px;
         width: 320px;
         border-right: 1px solid var(--border-color);
+        // overflow: auto;
+        display: flex;
+        flex-direction: column;
         .header {
+            flex: 0 0 64px;
             margin-bottom: 8px;
+        }
+        .connections {
+            flex: 1 0 auto;
+            height: 0;
+            // border: 1px solid #000;
+            overflow: auto;
         }
     }
     .layoutRight {
@@ -42,4 +52,7 @@
     text-overflow: ellipsis;
     overflow: hidden;
     max-width: 226px;
+}
+.tool {
+    margin-bottom: 16px;
 }

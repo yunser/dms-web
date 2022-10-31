@@ -124,6 +124,25 @@ function list2Tree(list) {
     return treeData.sort(sorter)
 }
 
+export function CheckboxInput(props) {
+
+    const { options, value, onChange, label, children, ...restProps } = props
+
+    //console.log('value', value)
+
+    return (
+        <Checkbox
+            checked={!!value}
+            onChange={e => {
+                onChange && onChange(e.target.checked)
+            }}
+            {...restProps}
+        >
+            {label || label || null}
+        </Checkbox>
+    )
+}
+
 function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
 
     const { t } = useTranslation()
@@ -132,6 +151,8 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
     const [testLoading, setTestLoading] = useState(false)
 
     const [form] = Form.useForm()
+
+
     // const editType = item ? 'update' : 'create'
     useEffect(() => {
         if (item) {
@@ -157,7 +178,10 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
             password: values.password,
             path: values.path,
             color: values.color,
+            httpProxyUrl: values.httpProxyUrl,
         }
+        console.log('saveOrUpdateData', saveOrUpdateData)
+        // return
         if (editType == 'create') {
             // newConnects = [
             //     {
@@ -219,6 +243,7 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
             user: values.user,
             // db: values.defaultDatabase || 0,
             test: true,
+            httpProxyUrl: values.httpProxyUrl,
             // remember: values.remember,
         }
         let ret = await request.post(`${config.host}/mysql/connect`, reqData)
@@ -333,6 +358,14 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
                 >
                     <ColorSelector />
                 </Form.Item>
+                <Form.Item
+                    name="httpProxyUrl"
+                    label={t('http_proxy_url')}
+                    // rules={[{ required: true, },]}
+                >
+                    <Input />
+                </Form.Item>
+                
                 {/* <Form.Item name="remember" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>
                     <Checkbox>{t('remember_me')}</Checkbox>
                 </Form.Item> */}
@@ -782,15 +815,45 @@ ${t('password')}: ${data.password}`
                 </div>
             </div>
             <div className={styles.layoutRight}>
-                <Button
-                    onClick={() => {
-                        event$.emit({
-                            type: 'event_mysql_compare',
-                        })
-                    }}
-                >
-                    数据库结构对比
-                </Button>
+                <div className={styles.tool}>
+                    <Button
+                        onClick={() => {
+                            event$.emit({
+                                type: 'event_mysql_compare',
+                            })
+                        }}
+                    >
+                        数据库结构对比
+                    </Button>
+                </div>
+                <Table
+                    dataSource={connections}
+                    columns={[
+                        {
+                            title: t('name'),
+                            dataIndex: 'name',
+                            width: 240,
+                            ellipsis: true,
+                        },
+                        {
+                            title: t('host'),
+                            dataIndex: 'host',
+                            width: 400,
+                            ellipsis: true,
+                        },
+                        {
+                            title: t('port'),
+                            dataIndex: 'port',
+                            width: 160,
+                        },
+                        {
+                            title: t('user_name'),
+                            dataIndex: 'user',
+                        },
+                    ]}
+                    size="small"
+                    pagination={false}
+                />
                 <CodeDebuger path="src/views/db-manager/sql-connect/sql-connect.tsx" />
             </div>
             {/* <TextArea className={styles.textarea} value={code} rows={4} 
