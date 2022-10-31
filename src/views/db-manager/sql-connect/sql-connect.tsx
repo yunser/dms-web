@@ -168,8 +168,8 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
         // message.success('保存成功')
         const values = await form.validateFields()
         setLoading(true)
-        const connections = storage.get('connections', [])
-        let newConnects
+        // const connections = storage.get('connections', [])
+        // let newConnects
         const saveOrUpdateData = {
             name: values.name || 'Unnamed',
             host: values.host,
@@ -178,6 +178,7 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
             password: values.password,
             path: values.path,
             color: values.color,
+            description: values.description,
             httpProxyUrl: values.httpProxyUrl,
         }
         console.log('saveOrUpdateData', saveOrUpdateData)
@@ -357,6 +358,13 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
                     // rules={[{ required: true, },]}
                 >
                     <ColorSelector />
+                </Form.Item>
+                <Form.Item
+                    name="description"
+                    label={t('description')}
+                    // rules={[{ required: true, },]}
+                >
+                    <Input />
                 </Form.Item>
                 <Form.Item
                     name="httpProxyUrl"
@@ -586,11 +594,16 @@ export function SqlConnector({ config, event$, onConnnect, onJson }) {
 
     function handleDoubleClick(nodeData) {
         console.log('nodeData', nodeData)
-        const data = nodeData.data
-        if (data) {
-            // const { id } = nodeData.data
-            // storage.set('current_connection_id', id)
-            _connect(nodeData.data)
+        if (nodeData.type == 'folder') {
+
+        }
+        else {
+            const data = nodeData.data
+            if (data) {
+                // const { id } = nodeData.data
+                // storage.set('current_connection_id', id)
+                _connect(nodeData.data)
+            }
         }
     }
 
@@ -727,6 +740,7 @@ export function SqlConnector({ config, event$, onConnnect, onJson }) {
                                                     {
                                                         label: t('delete'),
                                                         key: 'key_delete',
+                                                        danger: true,
                                                     },
                                                 ]}
                                                 onClick={async ({ _item, key, keyPath, domEvent }) => {
@@ -849,10 +863,16 @@ ${t('password')}: ${data.password}`
                         {
                             title: t('user_name'),
                             dataIndex: 'user',
+                            width: 160,
+                        },
+                        {
+                            title: t('description'),
+                            dataIndex: 'description',
                         },
                     ]}
                     size="small"
                     pagination={false}
+                    bordered
                 />
                 <CodeDebuger path="src/views/db-manager/sql-connect/sql-connect.tsx" />
             </div>

@@ -342,6 +342,7 @@ i18n
                     'swagger': 'Swagger',
                     'project': 'Project',
                     'http_proxy_url': 'HTTP Proxy URL',
+                    'note': 'Note',
                 }
             },
             zh: {
@@ -676,7 +677,8 @@ i18n
                     'doc': '文档',
                     'swagger': 'Swagger',
                     'project': '项目',
-                    'http_proxy_url': 'http_proxy_url',
+                    'http_proxy_url': 'HTTP 代理链接',
+                    'note': '备注',
                 }
             }
         },

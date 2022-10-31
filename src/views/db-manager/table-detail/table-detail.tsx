@@ -335,6 +335,7 @@ function SimpleInput({ inputId, value, onChange, onBlur }) {
         />
     )
 }
+
 function EditableCellRender({ dataIndex, onChange } = {}) {
     return (value, _item, index) => {
         return (
@@ -362,7 +363,18 @@ export function TableDetail({ config, connectionId, event$, dbName, tableName: o
     // const editType = 
     const newNameRef = useRef(null)
     
+    const [columnKeyword, setColumnKeyword] = useState('')
     const [tableColumns, setTableColumns] = useState([])
+
+    const filteredTableColumns = useMemo(() => {
+        if (!columnKeyword) {
+            return tableColumns
+        }
+        return tableColumns.filter(item => {
+            return (item.COLUMN_NAME.newValue || item.COLUMN_NAME.value || '').toLowerCase().includes(columnKeyword.toLowerCase())
+        })
+    }, [tableColumns, columnKeyword])
+
     const [loading, setLoading] = useState(false)
     const [indexes, setIndexes] = useState([])
     const [removedRows, setRemovedRows] = useState([])
@@ -1357,76 +1369,81 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
                                         }
                                         {item.key == 'columns' &&
                                             <div>
-                                                <div style={{
-                                                    marginBottom: 8,
-                                                }}>
-                                                    <Space>
-                                                        {/* <input
-                                                            onBlur={() => {
-                                                                console.log('Bour OK')
-                                                            }}
-                                                        /> */}
-                                                        
-                                                        <Button
-                                                            size="small"
-                                                            onClick={() => {
-                                                                tableColumns.push({
-                                                                    __id: uid(32),
-                                                                    __new: true,
-                                                                    COLUMN_NAME: {
-                                                                        value: '',
-                                                                    },
-                                                                    COLUMN_TYPE: {
-                                                                        value: '',
-                                                                    },
-                                                                    IS_NULLABLE: {
-                                                                        value: 'YES',
-                                                                    },
-                                                                    COLUMN_DEFAULT: {
-                                                                        value: null,
-                                                                    },
-                                                                    COLUMN_COMMENT: {
-                                                                        value: '',
-                                                                    },
-                                                                    COLUMN_KEY: {
-                                                                        value: '',
-                                                                    },
-                                                                    EXTRA: {
-                                                                        value: '',
-                                                                    },
-                                                                    // CHARACTER_MAXIMUM_LENGTH: 32
-                                                                    // CHARACTER_OCTET_LENGTH: 96
-                                                                    // CHARACTER_SET_NAME: "utf8"
-                                                                    // COLLATION_NAME: "utf8_general_ci"
-                                                                    // COLUMN_KEY: ""
-                                                                    // DATA_TYPE: "varchar"
-                                                                    // DATETIME_PRECISION: null
-                                                                    // EXTRA: ""
-                                                                    // GENERATION_EXPRESSION: ""
-                                                                    // NUMERIC_PRECISION: null
-                                                                    // NUMERIC_SCALE: null
-                                                                    // ORDINAL_POSITION: 2
-                                                                    // PRIVILEGES: "select,insert,update,references"
-                                                                    // TABLE_CATALOG: "def"
-                                                                    // TABLE_NAME: "a_test5"
-                                                                    // TABLE_SCHEMA: "linxot"
-                                                                })
-                                                                setTableColumns([...tableColumns])
-                                                            }}
-                                                        >
-                                                            {t('add')}
-                                                        </Button>
-                                                        
-                                                    </Space>
+                                                <div className={styles.columnHeader}>
+                                                    {/* <input
+                                                        onBlur={() => {
+                                                            console.log('Bour OK')
+                                                        }}
+                                                    /> */}
+                                                    
+                                                    <Button
+                                                        size="small"
+                                                        onClick={() => {
+                                                            tableColumns.push({
+                                                                __id: uid(32),
+                                                                __new: true,
+                                                                COLUMN_NAME: {
+                                                                    value: '',
+                                                                },
+                                                                COLUMN_TYPE: {
+                                                                    value: '',
+                                                                },
+                                                                IS_NULLABLE: {
+                                                                    value: 'YES',
+                                                                },
+                                                                COLUMN_DEFAULT: {
+                                                                    value: null,
+                                                                },
+                                                                COLUMN_COMMENT: {
+                                                                    value: '',
+                                                                },
+                                                                COLUMN_KEY: {
+                                                                    value: '',
+                                                                },
+                                                                EXTRA: {
+                                                                    value: '',
+                                                                },
+                                                                // CHARACTER_MAXIMUM_LENGTH: 32
+                                                                // CHARACTER_OCTET_LENGTH: 96
+                                                                // CHARACTER_SET_NAME: "utf8"
+                                                                // COLLATION_NAME: "utf8_general_ci"
+                                                                // COLUMN_KEY: ""
+                                                                // DATA_TYPE: "varchar"
+                                                                // DATETIME_PRECISION: null
+                                                                // EXTRA: ""
+                                                                // GENERATION_EXPRESSION: ""
+                                                                // NUMERIC_PRECISION: null
+                                                                // NUMERIC_SCALE: null
+                                                                // ORDINAL_POSITION: 2
+                                                                // PRIVILEGES: "select,insert,update,references"
+                                                                // TABLE_CATALOG: "def"
+                                                                // TABLE_NAME: "a_test5"
+                                                                // TABLE_SCHEMA: "linxot"
+                                                            })
+                                                            setTableColumns([...tableColumns])
+                                                        }}
+                                                    >
+                                                        {t('add')}
+                                                    </Button>
+                                                    <Input
+                                                        value={columnKeyword}
+                                                        onChange={e => {
+                                                            setColumnKeyword(e.target.value)
+                                                        }}
+                                                        allowClear
+                                                        className={styles.filter}
+                                                        placeholder={t('filter')}
+                                                        size="small"
+                                                    />
                                                 </div>
-                                                <Table
+                                                {/* <Table
                                                     columns={columns}
-                                                    dataSource={tableColumns}
+                                                    dataSource={filteredTableColumns}
                                                     bordered
                                                     pagination={false}
                                                     size="small"
                                                     rowKey="__id"
-                                                />
+                                                /> */}
                                             </div>
                                         }
                                         {item.key == 'index' &&
