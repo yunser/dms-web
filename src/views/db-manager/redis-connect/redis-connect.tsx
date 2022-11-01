@@ -148,6 +148,107 @@ export function RedisConnect({ config, event$, onConnnect, }) {
         })
     }
 
+    const columns = [
+        {
+            title: t('name'),
+            dataIndex: 'name',
+            render(value) {
+                return <div>{value || 'Unnamed'}</div>
+            },
+        },
+        {
+            title: t('host'),
+            dataIndex: 'host',
+        },
+        {
+            title: t('port'),
+            dataIndex: 'port',
+        },
+        {
+            title: t('user_name'),
+            dataIndex: 'userName',
+        },
+        {
+            title: t('actions'),
+            dataIndex: 'actions',
+            render(_value, item) {
+                return (
+                    <div>
+                        <Space>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    connect(item)
+                                }}
+                            >
+                                {t('connect')}
+                            </Button>
+                            {/* <Button
+                                size="small"
+                                onClick={() => {
+                                    
+                                }}
+                            >
+                                {t('edit')}
+                            </Button> */}
+                            <Dropdown
+                                trigger={['click']}
+                                overlay={
+                                    <Menu
+                                        items={[
+                                            {
+                                                label: t('edit'),
+                                                key: 'edit',
+                                            },
+                                            {
+                                                label: t('delete'),
+                                                key: 'delete',
+                                                danger: true,
+                                            },
+                                        ]}
+                                        onClick={({ key, domEvent }) => {
+                                            // domEvent.preventDefault()
+                                            domEvent.stopPropagation()
+                                            if (key == 'delete') {
+                                                deleteItem(item)
+                                                // Modal.confirm({
+                                                //     content: `${t('delete')}「${item.name || 'Unnamed'}」?`,
+                                                //     async onOk() {
+                                                //         await deleteItem(item)
+                                                //     }
+                                                // })
+                                                // let _connections
+                                                // const connections = storage.get('redis-connections', [])
+                                                // if (connections.length) {
+                                                //     _connections = connections
+                                                // }
+                                                // else {
+                                                //     _connections = []
+                                                // }
+                                                // _connections = connections.filter((_item => _item.id != item.id))
+                                                // storage.set('redis-connections', _connections)
+                                                // message.success(t('success'))
+                                                // loadList()
+                                            }
+                                            else if (key == 'edit') {
+                                                setModalItem((item))
+                                                setModalVisible(true)
+                                            }
+                                        }}
+                                    />
+                                }
+                            >
+                                <IconButton>
+                                    <EllipsisOutlined />
+                                </IconButton>
+                            </Dropdown>
+                        </Space>
+                    </div>
+                )
+            }
+        },
+    ]
+
     return (
         <div className={styles.connectBox}>
             <div className={styles.container}>
@@ -205,90 +306,14 @@ export function RedisConnect({ config, event$, onConnnect, }) {
                         description="没有记录"
                     />
                 :
-                    <div className={styles.connections}>
-                        {connections.map(item => {
-                            return (
-                                <div
-                                    key={item.id}
-                                    className={styles.item}
-                                >
-                                    <Space>
-                                        <div>{item.name || 'Unnamed'}</div>
-                                        <div className={styles.host}>{item.host}</div>
-                                    </Space>
-                                    <Space>
-                                        <Button
-                                            size="small"
-                                            onClick={() => {
-                                                connect(item)
-                                            }}
-                                        >
-                                            {t('connect')}
-                                        </Button>
-                                        {/* <Button
-                                            size="small"
-                                            onClick={() => {
-                                                
-                                            }}
-                                        >
-                                            {t('edit')}
-                                        </Button> */}
-                                        <Dropdown
-                                            trigger={['click']}
-                                            overlay={
-                                                <Menu
-                                                    items={[
-                                                        {
-                                                            label: t('edit'),
-                                                            key: 'edit',
-                                                        },
-                                                        {
-                                                            label: t('delete'),
-                                                            key: 'delete',
-                                                            danger: true,
-                                                        },
-                                                    ]}
-                                                    onClick={({ key, domEvent }) => {
-                                                        // domEvent.preventDefault()
-                                                        domEvent.stopPropagation()
-                                                        if (key == 'delete') {
-                                                            deleteItem(item)
-                                                            // Modal.confirm({
-                                                            //     content: `${t('delete')}「${item.name || 'Unnamed'}」?`,
-                                                            //     async onOk() {
-                                                            //         await deleteItem(item)
-                                                            //     }
-                                                            // })
-                                                            // let _connections
-                                                            // const connections = storage.get('redis-connections', [])
-                                                            // if (connections.length) {
-                                                            //     _connections = connections
-                                                            // }
-                                                            // else {
-                                                            //     _connections = []
-                                                            // }
-                                                            // _connections = connections.filter((_item => _item.id != item.id))
-                                                            // storage.set('redis-connections', _connections)
-                                                            // message.success(t('success'))
-                                                            // loadList()
-                                                        }
-                                                        else if (key == 'edit') {
-                                                            setModalItem((item))
-                                                            setModalVisible(true)
-                                                        }
-                                                    }}
-                                                />
-                                            }
-                                        >
-                                            <IconButton>
-                                                <EllipsisOutlined />
-                                            </IconButton>
-                                        </Dropdown>
-                                    </Space>
-                                </div>
-                            )
-                        })}
-                    </div>
+                    <Table
+                        dataSource={connections}
+                        pagination={false}
+                        columns={columns}
+                        bordered
+                        size="small"
+                        rowKey="id"
+                    />
                 }
             </div>
             
