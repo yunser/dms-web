@@ -582,14 +582,32 @@ export function SwaggerDetail({ config, project, onHome }) {
 
     async function loadData() {
         setError('')
-        let res = await request.post(`${config.host}/http/proxy`, {
-            url: project.url,
-        }, {
-            noMessage: true,
-        })
+        let res
+        if (project.url) {
+            res = await request.post(`${config.host}/http/proxy`, {
+                url: project.url,
+            }, {
+                noMessage: true,
+            })
+        }
+        else {
+            res = await request.post(`${config.host}/file/read`, {
+                path: project.path,
+            }, {
+                noMessage: true,
+            })
+        }
         console.log('proxy/res', res)
         if (res.success) {
-            const api: OpenAPIObject = res.data
+            let api: OpenAPIObject
+            if (res.data && res.data.content) {
+                // file
+                api = JSON.parse(res.data.content)
+            }
+            else {
+                api = res.data
+            }
+            // console.log('api', api)
             if (!api.openapi && !api.swagger) {
                 setError(`${project.url} is not a OpenAPI/Swagger URL`)
                 return

@@ -203,7 +203,7 @@ export function SwaggerHome({ event$, onClickItem }) {
                                                         // </IconButton>
                                                         <StarFilled className={styles.favoriteIcon} />
                                                     }
-                                                    <div className={styles.url}>{item.url}</div>
+                                                    <div className={styles.url}>{item.url || item.path}</div>
                                                 </div>
                                                 <Space
                                                     className={styles.right}
