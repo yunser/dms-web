@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import classes from './commander.module.less'
 import classNames from 'classnames'
@@ -12,7 +12,9 @@ function ModalContent({ commands, onCommand, onCancel }) {
     const { t } = useTranslation()
     const [keyword, setKeyword] = useState('')
     const [curIndex, setCurIndex] = useState(0)
-
+    const inputRef = useRef({
+        inputing: false,
+    })
     
 
     // const id = useId
@@ -60,10 +62,10 @@ function ModalContent({ commands, onCommand, onCancel }) {
 
     const results = useMemo(() => {
         const commandLatest = storage.get('command_latest')
-        console.log('commandLatest', commandLatest)
+        // console.log('commandLatest', commandLatest)
         function score(item) {
-            console.log('item', item)
-            console.log('a.command == commandLatest', item.command, commandLatest)
+            // console.log('item', item)
+            // console.log('a.command == commandLatest', item.command, commandLatest)
             if (item.command == commandLatest) {
                 return 1
             }
@@ -74,7 +76,7 @@ function ModalContent({ commands, onCommand, onCancel }) {
             return score(b) - score(a)
         }
         if (!keyword) {
-            console.log('actions', actions)
+            // console.log('actions', actions)
             return actions.sort(sorter)
         }
         return actions
@@ -107,6 +109,10 @@ function ModalContent({ commands, onCommand, onCancel }) {
                 setCurIndex(newIdx)
             }
             else if (e.code == 'Enter') {
+                console.log('inputRef', inputRef.current)
+                if (inputRef.current.inputing) {
+                    return
+                }
                 if (results[curIndex]?.onItemClick) {
                     results[curIndex]?.onItemClick()
                     afterItemClick()
@@ -117,7 +123,7 @@ function ModalContent({ commands, onCommand, onCancel }) {
         return () => {
             window.removeEventListener('keydown', handleKeyDown)
         }
-    }, [curIndex, results])
+    }, [curIndex, results, inputRef])
 
     return (
         <div className={classes.mask}
@@ -152,6 +158,14 @@ function ModalContent({ commands, onCommand, onCancel }) {
                             value={keyword}
                             onChange={e => {
                                 setKeyword(e.target.value)
+                            }}
+                            onCompositionStart={() => {
+                                console.log('onCompositionStart')
+                                inputRef.current.inputing = true
+                            }}
+                            onCompositionEnd={() => {
+                                console.log('onCompositionEnd')
+                                inputRef.current.inputing = false
                             }}
                         />
                     </div>
