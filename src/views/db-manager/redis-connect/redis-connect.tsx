@@ -212,7 +212,10 @@ export function RedisConnect({ config, event$, onConnnect, }) {
                                     key={item.id}
                                     className={styles.item}
                                 >
-                                    <div>{item.name || 'Unnamed'}</div>
+                                    <Space>
+                                        <div>{item.name || 'Unnamed'}</div>
+                                        <div className={styles.host}>{item.host}</div>
+                                    </Space>
                                     <Space>
                                         <Button
                                             size="small"
