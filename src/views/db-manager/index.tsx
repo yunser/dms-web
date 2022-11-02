@@ -39,6 +39,7 @@ import { Commander } from '../commander'
 import { SwaggerHome } from '../swagger/swagger-home'
 import { ProjectHome } from '../project/project-home'
 import { MysqlCompare } from './mysql-compare'
+import { ModelHome } from '../model/model-home'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -453,12 +454,18 @@ export function DbManager({ config }) {
         }
         else if (key == 'swagger') {
             addOrActiveTab({
-                title: t('swagger'),
-                key: `swagger-0`,
+                title: t('swagger') + `-${(window._fileCount++) + 1}`,
+                key: `swagger-${uid(16)}`,
                 type: 'swagger',
-                data: {
-                    // url,
-                },
+                data: {},
+            })
+        }
+        else if (key == 'model') {
+            addOrActiveTab({
+                title: t('model'),
+                key: `model-0`,
+                type: 'model',
+                data: {},
             })
         }
         else if (key == 'project') {
@@ -563,6 +570,10 @@ export function DbManager({ config }) {
         {
             label: t('project'),
             key: 'project',
+        },
+        {
+            label: t('model'),
+            key: 'model',
         },
         {
             label: t('tcp/udp'),
@@ -1020,6 +1031,9 @@ export function DbManager({ config }) {
                                             // local={true}
                                             // defaultPath={item.data.path}
                                         />
+                                    }
+                                    {item.type == 'model' &&
+                                        <ModelHome />
                                     }
                             </div>
                         )

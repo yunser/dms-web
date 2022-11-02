@@ -580,7 +580,7 @@ export function SwaggerDetail({ config, project, onHome }) {
         })
     }, [curTag, items, keyword])
 
-    async function loadData() {
+    async function loadData(_oldDetailItem) {
         setError('')
         let res
         if (project.url) {
@@ -647,6 +647,14 @@ export function SwaggerDetail({ config, project, onHome }) {
                 }
             }
             setItems(items)
+
+            // 更新详情
+            if (_oldDetailItem) {
+                const fItem = items.find(item => item.path == _oldDetailItem.path && item.method == _oldDetailItem.method)
+                if (fItem) {
+                    setDetailItem(fItem)
+                }
+            }
         }
         else {
             setError(res.data?.message || res.data?.msg || res.statusText || 'Unknown Error')
@@ -840,23 +848,40 @@ export function SwaggerDetail({ config, project, onHome }) {
                     </>
                 }
                 {detailVisible ?
-                    <IconButton 
-                        className={styles.close}
-                        onClick={() => {
-                            setDetailVisible(false)
-                        }}
-                    >
-                        <CloseOutlined />
-                    </IconButton>
-                :
-                    <IconButton 
-                        className={styles.close}
-                        onClick={() => {
-                            onHome && onHome()
-                        }}
+                    <Space className={styles.close}>
+                        <IconButton 
+                            onClick={() => {
+                                loadData(detailItem)
+                            }}
+                            >
+                            <ReloadOutlined />
+                        </IconButton>
+                        <IconButton 
+                            // className={styles.close}
+                            onClick={() => {
+                                setDetailVisible(false)
+                            }}
                         >
-                        <HomeOutlined />
-                    </IconButton>
+                            <CloseOutlined />
+                        </IconButton>
+                    </Space>
+                :
+                    <Space className={styles.close}>
+                        <IconButton 
+                            onClick={() => {
+                                loadData()
+                            }}
+                            >
+                            <ReloadOutlined />
+                        </IconButton>
+                        <IconButton 
+                            onClick={() => {
+                                onHome && onHome()
+                            }}
+                            >
+                            <HomeOutlined />
+                        </IconButton>
+                    </Space>
                 }
                 {detailVisible ?
                     <PathItemDetail 
