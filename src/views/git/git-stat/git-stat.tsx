@@ -48,7 +48,8 @@ function CalenderChart({ list }) {
         }
         return {
             tooltip: {
-                show: true
+                // show: true,
+                trigger: 'axis',
             },
             xAxis: {
               type: 'category',
@@ -61,7 +62,8 @@ function CalenderChart({ list }) {
             series: [
               {
                 data: data.reverse(),
-                type: 'line'
+                type: 'line',
+                name: '提交数量',
               }
             ]
           }
