@@ -34,6 +34,7 @@ import { GitHome } from './views/git/git-home'
 import { FileHome } from './views/file/file-home'
 import { SshDetail } from './views/ssh/ssh-home'
 import { SshConnect } from './views/ssh/ssh-connect'
+import { ServiceHome } from './views/service/service-home'
 
 function GitPage() {
     return (
@@ -71,6 +72,7 @@ export default function App() {
                     <Route path="/git" element={<GitPage />} />
                     <Route path="/file" element={<FilePage />} />
                     <Route path="/ssh" element={<SshPage />} />
+                    <Route path="/service" element={<ServiceHome />} />
                 </Routes>
             </div>
         </Router>
