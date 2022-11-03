@@ -390,7 +390,7 @@ function PathItemDetail({ pathItem, api }: {
             dataIndex: 'httpStatus',
             width: 160,
             render(value) {
-                console.log('value', typeof value, value, value.startsWith('2'))
+                // console.log('value', typeof value, value, value.startsWith('2'))
                 let color
                 if (value.startsWith('2')) {
                     color = 'green'
@@ -597,7 +597,7 @@ export function SwaggerDetail({ config, project, onHome }) {
                 noMessage: true,
             })
         }
-        console.log('proxy/res', res)
+        // console.log('proxy/res', res)
         if (res.success) {
             let api: OpenAPIObject
             if (res.data && res.data.content) {
@@ -675,20 +675,35 @@ export function SwaggerDetail({ config, project, onHome }) {
                 items: [],
             }
         })
+        const defaultTagItems = []
         for (let pathItem of items) {
-            for (let tagName of (pathItem.tags || [])) {
-                const tagIdx = list.findIndex(_tag => _tag.name == tagName)
-                if (tagIdx != -1) {
-                    // if (!list[tagIdx].items) {
-                    //     list[tagIdx].items = []
-                    // }
-                    list[tagIdx].items.push(pathItem)
+            const tags = pathItem.tags || []
+            if (tags.length) {
+                for (let tagName of tags) {
+                    const tagIdx = list.findIndex(_tag => _tag.name == tagName)
+                    if (tagIdx != -1) {
+                        // if (!list[tagIdx].items) {
+                        //     list[tagIdx].items = []
+                        // }
+                        list[tagIdx].items.push(pathItem)
+                    }
                 }
             }
+            else {
+                defaultTagItems.push(pathItem)
+            }
         }
-        return list.sort((a, b) => {
+        let results = list.sort((a, b) => {
             return a.name.localeCompare(b.name)
         })
+        if (defaultTagItems.length) {
+            results.unshift({
+                name: 'default',
+                description: '',
+                items: defaultTagItems,
+            })
+        }
+        return results
     }, [api, items])
 
     const filteredTagList = useMemo(() => {
