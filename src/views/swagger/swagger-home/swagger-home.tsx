@@ -126,6 +126,17 @@ export function SwaggerHome({ event$, onClickItem }) {
         loadList()
     }, [])
 
+    function exportAllKeys() {
+        console.log('list', list)
+        event$.emit({
+            type: 'event_show_json',
+            data: {
+                json: JSON.stringify(list, null, 4)
+                // connectionId,
+            },
+        })
+    }
+
     return (
         <div className={styles.gitApp}>
             {/* <div className={styles.layoutLeft}>
@@ -139,7 +150,6 @@ export function SwaggerHome({ event$, onClickItem }) {
                             <Space>
                                 <IconButton
                                     tooltip={t('refresh')}
-                                    // size="small"
                                     className={styles.refresh}
                                     onClick={() => {
                                         // loadKey()
@@ -149,7 +159,7 @@ export function SwaggerHome({ event$, onClickItem }) {
                                     <ReloadOutlined />
                                 </IconButton>
                                 <IconButton
-                                    // tooltip={t('add')}
+                                    tooltip={t('add')}
                                     className={styles.refresh}
                                     onClick={() => {
                                         setModalItem(null)
@@ -157,6 +167,16 @@ export function SwaggerHome({ event$, onClickItem }) {
                                     }}
                                 >
                                     <PlusOutlined />
+                                </IconButton>
+                                <IconButton
+                                    tooltip={t('export_json')}
+                                    // size="small"
+                                    className={styles.refresh}
+                                    onClick={() => {
+                                        exportAllKeys()
+                                    }}
+                                >
+                                    <ExportOutlined />
                                 </IconButton>
                             </Space>
                         </div>

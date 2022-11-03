@@ -1021,6 +1021,7 @@ export function DbManager({ config }) {
                                     {item.type == 'swagger' &&
                                         <SwaggerHome
                                             config={config}
+                                            event$={event$}
                                             // local={true}
                                             // defaultPath={item.data.path}
                                         />
