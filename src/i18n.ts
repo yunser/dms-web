@@ -343,6 +343,7 @@ i18n
                     'project': 'Project',
                     'http_proxy_url': 'HTTP Proxy URL',
                     'note': 'Note',
+                    'mongo': 'Mongo',
                 }
             },
             zh: {
@@ -679,6 +680,7 @@ i18n
                     'project': '项目',
                     'http_proxy_url': 'HTTP 代理链接',
                     'note': '备注',
+                    'mongo': 'Mongo',
                 }
             }
         },

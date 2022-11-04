@@ -40,6 +40,7 @@ import { SwaggerHome } from '../swagger/swagger-home'
 import { ProjectHome } from '../project/project-home'
 import { MysqlCompare } from './mysql-compare'
 import { ModelHome } from '../model/model-home'
+import { MongoHome } from '../mongo/mongo-home'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -302,6 +303,15 @@ export function DbManager({ config }) {
                 title: 'Elasticsearch',
                 key: 'key-es',
                 type: 'elasticsearch',
+                data: {},
+                // closable: false,
+            })
+        }
+        else if (key == 'mongo') {
+            addOrActiveTab({
+                title: 'mongo',
+                key: 'mongo-home' + uid(16),
+                type: 'mongo',
                 data: {},
                 // closable: false,
             })
@@ -582,6 +592,10 @@ export function DbManager({ config }) {
         {
             label: t('elasticsearch'),
             key: 'elasticsearch',
+        },
+        {
+            label: t('mongo'),
+            key: 'mongo',
         },
     ]
     function handleTabChange(key: string) {
@@ -1035,6 +1049,12 @@ export function DbManager({ config }) {
                                     }
                                     {item.type == 'model' &&
                                         <ModelHome />
+                                    }
+                                    {item.type == 'mongo' &&
+                                        <MongoHome
+                                            config={config}
+                                            event$={event$}
+                                        />
                                     }
                             </div>
                         )
