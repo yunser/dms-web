@@ -62,7 +62,9 @@ export function SwaggerHome({ event$, onClickItem }) {
             return list.sort(sorter)
         }
         return list
-            .filter(p => p.name.toLowerCase().includes(keyword.toLowerCase()))
+            .filter(p => p.name.toLowerCase().includes(keyword.toLowerCase())
+                || p.url?.toLowerCase()?.includes(keyword.toLowerCase())
+            )
             .sort(sorter)
     }, [list, keyword])
     
@@ -204,9 +206,16 @@ export function SwaggerHome({ event$, onClickItem }) {
                                             <div
                                                 key={item.id}
                                                 className={styles.item}
-                                                onClick={() => {
-                                                    setView('detail')
-                                                    setCurProject(item)
+                                                onClick={(e) => {
+                                                    if (e.metaKey) {
+                                                        if (item.url) {
+                                                            window.open(`/swagger/detail?url=${item.url}`, '_blank')
+                                                        }
+                                                    }
+                                                    else {
+                                                        setView('detail')
+                                                        setCurProject(item)
+                                                    }
                                                     // onClickItem && onClickItem(item)
                                                 }}
                                             >
@@ -296,6 +305,7 @@ export function SwaggerHome({ event$, onClickItem }) {
                 <SwaggerDetail
                     config={config}
                     event$={event$}
+                    apiUrl={curProject.url}
                     project={curProject}
                     onHome={() => {
                         setView('list')

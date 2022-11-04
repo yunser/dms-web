@@ -4,6 +4,7 @@ import '@yunser/style-reset/dist/index.css'
 import './app.less'
 import './global.css'
 import './iconfont.css'
+
 // import '~antd/dist/antd.dark.less'; // 引入官方提供的暗色 less 样式入口文件
 // import 'antd/dist/antd.css';
 // import darkCss from 'antd/dist/antd.dark.css';
@@ -26,7 +27,8 @@ import {
     BrowserRouter as Router,
     Routes,
     Route,
-    Link
+    Link,
+    useSearchParams,
 } from "react-router-dom";
 import { HomePage } from './views/home'
 storage.set('asd', 'asd2')
@@ -35,6 +37,8 @@ import { FileHome } from './views/file/file-home'
 import { SshDetail } from './views/ssh/ssh-home'
 import { SshConnect } from './views/ssh/ssh-connect'
 import { ServiceHome } from './views/service/service-home'
+import { SwaggerHome } from './views/swagger/swagger-home'
+import { SwaggerDetail } from './views/swagger/swagger-detail'
 
 function GitPage() {
     return (
@@ -60,6 +64,48 @@ function SshPage() {
     )
 }
 
+function FullApp({ children }) {
+    return (
+        <div style={{ height: '100vh' }}>
+            {children}
+        </div>
+    )
+}
+
+function SwaggerDetailPage() {
+
+    let [searchParams, setSearchParams] = useSearchParams();
+
+    const url = searchParams.get('url')
+    console.log('url', url)
+
+    const config = {
+        host: 'http://localhost:10086',
+    }
+
+    if (url) {
+        return (
+            <SwaggerDetail
+                config={config}
+                // event$={event$}
+                apiUrl={url}
+                // project={curProject}
+                onHome={() => {
+                    // setView('list')
+                }}
+                // projectPath={curProject.path}
+                // onList={() => {
+                //     setView('list')
+                // }}
+            />
+        )
+    }
+    return (
+        <div>
+            no url query
+        </div>
+    )
+}
 
 export default function App() {
     // const [count, setCount] = useState(0)
@@ -73,6 +119,9 @@ export default function App() {
                     <Route path="/file" element={<FilePage />} />
                     <Route path="/ssh" element={<SshPage />} />
                     <Route path="/service" element={<ServiceHome />} />
+                    {/* <Route path="/swagger" element={<SwaggerHome />} /> */}
+                    <Route path="/swagger" element={<FullApp><SwaggerHome /></FullApp>} />
+                    <Route path="/swagger/detail" element={<FullApp><SwaggerDetailPage /></FullApp>} />
                 </Routes>
             </div>
         </Router>

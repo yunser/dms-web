@@ -552,7 +552,7 @@ function PathItemDetail({ pathItem, api }: {
     ))
 }
 
-export function SwaggerDetail({ config, project, onHome }) {
+export function SwaggerDetail({ config, apiUrl, project, onHome }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [curIp, setCurIp] = useState('--')
@@ -580,12 +580,13 @@ export function SwaggerDetail({ config, project, onHome }) {
         })
     }, [curTag, items, keyword])
 
+
     async function loadData(_oldDetailItem) {
         setError('')
         let res
-        if (project.url) {
+        if (apiUrl) {
             res = await request.post(`${config.host}/http/proxy`, {
-                url: project.url,
+                url: apiUrl,
             }, {
                 noMessage: true,
             })
@@ -609,7 +610,7 @@ export function SwaggerDetail({ config, project, onHome }) {
             }
             // console.log('api', api)
             if (!api.openapi && !api.swagger) {
-                setError(`${project.url} is not a OpenAPI/Swagger URL`)
+                setError(`${apiUrl} is not a OpenAPI/Swagger URL`)
                 return
             }
             setApi(api)
@@ -663,7 +664,7 @@ export function SwaggerDetail({ config, project, onHome }) {
 
     useEffect(() => {
         loadData()
-    }, [])
+    }, [apiUrl])
 
     const tagList = useMemo(() => {
         if (!api) {
@@ -992,7 +993,7 @@ export function SwaggerDetail({ config, project, onHome }) {
                                             {api.openapi ? 'OpenAPI' : 'Swagger'} v{api.openapi || api.swagger}
                                         </Descriptions.Item>
                                         <Descriptions.Item label="Source">
-                                            <a href={project.url} target="_blank">{project.url}</a>
+                                            <a href={apiUrl} target="_blank">{apiUrl}</a>
                                         </Descriptions.Item>
                                     </Descriptions>
                                 </div>  
