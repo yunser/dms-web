@@ -779,7 +779,7 @@ export function SwaggerDetail({ config, apiUrl, project, onHome }) {
                     />
                 </div>
                 
-                <div className={styles.tags}>
+                <div className={styles.tagList}>
                     {/* <div className={styles.tagItem}
                         onClick={() => {
                             
