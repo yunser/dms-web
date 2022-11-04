@@ -227,7 +227,6 @@ export function GitHome({ event$, }) {
                                             type: 'event_show_json',
                                             data: {
                                                 json: JSON.stringify(projects, null, 4)
-                                                // connectionId,
                                             },
                                         })
                                     }}
@@ -312,6 +311,13 @@ export function GitHome({ event$, }) {
                                                                         key: 'remove_from_favorite',
                                                                     },
                                                                     {
+                                                                        label: t('export_json'),
+                                                                        key: 'export_json',
+                                                                    },
+                                                                    {
+                                                                        type: 'divider',
+                                                                    },
+                                                                    {
                                                                         label: t('edit'),
                                                                         key: 'edit',
                                                                     },
@@ -335,6 +341,14 @@ export function GitHome({ event$, }) {
                                                                     }
                                                                     else if (key == 'remove_from_favorite') {
                                                                         addToFavorite(item, false)
+                                                                    }
+                                                                    else if (key == 'export_json') {
+                                                                        event$.emit({
+                                                                            type: 'event_show_json',
+                                                                            data: {
+                                                                                json: JSON.stringify(item, null, 4)
+                                                                            },
+                                                                        })
                                                                     }
                                                                 }}
                                                             />

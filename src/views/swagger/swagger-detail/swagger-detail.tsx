@@ -478,11 +478,13 @@ function PathItemDetail({ pathItem, api }: {
     }, [pathItem.responses])
 
 
+    const { deprecated = false } = pathItem
+
     return ((
         <div className={styles.detailBox}>
             <div
                 className={classNames(styles.header, {
-                    [styles.deprecated]: pathItem.deprecated,
+                    [styles.deprecated]: deprecated,
                 })}
             >
             
@@ -812,10 +814,11 @@ export function SwaggerDetail({ config, apiUrl, project, onHome }) {
                                 </div>
                                 <div className={styles.paths}>
                                     {tag.items.map(pathItem => {
+                                        const { deprecated = false } = pathItem
                                         return (
                                             <div className={classNames(styles.pathItem, {
                                                 [styles.active]: detailItem && detailItem.path == pathItem.path && detailItem.method == pathItem.method,
-                                                [styles.deprecated]: pathItem.deprecated,
+                                                [styles.deprecated]: deprecated,
                                             })}
                                                 onClick={() => {
                                                     setDetailItem(pathItem)
