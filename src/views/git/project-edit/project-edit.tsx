@@ -17,6 +17,17 @@ import { TagList } from '../tag-list';
 import { request } from '@/views/db-manager/utils/http';
 // import { saveAs } from 'file-saver'
 
+function lastSplit(text: string, sep: string) {
+    const idx = text.lastIndexOf(sep)
+    if (idx == -1) {
+        return [text]
+    }
+    return [
+        text.substring(0, idx),
+        text.substring(idx + 1),
+    ]
+}
+
 export function ProjectEditor({ config, item, createType, sourceType = 'exist', onSuccess, onCancel, onList }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
@@ -127,6 +138,24 @@ export function ProjectEditor({ config, item, createType, sourceType = 'exist', 
             })
         }
     }
+
+    async function autoInput3() {
+        const name = form.getFieldValue('name')
+        const path = form.getFieldValue('path')
+        // if (name) {
+        //     return
+        // }
+        if (!name && path) {
+            // const folder = userConfig.defaultClonePath || userConfig.userHome
+            const arr = lastSplit(path, '/')
+            const _name = arr[1]
+            if (_name) {
+                form.setFieldsValue({
+                    name: _name,
+                })
+            }
+        }
+    }
     
     useEffect(() => {
         if (item) {
@@ -198,6 +227,7 @@ export function ProjectEditor({ config, item, createType, sourceType = 'exist', 
                 >
                     <Input
                         disabled={editType == 'update'}
+                        onBlur={autoInput3}
                     />
                 </Form.Item>
             </Form>

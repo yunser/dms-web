@@ -299,6 +299,9 @@ function Models({ api }: { api: OpenAPIObject }) {
                     >
                         <div className={styles.modelName}>{item.name}</div>
                         <TypeRender schema={item} api={api} />
+                        {/* <Button>
+                            生成代码
+                        </Button> */}
                     </div>
                 )
             })}
