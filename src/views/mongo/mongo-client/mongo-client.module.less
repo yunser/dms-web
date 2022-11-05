@@ -21,7 +21,21 @@
     .layoutRight {
         flex: 1 0 auto;
         width: 0;
-        padding: 16px;
+        overflow: auto;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #000;
+        .body {
+            flex: 1 0 auto;
+            height: 0;
+            overflow: auto;
+            padding: 16px;
+        }
+        .footer {
+            padding: 16px;
+            border-top: 1px solid var(--border-color);
+            flex: 0 0 48px;
+        }
     }
 }
 

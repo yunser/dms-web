@@ -1,4 +1,4 @@
-import { Button, Checkbox, Col, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Row, Space, Spin, Table, Tabs } from 'antd';
+import { Button, Checkbox, Col, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Pagination, Popover, Row, Space, Spin, Table, Tabs } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import styles from './mongo-client.module.less';
 import _ from 'lodash';
@@ -42,10 +42,14 @@ export function MongoClient({ config, event$, connectionId, }) {
     const [modalItem, setModalItem] = useState(false)
     const [databases, setDatabases] = useState([])
     const [collections, setCollections] = useState([])
-    const [documents, setDocuments] = useState([])
     const [loading, setLoading] = useState(false)
     const [curDb, setCurDb] = useState(null)
     const [curCollection, setCurCollection] = useState(null)
+    
+    const pageSize = 20
+    const [documents, setDocuments] = useState([])
+    const [page, setPage] = useState(1)
+    const [total, setTotal] = useState(0)
 
     async function loadList() {
         // const connections = storage.get('redis-connections', [])
@@ -84,25 +88,27 @@ export function MongoClient({ config, event$, connectionId, }) {
             connectionId,
             database: curDb.name,
             collection: curCollection.name,
+            skip: (page - 1) * pageSize,
+            limit: pageSize,
         }, {
             // noMessage: true,
         })
         // console.log('res', res)
         if (res.success) {
             // setProjects([])
-            let collections = res.data.list
-            if (collections.length) {
-                setDocuments(collections.sort((a, b) => {
-                    return a.name.localeCompare(b.name)
-                }))
-            }
+            const { list, total } = res.data
+            let collections = list
+            setDocuments(collections.sort((a, b) => {
+                return a.name.localeCompare(b.name)
+            }))
+            setTotal(total)
         }
         // setLoading(false)
     }
 
-    async function loadDbs() {
+    async function loadCollections() {
         // const connections = storage.get('redis-connections', [])
-        setLoading(true)
+        // setLoading(true)
         let res = await request.post(`${config.host}/mongo/collections`, {
             connectionId,
             database: curDb.name,
@@ -119,12 +125,12 @@ export function MongoClient({ config, event$, connectionId, }) {
                 }))
             }
         }
-        setLoading(false)
+        // setLoading(false)
     }
 
     useEffect(() => {
         if (curDb) {
-            loadDbs()
+            loadCollections()
         }
     }, [curDb])
 
@@ -132,7 +138,7 @@ export function MongoClient({ config, event$, connectionId, }) {
         if (curDb) {
             loadDocuments()
         }
-    }, [curCollection])
+    }, [curCollection, page])
 
     const collectionColumns = [
         {
@@ -264,7 +270,20 @@ export function MongoClient({ config, event$, connectionId, }) {
             <div className={styles.layoutCenter}>
                 {!!curDb &&
                     <div>
+
                         <div>{curDb.name} 集合：</div>
+                        <div style={{
+                            marginBottom: 8,
+                        }}>
+                            <Space>
+                                <IconButton
+                                    tooltip={t('refresh')}
+                                    onClick={loadCollections}
+                                >
+                                    <ReloadOutlined />
+                                </IconButton>
+                            </Space>
+                        </div>
                         <Table
                             dataSource={collections}
                             pagination={false}
@@ -278,18 +297,43 @@ export function MongoClient({ config, event$, connectionId, }) {
             </div>
             <div className={styles.layoutRight}>
                 {!!curCollection &&
-                    <div>
-                        <div>{curCollection.name} 文档：</div>
-                        <div className={styles.documents}>
-                            {documents.map(item => {
-                                return (
-                                    <div className={styles.item}>
-                                        {JSON.stringify(item)}
-                                    </div>
-                                )
-                            })}
+                    <>
+                        <div className={styles.body}>
+                            <div>
+                                <Button
+                                    onClick={async () => {
+                                        let res = await request.post(`${config.host}/mongo/mock`, {
+                                            connectionId,
+                                            // database: curDb.name,
+                                        }, {
+                                            // noMessage: true,
+                                        })
+                                    }}
+                                >mock 数据</Button>
+                            </div>
+                            <div>{curCollection.name} 文档：</div>
+                            <div className={styles.documents}>
+                                {documents.map(item => {
+                                    return (
+                                        <div className={styles.item}>
+                                            {JSON.stringify(item)}
+                                        </div>
+                                    )
+                                })}
+                            </div>
                         </div>
-                    </div>
+                        <div className={styles.footer}>
+                            <Pagination
+                                current={page}
+                                total={total}
+                                pageSize={pageSize}
+                                showSizeChanger={false}
+                                onChange={(page) => {
+                                    setPage(page)
+                                }}
+                            />
+                        </div>
+                    </>
                 }
             </div>
             
