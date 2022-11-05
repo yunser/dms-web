@@ -33,6 +33,9 @@ export function MongoClient({ config, event$, connectionId, }) {
     // col
     const [collectionModalVisible, setCollectionModalVisible] = useState(false)
     const [collectionModalItem, setCollectionModalItem] = useState(null)
+    // db
+    const [dbModalVisible, setDbModalVisible] = useState(false)
+    const [dbModalItem, setDbModalItem] = useState(null)
 
     const [databases, setDatabases] = useState([])
     const [collections, setCollections] = useState([])
@@ -47,7 +50,7 @@ export function MongoClient({ config, event$, connectionId, }) {
     const [page, setPage] = useState(1)
     const [total, setTotal] = useState(0)
 
-    async function loadList() {
+    async function loadDatabases() {
         // const connections = storage.get('redis-connections', [])
         setLoading(true)
         let res = await request.post(`${config.host}/mongo/databases`, {
@@ -69,7 +72,7 @@ export function MongoClient({ config, event$, connectionId, }) {
     }
 
     useEffect(() => {
-        loadList()
+        loadDatabases()
     }, [])
 
     async function selectDb(item) {
@@ -256,7 +259,7 @@ export function MongoClient({ config, event$, connectionId, }) {
         Modal.confirm({
             // title: 'Confirm',
             // icon: <ExclamationCircleOutlined />,
-            content: `${t('delete')}?`,
+            content: `${t('delete')}「${item.name}」?`,
             async onOk() {
                 let res = await request.post(`${config.host}/mongo/collection/drop`, {
                     connectionId,
@@ -281,7 +284,7 @@ export function MongoClient({ config, event$, connectionId, }) {
                     <Space>
                         <IconButton
                             tooltip={t('refresh')}
-                            onClick={loadList}
+                            onClick={loadDatabases}
                         >
                             <ReloadOutlined />
                         </IconButton>
@@ -291,17 +294,17 @@ export function MongoClient({ config, event$, connectionId, }) {
                                 
                             }}
                         >{t('add')}</Button> */}
-                        {/* <IconButton
+                        <IconButton
                             tooltip={t('add')}
                             // size="small"
                             className={styles.refresh}
                             onClick={() => {
-                                setModalItem(null)
-                                setModalVisible(true)
+                                setDbModalItem(null)
+                                setDbModalVisible(true)
                             }}
                         >
                             <PlusOutlined />
-                        </IconButton> */}
+                        </IconButton>
                         <IconButton
                             tooltip={t('export_json')}
                             onClick={() => {
@@ -498,7 +501,162 @@ export function MongoClient({ config, event$, connectionId, }) {
                     }}
                 />
             }
+            {dbModalVisible &&
+                <DbModal
+                    connectionId={connectionId}
+                    item={dbModalItem}
+                    config={config}
+                    onCancel={() => {
+                        setDbModalVisible(false)
+                    }}
+                    onSuccess={() => {
+                        setDbModalVisible(false)
+                        loadDatabases()
+                    }}
+                />
+            }
         </div>
+    );
+}
+
+function DbModal({ config, onCancel, item, onSuccess, 
+    database,
+    connectionId,
+    onConnnect, }) {
+    const { t } = useTranslation()
+
+    const editType = item ? 'update' : 'create'
+    const [testLoading, setTestLoading] = useState(false)
+    const [loading, setLoading] = useState(false)
+    const [form] = Form.useForm()
+//     const [code, setCode] = useState(`{
+//     "host": "",
+//     "user": "",
+//     "password": ""
+// }`)
+
+    
+
+    useEffect(() => {
+        if (item) {
+            form.setFieldsValue({
+                // ...item,
+                data: JSON.stringify(removeObjId(item)),
+            })
+        }
+        else {
+            form.setFieldsValue({
+                data: '{}',
+            })
+        }
+    }, [item])
+
+    async function handleOk() {
+        const values = await form.validateFields()
+        setLoading(true)
+        let _connections
+        const saveOrUpdateData = {
+        }
+        if (editType == 'create') {
+            let res = await request.post(`${config.host}/mongo/database/create`, {
+                connectionId,
+                database: values.name,
+            })
+            if (res.success) {
+                onSuccess && onSuccess()
+            }
+        }
+        else {
+            // const connections = storage.get('redis-connections', [])
+            // if (connections.length) {
+            //     _connections = connections
+            // }
+            // else {
+            //     _connections = []
+            // }
+            // const idx = _connections.findIndex(_item => _item.id == item.id)
+            // _connections[idx] = {
+            //     ..._connections[idx],
+            //     ...saveOrUpdateData,
+            // }
+            let res = await request.post(`${config.host}/mongo/collection/update`, {
+                connectionId,
+                id: item._id,
+                database,
+                collection: values.name,
+            })
+            if (res.success) {
+                onSuccess && onSuccess()
+            }
+            
+            
+        }
+        setLoading(false)
+        // storage.set('redis-connections', _connections)
+        // onSuccess && onSuccess()
+        // else {
+        //     message.error('Fail')
+        // }
+    }
+
+    return (
+        <Modal
+            title={editType == 'create' ? t('新增数据库') : t('编辑数据库')}
+            visible={true}
+            maskClosable={false}
+            onCancel={onCancel}
+            // onOk={async () => {
+                
+            // }}
+            footer={(
+                <div
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                    }}
+                >
+                    <div></div>
+                    <Space>
+
+                        <Button
+                            // key="submit"
+                            // type="primary"
+                            disabled={testLoading || loading}
+                            onClick={onCancel}
+                        >
+                            {t('cancel')}
+                        </Button>
+                        <Button
+                            type="primary"
+                            loading={loading}
+                            disabled={testLoading || loading}
+                            onClick={handleOk}
+                        >
+                            {t('ok')}
+                        </Button>
+                    </Space>
+                </div>
+            )}
+        >
+            <Form
+                form={form}
+                labelCol={{ span: 6 }}
+                wrapperCol={{ span: 18 }}
+                // layout={{
+                //     labelCol: { span: 0 },
+                //     wrapperCol: { span: 24 },
+                // }}
+            >
+                <Form.Item
+                    name="name"
+                    label={t('name')}
+                    rules={[ { required: true, }, ]}
+                >
+                    <Input />
+                </Form.Item>
+            </Form>
+        </Modal>
     );
 }
 
