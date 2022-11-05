@@ -14,26 +14,14 @@ import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/db-manager/redis-client';
 
-function InputPassword(props) {
-    const [visible, setVisible] = useState(false)
-    return (
-        <Input
-            {...props}
-            type={visible ? 'text' : 'password'}
-            addonAfter={
-                <div>
-                    <IconButton
-                        size="small"
-                        onClick={() => {
-                            setVisible(!visible)
-                        }}
-                    >
-                        {visible ? <EyeOutlined /> : <EyeInvisibleOutlined /> }
-                    </IconButton>
-                </div>
-            }
-        />
-    )
+function removeObjId(obj) {
+    const result = {}
+    for (let key in obj) {
+        if (key != '_id') {
+            result[key] = obj[key]
+        }
+    }
+    return result
 }
 
 export function MongoClient({ config, event$, connectionId, }) {
@@ -216,6 +204,11 @@ export function MongoClient({ config, event$, connectionId, }) {
         },
     ]
 
+    function updateDocument(item) {
+        setModalItem(item)
+        setModalVisible(true)
+    }
+
     function removeDocument(item) {
         Modal.confirm({
             // title: 'Confirm',
@@ -396,6 +389,12 @@ export function MongoClient({ config, event$, connectionId, }) {
                                             <div>{JSON.stringify(item)}</div>
                                             <Button
                                                 onClick={() => {
+                                                    updateDocument(item)
+                                                }}
+                                            >
+                                                编辑</Button>
+                                            <Button
+                                                onClick={() => {
                                                     removeDocument(item)
                                                 }}
                                             >
@@ -467,18 +466,13 @@ function DatabaseModal({ config, onCancel, item, onSuccess,
     useEffect(() => {
         if (item) {
             form.setFieldsValue({
-                ...item,
-                defaultDatabase: item.defaultDatabase || 0,
+                // ...item,
+                data: JSON.stringify(removeObjId(item)),
             })
         }
         else {
             form.setFieldsValue({
-                name: '',
-                host: '',
-                port: null,
-                password: '',
-                defaultDatabase: null,
-                userName: '',
+                data: '{}',
             })
         }
     }, [item])
@@ -511,9 +505,9 @@ function DatabaseModal({ config, onCancel, item, onSuccess,
             // })
             console.log('values', values)
             let res = await request.post(`${config.host}/mongo/document/create`, {
+                connectionId,
                 database,
                 collection,
-                connectionId,
                 data: JSON.parse(values.data),
                 // ...saveOrUpdateData,
             })
@@ -534,16 +528,12 @@ function DatabaseModal({ config, onCancel, item, onSuccess,
             //     ..._connections[idx],
             //     ...saveOrUpdateData,
             // }
-            let res = await request.post(`${config.host}/redis/connection/update`, {
-                id: item.id,
-                data: {
-                    ...saveOrUpdateData,
-                    // name: values.name || t('unnamed'),
-                    // host: values.host || 'localhost',
-                    // port: values.port || 22,
-                    // password: values.password,
-                    // username: values.username,
-                }
+            let res = await request.post(`${config.host}/mongo/document/update`, {
+                connectionId,
+                id: item._id,
+                database,
+                collection,
+                data: JSON.parse(values.data),
             })
             if (res.success) {
                 onSuccess && onSuccess()
