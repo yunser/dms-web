@@ -47,6 +47,8 @@ export function MongoClient({ config, event$, connectionId, }) {
     const [curCollection, setCurCollection] = useState(null)
     
     const pageSize = 20
+    const [condition, setCondition] = useState('{}')
+    const [documentCondition, setDocumentCondition] = useState({})
     const [documents, setDocuments] = useState([])
     const [page, setPage] = useState(1)
     const [total, setTotal] = useState(0)
@@ -79,8 +81,24 @@ export function MongoClient({ config, event$, connectionId, }) {
     async function selectDb(item) {
         setCurDb(item)
     }
-
     
+    function query() {
+        if (!condition) {
+            // message.error('请输入查询条件')
+            setDocumentCondition({})
+            return
+        }
+        let cond
+        try {
+            cond = JSON.parse(condition)
+        }
+        catch (err) {
+            message.error('查询条件解析失败')
+            return
+        }
+        setDocumentCondition(cond)
+    }
+
     async function loadDocuments() {
         // const connections = storage.get('redis-connections', [])
         // setLoading(true)
@@ -90,6 +108,7 @@ export function MongoClient({ config, event$, connectionId, }) {
             collection: curCollection.name,
             skip: (page - 1) * pageSize,
             limit: pageSize,
+            conditions: documentCondition,
         }, {
             // noMessage: true,
         })
@@ -138,7 +157,7 @@ export function MongoClient({ config, event$, connectionId, }) {
         if (curDb) {
             loadDocuments()
         }
-    }, [curCollection, page])
+    }, [curCollection, page, documentCondition])
 
     const collectionColumns = [
         {
@@ -298,9 +317,25 @@ export function MongoClient({ config, event$, connectionId, }) {
             <div className={styles.layoutRight}>
                 {!!curCollection &&
                     <>
+                        <div className={styles.header}>
+                            <Input.TextArea
+                                placeholder="请输入查询条件"
+                                value={condition}
+                                rows={8}
+                                onChange={e => {
+                                    setCondition(e.target.value)
+                                }}
+                            />
+                            <div className={styles.btns}>
+                                <Button
+                                    type="primary"
+                                    onClick={query}
+                                >查询</Button>
+                            </div>
+                        </div>
                         <div className={styles.body}>
                             <div>
-                                <Button
+                                {/* <Button
                                     onClick={async () => {
                                         let res = await request.post(`${config.host}/mongo/mock`, {
                                             connectionId,
@@ -309,7 +344,7 @@ export function MongoClient({ config, event$, connectionId, }) {
                                             // noMessage: true,
                                         })
                                     }}
-                                >mock 数据</Button>
+                                >mock 数据</Button> */}
                             </div>
                             <div>{curCollection.name} 文档：</div>
                             <div className={styles.documents}>
