@@ -125,7 +125,7 @@ export function MongoHome({ config, event$, onConnnect, }) {
                 // setConnections(newConnects)
                 // storage.set('connections', newConnects)
                 // loadList()
-                let res = await request.post(`${config.host}/redis/connection/delete`, {
+                let res = await request.post(`${config.host}/mongo/connection/delete`, {
                     id: item.id,
                 })
                 console.log('get/res', res.data)
@@ -180,7 +180,7 @@ export function MongoHome({ config, event$, onConnnect, }) {
                             >
                                 {t('connect')}
                             </Button>
-                            {/* <Dropdown
+                            <Dropdown
                                 trigger={['click']}
                                 overlay={
                                     <Menu
@@ -211,7 +211,7 @@ export function MongoHome({ config, event$, onConnnect, }) {
                                 <IconButton>
                                     <EllipsisOutlined />
                                 </IconButton>
-                            </Dropdown> */}
+                            </Dropdown>
                         </Space>
                     </div>
                 )
@@ -345,7 +345,6 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
             port: values.port || 27017,
             username: values.username,
             password: values.password,
-            defaultDatabase: values.defaultDatabase || 0,
         }
         if (editType == 'create') {
             // const connections = storage.get('redis-connections', [])
@@ -417,7 +416,6 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
             // user: values.user,
             password: values.password,
             userName: values.userName,
-            db: values.defaultDatabase || 0,
             test: true,
             // remember: values.remember,
         }
