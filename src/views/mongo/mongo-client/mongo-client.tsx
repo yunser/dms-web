@@ -1,6 +1,6 @@
 import { Button, Checkbox, Col, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Row, Space, Spin, Table, Tabs } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
-import styles from './mongo-home.module.less';
+import styles from './mongo-client.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
 // console.log('lodash', _)
@@ -36,38 +36,20 @@ function InputPassword(props) {
     )
 }
 
-export function MongoHome({ config, event$, onConnnect, }) {
+export function MongoClient({ config, event$, connectionId, }) {
     const { t } = useTranslation()
     const [modalVisible, setModalVisible] = useState(false)
     const [modalItem, setModalItem] = useState(false)
-    const [connections, setConnections] = useState([
-        // {
-        //     id: '1',
-        //     name: 'XXX',
-        // },
-        // {
-        //     id: '2',
-        //     name: 'XXX2',
-        // },
-    ])
+    const [databases, setDatabases] = useState([])
+    const [collections, setCollections] = useState([])
     const [loading, setLoading] = useState(false)
-    // const [form] = Form.useForm()
-//     const [code, setCode] = useState(`{
-//     "host": "",
-//     "user": "",
-//     "password": ""
-// }`)
+    const [curDb, setCurDb] = useState(null)
 
     async function loadList() {
         // const connections = storage.get('redis-connections', [])
         setLoading(true)
-        let res = await request.post(`${config.host}/mongo/connection/list`, {
-            // projectPath,
-            // connectionId,
-            // sql: lineCode,
-            // tableName,
-            // dbName,
-            // logger: true,
+        let res = await request.post(`${config.host}/mongo/databases`, {
+            connectionId,
         }, {
             // noMessage: true,
         })
@@ -76,7 +58,7 @@ export function MongoHome({ config, event$, onConnnect, }) {
             // setProjects([])
             let connections = res.data.list
             if (connections.length) {
-                setConnections(connections.sort((a, b) => {
+                setDatabases(connections.sort((a, b) => {
                     return a.name.localeCompare(b.name)
                 }))
             }
@@ -88,85 +70,52 @@ export function MongoHome({ config, event$, onConnnect, }) {
         loadList()
     }, [])
 
-    async function connect(item) {
-        // setLoading(true)
-        // const values = await form.validateFields()
-        const reqData = {
-            host: item.host,
-            port: item.port,
-            user: item.user,
-            password: item.password,
-            username: item.username,
-            // db: item.defaultDatabase || 0,
-            // remember: values.remember,
-        }
-        // if (values.remember) {
-        //     storage.set('redisInfo', reqData)
-        // }
-        let ret = await request.post(`${config.host}/mongo/connect`, reqData)
-        // console.log('ret', ret)
-        if (ret.success) {
-            // message.success('连接成功')
-            onConnnect && onConnnect({
-                connectionId: ret.data.connectionId,
-                name: item.name,
-                // defaultDatabase: item.defaultDatabase || 0,
-            })
-        }
-        // setLoading(false)
-        // else {
-        //     message.error('连接失败')
-        // }
+    async function selectDb(item) {
+        setCurDb(item)
     }
 
-    function deleteItem(item) {
-        Modal.confirm({
-            content: `${t('delete_confirm')} ${item.name}?`,
-            async onOk() {
-                // console.log('删除', )
-                // let newConnects = connections.filter(item => item.id != data.id)
-                // setConnections(newConnects)
-                // storage.set('connections', newConnects)
-                // loadList()
-                let res = await request.post(`${config.host}/redis/connection/delete`, {
-                    id: item.id,
-                })
-                console.log('get/res', res.data)
-                if (res.success) {
-                    message.success(t('success'))
-                    // onSuccess && onSuccess()
-                    loadList()
-                    // loadKeys()
-                    // setResult(null)
-                    // setResult({
-                    //     key: item,
-                    //     ...res.data,
-                    // })
-                    // setInputValue(res.data.value)
-                }
-            }
+    async function loadDbs() {
+        // const connections = storage.get('redis-connections', [])
+        setLoading(true)
+        let res = await request.post(`${config.host}/mongo/collections`, {
+            connectionId,
+        }, {
+            // noMessage: true,
         })
+        // console.log('res', res)
+        if (res.success) {
+            // setProjects([])
+            let collections = res.data.list
+            if (collections.length) {
+                setCollections(collections.sort((a, b) => {
+                    return a.name.localeCompare(b.name)
+                }))
+            }
+        }
+        setLoading(false)
     }
 
+    useEffect(() => {
+        if (curDb) {
+            loadDbs()
+        }
+    }, [curDb])
+
+    const collectionColumns = [
+        {
+            title: t('name'),
+            dataIndex: 'name',
+        },
+    ]
+    
     const columns = [
         {
             title: t('name'),
             dataIndex: 'name',
-            render(value) {
-                return <div>{value || 'Unnamed'}</div>
-            },
         },
         {
-            title: t('host'),
-            dataIndex: 'host',
-        },
-        {
-            title: t('port'),
-            dataIndex: 'port',
-        },
-        {
-            title: t('user_name'),
-            dataIndex: 'username',
+            title: t('sizeOnDisk'),
+            dataIndex: 'sizeOnDisk',
         },
         {
             title: t('actions'),
@@ -178,43 +127,11 @@ export function MongoHome({ config, event$, onConnnect, }) {
                             <Button
                                 size="small"
                                 onClick={() => {
-                                    connect(item)
+                                    selectDb(item)
                                 }}
                             >
-                                {t('connect')}
+                                {t('select')}
                             </Button>
-                            {/* <Dropdown
-                                trigger={['click']}
-                                overlay={
-                                    <Menu
-                                        items={[
-                                            {
-                                                label: t('edit'),
-                                                key: 'edit',
-                                            },
-                                            {
-                                                label: t('delete'),
-                                                key: 'delete',
-                                                danger: true,
-                                            },
-                                        ]}
-                                        onClick={({ key, domEvent }) => {
-                                            domEvent.stopPropagation()
-                                            if (key == 'delete') {
-                                                deleteItem(item)
-                                            }
-                                            else if (key == 'edit') {
-                                                setModalItem((item))
-                                                setModalVisible(true)
-                                            }
-                                        }}
-                                    />
-                                }
-                            >
-                                <IconButton>
-                                    <EllipsisOutlined />
-                                </IconButton>
-                            </Dropdown> */}
                         </Space>
                     </div>
                 )
@@ -223,8 +140,9 @@ export function MongoHome({ config, event$, onConnnect, }) {
     ]
 
     return (
-        <div className={styles.connectBox}>
-            <div className={styles.container}>
+        <div className={styles.mongoClient}>
+            <div className={styles.layoutLeft}>
+                <div>数据库：</div>
                 <div style={{
                     marginBottom: 8,
                 }}>
@@ -258,7 +176,7 @@ export function MongoHome({ config, event$, onConnnect, }) {
                                 event$.emit({
                                     type: 'event_show_json',
                                     data: {
-                                        json: JSON.stringify(connections, null, 4)
+                                        json: JSON.stringify(databases, null, 4)
                                         // connectionId,
                                     },
                                 })
@@ -274,19 +192,34 @@ export function MongoHome({ config, event$, onConnnect, }) {
                     >
                         <Spin />
                     </FullCenterBox>
-                : connections.length == 0 ?
+                : databases.length == 0 ?
                     <Empty
                         description="没有记录"
                     />
                 :
                     <Table
-                        dataSource={connections}
+                        dataSource={databases}
                         pagination={false}
                         columns={columns}
                         bordered
                         size="small"
                         rowKey="id"
                     />
+                }
+            </div>
+            <div className={styles.layoutCenter}>
+                {!!curDb &&
+                    <div>
+                        <div>{curDb.name} 集合：</div>
+                        <Table
+                            dataSource={collections}
+                            pagination={false}
+                            columns={collectionColumns}
+                            bordered
+                            size="small"
+                            rowKey="id"
+                        />
+                    </div>
                 }
             </div>
             

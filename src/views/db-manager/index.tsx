@@ -41,6 +41,7 @@ import { ProjectHome } from '../project/project-home'
 import { MysqlCompare } from './mysql-compare'
 import { ModelHome } from '../model/model-home'
 import { MongoHome } from '../mongo/mongo-home'
+import { MongoClient } from '../mongo/mongo-client'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -309,7 +310,7 @@ export function DbManager({ config }) {
         }
         else if (key == 'mongo') {
             addOrActiveTab({
-                title: 'mongo',
+                title: t('mongo'),
                 key: 'mongo-home' + uid(16),
                 type: 'mongo',
                 data: {},
@@ -924,6 +925,7 @@ export function DbManager({ config }) {
                                         <RedisClient
                                             config={config}
                                             event$={event$}
+                                            
                                             connectionId={item.data.connectionId}
                                             defaultDatabase={item.data.defaultDatabase}
                                         />
@@ -1054,6 +1056,28 @@ export function DbManager({ config }) {
                                         <MongoHome
                                             config={config}
                                             event$={event$}
+                                            onConnnect={({ connectionId, name }) => {
+                                                console.log('onConnnect', connectionId)
+                                                // closeTabByKey(item.key)
+                                                addOrActiveTab({
+                                                    // title: 'Redis',
+                                                    title: `${name}`,
+                                                    key: 'mongo-client-' + uid(16),
+                                                    type: 'mongo-client',
+                                                    data: {
+                                                        connectionId,
+                                                    },
+                                                }, {
+                                                    // closeCurrentTab: true,
+                                                })
+                                            }}
+                                        />
+                                    }
+                                    {item.type == 'mongo-client' &&
+                                        <MongoClient
+                                            config={config}
+                                            event$={event$}
+                                            connectionId={item.data.connectionId}
                                         />
                                     }
                             </div>
