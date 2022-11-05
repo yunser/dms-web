@@ -42,8 +42,10 @@ export function MongoClient({ config, event$, connectionId, }) {
     const [modalItem, setModalItem] = useState(false)
     const [databases, setDatabases] = useState([])
     const [collections, setCollections] = useState([])
+    const [documents, setDocuments] = useState([])
     const [loading, setLoading] = useState(false)
     const [curDb, setCurDb] = useState(null)
+    const [curCollection, setCurCollection] = useState(null)
 
     async function loadList() {
         // const connections = storage.get('redis-connections', [])
@@ -74,11 +76,36 @@ export function MongoClient({ config, event$, connectionId, }) {
         setCurDb(item)
     }
 
+    
+    async function loadDocuments() {
+        // const connections = storage.get('redis-connections', [])
+        // setLoading(true)
+        let res = await request.post(`${config.host}/mongo/documents`, {
+            connectionId,
+            database: curDb.name,
+            collection: curCollection.name,
+        }, {
+            // noMessage: true,
+        })
+        // console.log('res', res)
+        if (res.success) {
+            // setProjects([])
+            let collections = res.data.list
+            if (collections.length) {
+                setDocuments(collections.sort((a, b) => {
+                    return a.name.localeCompare(b.name)
+                }))
+            }
+        }
+        // setLoading(false)
+    }
+
     async function loadDbs() {
         // const connections = storage.get('redis-connections', [])
         setLoading(true)
         let res = await request.post(`${config.host}/mongo/collections`, {
             connectionId,
+            database: curDb.name,
         }, {
             // noMessage: true,
         })
@@ -101,13 +128,40 @@ export function MongoClient({ config, event$, connectionId, }) {
         }
     }, [curDb])
 
+    useEffect(() => {
+        if (curDb) {
+            loadDocuments()
+        }
+    }, [curCollection])
+
     const collectionColumns = [
         {
             title: t('name'),
             dataIndex: 'name',
         },
+        {
+            title: t('actions'),
+            dataIndex: 'actions',
+            render(_value, item) {
+                return (
+                    <div>
+                        <Space>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    // selectCol(item)
+                                    setCurCollection(item)
+                                }}
+                            >
+                                {t('select')}
+                            </Button>
+                        </Space>
+                    </div>
+                )
+            }
+        },
     ]
-    
+
     const columns = [
         {
             title: t('name'),
@@ -219,6 +273,22 @@ export function MongoClient({ config, event$, connectionId, }) {
                             size="small"
                             rowKey="id"
                         />
+                    </div>
+                }
+            </div>
+            <div className={styles.layoutRight}>
+                {!!curCollection &&
+                    <div>
+                        <div>{curCollection.name} 文档：</div>
+                        <div className={styles.documents}>
+                            {documents.map(item => {
+                                return (
+                                    <div className={styles.item}>
+                                        {JSON.stringify(item)}
+                                    </div>
+                                )
+                            })}
+                        </div>
                     </div>
                 }
             </div>

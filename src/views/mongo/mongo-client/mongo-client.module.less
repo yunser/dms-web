@@ -10,10 +10,23 @@
     // justify-content: center;
     .layoutLeft {
         width: 33.33%;
-        border: 1px solid #000;
+        border-right: 1px solid var(--border-color);
+        padding: 16px;
     }
     .layoutCenter {
         width: 33.33%;
+        border-right: 1px solid var(--border-color);
+        padding: 16px;
+    }
+    .layoutRight {
+        flex: 1 0 auto;
+        width: 0;
+        padding: 16px;
+    }
+}
+
+.documents {
+    .item {
         border: 1px solid #000;
     }
 }
