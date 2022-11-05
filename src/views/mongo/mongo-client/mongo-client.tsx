@@ -77,8 +77,27 @@ export function MongoClient({ config, event$, connectionId, }) {
 
     async function selectDb(item) {
         setCurDb(item)
+        setCurCollection(null)
     }
     
+    function dropDb(item) {
+        Modal.confirm({
+            // title: 'Confirm',
+            // icon: <ExclamationCircleOutlined />,
+            content: `${t('delete')}「${item.name}」?`,
+            async onOk() {
+                let res = await request.post(`${config.host}/mongo/database/drop`, {
+                    connectionId,
+                    database: item.name,
+                })
+                if (res.success) {
+                    message.success(t('success'))
+                    loadDatabases()
+                }
+            }
+        })
+    }
+
     function query() {
         if (!condition) {
             // message.error('请输入查询条件')
@@ -156,7 +175,7 @@ export function MongoClient({ config, event$, connectionId, }) {
 
     const collectionColumns = [
         {
-            title: t('name'),
+            title: t('集合名称'),
             dataIndex: 'name',
         },
         {
@@ -177,6 +196,7 @@ export function MongoClient({ config, event$, connectionId, }) {
                             </Button>
                             <Button
                                 size="small"
+                                danger
                                 onClick={() => {
                                     // selectCol(item)
                                     dropCollection(item)
@@ -193,13 +213,13 @@ export function MongoClient({ config, event$, connectionId, }) {
 
     const columns = [
         {
-            title: t('name'),
+            title: t('数据库名称'),
             dataIndex: 'name',
         },
-        {
-            title: t('sizeOnDisk'),
-            dataIndex: 'sizeOnDisk',
-        },
+        // {
+        //     title: t('sizeOnDisk'),
+        //     dataIndex: 'sizeOnDisk',
+        // },
         {
             title: t('actions'),
             dataIndex: 'actions',
@@ -214,6 +234,16 @@ export function MongoClient({ config, event$, connectionId, }) {
                                 }}
                             >
                                 {t('select')}
+                            </Button>
+                            <Button
+                                size="small"
+                                danger
+                                onClick={() => {
+                                    // selectCol(item)
+                                    dropDb(item)
+                                }}
+                            >
+                                {t('drop')}
                             </Button>
                         </Space>
                     </div>
@@ -277,7 +307,7 @@ export function MongoClient({ config, event$, connectionId, }) {
     return (
         <div className={styles.mongoClient}>
             <div className={styles.layoutLeft}>
-                <div>数据库：</div>
+                {/* <div>数据库：</div> */}
                 <div style={{
                     marginBottom: 8,
                 }}>
@@ -344,41 +374,59 @@ export function MongoClient({ config, event$, connectionId, }) {
             </div>
             <div className={styles.layoutCenter}>
                 {!!curDb &&
-                    <div>
-
-                        <div>{curDb.name} 集合：</div>
-                        <div style={{
-                            marginBottom: 8,
-                        }}>
-                            <Space>
-                                <IconButton
-                                    tooltip={t('refresh')}
-                                    onClick={loadCollections}
-                                >
-                                    <ReloadOutlined />
-                                </IconButton>
-                                <IconButton
-                                    tooltip={t('add')}
-                                    // size="small"
-                                    className={styles.refresh}
-                                    onClick={() => {
-                                        setCollectionModalItem(null)
-                                        setCollectionModalVisible(true)
-                                    }}
-                                >
-                                    <PlusOutlined />
-                                </IconButton>
-                            </Space>
+                    <>
+                        <div className={styles.header}>
+                            <div>{curDb.name} 数据库的集合</div>
                         </div>
-                        <Table
-                            dataSource={collections}
-                            pagination={false}
-                            columns={collectionColumns}
-                            bordered
-                            size="small"
-                            rowKey="id"
-                        />
-                    </div>
+                        <div className={styles.body}>
+
+                            <div style={{
+                                marginBottom: 8,
+                            }}>
+                                <Space>
+                                    <IconButton
+                                        tooltip={t('refresh')}
+                                        onClick={loadCollections}
+                                    >
+                                        <ReloadOutlined />
+                                    </IconButton>
+                                    <IconButton
+                                        tooltip={t('add')}
+                                        // size="small"
+                                        className={styles.refresh}
+                                        onClick={() => {
+                                            setCollectionModalItem(null)
+                                            setCollectionModalVisible(true)
+                                        }}
+                                    >
+                                        <PlusOutlined />
+                                    </IconButton>
+                                    <IconButton
+                                        tooltip={t('export_json')}
+                                        onClick={() => {
+                                            event$.emit({
+                                                type: 'event_show_json',
+                                                data: {
+                                                    json: JSON.stringify(collections, null, 4)
+                                                    // connectionId,
+                                                },
+                                            })
+                                        }}
+                                    >
+                                        <ExportOutlined />
+                                    </IconButton>
+                                </Space>
+                            </div>
+                            <Table
+                                dataSource={collections}
+                                pagination={false}
+                                columns={collectionColumns}
+                                bordered
+                                size="small"
+                                rowKey="id"
+                            />
+                        </div>
+                    </>
                 }
             </div>
             <div className={styles.layoutRight}>
@@ -434,19 +482,24 @@ export function MongoClient({ config, event$, connectionId, }) {
                                             className={styles.item}
                                             key={item._id}
                                         >
-                                            <div>{JSON.stringify(item)}</div>
-                                            <Button
-                                                onClick={() => {
-                                                    updateDocument(item)
-                                                }}
-                                            >
-                                                编辑</Button>
-                                            <Button
-                                                onClick={() => {
-                                                    removeDocument(item)
-                                                }}
-                                            >
-                                                删除</Button>
+                                            <div className={styles.content}>{JSON.stringify(item)}</div>
+                                            <Space>
+                                                <Button
+                                                    size="small"
+                                                    onClick={() => {
+                                                        updateDocument(item)
+                                                    }}
+                                                >
+                                                    编辑</Button>
+                                                <Button
+                                                    size="small"
+                                                    danger
+                                                    onClick={() => {
+                                                        removeDocument(item)
+                                                    }}
+                                                >
+                                                    删除</Button>
+                                            </Space>
                                         </div>
                                     )
                                 })}
