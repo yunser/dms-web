@@ -26,8 +26,14 @@ function removeObjId(obj) {
 
 export function MongoClient({ config, event$, connectionId, }) {
     const { t } = useTranslation()
+    
+    // doc
     const [modalVisible, setModalVisible] = useState(false)
     const [modalItem, setModalItem] = useState(false)
+    // col
+    const [collectionModalVisible, setCollectionModalVisible] = useState(false)
+    const [collectionModalItem, setCollectionModalItem] = useState(null)
+
     const [databases, setDatabases] = useState([])
     const [collections, setCollections] = useState([])
     const [loading, setLoading] = useState(false)
@@ -348,6 +354,17 @@ export function MongoClient({ config, event$, connectionId, }) {
                                 >
                                     <ReloadOutlined />
                                 </IconButton>
+                                <IconButton
+                                    tooltip={t('add')}
+                                    // size="small"
+                                    className={styles.refresh}
+                                    onClick={() => {
+                                        setCollectionModalItem(null)
+                                        setCollectionModalVisible(true)
+                                    }}
+                                >
+                                    <PlusOutlined />
+                                </IconButton>
                             </Space>
                         </div>
                         <Table
@@ -466,11 +483,166 @@ export function MongoClient({ config, event$, connectionId, }) {
                     }}
                 />
             }
+            {collectionModalVisible &&
+                <CollectionModal
+                    connectionId={connectionId}
+                    database={curDb.name}
+                    item={collectionModalItem}
+                    config={config}
+                    onCancel={() => {
+                        setCollectionModalVisible(false)
+                    }}
+                    onSuccess={() => {
+                        setCollectionModalVisible(false)
+                        loadCollections()
+                    }}
+                />
+            }
         </div>
     );
 }
 
+function CollectionModal({ config, onCancel, item, onSuccess, 
+    database,
+    connectionId,
+    onConnnect, }) {
+    const { t } = useTranslation()
 
+    const editType = item ? 'update' : 'create'
+    const [testLoading, setTestLoading] = useState(false)
+    const [loading, setLoading] = useState(false)
+    const [form] = Form.useForm()
+//     const [code, setCode] = useState(`{
+//     "host": "",
+//     "user": "",
+//     "password": ""
+// }`)
+
+    
+
+    useEffect(() => {
+        if (item) {
+            form.setFieldsValue({
+                // ...item,
+                data: JSON.stringify(removeObjId(item)),
+            })
+        }
+        else {
+            form.setFieldsValue({
+                data: '{}',
+            })
+        }
+    }, [item])
+
+    async function handleOk() {
+        const values = await form.validateFields()
+        setLoading(true)
+        let _connections
+        const saveOrUpdateData = {
+        }
+        if (editType == 'create') {
+            let res = await request.post(`${config.host}/mongo/collection/create`, {
+                connectionId,
+                database,
+                collection: values.name,
+            })
+            if (res.success) {
+                onSuccess && onSuccess()
+            }
+        }
+        else {
+            // const connections = storage.get('redis-connections', [])
+            // if (connections.length) {
+            //     _connections = connections
+            // }
+            // else {
+            //     _connections = []
+            // }
+            // const idx = _connections.findIndex(_item => _item.id == item.id)
+            // _connections[idx] = {
+            //     ..._connections[idx],
+            //     ...saveOrUpdateData,
+            // }
+            let res = await request.post(`${config.host}/mongo/collection/update`, {
+                connectionId,
+                id: item._id,
+                database,
+                collection: values.name,
+            })
+            if (res.success) {
+                onSuccess && onSuccess()
+            }
+            
+            
+        }
+        setLoading(false)
+        // storage.set('redis-connections', _connections)
+        // onSuccess && onSuccess()
+        // else {
+        //     message.error('Fail')
+        // }
+    }
+
+    return (
+        <Modal
+            title={editType == 'create' ? t('新增集合') : t('编辑集合')}
+            visible={true}
+            maskClosable={false}
+            onCancel={onCancel}
+            // onOk={async () => {
+                
+            // }}
+            footer={(
+                <div
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                    }}
+                >
+                    <div></div>
+                    <Space>
+
+                        <Button
+                            // key="submit"
+                            // type="primary"
+                            disabled={testLoading || loading}
+                            onClick={onCancel}
+                        >
+                            {t('cancel')}
+                        </Button>
+                        <Button
+                            type="primary"
+                            loading={loading}
+                            disabled={testLoading || loading}
+                            onClick={handleOk}
+                        >
+                            {t('ok')}
+                        </Button>
+                    </Space>
+                </div>
+            )}
+        >
+            <Form
+                form={form}
+                labelCol={{ span: 6 }}
+                wrapperCol={{ span: 18 }}
+                // layout={{
+                //     labelCol: { span: 0 },
+                //     wrapperCol: { span: 24 },
+                // }}
+            >
+                <Form.Item
+                    name="name"
+                    label={t('name')}
+                    rules={[ { required: true, }, ]}
+                >
+                    <Input />
+                </Form.Item>
+            </Form>
+        </Modal>
+    );
+}
 
 function DatabaseModal({ config, onCancel, item, onSuccess, 
     database,
