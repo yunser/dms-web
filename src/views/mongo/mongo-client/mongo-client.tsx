@@ -327,10 +327,23 @@ export function MongoClient({ config, event$, connectionId, }) {
                                 }}
                             />
                             <div className={styles.btns}>
-                                <Button
-                                    type="primary"
-                                    onClick={query}
-                                >查询</Button>
+                                <Space>
+                                    <Button
+                                        type="primary"
+                                        onClick={query}
+                                    >查询</Button>
+                                    <IconButton
+                                        tooltip={t('add')}
+                                        // size="small"
+                                        className={styles.refresh}
+                                        onClick={() => {
+                                            setModalItem(null)
+                                            setModalVisible(true)
+                                        }}
+                                    >
+                                        <PlusOutlined />
+                                    </IconButton>
+                                </Space>
                             </div>
                         </div>
                         <div className={styles.body}>
@@ -377,6 +390,9 @@ export function MongoClient({ config, event$, connectionId, }) {
             {/* <Button type="primary" onClick={help}>帮助</Button> */}
             {modalVisible &&
                 <DatabaseModal
+                    connectionId={connectionId}
+                    database={curDb.name}
+                    collection={curCollection.name}
                     item={modalItem}
                     config={config}
                     onCancel={() => {
@@ -384,7 +400,7 @@ export function MongoClient({ config, event$, connectionId, }) {
                     }}
                     onSuccess={() => {
                         setModalVisible(false)
-                        loadList()
+                        loadDocuments()
                     }}
                 />
             }
@@ -394,7 +410,11 @@ export function MongoClient({ config, event$, connectionId, }) {
 
 
 
-function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
+function DatabaseModal({ config, onCancel, item, onSuccess, 
+    database,
+    collection,
+    connectionId,
+    onConnnect, }) {
     const { t } = useTranslation()
 
     const editType = item ? 'update' : 'create'
@@ -454,11 +474,13 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
                 
             //     // db: values.db,
             // })
-            let res = await request.post(`${config.host}/redis/connection/create`, {
-                // id: item.id,
-                // data: {
-                // }
-                ...saveOrUpdateData,
+            console.log('values', values)
+            let res = await request.post(`${config.host}/mongo/document/create`, {
+                database,
+                collection,
+                connectionId,
+                data: JSON.parse(values.data),
+                // ...saveOrUpdateData,
             })
             if (res.success) {
                 onSuccess && onSuccess()
@@ -502,30 +524,9 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
         // }
     }
 
-    async function handleTestConnection() {
-        const values = await form.validateFields()
-        setTestLoading(true)
-        const reqData = {
-            host: values.host || 'localhost',
-            port: values.port || 6379,
-            // user: values.user,
-            password: values.password,
-            userName: values.userName,
-            db: values.defaultDatabase || 0,
-            test: true,
-            // remember: values.remember,
-        }
-        let ret = await request.post(`${config.host}/redis/connect`, reqData)
-        // console.log('ret', ret)
-        if (ret.success) {
-            message.success(t('success'))
-        }
-        setTestLoading(false)
-    }
-
     return (
         <Modal
-            title={editType == 'create' ? t('connection_create') : t('connection_update')}
+            title={editType == 'create' ? t('新增记录') : t('编辑记录')}
             visible={true}
             maskClosable={false}
             onCancel={onCancel}
@@ -540,14 +541,9 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
                         justifyContent: 'space-between',
                     }}
                 >
-                    <Button key="back"
-                        loading={testLoading}
-                        disabled={testLoading || loading}
-                        onClick={handleTestConnection}
-                    >
-                        {t('test_connection')}
-                    </Button>
+                    <div></div>
                     <Space>
+
                         <Button
                             // key="submit"
                             // type="primary"
@@ -578,83 +574,14 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
                 // }}
             >
                 <Form.Item
-                    name="name"
-                    label={t('name')}
-                    // rules={[ { required: true, }, ]}
+                    name="data"
+                    label={t('data')}
+                    rules={[ { required: true, }, ]}
                 >
-                    <Input />
-                </Form.Item>
-                <Form.Item
-                    name="host"
-                    label={t('host')}
-                    // rules={[ { required: true, }, ]}
-                >
-                    <Input
-                        placeholder="localhost"
+                    <Input.TextArea
+                        rows={8}
                     />
                 </Form.Item>
-                <Form.Item
-                    name="port"
-                    label={t('port')}
-                    // rules={[{ required: true, },]}
-                >
-                    <InputNumber
-                        placeholder="6379"
-                    />
-                </Form.Item>
-                {/* <Form.Item
-                    name="user"
-                    label="User"
-                    rules={[{ required: true, },]}
-                >
-                    <Input />
-                </Form.Item> */}
-                <Form.Item
-                    name="password"
-                    label={t('password')}
-                    rules={[{ required: true, },]}
-                >
-                    <InputPassword />
-                </Form.Item>
-                {/* <Form.Item
-                    name="ppppp"
-                    label={t('ppppppp')}
-                    rules={[{ required: true, },]}
-                >
-                    <Input.Password
-                        size="small"
-                        autoComplete="new-password"
-                    />
-                </Form.Item> */}
-                <Form.Item
-                    name="defaultDatabase"
-                    label={t('default_database')}
-                    // rules={[{ required: true, },]}
-                >
-                    <InputNumber
-                        placeholder="0"
-                    />
-                </Form.Item>
-                <Form.Item
-                    name="userName"
-                    label={t('user_name')}
-                    extra={t('user_name_helper')}
-                >
-                    <Input />
-                </Form.Item>
-                {/* <Form.Item name="remember" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>
-                    <Checkbox>Remember me</Checkbox>
-                </Form.Item> */}
-                {/* <Form.Item
-                    wrapperCol={{ offset: 8, span: 16 }}
-                >
-                    <Space>
-                        <Button
-                            loading={loading}
-                            type="primary"
-                            onClick={connect}>{t('connect')}</Button>
-                    </Space>
-                </Form.Item> */}
             </Form>
         </Modal>
     );
