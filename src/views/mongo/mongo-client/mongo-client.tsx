@@ -116,10 +116,8 @@ export function MongoClient({ config, event$, connectionId, }) {
         if (res.success) {
             // setProjects([])
             const { list, total } = res.data
-            let collections = list
-            setDocuments(collections.sort((a, b) => {
-                return a.name.localeCompare(b.name)
-            }))
+            // let collections = list
+            setDocuments(list)
             setTotal(total)
         }
         // setLoading(false)
@@ -363,7 +361,10 @@ export function MongoClient({ config, event$, connectionId, }) {
                             <div className={styles.documents}>
                                 {documents.map(item => {
                                     return (
-                                        <div className={styles.item}>
+                                        <div 
+                                            className={styles.item}
+                                            key={item._id}
+                                        >
                                             {JSON.stringify(item)}
                                         </div>
                                     )
