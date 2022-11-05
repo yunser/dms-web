@@ -166,6 +166,15 @@ export function MongoClient({ config, event$, connectionId, }) {
                             >
                                 {t('select')}
                             </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    // selectCol(item)
+                                    dropCollection(item)
+                                }}
+                            >
+                                {t('drop')}
+                            </Button>
                         </Space>
                     </div>
                 )
@@ -232,6 +241,25 @@ export function MongoClient({ config, event$, connectionId, }) {
                     //     ...res.data,
                     // })
                     // setInputValue(res.data.value)
+                }
+            }
+        })
+    }
+
+    function dropCollection(item) {
+        Modal.confirm({
+            // title: 'Confirm',
+            // icon: <ExclamationCircleOutlined />,
+            content: `${t('delete')}?`,
+            async onOk() {
+                let res = await request.post(`${config.host}/mongo/collection/drop`, {
+                    connectionId,
+                    database: curDb.name,
+                    collection: item.name,
+                })
+                if (res.success) {
+                    message.success(t('success'))
+                    loadCollections()
                 }
             }
         })
