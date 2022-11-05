@@ -344,6 +344,11 @@ i18n
                     'http_proxy_url': 'HTTP Proxy URL',
                     'note': 'Note',
                     'mongo': 'Mongo',
+                    'select': 'Select',
+                    'mongo.database.name': 'Database Name',
+                    'mongo.collection.name': 'Collection Name',
+                    'mongo.collections': 'Collections',
+                    'mongo.documents': 'Documents',
                 }
             },
             zh: {
@@ -681,6 +686,11 @@ i18n
                     'http_proxy_url': 'HTTP 代理链接',
                     'note': '备注',
                     'mongo': 'Mongo',
+                    'select': '选择',
+                    'mongo.database.name': '数据库名称',
+                    'mongo.collection.name': '集合名称',
+                    'mongo.collections': '集合',
+                    'mongo.documents': '文档',
                 }
             }
         },

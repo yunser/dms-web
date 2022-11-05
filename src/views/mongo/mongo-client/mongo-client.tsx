@@ -1,4 +1,4 @@
-import { Button, Checkbox, Col, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Pagination, Popover, Row, Space, Spin, Table, Tabs } from 'antd';
+import { Button, Checkbox, Col, Descriptions, Drawer, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Pagination, Popover, Row, Space, Spin, Table, Tabs } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import styles from './mongo-client.module.less';
 import _ from 'lodash';
@@ -36,6 +36,9 @@ export function MongoClient({ config, event$, connectionId, }) {
     // db
     const [dbModalVisible, setDbModalVisible] = useState(false)
     const [dbModalItem, setDbModalItem] = useState(null)
+    // doc detail
+    const [docDetailModalVisible, setDocDetailModalVisible] = useState(false)
+    const [docDetailModalItem, setDocDetailModalItem] = useState(null)
 
     const [databases, setDatabases] = useState([])
     const [collections, setCollections] = useState([])
@@ -175,7 +178,7 @@ export function MongoClient({ config, event$, connectionId, }) {
 
     const collectionColumns = [
         {
-            title: t('集合名称'),
+            title: t('mongo.collection.name'),
             dataIndex: 'name',
         },
         {
@@ -213,7 +216,7 @@ export function MongoClient({ config, event$, connectionId, }) {
 
     const columns = [
         {
-            title: t('数据库名称'),
+            title: t('mongo.database.name'),
             dataIndex: 'name',
         },
         // {
@@ -255,6 +258,11 @@ export function MongoClient({ config, event$, connectionId, }) {
     function updateDocument(item) {
         setModalItem(item)
         setModalVisible(true)
+    }
+
+    function viewDocument(item) {
+        setDocDetailModalItem(item)
+        setDocDetailModalVisible(true)
     }
 
     function removeDocument(item) {
@@ -376,7 +384,7 @@ export function MongoClient({ config, event$, connectionId, }) {
                 {!!curDb &&
                     <>
                         <div className={styles.header}>
-                            <div>{curDb.name} 数据库的集合</div>
+                            <div>{curDb.name} {t('mongo.collections')}</div>
                         </div>
                         <div className={styles.body}>
 
@@ -433,6 +441,9 @@ export function MongoClient({ config, event$, connectionId, }) {
                 {!!curCollection &&
                     <>
                         <div className={styles.header}>
+                            <div>{curCollection.name} {t('mongo.documents')}</div>
+                        </div>
+                        <div className={styles.tool}>
                             <Input.TextArea
                                 placeholder="请输入查询条件"
                                 value={condition}
@@ -445,8 +456,11 @@ export function MongoClient({ config, event$, connectionId, }) {
                                 <Space>
                                     <Button
                                         type="primary"
+                                        size="small"
                                         onClick={query}
-                                    >查询</Button>
+                                    >
+                                        {t('query')}
+                                    </Button>
                                     <IconButton
                                         tooltip={t('add')}
                                         // size="small"
@@ -474,7 +488,6 @@ export function MongoClient({ config, event$, connectionId, }) {
                                     }}
                                 >mock 数据</Button> */}
                             </div>
-                            <div>{curCollection.name} 文档：</div>
                             <div className={styles.documents}>
                                 {documents.map(item => {
                                     return (
@@ -482,15 +495,28 @@ export function MongoClient({ config, event$, connectionId, }) {
                                             className={styles.item}
                                             key={item._id}
                                         >
-                                            <div className={styles.content}>{JSON.stringify(item)}</div>
+                                            <div className={styles.content}
+                                                onClick={() => {
+                                                    viewDocument(item)
+                                                }}
+                                            >{JSON.stringify(item)}</div>
                                             <Space>
+                                                <Button
+                                                    size="small"
+                                                    onClick={() => {
+                                                        viewDocument(item)
+                                                    }}
+                                                >
+                                                    {t('view')}
+                                                </Button>
                                                 <Button
                                                     size="small"
                                                     onClick={() => {
                                                         updateDocument(item)
                                                     }}
                                                 >
-                                                    编辑</Button>
+                                                    {t('edit')}
+                                                </Button>
                                                 <Button
                                                     size="small"
                                                     danger
@@ -498,7 +524,8 @@ export function MongoClient({ config, event$, connectionId, }) {
                                                         removeDocument(item)
                                                     }}
                                                 >
-                                                    删除</Button>
+                                                    {t('delete')}
+                                                </Button>
                                             </Space>
                                         </div>
                                     )
@@ -567,6 +594,19 @@ export function MongoClient({ config, event$, connectionId, }) {
                         loadDatabases()
                     }}
                 />
+            }
+            {docDetailModalVisible &&
+                <Drawer
+                    open={true}
+                    title={t('row')}
+                    onClose={() => {
+                        setDocDetailModalVisible(false)
+                    }}
+                >
+                    <div className={styles.code}>
+                        <pre>{JSON.stringify(docDetailModalItem, null, 4)}</pre>
+                    </div>
+                </Drawer>
             }
         </div>
     );
