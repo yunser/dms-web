@@ -97,8 +97,6 @@ export function MongoHome({ config, event$, onConnnect, }) {
             user: item.user,
             password: item.password,
             username: item.username,
-            // db: item.defaultDatabase || 0,
-            // remember: values.remember,
         }
         // if (values.remember) {
         //     storage.set('redisInfo', reqData)
@@ -110,7 +108,6 @@ export function MongoHome({ config, event$, onConnnect, }) {
             onConnnect && onConnnect({
                 connectionId: ret.data.connectionId,
                 name: item.name,
-                // defaultDatabase: item.defaultDatabase || 0,
             })
         }
         // setLoading(false)
@@ -235,13 +232,7 @@ export function MongoHome({ config, event$, onConnnect, }) {
                         >
                             <ReloadOutlined />
                         </IconButton>
-                        {/* <Button
-                            size="small"
-                            onClick={() => {
-                                
-                            }}
-                        >{t('add')}</Button> */}
-                        {/* <IconButton
+                        <IconButton
                             tooltip={t('add')}
                             // size="small"
                             className={styles.refresh}
@@ -251,7 +242,7 @@ export function MongoHome({ config, event$, onConnnect, }) {
                             }}
                         >
                             <PlusOutlined />
-                        </IconButton> */}
+                        </IconButton>
                         <IconButton
                             tooltip={t('export_json')}
                             onClick={() => {
@@ -331,7 +322,6 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
         if (item) {
             form.setFieldsValue({
                 ...item,
-                defaultDatabase: item.defaultDatabase || 0,
             })
         }
         else {
@@ -340,8 +330,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
                 host: '',
                 port: null,
                 password: '',
-                defaultDatabase: null,
-                userName: '',
+                username: '',
             })
         }
     }, [item])
@@ -353,10 +342,9 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
         const saveOrUpdateData = {
             name: values.name || t('unnamed'),
             host: values.host || 'localhost',
-            port: values.port || 6379,
-            // user: values.user,
+            port: values.port || 27017,
+            username: values.username,
             password: values.password,
-            userName: values.userName,
             defaultDatabase: values.defaultDatabase || 0,
         }
         if (editType == 'create') {
@@ -372,7 +360,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
                 
             //     // db: values.db,
             // })
-            let res = await request.post(`${config.host}/redis/connection/create`, {
+            let res = await request.post(`${config.host}/mongo/connection/create`, {
                 // id: item.id,
                 // data: {
                 // }
@@ -395,7 +383,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
             //     ..._connections[idx],
             //     ...saveOrUpdateData,
             // }
-            let res = await request.post(`${config.host}/redis/connection/update`, {
+            let res = await request.post(`${config.host}/mongo/connection/update`, {
                 id: item.id,
                 data: {
                     ...saveOrUpdateData,
@@ -425,7 +413,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
         setTestLoading(true)
         const reqData = {
             host: values.host || 'localhost',
-            port: values.port || 6379,
+            port: values.port || 27017,
             // user: values.user,
             password: values.password,
             userName: values.userName,
@@ -433,7 +421,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
             test: true,
             // remember: values.remember,
         }
-        let ret = await request.post(`${config.host}/redis/connect`, reqData)
+        let ret = await request.post(`${config.host}/mongo/connect`, reqData)
         // console.log('ret', ret)
         if (ret.success) {
             message.success(t('success'))
@@ -458,13 +446,14 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
                         justifyContent: 'space-between',
                     }}
                 >
-                    <Button key="back"
+                    <div></div>
+                    {/* <Button key="back"
                         loading={testLoading}
                         disabled={testLoading || loading}
                         onClick={handleTestConnection}
                     >
                         {t('test_connection')}
-                    </Button>
+                    </Button> */}
                     <Space>
                         <Button
                             // key="submit"
@@ -517,16 +506,15 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
                     // rules={[{ required: true, },]}
                 >
                     <InputNumber
-                        placeholder="6379"
+                        placeholder="27017"
                     />
                 </Form.Item>
-                {/* <Form.Item
-                    name="user"
-                    label="User"
-                    rules={[{ required: true, },]}
+                <Form.Item
+                    name="username"
+                    label={t('user_name')}
                 >
                     <Input />
-                </Form.Item> */}
+                </Form.Item>
                 <Form.Item
                     name="password"
                     label={t('password')}
@@ -534,45 +522,6 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
                 >
                     <InputPassword />
                 </Form.Item>
-                {/* <Form.Item
-                    name="ppppp"
-                    label={t('ppppppp')}
-                    rules={[{ required: true, },]}
-                >
-                    <Input.Password
-                        size="small"
-                        autoComplete="new-password"
-                    />
-                </Form.Item> */}
-                <Form.Item
-                    name="defaultDatabase"
-                    label={t('default_database')}
-                    // rules={[{ required: true, },]}
-                >
-                    <InputNumber
-                        placeholder="0"
-                    />
-                </Form.Item>
-                <Form.Item
-                    name="userName"
-                    label={t('user_name')}
-                    extra={t('user_name_helper')}
-                >
-                    <Input />
-                </Form.Item>
-                {/* <Form.Item name="remember" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>
-                    <Checkbox>Remember me</Checkbox>
-                </Form.Item> */}
-                {/* <Form.Item
-                    wrapperCol={{ offset: 8, span: 16 }}
-                >
-                    <Space>
-                        <Button
-                            loading={loading}
-                            type="primary"
-                            onClick={connect}>{t('connect')}</Button>
-                    </Space>
-                </Form.Item> */}
             </Form>
         </Modal>
     );
