@@ -216,6 +216,34 @@ export function MongoClient({ config, event$, connectionId, }) {
         },
     ]
 
+    function removeDocument(item) {
+        Modal.confirm({
+            // title: 'Confirm',
+            // icon: <ExclamationCircleOutlined />,
+            content: `${t('delete')}?`,
+            async onOk() {
+                let res = await request.post(`${config.host}/mongo/document/remove`, {
+                    connectionId,
+                    database: curDb.name,
+                    collection: curCollection.name,
+                    id: item._id,
+                })
+                if (res.success) {
+                    message.success(t('success'))
+                    // onSuccess && onSuccess()
+                    loadDocuments()
+                    // loadKeys()
+                    // setResult(null)
+                    // setResult({
+                    //     key: item,
+                    //     ...res.data,
+                    // })
+                    // setInputValue(res.data.value)
+                }
+            }
+        })
+    }
+
     return (
         <div className={styles.mongoClient}>
             <div className={styles.layoutLeft}>
@@ -365,7 +393,13 @@ export function MongoClient({ config, event$, connectionId, }) {
                                             className={styles.item}
                                             key={item._id}
                                         >
-                                            {JSON.stringify(item)}
+                                            <div>{JSON.stringify(item)}</div>
+                                            <Button
+                                                onClick={() => {
+                                                    removeDocument(item)
+                                                }}
+                                            >
+                                                删除</Button>
                                         </div>
                                     )
                                 })}
