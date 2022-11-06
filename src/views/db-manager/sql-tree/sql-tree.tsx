@@ -305,7 +305,10 @@ export function SqlTree({ databaseType, config, event$, connectionId, onTab, dat
         //   type: 'user/fetchUserList',
         // });
         // setLoading(true)
-        if (databaseType == 'postgres') {
+        if (databaseType == 'sqlite') {
+
+        }
+        else if (databaseType == 'postgres') {
 
         }
         else {
@@ -570,9 +573,12 @@ LIMIT 1000;`
         if (databaseType == 'postgres') {
             // TODO
         }
-        else {
+        else if (databaseType == 'sqlite') {
+
         }
-        loadAllFields(schemaName)
+        else {
+            loadAllFields(schemaName)
+        }
     }
 
     function refreshTables(nodeData) {
@@ -615,7 +621,9 @@ LIMIT 1000;`
             title: tableName,
             sql,
         })
-        loadTableFields({schemaName, tableName})
+        if (databaseType != 'sqlite') {
+            loadTableFields({schemaName, tableName})
+        }
     }
     
     return (

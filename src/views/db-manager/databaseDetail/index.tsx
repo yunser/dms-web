@@ -105,6 +105,9 @@ function Status({ databaseType, config, event$, connectionId }) {
     const [err, setErr] = useState('')
     const [curSchema, setCurSchema] = useState('')
     async function heartBeat() {
+        if (databaseType == 'splite') {
+            return
+        }
         let sql
         if (databaseType == 'postgres') {
             sql = `select current_database()`
@@ -351,6 +354,9 @@ export function DataBaseDetail({ databaseType = 'mysql', connectionId, event$, c
 
     useEffect(() => {
         if (databaseType == 'postgres') {
+
+        }
+        else if (databaseType == 'sqlite') {
 
         }
         else {
