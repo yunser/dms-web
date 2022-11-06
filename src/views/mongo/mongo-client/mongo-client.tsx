@@ -97,6 +97,10 @@ export function MongoClient({ config, event$, connectionId, }) {
                 if (res.success) {
                     message.success(t('success'))
                     loadDatabases()
+                    if (curDb && item.name == curDb.name) {
+                        setCurDb(null)
+                        setCurCollection(null)
+                    }
                 }
             }
         })
@@ -317,6 +321,9 @@ export function MongoClient({ config, event$, connectionId, }) {
                 if (res.success) {
                     message.success(t('success'))
                     loadCollections()
+                    if (curCollection && item.name == curCollection.name) {
+                        setCurCollection(null)
+                    }
                 }
             }
         })
