@@ -579,6 +579,9 @@ export function MongoClient({ config, event$, connectionId, }) {
                                 onChange={(page) => {
                                     setPage(page)
                                 }}
+                                showTotal={(total) => {
+                                    return `${total} ${t('rows')}`
+                                }}
                             />
                         </div>
                     </>
