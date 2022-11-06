@@ -57,7 +57,7 @@ const history_tab = {
 
 
 
-function SqlBox({ config, event$, connectionId, onJson, className, defaultSql = '', style }: Props) {
+function SqlBox({ config, event$, databaseType, connectionId, onJson, className, defaultSql = '', style }: Props) {
     console.warn('SqlBox/render')
     
     const { t, i18n } = useTranslation()
@@ -188,7 +188,9 @@ function SqlBox({ config, event$, connectionId, onJson, className, defaultSql = 
             // console.log('noCommentLine', noCommentLine)
             let lineCode = explain ? ('EXPLAIN ' + rawLine) : rawLine
             if (lineCode.toLowerCase().includes('select') && !lineCode.toLowerCase().includes('limit') && limit != -1) {
-                lineCode += ` limit ${limit}`
+                if (databaseType != 'mssql') {
+                    lineCode += ` limit ${limit}`
+                }
             }
             // 移除空行
             lineCode = lineCode.split('\n').map(item => item.trim()).filter(item => item).join('\n')

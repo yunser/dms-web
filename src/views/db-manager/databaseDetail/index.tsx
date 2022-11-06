@@ -108,6 +108,9 @@ function Status({ databaseType, config, event$, connectionId }) {
         if (databaseType == 'splite') {
             return
         }
+        if (databaseType == 'mssql') {
+            return
+        }
         let sql
         if (databaseType == 'postgres') {
             sql = `select current_database()`
@@ -357,6 +360,9 @@ export function DataBaseDetail({ databaseType = 'mysql', connectionId, event$, c
 
         }
         else if (databaseType == 'sqlite') {
+
+        }
+        else if (databaseType == 'mssql') {
 
         }
         else {
@@ -655,6 +661,7 @@ export function DataBaseDetail({ databaseType = 'mysql', connectionId, event$, c
                                 }
                                 {item.type == 'sql-query' &&
                                     <SqlBox
+                                        databaseType={databaseType}
                                         connectionId={connectionId}
                                         event$={event$}
                                         config={config}

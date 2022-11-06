@@ -7,7 +7,7 @@ import classNames from 'classnames'
 import { useTranslation } from 'react-i18next';
 import { Editor } from '../editor/Editor';
 import { IconButton } from '../icon-button';
-import { AimOutlined, CodeOutlined, ConsoleSqlOutlined, DatabaseOutlined, FormatPainterOutlined, HistoryOutlined, InfoCircleOutlined, PlusOutlined, QuestionCircleOutlined, ReloadOutlined, SyncOutlined, TableOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
+import { AimOutlined, CodeOutlined, ConsoleSqlOutlined, DatabaseOutlined, DeploymentUnitOutlined, FormatPainterOutlined, HistoryOutlined, InfoCircleOutlined, PlusOutlined, QuestionCircleOutlined, ReloadOutlined, SyncOutlined, TableOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
 import { getTableFieldMap, setAllFields, setTabbleAllFields, suggestionAdd, suggestionAddSchemas } from '../suggestion';
 import { request } from '../utils/http';
 import { i18n } from '@/i18n';
@@ -77,6 +77,8 @@ function TreeTitle({ keyword, loading = false, nodeData, onAction, onClick, onDo
                     <DatabaseOutlined className={styles.icon} />
                 : nodeData.type == 'table' ?
                     <TableOutlined className={styles.icon} />
+                : nodeData.type == 'schema2' ?
+                    <DeploymentUnitOutlined className={styles.icon} />
                 : nodeData.type == 'emppty' ?
                     <InfoCircleOutlined className={styles.icon} />
                 :
@@ -296,7 +298,81 @@ export function SqlTree({ databaseType, config, event$, connectionId, onTab, dat
         
     // ]
 
-    
+    async function loadSchemas(dbName) {
+        let res = await request.post(`${config.host}/mysql/schemas`, {
+            connectionId,
+            dbName: dbName,
+        })
+        console.log('res', res)
+        if (res.success) {
+            // message.info('连接成功')
+            const list = res.data
+            // console.log('res', list)
+            // setList(res.list)
+
+            // if (!list) {
+                
+            // }
+
+            console.log('treeData', treeData)
+            
+            const dbIdx = treeData.findIndex(node => node.itemData.$_name == dbName)
+            // return
+
+            const children = list
+                .map(item => {
+                    const schemaName = item.$_schema_name
+                    return {
+                        title: schemaName,
+                        key: schemaName,
+                        itemData: item,
+                        type: 'schema2',
+                    }
+                })
+                .sort((a, b) => {
+                    return a.title.localeCompare(b.title)
+                })
+            treeData[dbIdx].loading = false
+            treeData[dbIdx].children = children
+            // console.log('treeData[dbIdx]', treeData[dbIdx])
+            if (!list.length) {
+                treeData[dbIdx].children = [
+                    {
+                        title: t('table_empty'),
+                        type: 'emppty',
+                        key: 'no-table' + new Date().getTime(),
+                        itemData: {},
+                    }
+                ]
+            }
+            setExpandedKeys([treeData[dbIdx].key])
+            setTreeData([...treeData])
+            // adbs: ,
+            // suggestionAdd('adbs', ['dim_realtime_recharge_paycfg_range', 'dim_realtime_recharge_range'])
+            suggestionAdd(dbName, list.map(item => item.$_table_name))
+        } else {
+            message.error('连接失败')
+        }
+    }
+
+    async function loadTables2(dbName, schemaName) {
+
+        let res = await request.post(`${config.host}/mysql/tables`, {
+            connectionId,
+            dbName,
+            schemaName,
+        })
+        console.log('res', res)
+        if (res.success) {
+            // message.info('连接成功')
+            const list = res.data
+            return list
+        } else {
+            message.error('连接失败')
+            return []
+        }
+        // setLoading(false)
+    }
 
     async function loadTables(schemaName) {
         // console.log('props', this.props.match.params.name)
@@ -581,6 +657,58 @@ LIMIT 1000;`
         }
     }
 
+    function refreshSchemas(nodeData) {
+        const dbName = nodeData.itemData.$_name
+        const idx = treeData.findIndex(node => node.key == dbName)
+        console.log('idx', idx)
+        treeData[idx].loading = true
+        setTreeData([...treeData])
+        setSelectedKeys([dbName])
+        loadSchemas(dbName)
+    }
+
+    async function refreshMssqlTables(nodeData) {
+        console.log('refreshMssqlTables', nodeData)
+        const { $_schema_db, $_schema_name } = nodeData.itemData
+        const idx = treeData.findIndex(node => node.key == $_schema_db)
+        console.log('idx', idx)
+        if (idx != -1) {
+            const idx2 = treeData[idx].children.findIndex(node => node.key == $_schema_name)
+            console.log('idx2', idx2)
+            if (idx2 != -1) {
+                treeData[idx].children[idx2].loading = true
+                setTreeData([...treeData])
+                setSelectedKeys([$_schema_name])
+                const childrenData = await loadTables2($_schema_db, $_schema_name)
+                const children = childrenData.map(item => {
+                    const tableName = item.$_table_name
+                    return {
+                        title: tableName,
+                        key: tableName,
+                        itemData: item,
+                        type: 'table',
+                    }
+                })
+                treeData[idx].children[idx2].children = children
+                treeData[idx].children[idx2].loading = false
+                setSelectedKeys([$_schema_name])
+                setExpandedKeys([...expandedKeys, $_schema_name])
+                setTreeData([...treeData])
+                // loadTables(schemaName)
+                // if (databaseType == 'postgres') {
+                //     // TODO
+                // }
+                // else if (databaseType == 'sqlite') {
+        
+                // }
+                // else {
+                //     loadAllFields(schemaName)
+                // }
+            }
+        }
+
+    }
+
     function refreshTables(nodeData) {
         refreshSchemaTables(nodeData.itemData.$_name)
         // const idx = treeData.findIndex(node => node.key == nodeData.key)
@@ -611,7 +739,12 @@ LIMIT 1000;`
         //     }
         // ])
         let sql
-        if (databaseType == 'postgres') {
+        if (databaseType == 'mssql') {
+            console.log('nodeData.itemData', nodeData.itemData)
+            const { $__schemaName, $_table_name } = nodeData.itemData
+            sql = `SELECT TOP 20 * FROM [${$__schemaName}].[${$_table_name}]`
+        }
+        else if (databaseType == 'postgres') {
             sql = `SELECT *\nFROM "${schemaName}"."${tableName}"\nLIMIT 20;`
         }
         else {
@@ -621,7 +754,7 @@ LIMIT 1000;`
             title: tableName,
             sql,
         })
-        if (databaseType != 'sqlite') {
+        if (databaseType != 'sqlite' && databaseType != 'mssql') {
             loadTableFields({schemaName, tableName})
         }
     }
@@ -804,7 +937,16 @@ LIMIT 1000;`
                                     onDoubleClick={() => {
                                         console.log('onDoubleClick', nodeData)
                                         if (nodeData.type == 'schema') {
-                                            refreshTables(nodeData)
+                                            if (databaseType == 'mssql') {
+                                                refreshSchemas(nodeData)
+                                            }
+                                            else {
+                                                refreshTables(nodeData)
+                                            }
+                                        }
+                                        else if (nodeData.type == 'schema2') {
+                                            console.log('schema2', nodeData)
+                                            refreshMssqlTables(nodeData)
                                         }
                                         else if (nodeData.type == 'table') {
                                             queryTable(nodeData)
