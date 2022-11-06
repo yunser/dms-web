@@ -305,14 +305,15 @@ export function SqlTree({ databaseType, config, event$, connectionId, onTab, dat
         //   type: 'user/fetchUserList',
         // });
         // setLoading(true)
-        request.post(`${config.host}/mysql/execSql`, {
-            connectionId,
-            sql: `USE ${schemaName}`,
-            // tableName,
-            // dbName,
-        }, {
-            // noMessage: true,
-        })
+        if (databaseType == 'postgres') {
+
+        }
+        else {
+            request.post(`${config.host}/mysql/execSql`, {
+                connectionId,
+                sql: `USE ${schemaName}`,
+            })
+        }
         event$.emit({
             type: 'event_update_use',
             data: {
@@ -566,6 +567,11 @@ LIMIT 1000;`
         setTreeData([...treeData])
         setSelectedKeys([schemaName])
         loadTables(schemaName)
+        if (databaseType == 'postgres') {
+            // TODO
+        }
+        else {
+        }
         loadAllFields(schemaName)
     }
 

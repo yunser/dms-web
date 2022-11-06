@@ -101,13 +101,20 @@ interface TabProps {
 //     )
 // }
 
-function Status({ config, event$, connectionId }) {
+function Status({ databaseType, config, event$, connectionId }) {
     const [err, setErr] = useState('')
     const [curSchema, setCurSchema] = useState('')
     async function heartBeat() {
+        let sql
+        if (databaseType == 'postgres') {
+            sql = `select current_database()`
+        }
+        else {
+            sql = `select database()`
+        }
         let res = await request.post(`${config.host}/mysql/execSqlSimple`, {
             connectionId,
-            sql: `select database()`,
+            sql,
         }, {
             noMessage: true,
             timeout: 2000,
@@ -343,8 +350,14 @@ export function DataBaseDetail({ databaseType = 'mysql', connectionId, event$, c
     }
 
     useEffect(() => {
-        loadAllTables()
+        if (databaseType == 'postgres') {
+
+        }
+        else {
+            loadAllTables()
+        }
     }, [])
+
     function addOrActiveTab(tab, { closeCurrentTab = false,} = {}) {
         const exists = tabs.find(t => t.key == tab.key)
         if (!exists) {
@@ -430,6 +443,7 @@ export function DataBaseDetail({ databaseType = 'mysql', connectionId, event$, c
                 />
                 <div className={styles.status}>
                     <Status
+                        databaseType={databaseType}
                         event$={event$}
                         config={config}
                         connectionId={connectionId}
