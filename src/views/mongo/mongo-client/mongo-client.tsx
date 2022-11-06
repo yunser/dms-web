@@ -46,7 +46,7 @@ export function MongoClient({ config, event$, connectionId, }) {
     const [curDb, setCurDb] = useState(null)
     const [curCollection, setCurCollection] = useState(null)
     
-    const pageSize = 20
+    const pageSize = 10
     const [condition, setCondition] = useState('{}')
     const [documentCondition, setDocumentCondition] = useState({})
     const [documents, setDocuments] = useState([])
@@ -115,6 +115,7 @@ export function MongoClient({ config, event$, connectionId, }) {
             message.error('查询条件解析失败')
             return
         }
+        setPage(1)
         setDocumentCondition(cond)
     }
 
@@ -192,6 +193,7 @@ export function MongoClient({ config, event$, connectionId, }) {
                                 size="small"
                                 onClick={() => {
                                     // selectCol(item)
+                                    setPage(1)
                                     setCurCollection(item)
                                 }}
                             >
@@ -350,7 +352,6 @@ export function MongoClient({ config, event$, connectionId, }) {
                                     type: 'event_show_json',
                                     data: {
                                         json: JSON.stringify(databases, null, 4)
-                                        // connectionId,
                                     },
                                 })
                             }}
@@ -471,6 +472,20 @@ export function MongoClient({ config, event$, connectionId, }) {
                                         }}
                                     >
                                         <PlusOutlined />
+                                    </IconButton>
+                                    <IconButton
+                                        // size="small"
+                                        tooltip={t('export_json')}
+                                        onClick={() => {
+                                            event$.emit({
+                                                type: 'event_show_json',
+                                                data: {
+                                                    json: JSON.stringify(documents, null, 4)
+                                                },
+                                            })
+                                        }}
+                                    >
+                                        <ExportOutlined />
                                     </IconButton>
                                 </Space>
                             </div>

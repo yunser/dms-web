@@ -415,9 +415,8 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
             port: values.port || 27017,
             // user: values.user,
             password: values.password,
-            userName: values.userName,
+            username: values.username,
             test: true,
-            // remember: values.remember,
         }
         let ret = await request.post(`${config.host}/mongo/connect`, reqData)
         // console.log('ret', ret)
@@ -444,14 +443,14 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
                         justifyContent: 'space-between',
                     }}
                 >
-                    <div></div>
-                    {/* <Button key="back"
+                    {/* <div></div> */}
+                    <Button key="back"
                         loading={testLoading}
                         disabled={testLoading || loading}
                         onClick={handleTestConnection}
                     >
                         {t('test_connection')}
-                    </Button> */}
+                    </Button>
                     <Space>
                         <Button
                             // key="submit"
