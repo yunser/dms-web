@@ -42,6 +42,7 @@ export function MongoClient({ config, event$, connectionId, }) {
     const [docDetailModalItem, setDocDetailModalItem] = useState(null)
 
     const [databases, setDatabases] = useState([])
+    const [collectionLoading, setCollectionLoading] = useState(false)
     const [collections, setCollections] = useState([])
     const [loading, setLoading] = useState(false)
     const [curDb, setCurDb] = useState(null)
@@ -50,6 +51,7 @@ export function MongoClient({ config, event$, connectionId, }) {
     const pageSize = 10
     const [condition, setCondition] = useState('{}')
     const [documentCondition, setDocumentCondition] = useState({})
+    const [documentLoading, setDocumentLoading] = useState(false)
     const [documents, setDocuments] = useState([])
     const [page, setPage] = useState(1)
     const [total, setTotal] = useState(0)
@@ -125,8 +127,7 @@ export function MongoClient({ config, event$, connectionId, }) {
     }
 
     async function loadDocuments() {
-        // const connections = storage.get('redis-connections', [])
-        // setLoading(true)
+        setDocumentLoading(true)
         let res = await request.post(`${config.host}/mongo/documents`, {
             connectionId,
             database: curDb.name,
@@ -134,32 +135,22 @@ export function MongoClient({ config, event$, connectionId, }) {
             skip: (page - 1) * pageSize,
             limit: pageSize,
             conditions: documentCondition,
-        }, {
-            // noMessage: true,
         })
-        // console.log('res', res)
         if (res.success) {
-            // setProjects([])
             const { list, total } = res.data
-            // let collections = list
             setDocuments(list)
             setTotal(total)
         }
-        // setLoading(false)
+        setDocumentLoading(false)
     }
 
     async function loadCollections() {
-        // const connections = storage.get('redis-connections', [])
-        // setLoading(true)
+        setCollectionLoading(true)
         let res = await request.post(`${config.host}/mongo/collections`, {
             connectionId,
             database: curDb.name,
-        }, {
-            // noMessage: true,
         })
-        // console.log('res', res)
         if (res.success) {
-            // setProjects([])
             let collections = res.data.list
             if (collections.length) {
                 setCollections(collections.sort((a, b) => {
@@ -167,7 +158,7 @@ export function MongoClient({ config, event$, connectionId, }) {
                 }))
             }
         }
-        // setLoading(false)
+        setCollectionLoading(false)
     }
 
     useEffect(() => {
@@ -441,7 +432,14 @@ export function MongoClient({ config, event$, connectionId, }) {
                                     </IconButton>
                                 </Space>
                             </div>
+                            {/* {collectionLoading ?
+                                <FullCenterBox>
+                                    <Spin />
+                                </FullCenterBox>
+                            :
+                            } */}
                             <Table
+                                loading={collectionLoading}
                                 dataSource={collections}
                                 pagination={false}
                                 columns={collectionColumns}
@@ -519,7 +517,11 @@ export function MongoClient({ config, event$, connectionId, }) {
                                     }}
                                 >mock 数据</Button> */}
                             </div>
-                            {documents.length == 0 ?
+                            {documentLoading ?
+                                <FullCenterBox>
+                                    <Spin />
+                                </FullCenterBox>
+                            : documents.length == 0 ?
                                 <FullCenterBox>
                                     <Empty />
                                 </FullCenterBox>
