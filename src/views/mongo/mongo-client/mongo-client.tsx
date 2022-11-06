@@ -1,4 +1,4 @@
-import { Button, Checkbox, Col, Descriptions, Drawer, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Pagination, Popover, Row, Space, Spin, Table, Tabs } from 'antd';
+import { Button, Checkbox, Col, Descriptions, Drawer, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Pagination, Popover, Radio, Row, Space, Spin, Table, Tabs } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import styles from './mongo-client.module.less';
 import _ from 'lodash';
@@ -14,6 +14,7 @@ import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/db-manager/redis-client';
 import { MongoDocument } from '../mongo-document';
+import { MongoIndex } from '../mongo-index';
 
 function removeObjId(obj) {
     const result = {}
@@ -28,19 +29,12 @@ function removeObjId(obj) {
 export function MongoClient({ config, event$, connectionId, }) {
     const { t } = useTranslation()
     
-    // doc
-    const [modalVisible, setModalVisible] = useState(false)
-    const [modalType, setModalType] = useState('create')
-    const [modalItem, setModalItem] = useState(false)
     // col
     const [collectionModalVisible, setCollectionModalVisible] = useState(false)
     const [collectionModalItem, setCollectionModalItem] = useState(null)
     // db
     const [dbModalVisible, setDbModalVisible] = useState(false)
     const [dbModalItem, setDbModalItem] = useState(null)
-    // doc detail
-    const [docDetailModalVisible, setDocDetailModalVisible] = useState(false)
-    const [docDetailModalItem, setDocDetailModalItem] = useState(null)
 
     const [databases, setDatabases] = useState([])
     const [collectionLoading, setCollectionLoading] = useState(false)
@@ -48,6 +42,9 @@ export function MongoClient({ config, event$, connectionId, }) {
     const [loading, setLoading] = useState(false)
     const [curDb, setCurDb] = useState(null)
     const [curCollection, setCurCollection] = useState(null)
+
+    // const [tab, setTab] = useState('document')
+    const [tab, setTab] = useState('index')
     
     async function loadDatabases() {
         // const connections = storage.get('redis-connections', [])
@@ -360,16 +357,40 @@ export function MongoClient({ config, event$, connectionId, }) {
                 {!!curCollection &&
                     <>
                         <div className={styles.header}>
-                            <div>{curCollection.name} {t('mongo.documents')}</div>
+                            <div>
+                                {curCollection.name} 
+                                {/* {t('mongo.documents')} */}
+                            </div>
+                            <Radio.Group
+                                value={tab}
+                                onChange={e => {
+                                    setTab(e.target.value)
+                                }}
+                                    // buttonStyle="solid"
+                            >
+                                <Radio.Button value="document">{t('mongo.documents')}</Radio.Button>
+                                <Radio.Button value="index">indexes</Radio.Button>
+                            </Radio.Group>
                         </div>
                         <div className={styles.body}>
-                            <MongoDocument
-                                config={config}
-                                event$={event$}
-                                connectionId={connectionId}
-                                curCollection={curCollection}
-                                curDb={curDb}
-                            />
+                            {tab == 'document' &&
+                                <MongoDocument
+                                    config={config}
+                                    event$={event$}
+                                    connectionId={connectionId}
+                                    curCollection={curCollection}
+                                    curDb={curDb}
+                                />
+                            }
+                            {tab == 'index' &&
+                                <MongoIndex
+                                    config={config}
+                                    event$={event$}
+                                    connectionId={connectionId}
+                                    curCollection={curCollection}
+                                    curDb={curDb}
+                                />
+                            }
                             {/* <Button
                                 onClick={async () => {
                                     let res = await request.post(`${config.host}/mongo/mock`, {
@@ -416,19 +437,6 @@ export function MongoClient({ config, event$, connectionId, }) {
                         loadDatabases()
                     }}
                 />
-            }
-            {docDetailModalVisible &&
-                <Drawer
-                    open={true}
-                    title={t('row')}
-                    onClose={() => {
-                        setDocDetailModalVisible(false)
-                    }}
-                >
-                    <div className={styles.code}>
-                        <pre>{JSON.stringify(docDetailModalItem, null, 4)}</pre>
-                    </div>
-                </Drawer>
             }
         </div>
     );
