@@ -204,7 +204,6 @@ function SqlBox({ config, event$, connectionId, onJson, className, defaultSql = 
                     data: {
                         sql: lineCode,
                         loading: true,
-                        // fields,
                         // result: res.data,
                         // list,
                         // error: '',
@@ -272,8 +271,7 @@ function SqlBox({ config, event$, connectionId, onJson, className, defaultSql = 
                 // return
                 window._startTime = new Date()
                 // console.log(res)
-                const { results, fields, columns: rawColumns } = res.data
-                // setFields(fields)
+                const { results, fields } = res.data
 
                 const tabKey = uid(16)
                 newTabs[lineIdx] = {
@@ -291,7 +289,6 @@ function SqlBox({ config, event$, connectionId, onJson, className, defaultSql = 
                         results,
                         tableName,
                         dbName: dbName,
-                        rawColumns,
                     }
                 }
                 // console.log('ExecDetail/setExecResults3')

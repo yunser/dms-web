@@ -245,6 +245,7 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
             // db: values.defaultDatabase || 0,
             test: true,
             httpProxyUrl: values.httpProxyUrl,
+            type: values.type,
             // remember: values.remember,
         }
         let ret = await request.post(`${config.host}/mysql/connect`, reqData)
@@ -369,6 +370,13 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
                 <Form.Item
                     name="httpProxyUrl"
                     label={t('http_proxy_url')}
+                    // rules={[{ required: true, },]}
+                >
+                    <Input />
+                </Form.Item>
+                <Form.Item
+                    name="type"
+                    label={t('type')}
                     // rules={[{ required: true, },]}
                 >
                     <Input />
@@ -505,6 +513,7 @@ export function SqlConnector({ config, event$, onConnnect, onJson }) {
             port: data.port,
             user: data.user,
             password: data.password,
+            type: data.type,
             // remember: values.remember,
         }
         await _connect(reqData)

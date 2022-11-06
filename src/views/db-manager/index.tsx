@@ -817,6 +817,7 @@ export function DbManager({ config }) {
                                             onConnnect={({ id, curConnect }) => {
                                                 // TODO 通过 setTimeout 解决这个问题，原因未知
                                                 // Can't perform a React state update on an unmounted component. This is a no-op, but it indicates a memory leak in your application. To fix, cancel all subscriptions and asynchronous tasks in a useEffect cleanup function
+                                                console.log('databaseType', curConnect.type)
                                                 setTimeout(() => {
                                                     const key = '' + new Date().getTime()
                                                     addOrActiveTab({
@@ -826,9 +827,10 @@ export function DbManager({ config }) {
                                                         data: {
                                                             name: null,
                                                             connectionId: id,
+                                                            databaseType: curConnect.type,
                                                         }
                                                     }, {
-                                                        closeCurrentTab: true,
+                                                        // closeCurrentTab: true,
                                                     })
                                                 }, 0)
                                             }}
@@ -850,6 +852,7 @@ export function DbManager({ config }) {
                                             config={config}
                                             // dbName={item.data.name}
                                             connectionId={item.data.connectionId}
+                                            databaseType={item.data.databaseType}
                                             onJson={json => {
                                                 addJsonTab(json)
                                             }}

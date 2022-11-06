@@ -143,7 +143,6 @@ function SqlBox({ config, event$, esIndex, esType, dbName, className, defaultSql
                     loading: true,
                     data: {
                         dataOld: true,
-                        // fields,
                         // result: res.data,
                         // list,
                         // error: '',
@@ -175,14 +174,12 @@ function SqlBox({ config, event$, esIndex, esType, dbName, className, defaultSql
                     data: {
                         resJson: res.data,
                         // loading: false,
-                        // fields,
                         // result: res.data,
                         // list,
                         // error: '',
                         // hasReq: true,
                         // results,
                         // dbName: dbName || defaultDbName,
-                        // rawColumns,
                     }
                 }
                 setExecResults([...newTabs])

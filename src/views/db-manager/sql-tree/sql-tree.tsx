@@ -256,7 +256,7 @@ function DebounceInput(props: InputProps) {
 }
 
 
-export function SqlTree({ config, event$, connectionId, onTab, data = {} }: any) {
+export function SqlTree({ databaseType, config, event$, connectionId, onTab, data = {} }: any) {
     console.warn('SqlTree/render')
     
     const { defaultJson = '' } = data
@@ -338,12 +338,12 @@ export function SqlTree({ config, event$, connectionId, onTab, data = {} }: any)
 
             console.log('treeData', treeData)
             
-            const dbIdx = treeData.findIndex(node => node.itemData.SCHEMA_NAME == schemaName)
+            const dbIdx = treeData.findIndex(node => node.itemData.$_name == schemaName)
             // return
 
             const children = list
                 .map(item => {
-                    const tableName = item.TABLE_NAME
+                    const tableName = item.$_table_name
                     return {
                         title: tableName,
                         key: tableName,
@@ -371,7 +371,7 @@ export function SqlTree({ config, event$, connectionId, onTab, data = {} }: any)
             setTreeData([...treeData])
             // adbs: ,
             // suggestionAdd('adbs', ['dim_realtime_recharge_paycfg_range', 'dim_realtime_recharge_range'])
-            suggestionAdd(schemaName, list.map(item => item.TABLE_NAME))
+            suggestionAdd(schemaName, list.map(item => item.$_table_name))
         } else {
             message.error('连接失败')
         }
@@ -391,8 +391,8 @@ export function SqlTree({ config, event$, connectionId, onTab, data = {} }: any)
             const dbs = ret.data
             setTreeData(dbs.map(item => {
                 return {
-                    title: item.SCHEMA_NAME,
-                    key: item.SCHEMA_NAME,
+                    title: item.$_name,
+                    key: item.$_name,
                     type: 'schema',
                     children: [],
                     // data: 
@@ -403,7 +403,7 @@ export function SqlTree({ config, event$, connectionId, onTab, data = {} }: any)
             // setTreeData([
             //     ,
             // ])
-            suggestionAddSchemas(connectionId, dbs.map(item => item.SCHEMA_NAME))
+            suggestionAddSchemas(connectionId, dbs.map(item => item.$_name))
         }
         // else {
         //     message.error('连接失败')
@@ -570,7 +570,7 @@ LIMIT 1000;`
     }
 
     function refreshTables(nodeData) {
-        refreshSchemaTables(nodeData.itemData.SCHEMA_NAME)
+        refreshSchemaTables(nodeData.itemData.$_name)
         // const idx = treeData.findIndex(node => node.key == nodeData.key)
         // console.log('idx', idx)
         // treeData[idx].loading = true
@@ -580,8 +580,9 @@ LIMIT 1000;`
     }
 
     function queryTable(nodeData) {
-        const tableName = nodeData.key // TODO @p2
-        const schemaName = nodeData.itemData.TABLE_SCHEMA
+        console.log('nodeData', nodeData)
+        const tableName = nodeData.itemData.$_table_name
+        const schemaName = nodeData.itemData.$table_schema
 
         // let tabKey = '' + new Date().getTime()
         // setActiveKey(tabKey)
@@ -597,9 +598,16 @@ LIMIT 1000;`
         //         },
         //     }
         // ])
+        let sql
+        if (databaseType == 'postgres') {
+            sql = `SELECT *\nFROM "${schemaName}"."${tableName}"\nLIMIT 20;`
+        }
+        else {
+            sql = `SELECT *\nFROM \`${schemaName}\`.\`${tableName}\`\nLIMIT 20;`
+        }
         showSqlInNewtab({
             title: tableName,
-            sql: `SELECT *\nFROM \`${schemaName}\`.\`${tableName}\`\nLIMIT 20;`,
+            sql,
         })
         loadTableFields({schemaName, tableName})
     }
