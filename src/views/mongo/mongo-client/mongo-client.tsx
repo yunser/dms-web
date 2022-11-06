@@ -29,6 +29,7 @@ export function MongoClient({ config, event$, connectionId, }) {
     
     // doc
     const [modalVisible, setModalVisible] = useState(false)
+    const [modalType, setModalType] = useState('create')
     const [modalItem, setModalItem] = useState(false)
     // col
     const [collectionModalVisible, setCollectionModalVisible] = useState(false)
@@ -259,6 +260,13 @@ export function MongoClient({ config, event$, connectionId, }) {
 
     function updateDocument(item) {
         setModalItem(item)
+        setModalType('update')
+        setModalVisible(true)
+    }
+
+    function duplicateDocument(item) {
+        setModalItem(item)
+        setModalType('create')
         setModalVisible(true)
     }
 
@@ -468,6 +476,7 @@ export function MongoClient({ config, event$, connectionId, }) {
                                         className={styles.refresh}
                                         onClick={() => {
                                             setModalItem(null)
+                                            setModalType('create')
                                             setModalVisible(true)
                                         }}
                                     >
@@ -503,49 +512,63 @@ export function MongoClient({ config, event$, connectionId, }) {
                                     }}
                                 >mock 数据</Button> */}
                             </div>
-                            <div className={styles.documents}>
-                                {documents.map(item => {
-                                    return (
-                                        <div 
-                                            className={styles.item}
-                                            key={item._id}
-                                        >
-                                            <div className={styles.content}
-                                                onClick={() => {
-                                                    viewDocument(item)
-                                                }}
-                                            >{JSON.stringify(item)}</div>
-                                            <Space>
-                                                <Button
-                                                    size="small"
+                            {documents.length == 0 ?
+                                <FullCenterBox>
+                                    <Empty />
+                                </FullCenterBox>
+                            :
+                                <div className={styles.documents}>
+                                    {documents.map(item => {
+                                        return (
+                                            <div 
+                                                className={styles.item}
+                                                key={item._id}
+                                            >
+                                                <div className={styles.content}
                                                     onClick={() => {
                                                         viewDocument(item)
                                                     }}
-                                                >
-                                                    {t('view')}
-                                                </Button>
-                                                <Button
-                                                    size="small"
-                                                    onClick={() => {
-                                                        updateDocument(item)
-                                                    }}
-                                                >
-                                                    {t('edit')}
-                                                </Button>
-                                                <Button
-                                                    size="small"
-                                                    danger
-                                                    onClick={() => {
-                                                        removeDocument(item)
-                                                    }}
-                                                >
-                                                    {t('delete')}
-                                                </Button>
-                                            </Space>
-                                        </div>
-                                    )
-                                })}
-                            </div>
+                                                >{JSON.stringify(item)}</div>
+                                                <Space>
+                                                    <Button
+                                                        size="small"
+                                                        onClick={() => {
+                                                            viewDocument(item)
+                                                        }}
+                                                    >
+                                                        {t('view')}
+                                                    </Button>
+                                                    <Button
+                                                        size="small"
+                                                        onClick={() => {
+                                                            duplicateDocument(item)
+                                                        }}
+                                                    >
+                                                        {t('duplicate')}
+                                                    </Button>
+                                                    <Button
+                                                        size="small"
+                                                        onClick={() => {
+                                                            updateDocument(item)
+                                                        }}
+                                                    >
+                                                        {t('edit')}
+                                                    </Button>
+                                                    <Button
+                                                        size="small"
+                                                        danger
+                                                        onClick={() => {
+                                                            removeDocument(item)
+                                                        }}
+                                                    >
+                                                        {t('delete')}
+                                                    </Button>
+                                                </Space>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            }
                         </div>
                         <div className={styles.footer}>
                             <Pagination
@@ -571,6 +594,7 @@ export function MongoClient({ config, event$, connectionId, }) {
                     database={curDb.name}
                     collection={curCollection.name}
                     item={modalItem}
+                    editType={modalType}
                     config={config}
                     onCancel={() => {
                         setModalVisible(false)
@@ -910,14 +934,14 @@ function CollectionModal({ config, onCancel, item, onSuccess,
     );
 }
 
-function DatabaseModal({ config, onCancel, item, onSuccess, 
+function DatabaseModal({ config, editType, onCancel, item, onSuccess, 
     database,
     collection,
     connectionId,
     onConnnect, }) {
     const { t } = useTranslation()
 
-    const editType = item ? 'update' : 'create'
+    // const editType = item ? 'update' : 'create'
     const [testLoading, setTestLoading] = useState(false)
     const [loading, setLoading] = useState(false)
     const [form] = Form.useForm()
