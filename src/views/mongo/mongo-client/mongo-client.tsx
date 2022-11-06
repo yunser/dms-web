@@ -13,6 +13,7 @@ import { EllipsisOutlined, ExportOutlined, EyeInvisibleOutlined, EyeOutlined, Ey
 import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/db-manager/redis-client';
+import { MongoDocument } from '../mongo-document';
 
 function removeObjId(obj) {
     const result = {}
@@ -48,14 +49,6 @@ export function MongoClient({ config, event$, connectionId, }) {
     const [curDb, setCurDb] = useState(null)
     const [curCollection, setCurCollection] = useState(null)
     
-    const pageSize = 10
-    const [condition, setCondition] = useState('{}')
-    const [documentCondition, setDocumentCondition] = useState({})
-    const [documentLoading, setDocumentLoading] = useState(false)
-    const [documents, setDocuments] = useState([])
-    const [page, setPage] = useState(1)
-    const [total, setTotal] = useState(0)
-
     async function loadDatabases() {
         // const connections = storage.get('redis-connections', [])
         setLoading(true)
@@ -108,42 +101,6 @@ export function MongoClient({ config, event$, connectionId, }) {
         })
     }
 
-    function query() {
-        if (!condition) {
-            // message.error('请输入查询条件')
-            setDocumentCondition({})
-            return
-        }
-        let cond
-        try {
-            cond = JSON.parse(condition)
-        }
-        catch (err) {
-            message.error('查询条件解析失败')
-            return
-        }
-        setPage(1)
-        setDocumentCondition(cond)
-    }
-
-    async function loadDocuments() {
-        setDocumentLoading(true)
-        let res = await request.post(`${config.host}/mongo/documents`, {
-            connectionId,
-            database: curDb.name,
-            collection: curCollection.name,
-            skip: (page - 1) * pageSize,
-            limit: pageSize,
-            conditions: documentCondition,
-        })
-        if (res.success) {
-            const { list, total } = res.data
-            setDocuments(list)
-            setTotal(total)
-        }
-        setDocumentLoading(false)
-    }
-
     async function loadCollections() {
         setCollectionLoading(true)
         let res = await request.post(`${config.host}/mongo/collections`, {
@@ -167,12 +124,6 @@ export function MongoClient({ config, event$, connectionId, }) {
         }
     }, [curDb])
 
-    useEffect(() => {
-        if (curDb) {
-            loadDocuments()
-        }
-    }, [curCollection, page, documentCondition])
-
     const collectionColumns = [
         {
             title: t('mongo.collection.name'),
@@ -189,7 +140,6 @@ export function MongoClient({ config, event$, connectionId, }) {
                                 size="small"
                                 onClick={() => {
                                     // selectCol(item)
-                                    setPage(1)
                                     setCurCollection(item)
                                 }}
                             >
@@ -252,51 +202,6 @@ export function MongoClient({ config, event$, connectionId, }) {
             }
         },
     ]
-
-    function updateDocument(item) {
-        setModalItem(item)
-        setModalType('update')
-        setModalVisible(true)
-    }
-
-    function duplicateDocument(item) {
-        setModalItem(item)
-        setModalType('create')
-        setModalVisible(true)
-    }
-
-    function viewDocument(item) {
-        setDocDetailModalItem(item)
-        setDocDetailModalVisible(true)
-    }
-
-    function removeDocument(item) {
-        Modal.confirm({
-            // title: 'Confirm',
-            // icon: <ExclamationCircleOutlined />,
-            content: `${t('delete')}?`,
-            async onOk() {
-                let res = await request.post(`${config.host}/mongo/document/remove`, {
-                    connectionId,
-                    database: curDb.name,
-                    collection: curCollection.name,
-                    id: item._id,
-                })
-                if (res.success) {
-                    message.success(t('success'))
-                    // onSuccess && onSuccess()
-                    loadDocuments()
-                    // loadKeys()
-                    // setResult(null)
-                    // setResult({
-                    //     key: item,
-                    //     ...res.data,
-                    // })
-                    // setInputValue(res.data.value)
-                }
-            }
-        })
-    }
 
     function dropCollection(item) {
         Modal.confirm({
@@ -457,141 +362,24 @@ export function MongoClient({ config, event$, connectionId, }) {
                         <div className={styles.header}>
                             <div>{curCollection.name} {t('mongo.documents')}</div>
                         </div>
-                        <div className={styles.tool}>
-                            <Input.TextArea
-                                placeholder="请输入查询条件"
-                                value={condition}
-                                rows={8}
-                                onChange={e => {
-                                    setCondition(e.target.value)
-                                }}
-                            />
-                            <div className={styles.btns}>
-                                <Space>
-                                    <Button
-                                        type="primary"
-                                        size="small"
-                                        onClick={query}
-                                    >
-                                        {t('query')}
-                                    </Button>
-                                    <IconButton
-                                        tooltip={t('add')}
-                                        // size="small"
-                                        className={styles.refresh}
-                                        onClick={() => {
-                                            setModalItem(null)
-                                            setModalType('create')
-                                            setModalVisible(true)
-                                        }}
-                                    >
-                                        <PlusOutlined />
-                                    </IconButton>
-                                    <IconButton
-                                        // size="small"
-                                        tooltip={t('export_json')}
-                                        onClick={() => {
-                                            event$.emit({
-                                                type: 'event_show_json',
-                                                data: {
-                                                    json: JSON.stringify(documents, null, 4)
-                                                },
-                                            })
-                                        }}
-                                    >
-                                        <ExportOutlined />
-                                    </IconButton>
-                                </Space>
-                            </div>
-                        </div>
                         <div className={styles.body}>
-                            <div>
-                                {/* <Button
-                                    onClick={async () => {
-                                        let res = await request.post(`${config.host}/mongo/mock`, {
-                                            connectionId,
-                                            // database: curDb.name,
-                                        }, {
-                                            // noMessage: true,
-                                        })
-                                    }}
-                                >mock 数据</Button> */}
-                            </div>
-                            {documentLoading ?
-                                <FullCenterBox>
-                                    <Spin />
-                                </FullCenterBox>
-                            : documents.length == 0 ?
-                                <FullCenterBox>
-                                    <Empty />
-                                </FullCenterBox>
-                            :
-                                <div className={styles.documents}>
-                                    {documents.map(item => {
-                                        return (
-                                            <div 
-                                                className={styles.item}
-                                                key={item._id}
-                                            >
-                                                <div className={styles.content}
-                                                    onClick={() => {
-                                                        viewDocument(item)
-                                                    }}
-                                                >{JSON.stringify(item)}</div>
-                                                <Space>
-                                                    <Button
-                                                        size="small"
-                                                        onClick={() => {
-                                                            viewDocument(item)
-                                                        }}
-                                                    >
-                                                        {t('view')}
-                                                    </Button>
-                                                    <Button
-                                                        size="small"
-                                                        onClick={() => {
-                                                            duplicateDocument(item)
-                                                        }}
-                                                    >
-                                                        {t('duplicate')}
-                                                    </Button>
-                                                    <Button
-                                                        size="small"
-                                                        onClick={() => {
-                                                            updateDocument(item)
-                                                        }}
-                                                    >
-                                                        {t('edit')}
-                                                    </Button>
-                                                    <Button
-                                                        size="small"
-                                                        danger
-                                                        onClick={() => {
-                                                            removeDocument(item)
-                                                        }}
-                                                    >
-                                                        {t('delete')}
-                                                    </Button>
-                                                </Space>
-                                            </div>
-                                        )
-                                    })}
-                                </div>
-                            }
-                        </div>
-                        <div className={styles.footer}>
-                            <Pagination
-                                current={page}
-                                total={total}
-                                pageSize={pageSize}
-                                showSizeChanger={false}
-                                onChange={(page) => {
-                                    setPage(page)
-                                }}
-                                showTotal={(total) => {
-                                    return `${total} ${t('rows')}`
-                                }}
+                            <MongoDocument
+                                config={config}
+                                event$={event$}
+                                connectionId={connectionId}
+                                curCollection={curCollection}
+                                curDb={curDb}
                             />
+                            {/* <Button
+                                onClick={async () => {
+                                    let res = await request.post(`${config.host}/mongo/mock`, {
+                                        connectionId,
+                                        // database: curDb.name,
+                                    }, {
+                                        // noMessage: true,
+                                    })
+                                }}
+                            >mock 数据</Button> */}
                         </div>
                     </>
                 }
@@ -600,23 +388,6 @@ export function MongoClient({ config, event$, connectionId, }) {
             {/* <TextArea className={styles.textarea} value={code} rows={4} 
                 onChange={e => setCode(e.target.value)} /> */}
             {/* <Button type="primary" onClick={help}>帮助</Button> */}
-            {modalVisible &&
-                <DatabaseModal
-                    connectionId={connectionId}
-                    database={curDb.name}
-                    collection={curCollection.name}
-                    item={modalItem}
-                    editType={modalType}
-                    config={config}
-                    onCancel={() => {
-                        setModalVisible(false)
-                    }}
-                    onSuccess={() => {
-                        setModalVisible(false)
-                        loadDocuments()
-                    }}
-                />
-            }
             {collectionModalVisible &&
                 <CollectionModal
                     connectionId={connectionId}
