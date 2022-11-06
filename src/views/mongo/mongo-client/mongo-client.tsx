@@ -43,8 +43,8 @@ export function MongoClient({ config, event$, connectionId, }) {
     const [curDb, setCurDb] = useState(null)
     const [curCollection, setCurCollection] = useState(null)
 
-    // const [tab, setTab] = useState('document')
-    const [tab, setTab] = useState('index')
+    const [tab, setTab] = useState('document')
+    // const [tab, setTab] = useState('index')
     
     async function loadDatabases() {
         // const connections = storage.get('redis-connections', [])
@@ -369,7 +369,7 @@ export function MongoClient({ config, event$, connectionId, }) {
                                     // buttonStyle="solid"
                             >
                                 <Radio.Button value="document">{t('mongo.documents')}</Radio.Button>
-                                <Radio.Button value="index">indexes</Radio.Button>
+                                <Radio.Button value="index">{t('mongo.indexes')}</Radio.Button>
                             </Radio.Group>
                         </div>
                         <div className={styles.body}>

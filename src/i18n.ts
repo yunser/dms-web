@@ -349,6 +349,7 @@ i18n
                     'mongo.collection.name': 'Collection Name',
                     'mongo.collections': 'Collections',
                     'mongo.documents': 'Documents',
+                    'mongo.indexes': 'Indexes',
                 }
             },
             zh: {
@@ -691,6 +692,7 @@ i18n
                     'mongo.collection.name': '集合名称',
                     'mongo.collections': '集合',
                     'mongo.documents': '文档',
+                    'mongo.indexes': '索引',
                 }
             }
         },
