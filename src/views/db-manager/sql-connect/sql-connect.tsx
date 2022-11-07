@@ -1,4 +1,4 @@
-import { Button, Checkbox, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Space, Spin, Table, Tabs, Tree } from 'antd';
+import { Button, Checkbox, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Select, Space, Spin, Table, Tabs, Tree } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './sql-connect.module.less';
 import _ from 'lodash';
@@ -158,7 +158,12 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
         if (item) {
             form.setFieldsValue({
                 ...item,
-                path: item.path || '',
+                type: item.type || 'mysql',
+            })
+        }
+        else {
+            form.setFieldsValue({
+                type: 'mysql',
             })
         }
     }, [item])
@@ -180,6 +185,7 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
             color: values.color,
             description: values.description,
             httpProxyUrl: values.httpProxyUrl,
+            type: values.type,
         }
         console.log('saveOrUpdateData', saveOrUpdateData)
         // return
@@ -311,6 +317,28 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
                 //     wrapperCol: { span: 24 },
                 // }}
             >
+                <Form.Item
+                    name="type"
+                    label={t('type')}
+                    rules={[]}
+                >
+                    <Select
+                        options={[
+                            {
+                                label: 'MySQL',
+                                value: 'mysql',
+                            },
+                            {
+                                label: 'SQL Server',
+                                value: 'mssql',
+                            },
+                            {
+                                label: 'SQLite',
+                                value: 'sqlite',
+                            },
+                        ]}
+                    />
+                </Form.Item>
                 <Form.Item
                     name="name"
                     label={t('name')}
