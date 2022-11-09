@@ -403,8 +403,8 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
                     <Input />
                 </Form.Item>
                 <Form.Item
-                    name="type"
-                    label={t('type')}
+                    name="path"
+                    label={t('path')}
                     // rules={[{ required: true, },]}
                 >
                     <Input />
@@ -885,6 +885,21 @@ ${t('password')}: ${data.password}`
                             dataIndex: 'name',
                             width: 240,
                             ellipsis: true,
+                        },
+                        {
+                            title: t('type'),
+                            dataIndex: 'type',
+                            width: 100,
+                            ellipsis: true,
+                            render(value = 'mysql') {
+                                const map = {
+                                    'mysql': 'MySQL',
+                                    'postgresql': 'PostgreSQL',
+                                    'sqlite': 'SQLite',
+                                    'mssql': 'SQL Server',
+                                }
+                                return <div>{map[value] || value}</div>
+                            }
                         },
                         {
                             title: t('host'),

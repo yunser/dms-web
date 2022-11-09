@@ -384,7 +384,7 @@ export function SqlTree({ databaseType, config, event$, connectionId, onTab, dat
         if (databaseType == 'sqlite') {
 
         }
-        else if (databaseType == 'postgres') {
+        else if (databaseType == 'postgresql') {
 
         }
         else {
@@ -646,7 +646,7 @@ LIMIT 1000;`
         setTreeData([...treeData])
         setSelectedKeys([schemaName])
         loadTables(schemaName)
-        if (databaseType == 'postgres') {
+        if (databaseType == 'postgresql') {
             // TODO
         }
         else if (databaseType == 'sqlite') {
@@ -695,7 +695,7 @@ LIMIT 1000;`
                 setExpandedKeys([...expandedKeys, $_schema_name])
                 setTreeData([...treeData])
                 // loadTables(schemaName)
-                // if (databaseType == 'postgres') {
+                // if (databaseType == 'postgresql') {
                 //     // TODO
                 // }
                 // else if (databaseType == 'sqlite') {
@@ -744,7 +744,7 @@ LIMIT 1000;`
             const { $__schemaName, $_table_name } = nodeData.itemData
             sql = `SELECT TOP 20 * FROM [${$__schemaName}].[${$_table_name}]`
         }
-        else if (databaseType == 'postgres') {
+        else if (databaseType == 'postgresql') {
             sql = `SELECT *\nFROM "${schemaName}"."${tableName}"\nLIMIT 20;`
         }
         else {

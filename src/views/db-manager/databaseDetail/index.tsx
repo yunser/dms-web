@@ -112,7 +112,7 @@ function Status({ databaseType, config, event$, connectionId }) {
             return
         }
         let sql
-        if (databaseType == 'postgres') {
+        if (databaseType == 'postgresql') {
             sql = `select current_database()`
         }
         else {
@@ -356,7 +356,7 @@ export function DataBaseDetail({ databaseType = 'mysql', connectionId, event$, c
     }
 
     useEffect(() => {
-        if (databaseType == 'postgres') {
+        if (databaseType == 'postgresql') {
 
         }
         else if (databaseType == 'sqlite') {
