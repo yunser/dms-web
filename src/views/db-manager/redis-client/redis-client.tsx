@@ -887,7 +887,6 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                             }}
                             onSelect={(selectedKeys, info) => {
                                 const { key, type } = info.node
-                                console.log('type', type)
                                 if (type == 'type_folder') {
                                     if (expandedKeys.includes(key)) {
                                         setExpandedKeys(expandedKeys.filter(_key => _key != key))

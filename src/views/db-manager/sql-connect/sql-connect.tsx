@@ -151,7 +151,7 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
     const [testLoading, setTestLoading] = useState(false)
 
     const [form] = Form.useForm()
-
+    const type = Form.useWatch('type', form)
 
     // const editType = item ? 'update' : 'create'
     useEffect(() => {
@@ -186,6 +186,7 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
             description: values.description,
             httpProxyUrl: values.httpProxyUrl,
             type: values.type,
+            databasePath: values.databasePath,
         }
         console.log('saveOrUpdateData', saveOrUpdateData)
         // return
@@ -251,6 +252,7 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
             // db: values.defaultDatabase || 0,
             test: true,
             httpProxyUrl: values.httpProxyUrl,
+            databasePath: values.databasePath,
             type: values.type,
             // remember: values.remember,
         }
@@ -346,34 +348,51 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
                 >
                     <Input />
                 </Form.Item>
-                <Form.Item
-                    name="host"
-                    label={t('host')}
-                    rules={[ { required: true, }, ]}
-                >
-                    <Input />
-                </Form.Item>
-                <Form.Item
-                    name="port"
-                    label={t('port')}
-                    rules={[{ required: true, },]}
-                >
-                    <InputNumber />
-                </Form.Item>
-                <Form.Item
-                    name="user"
-                    label={t('user')}
-                    rules={[{ required: true, },]}
-                >
-                    <Input />
-                </Form.Item>
-                <Form.Item
-                    name="password"
-                    label={t('password')}
-                    rules={[{ required: true, },]}
-                >
-                    <Input />
-                </Form.Item>
+                {type != 'sqlite' &&
+                    <Form.Item
+                        name="host"
+                        label={t('host')}
+                        rules={[ { required: true, }, ]}
+                    >
+                        <Input />
+                    </Form.Item>
+                }
+                {type != 'sqlite' &&
+                    <Form.Item
+                        name="port"
+                        label={t('port')}
+                        rules={[{ required: true, },]}
+                    >
+                        <InputNumber />
+                    </Form.Item>
+                }
+                {type != 'sqlite' &&
+                    <Form.Item
+                        name="user"
+                        label={t('user')}
+                        rules={[{ required: true, },]}
+                    >
+                        <Input />
+                    </Form.Item>
+                }
+                {type != 'sqlite' &&
+                    <Form.Item
+                        name="password"
+                        label={t('password')}
+                        rules={[{ required: true, },]}
+                    >
+                        <Input />
+                    </Form.Item>
+                }
+                {type == 'sqlite' &&
+                    <Form.Item
+                        name="databasePath"
+                        label={t('path')}
+                        rules={[{ required: true, },]}
+                    >
+                        <Input />
+                    </Form.Item>
+                }
                 <Form.Item
                     name="path"
                     label={t('folder')}
@@ -402,13 +421,7 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
                 >
                     <Input />
                 </Form.Item>
-                <Form.Item
-                    name="path"
-                    label={t('path')}
-                    // rules={[{ required: true, },]}
-                >
-                    <Input />
-                </Form.Item>
+                
                 
                 {/* <Form.Item name="remember" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>
                     <Checkbox>{t('remember_me')}</Checkbox>
@@ -449,6 +462,7 @@ export function SqlConnector({ config, event$, onConnnect, onJson }) {
         // },
     ])
 
+    
     // const treeData = useMemo(() => {
 
     // }, [connections, keyword])
@@ -714,7 +728,7 @@ export function SqlConnector({ config, event$, onConnnect, onJson }) {
                             <ExportOutlined />
                         </IconButton>
                     </Space>
-                    <div>
+                    <div className={styles.searchBox}>
                         <Input
                             placeholder={t('search')}
                             value={keyword}
