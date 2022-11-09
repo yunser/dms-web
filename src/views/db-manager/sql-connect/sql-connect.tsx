@@ -789,6 +789,10 @@ export function SqlConnector({ config, event$, onConnnect, onJson }) {
                                                         key: 'key_duplicate',
                                                     },
                                                     {
+                                                        label: t('export_json'),
+                                                        key: 'export_json',
+                                                    },
+                                                    {
                                                         label: t('delete'),
                                                         key: 'key_delete',
                                                         danger: true,
@@ -834,6 +838,11 @@ ${t('password')}: ${data.password}`
                                                     else if (key == 'key_delete') {
                                                         // console.log('_item', nodeData)
                                                         deleteItem(nodeData.data)
+                                                    }
+                                                    else if (key == 'export_json') {
+                                                        onJson && onJson(JSON.stringify(nodeData.data, null, 4))
+                                                        // console.log('_item', nodeData)
+                                                        // deleteItem(nodeData.data)
                                                     }
                                                 }}
                                             >
