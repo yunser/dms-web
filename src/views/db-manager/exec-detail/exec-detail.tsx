@@ -17,6 +17,9 @@ import { DownloadOutlined } from '@ant-design/icons';
 import { t } from 'i18next';
 import { RowDetailModal } from '../sql-row-detail-modal/sql-row-detail-modal';
 import { RowEditModal } from '../sql-row-edit-modal/sql-row-edit-modal';
+import { utils, writeFile } from 'xlsx'
+
+// console.log('XLSX', XLSX)
 
 function getTextLength(text) {
     // let width = 0
@@ -564,6 +567,8 @@ export function ExecDetail(props) {
         }, 1)
     }
 
+    
+
     function exportJson() {
         const resultList = list.map(row => {
             // let 
@@ -621,6 +626,90 @@ export function ExecDetail(props) {
         // message.success('Copied')
         const blob = new Blob([content], {type: 'text/csv;charset=utf-8'});
         saveAs(blob, 'unnamed.csv')
+    }
+
+    function exportXlsx() {
+        const headers = fields.map(item => item.name)
+        // console.log('exportCsv', fields)
+        // for (let field of fields) {
+        //     headers.push(field.name)
+        // }
+        const bodyRows = list.map((row, rowIdx) => {
+            const rows = []
+            for (let rowKey in row) {
+                if (rowIdx == 0 && rowKey == '_idx') {
+                    const cell = row[rowKey]
+                    // console.log('header_cell', cell)
+                }
+                if (rowKey != '_idx') { // TODO
+                    const cell = row[rowKey]
+                    rows.push(cell.value)
+                }
+            }
+            return rows
+        })
+            // .filter(item => item)
+            // .join('\n')
+        // console.log('results', results)
+        const table = [
+            headers,
+            ...bodyRows,
+        ]
+        // console.log('table', table)
+        
+        function num2leter(num: number) {
+            const leters = '_ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+            if (num > 26) {
+                const first  = Math.floor(num / 26)
+                const second = num % 26
+                return `${leters.charAt(first)}${leters.charAt(second)}`
+            }
+            return leters.charAt(num)
+        }
+
+        function toString(value: any) {
+            if (value == null) {
+                return ''
+            }
+            return '' + value
+        }
+
+        function json_to_sheet(table: string[][]) {
+            const result = {
+                '!ref': `A1:${num2leter(table[0].length)}${table.length}`
+            }
+            for (let row = 0; row < table.length; row++) {
+                const rowData = table[row]
+                for (let col = 0; col < rowData.length; col++) {
+                    result[`${num2leter(col + 1)}${row + 1}`] = {
+                        t: 's',
+                        v: toString(rowData[col]),
+                    }
+                }
+            }
+            return result
+        }
+
+        let ss = json_to_sheet(table)
+        // console.log('ss', ss)
+        // {
+        //     !ref: "A1:B4"
+        //     A1: {t: 's', v: '0'}
+        //     B4: {t: 's', v: 'u2'}
+        // }
+        // let keys = Object.keys(ss).sort(); //排序 [需要注意，必须从A1开始]
+        
+        // let ref = keys[1]+':'+keys[keys.length - 1]; //这个是定义一个字符串 也就是表的范围[A1:C5] 
+        let ref = ss['!ref']
+        
+        const workbook = {
+            SheetNames: ['sheetname'],
+            Sheets: {
+                'sheetname': Object.assign({}, ss, {'!ref': ref})
+            },
+        }
+
+        writeFile(workbook, `unnamed.xlsx`)
     }
 
     function selectionDetail() {
@@ -946,22 +1035,28 @@ export function ExecDetail(props) {
                                     overlay={
                                         <Menu
                                             onClick={info => {
-                                                console.log('info', info)
                                                 if (info.key == 'export_csv') {
                                                     exportCsv()
                                                 }
                                                 else if (info.key == 'export_json') {
                                                     exportJson()
                                                 }
+                                                else if (info.key == 'export_xlsx') {
+                                                    exportXlsx()
+                                                }
                                             }}
                                             items={[
+                                                {
+                                                    label: t('export_json'),
+                                                    key: 'export_json',
+                                                },
                                                 {
                                                     label: t('export_csv'),
                                                     key: 'export_csv',
                                                 },
                                                 {
-                                                    label: t('export_json'),
-                                                    key: 'export_json',
+                                                    label: t('export_xlsx'),
+                                                    key: 'export_xlsx',
                                                 },
                                             ]}
                                         />
