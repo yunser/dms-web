@@ -817,19 +817,21 @@ LIMIT 1000;`
                     >
                         <UnorderedListOutlined />
                     </IconButton>
-                    <IconButton
-                        tooltip={t('user_manager')}
-                        onClick={() => {
-                            event$.emit({
-                                type: 'event_show_users_tab',
-                                data: {
-                                    connectionId,
-                                },
-                            })
-                        }}
-                    >
-                        <UserOutlined />
-                    </IconButton>
+                    {databaseType != 'sqlite' &&
+                        <IconButton
+                            tooltip={t('user_manager')}
+                            onClick={() => {
+                                event$.emit({
+                                    type: 'event_show_users_tab',
+                                    data: {
+                                        connectionId,
+                                    },
+                                })
+                            }}
+                        >
+                            <UserOutlined />
+                        </IconButton>
+                    }
                     <IconButton
                         tooltip={t('history')}
                         onClick={() => {
