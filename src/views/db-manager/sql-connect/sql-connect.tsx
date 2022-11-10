@@ -153,6 +153,16 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
     const [form] = Form.useForm()
     const type = Form.useWatch('type', form)
 
+    let defaultPort = null
+    const portMap = {
+        'mysql': 3306,
+        'postgresql': 5432,
+        'mssql': 1433,
+    }
+    if (portMap[type]) {
+        defaultPort = portMap[type]
+    }
+
     // const editType = item ? 'update' : 'create'
     useEffect(() => {
         if (item) {
@@ -177,8 +187,8 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
         // let newConnects
         const saveOrUpdateData = {
             name: values.name || 'Unnamed',
-            host: values.host,
-            port: values.port,
+            host: values.host || 'localhost',
+            port: values.port || defaultPort,
             user: values.user,
             password: values.password,
             path: values.path,
@@ -223,11 +233,6 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
                 id: item.id,
                 data: {
                     ...saveOrUpdateData,
-                    // name: values.name || t('unnamed'),
-                    // host: values.host || 'localhost',
-                    // port: values.port || 22,
-                    // password: values.password,
-                    // username: values.username,
                 }
             })
             if (res.success) {
@@ -245,7 +250,7 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
         setTestLoading(true)
         const reqData = {
             host: values.host || 'localhost',
-            port: values.port || 6379,
+            port: values.port || defaultPort,
             // user: values.user,
             password: values.password,
             user: values.user,
@@ -312,7 +317,6 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
                 labelCol={{ span: 8 }}
                 wrapperCol={{ span: 16 }}
                 initialValues={{
-                    port: 3306,
                 }}
                 // layout={{
                 //     labelCol: { span: 0 },
@@ -331,12 +335,16 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
                                 value: 'mysql',
                             },
                             {
-                                label: 'SQL Server',
-                                value: 'mssql',
-                            },
-                            {
                                 label: 'SQLite',
                                 value: 'sqlite',
+                            },
+                            {
+                                label: 'PostgreSQL',
+                                value: 'postgresql',
+                            },
+                            {
+                                label: 'SQL Server',
+                                value: 'mssql',
                             },
                         ]}
                     />
@@ -352,18 +360,20 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
                     <Form.Item
                         name="host"
                         label={t('host')}
-                        rules={[ { required: true, }, ]}
+                        rules={[ ]}
                     >
-                        <Input />
+                        <Input
+                            placeholder="localhost"
+                        />
                     </Form.Item>
                 }
                 {type != 'sqlite' &&
                     <Form.Item
                         name="port"
                         label={t('port')}
-                        rules={[{ required: true, },]}
+                        // rules={[{ required: true, },]}
                     >
-                        <InputNumber />
+                        <InputNumber placeholder={'' + defaultPort} />
                     </Form.Item>
                 }
                 {type != 'sqlite' &&
@@ -443,24 +453,7 @@ export function SqlConnector({ config, event$, onConnnect, onJson }) {
     const timerRef = useRef<number | null>(null)
     const [connecting, setConnecting] = useState(false)
     const [loading, setLoading] = useState(false)
-    const [connections, setConnections] = useState([
-        // {
-        //     id: '1',
-        //     name: 'first',
-        //     host: 'HHH',
-        //     port: 3306,
-        //     user: 'UUU',
-        //     password: 'PPP',
-        // },
-        // {
-        //     id: '2',
-        //     name: 'second',
-        //     host: 'HHH2',
-        //     port: 3306,
-        //     user: 'UUU',
-        //     password: 'PPP',
-        // },
-    ])
+    const [connections, setConnections] = useState([])
 
     
     // const treeData = useMemo(() => {
@@ -505,36 +498,6 @@ export function SqlConnector({ config, event$, onConnnect, onJson }) {
         loadList()
     }, [keyword])
 
-    
-    
-//     const [code, setCode] = useState(`{
-//     "host": "",
-//     "user": "",
-//     "password": ""
-// }`)
-    const [editType, setEditType] = useState('create')
-
-//     useEffect(() => {
-// //         console.log('onMouneed', storage.get('dbInfo', `{
-// //     "host": "",
-// //     "user": "",
-// //     "password": ""
-// // }`))
-//         const dbInfo = storage.get('dbInfo', {
-//             "host": "",
-//             "user": "",
-//             "password": "",
-//             port: 3306,
-//             remember: true,
-//         })
-//         // setCode(storage.get('dbInfo', `{
-//         //     "host": "",
-//         //     "user": "",
-//         //     "password": ""
-//         // }`))
-//         form.setFieldsValue(dbInfo)
-//     }, [])
-
     async function _connect(reqData) {
         setConnecting(true)
         let ret = await request.post(`${config.host}/mysql/connect`, reqData)
@@ -574,20 +537,6 @@ export function SqlConnector({ config, event$, onConnnect, onJson }) {
             item: null,
             editType: 'create',
         })
-        // const newItem = {
-        //     id: uid(32),
-        //     name: t('unnamed'),
-        //     host: '',
-        //     port: 3306,
-        //     user: '',
-        //     password: '',
-        // }
-        // const newConnects = [
-        //     newItem,
-        //     ...connections,
-        // ]
-        // setConnections(newConnects)
-        // storage.set('connections', newConnects)
     }
 
     function deleteItem(item) {
@@ -657,50 +606,6 @@ export function SqlConnector({ config, event$, onConnnect, onJson }) {
             }
         }
     }
-
-   
-
-    function ConnectionItem(item) {
-        return (
-            <div
-                className={styles.item}
-                key={item.id}
-            >
-                122
-            </div>
-        )
-    }
-
-
-    // const treeData = list2Tree(connections)
-    // const treeData = [
-    //     {
-    //         title: 'root',
-    //         key: 'root',
-    //         children: connections.map(item => {
-    //             return {
-    //                 title: (
-    //                     <Space>
-    //                         <DatabaseOutlined />
-    //                         {item.name}
-    //                     </Space>
-    //                 ),
-    //                 key: `dbkey-${item.id}`,
-    //                 icon() {
-    //                     return (
-    //                         <PlusOutlined />
-    //                     )
-    //                 },
-    //                 data: item,
-    //             }
-    //         })
-    //     }
-    // ]
-    // const treeData =
-    
-    // console.log('useId', useId)
-    // const ida = useId()
-    // console.log('ida', ida)
 
     return (
         <div className={styles.connectBox}>
