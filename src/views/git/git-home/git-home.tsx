@@ -56,13 +56,14 @@ export function GitHome({ event$, onProject }) {
     const [projectModalVisible, setProjectModalVisible] = useState(false)
     const [createType, setCreateType] = useState(false)
     const [activeIndex, setActiveIndex] = useState(0)
-
+    const inputingRef = useRef(false)
+    
     useEffect(() => {
         const handleKeyDown = e => {
             // if (document.activeElement?.nodeName == 'INPUT' || document.activeElement?.nodeName == 'TEXTAREA') {
             //     return
             // }
-
+            
             // console.log('e', e.code, e)
             if (e.code == 'Escape') {
                 // onCancel && onCancel()
@@ -89,6 +90,9 @@ export function GitHome({ event$, onProject }) {
                 e.preventDefault()
             }
             else if (e.code == 'Enter') {
+                if (inputingRef.current) {
+                    return
+                }
                 if (filterdProjects[activeIndex]) {
                     onProject && onProject(filterdProjects[activeIndex], !!e.metaKey)
                 }
@@ -106,7 +110,33 @@ export function GitHome({ event$, onProject }) {
         return () => {
             window.removeEventListener('keydown', handleKeyDown)
         }
+    }, [activeIndex, filterdProjects, inputingRef.current])
+
+    useEffect(() => {
+        const handleCompositionStart = e => {
+            console.log('compositionstart')
+            inputingRef.current = true
+        }
+        const handleCompositionEnd = e => {
+            console.log('compositionend')
+            inputingRef.current = false
+        }
+        window.addEventListener('compositionstart', handleCompositionStart)
+        window.addEventListener('compositionend', handleCompositionEnd)
+        return () => {
+            window.removeEventListener('compositionstart', handleCompositionStart)
+            window.removeEventListener('compositionend', handleCompositionEnd)
+        }
     }, [activeIndex, filterdProjects])
+
+    // onCompositionStart={() => {
+    //     console.log('onCompositionStart')
+    //     inputRef.current.inputing = true
+    // }}
+    // onCompositionEnd={() => {
+    //     console.log('onCompositionEnd')
+    //     inputRef.current.inputing = false
+    // }}
 
     async function loadList() {
         let res = await request.post(`${config.host}/git/project/list`, {
