@@ -10,7 +10,7 @@ import storage from '../../db-manager/storage'
 import { request } from '../utils/http'
 import { CodeDebuger } from '../code-debug';
 import { uid } from 'uid';
-import { EllipsisOutlined, ExportOutlined, EyeInvisibleOutlined, EyeOutlined, EyeTwoTone, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { EllipsisOutlined, ExportOutlined, EyeInvisibleOutlined, EyeOutlined, EyeTwoTone, PlusOutlined, ReloadOutlined, TableOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import { IconButton } from '../icon-button';
 import { FullCenterBox } from '../redis-client';
 
@@ -50,6 +50,7 @@ export function RedisConnect({ config, event$, onConnnect, }) {
         //     name: 'XXX2',
         // },
     ])
+    const [view, setView] = useState('list')
     const [loading, setLoading] = useState(false)
     // const [form] = Form.useForm()
 //     const [code, setCode] = useState(`{
@@ -88,7 +89,7 @@ export function RedisConnect({ config, event$, onConnnect, }) {
         loadList()
     }, [])
 
-    async function  connect(item) {
+    async function connect(item) {
         // setLoading(true)
         // const values = await form.validateFields()
         const reqData = {
@@ -148,6 +149,62 @@ export function RedisConnect({ config, event$, onConnnect, }) {
         })
     }
 
+    function more(item) {
+        return (
+            <Dropdown
+                trigger={['click']}
+                overlay={
+                    <Menu
+                        items={[
+                            {
+                                label: t('edit'),
+                                key: 'edit',
+                            },
+                            {
+                                label: t('delete'),
+                                key: 'delete',
+                                danger: true,
+                            },
+                        ]}
+                        onClick={({ key, domEvent }) => {
+                            // domEvent.preventDefault()
+                            domEvent.stopPropagation()
+                            if (key == 'delete') {
+                                deleteItem(item)
+                                // Modal.confirm({
+                                //     content: `${t('delete')}「${item.name || 'Unnamed'}」?`,
+                                //     async onOk() {
+                                //         await deleteItem(item)
+                                //     }
+                                // })
+                                // let _connections
+                                // const connections = storage.get('redis-connections', [])
+                                // if (connections.length) {
+                                //     _connections = connections
+                                // }
+                                // else {
+                                //     _connections = []
+                                // }
+                                // _connections = connections.filter((_item => _item.id != item.id))
+                                // storage.set('redis-connections', _connections)
+                                // message.success(t('success'))
+                                // loadList()
+                            }
+                            else if (key == 'edit') {
+                                setModalItem((item))
+                                setModalVisible(true)
+                            }
+                        }}
+                    />
+                }
+            >
+                <IconButton>
+                    <EllipsisOutlined />
+                </IconButton>
+            </Dropdown>
+        )
+    }
+
     const columns = [
         {
             title: t('name'),
@@ -183,6 +240,7 @@ export function RedisConnect({ config, event$, onConnnect, }) {
                             >
                                 {t('connect')}
                             </Button>
+                            {more(item)}
                             {/* <Button
                                 size="small"
                                 onClick={() => {
@@ -191,57 +249,7 @@ export function RedisConnect({ config, event$, onConnnect, }) {
                             >
                                 {t('edit')}
                             </Button> */}
-                            <Dropdown
-                                trigger={['click']}
-                                overlay={
-                                    <Menu
-                                        items={[
-                                            {
-                                                label: t('edit'),
-                                                key: 'edit',
-                                            },
-                                            {
-                                                label: t('delete'),
-                                                key: 'delete',
-                                                danger: true,
-                                            },
-                                        ]}
-                                        onClick={({ key, domEvent }) => {
-                                            // domEvent.preventDefault()
-                                            domEvent.stopPropagation()
-                                            if (key == 'delete') {
-                                                deleteItem(item)
-                                                // Modal.confirm({
-                                                //     content: `${t('delete')}「${item.name || 'Unnamed'}」?`,
-                                                //     async onOk() {
-                                                //         await deleteItem(item)
-                                                //     }
-                                                // })
-                                                // let _connections
-                                                // const connections = storage.get('redis-connections', [])
-                                                // if (connections.length) {
-                                                //     _connections = connections
-                                                // }
-                                                // else {
-                                                //     _connections = []
-                                                // }
-                                                // _connections = connections.filter((_item => _item.id != item.id))
-                                                // storage.set('redis-connections', _connections)
-                                                // message.success(t('success'))
-                                                // loadList()
-                                            }
-                                            else if (key == 'edit') {
-                                                setModalItem((item))
-                                                setModalVisible(true)
-                                            }
-                                        }}
-                                    />
-                                }
-                            >
-                                <IconButton>
-                                    <EllipsisOutlined />
-                                </IconButton>
-                            </Dropdown>
+                            
                         </Space>
                     </div>
                 )
@@ -279,6 +287,26 @@ export function RedisConnect({ config, event$, onConnnect, }) {
                         >
                             <PlusOutlined />
                         </IconButton>
+                        {view == 'list' &&
+                            <IconButton
+                                tooltip={t('table')}
+                                onClick={() => {
+                                    setView('table')
+                                }}
+                            >
+                                <TableOutlined />
+                            </IconButton>
+                        }
+                        {view == 'table' &&
+                            <IconButton
+                                tooltip={t('list')}
+                                onClick={() => {
+                                    setView('list')
+                                }}
+                            >
+                                <UnorderedListOutlined />
+                            </IconButton>
+                        }
                         <IconButton
                             tooltip={t('export_json')}
                             onClick={() => {
@@ -305,6 +333,37 @@ export function RedisConnect({ config, event$, onConnnect, }) {
                     <Empty
                         description="没有记录"
                     />
+                : view == 'list' ?
+                    <div className={styles.list}>
+                        {connections.map((item, index) => {
+                            return (
+                                <div
+                                    key={item.id}
+                                    className={classNames(styles.item, {
+                                        // [styles.active]: index == activeIndex
+                                    })}
+                                    onClick={(e) => {
+                                        connect(item)
+                                    }}
+                                    // onDoubleClick={() => {
+                                    //     onProject && onProject(item)
+                                    // }}
+                                >
+                                    <Space>
+                                        <div className={styles.name}>{item.name}</div>
+                                    </Space>
+                                    <Space
+                                        onClick={(e) => {
+                                            e.preventDefault()
+                                            e.stopPropagation()
+                                        }}
+                                    >
+                                        {more(item)}
+                                    </Space>
+                                </div>
+                            )
+                        })}
+                    </div>
                 :
                     <Table
                         dataSource={connections}

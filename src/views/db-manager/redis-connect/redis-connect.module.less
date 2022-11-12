@@ -13,3 +13,45 @@
         // border: 1px solid #000;
     }
 }
+
+.list {
+    // padding: 16px;
+    border: 1px solid var(--border-color);
+    // border: 1px solid #f00;
+    border-radius: 4px;
+    .item {
+        height: 48px;
+        padding: 0 16px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--border-color);
+        &:last-child {
+            border-bottom: none;
+        }
+        &:hover {
+            background-color: var(--color-f9);
+        }
+        &.active {
+            color: #fff;
+            background-color: #2466d8;
+            // cursor: default;
+        }
+    }
+    .favoriteIcon {
+        color: #e89f3c;
+    }
+    .changes {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 16px;
+        // border: 1px solid #000;
+        font-size: 12px;
+        padding: 0 4px;
+        border-radius: 4px;
+        color: var(--color-text-reverse);
+        background-color: var(--color-5);
+    }
+}
