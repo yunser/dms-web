@@ -183,7 +183,7 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
         getConfig()
     }, [])
 
-    async function loadStatuses() {
+    async function loadStatuses(lastFile) {
         setCurFile('')
         setDiffText('')
         let res = await request.post(`${config.host}/git/status`, {
@@ -201,13 +201,29 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
             const { status } = res.data
             setStatus(status)
             // setCurrent(res.data.current)
-            const unstagedList = status.files.filter(item => {
+            const _unstagedList = status.files.filter(item => {
                 return item.working_dir != ' '
             })
-            setUnstagedList(unstagedList)
-            if (unstagedList.length) {
-                handleClickItem(unstagedList[0])
+            if (_unstagedList.length) {
+                if (lastFile) {
+                    const prevIdx = unstagedList.findIndex(item => item.path == lastFile)
+                    if (prevIdx == -1) {
+                        handleClickItem(_unstagedList[0])
+                    }
+                    else {
+                        if (_unstagedList[prevIdx]) {
+                            handleClickItem(_unstagedList[prevIdx])
+                        }
+                        else {
+                            handleClickItem(_unstagedList[0])
+                        }
+                    }
+                }
+                else {
+                    handleClickItem(_unstagedList[0])
+                }
             }
+            setUnstagedList(_unstagedList)
             // setUnstagedList(status.modified.filter(file => {
             //     console.log('file', file)
             //     return !status.staged.includes(file)
@@ -259,7 +275,7 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
 
     }
 
-    async function add(files) {
+    async function addItem(files, activeNext = false) {
         let res = await request.post(`${config.host}/git/add`, {
             projectPath,
             files,
@@ -267,7 +283,7 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
         })
         // console.log('res', res)
         if (res.success) {
-            loadStatuses()
+            loadStatuses(activeNext ? files[0] : null)
             event$.emit({
                 type: 'event_reload_history',
                 data: {
@@ -491,7 +507,7 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                             disabled={unstagedList.length == 0}
                                             onClick={() => {
                                                 // console.log('add', item.path)
-                                                add(unstagedList.map(item => item.path))
+                                                addItem(unstagedList.map(item => item.path))
                                             }}
                                         />
                                         <div className={styles.title}>{t('git.unstage')}</div>
@@ -511,7 +527,7 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                                             checked={false}
                                                             onClick={() => {
                                                                 console.log('add', item.path)
-                                                                add([item.path])
+                                                                addItem([item.path], true)
                                                             }}
                                                         />
                                                         <div className={styles.fileName}
