@@ -19,6 +19,17 @@ function hasValue(value) {
     return !!value || value === 0
 }
 
+
+const functionMap = {
+    sqlite: {},
+    mssql: {},
+    postgresql: {},
+    mysql: {
+        partition: {},
+        trigger: {},
+    }
+}
+
 function parseColumns(item) {
     const { sql } = item
     console.log('parseColumns/sql', sql)
@@ -1247,14 +1258,19 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
         //     label: t('indexes'),
         //     key: 'index',
         // })
-        tabs.push({
-            label: t('partition'),
-            key: 'partition',
-        })
-        tabs.push({
-            label: t('triggers'),
-            key: 'trigger',
-        })
+        console.log('databaseType', databaseType, functionMap[databaseType])
+        // if (functionMap[databaseType].partition) {
+        //     tabs.push({
+        //         label: t('partition'),
+        //         key: 'partition',
+        //     })
+        // }
+        // if (functionMap[databaseType].trigger) {
+        //     tabs.push({
+        //         label: t('triggers'),
+        //         key: 'trigger',
+        //     })
+        // }
     }
     
 
