@@ -937,17 +937,17 @@ export function DbManager({ config }) {
                                     {item.type == 'git-project' &&
                                         <GitHome
                                             event$={event$}
-                                            onProject={project => {
+                                            onProject={(project, openInNewTab) => {
                                                 addOrActiveTab({
                                                     // title: 'Redis',
-                                                    title: `GIT`,
+                                                    title: project.name || `GIT`,
                                                     key: 'git-' + uid(16),
                                                     type: 'git-detail',
                                                     data: {
                                                         project,
                                                     },
                                                 }, {
-                                                    closeCurrentTab: true,
+                                                    closeCurrentTab: !openInNewTab,
                                                 })
                                             }}
                                         />

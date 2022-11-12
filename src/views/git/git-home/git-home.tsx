@@ -276,10 +276,10 @@ export function GitHome({ event$, onProject }) {
                                             <div
                                                 key={item.id}
                                                 className={styles.item}
-                                                onClick={() => {
+                                                onClick={(e) => {
                                                     // setView('detail')
                                                     // setCurProject(item)
-                                                    onProject && onProject(item)
+                                                    onProject && onProject(item, !!e.metaKey)
                                                 }}
                                             >
                                                 <Space>
@@ -317,6 +317,10 @@ export function GitHome({ event$, onProject }) {
                                                         overlay={
                                                             <Menu
                                                                 items={visibleFilter([
+                                                                    {
+                                                                        label: t('open_in_new_tab'),
+                                                                        key: 'open_in_new_tab',
+                                                                    },
                                                                     {
                                                                         label: t('edit'),
                                                                         key: 'edit',
@@ -374,6 +378,9 @@ export function GitHome({ event$, onProject }) {
                                                                     }
                                                                     else if (key == 'open_in_finder') {
                                                                         openInFinder(item.path)
+                                                                    }
+                                                                    else if (key == 'open_in_new_tab') {
+                                                                        onProject && onProject(item, true)
                                                                     }
                                                                 }}
                                                             />
