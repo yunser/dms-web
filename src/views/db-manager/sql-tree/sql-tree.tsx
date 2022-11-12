@@ -48,7 +48,6 @@ function TreeTitle({ keyword, loading = false, nodeData, onAction, onClick, onDo
         <div className={styles.treeTitle}
             onDoubleClick={() => {
                 // console.log('onDoubleClick')
-                // queryTable(nodeData.key)
                 if (timerRef.current) {
                     clearTimeout(timerRef.current)
                 }
@@ -97,7 +96,6 @@ function TreeTitle({ keyword, loading = false, nodeData, onAction, onClick, onDo
                         onClick={(e) => {
                             e.stopPropagation()
                             e.preventDefault()
-                            queryTable(nodeData.key)
                         }}
                     >
                         快速查询
@@ -107,7 +105,6 @@ function TreeTitle({ keyword, loading = false, nodeData, onAction, onClick, onDo
                         onClick={(e) => {
                             e.stopPropagation()
                             e.preventDefault()
-                            queryTableStruct(nodeData.key)
                         }}
                     >
                         查看结构
@@ -552,10 +549,9 @@ LIMIT 1000;`
     }
 
     async function showCreateTable(nodeData) {
-        const tableName = nodeData.key // TODO @p2
-        const dbName = nodeData.itemData.TABLE_SCHEMA
-        const sql = `show create table \`${dbName}\`.\`${tableName}\`;`
-        // setSql(sql)
+        const tableName = nodeData.itemData.$_table_name
+        const schemaName = nodeData.itemData.$table_schema
+        const sql = `show create table \`${schemaName}\`.\`${tableName}\`;`
         showSqlInNewtab({
             title: 'Show create table',
             sql,
@@ -563,12 +559,10 @@ LIMIT 1000;`
     }
 
     async function truncate(nodeData) {
-        // console.log('nodeData', nodeData)
-        const tableName = nodeData.key // TODO @p2
-        const dbName = nodeData.itemData.TABLE_SCHEMA
-        const sql = `TRUNCATE TABLE \`${dbName}\`.\`${tableName}\`;`
-        console.log('truncate', sql)
-        // setSql(sql)
+        const tableName = nodeData.itemData.$_table_name
+        const schemaName = nodeData.itemData.$table_schema
+
+        const sql = `TRUNCATE TABLE \`${schemaName}\`.\`${tableName}\`;`
         showSqlInNewtab({
             title: 'TRUNCATE TABLE',
             sql,
@@ -576,12 +570,10 @@ LIMIT 1000;`
     }
 
     async function drop(nodeData) {
-        console.log('drop/nodeData', nodeData)
+        const tableName = nodeData.itemData.$_table_name
+        const schemaName = nodeData.itemData.$table_schema
         
-        // return
-        const tableName = nodeData.key // TODO @p2
-        const sql = `DROP TABLE \`${nodeData.itemData.TABLE_SCHEMA}\`.\`${tableName}\`;`
-        // setSql(sql)
+        const sql = `DROP TABLE \`${schemaName}\`.\`${tableName}\`;`
         showSqlInNewtab({
             title: 'DROP TABLE',
             sql,
@@ -589,12 +581,11 @@ LIMIT 1000;`
     }
 
     async function countAll(nodeData) {
-        console.log('drop/nodeData', nodeData)
+        const tableName = nodeData.itemData.$_table_name
+        const schemaName = nodeData.itemData.$table_schema
         
-        // return
-        const tableName = nodeData.key // TODO @p2
-        const sql = `SELECT COUNT(*) FROM \`${nodeData.itemData.TABLE_SCHEMA}\`.\`${tableName}\`;`
-        // setSql(sql)
+        let sql
+        sql = `SELECT COUNT(*) FROM \`${schemaName}\`.\`${tableName}\`;`
         showSqlInNewtab({
             title: 'DROP TABLE',
             sql,
@@ -612,10 +603,9 @@ LIMIT 1000;`
     }
 
     function queryTableStruct(nodeData) {
-        console.log('nodeData', nodeData)
-        // return
-        const tableName = nodeData.key // TODO @p2
-        const dbName = nodeData.itemData.TABLE_SCHEMA
+        const tableName = nodeData.itemData.$_table_name
+        const schemaName = nodeData.itemData.$table_schema
+        const dbName = schemaName
         let tabKey = '' + new Date().getTime()
         onTab && onTab({
             title: `${tableName}@${dbName} - Table`,
@@ -711,12 +701,6 @@ LIMIT 1000;`
 
     function refreshTables(nodeData) {
         refreshSchemaTables(nodeData.itemData.$_name)
-        // const idx = treeData.findIndex(node => node.key == nodeData.key)
-        // console.log('idx', idx)
-        // treeData[idx].loading = true
-        // setTreeData([...treeData])
-        // setSelectedKeys(nodeData.key)
-        // loadTables(nodeData.itemData.SCHEMA_NAME)
     }
 
     function queryTable(nodeData) {
@@ -724,20 +708,6 @@ LIMIT 1000;`
         const tableName = nodeData.itemData.$_table_name
         const schemaName = nodeData.itemData.$table_schema
 
-        // let tabKey = '' + new Date().getTime()
-        // setActiveKey(tabKey)
-        // setTabs([
-        //     ...tabs,
-        //     {
-        //         title: tableName,
-        //         key: tabKey,
-        //         defaultSql: `SELECT *\nFROM \`${dbName}\`.\`${tableName}\`\nLIMIT 20;`,
-        //         data: {
-        //             dbName,
-        //             tableName,
-        //         },
-        //     }
-        // ])
         let sql
         if (databaseType == 'mssql') {
             console.log('nodeData.itemData', nodeData.itemData)
@@ -934,7 +904,6 @@ LIMIT 1000;`
                                     nodeData={nodeData}
                                     keyword={keyword}
                                     onClick={() => {
-                                        // queryTable(nodeData.key)
                                     }}
                                     onDoubleClick={() => {
                                         console.log('onDoubleClick', nodeData)

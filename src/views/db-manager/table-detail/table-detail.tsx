@@ -19,16 +19,6 @@ function hasValue(value) {
     return !!value || value === 0
 }
 
-// function TableInfoEditor({ config, tableInfo, tableName, dbName }) {
-    
-
-//     return (
-//         <div>
-            
-//         </div>
-//     )
-// }
-
 function ColumnSelector({ value: _value, onChange, options }) {
     const { t } = useTranslation()
     const [modalVisible, setModalVisible] = useState(false)
@@ -355,7 +345,7 @@ function EditableCellRender({ dataIndex, onChange } = {}) {
     }
 }
 
-export function TableDetail({ config, connectionId, event$, dbName, tableName: oldTableName }) {
+export function TableDetail({ config, databaseType = 'mysql', connectionId, event$, dbName, tableName: oldTableName }) {
 
     const { t } = useTranslation()
     const [tableName,setTableName] = useState(oldTableName)
@@ -382,18 +372,10 @@ export function TableDetail({ config, connectionId, event$, dbName, tableName: o
     const [partitions, setPartitions] = useState([])
     const [triggers, setTriggers] = useState([])
     const [tableInfo, setTableInfo] = useState({})
-    const [modelVisible, setModalVisible] = useState(false)
-    const [modelCode, setModalCode] = useState('')
-    const [fields, setFields] = useState([])
     const [execSql, setExecSql] = useState('')
     const [curTab, setCurTab] = useState('basic')
     const [form] = Form.useForm()
     const [nginxs, setNginxs] = useState([])
-    // useEffect(() => {
-    //     form.setFieldsValue({
-    //         ...tableInfo,
-    //     })
-    // }, [tableInfo])
 
     const [characterSets, setCharacterSets] = useState([])
     const [characterSetMap, setCharacterSetMap] = useState({})
@@ -436,6 +418,44 @@ export function TableDetail({ config, connectionId, event$, dbName, tableName: o
         })
     }
 
+    function initForm(charData = []) {
+        const characterSetMap: any = {}
+        const characterSets = []
+        for (let item of charData) {
+            if (!characterSetMap[item.CHARACTER_SET_NAME]) {
+                characterSetMap[item.CHARACTER_SET_NAME] = []
+                characterSets.push({
+                    label: item.CHARACTER_SET_NAME,
+                    value: item.CHARACTER_SET_NAME
+                })
+            }
+            characterSetMap[item.CHARACTER_SET_NAME].push(item.COLLATION_NAME)
+        }
+        console.log('set', characterSetMap)
+        characterSets.sort((a, b) => a.label.localeCompare(b.label))
+        setCharacterSets(characterSets)
+        setCharacterSetMap(characterSetMap)
+        // CHARACTER_SET_NAME: "ucs2"
+        // COLLATION_NAME: "ucs2_esperanto_ci"
+        let tableColl = charData.find(item => item.COLLATION_NAME == tableInfo.TABLE_COLLATION)
+        console.log('tableColl', tableColl)
+        let values = {
+            characterSet: null,
+            collation: null,
+        }
+        if (tableColl) {
+            _old_characterSet_ref.current = tableColl.CHARACTER_SET_NAME
+            values = {
+                characterSet: tableColl.CHARACTER_SET_NAME,
+                collation: tableColl.COLLATION_NAME,
+            }
+        }
+        form.setFieldsValue({
+            ...tableInfo,
+            ...values,
+        })
+    }
+
     async function loadCharData() {
         let res = await request.post(`${config.host}/mysql/execSqlSimple`, {
             connectionId,
@@ -443,42 +463,8 @@ export function TableDetail({ config, connectionId, event$, dbName, tableName: o
     FROM \`information_schema\`.\`COLLATION_CHARACTER_SET_APPLICABILITY\``,
         })
         if (res.success) {
-            console.log('res.data', res.data)
-            const characterSetMap: any = {}
-            const characterSets = []
-            for (let item of res.data) {
-                if (!characterSetMap[item.CHARACTER_SET_NAME]) {
-                    characterSetMap[item.CHARACTER_SET_NAME] = []
-                    characterSets.push({
-                        label: item.CHARACTER_SET_NAME,
-                        value: item.CHARACTER_SET_NAME
-                    })
-                }
-                characterSetMap[item.CHARACTER_SET_NAME].push(item.COLLATION_NAME)
-            }
-            console.log('set', characterSetMap)
-            characterSets.sort((a, b) => a.label.localeCompare(b.label))
-            setCharacterSets(characterSets)
-            setCharacterSetMap(characterSetMap)
-            // CHARACTER_SET_NAME: "ucs2"
-            // COLLATION_NAME: "ucs2_esperanto_ci"
-            let tableColl = res.data.find(item => item.COLLATION_NAME == tableInfo.TABLE_COLLATION)
-            console.log('tableColl', tableColl)
-            let values = {
-                characterSet: null,
-                collation: null,
-            }
-            if (tableColl) {
-                _old_characterSet_ref.current = tableColl.CHARACTER_SET_NAME
-                values = {
-                    characterSet: tableColl.CHARACTER_SET_NAME,
-                    collation: tableColl.COLLATION_NAME,
-                }
-            }
-            form.setFieldsValue({
-                ...tableInfo,
-                ...values,
-            })
+            const charData = res.data
+            initForm(charData)
         }
     }
     // tableInfo
@@ -487,7 +473,12 @@ export function TableDetail({ config, connectionId, event$, dbName, tableName: o
         if (editType == 'update' && !tableInfo.TABLE_NAME) {
             return
         }
-        loadCharData()
+        if (databaseType == 'mysql') {
+            loadCharData()
+        }
+        else {
+            initForm([])
+        }
     }, [tableInfo])
 
 
@@ -531,7 +522,9 @@ export function TableDetail({ config, connectionId, event$, dbName, tableName: o
     }
 
     useEffect(() => {
-        loadNginx()
+        if (databaseType == 'mysql') {
+            loadNginx()
+        }
     }, [])
 
 
@@ -1060,6 +1053,7 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
         
     ]
     async function loadTableInfo() {
+        console.log('loadTableInfo', dbName, tableName)
         
         setRemovedRows([])
         setRemovedIndexes([])
@@ -1425,7 +1419,7 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
                                                     >
                                                         {t('add')}
                                                     </Button>
-                                                    <Input
+                                                    {/* <Input
                                                         value={columnKeyword}
                                                         onChange={e => {
                                                             setColumnKeyword(e.target.value)
@@ -1434,16 +1428,16 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
                                                         className={styles.filter}
                                                         placeholder={t('filter')}
                                                         size="small"
-                                                    />
+                                                    /> */}
                                                 </div>
-                                                {/* <Table
+                                                <Table
                                                     columns={columns}
                                                     dataSource={filteredTableColumns}
                                                     bordered
                                                     pagination={false}
                                                     size="small"
                                                     rowKey="__id"
-                                                /> */}
+                                                />
                                             </div>
                                         }
                                         {item.key == 'index' &&

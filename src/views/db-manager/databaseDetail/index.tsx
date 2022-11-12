@@ -652,6 +652,7 @@ export function DataBaseDetail({ databaseType = 'mysql', connectionId, event$, c
                                 }
                                 {item.type == 'tableDetail' &&
                                     <TableDetail
+                                        databaseType={databaseType}
                                         config={config}
                                         connectionId={connectionId}
                                         event$={event$}
