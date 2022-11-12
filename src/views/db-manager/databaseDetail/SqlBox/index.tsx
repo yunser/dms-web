@@ -57,7 +57,7 @@ const history_tab = {
 
 
 
-function SqlBox({ config, event$, databaseType, connectionId, onJson, className, defaultSql = '', style }: Props) {
+function SqlBox({ config, tabViewId, event$, databaseType, connectionId, onJson, className, defaultSql = '', style }: Props) {
     console.warn('SqlBox/render')
     
     const { t, i18n } = useTranslation()
@@ -89,6 +89,12 @@ function SqlBox({ config, event$, databaseType, connectionId, onJson, className,
     function setCodeASD(code) {
         code_ref.current = code
     }
+
+    useEffect(() => {
+        if (tabViewId && editor) {
+            editor.layout()
+        }
+    }, [tabViewId, editor])
     
     
     // const [execResults, setExecResults] = useState([

@@ -239,6 +239,7 @@ export function DataBaseDetail({ databaseType = 'mysql', connectionId, event$, c
     ]
     // const [activeKey, setActiveKey] = useState(tabs_default[0].key)
     const [activeKey, setActiveKey] = useState('')
+    const [tabViewId, setTabViewId] = useState('')
     const [tabs, setTabs] = useState(tabs_default)
 
     event$.useSubscription(msg => {
@@ -395,24 +396,6 @@ export function DataBaseDetail({ databaseType = 'mysql', connectionId, event$, c
         })
     }
 
-    
-    // const columns = [
-    //     {
-    //         title: '表名',
-    //         dataIndex: 'TABLE_NAME',
-    //         key: 'TABLE_NAME',
-    //         render(value: string) {
-    //             return <div onClick={e => queryTable(value)}>{value}</div>
-    //         },
-    //     },
-    // ]
-
-    // function handleTabChange(key: string) {
-    //     console.log('set key', key)
-    //     setActiveKey(key)
-    // }
-
-
     const onEdit = (targetKey: string, action: string) => {
         console.log('targetKey, action', targetKey, action)
         if (action === 'add') {
@@ -469,6 +452,7 @@ export function DataBaseDetail({ databaseType = 'mysql', connectionId, event$, c
                         onEdit={onEdit}
                         activeKey={activeKey}
                         onChange={key => {
+                            setTabViewId('' + new Date().getTime())
                             setActiveKey(key)
                         }}
                         type="editable-card"
@@ -662,6 +646,7 @@ export function DataBaseDetail({ databaseType = 'mysql', connectionId, event$, c
                                 }
                                 {item.type == 'sql-query' &&
                                     <SqlBox
+                                        tabViewId={tabViewId}
                                         databaseType={databaseType}
                                         connectionId={connectionId}
                                         event$={event$}
