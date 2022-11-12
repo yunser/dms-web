@@ -72,6 +72,7 @@ export function BranchModal({ config, event$, projectPath, commit, onSuccess, on
                 onOk={handleOk}
                 confirmLoading={loading}
                 maskClosable={false}
+                okText={t('git.branch.create')}
                 // footer={null}
             >
                 {/* {loading ? 'Pulling' : 'Pull Finished'} */}

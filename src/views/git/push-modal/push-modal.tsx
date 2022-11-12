@@ -122,6 +122,7 @@ export function PushModal({ config, event$, projectPath, onSuccess, onCancel }) 
                 width={640}
                 onCancel={onCancel}
                 onOk={handleOk}
+                okText={t('git.push')}
                 confirmLoading={loading}
             >
                 <Form
