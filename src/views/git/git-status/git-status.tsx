@@ -1,4 +1,4 @@
-import { Button, Checkbox, Descriptions, Dropdown, Empty, Form, Input, Menu, message, Modal, Popover, Space, Spin, Table, Tabs, Tag } from 'antd';
+import { Button, Checkbox, Descriptions, Dropdown, Empty, Form, Input, Menu, message, Modal, Popover, Select, Space, Spin, Table, Tabs, Tag } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './git-status.module.less';
 import _, { add } from 'lodash';
@@ -22,6 +22,8 @@ function Commit({ config, event$, stagedLength, gitConfig, projectPath, onSucces
     // const [form] = Form.useForm()
     const { t } = useTranslation()
     const [infoVisible, setInfoVisible] = useState(false)
+    // const [infoVisible, setInfoVisible] = useState(true)
+    const [commitOptions, setCommitOptions] = useState('')
     const [formData, setFormData] = useState({
         message: '',
     })
@@ -37,6 +39,7 @@ function Commit({ config, event$, stagedLength, gitConfig, projectPath, onSucces
         let res = await request.post(`${config.host}/git/commit`, {
             projectPath,
             message: formData.message,
+            amend: commitOptions == 'amend'
         })
         // console.log('res', res)
         if (res.success) {
@@ -45,6 +48,7 @@ function Commit({ config, event$, stagedLength, gitConfig, projectPath, onSucces
             setFormData({
                 message: '',
             })
+            setCommitOptions('')
             event$.emit({
                 type: 'event_reload_history',
                 data: {
@@ -59,12 +63,30 @@ function Commit({ config, event$, stagedLength, gitConfig, projectPath, onSucces
     return (
         <div className={styles.commitBox}>
             {!!gitConfig && infoVisible &&
-                <div className={styles.user}>
-                    <UserOutlined />
-                    {' '}
-                    {gitConfig.user.name}
-                    {' <'}{gitConfig.user.email}{'>'}
-
+                <div className={styles.header}>
+                    <div className={styles.user}>
+                        <UserOutlined />
+                        {' '}
+                        {gitConfig.user.name}
+                        {' <'}{gitConfig.user.email}{'>'}
+                    </div>
+                    <Space>
+                        <div className={styles.opts}>{t('git.commit_options')}:</div>
+                        <Select
+                            className={styles.select}
+                            size="small"
+                            value={commitOptions}
+                            onChange={value => {
+                                setCommitOptions(value)
+                            }}
+                            options={[
+                                {
+                                    label: t('git.amend'),
+                                    value: 'amend',
+                                }
+                            ]}
+                        />
+                    </Space>
                 </div>
             }
             <Input.TextArea
@@ -75,7 +97,7 @@ function Commit({ config, event$, stagedLength, gitConfig, projectPath, onSucces
                         message: e.target.value,
                     })
                 }}
-                placeholder={t('git.commit_message') + `, Cmd + Enter to commit`}
+                placeholder={t('git.commit_message') + `, ${t('git.enter_to_commit')}`}
                 rows={infoVisible ? 4 : 1}
                 onFocus={() => {
                     setInfoVisible(true)
@@ -100,7 +122,7 @@ function Commit({ config, event$, stagedLength, gitConfig, projectPath, onSucces
                         <Button
                             type="primary"
                             size="small"
-                            disabled={stagedLength == 0}
+                            disabled={!((stagedLength > 0) || (commitOptions == 'amend'))}
                             onClick={() => {
                                 submit()
                             }}

@@ -20,6 +20,7 @@
 
     --color-bg-left2: #fff;
     --color-text-3: rgba(0, 0, 0, .45);
+    --color-text-9: rgba(0, 0, 0, .45);
     --color-text-reverse: #fff;
 
     --color-success: #52c41a;
@@ -47,6 +48,7 @@
 
     --color-bg-left2: #1d1d1d;
     --color-text-3: rgba(255, 255, 255, .45);
+    --color-text-9: rgba(255, 255, 255, .45);
     --color-text-reverse: #000;
 
     --color-success: #49aa19;
