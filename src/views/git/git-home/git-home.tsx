@@ -55,6 +55,58 @@ export function GitHome({ event$, onProject }) {
     const [projectItem, setProjectItem] = useState(null)
     const [projectModalVisible, setProjectModalVisible] = useState(false)
     const [createType, setCreateType] = useState(false)
+    const [activeIndex, setActiveIndex] = useState(0)
+
+    useEffect(() => {
+        const handleKeyDown = e => {
+            // if (document.activeElement?.nodeName == 'INPUT' || document.activeElement?.nodeName == 'TEXTAREA') {
+            //     return
+            // }
+
+            // console.log('e', e.code, e)
+            if (e.code == 'Escape') {
+                // onCancel && onCancel()
+                
+            }
+            else if (e.code == 'ArrowDown') {
+                let newIdx = activeIndex + 1
+                if (newIdx > filterdProjects.length - 1) {
+                    newIdx = 0
+                }
+                setActiveIndex(newIdx)
+
+                e.stopPropagation()
+                e.preventDefault()
+            }
+            else if (e.code == 'ArrowUp') {
+                let newIdx = activeIndex - 1
+                if (newIdx < 0) {
+                    newIdx = filterdProjects.length - 1
+                }
+                setActiveIndex(newIdx)
+
+                e.stopPropagation()
+                e.preventDefault()
+            }
+            else if (e.code == 'Enter') {
+                if (filterdProjects[activeIndex]) {
+                    onProject && onProject(filterdProjects[activeIndex], !!e.metaKey)
+                }
+                // console.log('inputRef', inputRef.current)
+                // if (inputRef.current.inputing) {
+                //     return
+                // }
+                // if (results[curIndex]?.onItemClick) {
+                //     results[curIndex]?.onItemClick()
+                //     afterItemClick()
+                // }
+            }
+        }
+        window.addEventListener('keydown', handleKeyDown)
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown)
+        }
+    }, [activeIndex, filterdProjects])
 
     async function loadList() {
         let res = await request.post(`${config.host}/git/project/list`, {
@@ -81,7 +133,7 @@ export function GitHome({ event$, onProject }) {
             }
             setProjects(res.data.list.sort((a, b) => {
                 // if (a)
-                if ((a.isFavorite != b.isFavorite) || (a.favoriteTime != b.favoriteTime)) {
+                if ((a.isFavorite || b.isFavorite)) {
                     return score(b) - score(a)
                 }
                 return a.name.localeCompare(b.name)
@@ -183,6 +235,7 @@ export function GitHome({ event$, onProject }) {
                                     tooltip={t('refresh')}
                                     onClick={() => {
                                         loadList()
+                                        setActiveIndex(0)
                                     }}
                                 >
                                     <ReloadOutlined />
@@ -258,6 +311,9 @@ export function GitHome({ event$, onProject }) {
                                 allowClear
                                 onChange={e => {
                                     setKeyword(e.target.value)
+                                    if (activeIndex != 0) {
+                                        setActiveIndex(0)
+                                    }
                                 }}
                             />
                         </div>
@@ -271,15 +327,25 @@ export function GitHome({ event$, onProject }) {
                         :
                             <div className={styles.listWrap}>
                                 <div className={styles.list}>
-                                    {filterdProjects.map(item => {
+                                    {filterdProjects.map((item, index) => {
                                         return (
                                             <div
                                                 key={item.id}
-                                                className={styles.item}
+                                                className={classNames(styles.item, {
+                                                    [styles.active]: index == activeIndex
+                                                })}
                                                 onClick={(e) => {
                                                     // setView('detail')
                                                     // setCurProject(item)
-                                                    onProject && onProject(item, !!e.metaKey)
+                                                    if (e.metaKey) {
+                                                        onProject && onProject(item, !!e.metaKey)
+                                                    }
+                                                    else {
+                                                        setActiveIndex(index)
+                                                    }
+                                                }}
+                                                onDoubleClick={() => {
+                                                    onProject && onProject(item)
                                                 }}
                                             >
                                                 <Space>
