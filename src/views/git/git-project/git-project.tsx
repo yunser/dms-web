@@ -73,16 +73,8 @@ export function GitProject({ config, event$, project, onList }) {
         let ret = await request.post(`${config.host}/file/openInFinder`, {
             sourceType: 'local',
             path,
-            // type: item.type,
         })
-        // console.log('ret', ret)
         if (ret.success) {
-            // message.success('连接成功')
-            // onConnnect && onConnnect()
-            // message.success(t('success'))
-            // onClose && onClose()
-            // onSuccess && onSuccess()
-            // loadList()
         }
     }
     

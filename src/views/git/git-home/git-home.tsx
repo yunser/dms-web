@@ -7,12 +7,6 @@ import classNames from 'classnames'
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { DownloadOutlined, EllipsisOutlined, ExportOutlined, PlusOutlined, ReloadOutlined, StarFilled } from '@ant-design/icons';
-import saveAs from 'file-saver';
-import { useEventEmitter } from 'ahooks';
-import { CommitList } from '../commit-list';
-import { BranchList } from '../branch-list';
-import { GitStatus } from '../git-status';
-import { RemoteList } from '../remote-list';
 import { GitProject } from '../git-project';
 import { request } from '@/views/db-manager/utils/http';
 import { ProjectEditor } from '../project-edit';
@@ -124,6 +118,15 @@ export function GitHome({ event$, }) {
                 }
             }
         })
+    }
+
+    async function openInFinder(path: string) {
+        let ret = await request.post(`${config.host}/file/openInFinder`, {
+            sourceType: 'local',
+            path,
+        })
+        if (ret.success) {
+        }
     }
 
     async function addToFavorite(item, isFavorite) {
@@ -301,6 +304,18 @@ export function GitHome({ event$, }) {
                                                             <Menu
                                                                 items={visibleFilter([
                                                                     {
+                                                                        label: t('edit'),
+                                                                        key: 'edit',
+                                                                    },
+                                                                    {
+                                                                        label: t('delete'),
+                                                                        key: 'delete',
+                                                                        danger: true,
+                                                                    },
+                                                                    {
+                                                                        type: 'divider',
+                                                                    },
+                                                                    {
                                                                         visible: !item.isFavorite,
                                                                         label: t('add_to_favorite'),
                                                                         key: 'add_to_favorite',
@@ -315,17 +330,10 @@ export function GitHome({ event$, }) {
                                                                         key: 'export_json',
                                                                     },
                                                                     {
-                                                                        type: 'divider',
+                                                                        label: t('file.open_in_finder'),
+                                                                        key: 'open_in_finder',
                                                                     },
-                                                                    {
-                                                                        label: t('edit'),
-                                                                        key: 'edit',
-                                                                    },
-                                                                    {
-                                                                        label: t('delete'),
-                                                                        key: 'delete',
-                                                                        danger: true,
-                                                                    },
+                                                                    
                                                                 ])}
                                                                 onClick={({ key, domEvent }) => {
                                                                     // domEvent.preventDefault()
@@ -349,6 +357,9 @@ export function GitHome({ event$, }) {
                                                                                 json: JSON.stringify(item, null, 4)
                                                                             },
                                                                         })
+                                                                    }
+                                                                    else if (key == 'open_in_finder') {
+                                                                        openInFinder(item.path)
                                                                     }
                                                                 }}
                                                             />
