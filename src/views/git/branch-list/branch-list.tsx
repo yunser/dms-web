@@ -6,13 +6,14 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { ArrowRightOutlined, BranchesOutlined, DeleteOutlined, DownloadOutlined, EllipsisOutlined } from '@ant-design/icons';
+import { ArrowRightOutlined, BranchesOutlined, DeleteOutlined, DownloadOutlined, EllipsisOutlined, PlusOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/db-manager/redis-client';
 import { BranchDeleteModal } from '../branch-delete';
+import { BranchModal } from '../branch-modal';
 // import { saveAs } from 'file-saver'
 
 export function BranchList({ config, event$, projectPath, onBranch }) {
@@ -23,6 +24,7 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
     const [editBranch, setEditBranch] = useState(null)
     const [current, setCurrent] = useState('')
     const [branches, setBranches] = useState([])
+    const [branchModalVisible, setBranchModalVisible] = useState(false)
 
     async function loadBranches() {
         let res = await request.post(`${config.host}/git/branch`, {
@@ -70,6 +72,15 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
         setEditBranch(item)
     }
 
+    function exportBranches() {
+        event$.emit({
+            type: 'event_show_json',
+            data: {
+                json: JSON.stringify(branches, null, 4)
+            },
+        })
+    }
+
     return (
         <div className={styles.branchBox}>
             <div className={styles.header}>
@@ -78,7 +89,41 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
                     {'    '}
                     {t('git.branches')}
                 </div>
-                <div></div>
+                <Space>
+                    <IconButton
+                        tooltip={t('git.branch.create')}
+                        onClick={() => {
+                            setBranchModalVisible(true)
+                        }}
+                    >
+                        <PlusOutlined />
+                    </IconButton>
+                    <Dropdown
+                        trigger={['click']}
+                        overlay={
+                            <Menu
+                                items={[
+                                    {
+                                        label: t('export_json'),
+                                        key: 'export_json',
+                                        // disabled: item.name == current,
+                                    },
+                                ]}
+                                onClick={({ key }) => {
+                                    if (key == 'export_json') {
+                                        exportBranches()
+                                    }
+                                }}
+                            />
+                        }
+                    >
+                        <IconButton
+                            onClick={e => e.preventDefault()}
+                        >
+                            <EllipsisOutlined />
+                        </IconButton>
+                    </Dropdown>
+                </Space>
             </div>
             {branches.length == 0 ?
                 <FullCenterBox
@@ -174,6 +219,24 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
                         )
                     })}
                 </div>
+            }
+            {branchModalVisible &&
+                <BranchModal
+                    config={config}
+                    event$={event$}
+                    projectPath={projectPath}
+                    onCancel={() => {
+                        setBranchModalVisible(false)
+                    }}
+                    onSuccess={() => {
+                        setBranchModalVisible(false)
+                        event$.emit({
+                            type: 'event_refresh_branch',
+                            data: {},
+                        })
+                        
+                    }}
+                />
             }
             {branchDeleteModalVisible &&
                 <BranchDeleteModal

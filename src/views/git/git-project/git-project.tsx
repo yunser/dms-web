@@ -195,7 +195,7 @@ export function GitProject({ config, event$, project, onList }) {
                         >
                             {t('refresh')}
                         </Button>
-                        <Button
+                        {/* <Button
                             size="small"
                             onClick={() => {
                                 setBranchModalVisible(true)
@@ -203,7 +203,7 @@ export function GitProject({ config, event$, project, onList }) {
                             icon={<BranchesOutlined />}
                         >
                             {t('git.branches')}
-                        </Button>
+                        </Button> */}
                         <Button
                             size="small"
                             onClick={() => {
