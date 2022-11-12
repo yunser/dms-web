@@ -12,6 +12,7 @@ import { request } from '@/views/db-manager/utils/http';
 import { ProjectEditor } from '../project-edit';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/db-manager/redis-client';
+import moment from 'moment';
 // import { saveAs } from 'file-saver'
 
 function visibleFilter(list) {
@@ -70,13 +71,16 @@ export function GitHome({ event$, }) {
             // setProjects([])
             function score(item) {
                 if (item.isFavorite) {
+                    if (item.favoriteTime) {
+                        return moment(item.favoriteTime).toDate().getTime()
+                    }
                     return 100
                 }
                 return 0
             }
             setProjects(res.data.list.sort((a, b) => {
                 // if (a)
-                if (a.isFavorite != b.isFavorite) {
+                if ((a.isFavorite != b.isFavorite) || (a.favoriteTime != b.favoriteTime)) {
                     return score(b) - score(a)
                 }
                 return a.name.localeCompare(b.name)
@@ -134,6 +138,7 @@ export function GitHome({ event$, }) {
             id: item.id,
             data: {
                 isFavorite,
+                favoriteTime: isFavorite ? new Date().toISOString() : null,
             },
         })
         console.log('get/res', res.data)
