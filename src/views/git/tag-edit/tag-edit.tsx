@@ -15,6 +15,7 @@ import { GitStatus } from '../git-status';
 import { RemoteList } from '../remote-list';
 import { TagList } from '../tag-list';
 import { request } from '@/views/db-manager/utils/http';
+import { CommitItem } from '../commit-item';
 // import { saveAs } from 'file-saver'
 
 export function TagEditor({ config, commit, event$, projectPath, onSuccess, onCancel, onList }) {
@@ -82,7 +83,10 @@ export function TagEditor({ config, commit, event$, projectPath, onSuccess, onCa
                         label={t('git.commit')}
                         // rules={[ { required: true, }, ]}
                     >
-                        {commit.hash}
+                        <CommitItem
+                            commit={commit}
+                        />
+                        {/* {commit.hash} */}
                     </Form.Item>
                 }
                 

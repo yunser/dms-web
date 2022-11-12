@@ -10,6 +10,7 @@ import { DownloadOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
+import { CommitItem } from '../commit-item';
 // import { saveAs } from 'file-saver'
 
 export function BranchModal({ config, event$, projectPath, commit, onSuccess, onCancel }) {
@@ -96,14 +97,16 @@ export function BranchModal({ config, event$, projectPath, commit, onSuccess, on
                         <Input />
                     </Form.Item>
                     {!!commit &&
-                    <Form.Item
-                        // name="name"
-                        label={t('git.commit')}
-                        // rules={[ { required: true, }, ]}
-                    >
-                        {commit.hash}
-                    </Form.Item>
-                }
+                        <Form.Item
+                            // name="name"
+                            label={t('git.commit')}
+                            // rules={[ { required: true, }, ]}
+                        >
+                            <CommitItem
+                                commit={commit}
+                            />
+                        </Form.Item>
+                    }
                 </Form>
             </Modal>
         </div>

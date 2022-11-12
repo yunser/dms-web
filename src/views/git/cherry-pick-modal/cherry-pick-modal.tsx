@@ -10,6 +10,7 @@ import { DownloadOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
+import { CommitItem } from '../commit-item';
 // import { saveAs } from 'file-saver'
 
 export function CherryPickModal({ config, commit, event$, projectPath, onSuccess, onCancel }) {
@@ -123,8 +124,8 @@ export function CherryPickModal({ config, commit, event$, projectPath, onSuccess
                 {/* <div className={styles.help}>合并以下分支到 {current} 分支</div> */}
                 <Form
                     form={form}
-                    labelCol={{ span: 6 }}
-                    wrapperCol={{ span: 18 }}
+                    labelCol={{ span: 4 }}
+                    wrapperCol={{ span: 20 }}
                     initialValues={{
                         port: 3306,
                     }}
@@ -152,7 +153,9 @@ export function CherryPickModal({ config, commit, event$, projectPath, onSuccess
                         label={t('git.commit')}
                         // rules={[ { required: true, }, ]}
                     >
-                        {commit.hash}
+                        <CommitItem
+                            commit={commit}
+                        />
                         {/* <Select
                             options={branches.map(r => {
                                 return {
