@@ -72,6 +72,42 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
         setEditBranch(item)
     }
 
+    async function switchItem(item) {
+        // Modal.confirm({
+        //     title: '切换分支',
+        //     // icon: <ExclamationCircleOutlined />,
+        //     content: `确定将你的工作副本切换为「${item.name}」？`,
+        //     async onOk() {
+                
+        //     }
+        // })
+        let res = await request.post(`${config.host}/git/checkout`, {
+            projectPath,
+            branchName: item.name,
+        })
+        // console.log('ret', ret)
+        if (res.success) {
+            // message.success('连接成功')
+            // onConnnect && onConnnect()
+            message.success(t('success'))
+            // onClose && onClose()
+            // onSuccess && onSuccess()
+            loadBranches()
+            event$.emit({
+                type: 'event_reload_history',
+                data: {
+                    commands: res.data.commands,
+                }
+            })
+            event$.emit({
+                type: 'event_refresh_commit_list',
+                data: {
+                    commands: res.data.commands,
+                }
+            })
+        }
+    }
+
     function exportBranches() {
         event$.emit({
             type: 'event_show_json',
@@ -146,63 +182,43 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
                                         }
                                     </div>
                                     <div className={styles.name}>{item.name}</div>
+                                    {item.name != current &&
+                                        <div className={styles.switch}>
+                                            <IconButton
+                                                tooltip={t('git.branch.switch')}
+                                                onClick={async () => {
+                                                    switchItem(item)
+                                                }}
+                                            >
+                                                <ArrowRightOutlined />
+                                            </IconButton>
+                                        </div>
+                                    }
                                 </div>
                                 <Space>
-                                    <IconButton
-                                        tooltip={t('git.branch.switch')}
-                                        onClick={async () => {
-                                            // Modal.confirm({
-                                            //     title: '切换分支',
-                                            //     // icon: <ExclamationCircleOutlined />,
-                                            //     content: `确定将你的工作副本切换为「${item.name}」？`,
-                                            //     async onOk() {
-                                                    
-                                            //     }
-                                            // })
-                                            let res = await request.post(`${config.host}/git/checkout`, {
-                                                projectPath,
-                                                branchName: item.name,
-                                            })
-                                            // console.log('ret', ret)
-                                            if (res.success) {
-                                                // message.success('连接成功')
-                                                // onConnnect && onConnnect()
-                                                message.success(t('success'))
-                                                // onClose && onClose()
-                                                // onSuccess && onSuccess()
-                                                loadBranches()
-                                                event$.emit({
-                                                    type: 'event_reload_history',
-                                                    data: {
-                                                        commands: res.data.commands,
-                                                    }
-                                                })
-                                                event$.emit({
-                                                    type: 'event_refresh_commit_list',
-                                                    data: {
-                                                        commands: res.data.commands,
-                                                    }
-                                                })
-                                            }
-                                        }}
-                                    >
-                                        <ArrowRightOutlined />
-                                    </IconButton>
                                     <Dropdown
                                         trigger={['click']}
                                         overlay={
                                             <Menu
                                                 items={[
                                                     {
+                                                        label: t('git.branch.switch'),
+                                                        key: 'switch',
+                                                        disabled: item.name == current,
+                                                    },
+                                                    {
                                                         label: t('git.branch.delete'),
                                                         key: 'delete',
+                                                        danger: true,
                                                         disabled: item.name == current,
                                                     },
                                                 ]}
                                                 onClick={({ key }) => {
                                                     if (key == 'delete') {
                                                         deleteItem(item)
-
+                                                    }
+                                                    else if (key == 'switch') {
+                                                        switchItem(item)
                                                     }
                                                 }}
                                             />

@@ -13,20 +13,36 @@
         align-items: center;
         justify-content: space-between;
         // border: 1px solid var(--border-color);
+        &:hover {
+            .switch {
+                display: block;
+            }
+        }
         .left {
             display: flex;
             align-items: center;
+            // border: 1px solid #000;
+            flex: 1 0;
         }
     }
     .status {
         width: 24px;
         // border: 1px solid #f00;
+        .current {
+            width: 8px;
+            height: 8px;
+            border-radius: 4px;
+            margin-left: 8px;
+            background-color: green;
+        }
     }
-    .current {
-        width: 8px;
-        height: 8px;
-        border-radius: 4px;
+    .switch {
+        display: none;
         margin-left: 8px;
-        background-color: green;
+    }
+    .name {
+        // border: 1px solid #000;
+        // flex: 1 0;
+        // cursor: pointer;
     }
 }

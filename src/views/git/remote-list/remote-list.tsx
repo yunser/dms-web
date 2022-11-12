@@ -115,6 +115,7 @@ export function RemoteList({ config, event$, projectPath }) {
                                                     {
                                                         label: t('git.remote.delete'),
                                                         key: 'delete',
+                                                        danger: true,
                                                     },
                                                 ]}
                                                 onClick={({ key }) => {

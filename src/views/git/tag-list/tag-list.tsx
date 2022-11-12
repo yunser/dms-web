@@ -138,6 +138,7 @@ export function TagList({ config, event$, projectPath }) {
                                                     {
                                                         label: t('git.tag.delete'),
                                                         key: 'delete',
+                                                        danger: true,
                                                     },
                                                 ]}
                                                 onClick={({ key }) => {
