@@ -200,14 +200,29 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
             const { status } = res.data
             setStatus(status)
             // setCurrent(res.data.current)
-            setUnstagedList(status.files.filter(item => {
+            const unstagedList = status.files.filter(item => {
                 return item.working_dir != ' '
-            }))
+            })
+            setUnstagedList(unstagedList)
+            if (unstagedList.length) {
+                handleClickItem(unstagedList[0])
+            }
             // setUnstagedList(status.modified.filter(file => {
             //     console.log('file', file)
             //     return !status.staged.includes(file)
             // }))
             
+        }
+    }
+
+    function handleClickItem(item) {
+        if (item.working_dir == '?') {
+            setDiffItem(item)
+            cat(item.path)
+        }
+        else {
+            setDiffItem(item)
+            diff(item.path)
         }
     }
 
@@ -491,14 +506,7 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                                         />
                                                         <div className={styles.fileName}
                                                             onClick={() => {
-                                                                if (item.working_dir == '?') {
-                                                                    setDiffItem(item)
-                                                                    cat(item.path)
-                                                                }
-                                                                else {
-                                                                    setDiffItem(item)
-                                                                    diff(item.path)
-                                                                }
+                                                                handleClickItem(item)
                                                             }}
                                                         >
                                                             {item.working_dir == '?' ?
