@@ -458,10 +458,7 @@ export function ExecDetail(props) {
         console.log('pkField', pkField)
         const pkColIdx = fields.findIndex(item => item.name == pkField)
         console.log('pkColIdx', pkColIdx)
-        if (pkColIdx == -1) {
-            message.error('找不到表格主键')
-            return
-        }
+        
 
         g_dataRef.current.pkField = pkField
 
@@ -507,24 +504,34 @@ export function ExecDetail(props) {
                 const sql = `INSERT INTO \`${dbName}\`.\`${tableName}\` (${fieldNamesText}) VALUES (${valuesText});`
                 return sql
             }
-            const updatedFields = []
-            for (let rowKey in row) {
-                if (rowKey != '_idx') { // TODO
-                    const cell = row[rowKey]
-                    if (cell.newValue) {
-                        updatedFields.push(`\`${cell.fieldName}\` = '${cell.newValue}'`)
-                    }
-                }
+            else {
 
-            }
-            // row.map(cell => {
-            //     // let 
-            // })
-            if (updatedFields.length) {
-                let sql = `UPDATE \`${dbName}\`.\`${tableName}\` SET ${updatedFields.join(', ')} WHERE \`${pkField}\` = '${row[pkColIdx].value}';`
-                changedKeys.push(row[pkColIdx].value)
                 
-                return sql
+                const updatedFields = []
+                for (let rowKey in row) {
+                    if (rowKey != '_idx') { // TODO
+                        const cell = row[rowKey]
+                        if (cell.newValue) {
+                            updatedFields.push(`\`${cell.fieldName}\` = '${cell.newValue}'`)
+                        }
+                    }
+                    
+                }
+                // row.map(cell => {
+                    //     // let 
+                    // })
+                if (updatedFields.length) {
+                    if (pkColIdx == -1) {
+                        message.error('找不到表格主键')
+                        console.log('row', row)
+                        throw new Error('找不到表格主键')
+                        return
+                    }
+                    let sql = `UPDATE \`${dbName}\`.\`${tableName}\` SET ${updatedFields.join(', ')} WHERE \`${pkField}\` = '${row[pkColIdx].value}';`
+                    changedKeys.push(row[pkColIdx].value)
+                    
+                    return sql
+                }
             }
         })
             .filter(item => item)

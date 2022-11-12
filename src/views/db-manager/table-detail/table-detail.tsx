@@ -888,7 +888,7 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
 
     
 
-    const columns = [
+    const columnColumns = [
         {
             title: t('column_name'),
             dataIndex: 'COLUMN_NAME',
@@ -1535,7 +1535,7 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
                                                     /> */}
                                                 </div>
                                                 <Table
-                                                    columns={columns}
+                                                    columns={columnColumns}
                                                     dataSource={filteredTableColumns}
                                                     bordered
                                                     pagination={false}
