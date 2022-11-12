@@ -230,7 +230,7 @@ function SqlBox({ config, event$, databaseType, connectionId, onJson, className,
             let tableName = null
             let dbName = null
             try {
-                const ast = SqlParser.parse(rawLine.replace(/`/g, ''));
+                const ast = SqlParser.parse(rawLine.replace(/`/g, '').replace(/'/g, '').replace(/"/g, ''));
                 // console.log('ast', ast)
                 if (ast[0]) {
                     if (!ast[0].joinmap) {
@@ -527,6 +527,7 @@ function SqlBox({ config, event$, databaseType, connectionId, onJson, className,
                                 :
                                     <ExecDetail
                                         data={item.data}
+                                        databaseType={databaseType}
                                         config={config}
                                         connectionId={connectionId}
                                         onJson={onJson}

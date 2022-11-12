@@ -296,7 +296,7 @@ function Cell({ item, editing, onChange }) {
 // }
 export function ExecDetail(props) {
     console.warn('ExecDetail/render')
-    const { config, connectionId, onJson, data, } = props
+    const { config, databaseType, connectionId, onJson, data, } = props
     const { t } = useTranslation()
     const { 
         sql,
@@ -462,6 +462,13 @@ export function ExecDetail(props) {
 
         g_dataRef.current.pkField = pkField
 
+        function wrapName(name) {
+            if (databaseType == 'postgresql') {
+                return `"${name}"`
+            }
+            return `\`${name}\``
+        }
+
         const changedKeys = []
         console.log('list', list)
         const sqls = list.map(row => {
@@ -496,12 +503,12 @@ export function ExecDetail(props) {
                     // }
                 }
                 const fieldNamesText = fieldNames.map(fieldName => {
-                    return `\`${fieldName}\``
+                    return wrapName(fieldName)
                 }).join(', ')
                 const valuesText = values.map(value => {
                     return `'${value}'`
                 }).join(', ')
-                const sql = `INSERT INTO \`${dbName}\`.\`${tableName}\` (${fieldNamesText}) VALUES (${valuesText});`
+                const sql = `INSERT INTO ${wrapName(dbName)}.${wrapName(tableName)} (${fieldNamesText}) VALUES (${valuesText});`
                 return sql
             }
             else {
@@ -942,8 +949,6 @@ export function ExecDetail(props) {
             return col.__rawTitle.toLowerCase().includes(_keyword)
         })
     }, [filterColKeyword, columns])
-
-    // console.log('rowModalItem', rowModalItem)
 
 	return (
         <div className={styles.resultBox}>
