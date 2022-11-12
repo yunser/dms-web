@@ -93,6 +93,10 @@ export function CherryPickModal({ config, commit, event$, projectPath, onSuccess
                     commands: res.data.commands,
                 }
             })
+            event$.emit({
+                type: 'event_refresh_branch',
+                data: {},
+            })
         }
         setLoading(false)
     }
