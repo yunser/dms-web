@@ -23,6 +23,7 @@ import { TagEditor } from '../tag-edit';
 import { BranchModal } from '../branch-modal';
 import List from 'rc-virtual-list';
 import copy from 'copy-to-clipboard';
+import { CherryPickModal } from '../cherry-pick-modal';
 
 function Hash({ hash }) {
     const top6Char = hash.substring(0, 6)
@@ -42,6 +43,8 @@ export function CommitList({ config, event$, projectPath,  }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
 
+    const [cherryPickVisible, setCherryPickVisible] = useState(false)
+    const [cherryPickCommit, setCherryPickCommit] = useState(false)
     const [tagModalVisible, setTagModalVisible] = useState(false)
     const [branchModalVisible, setBranchModalVisible] = useState(false)
     const [listLoading, setListLoading] = useState(false)
@@ -130,6 +133,11 @@ export function CommitList({ config, event$, projectPath,  }) {
         message.info(t('copied'))
     }
     
+    function cherryPickCommitItem(commit) {
+        console.log('cherryPickCommit', )
+        setCherryPickCommit(commit)
+        setCherryPickVisible(true)
+    }
 
     async function gitFetch() {
         loadBranch()
@@ -417,6 +425,10 @@ export function CommitList({ config, event$, projectPath,  }) {
                                                             key: 'copy_hash',
                                                         },
                                                         {
+                                                            label: t('git.cherry_pick'),
+                                                            key: 'cherry_pick',
+                                                        },
+                                                        {
                                                             type: 'divider',
                                                         },
                                                         {
@@ -437,6 +449,9 @@ export function CommitList({ config, event$, projectPath,  }) {
                                                         }
                                                         else if (key == 'copy_hash') {
                                                             copyHash(item)
+                                                        }
+                                                        else if (key == 'cherry_pick') {
+                                                            cherryPickCommitItem(item)
                                                         }
                                                     }}
                                                 />
@@ -581,6 +596,28 @@ export function CommitList({ config, event$, projectPath,  }) {
                             data: {},
                         })
                         
+                    }}
+                />
+            }
+            {cherryPickVisible &&
+                <CherryPickModal
+                    config={config}
+                    event$={event$}
+                    commit={cherryPickCommit}
+                    projectPath={projectPath}
+                    onCancel={() => {
+                        setCherryPickVisible(false)
+                    }}
+                    onSuccess={() => {
+                        setCherryPickVisible(false)
+                        // event$.emit({
+                        //     type: 'event_refresh_commit_list',
+                        //     data: {},
+                        // })
+                        // event$.emit({
+                        //     type: 'event_refresh_branch',
+                        //     data: {},
+                        // })
                     }}
                 />
             }
