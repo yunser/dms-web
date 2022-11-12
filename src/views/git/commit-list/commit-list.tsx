@@ -21,6 +21,7 @@ import { ResetModal } from '../reset-modal';
 import { useVirtualList } from 'ahooks'
 import { TagEditor } from '../tag-edit';
 import { BranchModal } from '../branch-modal';
+import List from 'rc-virtual-list';
 
 function Hash({ hash }) {
     const top6Char = hash.substring(0, 6)
@@ -44,6 +45,7 @@ export function CommitList({ config, event$, projectPath,  }) {
     const [branchModalVisible, setBranchModalVisible] = useState(false)
     const [listLoading, setListLoading] = useState(false)
     const [list, setList] = useState([])
+    const [itemHeight, setItemHeight] = useState(32)
     const [curCommit, setCurCommit] = useState(null)
     // const [branchs, setBranchs] = useState([])
     const [curBranch, setCurBranch] = useState('')
@@ -185,6 +187,7 @@ export function CommitList({ config, event$, projectPath,  }) {
             if (list.length > 0) {
                 show(list[0])
             }
+            setItemHeight(itemHeight == 32 ? 33 : 32)
         }
         setListLoading(false)
     }
@@ -238,7 +241,6 @@ export function CommitList({ config, event$, projectPath,  }) {
         
     // })
 
-
     const showList = useMemo(() => {
         // console.log('列表', list, branchs)
         // list hash "489deea0f6bf7e90a7434f4ae22c5e17214bdf5d"
@@ -283,20 +285,6 @@ export function CommitList({ config, event$, projectPath,  }) {
         return newList
             // .splice(0, 100)
     }, [list])
-
-    const containerRef = useRef(null);
-    const wrapperRef = useRef(null);
-    // const originalList = useMemo(() => Array.from(Array(99999).keys()), []);
-    const [vList] = useVirtualList(showList, {
-        containerTarget: containerRef,
-        wrapperTarget: wrapperRef,
-        itemHeight: 32,
-        overscan: 10,
-    });
-    // console.log('showList.le', showList.length)
-    // console.log('vList', vList)
-
-    // console.log('showList', showList)
 
     // return (
     //     <div>
@@ -346,31 +334,14 @@ export function CommitList({ config, event$, projectPath,  }) {
                         <Empty />
                     </FullCenterBox>
                 :
-                    <div
-                        ref={containerRef}
-                        style={{
-                            height: '100%',
-                            overflow: 'auto',
-                            // border: '1px solid',
-                        }}>
-                        <div className={styles.list} ref={wrapperRef}>
-                        {/* {vList.map((item) => (
-                            <div
-                            style={{
-                                height: 52,
-                                display: 'flex',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                border: '1px solid #e8e8e8',
-                                marginBottom: 8,
-                            }}
-                            key={ele.index}
-                            >
-                            Row: {ele.data}
-                            </div>
-                        ))} */}
-                            {vList.map(vItem => {
-                                const item = vItem.data
+                    <div className={styles.list}>
+                        <List 
+                            data={showList} 
+                            height={320} 
+                            itemHeight={32} 
+                            itemKey="hash"
+                        >
+                            {item => {
                                 return (
                                     <div
                                         className={classNames(styles.item, {
@@ -461,11 +432,9 @@ export function CommitList({ config, event$, projectPath,  }) {
                                         </Dropdown>
                                     </div>
                                 )
-                            })}
-                        </div>
+                            }}
+                        </List>
                     </div>
-                    // <div className={styles.list}>
-                    // </div>
                 }
             </div>
             <div className={styles.layoutBottom}>
