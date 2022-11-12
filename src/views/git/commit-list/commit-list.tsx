@@ -22,6 +22,7 @@ import { useVirtualList } from 'ahooks'
 import { TagEditor } from '../tag-edit';
 import { BranchModal } from '../branch-modal';
 import List from 'rc-virtual-list';
+import copy from 'copy-to-clipboard';
 
 function Hash({ hash }) {
     const top6Char = hash.substring(0, 6)
@@ -124,6 +125,10 @@ export function CommitList({ config, event$, projectPath,  }) {
         setFileLoading(false)
     }
 
+    function copyHash(item) {
+        copy(item.hash)
+        message.info(t('copied'))
+    }
     
 
     async function gitFetch() {
@@ -405,6 +410,16 @@ export function CommitList({ config, event$, projectPath,  }) {
                                                             key: 'tag_create',
                                                         },
                                                         {
+                                                            type: 'divider',
+                                                        },
+                                                        {
+                                                            label: t('git.copy_hash'),
+                                                            key: 'copy_hash',
+                                                        },
+                                                        {
+                                                            type: 'divider',
+                                                        },
+                                                        {
                                                             label: t('git.branch.reset_to_commit'),
                                                             key: 'reset_commit',
                                                         },
@@ -419,6 +434,9 @@ export function CommitList({ config, event$, projectPath,  }) {
                                                         }
                                                         else if (key == 'branch_create') {
                                                             setBranchModalVisible(true)
+                                                        }
+                                                        else if (key == 'copy_hash') {
+                                                            copyHash(item)
                                                         }
                                                     }}
                                                 />
