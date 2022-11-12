@@ -139,6 +139,16 @@ export function CommitList({ config, event$, projectPath,  }) {
         setCherryPickVisible(true)
     }
 
+    function exportCommitItem(commit) {
+        event$.emit({
+            type: 'event_show_json',
+            data: {
+                json: JSON.stringify(commit, null, 4)
+                // connectionId,
+            },
+        })
+    }
+
     async function gitFetch() {
         loadBranch()
         let res = await request.post(`${config.host}/git/fetch`, {
@@ -435,6 +445,10 @@ export function CommitList({ config, event$, projectPath,  }) {
                                                             label: t('git.branch.reset_to_commit'),
                                                             key: 'reset_commit',
                                                         },
+                                                        {
+                                                            label: t('export_json'),
+                                                            key: 'export_json',
+                                                        },
                                                     ]}
                                                     onClick={({ key }) => {
                                                         if (key == 'reset_commit') {
@@ -453,6 +467,10 @@ export function CommitList({ config, event$, projectPath,  }) {
                                                         else if (key == 'cherry_pick') {
                                                             cherryPickCommitItem(item)
                                                         }
+                                                        else if (key == 'export_json') {
+                                                            exportCommitItem(item)
+                                                        }
+                                                        
                                                     }}
                                                 />
                                             }
