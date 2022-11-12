@@ -174,6 +174,7 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
     const [diffItem, setDiffItem ] = useState(null)
     const [diffType, setDiffType ] = useState('text')
     const [diffText, setDiffText ] = useState('')
+    const [diffError, setDiffError ] = useState('')
     const [diffLoading, setDiffLoading ] = useState(false)
     const canCommit = !(unstagedList.length == 0 && status?.staged?.length == 0)
 
@@ -362,6 +363,7 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
         setCurFileType('')
         setDiffText('')
         setDiffType('')
+        setDiffError('')
         if (FileUtil.isImage(path)) {
             console.log('img', path)
             const filePath = projectPath + '/' + path
@@ -373,6 +375,9 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
             let res = await request.post(`${config.host}/git/cat`, {
                 projectPath,
                 filePath: path,
+                sizeLimit: 1 * 1024 * 1024,
+            }, {
+                noMessage: true,
             })
             // console.log('res', res)
             if (res.success) {
@@ -386,6 +391,10 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                     }
                 })
             }
+            else {
+                console.log('res?', res)
+                setDiffError(res.data?.message || 'error')
+            }
         }
         setDiffLoading(false)
     }
@@ -396,6 +405,7 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
         setCurFileType(cached ? 'cached' : '')
         setDiffType('')
         setDiffText('')
+        setDiffError('')
         let res = await request.post(`${config.host}/git/diff`, {
             projectPath,
             file: path,
@@ -593,6 +603,12 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                             {diffLoading ?
                                 <FullCenterBox>
                                     <Spin />
+                                </FullCenterBox>
+                            : !!diffError ?
+                                <FullCenterBox>
+                                    <div className={styles.errorBox}>
+                                        {diffError}
+                                    </div>
                                 </FullCenterBox>
                             : diffType == 'image' ?
                                 <>

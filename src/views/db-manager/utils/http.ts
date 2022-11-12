@@ -13,8 +13,12 @@ const instance = axios.create({
 
 // export default instance
 
+interface Options {
+    noMessage?: boolean
+}
+
 export const request = {
-    async get(url, opts = {}) {
+    async get(url: string, opts: Options = {}) {
         try {
             const res = await instance.get(url, opts)
             return {
@@ -32,7 +36,7 @@ export const request = {
             }
         }
     },
-    async post(url, data = {}, opts?: any) {
+    async post(url: string, data = {}, opts?: Options) {
         try {
             const res = await instance.post(url, data, opts)
             return {
