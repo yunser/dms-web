@@ -42,6 +42,7 @@ import { MysqlCompare } from './mysql-compare'
 import { ModelHome } from '../model/model-home'
 import { MongoHome } from '../mongo/mongo-home'
 import { MongoClient } from '../mongo/mongo-client'
+import { GitProject } from '../git/git-project'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -936,6 +937,38 @@ export function DbManager({ config }) {
                                     {item.type == 'git-project' &&
                                         <GitHome
                                             event$={event$}
+                                            onProject={project => {
+                                                addOrActiveTab({
+                                                    // title: 'Redis',
+                                                    title: `GIT`,
+                                                    key: 'git-' + uid(16),
+                                                    type: 'git-detail',
+                                                    data: {
+                                                        project,
+                                                    },
+                                                }, {
+                                                    closeCurrentTab: true,
+                                                })
+                                            }}
+                                        />
+                                    }
+                                    {item.type == 'git-detail' &&
+                                        <GitProject
+                                            config={config}
+                                            event$={event$}
+                                            project={item.data.project}
+                                            // projectPath={curProject.path}
+                                            onList={() => {
+                                                addOrActiveTab({
+                                                    // title: 'Redis',
+                                                    title: `GIT`,
+                                                    key: 'git-project',
+                                                    type: 'git-project',
+                                                    data: {},
+                                                }, {
+                                                    closeCurrentTab: true,
+                                                })
+                                            }}
                                         />
                                     }
                                     {item.type == 'oss-home' &&

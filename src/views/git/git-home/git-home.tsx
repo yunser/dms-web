@@ -19,7 +19,7 @@ function visibleFilter(list) {
     return list.filter(item => item.visible != false)
 }
 
-export function GitHome({ event$, }) {
+export function GitHome({ event$, onProject }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [curProject, setCurProject] = useState(null)
@@ -256,7 +256,6 @@ export function GitHome({ event$, }) {
                                 placeholder={t('filter')}
                                 value={keyword}
                                 allowClear
-                                autoFocus={true}
                                 onChange={e => {
                                     setKeyword(e.target.value)
                                 }}
@@ -278,8 +277,9 @@ export function GitHome({ event$, }) {
                                                 key={item.id}
                                                 className={styles.item}
                                                 onClick={() => {
-                                                    setView('detail')
-                                                    setCurProject(item)
+                                                    // setView('detail')
+                                                    // setCurProject(item)
+                                                    onProject && onProject(item)
                                                 }}
                                             >
                                                 <Space>
