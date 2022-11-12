@@ -19,6 +19,51 @@ function hasValue(value) {
     return !!value || value === 0
 }
 
+function parseColumns(item) {
+    const { sql } = item
+    console.log('parseColumns/sql', sql)
+    if (!sql) {
+        return []
+    }
+    const m = sql.match(/\(([\d\D]+)\)/)
+    console.log('parseColumns/m', m)
+    if (!m) {
+        return []
+    }
+    const cols = m[1].split(',')
+        .map(item => item.replace(/\s/g, ''))
+        .map(item => item.substring(1, item.length - 1))
+    console.log('parseColumns/cols', cols)
+    return cols
+
+}
+const idxTest = [
+    {
+        "type": "index",
+        "name": "sqlite_autoindex_redis_history_1",
+        "tbl_name": "redis_history",
+        "rootpage": 5,
+        "sql": null
+    },
+    {
+        "type": "index",
+        "name": "idx_db",
+        "tbl_name": "redis_history",
+        "rootpage": 6,
+        "sql": "CREATE INDEX \"idx_db\"\nON \"redis_history\" (\n  \"db\"\n)"
+    },
+    {
+        "type": "index",
+        "name": "idx_db_time",
+        "tbl_name": "redis_history",
+        "rootpage": 7,
+        "sql": "CREATE INDEX \"idx_db_time\"\nON \"redis_history\" (\n  \"db\",\n  \"create_time\"\n)"
+    }
+]
+
+// parseColumns(idxTest[1])
+// parseColumns(idxTest[2])
+
 function ColumnSelector({ value: _value, onChange, options }) {
     const { t } = useTranslation()
     const [modalVisible, setModalVisible] = useState(false)
@@ -1088,46 +1133,89 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
                             ...item,
                         }
                     }))
-                
-                const groupMap = _.groupBy(res.data.indexes, 'INDEX_NAME')
-                // console.log('groups2', groupMap)
-                const indexes = []
-                for (let key in groupMap) {
-                    const item0 = groupMap[key][0]
-                    const columns = groupMap[key]
-                    indexes.push({
-                        __id: uid(32),
-                        __INDEX_NAME: item0.INDEX_NAME,
-                        name: {
-                            value: item0.INDEX_NAME,
-                        },
-                        comment: {
-                            value: item0.INDEX_COMMENT,
-                        },
-                        type2: {
-                            value: item0.NON_UNIQUE == 1 ? 'Normal' : 'Unique',
-                        },
-                        type: item0.INDEX_TYPE,
-                        NON_UNIQUE: item0.NON_UNIQUE,
-                        columns: {
-                            value: columns
-                                .sort((a, b) => {
-                                    return a.SEQ_IN_INDEX - b.SEQ_IN_INDEX
-                                })
-                                .map(item => item.COLUMN_NAME)
-                                // .join(', ')
-                        }
-                        // {
-                        //     title: 'SEQ_IN_INDEX',
-                        //     dataIndex: 'SEQ_IN_INDEX',
-                        // },
-                        // {
-                        //     title: 'COLUMN_NAME',
-                        //     dataIndex: 'COLUMN_NAME',
-                        // },
-                    })
+
+                // index
+                let indexes = []
+                if (databaseType != 'sqlite') {
+                    const groupMap = _.groupBy(res.data.indexes, 'INDEX_NAME')
+                    // console.log('groups2', groupMap)
+                    for (let key in groupMap) {
+                        const item0 = groupMap[key][0]
+                        const columns = groupMap[key]
+                        indexes.push({
+                            __id: uid(32),
+                            __INDEX_NAME: item0.INDEX_NAME,
+                            name: {
+                                value: item0.INDEX_NAME,
+                            },
+                            comment: {
+                                value: item0.INDEX_COMMENT,
+                            },
+                            type2: {
+                                value: item0.NON_UNIQUE == 1 ? 'Normal' : 'Unique',
+                            },
+                            type: item0.INDEX_TYPE,
+                            NON_UNIQUE: item0.NON_UNIQUE,
+                            columns: {
+                                value: columns
+                                    .sort((a, b) => {
+                                        return a.SEQ_IN_INDEX - b.SEQ_IN_INDEX
+                                    })
+                                    .map(item => item.COLUMN_NAME)
+                                    // .join(', ')
+                            }
+                            // {
+                            //     title: 'SEQ_IN_INDEX',
+                            //     dataIndex: 'SEQ_IN_INDEX',
+                            // },
+                            // {
+                            //     title: 'COLUMN_NAME',
+                            //     dataIndex: 'COLUMN_NAME',
+                            // },
+                        })
+                    }
+                    indexes = indexes.filter(item => item.__INDEX_NAME != "PRIMARY")
+                    console.log('indexes', indexes)
                 }
-                setIndexes(indexes.filter(item => item.__INDEX_NAME != "PRIMARY"))
+                else {
+                    indexes = res.data.indexes.map(item => {
+                        return {
+                            __id: uid(32),
+                            __INDEX_NAME: item.INDEX_NAME,
+                            name: {
+                                value: item.INDEX_NAME,
+                            },
+                            comment: {
+                                value: item.INDEX_COMMENT,
+                            },
+                            type2: {
+                                value: item.NON_UNIQUE == 1 ? 'Normal' : 'Unique',
+                            },
+                            type: item.INDEX_TYPE,
+                            NON_UNIQUE: item.NON_UNIQUE,
+                            columns: {
+                                value: parseColumns(item['x-raw']),
+                                // value: columns
+                                //     .sort((a, b) => {
+                                //         return a.SEQ_IN_INDEX - b.SEQ_IN_INDEX
+                                //     })
+                                //     .map(item => item.COLUMN_NAME)
+                                    // .join(', ')
+                            }
+                            // {
+                            //     title: 'SEQ_IN_INDEX',
+                            //     dataIndex: 'SEQ_IN_INDEX',
+                            // },
+                            // {
+                            //     title: 'COLUMN_NAME',
+                            //     dataIndex: 'COLUMN_NAME',
+                            // },
+                        }
+                    })
+                    indexes = indexes.filter(item => item.columns && item.columns.value && item.columns.value.length)
+                }
+
+                setIndexes(indexes)
                 setTableInfo(res.data.table)
             }
             setLoading(false)
