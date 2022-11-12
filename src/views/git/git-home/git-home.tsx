@@ -1,4 +1,4 @@
-import { Button, Descriptions, Dropdown, Empty, Input, Menu, message, Modal, Popover, Space, Table, Tabs, Tag } from 'antd';
+import { Button, Descriptions, Dropdown, Empty, Input, InputRef, Menu, message, Modal, Popover, Space, Table, Tabs, Tag } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './git-home.module.less';
 import _ from 'lodash';
@@ -25,6 +25,7 @@ export function GitHome({ event$, }) {
     const [curProject, setCurProject] = useState(null)
     const [view, setView] = useState('list')
     const [keyword, setKeyword] = useState('')
+    const searchInputRef = useRef<InputRef>(null)
     // const [curTab, setCurTab] = useState('commit-list')
     const config = {
         host: 'http://localhost:10086',
@@ -92,6 +93,12 @@ export function GitHome({ event$, }) {
     useEffect(() => {
         loadList()
     }, [])
+
+    useEffect(() => {
+        if (searchInputRef.current) {
+            searchInputRef.current.focus()
+        }
+    }, [searchInputRef.current])
 
     function editProject(item) {
         setProjectModalVisible(true)
@@ -245,9 +252,11 @@ export function GitHome({ event$, }) {
                         </div>
                         <div>
                             <Input
+                                ref={searchInputRef}
                                 placeholder={t('filter')}
                                 value={keyword}
                                 allowClear
+                                autoFocus={true}
                                 onChange={e => {
                                     setKeyword(e.target.value)
                                 }}
