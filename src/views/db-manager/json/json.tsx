@@ -14,6 +14,8 @@ import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 // import { saveAs } from 'file-saver'
 import ReactJson from 'react-json-view'
+// const JSON5 = require('json5')
+import JSON5 from 'json5'
 
 function SelectionInfo({ event$ }) {
 
@@ -122,6 +124,25 @@ export function JsonEditor({ key, event$, data = {} }) {
                             >
                                 <DownloadOutlined />   
                             </IconButton>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    const code = getCode()
+                                    let js
+                                    try {
+                                        js = JSON5.parse(code)
+                                    }
+                                    catch (err) {
+                                        message.error(err.message)
+                                    }
+                                    if (js) {
+                                        const json = JSON.stringify(js, null, 4)
+                                        editor?.setValue(json)
+                                    }
+                                }}
+                            >
+                                {t('json.json5_to_json')}
+                            </Button>
                             {/* <Button
                                 size="small"
                                 onClick={() => {
