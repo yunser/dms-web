@@ -441,7 +441,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
             host: values.host || 'localhost',
             port: values.port || 6379,
             // user: values.user,
-            password: values.password,
+            password: values.password || '',
             userName: values.userName,
             defaultDatabase: values.defaultDatabase || 0,
         }
@@ -513,7 +513,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
             host: values.host || 'localhost',
             port: values.port || 6379,
             // user: values.user,
-            password: values.password,
+            password: values.password || '',
             userName: values.userName,
             db: values.defaultDatabase || 0,
             test: true,
@@ -616,7 +616,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
                 <Form.Item
                     name="password"
                     label={t('password')}
-                    rules={[{ required: true, },]}
+                    // rules={[{ required: true, },]}
                 >
                     <InputPassword />
                 </Form.Item>
