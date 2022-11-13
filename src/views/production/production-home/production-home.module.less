@@ -1,0 +1,40 @@
+.app {
+    height: 100%;
+    overflow: auto;
+    // border: 1px solid #f00;
+    display: flex;
+    .layoutLeft {
+        flex: 0 0 320px;
+        border-right: 1px solid var(--border-color);
+        padding: 16px;
+        .header {
+            padding: 0 16px;
+            margin-bottom: 12px;
+        }
+    }
+    .layoutRight {
+        flex: 1 0 auto;
+        width: 0;
+        padding: 16px;
+        overflow: auto;
+    }
+}
+
+.list {
+    display: flex;
+    flex-wrap: wrap;
+    .item {
+        margin-right: 16px;
+        margin-bottom: 16px;
+        border: 1px solid #000;
+        padding: 16px;
+    }
+    .name {
+        font-size: 32px;
+    }
+    .img {
+        max-width: 240px;
+        border: 1px solid var(--border-color);
+        // border: 1px solid #000;
+    }
+}
