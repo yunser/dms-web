@@ -40,6 +40,7 @@ import { SqlList } from '../sql-list'
 import { suggestionAdd } from '../suggestion'
 import { MySqlInfo } from '../mysql-info'
 import { SqlQuickPanel } from '../sql-quick/sql-quick'
+import { TableViewer } from '../table-view/table-view'
 
 // console.log('ddd.0')
 // _.debounce(() => {
@@ -636,6 +637,16 @@ export function DataBaseDetail({ databaseType = 'mysql', connectionId, event$, c
                                 }
                                 {item.type == 'tableDetail' &&
                                     <TableDetail
+                                        databaseType={databaseType}
+                                        config={config}
+                                        connectionId={connectionId}
+                                        event$={event$}
+                                        dbName={item.data?.dbName}
+                                        tableName={item.data?.tableName}
+                                    />
+                                }
+                                {item.type == 'tableView' &&
+                                    <TableViewer
                                         databaseType={databaseType}
                                         config={config}
                                         connectionId={connectionId}

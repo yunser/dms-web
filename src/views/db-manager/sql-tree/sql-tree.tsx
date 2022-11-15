@@ -147,6 +147,10 @@ function TreeTitle({ keyword, loading = false, nodeData, onAction, onClick, onDo
                                     key: 'view_struct',
                                 },
                                 {
+                                    label: t('view_table'),
+                                    key: 'view_table',
+                                },
+                                {
                                     label: t('export_struct'),
                                     key: 'export_struct',
                                 },
@@ -617,6 +621,22 @@ LIMIT 1000;`
             },
         })
     }
+
+    function viewTable(nodeData) {
+        const tableName = nodeData.itemData.$_table_name
+        const schemaName = nodeData.itemData.$table_schema
+        const dbName = schemaName
+        let tabKey = '' + new Date().getTime()
+        onTab && onTab({
+            title: `${tableName}@${dbName} - Table`,
+            key: tabKey,
+            type: 'tableView',
+            data: {
+                dbName,
+                tableName,
+            },
+        })
+    }
     
     event$.useSubscription(msg => {
         console.log('Status/onmessage', msg)
@@ -929,6 +949,9 @@ LIMIT 1000;`
                                     onAction={(key) => {
                                         if (key == 'view_struct') {
                                             queryTableStruct(nodeData)
+                                        }
+                                        else if (key == 'view_table') {
+                                            viewTable(nodeData)
                                         }
                                         else if (key == 'refresh_table') {
                                             // queryTable(nodeData)
