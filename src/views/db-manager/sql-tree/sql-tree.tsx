@@ -13,6 +13,18 @@ import { request } from '../utils/http';
 import { i18n } from '@/i18n';
 import { FullCenterBox } from '../redis-client';
 
+function getTableKey(tableName: string) {
+    return `table-${tableName}`
+}
+
+function getSchemaKey(schemaName: string) {
+    return `schema-${schemaName}`
+}
+
+function getMsSchemaKey(schemaName: string) {
+    return `ms_schema-${schemaName}`
+}
+
 function getHightlight(title: string, keyword: string) {
     const index = title.toLocaleLowerCase().indexOf(keyword.toLowerCase())
     if (index == -1) {
@@ -304,28 +316,15 @@ export function SqlTree({ databaseType, config, event$, connectionId, onTab, dat
             connectionId,
             dbName: dbName,
         })
-        console.log('res', res)
         if (res.success) {
-            // message.info('连接成功')
             const list = res.data
-            // console.log('res', list)
-            // setList(res.list)
-
-            // if (!list) {
-                
-            // }
-
-            console.log('treeData', treeData)
-            
             const dbIdx = treeData.findIndex(node => node.itemData.$_name == dbName)
-            // return
-
             const children = list
                 .map(item => {
                     const schemaName = item.$_schema_name
                     return {
                         title: schemaName,
-                        key: schemaName,
+                        key: getMsSchemaKey(schemaName),
                         itemData: item,
                         type: 'schema2',
                     }
@@ -406,28 +405,16 @@ export function SqlTree({ databaseType, config, event$, connectionId, onTab, dat
             connectionId,
             dbName: schemaName,
         })
-        console.log('res', res)
         if (res.success) {
-            // message.info('连接成功')
             const list = res.data
-            // console.log('res', list)
-            // setList(res.list)
-
-            // if (!list) {
-                
-            // }
-
-            console.log('treeData', treeData)
-            
+            // const parentKeyFun
             const dbIdx = treeData.findIndex(node => node.itemData.$_name == schemaName)
-            // return
-
             const children = list
                 .map(item => {
                     const tableName = item.$_table_name
                     return {
                         title: tableName,
-                        key: tableName,
+                        key: getTableKey(tableName),
                         itemData: item,
                         type: 'table',
                     }
@@ -473,7 +460,7 @@ export function SqlTree({ databaseType, config, event$, connectionId, onTab, dat
             setTreeData(dbs.map(item => {
                 return {
                     title: item.$_name,
-                    key: item.$_name,
+                    key: getSchemaKey(item.$_name),
                     type: 'schema',
                     children: [],
                     // data: 
@@ -650,11 +637,11 @@ LIMIT 1000;`
     })
 
     function refreshSchemaTables(schemaName) {
-        const idx = treeData.findIndex(node => node.key == schemaName)
+        const idx = treeData.findIndex(node => node.key == getSchemaKey(schemaName))
         console.log('idx', idx)
         treeData[idx].loading = true
         setTreeData([...treeData])
-        setSelectedKeys([schemaName])
+        setSelectedKeys([getSchemaKey(schemaName)])
         loadTables(schemaName)
         if (databaseType == 'postgresql') {
             // TODO
@@ -667,42 +654,44 @@ LIMIT 1000;`
         }
     }
 
+    // for mssql
     function refreshSchemas(nodeData) {
         const dbName = nodeData.itemData.$_name
-        const idx = treeData.findIndex(node => node.key == dbName)
+        const idx = treeData.findIndex(node => node.key == getSchemaKey(dbName))
+        console.log('treeData', treeData)
         console.log('idx', idx)
         treeData[idx].loading = true
         setTreeData([...treeData])
-        setSelectedKeys([dbName])
+        setSelectedKeys([getSchemaKey(dbName)])
         loadSchemas(dbName)
     }
 
     async function refreshMssqlTables(nodeData) {
         console.log('refreshMssqlTables', nodeData)
         const { $_schema_db, $_schema_name } = nodeData.itemData
-        const idx = treeData.findIndex(node => node.key == $_schema_db)
+        const idx = treeData.findIndex(node => node.key == getSchemaKey($_schema_db))
         console.log('idx', idx)
         if (idx != -1) {
-            const idx2 = treeData[idx].children.findIndex(node => node.key == $_schema_name)
+            const idx2 = treeData[idx].children.findIndex(node => node.key == getMsSchemaKey($_schema_name))
             console.log('idx2', idx2)
             if (idx2 != -1) {
                 treeData[idx].children[idx2].loading = true
                 setTreeData([...treeData])
-                setSelectedKeys([$_schema_name])
+                setSelectedKeys([getMsSchemaKey($_schema_name)])
                 const childrenData = await loadTables2($_schema_db, $_schema_name)
                 const children = childrenData.map(item => {
                     const tableName = item.$_table_name
                     return {
                         title: tableName,
-                        key: tableName,
+                        key: getTableKey(tableName),
                         itemData: item,
                         type: 'table',
                     }
                 })
                 treeData[idx].children[idx2].children = children
                 treeData[idx].children[idx2].loading = false
-                setSelectedKeys([$_schema_name])
-                setExpandedKeys([...expandedKeys, $_schema_name])
+                setSelectedKeys([getMsSchemaKey($_schema_name)])
+                setExpandedKeys([...expandedKeys, getMsSchemaKey($_schema_name)])
                 setTreeData([...treeData])
                 // loadTables(schemaName)
                 // if (databaseType == 'postgresql') {

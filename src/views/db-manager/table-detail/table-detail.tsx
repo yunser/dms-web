@@ -1252,10 +1252,10 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
             label: t('indexes'),
             key: 'index',
         },
-        {
-            label: t('doc'),
-            key: 'doc',
-        }
+        // {
+        //     label: t('doc'),
+        //     key: 'doc',
+        // }
     ]
     if (editType == 'update') {
         // tabs.push({
