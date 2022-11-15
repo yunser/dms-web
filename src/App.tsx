@@ -40,6 +40,7 @@ import { ServiceHome } from './views/service/service-home'
 import { SwaggerHome } from './views/swagger/swagger-home'
 import { SwaggerDetail } from './views/swagger/swagger-detail'
 import { ProductionHome } from './views/production/production-home'
+import { SqlLab } from './views/db-manager/sql-lab'
 
 function GitPage() {
     return (
@@ -131,6 +132,7 @@ export default function App() {
                     <Route path="/swagger" element={<FullApp><SwaggerHome /></FullApp>} />
                     <Route path="/swagger/detail" element={<FullApp><SwaggerDetailPage /></FullApp>} />
                     <Route path="/weapp" element={<FullApp><WeappPage /></FullApp>} />
+                    <Route path="/sql" element={<FullApp><SqlLab /></FullApp>} />
                 </Routes>
             </div>
         </Router>
