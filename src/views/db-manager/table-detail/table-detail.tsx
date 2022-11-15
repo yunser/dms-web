@@ -1251,6 +1251,10 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
         {
             label: t('indexes'),
             key: 'index',
+        },
+        {
+            label: t('doc'),
+            key: 'doc',
         }
     ]
     if (editType == 'update') {
@@ -1259,18 +1263,18 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
         //     key: 'index',
         // })
         console.log('databaseType', databaseType, functionMap[databaseType])
-        // if (functionMap[databaseType].partition) {
-        //     tabs.push({
-        //         label: t('partition'),
-        //         key: 'partition',
-        //     })
-        // }
-        // if (functionMap[databaseType].trigger) {
-        //     tabs.push({
-        //         label: t('triggers'),
-        //         key: 'trigger',
-        //     })
-        // }
+        if (functionMap[databaseType].partition) {
+            tabs.push({
+                label: t('partition'),
+                key: 'partition',
+            })
+        }
+        if (functionMap[databaseType].trigger) {
+            tabs.push({
+                label: t('triggers'),
+                key: 'trigger',
+            })
+        }
     }
     
 
