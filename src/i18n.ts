@@ -358,6 +358,7 @@ i18n
                     'mongo.collections': 'Collections',
                     'mongo.documents': 'Documents',
                     'mongo.indexes': 'Indexes',
+                    'close_tab': 'Close Tab',
                 }
             },
             zh: {
@@ -709,6 +710,7 @@ i18n
                     'mongo.collections': '集合',
                     'mongo.documents': '文档',
                     'mongo.indexes': '索引',
+                    'close_tab': '关闭标签页',
                 }
             }
         },

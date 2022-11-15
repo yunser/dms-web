@@ -258,9 +258,26 @@ export function DbManager({ config }) {
         }
     })
 
-    function closeTabByKey(key) {
-        console.log('closeTabByKey', key)
-        setTabs(tabs.filter(item => item.key != key))
+    function closeTabByKey(targetKey) {
+        // console.log('closeTabByKey', key)
+        // setTabs(tabs.filter(item => item.key != key))
+        for (let i = 0; i < tabs.length; i++) {
+            if (tabs[i].key === targetKey) {
+                tabs.splice(i, 1)
+                break
+            }
+        }
+        if (tabs.length == 0) {
+            tabs.push(tab_workbench)
+        }
+        setTabs([
+            ...tabs,
+        ])
+        setActiveKey(tabs[tabs.length - 1].key)
+    }
+
+    function closeCurrentTab() {
+        closeTabByKey(activeKey)
     }
 
     function addOrActiveTab(tab, { closeCurrentTab = false,} = {}) {
@@ -490,6 +507,10 @@ export function DbManager({ config }) {
                 },
             })
         }
+        else if (key == 'close_tab') {
+            closeCurrentTab()
+        }
+        
     }
 
     function showTextTab() {
@@ -627,22 +648,7 @@ export function DbManager({ config }) {
             // })
         }
         else if (action === 'remove') {
-            for (let i = 0; i < tabs.length; i++) {
-                if (tabs[i].key === targetKey) {
-                    tabs.splice(i, 1)
-                    break
-                }
-            }
-            if (tabs.length == 0) {
-                tabs.push(tab_workbench)
-            }
-            setTabs([
-                ...tabs,
-            ])
-            setActiveKey(tabs[tabs.length - 1].key)
-            // _this.setState({
-            //     tabs
-            // })
+            closeTabByKey(targetKey)
         }
     }
 
@@ -909,7 +915,6 @@ export function DbManager({ config }) {
                                             config={config}
                                             onConnnect={({ connectionId, name, defaultDatabase }) => {
                                                 console.log('onConnnect', connectionId)
-                                                // closeTabByKey(item.key)
                                                 addOrActiveTab({
                                                     // title: 'Redis',
                                                     title: `${name} - Redis`,
@@ -1094,7 +1099,6 @@ export function DbManager({ config }) {
                                             event$={event$}
                                             onConnnect={({ connectionId, name }) => {
                                                 console.log('onConnnect', connectionId)
-                                                // closeTabByKey(item.key)
                                                 addOrActiveTab({
                                                     // title: 'Redis',
                                                     title: `${name}`,
@@ -1148,6 +1152,10 @@ export function DbManager({ config }) {
                         {
                             name: t('about'),
                             command: 'about',
+                        },
+                        {
+                            name: t('close_tab'),
+                            command: 'close_tab',
                         },
                         // {
                         //     name: 'JSON',
