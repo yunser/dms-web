@@ -1239,6 +1239,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                 {
                                                                     label: t('delete'),
                                                                     key: 'delete_file',
+                                                                    danger: true,
                                                                 },
                                                                 {
                                                                     label: t('clear'),
