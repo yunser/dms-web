@@ -432,7 +432,7 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
     const [curTab, setCurTab] = useState('basic')
     const [form] = Form.useForm()
     const [nginxs, setNginxs] = useState([])
-
+    const [selectedRowKeys, setSelectedRowKeys] = useState([])
     const [characterSets, setCharacterSets] = useState([])
     const [characterSetMap, setCharacterSetMap] = useState({})
     const characterSet = Form.useWatch('characterSet', form)
@@ -759,6 +759,34 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
         setExecSql(sql)
     }
 
+    function truncatePartition(items) {
+        console.log('items', items)
+        const sql = items.map(item => {
+            return `ALTER TABLE \`${item.TABLE_SCHEMA}\`.\`${item.TABLE_NAME}\` TRUNCATE PARTITION ${item.PARTITION_NAME};`
+        }).join('\n')
+        event$.emit({
+            type: 'event_open_sql',
+            data: {
+                connectionId,
+                sql,
+            }
+        })
+    }
+
+    function dropPartition(items) {
+        console.log('items', items)
+        const sql = items.map(item => {
+            return `ALTER TABLE \`${item.TABLE_SCHEMA}\`.\`${item.TABLE_NAME}\` DROP PARTITION ${item.PARTITION_NAME};`
+        }).join('\n')
+        event$.emit({
+            type: 'event_open_sql',
+            data: {
+                connectionId,
+                sql,
+            }
+        })
+    }
+
     // async function submitChange() {
     //     let sql = `ALTER TABLE \`${tableName}\``
         
@@ -842,26 +870,14 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
                             type="link"
                             size="small"
                             onClick={() => {
-                                event$.emit({
-                                    type: 'event_open_sql',
-                                    data: {
-                                        connectionId,
-                                        sql: `ALTER TABLE \`${item.TABLE_SCHEMA}\`.\`${item.TABLE_NAME}\` TRUNCATE PARTITION ${item.PARTITION_NAME}`,
-                                    }
-                                })
+                                truncatePartition([item])
                             }}
                         >{t('truncate')}</Button>
                         <Button
                             type="link"
                             size="small"
                             onClick={() => {
-                                event$.emit({
-                                    type: 'event_open_sql',
-                                    data: {
-                                        connectionId,
-                                        sql: `ALTER TABLE \`${item.TABLE_SCHEMA}\`.\`${item.TABLE_NAME}\` DROP PARTITION ${item.PARTITION_NAME}`,
-                                    }
-                                })
+                                dropPartition([item])
                             }}
                         >{t('drop')}</Button>
                     </Space>
@@ -1113,6 +1129,7 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
         
         setRemovedRows([])
         setRemovedIndexes([])
+        setSelectedRowKeys([])
         if (dbName && tableName) {
             setLoading(true)
             let res = await request.post(`${config.host}/mysql/tableDetail`, {
@@ -1594,13 +1611,45 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
                                         }
                                         {item.key == 'partition' &&
                                             <div>
+                                                {selectedRowKeys.length > 0 &&
+                                                    <div className={styles.tool}>
+                                                        <Space>
+                                                            <Button
+                                                                size="small"
+                                                                onClick={() => {
+                                                                    truncatePartition(selectedRowKeys.map(name => {
+                                                                        return partitions.find(item => item.PARTITION_NAME == name)
+                                                                    }))
+                                                                }}
+                                                            >
+                                                                {t('truncate')}
+                                                            </Button>
+                                                            <Button
+                                                                size="small"
+                                                                onClick={() => {
+                                                                    dropPartition(selectedRowKeys.map(name => {
+                                                                        return partitions.find(item => item.PARTITION_NAME == name)
+                                                                    }))
+                                                                }}
+                                                            >
+                                                                {t('drop')}
+                                                            </Button>
+                                                        </Space>
+                                                    </div>
+                                                }
                                                 <Table
                                                     columns={partitionColumns}
                                                     dataSource={partitions}
                                                     bordered
                                                     pagination={false}
+                                                    rowSelection={{
+                                                        selectedRowKeys,
+                                                        onChange(selectedRowKeys, selectedRows, info) {
+                                                            setSelectedRowKeys(selectedRowKeys)
+                                                        },
+                                                    }}
                                                     size="small"
-                                                    rowKey="__id"
+                                                    rowKey="PARTITION_NAME"
                                                     scroll={{
                                                         // x: 2400,
                                                     }}
