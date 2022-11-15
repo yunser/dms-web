@@ -737,7 +737,7 @@ export function ZipList({ config, event$, path, tabKey, item, showSide = false }
                                                             type: 'divider',
                                                         },
                                                         {
-                                                            label: t('file.copy_name'),
+                                                            label: t('copy_name'),
                                                             key: 'copy_name',
                                                         },
                                                         {

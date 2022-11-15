@@ -1249,7 +1249,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                     type: 'divider',
                                                                 },
                                                                 {
-                                                                    label: t('file.copy_name'),
+                                                                    label: t('copy_name'),
                                                                     key: 'copy_name',
                                                                 },
                                                                 {

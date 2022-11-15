@@ -12,6 +12,7 @@ import { getTableFieldMap, setAllFields, setTabbleAllFields, suggestionAdd, sugg
 import { request } from '../utils/http';
 import { i18n } from '@/i18n';
 import { FullCenterBox } from '../redis-client';
+import copy from 'copy-to-clipboard';
 
 function getTableKey(tableName: string) {
     return `table-${tableName}`
@@ -173,6 +174,7 @@ function TreeTitle({ keyword, loading = false, nodeData, onAction, onClick, onDo
                                 {
                                     label: t('table_drop'),
                                     key: 'drop',
+                                    danger: true,
                                 },
                                 {
                                     type: 'divider',
@@ -180,6 +182,10 @@ function TreeTitle({ keyword, loading = false, nodeData, onAction, onClick, onDo
                                 {
                                     label: t('count_all'),
                                     key: 'count_all',
+                                },
+                                {
+                                    label: t('copy_name'),
+                                    key: 'copy_name',
                                 },
                             ]
                         }
@@ -961,6 +967,11 @@ LIMIT 1000;`
                                         }
                                         else if (key == 'count_all') {
                                             countAll(nodeData)
+                                        }
+                                        else if (key == 'copy_name') {
+                                            console.log('nodeData', nodeData)
+                                            copy(nodeData.itemData.$_table_name)
+                                            message.info(t('copied'))
                                         }
                                         else if (key == 'table_list') {
                                             event$.emit({
