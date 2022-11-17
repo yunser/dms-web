@@ -16,6 +16,7 @@ import { useEventEmitter } from 'ahooks';
 import ReactJson from 'react-json-view'
 // const JSON5 = require('json5')
 import JSON5 from 'json5'
+import copy from 'copy-to-clipboard';
 
 function SelectionInfo({ event$ }) {
 
@@ -142,6 +143,16 @@ export function JsonEditor({ key, event$, data = {} }) {
                                 }}
                             >
                                 {t('json.json5_to_json')}
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    const code = getCode()
+                                    copy(code)
+                                    message.info(t('copied'))
+                                }}
+                            >
+                                {t('copy')}
                             </Button>
                             {/* <Button
                                 size="small"
