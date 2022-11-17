@@ -1,0 +1,62 @@
+.gitApp {
+    height: 100%;
+    // border: 1px solid #f00;
+}
+
+
+.listBox {
+    height: 100%;
+    // border: 1px solid #f00;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .listContent {
+        width: 640px;
+        height: 100%;
+        // border: 1px solid #f00;
+        display: flex;
+        flex-direction: column;
+        padding-bottom: 16px;
+    }
+}
+
+.tool {
+    flex: 0 0 auto;
+    margin-top: 16px;
+    margin-bottom: 16px;
+}
+.listWrap {
+    flex: 1 0 auto;
+    height: 0;
+    margin-top: 16px;
+    overflow: auto;
+    // border: 1px solid #f00;
+}
+.list {
+    // padding: 16px;
+    border: 1px solid var(--border-color);
+    // border: 1px solid #f00;
+    border-radius: 4px;
+    .item {
+        height: 48px;
+        padding: 0 16px;
+        // cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--border-color);
+        &:last-child {
+            border-bottom: none;
+        }
+        &:hover {
+            background-color: var(--color-f9);
+        }
+    }
+    .name {
+        font-size: 14px;
+    }
+    .info {
+        color: var(--color-text-3);
+        margin-left: 16px;
+    }
+}

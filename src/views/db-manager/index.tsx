@@ -43,6 +43,8 @@ import { ModelHome } from '../model/model-home'
 import { MongoHome } from '../mongo/mongo-home'
 import { MongoClient } from '../mongo/mongo-client'
 import { GitProject } from '../git/git-project'
+import { LoggerHome } from '../logger/logger-home'
+import { LoggerDetail } from '../logger/logger-detail'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -507,6 +509,16 @@ export function DbManager({ config }) {
                 },
             })
         }
+        else if (key == 'logger') {
+            addOrActiveTab({
+                title: t('logger'),
+                key: `logger-0`,
+                type: 'logger-home',
+                data: {
+                    // url,
+                },
+            })
+        }
         else if (key == 'close_tab') {
             closeCurrentTab()
         }
@@ -603,6 +615,10 @@ export function DbManager({ config }) {
         {
             label: t('project'),
             key: 'project',
+        },
+        {
+            label: t('logger'),
+            key: 'logger',
         },
         {
             label: t('model'),
@@ -1088,6 +1104,32 @@ export function DbManager({ config }) {
                                             config={config}
                                             // local={true}
                                             // defaultPath={item.data.path}
+                                        />
+                                    }
+                                    {item.type == 'logger-home' &&
+                                        <LoggerHome
+                                            config={config}
+                                            onItem={item => {
+                                                addOrActiveTab({
+                                                    // title: 'Redis',
+                                                    title: `${item.name}`,
+                                                    key: 'logger-detail-' + uid(16),
+                                                    type: 'logger-detail',
+                                                    data: {
+                                                        item,
+                                                    },
+                                                }, {
+                                                    // closeCurrentTab: true,
+                                                })
+                                            }}
+                                            // local={true}
+                                            // defaultPath={item.data.path}
+                                        />
+                                    }
+                                    {item.type == 'logger-detail' &&
+                                        <LoggerDetail
+                                            config={config}
+                                            item={item.data.item}
                                         />
                                     }
                                     {item.type == 'model' &&

@@ -13,7 +13,7 @@ import Item from 'antd/lib/list/Item';
 import moment from 'moment';
 import { request } from '@/views/db-manager/utils/http';
 
-export function LoggerDetail({ event, connectionId, onConnnect, }) {
+export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect, }) {
 
     const config = {
         host: 'http://localhost:7003',
@@ -45,9 +45,10 @@ export function LoggerDetail({ event, connectionId, onConnnect, }) {
 //     "password": ""
 // }`)
 
+    console.log('detailItem', detailItem)
     async function loadList() {
         setLoading(true)
-        let res = await request.post(`${config.host}/sls/list`, {
+        let res = await request.post(detailItem.url, {
             // connectionId,
             // dbName,
             keyword: searchKeyword,
@@ -118,6 +119,11 @@ export function LoggerDetail({ event, connectionId, onConnnect, }) {
                         title: t('content'),
                         dataIndex: 'content',
                         width: 640,
+                        render(value) {
+                            return (
+                                <div className={styles.content}>{value}</div>
+                            )
+                        }
                     },
                     {
                         title: '',
