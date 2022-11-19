@@ -167,7 +167,7 @@ export function LoggerHome({ config, onItem, event$ }) {
                                 >
                                     <ReloadOutlined />
                                 </IconButton>
-                                <IconButton
+                                {/* <IconButton
                                     tooltip={t('add')}
                                     // className={styles.refresh}
                                     onClick={() => {
@@ -176,17 +176,15 @@ export function LoggerHome({ config, onItem, event$ }) {
                                     }}
                                 >
                                     <PlusOutlined />
-                                </IconButton>
-                                <IconButton
+                                </IconButton> */}
+                                {/* <IconButton
                                     tooltip={t('export_json')}
-                                    // size="small"
-                                    // className={styles.refresh}
                                     onClick={() => {
                                         exportAll()
                                     }}
                                 >
                                     <ExportOutlined />
-                                </IconButton>
+                                </IconButton> */}
                             </Space>
                         </div>
                         <div>
@@ -225,7 +223,7 @@ export function LoggerHome({ config, onItem, event$ }) {
                                             >
                                                 <Space>
                                                     <div className={styles.name}>{item.name}</div>
-                                                    <div className={styles.info}>{item.username}@{item.host}</div>
+                                                    {/* <div className={styles.info}>{item.username}@{item.host}</div> */}
                                                 </Space>
                                                 <Space
                                                     onClick={(e) => {

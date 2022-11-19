@@ -1,4 +1,4 @@
-import { Button, Checkbox, Col, Descriptions, Empty, Form, Input, InputNumber, message, Modal, Popover, Row, Space, Table, Tabs } from 'antd';
+import { Button, Checkbox, Col, Descriptions, Empty, Form, Input, InputNumber, message, Modal, Pagination, Popover, Row, Select, Space, Table, Tabs } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import styles from './logger-detail.module.less';
 import _ from 'lodash';
@@ -178,7 +178,11 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
 
     const { t } = useTranslation()
     const [list, setList] = useState([])
+    const pageSize = 20
+    const [type, setType] = useState('')
+    const [total, setTotal] = useState(0)
     const [page, setPage] = useState(1)
+    const [query, setQuery] = useState('')
     const [loading, setLoading] = useState(false)
     const [keyword, setKeyword] = useState('')
     const [searchKeyword, setSearchKeyword] = useState('')
@@ -206,17 +210,25 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
             startTime,
             endTime,
             ts,
+            page,
+            pageSize,
+            queryTotal: page == 1,
+            type,
         })
         if (res.success) {
-            const { list } = res.data
+            const { list, total, query } = res.data
             setList(list)
+            if (total != null) {
+                setTotal(total)
+            }
+            setQuery(query)
         }
         setLoading(false)
     }
 
     useEffect(() => {
         loadList()
-    }, [page, time, searchKeyword, ts])
+    }, [page, time, type, searchKeyword, ts])
 
     return (
         <div className={styles.infoBox}>
@@ -229,7 +241,31 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
                             setTime(time)
                         }}
                     />
-                    
+                    <Select
+                        // size="small"
+                        className={styles.type}
+                        value={type}
+                        allowClear={type != ''}
+                        onChange={type => {
+                            console.log('type', type)
+                            // type == undefined when clear
+                            setType(type || '')
+                        }}
+                        options={[
+                            {
+                                label: 'All',
+                                value: '',
+                            },
+                            {
+                                label: 'Error',
+                                value: 'error',
+                            },
+                            // {
+                            //     label: 'Info',
+                            //     value: 'info',
+                            // },
+                        ]}
+                    />
                     <Input.Search
                         className={styles.search}
                         value={keyword}
@@ -253,28 +289,50 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
                     </Button> */}
                 </Space>
             </div>
+            <div className={styles.pageBox}>
+                <Pagination
+                    total={total}
+                    current={page}
+                    pageSize={pageSize}
+                    showSizeChanger={false}
+                    showTotal={total => `共 ${total} 条记录`}
+                    onChange={(current) => {
+                        setPage(current)
+                    }}
+                    // size="small"
+                />
+                <div className={styles.query}>{query}</div>
+            </div>
             <div className={styles.body}>
-
+                {/* <div className={styles.logList}></div> */}
                 <Table
                     loading={loading}
                     dataSource={list}
                     bordered
                     size="small"
                     pagination={false}
-                    // pagination={{
-                    //     total,
-                    //     current: page,
-                    //     pageSize,
-                    //     showSizeChanger: false,
-                    // }}
                     columns={[
+                        {
+                            title: '',
+                            dataIndex: '_source_',
+                            width: 24,
+                            render(value) {
+                                return (
+                                    <div className={styles.fullCell}>
+                                        <div className={classNames(styles.dot, value == 'stderr' ? styles.error : styles.out)}></div>
+                                    </div>
+                                )
+                            }
+                        },
                         {
                             title: t('time'),
                             dataIndex: 'time',
-                            width: 320,
+                            width: 170,
                             render(value) {
                                 return (
-                                    <div>{moment(value).format('YYYY-MM-DD HH:mm:ss')}</div>
+                                    <div className={styles.fullCell}>
+                                        <div className={styles.timeValue}>{moment(value).format('YYYY-MM-DD HH:mm:ss')}</div>
+                                    </div>
                                 )
                             }
                         },
@@ -283,8 +341,28 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
                             dataIndex: 'content',
                             // width: 640,
                             render(value) {
+                                let _value = value
+                                let traceId = ''
+                                if (_value.startsWith('track_')) {
+                                    _value = value.substring(15)
+                                    traceId = value.substring(0, 15)
+                                }
                                 return (
-                                    <div className={styles.content}>{value}</div>
+                                    <div className={styles.content}
+                                        style={{
+                                            maxWidth: document.body.clientWidth - 240
+                                        }}
+                                    >
+                                        {!!traceId &&
+                                            <span className={styles.traceId}
+                                                onClick={() => {
+                                                    setKeyword(traceId)
+                                                    setSearchKeyword(traceId)
+                                                }}
+                                            >{traceId}</span>
+                                        }
+                                        <span>{_value}</span>
+                                    </div>
                                 )
                             }
                         },
@@ -293,11 +371,10 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
                         //     dataIndex: '_empty',
                         // },
                     ]}
-                    onChange={({ current }) => {
-                        setPage(current)
-                    }}
                 />
+                
             </div>
+            <div></div>
         </div>
     )
 }
