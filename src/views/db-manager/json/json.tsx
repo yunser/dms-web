@@ -50,12 +50,65 @@ function SelectionInfo({ event$ }) {
     )
 }
 
+function JsonTable({ jsonObj }) {
+
+    if (!Array.isArray(jsonObj)) {
+        return 'not array'
+    }
+    if (!jsonObj.length) {
+        return 'array empty'
+    }
+
+    const columns = useMemo(() => {
+        let columns = []
+
+        const names = Object.keys(jsonObj[0])
+        for (let name of names) {
+            columns.push(({
+                title: name,
+                dataIndex: name,
+                render(value) {
+                    if (value == null) {
+                        return <div className={styles.null}>null</div>
+                    }
+                    if (typeof value == 'string') {
+                        return <div className={styles.string}>{value}</div>
+                    }
+                    if (typeof value == 'number') {
+                        return <div className={styles.number}>{value}</div>
+                    }
+                    if (typeof value == 'object') {
+                        return <div>{JSON.stringify(value)}</div>
+                    }
+                    return <div>{value}</div>
+                }
+            }))
+        }
+
+        return columns
+    }, [jsonObj])
+
+    return (
+        <div>
+            <Table
+                dataSource={jsonObj}
+                columns={columns}
+                pagination={false}
+                size="small"
+                bordered
+            />
+        </div>
+    )
+}
+
 // function Json
 export function JsonEditor({ key, event$, data = {} }) {
     console.warn('JsonEditor/render', data)
     const { defaultJson = '' } = data
     const { t } = useTranslation()
 
+    const [tab, setTab] = useState('viewer')
+    // const [tab, setTab] = useState('table')
     const [code] = useState(defaultJson)
     // const [code2, setCode2] = useState('')
     const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
@@ -154,6 +207,25 @@ export function JsonEditor({ key, event$, data = {} }) {
                             >
                                 {t('copy')}
                             </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    const example = [
+                                        {
+                                            name: 'Alice',
+                                            age: 16,
+                                        },
+                                        {
+                                            name: 'Bob',
+                                            age: 18,
+                                        },
+                                    ]
+                                    const json = JSON.stringify(example, null, 4)
+                                    editor?.setValue(json)
+                                }}
+                            >
+                                {t('example')}
+                            </Button>
                             {/* <Button
                                 size="small"
                                 onClick={() => {
@@ -196,12 +268,40 @@ export function JsonEditor({ key, event$, data = {} }) {
                     </div>
                 </div>
                 <div className={styles.layoutRight}>
-                    {!!jsonObj &&
-                        <ReactJson 
-                            src={jsonObj}
-                            displayDataTypes={false}
+                    <div className={styles.header}>
+                        <Tabs
+                            activeKey={tab}
+                            onChange={key => {
+                                setTab(key)
+                            }}
+                            size="small"
+                            items={[
+                                {
+                                    label: t('viewer'),
+                                    key: 'viewer',
+                                },
+                                {
+                                    label: t('table'),
+                                    key: 'table',
+                                },
+                            ]}
                         />
-                    }
+                    </div>
+                    <div className={styles.body}>
+                        {tab == 'viewer' && !!jsonObj &&
+                            <ReactJson 
+                                src={jsonObj}
+                                displayDataTypes={false}
+                            />
+                        }
+                        {tab == 'table' && !!jsonObj &&
+                            <div>
+                                <JsonTable
+                                    jsonObj={jsonObj}
+                                />
+                            </div>
+                        }
+                    </div>
                 </div>
             </div>
             <div className={styles.footer}>

@@ -359,6 +359,8 @@ i18n
                     'mongo.documents': 'Documents',
                     'mongo.indexes': 'Indexes',
                     'close_tab': 'Close Tab',
+                    'example': 'Example',
+                    'viewer': 'Viewer',
                 }
             },
             zh: {
@@ -711,6 +713,8 @@ i18n
                     'mongo.documents': '文档',
                     'mongo.indexes': '索引',
                     'close_tab': '关闭标签页',
+                    'example': '示例',
+                    'viewer': '查看器',
                 }
             }
         },
