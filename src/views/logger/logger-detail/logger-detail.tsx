@@ -1,4 +1,4 @@
-import { Button, Checkbox, Col, Descriptions, Empty, Form, Input, InputNumber, message, Modal, Pagination, Popover, Row, Select, Space, Table, Tabs } from 'antd';
+import { Button, Checkbox, Col, Descriptions, Drawer, Empty, Form, Input, InputNumber, message, Modal, Pagination, Popover, Row, Select, Space, Table, Tabs } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import styles from './logger-detail.module.less';
 import _ from 'lodash';
@@ -12,6 +12,17 @@ import { uid } from 'uid';
 import Item from 'antd/lib/list/Item';
 import moment from 'moment';
 import { request } from '@/views/db-manager/utils/http';
+
+const quickQueries = [
+    {
+        label: '__req',
+        value: '__req',
+    },
+    {
+        label: 'event_alarm_998832937149672657',
+        value: 'event_alarm_998832937149672657',
+    },
+]
 
 function TimeSelector({ value, onChange }) {
     
@@ -187,6 +198,8 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
     const [keyword, setKeyword] = useState('')
     const [searchKeyword, setSearchKeyword] = useState('')
     const [ts, setTs] = useState('1')
+    const [detail, setDetail] = useState(null)
+    const [detailVisible, setDetailVisible] = useState(false)
 
     async function loadList() {
         setLoading(true)
@@ -230,6 +243,14 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
         loadList()
     }, [page, time, type, searchKeyword, ts])
 
+    function quickSelect(value) {
+        const fItem = quickQueries.find(item => item.value == value)
+        if (fItem) {
+            setKeyword(fItem.value)
+            setSearchKeyword(fItem.value)
+        }
+    }
+    
     return (
         <div className={styles.infoBox}>
             <div className={styles.header}
@@ -277,6 +298,14 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
                         onSearch={kw => {
                             setSearchKeyword(kw)
                             setTs('' + new Date().getTime())
+                        }}
+                    />
+                    <Select
+                        value={''}
+                        className={styles.quickSelect}
+                        options={quickQueries}
+                        onChange={value => {
+                            quickSelect(value)
                         }}
                     />
                     {/* <Button
@@ -340,7 +369,7 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
                             title: t('content'),
                             dataIndex: 'content',
                             // width: 640,
-                            render(value) {
+                            render(value, item) {
                                 let _value = value
                                 let traceId = ''
                                 if (_value.startsWith('track_')) {
@@ -361,7 +390,15 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
                                                 }}
                                             >{traceId}</span>
                                         }
-                                        <span>{_value}</span>
+                                        <span
+                                        >{_value}</span>
+                                        <span
+                                            className={styles.view}
+                                            onClick={() => {
+                                                setDetail(item)
+                                                setDetailVisible(true)
+                                            }}
+                                        >查看</span>
                                     </div>
                                 )
                             }
@@ -375,6 +412,17 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
                 
             </div>
             <div></div>
+            {detailVisible &&
+                <Drawer
+                    open={true}
+                    title="详情"
+                    onClose={() => {
+                        setDetailVisible(false)
+                    }}
+                >
+                    {detail.content}
+                </Drawer>
+            }
         </div>
     )
 }
