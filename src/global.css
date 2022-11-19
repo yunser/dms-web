@@ -2,7 +2,7 @@
     --primary-color: #1628d4;
     --main-color: #09c;
     --primary: #f00;
-    
+    --list-active-bg: #2466d8;
 }
 .theme-light {
     --border-color: rgba(0, 0, 0, .12);
@@ -17,6 +17,7 @@
     --color-table-hover: #bee6ff;
     --color-table-selected: #bbd8f7;
     /* --color-bg-left: #f00; */
+    
 
     --color-bg-left2: #fff;
     --color-text-3: rgba(0, 0, 0, .45);

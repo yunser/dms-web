@@ -1,3 +1,64 @@
+.layout {
+    display: flex;
+    height: 100%;
+    & > {
+        .left {
+            width: 240px;
+            padding: 16px;
+            border-right: 1px solid var(--border-color);
+        }
+        .right {
+            flex: 1 0 auto;
+            // border: 1px solid #000;
+            overflow: auto;
+        }
+    }
+}
 .article {
     padding: 16px;
+    h1 {
+        font-size: 32px;
+        border-bottom: 1px solid var(--border-color);
+    }
+    h2 {
+        margin-top: 12px;
+        font-size: 24px;
+    }
+    h3 {
+        font-size: 20px;
+    }
+    ul {
+        padding-left: 16px;
+    }
+    ul li {
+        list-style: disc;
+    }
+    table {
+        border-collapse: collapse;
+        th,
+        td {
+            padding: 8px;
+            border: 1px solid #000;
+        }
+    }
+}
+.files {
+    .item {
+        height: 40px;
+        border: 1px solid var(--border-color);
+        padding: 0 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        margin-bottom: 8px;
+        &:hover {
+            background-color: var(--color-f9);
+        }
+        &.active {
+            color: #fff;
+            background-color: var(--list-active-bg);
+        }
+    }
 }

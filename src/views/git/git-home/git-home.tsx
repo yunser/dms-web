@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { DownloadOutlined, EllipsisOutlined, ExportOutlined, PlusOutlined, ReloadOutlined, StarFilled } from '@ant-design/icons';
+import { DownloadOutlined, EllipsisOutlined, ExportOutlined, PlusOutlined, QuestionOutlined, ReloadOutlined, StarFilled } from '@ant-design/icons';
 import { GitProject } from '../git-project';
 import { request } from '@/views/db-manager/utils/http';
 import { ProjectEditor } from '../project-edit';
@@ -331,6 +331,19 @@ export function GitHome({ event$, onProject }) {
                                 >
                                     <ExportOutlined />
                                 </IconButton>
+                                <IconButton
+                                    tooltip={t('help')}
+                                    onClick={() => {
+                                        event$.emit({
+                                            type: 'event_show_help',
+                                            data: {
+                                                fileName: 'git',
+                                            },
+                                        })
+                                    }}
+                                >
+                                    <QuestionOutlined />
+                                </IconButton>
                             </Space>
                         </div>
                         <div>
@@ -394,8 +407,8 @@ export function GitHome({ event$, onProject }) {
                                                 </Space>
                                                 <Space
                                                     onClick={(e) => {
-                                                        e.preventDefault()
-                                                        e.stopPropagation()
+                                                        // e.preventDefault()
+                                                        // e.stopPropagation()
                                                     }}
                                                 >
                                                     {!!item.changes && item.changes > 0 &&
@@ -413,6 +426,10 @@ export function GitHome({ event$, onProject }) {
                                                         overlay={
                                                             <Menu
                                                                 items={visibleFilter([
+                                                                    {
+                                                                        label: t('open'),
+                                                                        key: 'open',
+                                                                    },
                                                                     {
                                                                         label: t('open_in_new_tab'),
                                                                         key: 'open_in_new_tab',
@@ -477,6 +494,9 @@ export function GitHome({ event$, onProject }) {
                                                                     }
                                                                     else if (key == 'open_in_new_tab') {
                                                                         onProject && onProject(item, true)
+                                                                    }
+                                                                    else if (key == 'open') {
+                                                                        onProject && onProject(item, false)
                                                                     }
                                                                 }}
                                                             />

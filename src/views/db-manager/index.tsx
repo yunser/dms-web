@@ -230,6 +230,10 @@ export function DbManager({ config }) {
             const { json } = msg.data
             addJsonTab(json)
         }
+        else if (msg.type == 'event_show_help') {
+            // addJsonTab(json)
+            handleCommand('help', msg.data)
+        }
         else if (msg.type == 'event_open_terminal') {
             const { path } = msg.data
             openTerminal(path)
@@ -308,13 +312,14 @@ export function DbManager({ config }) {
         })
     }
 
-    function handleCommand(key) {
+    function handleCommand(key, commandData = {}) {
         if (key == 'help') {
             addOrActiveTab({
                 title: '$i18n.help',
                 key: 'help',
                 type: 'help',
                 data: {
+                    ...commandData,
                     // url,
                 },
             })
@@ -913,6 +918,7 @@ export function DbManager({ config }) {
                                         <Help
                                             config={config}
                                             event$={event$}
+                                            data={item.data}
                                         />
                                     }
                                     {item.type == 'json' &&
@@ -1206,8 +1212,13 @@ export function DbManager({ config }) {
                         }),
                         {
                             name: t('about'),
-                            icon: 'app',
+                            icon: 'tool',
                             command: 'about',
+                        },
+                        {
+                            name: t('help'),
+                            icon: 'tool',
+                            command: 'help',
                         },
                         {
                             name: t('close_tab'),
