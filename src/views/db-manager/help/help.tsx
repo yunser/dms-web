@@ -30,9 +30,9 @@ function Tester() {
 }
 
 export function Help(props) {
-    console.log('Help/props', props)
+    // console.log('Help/props', props)
     const { config, event$, data = {} } = props
-    console.warn('Help/render')
+    // console.warn('Help/render')
     
     const { t } = useTranslation()
     const [docPath, setDocPath] = useState('')
@@ -73,6 +73,14 @@ export function Help(props) {
         {
             title: '编辑器',
             name: 'editor.md',
+        },
+        {
+            title: 'JSON',
+            name: 'json.md',
+        },
+        {
+            title: 'Swagger',
+            name: 'swagger.md',
         },
     ]
 

@@ -7,7 +7,7 @@ import classNames from 'classnames'
 import { useTranslation } from 'react-i18next';
 import { Editor } from '../editor/Editor';
 import { IconButton } from '../icon-button';
-import { FormatPainterOutlined } from '@ant-design/icons';
+import { FormatPainterOutlined, QuestionOutlined } from '@ant-design/icons';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { DownloadOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
@@ -17,6 +17,11 @@ import ReactJson from 'react-json-view'
 // const JSON5 = require('json5')
 import JSON5 from 'json5'
 import copy from 'copy-to-clipboard';
+
+// console.log('JJJ', JSON.stringify({
+//     name: 'root',
+//     obj: JSON5.stringify({name: 'CJH'}) 
+// }))
 
 function SelectionInfo({ event$ }) {
 
@@ -178,6 +183,20 @@ export function JsonEditor({ key, event$, data = {} }) {
                             >
                                 <DownloadOutlined />   
                             </IconButton>
+                            <IconButton
+                                size="small"
+                                tooltip={t('help')}
+                                onClick={() => {
+                                    event$.emit({
+                                        type: 'event_show_help',
+                                        data: {
+                                            fileName: 'json',
+                                        },
+                                    })
+                                }}
+                            >
+                                <QuestionOutlined />
+                            </IconButton>
                             <Button
                                 size="small"
                                 onClick={() => {
@@ -281,7 +300,7 @@ export function JsonEditor({ key, event$, data = {} }) {
                                     key: 'viewer',
                                 },
                                 {
-                                    label: t('table'),
+                                    label: t('json.table_view'),
                                     key: 'table',
                                 },
                             ]}
