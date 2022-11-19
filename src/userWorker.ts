@@ -77,12 +77,14 @@ import 'monaco-editor/esm/vs/editor/contrib/linesOperations/browser/linesOperati
 // import 'monaco-editor/esm/vs/editor/contrib/codelens/browser/codelensController.js';
 // import 'monaco-editor/esm/vs/editor/contrib/colorPicker/browser/colorContributions.js';
 // import 'monaco-editor/esm/vs/editor/contrib/copyPaste/browser/copyPasteContribution.js';
-// import 'monaco-editor/esm/vs/editor/contrib/contextmenu/browser/contextmenu.js';
+// 空的右键菜单
+import 'monaco-editor/esm/vs/editor/contrib/contextmenu/browser/contextmenu.js';
 // import 'monaco-editor/esm/vs/editor/contrib/cursorUndo/browser/cursorUndo.js';
 // import 'monaco-editor/esm/vs/editor/contrib/dnd/browser/dnd.js';
 // import 'monaco-editor/esm/vs/editor/contrib/dropIntoEditor/browser/dropIntoEditorContribution.js';
 // import 'monaco-editor/esm/vs/editor/contrib/fontZoom/browser/fontZoom.js';
-// import 'monaco-editor/esm/vs/editor/contrib/format/browser/formatActions.js';
+// 右键菜单格式化
+import 'monaco-editor/esm/vs/editor/contrib/format/browser/formatActions.js';
 // import 'monaco-editor/esm/vs/editor/contrib/documentSymbols/browser/documentSymbols.js';
 // import 'monaco-editor/esm/vs/editor/contrib/inlineCompletions/browser/ghostText.contribution.js';
 // import 'monaco-editor/esm/vs/editor/contrib/gotoSymbol/browser/goToCommands.js';

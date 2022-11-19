@@ -70,6 +70,10 @@ export function Help(props) {
             title: 'Git',
             name: 'git.md',
         },
+        {
+            title: '编辑器',
+            name: 'editor.md',
+        },
     ]
 
     async function loadData() {
