@@ -7,7 +7,7 @@ import { DataBaseDetail } from './databaseDetail'
 import { request } from './utils/http'
 import { useTranslation } from 'react-i18next'
 import { IconButton } from './icon-button'
-import { BulbOutlined, CloseOutlined, DatabaseOutlined, EllipsisOutlined, ExportOutlined, FolderOutlined, MenuOutlined, PlusOutlined } from '@ant-design/icons'
+import { BulbOutlined, CloseOutlined, DatabaseOutlined, EllipsisOutlined, ExportOutlined, FolderOutlined, MenuOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons'
 import enUS from 'antd/es/locale/en_US';
 import zhCN from 'antd/es/locale/zh_CN';
 import { EsConnnector } from './es-connectot'
@@ -678,6 +678,23 @@ export function DbManager({ config }) {
                 >
                     {t('text')}
                 </Button> */}
+                <div className={styles.fakeInput}
+                    onClick={() => {
+                        handleCommand('command')
+                    }}
+                >
+                    <SearchOutlined className={styles.icon} />
+                    <div className={styles.placeholder}>{t('search')}</div>
+                    <div className={styles.keyboardKey}>{'⌘K'}</div>
+                </div>
+                {/* <Input
+                    placeholder={t('search')}
+                    size="small"
+                    prefix={<SearchOutlined />}
+                    suffix={
+                        <div className={styles.keyboardKey}>{'⌘K'}</div>
+                    }
+                /> */}
                 <Dropdown
                     overlay={
                         <Menu
@@ -685,13 +702,13 @@ export function DbManager({ config }) {
                                 handleCommand(key)
                             }}
                             items={[
-                                {
-                                    label: t('command'),
-                                    key: 'command',
-                                },
-                                {
-                                    type: 'divider',
-                                },
+                                // {
+                                //     label: t('command'),
+                                //     key: 'command',
+                                // },
+                                // {
+                                //     type: 'divider',
+                                // },
                                 ...funCommands,
                                 {
                                     type: 'divider',

@@ -240,7 +240,10 @@ export function Commander({ commands, onCommand, onRef }) {
             {modalVisible &&
                 <ModalContent
                     commands={commands}
-                    onCommand={onCommand}
+                    onCommand={(command) => {
+                        onCommand && onCommand(command)
+                        setModalVisible(false)
+                    }}
                     onCancel={() => {
                         setModalVisible(false)
                     }}
