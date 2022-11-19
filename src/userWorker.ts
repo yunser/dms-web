@@ -46,12 +46,26 @@ import 'monaco-editor/esm/vs/editor/contrib/suggest/browser/suggestController.js
 import 'monaco-editor/esm/vs/editor/contrib/suggest/browser/suggestInlineCompletions.js';
 // 注释
 import 'monaco-editor/esm/vs/editor/contrib/comment/browser/comment.js';
+// 搜索
+import 'monaco-editor/esm/vs/editor/contrib/find/browser/findController.js';
+// 代码折叠
+import 'monaco-editor/esm/vs/editor/contrib/folding/browser/folding.js';
+// 复制行 Shift+Alt+↓
+import 'monaco-editor/esm/vs/editor/contrib/linesOperations/browser/linesOperations.js';
 
-// import 'monaco-editor/esm/vs/editor/contrib/comment/browser/comment.js';
-// import 'monaco-editor/esm/vs/editor/browser/coreCommands.js';
-// import 'monaco-editor/esm/vs/editor/browser/coreCommands.js';
 
+// 没用
 // import 'monaco-editor/esm/vs/editor/browser/coreCommands.js';
+// import 'monaco-editor/esm/vs/editor/contrib/lineSelection/browser/lineSelection.js';
+// import 'monaco-editor/esm/vs/editor/contrib/linkedEditing/browser/linkedEditing.js';
+// import 'monaco-editor/esm/vs/editor/contrib/snippet/browser/snippetController2.js';
+// import 'monaco-editor/esm/vs/editor/contrib/inPlaceReplace/browser/inPlaceReplace.js';
+// import 'monaco-editor/esm/vs/editor/contrib/links/browser/links.js';
+// import 'monaco-editor/esm/vs/editor/contrib/multicursor/browser/multicursor.js';
+// import 'monaco-editor/esm/vs/editor/contrib/parameterHints/browser/parameterHints.js';
+// import 'monaco-editor/esm/vs/editor/contrib/rename/browser/rename.js';
+// import 'monaco-editor/esm/vs/editor/contrib/stickyScroll/browser/stickyScroll.js';
+// import 'monaco-editor/esm/vs/editor/contrib/smartSelect/browser/smartSelect.js';
 // import 'monaco-editor/esm/vs/editor/browser/widget/codeEditorWidget.js';
 // import 'monaco-editor/esm/vs/editor/browser/widget/diffEditorWidget.js';
 // import 'monaco-editor/esm/vs/editor/browser/widget/diffNavigator.js';
@@ -64,13 +78,10 @@ import 'monaco-editor/esm/vs/editor/contrib/comment/browser/comment.js';
 // import 'monaco-editor/esm/vs/editor/contrib/codelens/browser/codelensController.js';
 // import 'monaco-editor/esm/vs/editor/contrib/colorPicker/browser/colorContributions.js';
 // import 'monaco-editor/esm/vs/editor/contrib/copyPaste/browser/copyPasteContribution.js';
-
 // import 'monaco-editor/esm/vs/editor/contrib/contextmenu/browser/contextmenu.js';
 // import 'monaco-editor/esm/vs/editor/contrib/cursorUndo/browser/cursorUndo.js';
 // import 'monaco-editor/esm/vs/editor/contrib/dnd/browser/dnd.js';
 // import 'monaco-editor/esm/vs/editor/contrib/dropIntoEditor/browser/dropIntoEditorContribution.js';
-import 'monaco-editor/esm/vs/editor/contrib/find/browser/findController.js';
-// import 'monaco-editor/esm/vs/editor/contrib/folding/browser/folding.js';
 // import 'monaco-editor/esm/vs/editor/contrib/fontZoom/browser/fontZoom.js';
 // import 'monaco-editor/esm/vs/editor/contrib/format/browser/formatActions.js';
 // import 'monaco-editor/esm/vs/editor/contrib/documentSymbols/browser/documentSymbols.js';
@@ -81,19 +92,6 @@ import 'monaco-editor/esm/vs/editor/contrib/find/browser/findController.js';
 // import 'monaco-editor/esm/vs/editor/contrib/hover/browser/hover.js';
 // import 'monaco-editor/esm/vs/editor/contrib/indentation/browser/indentation.js';
 // import 'monaco-editor/esm/vs/editor/contrib/inlayHints/browser/inlayHintsContribution.js';
-// import 'monaco-editor/esm/vs/editor/contrib/inPlaceReplace/browser/inPlaceReplace.js';
-// import 'monaco-editor/esm/vs/editor/contrib/lineSelection/browser/lineSelection.js';
-// import 'monaco-editor/esm/vs/editor/contrib/linesOperations/browser/linesOperations.js';
-// import 'monaco-editor/esm/vs/editor/contrib/linkedEditing/browser/linkedEditing.js';
-// import 'monaco-editor/esm/vs/editor/contrib/links/browser/links.js';
-// import 'monaco-editor/esm/vs/editor/contrib/multicursor/browser/multicursor.js';
-// import 'monaco-editor/esm/vs/editor/contrib/parameterHints/browser/parameterHints.js';
-// import 'monaco-editor/esm/vs/editor/contrib/rename/browser/rename.js';
-// import 'monaco-editor/esm/vs/editor/contrib/stickyScroll/browser/stickyScroll.js';
-// import 'monaco-editor/esm/vs/editor/contrib/smartSelect/browser/smartSelect.js';
-// import 'monaco-editor/esm/vs/editor/contrib/snippet/browser/snippetController2.js';
-
-
 // import 'monaco-editor/esm/vs/editor/contrib/tokenization/browser/tokenization.js';
 // import 'monaco-editor/esm/vs/editor/contrib/toggleTabFocusMode/browser/toggleTabFocusMode.js';
 // import 'monaco-editor/esm/vs/editor/contrib/unicodeHighlighter/browser/unicodeHighlighter.js';
