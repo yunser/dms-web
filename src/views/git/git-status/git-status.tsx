@@ -97,7 +97,8 @@ function Commit({ config, event$, stagedLength, gitConfig, projectPath, onSucces
                         message: e.target.value,
                     })
                 }}
-                placeholder={t('git.commit_message') + `, ${t('git.enter_to_commit')}`}
+                // placeholder={t('git.commit_message') + `, ${t('git.enter_to_commit')}`}
+                placeholder={t('git.commit_message')}
                 rows={infoVisible ? 4 : 1}
                 onFocus={() => {
                     setInfoVisible(true)
