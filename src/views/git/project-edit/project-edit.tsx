@@ -212,15 +212,6 @@ export function ProjectEditor({ config, item, createType, sourceType = 'exist', 
                     </Form.Item>
                 }
                 <Form.Item
-                    name="name"
-                    label="Name"
-                    rules={[ { required: true, }, ]}
-                >
-                    <Input
-                        onBlur={autoInput2}
-                    />
-                </Form.Item>
-                <Form.Item
                     name="path"
                     label="Path"
                     rules={[ { required: true, }, ]}
@@ -228,6 +219,15 @@ export function ProjectEditor({ config, item, createType, sourceType = 'exist', 
                     <Input
                         disabled={editType == 'update'}
                         onBlur={autoInput3}
+                    />
+                </Form.Item>
+                <Form.Item
+                    name="name"
+                    label="Name"
+                    rules={[ { required: true, }, ]}
+                >
+                    <Input
+                        onBlur={autoInput2}
                     />
                 </Form.Item>
             </Form>
