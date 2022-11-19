@@ -132,8 +132,8 @@ function ModalContent({ commands, onCommand, onCancel }) {
 
     const iconMap = {
         'system': '',
-        'tool': <ToolOutlined />,
-        'app': <AppstoreOutlined />,
+        'tool': <ToolOutlined className={styles.icon} />,
+        'app': <AppstoreOutlined className={styles.icon} />,
     }
 
     return (
@@ -207,7 +207,7 @@ function ModalContent({ commands, onCommand, onCancel }) {
                                                 {iconMap[result.icon] ?
                                                     iconMap[result.icon]
                                                 :
-                                                    <SettingOutlined />
+                                                    <SettingOutlined className={styles.icon} />
                                                 }
                                                 {/* <AppstoreOutlined /> */}
                                             </div>
