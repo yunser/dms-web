@@ -1197,33 +1197,21 @@ export function DbManager({ config }) {
                         ...funCommands.map(item => {
                             return {
                                 name: item.label,
+                                icon: 'app',
                                 command: item.key,
                             }
                         }),
-                        // {
-                        //     name: t('mysql'),
-                        //     command: 'mysql',
-                        // },
-                        // {
-                        //     name: 'IP',
-                        //     command: 'ip',
-                        // },
                         {
                             name: t('about'),
+                            icon: 'app',
                             command: 'about',
                         },
                         {
                             name: t('close_tab'),
+                            icon: 'tool',
                             command: 'close_tab',
+                            order: 2,
                         },
-                        // {
-                        //     name: 'JSON',
-                        //     command: 'json',
-                        // },
-                        // {
-                        //     name: t('text'),
-                        //     command: 'text',
-                        // },
                     ]}
                     onCommand={command => {
                         console.log('command', command)

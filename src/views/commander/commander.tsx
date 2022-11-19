@@ -1,12 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react'
 
-import classes from './commander.module.less'
+import styles from './commander.module.less'
 import classNames from 'classnames'
 import { Empty, message, Modal } from 'antd'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import storage from '../db-manager/storage'
 import { FullCenterBox } from '../db-manager/redis-client'
+import { AppstoreOutlined, SettingOutlined, ToolOutlined } from '@ant-design/icons'
 
 function ModalContent({ commands, onCommand, onCancel }) {
     const { t } = useTranslation()
@@ -25,8 +26,9 @@ function ModalContent({ commands, onCommand, onCancel }) {
     const actions = [
         ...commands.map(item => {
             return {
-                command: item.command,
-                name: item.name,
+                ...item,
+                // command: item.command,
+                // name: item.name,
                 onItemClick() {
                     onCommand && onCommand(item.command)
                     // message.info('About')
@@ -67,7 +69,10 @@ function ModalContent({ commands, onCommand, onCancel }) {
             // console.log('item', item)
             // console.log('a.command == commandLatest', item.command, commandLatest)
             if (item.command == commandLatest) {
-                return 1
+                return 100000 // 大于 order
+            }
+            if (item.order) {
+                return item.order
             }
             return 0
         }
@@ -81,7 +86,7 @@ function ModalContent({ commands, onCommand, onCancel }) {
         }
         return actions
             .filter(item => item.name.toLowerCase().includes(keyword.toLowerCase()))
-            // .sort(sorter)
+            .sort(sorter)
     }, [actions, keyword])
 
     function afterItemClick() {
@@ -125,8 +130,14 @@ function ModalContent({ commands, onCommand, onCancel }) {
         }
     }, [curIndex, results, inputRef])
 
+    const iconMap = {
+        'system': '',
+        'tool': <ToolOutlined />,
+        'app': <AppstoreOutlined />,
+    }
+
     return (
-        <div className={classes.mask}
+        <div className={styles.mask}
             onClick={onCancel}
         >
             {/* 212 */}
@@ -142,17 +153,17 @@ function ModalContent({ commands, onCommand, onCancel }) {
                 //     top: 160
                 // }}
             >
-                <div className={classes.content}
+                <div className={styles.content}
                     onClick={(e) => {
                         e.preventDefault()
                         // else.pre
                         e.stopPropagation()
                     }}
                 >
-                    <div className={classes.searchBox}>
-                        <i className={classNames(classes.iconfont, classes['icon-search'], classes.icon)}></i>
+                    <div className={styles.searchBox}>
+                        <i className={classNames(styles.iconfont, styles['icon-search'], styles.icon)}></i>
                         <input
-                            className={classes.input}
+                            className={styles.input}
                             id="search-input"
                             placeholder={t('command.search')}
                             value={keyword}
@@ -169,7 +180,7 @@ function ModalContent({ commands, onCommand, onCancel }) {
                             }}
                         />
                     </div>
-                    <div className={classes.results}>
+                    <div className={styles.results}>
                         {results.length == 0 ?
                             <div>
                                 <FullCenterBox
@@ -184,15 +195,24 @@ function ModalContent({ commands, onCommand, onCancel }) {
                                     return (
                                         <div 
                                             key={result.command}
-                                            className={classNames(classes.item, {
-                                                [classes.active]: idx == curIndex,
+                                            className={classNames(styles.item, {
+                                                [styles.active]: idx == curIndex,
                                             })}
                                             onClick={() => {
                                                 result.onItemClick && result.onItemClick()
                                                 afterItemClick()
                                             }}
                                         >
-                                            <div className={classes.name}>{result.name}</div>
+                                            <div className={styles.iconBox}>
+                                                {iconMap[result.icon] ?
+                                                    iconMap[result.icon]
+                                                :
+                                                    <SettingOutlined />
+                                                }
+                                                {/* <AppstoreOutlined /> */}
+                                            </div>
+                                            {/* <div>{result.icon}|</div> */}
+                                            <div className={styles.name}>{result.name}</div>
                                         </div>
                                     )
                                 })}
@@ -235,7 +255,7 @@ export function Commander({ commands, onCommand, onRef }) {
     }, [modalVisible])
 
     return (
-        <div className={classes.layoutPage}>
+        <div className={styles.layoutPage}>
             {/* Ctrl/Cmd + K */}
             {modalVisible &&
                 <ModalContent
