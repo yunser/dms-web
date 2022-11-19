@@ -940,6 +940,9 @@ export function DbManager({ config }) {
                                     {item.type == 'workbench' &&
                                         <Workbench
                                             config={config}
+                                            onCommand={command => {
+                                                handleCommand(command)
+                                            }}
                                         />
                                     }
                                     {item.type == 'redis-connect' &&
@@ -1214,20 +1217,7 @@ export function DbManager({ config }) {
                         },
                     ]}
                     onCommand={command => {
-                        console.log('command', command)
                         handleCommand(command)
-                        // if (command == 'ip') {
-                        //     showIpTab()
-                        // }
-                        // else if (command == 'about') {
-                        //     setAboutVisible(true)
-                        // }
-                        // else if (command == 'json') {
-                        //     showJsonTab()
-                        // }
-                        // else if (command == 'text') {
-                        //     showTextTab()
-                        // }
                     }}
                     onRef={ref => {
                         commanderRef.current = ref

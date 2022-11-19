@@ -50,9 +50,8 @@ import 'monaco-editor/esm/vs/editor/contrib/comment/browser/comment.js';
 import 'monaco-editor/esm/vs/editor/contrib/find/browser/findController.js';
 // 代码折叠
 import 'monaco-editor/esm/vs/editor/contrib/folding/browser/folding.js';
-// 复制行 Shift+Alt+↓
+// 复制行 Shift+Alt+↓   删除行 ctrl+shift+K
 import 'monaco-editor/esm/vs/editor/contrib/linesOperations/browser/linesOperations.js';
-
 
 // 没用
 // import 'monaco-editor/esm/vs/editor/browser/coreCommands.js';

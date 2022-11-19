@@ -3,20 +3,45 @@ import React, { useMemo, useState } from 'react';
 import styles from './workbench.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
-// console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
-import { Editor } from '../editor/Editor';
-import { IconButton } from '../icon-button';
-import { FormatPainterOutlined } from '@ant-design/icons';
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
-export function Workbench({ config, }) {
+export function Workbench({ config, onCommand }) {
     const { t } = useTranslation()
 
+    const commands = [
+        {
+            name: 'MySQL',
+            command: 'mysql',
+        },
+        {
+            name: 'Git',
+            command: 'git',
+        },
+        {
+            name: 'JSON',
+            command: 'json',
+        },
+    ]
 
     return (
         <div className={styles.workbenchBox}>
-            {t('welcome')}
+            {/* <div className={styles.welcome}>
+                {t('welcome')}
+            </div> */}
+            <div className={styles.list}>
+                {commands.map(item => {
+                    return (
+                        <div className={styles.item}
+                            key={item.command}
+                            onClick={() => {
+                                onCommand && onCommand(item.command)
+                            }}
+                        >
+                            <div className={styles.name}>{item.name}</div>
+                        </div>
+                    )
+                })}
+            </div>
         </div>
     )
 }
