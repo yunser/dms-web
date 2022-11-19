@@ -117,6 +117,18 @@ function WeappPage() {
     )
 }
 
+function Lab() {
+    return (
+        <div>
+            实验室
+            <div>
+                <Link to="/weapp">小程序截图</Link>
+            
+            </div>
+        </div>
+    )
+}
+
 export default function App() {
     // const [count, setCount] = useState(0)
 
@@ -135,6 +147,7 @@ export default function App() {
                     <Route path="/weapp" element={<FullApp><WeappPage /></FullApp>} />
                     <Route path="/sql" element={<FullApp><SqlLab /></FullApp>} />
                     <Route path="/logger" element={<FullApp><LoggerDetail /></FullApp>} />
+                    <Route path="/lab" element={<FullApp><Lab /></FullApp>} />
                 </Routes>
             </div>
         </Router>
