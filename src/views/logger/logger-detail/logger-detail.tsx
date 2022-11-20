@@ -189,7 +189,7 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
 
     const { t } = useTranslation()
     const [list, setList] = useState([])
-    const pageSize = 20
+    const pageSize = detailItem.type == 'grafana' ? 101 : 20
     const [type, setType] = useState('')
     const [total, setTotal] = useState(0)
     const [page, setPage] = useState(1)
@@ -268,7 +268,6 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
                         value={type}
                         allowClear={type != ''}
                         onChange={type => {
-                            console.log('type', type)
                             // type == undefined when clear
                             setType(type || '')
                         }}
