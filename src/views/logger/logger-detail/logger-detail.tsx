@@ -3,7 +3,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import styles from './logger-detail.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
-// console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import { Editor } from '../editor/Editor';
 import storage from '../storage'
@@ -188,6 +187,7 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
     
 
     const { t } = useTranslation()
+    const [contextList, setContextList] = useState([])
     const [list, setList] = useState([])
     const pageSize = detailItem.type == 'grafana' ? 101 : 20
     const [type, setType] = useState('')
@@ -198,8 +198,11 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
     const [keyword, setKeyword] = useState('')
     const [searchKeyword, setSearchKeyword] = useState('')
     const [ts, setTs] = useState('1')
+    // 
     const [detail, setDetail] = useState(null)
     const [detailVisible, setDetailVisible] = useState(false)
+    // 
+    const [contextVisible, setContextVisible] = useState(false)
 
     async function loadList() {
         setLoading(true)
@@ -248,6 +251,48 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
         if (fItem) {
             setKeyword(fItem.value)
             setSearchKeyword(fItem.value)
+        }
+    }
+
+    function viewContext(item) {
+        loadContext(item)
+        setContextVisible(true)
+    }
+
+    async function loadContext(item) {
+        // let startTime
+        // let endTime
+        // if (time) {
+        //     if (time.type == 'relative') {
+        //         startTime = moment().add(-time.number, time.unit).format('YYYY-MM-DD HH:mm:ss')
+        //         endTime = moment().format('YYYY-MM-DD HH:mm:ss')
+        //     }
+        //     else {
+        //         startTime = time.start
+        //         endTime = time.end
+        //     }
+        // }
+        let res = await request.post(detailItem.url, {
+            keyword: searchKeyword,
+            // startTime,
+            // endTime,
+            ts,
+            page,
+            pageSize,
+            queryTotal: page == 1,
+            type,
+            context: true,
+            __pack_meta__: item.__pack_meta__,
+            __pack_id__: item.__pack_id__   ,
+        })
+        if (res.success) {
+            const { list, total, query } = res.data
+            setContextList(list)
+
+            // if (total != null) {
+            //     setTotal(total)
+            // }
+            // setQuery(query)
         }
     }
     
@@ -398,6 +443,12 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
                                                 setDetailVisible(true)
                                             }}
                                         >查看</span>
+                                        <span
+                                            className={styles.view}
+                                            onClick={() => {
+                                                viewContext(item)
+                                            }}
+                                        >上下文</span>
                                     </div>
                                 )
                             }
@@ -420,6 +471,103 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
                     }}
                 >
                     {detail.content}
+                </Drawer>
+            }
+            {contextVisible &&
+                <Drawer
+                    width={document.body.clientWidth - 240}
+                    open={true}
+                    title="上下文"
+                    onClose={() => {
+                        setContextVisible(false)
+                    }}
+                >
+                    <Table
+                        loading={loading}
+                        dataSource={contextList}
+                        bordered
+                        size="small"
+                        pagination={false}
+                        columns={[
+                            // {
+                            //     title: '',
+                            //     dataIndex: '_source_',
+                            //     width: 24,
+                            //     render(value) {
+                            //         return (
+                            //             <div className={styles.fullCell}>
+                            //                 <div className={classNames(styles.dot, value == 'stderr' ? styles.error : styles.out)}></div>
+                            //             </div>
+                            //         )
+                            //     }
+                            // },
+                            {
+                                title: 'index',
+                                dataIndex: '__index_number__',
+                            },
+                            {
+                                title: t('time'),
+                                dataIndex: 'time',
+                                width: 170,
+                                render(value) {
+                                    return (
+                                        <div className={styles.fullCell}>
+                                            <div className={styles.timeValue}>{moment(value).format('YYYY-MM-DD HH:mm:ss')}</div>
+                                        </div>
+                                    )
+                                }
+                            },
+                            {
+                                title: t('content'),
+                                dataIndex: 'content',
+                                // width: 640,
+                                render(value, item) {
+                                    let _value = value
+                                    let traceId = ''
+                                    if (_value.startsWith('track_')) {
+                                        _value = value.substring(15)
+                                        traceId = value.substring(0, 15)
+                                    }
+                                    return (
+                                        <div className={styles.content}
+                                            style={{
+                                                maxWidth: document.body.clientWidth - 640
+                                            }}
+                                        >
+                                            {!!traceId &&
+                                                <span className={styles.traceId}
+                                                    onClick={() => {
+                                                        setKeyword(traceId)
+                                                        setSearchKeyword(traceId)
+                                                    }}
+                                                >{traceId}</span>
+                                            }
+                                            <span
+                                            >{_value}</span>
+                                            {/* <span
+                                                className={styles.view}
+                                                onClick={() => {
+                                                    setDetail(item)
+                                                    setDetailVisible(true)
+                                                }}
+                                            >查看</span> */}
+                                            {/* <span
+                                                className={styles.view}
+                                                onClick={() => {
+                                                    viewContext(item)
+                                                }}
+                                            >上下文</span> */}
+                                        </div>
+                                    )
+                                }
+                            },
+                            // {
+                            //     title: '',
+                            //     dataIndex: '_empty',
+                            // },
+                        ]}
+                    />
+                    {/* {detail.content} */}
                 </Drawer>
             }
         </div>
