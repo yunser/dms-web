@@ -304,6 +304,7 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
                     <TimeSelector
                         value={time}
                         onChange={time => {
+                            setPage(1)
                             setTime(time)
                         }}
                     />
@@ -314,6 +315,7 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
                         allowClear={type != ''}
                         onChange={type => {
                             // type == undefined when clear
+                            setPage(1)
                             setType(type || '')
                         }}
                         options={[
@@ -341,6 +343,7 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
                         }}
                         onSearch={kw => {
                             setSearchKeyword(kw)
+                            setPage(1)
                             setTs('' + new Date().getTime())
                         }}
                     />
@@ -429,6 +432,7 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
                                         {!!traceId &&
                                             <span className={styles.traceId}
                                                 onClick={() => {
+                                                    setPage(1)
                                                     setKeyword(traceId)
                                                     setSearchKeyword(traceId)
                                                 }}
@@ -504,6 +508,15 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
                             {
                                 title: 'index',
                                 dataIndex: '__index_number__',
+                                render(value) {
+                                    return (
+                                        <div 
+                                            className={classNames(styles.indexNum, {
+                                                [styles.current]: value == 0
+                                            })}
+                                        >{value}</div>
+                                    )
+                                }
                             },
                             {
                                 title: t('time'),
@@ -537,6 +550,7 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
                                             {!!traceId &&
                                                 <span className={styles.traceId}
                                                     onClick={() => {
+                                                        setPage(1)
                                                         setKeyword(traceId)
                                                         setSearchKeyword(traceId)
                                                     }}
