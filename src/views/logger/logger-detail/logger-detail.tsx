@@ -12,6 +12,11 @@ import Item from 'antd/lib/list/Item';
 import moment from 'moment';
 import { request } from '@/views/db-manager/utils/http';
 
+const unitLabels = {
+    'minute': '分钟',
+    'hour': '小时'
+}
+
 const quickQueries = [
     {
         label: '__req',
@@ -53,8 +58,24 @@ function TimeSelector({ value, onChange }) {
             unit: 'minute',
         },
         {
-            number: 60,
-            unit: 'minute',
+            number: 1,
+            unit: 'hour',
+        },
+        {
+            number: 3,
+            unit: 'hour',
+        },
+        {
+            number: 6,
+            unit: 'hour',
+        },
+        {
+            number: 12,
+            unit: 'hour',
+        },
+        {
+            number: 24,
+            unit: 'hour',
         },
     ]
 
@@ -108,7 +129,7 @@ function TimeSelector({ value, onChange }) {
                                                         setOpen(false)
                                                     }}
                                                 >
-                                                    {item.number} 分钟
+                                                    {item.number} {unitLabels[item.unit]}
                                                 </Button>
                                             </div>
                                         )
@@ -157,7 +178,7 @@ function TimeSelector({ value, onChange }) {
                     onClick={showModal}
                 >
                     {value.type == 'relative' ?
-                        <div>{value.number} 分钟</div>
+                        <div>{value.number} {unitLabels[value.unit]}</div>
                     :
                         <div>
                             {startTime}~{endTime}
@@ -178,8 +199,8 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
     const [time, setTime] = useState({
         type: 'relative',
         // relative
-        number: 15,
-        unit: 'minute',
+        number: 1,
+        unit: 'hour',
         // custom
         start: '',
         end: '',
@@ -194,6 +215,7 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
     const [total, setTotal] = useState(0)
     const [page, setPage] = useState(1)
     const [query, setQuery] = useState('')
+    const [queryTime, setQueryTime] = useState('')
     const [loading, setLoading] = useState(false)
     const [keyword, setKeyword] = useState('')
     const [searchKeyword, setSearchKeyword] = useState('')
@@ -232,12 +254,13 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
             type,
         })
         if (res.success) {
-            const { list, total, query } = res.data
+            const { list, total, query, timeRange } = res.data
             setList(list)
             if (total != null) {
                 setTotal(total)
             }
             setQuery(query)
+            setQueryTime(timeRange)
         }
         setLoading(false)
     }
@@ -260,6 +283,7 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
     }
 
     async function loadContext(item) {
+        console.log('loadContext', )
         // let startTime
         // let endTime
         // if (time) {
@@ -283,7 +307,8 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
             type,
             context: true,
             __pack_meta__: item.__pack_meta__,
-            __pack_id__: item.__pack_id__   ,
+            __pack_id__: item.__pack_id__,
+            contextTime: item.ts,
         })
         if (res.success) {
             const { list, total, query } = res.data
@@ -377,7 +402,7 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
                     }}
                     // size="small"
                 />
-                <div className={styles.query}>{query}</div>
+                <div className={styles.query}>{query} {queryTime}</div>
             </div>
             <div className={styles.body}>
                 {/* <div className={styles.logList}></div> */}
