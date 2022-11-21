@@ -362,6 +362,7 @@ i18n
                     'close_tab': 'Close Tab',
                     'example': 'Example',
                     'viewer': 'Viewer',
+                    'logger': 'Logger',
                 }
             },
             zh: {
@@ -717,6 +718,7 @@ i18n
                     'close_tab': '关闭标签页',
                     'example': '示例',
                     'viewer': '查看器',
+                    'logger': '日志',
                 }
             }
         },

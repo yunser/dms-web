@@ -209,6 +209,8 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
 
     const { t } = useTranslation()
     const [contextList, setContextList] = useState([])
+    const [curFile, setCurFile] = useState('')
+    const [files, setFiles] = useState([])
     const [list, setList] = useState([])
     const pageSize = detailItem.type == 'grafana' ? 101 : 20
     const [type, setType] = useState('')
@@ -227,6 +229,9 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
     const [contextVisible, setContextVisible] = useState(false)
 
     async function loadList() {
+        if (detailItem.type == 'file' && !curFile) {
+            return
+        }
         setLoading(true)
         // const _startTime = moment().add(-1, 'hours').format('YYYY-MM-DD HH:mm:ss')
         // const _endTime = moment().format('YYYY-MM-DD HH:mm:ss')
@@ -243,7 +248,13 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
                 endTime = time.end
             }
         }
-        let res = await request.post(detailItem.url, {
+        let _url = detailItem.url
+        if (detailItem.type == 'file') {
+            _url = detailItem.url + `/log/readline`
+        }
+        let res = await request.post(_url, {
+            path: curFile,
+            
             keyword: searchKeyword,
             startTime,
             endTime,
@@ -265,9 +276,33 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
         setLoading(false)
     }
 
+    async function loadFiles() {
+        // setLoading(true)
+
+        let res = await request.post(detailItem.url + '/log/list', {
+            path: detailItem.path,
+        })
+        if (res.success) {
+            const { list, total, } = res.data
+            setFiles(list)
+            // if (total != null) {
+            //     setTotal(total)
+            // }
+            // setQuery(query)
+            // setQueryTime(timeRange)
+        }
+        // setLoading(false)
+    }
+
+    useEffect(() => {
+        if (detailItem.type == 'file') {
+            loadFiles()
+        }
+    }, [])
+
     useEffect(() => {
         loadList()
-    }, [page, time, type, searchKeyword, ts])
+    }, [curFile, page, time, type, searchKeyword, ts])
 
     function quickSelect(value) {
         const fItem = quickQueries.find(item => item.value == value)
@@ -323,174 +358,192 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
     
     return (
         <div className={styles.infoBox}>
-            <div className={styles.header}
-            >
-                <Space>
-                    <TimeSelector
-                        value={time}
-                        onChange={time => {
-                            setPage(1)
-                            setTime(time)
+            {detailItem.type == 'file' &&
+                <div className={styles.layoutLeft}>
+                    <div className={styles.files}>
+                        {files.map(item => {
+                            return (
+                                <div
+                                    className={styles.item}
+                                    key={item.name}
+                                    onClick={() => {
+                                        setCurFile(item.path)
+                                    }}
+                                >{item.name}</div>
+                            )
+                        })}
+                    </div>
+                </div>
+            }
+            <div className={styles.layoutRight}>
+                <div className={styles.header}
+                >
+                    <Space>
+                        <TimeSelector
+                            value={time}
+                            onChange={time => {
+                                setPage(1)
+                                setTime(time)
+                            }}
+                        />
+                        <Select
+                            // size="small"
+                            className={styles.type}
+                            value={type}
+                            allowClear={type != ''}
+                            onChange={type => {
+                                // type == undefined when clear
+                                setPage(1)
+                                setType(type || '')
+                            }}
+                            options={[
+                                {
+                                    label: 'All',
+                                    value: '',
+                                },
+                                {
+                                    label: 'Error',
+                                    value: 'error',
+                                },
+                                // {
+                                //     label: 'Info',
+                                //     value: 'info',
+                                // },
+                            ]}
+                        />
+                        <Input.Search
+                            className={styles.search}
+                            value={keyword}
+                            placeholder="搜索"
+                            allowClear
+                            onChange={(e) => {
+                                setKeyword(e.target.value)  
+                            }}
+                            onSearch={kw => {
+                                setSearchKeyword(kw)
+                                setPage(1)
+                                setTs('' + new Date().getTime())
+                            }}
+                        />
+                        <Select
+                            value={''}
+                            className={styles.quickSelect}
+                            options={quickQueries}
+                            onChange={value => {
+                                quickSelect(value)
+                            }}
+                        />
+                        {/* <Button
+                            size="small"
+                            onClick={() => {
+                                loadList()
+                            }}
+                        >
+                            {t('refresh')}
+                        </Button> */}
+                    </Space>
+                </div>
+                <div className={styles.pageBox}>
+                    <Pagination
+                        total={total}
+                        current={page}
+                        pageSize={pageSize}
+                        showSizeChanger={false}
+                        showTotal={total => `共 ${total} 条记录`}
+                        onChange={(current) => {
+                            setPage(current)
                         }}
-                    />
-                    <Select
                         // size="small"
-                        className={styles.type}
-                        value={type}
-                        allowClear={type != ''}
-                        onChange={type => {
-                            // type == undefined when clear
-                            setPage(1)
-                            setType(type || '')
-                        }}
-                        options={[
+                    />
+                    <div className={styles.query}>{query} {queryTime}</div>
+                </div>
+                <div className={styles.body}>
+                    {/* <div className={styles.logList}></div> */}
+                    <Table
+                        loading={loading}
+                        dataSource={list}
+                        bordered
+                        size="small"
+                        pagination={false}
+                        columns={[
                             {
-                                label: 'All',
-                                value: '',
+                                title: '',
+                                dataIndex: '_source_',
+                                width: 24,
+                                render(value) {
+                                    return (
+                                        <div className={styles.fullCell}>
+                                            <div className={classNames(styles.dot, value == 'stderr' ? styles.error : styles.out)}></div>
+                                        </div>
+                                    )
+                                }
                             },
                             {
-                                label: 'Error',
-                                value: 'error',
+                                title: t('time'),
+                                dataIndex: 'time',
+                                width: 170,
+                                render(value) {
+                                    return (
+                                        <div className={styles.fullCell}>
+                                            <div className={styles.timeValue}>{moment(value).format('YYYY-MM-DD HH:mm:ss')}</div>
+                                        </div>
+                                    )
+                                }
+                            },
+                            {
+                                title: t('content'),
+                                dataIndex: 'content',
+                                // width: 640,
+                                render(value, item) {
+                                    let _value = value
+                                    let traceId = ''
+                                    if (_value.startsWith('track_')) {
+                                        _value = value.substring(15)
+                                        traceId = value.substring(0, 15)
+                                    }
+                                    return (
+                                        <div className={styles.content}
+                                            style={{
+                                                maxWidth: document.body.clientWidth - 240 - (detailItem.type == 'file' ? 240 : 0)
+                                            }}
+                                        >
+                                            {!!traceId &&
+                                                <span className={styles.traceId}
+                                                    onClick={() => {
+                                                        setPage(1)
+                                                        setKeyword(traceId)
+                                                        setSearchKeyword(traceId)
+                                                    }}
+                                                >{traceId}</span>
+                                            }
+                                            <span
+                                            >{_value}</span>
+                                            <span
+                                                className={styles.view}
+                                                onClick={() => {
+                                                    setDetail(item)
+                                                    setDetailVisible(true)
+                                                }}
+                                            >查看</span>
+                                            <span
+                                                className={styles.view}
+                                                onClick={() => {
+                                                    viewContext(item)
+                                                }}
+                                            >上下文</span>
+                                        </div>
+                                    )
+                                }
                             },
                             // {
-                            //     label: 'Info',
-                            //     value: 'info',
+                            //     title: '',
+                            //     dataIndex: '_empty',
                             // },
                         ]}
                     />
-                    <Input.Search
-                        className={styles.search}
-                        value={keyword}
-                        placeholder="搜索"
-                        allowClear
-                        onChange={(e) => {
-                            setKeyword(e.target.value)  
-                        }}
-                        onSearch={kw => {
-                            setSearchKeyword(kw)
-                            setPage(1)
-                            setTs('' + new Date().getTime())
-                        }}
-                    />
-                    <Select
-                        value={''}
-                        className={styles.quickSelect}
-                        options={quickQueries}
-                        onChange={value => {
-                            quickSelect(value)
-                        }}
-                    />
-                    {/* <Button
-                        size="small"
-                        onClick={() => {
-                            loadList()
-                        }}
-                    >
-                        {t('refresh')}
-                    </Button> */}
-                </Space>
+                    
+                </div>
             </div>
-            <div className={styles.pageBox}>
-                <Pagination
-                    total={total}
-                    current={page}
-                    pageSize={pageSize}
-                    showSizeChanger={false}
-                    showTotal={total => `共 ${total} 条记录`}
-                    onChange={(current) => {
-                        setPage(current)
-                    }}
-                    // size="small"
-                />
-                <div className={styles.query}>{query} {queryTime}</div>
-            </div>
-            <div className={styles.body}>
-                {/* <div className={styles.logList}></div> */}
-                <Table
-                    loading={loading}
-                    dataSource={list}
-                    bordered
-                    size="small"
-                    pagination={false}
-                    columns={[
-                        {
-                            title: '',
-                            dataIndex: '_source_',
-                            width: 24,
-                            render(value) {
-                                return (
-                                    <div className={styles.fullCell}>
-                                        <div className={classNames(styles.dot, value == 'stderr' ? styles.error : styles.out)}></div>
-                                    </div>
-                                )
-                            }
-                        },
-                        {
-                            title: t('time'),
-                            dataIndex: 'time',
-                            width: 170,
-                            render(value) {
-                                return (
-                                    <div className={styles.fullCell}>
-                                        <div className={styles.timeValue}>{moment(value).format('YYYY-MM-DD HH:mm:ss')}</div>
-                                    </div>
-                                )
-                            }
-                        },
-                        {
-                            title: t('content'),
-                            dataIndex: 'content',
-                            // width: 640,
-                            render(value, item) {
-                                let _value = value
-                                let traceId = ''
-                                if (_value.startsWith('track_')) {
-                                    _value = value.substring(15)
-                                    traceId = value.substring(0, 15)
-                                }
-                                return (
-                                    <div className={styles.content}
-                                        style={{
-                                            maxWidth: document.body.clientWidth - 240
-                                        }}
-                                    >
-                                        {!!traceId &&
-                                            <span className={styles.traceId}
-                                                onClick={() => {
-                                                    setPage(1)
-                                                    setKeyword(traceId)
-                                                    setSearchKeyword(traceId)
-                                                }}
-                                            >{traceId}</span>
-                                        }
-                                        <span
-                                        >{_value}</span>
-                                        <span
-                                            className={styles.view}
-                                            onClick={() => {
-                                                setDetail(item)
-                                                setDetailVisible(true)
-                                            }}
-                                        >查看</span>
-                                        <span
-                                            className={styles.view}
-                                            onClick={() => {
-                                                viewContext(item)
-                                            }}
-                                        >上下文</span>
-                                    </div>
-                                )
-                            }
-                        },
-                        // {
-                        //     title: '',
-                        //     dataIndex: '_empty',
-                        // },
-                    ]}
-                />
-                
-            </div>
-            <div></div>
             {detailVisible &&
                 <Drawer
                     open={true}

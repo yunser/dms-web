@@ -3,36 +3,57 @@
     width: 100%;
     height: 100%;
     // border: 1px solid #f00;
-    overflow: auto;
     display: flex;
-    flex-direction: column;
-    & > .header {
-        flex: 0 0 48px;
-        padding: 0 16px;
-        // border: 1px solid #000;
-        border-bottom: 1px solid var(--border-color);
-        display: flex;
+    .layoutLeft {
+        flex: 0 0 240px;
+        border: 1px solid var(--border-color);
     }
-    & > .body {
+    .layoutRight {
         flex: 1 0 auto;
-        height: 0;
-        padding: 16px;
+        width: 0;
         overflow: auto;
+        display: flex;
+        flex-direction: column;
+        & > .header {
+            flex: 0 0 48px;
+            padding: 0 16px;
+            // border: 1px solid #000;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+        }
+        & > .body {
+            flex: 1 0 auto;
+            height: 0;
+            padding: 16px;
+            overflow: auto;
+        }
+        .pageBox {
+            height: 40px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            // margin-bottom: 8px;
+            // border: 1px solid #000;
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 16px;
+            .query {
+                // margin-top: 8px;
+                color: #999;
+            }
+        }
     }
-    .pageBox {
-        height: 40px;
+}
+.files {
+    padding: 12px;
+    .item {
+        height: 32px;
+        // border: 1px solid #000;
         display: flex;
         flex-direction: row;
         align-items: center;
-        justify-content: space-between;
-        // margin-bottom: 8px;
-        // border: 1px solid #000;
-        border-bottom: 1px solid var(--border-color);
-        padding: 0 16px;
-        .query {
-            // margin-top: 8px;
-            color: #999;
-        }
+        // padding: 0 16px;
+        cursor: pointer;
     }
 }
 .content {
