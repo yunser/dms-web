@@ -342,6 +342,21 @@ export function DbManager({ config }) {
                 // closable: false,
             })
         }
+        else if (key == 'alasql') {
+            addOrActiveTab({
+                // title: `${curConnect.name || 'Unnamed'}`,
+                title: 'alasql',
+                key,
+                type: 'database',
+                data: {
+                    name: null,
+                    connectionId: 'alasql',
+                    databaseType: 'alasql',
+                }
+            }, {
+                // closeCurrentTab: true,
+            })
+        }
         else if (key == 'redis') {
             addOrActiveTab({
                 title: 'Redis',
@@ -640,6 +655,10 @@ export function DbManager({ config }) {
         {
             label: t('mongo'),
             key: 'mongo',
+        },
+        {
+            label: t('alasql'),
+            key: 'alasql',
         },
     ]
     function handleTabChange(key: string) {

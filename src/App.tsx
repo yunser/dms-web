@@ -42,6 +42,7 @@ import { SwaggerDetail } from './views/swagger/swagger-detail'
 import { ProductionHome } from './views/production/production-home'
 import { SqlLab } from './views/db-manager/sql-lab'
 import { LoggerDetail } from './views/logger/logger-detail'
+import { AlasqlHome } from './views/slasql/ip-home'
 
 function GitPage() {
     return (
@@ -148,6 +149,7 @@ export default function App() {
                     <Route path="/sql" element={<FullApp><SqlLab /></FullApp>} />
                     <Route path="/logger" element={<FullApp><LoggerDetail /></FullApp>} />
                     <Route path="/lab" element={<FullApp><Lab /></FullApp>} />
+                    <Route path="/alasql" element={<FullApp><AlasqlHome /></FullApp>} />
                 </Routes>
             </div>
         </Router>
