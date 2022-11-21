@@ -112,6 +112,9 @@ function Status({ databaseType, config, event$, connectionId }) {
         if (databaseType == 'mssql') {
             return
         }
+        if (databaseType == 'alasql') {
+            return
+        }
         let sql
         if (databaseType == 'postgresql') {
             sql = `select current_database()`
@@ -365,6 +368,9 @@ export function DataBaseDetail({ databaseType = 'mysql', connectionId, event$, c
 
         }
         else if (databaseType == 'mssql') {
+
+        }
+        else if (databaseType == 'alasql') {
 
         }
         else {

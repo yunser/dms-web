@@ -393,6 +393,9 @@ export function SqlTree({ databaseType, config, event$, connectionId, onTab, dat
         else if (databaseType == 'postgresql') {
 
         }
+        else if (databaseType == 'alasql') {
+
+        }
         else {
             request.post(`${config.host}/mysql/execSql`, {
                 connectionId,
@@ -655,6 +658,9 @@ LIMIT 1000;`
         else if (databaseType == 'sqlite') {
 
         }
+        else if (databaseType == 'alasql') {
+            
+        }
         else {
             loadAllFields(schemaName)
         }
@@ -729,6 +735,9 @@ LIMIT 1000;`
             const { $__schemaName, $_table_name } = nodeData.itemData
             sql = `SELECT TOP 20 * FROM [${$__schemaName}].[${$_table_name}]`
         }
+        else if (databaseType == 'alasql') {
+            sql = `SELECT *\nFROM ?\nLIMIT 20;`
+        }
         else if (databaseType == 'postgresql') {
             sql = `SELECT *\nFROM "${schemaName}"."${tableName}"\nLIMIT 20;`
         }
@@ -739,7 +748,7 @@ LIMIT 1000;`
             title: tableName,
             sql,
         })
-        if (databaseType != 'sqlite' && databaseType != 'mssql') {
+        if (databaseType != 'sqlite' && databaseType != 'mssql' && databaseType != 'alasql') {
             loadTableFields({schemaName, tableName})
         }
     }
