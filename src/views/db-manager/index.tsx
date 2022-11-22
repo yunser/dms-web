@@ -45,6 +45,7 @@ import { MongoClient } from '../mongo/mongo-client'
 import { GitProject } from '../git/git-project'
 import { LoggerHome } from '../logger/logger-home'
 import { LoggerDetail } from '../logger/logger-detail'
+import { AlasqlHome } from '../slasql/ip-home'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -343,15 +344,28 @@ export function DbManager({ config }) {
             })
         }
         else if (key == 'alasql') {
+            // addOrActiveTab({
+            //     // title: `${curConnect.name || 'Unnamed'}`,
+            //     title: 'alasql',
+            //     key,
+            //     type: 'database',
+            //     data: {
+            //         name: null,
+            //         connectionId: 'alasql',
+            //         databaseType: 'alasql',
+            //     }
+            // }, {
+            //     // closeCurrentTab: true,
+            // })
             addOrActiveTab({
                 // title: `${curConnect.name || 'Unnamed'}`,
                 title: 'alasql',
                 key,
-                type: 'database',
+                type: 'alasql-home',
                 data: {
-                    name: null,
-                    connectionId: 'alasql',
-                    databaseType: 'alasql',
+                    // name: null,
+                    // connectionId: 'alasql',
+                    // databaseType: 'alasql',
                 }
             }, {
                 // closeCurrentTab: true,
@@ -1207,6 +1221,14 @@ export function DbManager({ config }) {
                                             connectionId={item.data.connectionId}
                                         />
                                     }
+                                    {item.type == 'alasql-home' &&
+                                        <AlasqlHome
+                                            config={config}
+                                            event$={event$}
+                                            // connectionId={item.data.connectionId}
+                                        />
+                                    }
+                                    
                             </div>
                         )
                     })}

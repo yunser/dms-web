@@ -3529,25 +3529,6 @@ export function AlasqlHome({ config, onClickItem }) {
     const [results, setResults] = useState([])
     const [code, setCode] = useState('SELECT street_key FROM ?')
 
-    const columns = useMemo(() => {
-        if (!results.length) {
-            return []
-        }
-        const keys = Object.keys(results[0])
-
-        return [
-            ...keys.map(key => {
-                return {
-                    title: key,
-                    dataIndex: key,
-                }
-            }),
-            {
-                title: '',
-                dataIndex: '__empty__',
-            }
-        ]
-    }, [results])
 
     async function loadData() {
         let res = await request.get('https://nodeapi.yunser.com/ip/me')
@@ -3574,49 +3555,21 @@ export function AlasqlHome({ config, onClickItem }) {
                 const file = e.dataTransfer.files[0]
                 console.log('file', file)
                 // uploadFile({ file })
-                // const reader = new FileReader()
-                // reader.onload = async () => {
-                //     console.log(reader.result)
-                //     const root = JSON.parse((reader.result) as any)
-                //     const nodes_will = await parseRoot(page)
-                //     console.log('nodes_will', nodes_will)
+                const reader = new FileReader()
+                reader.onload = async () => {
+                    console.log(reader.result)
+                    // const root = JSON.parse((reader.result) as any)
+                    // const nodes_will = await parseRoot(page)
+                    // console.log('nodes_will', nodes_will)
 
-                //     editor.current.setNodes(nodes_will.children)
-                // }
-                // reader.readAsText(file, 'utf-8')
+                    // editor.current.setNodes(nodes_will.children)
+                }
+                reader.readAsText(file, 'utf-8')
                 // var reader = new FileReader();
                 //读取成功
             }}
         >
-            <div>
-                <Input.TextArea
-                    value={code}
-                    onChange={e => {
-                        setCode(e.target.value)
-                    }}
-                    rows={8}
-                />
-                <div>
-                    <Button
-                        onClick={() => {
-                            const res = alasql(code, [datas])
-                            console.log('res', res)
-                            setResults(res)
-                        }}
-                    >
-                        Run
-                    </Button>
-                </div>
-            </div>
-            <Table
-                dataSource={results}
-                columns={columns}
-                pagination={false}
-                size="small"
-                scroll={{
-                    y: 400,
-                }}
-            />
+            拖拽 xlsx 文件上传
         </div>
     )
 }

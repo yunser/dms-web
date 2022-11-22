@@ -320,8 +320,25 @@ async function compareDatabaseTables(db1Tables = [], db2Tables = [], db1AllColum
     // const db1Tables = []
     // const db2Tables = []
 
+    const tableFilter = tableName => !tableName.includes('_bk') 
+        && !tableName.includes('_bak')
+        && !tableName.includes('QRTZ_')
+        && !tableName.includes('qrtz_')
+        && !tableName.includes('base_template')
+        && !tableName.includes('biz_product_model')
+        && !tableName.includes('biz_user_session')
+        && !tableName.includes('device_ctwing')
+        && !tableName.includes('nb_device_sleep')
+        && !tableName.includes('nb_devices_user')
+        && !tableName.includes('nb_user_setting')
+        && !tableName.includes('dhub_device_info')
+        && !tableName.includes('biz_permission_url')
+        && !tableName.includes('sys_dict_index')
+        
     const db1TableNames = db1Tables.map(item => item.TABLE_NAME)
+        .filter(tableFilter)
     const db2TableNames = db2Tables.map(item => item.TABLE_NAME)
+        .filter(tableFilter)
     const allTableNames = _.uniq([...db1TableNames, ...db2TableNames])
     const results: any[] = []
     for (let tableName of allTableNames) {

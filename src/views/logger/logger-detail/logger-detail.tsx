@@ -483,6 +483,9 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
                                 dataIndex: 'time',
                                 width: 170,
                                 render(value) {
+                                    if (!value) {
+                                        return '--'
+                                    }
                                     return (
                                         <div className={styles.fullCell}>
                                             <div className={styles.timeValue}>{moment(value).format('YYYY-MM-DD HH:mm:ss')}</div>
