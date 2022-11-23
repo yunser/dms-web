@@ -478,18 +478,18 @@ export function SqlTree({ databaseType, config, event$, connectionId, onTab, dat
                 }
             })
             setTreeData(treeData)
-            if (treeData.length == 2) {
-                console.log('twotwo', )
-                const schemaNames = treeData.map(item => item.itemData.$_name)
-                    .filter(n => n != 'information_schema')
-                console.log('schemaNames', schemaNames)
-                if (schemaNames.length == 1) {
-                    const nodeData = treeData.find(item => item.itemData.$_name == schemaNames[0])
-                    refreshNodeData(nodeData, treeData)
-                    // setTimeout(() => {
-                    // }, 0)
-                    // console.log('nodeData', nodeData)
-                }
+            // if (treeData.length == 2) {
+            // }
+            console.log('twotwo', )
+            const schemaNames = treeData.map(item => item.itemData.$_name)
+                .filter(n => n != 'information_schema')
+            console.log('schemaNames', schemaNames)
+            if (schemaNames.length == 1) {
+                const nodeData = treeData.find(item => item.itemData.$_name == schemaNames[0])
+                refreshNodeData(nodeData, treeData)
+                // setTimeout(() => {
+                // }, 0)
+                // console.log('nodeData', nodeData)
             }
             
             suggestionAddSchemas(connectionId, dbs.map(item => item.$_name))
