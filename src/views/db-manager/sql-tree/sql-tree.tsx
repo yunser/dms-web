@@ -380,7 +380,7 @@ export function SqlTree({ databaseType, config, event$, connectionId, onTab, dat
         // setLoading(false)
     }
 
-    async function loadTables(schemaName) {
+    async function loadTables(schemaName, treeData) {
         // console.log('props', this.props.match.params.name)
         // const { dispatch } = this.props;
         // dispatch({
@@ -466,7 +466,7 @@ export function SqlTree({ databaseType, config, event$, connectionId, onTab, dat
             // console.log('ret', ret.data)
             // storage.set('connectId', 'ret.data')
             const dbs = ret.data
-            setTreeData(dbs.map(item => {
+            const treeData = dbs.map(item => {
                 return {
                     title: item.$_name,
                     key: getSchemaKey(item.$_name),
@@ -476,10 +476,22 @@ export function SqlTree({ databaseType, config, event$, connectionId, onTab, dat
                     itemData: item,
                     loading: false,
                 }
-            }))
-            // setTreeData([
-            //     ,
-            // ])
+            })
+            setTreeData(treeData)
+            if (treeData.length == 2) {
+                console.log('twotwo', )
+                const schemaNames = treeData.map(item => item.itemData.$_name)
+                    .filter(n => n != 'information_schema')
+                console.log('schemaNames', schemaNames)
+                if (schemaNames.length == 1) {
+                    const nodeData = treeData.find(item => item.itemData.$_name == schemaNames[0])
+                    refreshNodeData(nodeData, treeData)
+                    // setTimeout(() => {
+                    // }, 0)
+                    // console.log('nodeData', nodeData)
+                }
+            }
+            
             suggestionAddSchemas(connectionId, dbs.map(item => item.$_name))
         }
         // else {
@@ -492,9 +504,6 @@ export function SqlTree({ databaseType, config, event$, connectionId, onTab, dat
         loadDbList()
     }, [])
 
-    // useEffect(() => {
-    //     loadTables()
-    // }, [])
 
     async function loadTableFields({schemaName, tableName}) {
         if (getTableFieldMap()[tableName]) {
@@ -640,18 +649,21 @@ LIMIT 1000;`
         if (msg.type == 'ev_refresh_table') {
             const { connectionId: _connectionId, schemaName } = msg.data
             if (_connectionId == connectionId) {
-                refreshSchemaTables(schemaName)
+                const idx = treeData.findIndex(node => node.key == getSchemaKey(schemaName))
+                refreshSchemaTables(schemaName, idx, treeData)
             }
         }
     })
 
-    function refreshSchemaTables(schemaName) {
-        const idx = treeData.findIndex(node => node.key == getSchemaKey(schemaName))
+    function refreshSchemaTables(schemaName, idx, treeData) {
+        // const idx = treeData.findIndex(node => node.key == getSchemaKey(schemaName))
         console.log('idx', idx)
-        treeData[idx].loading = true
+        if (idx != -1) {
+            treeData[idx].loading = true
+        }
         setTreeData([...treeData])
         setSelectedKeys([getSchemaKey(schemaName)])
-        loadTables(schemaName)
+        loadTables(schemaName, treeData)
         if (databaseType == 'postgresql') {
             // TODO
         }
@@ -663,6 +675,15 @@ LIMIT 1000;`
         }
         else {
             loadAllFields(schemaName)
+        }
+    }
+
+    function refreshNodeData(nodeData, treeData) {
+        if (databaseType == 'mssql') {
+            refreshSchemas(nodeData)
+        }
+        else {
+            refreshTables(nodeData, treeData)
         }
     }
 
@@ -705,7 +726,6 @@ LIMIT 1000;`
                 setSelectedKeys([getMsSchemaKey($_schema_name)])
                 setExpandedKeys([...expandedKeys, getMsSchemaKey($_schema_name)])
                 setTreeData([...treeData])
-                // loadTables(schemaName)
                 // if (databaseType == 'postgresql') {
                 //     // TODO
                 // }
@@ -720,8 +740,9 @@ LIMIT 1000;`
 
     }
 
-    function refreshTables(nodeData) {
-        refreshSchemaTables(nodeData.itemData.$_name)
+    function refreshTables(nodeData, treeData) {
+        const idx = treeData.findIndex(node => node.key == getSchemaKey(nodeData.itemData.$_name))
+        refreshSchemaTables(nodeData.itemData.$_name, idx, treeData)
     }
 
     function queryTable(nodeData) {
@@ -760,7 +781,6 @@ LIMIT 1000;`
                     <IconButton
                         tooltip={t('refresh')}
                         onClick={() => {
-                            // loadTables()
                             loadDbList()
                         }}
                     >
@@ -932,12 +952,7 @@ LIMIT 1000;`
                                     onDoubleClick={() => {
                                         console.log('onDoubleClick', nodeData)
                                         if (nodeData.type == 'schema') {
-                                            if (databaseType == 'mssql') {
-                                                refreshSchemas(nodeData)
-                                            }
-                                            else {
-                                                refreshTables(nodeData)
-                                            }
+                                            refreshNodeData(nodeData, treeData)
                                         }
                                         else if (nodeData.type == 'schema2') {
                                             console.log('schema2', nodeData)
@@ -959,7 +974,7 @@ LIMIT 1000;`
                                         }
                                         else if (key == 'refresh_table') {
                                             // queryTable(nodeData)
-                                            refreshTables(nodeData)
+                                            refreshTables(nodeData, treeData)
                                         }
                                         else if (key == 'schema_use') {
                                             // queryTable(nodeData)
