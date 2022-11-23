@@ -344,22 +344,9 @@ export function DbManager({ config }) {
             })
         }
         else if (key == 'alasql') {
-            // addOrActiveTab({
-            //     // title: `${curConnect.name || 'Unnamed'}`,
-            //     title: 'alasql',
-            //     key,
-            //     type: 'database',
-            //     data: {
-            //         name: null,
-            //         connectionId: 'alasql',
-            //         databaseType: 'alasql',
-            //     }
-            // }, {
-            //     // closeCurrentTab: true,
-            // })
             addOrActiveTab({
                 // title: `${curConnect.name || 'Unnamed'}`,
-                title: 'alasql',
+                title: t('alasql'),
                 key,
                 type: 'alasql-home',
                 data: {
@@ -1225,6 +1212,22 @@ export function DbManager({ config }) {
                                         <AlasqlHome
                                             config={config}
                                             event$={event$}
+                                            onUploaded={() => {
+                                                const key = '' + new Date().getTime()
+                                                addOrActiveTab({
+                                                    // title: `${curConnect.name || 'Unnamed'}`,
+                                                    title: t('alasql'),
+                                                    key,
+                                                    type: 'database',
+                                                    data: {
+                                                        name: null,
+                                                        connectionId: 'alasql',
+                                                        databaseType: 'alasql',
+                                                    }
+                                                }, {
+                                                    // closeCurrentTab: true,
+                                                })
+                                            }}
                                             // connectionId={item.data.connectionId}
                                         />
                                     }

@@ -17,6 +17,7 @@ import { FullCenterBox } from '@/views/db-manager/redis-client';
 import moment from 'moment';
 import alasql from 'alasql'
 // import { saveAs } from 'file-saver'
+import { read, writeFileXLSX, utils } from "xlsx";
 
 const example = [
     {
@@ -3520,7 +3521,7 @@ function ExpireTimeRender(value) {
     )
 }
 
-export function AlasqlHome({ config, onClickItem }) {
+export function AlasqlHome({ config, onUploaded }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [curIp, setCurIp] = useState('--')
@@ -3530,18 +3531,29 @@ export function AlasqlHome({ config, onClickItem }) {
     const [code, setCode] = useState('SELECT street_key FROM ?')
 
 
-    async function loadData() {
-        let res = await request.get('https://nodeapi.yunser.com/ip/me')
-        console.log('res', res)
-        if (res.success) {
-            setCurIp(res.data)
-        }
-    }
+    // async function loadData() {
+    //     let res = await request.get('https://nodeapi.yunser.com/ip/me')
+    //     console.log('res', res)
+    //     if (res.success) {
+    //         setCurIp(res.data)
+    //     }
+    // }
 
     useEffect(() => {
         // loadData()
     }, [])
 
+    async function uploadJson(json) {
+        let res = await request.post(`${config.host}/alasql/uploadList`, {
+            list: json,
+        })
+        console.log('res', res)
+        if (res.success) {
+            // setCurIp(res.data)
+            onUploaded && onUploaded()
+
+        }
+    }
 
     return (
         <div className={styles.app}
@@ -3558,13 +3570,31 @@ export function AlasqlHome({ config, onClickItem }) {
                 const reader = new FileReader()
                 reader.onload = async () => {
                     console.log(reader.result)
+                    let workbook = read(reader.result, {
+                        type: 'binary'
+                    })
+                    let sheets = workbook.Sheets;
+
+                    let names = []
+                    for (let sheet in sheets) {
+                        if (sheets.hasOwnProperty(sheet)) {
+                            const json = utils.sheet_to_json(sheets[sheet])
+                            console.log('json', json)
+                            uploadJson(json)
+                            break
+                        }
+                    }
+
+                    // names = names[0]
+                    // console.log('names', names)
                     // const root = JSON.parse((reader.result) as any)
                     // const nodes_will = await parseRoot(page)
                     // console.log('nodes_will', nodes_will)
 
                     // editor.current.setNodes(nodes_will.children)
                 }
-                reader.readAsText(file, 'utf-8')
+                // reader.readAsText(file, 'utf-8')
+                reader.readAsBinaryString(file)
                 // var reader = new FileReader();
                 //读取成功
             }}

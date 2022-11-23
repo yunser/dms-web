@@ -363,6 +363,7 @@ i18n
                     'example': 'Example',
                     'viewer': 'Viewer',
                     'logger': 'Logger',
+                    'alasql': 'AlaSQL',
                 }
             },
             zh: {
@@ -719,6 +720,7 @@ i18n
                     'example': '示例',
                     'viewer': '查看器',
                     'logger': '日志',
+                    'alasql': 'AlaSQL',
                 }
             }
         },
