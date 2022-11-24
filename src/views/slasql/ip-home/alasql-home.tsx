@@ -3600,7 +3600,7 @@ export function AlasqlHome({ config, onUploaded }) {
                 //读取成功
             }}
         >
-            拖拽 xlsx 文件上传
+            {t('alasql.drop_file')}
         </div>
     )
 }

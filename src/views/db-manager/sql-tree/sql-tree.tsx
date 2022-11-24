@@ -484,12 +484,22 @@ export function SqlTree({ databaseType, config, event$, connectionId, onTab, dat
             const schemaNames = treeData.map(item => item.itemData.$_name)
                 .filter(n => n != 'information_schema')
             console.log('schemaNames', schemaNames)
+            // 数据库只有一个（忽略 information_schema）时，自动加载表格
             if (schemaNames.length == 1) {
                 const nodeData = treeData.find(item => item.itemData.$_name == schemaNames[0])
                 refreshNodeData(nodeData, treeData)
                 // setTimeout(() => {
                 // }, 0)
                 // console.log('nodeData', nodeData)
+            }
+            // AlaSQL 自动查询
+            if (databaseType == 'alasql') {
+                showSqlInNewtab({
+                    title: '?', // TODO 写死
+                    sql: `SELECT *
+FROM ?
+LIMIT 20;`,
+                })
             }
             
             suggestionAddSchemas(connectionId, dbs.map(item => item.$_name))

@@ -364,6 +364,7 @@ i18n
                     'viewer': 'Viewer',
                     'logger': 'Logger',
                     'alasql': 'AlaSQL',
+                    'alasql.drop_file': 'After dragging and dropping the xlsx file and uploading it, you can use SQL queries',
                 }
             },
             zh: {
@@ -721,6 +722,7 @@ i18n
                     'viewer': '查看器',
                     'logger': '日志',
                     'alasql': 'AlaSQL',
+                    'alasql.drop_file': '拖拽 xlsx 文件上传后，可以使用 SQL 查询',
                 }
             }
         },
