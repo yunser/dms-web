@@ -11,6 +11,7 @@ import { uid } from 'uid';
 import Item from 'antd/lib/list/Item';
 import moment from 'moment';
 import { request } from '@/views/db-manager/utils/http';
+import ReactJson from 'react-json-view';
 
 const unitLabels = {
     'minute': '分钟',
@@ -224,6 +225,7 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
     const [ts, setTs] = useState('1')
     // 
     const [detail, setDetail] = useState(null)
+    const [detailView, setDetailView] = useState('text')
     const [detailVisible, setDetailVisible] = useState(false)
     // 
     const [contextVisible, setContextVisible] = useState(false)
@@ -525,9 +527,18 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
                                                 className={styles.view}
                                                 onClick={() => {
                                                     setDetail(item)
+                                                    setDetailView('text')
                                                     setDetailVisible(true)
                                                 }}
                                             >查看</span>
+                                            <span
+                                                className={styles.view}
+                                                onClick={() => {
+                                                    setDetail(item)
+                                                    setDetailView('json')
+                                                    setDetailVisible(true)
+                                                }}
+                                            >JSON 查看</span>
                                             <span
                                                 className={styles.view}
                                                 onClick={() => {
@@ -550,12 +561,22 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
             {detailVisible &&
                 <Drawer
                     open={true}
+                    width={800}
                     title="详情"
                     onClose={() => {
                         setDetailVisible(false)
                     }}
                 >
-                    {detail.content}
+                    {detailView == 'text' ?
+                        <div>
+                            {detail.content}
+                        </div>
+                    :
+                        <ReactJson 
+                            src={JSON.parse(detail.content)}
+                            displayDataTypes={false}
+                        />
+                    }
                 </Drawer>
             }
             {contextVisible &&
