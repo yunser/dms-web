@@ -3544,13 +3544,14 @@ export function AlasqlHome({ config, onUploaded }) {
     }, [])
 
     async function uploadJson(json) {
-        let res = await request.post(`${config.host}/alasql/uploadList`, {
-            list: json,
+        let res = await request.post(`${config.host}/mysql/connect`, {
+            type: 'alasql',
+            jsonList: json,
         })
         console.log('res', res)
         if (res.success) {
             // setCurIp(res.data)
-            onUploaded && onUploaded()
+            onUploaded && onUploaded(res.data)
 
         }
     }

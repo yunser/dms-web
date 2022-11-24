@@ -334,12 +334,8 @@ export function DataBaseDetail({ databaseType = 'mysql', connectionId, event$, c
 }, {
     // noMessage: true,
 })
-        // console.log('res', res)
         if (res.success) {
-            // message.info('连接成功')
             const list = res.data
-            console.log('loadAllTables/res', list)
-            // setList(res.list)
             const schemaMap = {}
             for (let item of list) {
                 const { TABLE_SCHEMA, TABLE_NAME, } = item

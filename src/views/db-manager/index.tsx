@@ -1212,7 +1212,7 @@ export function DbManager({ config }) {
                                         <AlasqlHome
                                             config={config}
                                             event$={event$}
-                                            onUploaded={() => {
+                                            onUploaded={({ id }) => {
                                                 const key = '' + new Date().getTime()
                                                 addOrActiveTab({
                                                     // title: `${curConnect.name || 'Unnamed'}`,
@@ -1221,7 +1221,7 @@ export function DbManager({ config }) {
                                                     type: 'database',
                                                     data: {
                                                         name: null,
-                                                        connectionId: 'alasql',
+                                                        connectionId: id,
                                                         databaseType: 'alasql',
                                                     }
                                                 }, {
