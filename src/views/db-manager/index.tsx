@@ -947,6 +947,23 @@ export function DbManager({ config }) {
                                             event$={event$}
                                             data={item.data}
                                             key={item.key}
+                                            config={config}
+                                            onUploaded={({ id }) => {
+                                                const key = '' + new Date().getTime()
+                                                addOrActiveTab({
+                                                    // title: `${curConnect.name || 'Unnamed'}`,
+                                                    title: t('alasql'),
+                                                    key,
+                                                    type: 'database',
+                                                    data: {
+                                                        name: null,
+                                                        connectionId: id,
+                                                        databaseType: 'alasql',
+                                                    }
+                                                }, {
+                                                    // closeCurrentTab: true,
+                                                })
+                                            }}
                                         />
                                     }
                                     {item.type == 'text' &&

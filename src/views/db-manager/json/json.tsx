@@ -17,6 +17,7 @@ import ReactJson from 'react-json-view'
 // const JSON5 = require('json5')
 import JSON5 from 'json5'
 import copy from 'copy-to-clipboard';
+import { request } from '../utils/http';
 
 // console.log('JJJ', JSON.stringify({
 //     name: 'root',
@@ -107,7 +108,7 @@ function JsonTable({ jsonObj }) {
 }
 
 // function Json
-export function JsonEditor({ key, event$, data = {} }) {
+export function JsonEditor({ config, key, event$, data = {}, onUploaded }) {
     console.warn('JsonEditor/render', data)
     const { defaultJson = '' } = data
     const { t } = useTranslation()
@@ -123,6 +124,19 @@ export function JsonEditor({ key, event$, data = {} }) {
 
     function getCode() {
         return code_ref.current
+    }
+
+    async function uploadJson(json) {
+        let res = await request.post(`${config.host}/mysql/connect`, {
+            type: 'alasql',
+            jsonList: json,
+        })
+        console.log('res', res)
+        if (res.success) {
+            // setCurIp(res.data)
+            onUploaded && onUploaded(res.data)
+
+        }
     }
 
     function setCodeASD(code) {
@@ -314,7 +328,17 @@ export function JsonEditor({ key, event$, data = {} }) {
                             />
                         }
                         {tab == 'table' && !!jsonObj &&
-                            <div>
+                            <div className={styles.tableBox}>
+                                <div className={styles.header}>
+                                    <Button
+                                        size="small"
+                                        onClick={() => {
+                                            uploadJson(jsonObj)
+                                        }}
+                                    >
+                                        {t('query')}
+                                    </Button>
+                                </div>
                                 <JsonTable
                                     jsonObj={jsonObj}
                                 />
