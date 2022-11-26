@@ -3556,6 +3556,59 @@ export function AlasqlHome({ config, onUploaded }) {
         }
     }
 
+    function parseJsonFile(file) {
+        const reader = new FileReader()
+        reader.onload = async () => {
+            console.log(reader.result)
+            if (!reader.result) {
+                message.error('no_content')
+                return
+            }
+            const json = JSON.parse(reader.result)
+            uploadJson(json)
+        }
+        reader.readAsText(file, 'utf-8')
+    }
+
+    function parseCsvFile(file) {
+        const reader = new FileReader()
+        reader.onload = async () => {
+            console.log(reader.result)
+            if (!reader.result) {
+                message.error('no_content')
+                return
+            }
+            const table = reader.result.split('\n').map(line => line.split(','))
+            console.log('table', table)
+            const header = table[0]
+            const body = table.slice(1)
+            const list = body.map(row => {
+                const item = {}
+                for (let i = 0; i < header.length; i++) {
+                    item[header[i]] = row[i]
+                }
+                return item
+            })
+            // console.log('list', list)
+            uploadJson(list)
+            // let workbook = read(reader.result, {
+            //     type: 'binary'
+            // })
+            // let sheets = workbook.Sheets;
+
+            // let names = []
+            // for (let sheet in sheets) {
+            //     if (sheets.hasOwnProperty(sheet)) {
+            //         const json = utils.sheet_to_json(sheets[sheet])
+            //         console.log('json', json)
+            //         uploadJson(json)
+            //         break
+            //     }
+            // }
+        }
+        reader.readAsText(file, 'utf-8')
+    }
+
     return (
         <div className={styles.app}
             onDragOver={(e) => {
@@ -3566,38 +3619,30 @@ export function AlasqlHome({ config, onUploaded }) {
                 e.stopPropagation();
                 e.preventDefault();
                 const file = e.dataTransfer.files[0]
-                console.log('file', file)
-                // uploadFile({ file })
-                const reader = new FileReader()
-                reader.onload = async () => {
-                    console.log(reader.result)
-                    let workbook = read(reader.result, {
-                        type: 'binary'
-                    })
-                    let sheets = workbook.Sheets;
-
-                    let names = []
-                    for (let sheet in sheets) {
-                        if (sheets.hasOwnProperty(sheet)) {
-                            const json = utils.sheet_to_json(sheets[sheet])
-                            console.log('json', json)
-                            uploadJson(json)
-                            break
+                if (file.name.endsWith('.json')) {
+                    parseJsonFile(file)
+                }
+                else if (file.name.endsWith('.csv')) {
+                    parseCsvFile(file)
+                }
+                else {
+                    const reader = new FileReader()
+                    reader.onload = async () => {
+                        let workbook = read(reader.result, {
+                            type: 'binary'
+                        })
+                        let sheets = workbook.Sheets;
+    
+                        for (let sheet in sheets) {
+                            if (sheets.hasOwnProperty(sheet)) {
+                                const json = utils.sheet_to_json(sheets[sheet])
+                                uploadJson(json)
+                                break
+                            }
                         }
                     }
-
-                    // names = names[0]
-                    // console.log('names', names)
-                    // const root = JSON.parse((reader.result) as any)
-                    // const nodes_will = await parseRoot(page)
-                    // console.log('nodes_will', nodes_will)
-
-                    // editor.current.setNodes(nodes_will.children)
+                    reader.readAsBinaryString(file)
                 }
-                // reader.readAsText(file, 'utf-8')
-                reader.readAsBinaryString(file)
-                // var reader = new FileReader();
-                //读取成功
             }}
         >
             {t('alasql.drop_file')}
