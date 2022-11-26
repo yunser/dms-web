@@ -7,7 +7,7 @@ import _ from 'lodash';
 import classNames from 'classnames'
 // console.log('lodash', _)
 import copy from 'copy-to-clipboard';
-import { CheckCircleOutlined, CloseCircleOutlined, CopyOutlined, EyeOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, CloseCircleOutlined, CopyOutlined, EllipsisOutlined, EyeOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { IconButton } from '../icon-button';
 import { CopyButton } from '../copy-button';
@@ -109,7 +109,7 @@ function SimpleCell({ onClick, text, color }) {
     )
 }
 
-function HeaderCell({ name }) {
+function HeaderCell({ name, onCopyValue }) {
     const [isHover, setIsHover] = useState(false)
 
     const timer_ref = useRef(0)
@@ -141,14 +141,14 @@ function HeaderCell({ name }) {
             <div className={styles.title}>{name}</div>
             {isHover &&
                 <div className={styles.tool}>
-                    <CopyButton
+                    {/* <CopyButton
                         text={name}
                     >
                         <IconButton title="复制">
                             <CopyOutlined />
                         </IconButton>
                     </CopyButton>
-                    {/* <IconButton
+                    <IconButton
                         title="复制"
                         onClick={() => {
                             copy(name)
@@ -157,6 +157,44 @@ function HeaderCell({ name }) {
                     >
                         <CopyOutlined />
                     </IconButton> */}
+                    <Dropdown
+                        trigger={['click']}
+                        overlay={
+                            <Menu
+                                items={[
+                                    {
+                                        label: t('copy'),
+                                        key: 'copy',
+                                    },
+                                    {
+                                        label: t('copy_value'),
+                                        key: 'copy_value',
+                                    },
+                                ]}
+                                onClick={({ key, domEvent }) => {
+                                    // domEvent.preventDefault()
+                                    domEvent.stopPropagation()
+                                    if (key == 'copy') {
+                                        copy(name)
+                                        message.info(t('copied'))
+                                    }
+                                    else if (key == 'copy_value') {
+                                        onCopyValue && onCopyValue()
+                                    }
+                                }}
+                            />
+                        }
+                    >
+                        <IconButton
+                            // tooltip={t('add')}
+                            className={styles.refresh}
+                            // onClick={() => {
+                            //     setProjectModalVisible(true)
+                            // }}
+                        >
+                            <EllipsisOutlined />
+                        </IconButton>
+                    </Dropdown>
                 </div>
             }
         </div>
@@ -875,7 +913,23 @@ export function ExecDetail(props) {
                 // title: '' + field.name,
                 __rawTitle: field.name,
                 title: (
-                    <HeaderCell name={field.name} />
+                    <HeaderCell
+                        name={field.name}
+                        onCopyValue={() => {
+                            const values = []
+                            for (let item of list) {
+                                values.push(item[key].value)
+                            }
+                            const copyText = values.map(value => {
+                                if (value == null) {
+                                    return 'null'
+                                }
+                                return `'${value}'`
+                            }).join(', ')
+                            copy(copyText)
+                            message.success('Copied')
+                        }}
+                    />
                 ),
                 dataIndex: key,
                 key,
