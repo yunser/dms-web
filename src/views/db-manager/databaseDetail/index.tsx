@@ -242,9 +242,14 @@ export function DataBaseDetail({ databaseType = 'mysql', connectionId, event$, c
         // },
     ]
     // const [activeKey, setActiveKey] = useState(tabs_default[0].key)
-    const [activeKey, setActiveKey] = useState('')
+    const [activeKey, _setActiveKey] = useState('')
     const [tabViewId, setTabViewId] = useState('')
     const [tabs, setTabs] = useState(tabs_default)
+
+    function setActiveKey(key) {
+        setTabViewId('' + new Date().getTime())
+        _setActiveKey(key)
+    }
 
     event$.useSubscription(msg => {
         console.log('dbManager/onmessage', msg)
@@ -455,7 +460,6 @@ export function DataBaseDetail({ databaseType = 'mysql', connectionId, event$, c
                         onEdit={onEdit}
                         activeKey={activeKey}
                         onChange={key => {
-                            setTabViewId('' + new Date().getTime())
                             setActiveKey(key)
                         }}
                         type="editable-card"

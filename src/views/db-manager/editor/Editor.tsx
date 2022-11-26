@@ -4,6 +4,7 @@ import styles from './Editor.module.css';
 import '../suggestion.ts'
 import { suggestionInit } from '../suggestion';
 import { getTheme } from '../../../theme'
+import { useInterval } from 'ahooks';
 
 suggestionInit()
 
@@ -151,6 +152,24 @@ export const Editor: VFC = ({ lang = 'sql',
             // window.g_completionItemProvider && window.g_completionItemProvider.dispose()
         }
     }, [containerRef.current]);
+
+    // useInterval(() => {
+    //     if (!containerRef.current) {
+    //         return
+    //     }
+    //     if (!editorRef.current) {
+    //         return
+    //     }
+    //     const elem = containerRef.current.children[0]
+    //     if (!elem) {
+    //         return
+    //     }
+    //     // console.log('elem.clientWidth', elem.clientWidth, elem.clientHeight)
+    //     // console.log('ele', window.getComputedStyle(elem).display)
+    //     if (elem.clientWidth) {
+    //         // editorRef.current?.layout()
+    //     }
+    // }, 1000)
 
     useEffect(() => {
         const _editor = editorRef.current
