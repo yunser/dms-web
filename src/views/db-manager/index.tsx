@@ -1229,11 +1229,11 @@ export function DbManager({ config }) {
                                         <AlasqlHome
                                             config={config}
                                             event$={event$}
-                                            onUploaded={({ id }) => {
+                                            onUploaded={({ id, name = '' }) => {
                                                 const key = '' + new Date().getTime()
                                                 addOrActiveTab({
                                                     // title: `${curConnect.name || 'Unnamed'}`,
-                                                    title: t('alasql'),
+                                                    title: name || t('alasql'),
                                                     key,
                                                     type: 'database',
                                                     data: {
