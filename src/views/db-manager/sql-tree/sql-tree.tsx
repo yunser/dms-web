@@ -449,6 +449,25 @@ export function SqlTree({ databaseType, config, event$, connectionId, onTab, dat
             // adbs: ,
             // suggestionAdd('adbs', ['dim_realtime_recharge_paycfg_range', 'dim_realtime_recharge_range'])
             suggestionAdd(schemaName, list.map(item => item.$_table_name))
+
+
+            // AlaSQL 自动查询
+            //         console.log('alasql/nodeData', JSON.parse(JSON.stringify(nodeData)))
+            //         console.log('alasql/nodeData2', nodeData.children)
+            //         if (nodeData && nodeData?.children?.length) {
+            //             if (databaseType == 'alasql') {
+            //                 // const tableName = nodeData.children[0].itemData.$_table_name
+            //                 const tableName = nodeData.children
+            //                 console.log('alasql/tableName', tableName)
+
+            //                 showSqlInNewtab({
+            //                     title: '?', // TODO 写死
+            //                     sql: `SELECT *
+            // FROM ?
+            // LIMIT 20;`,
+            //                 })
+            //             }
+            //         }
         } else {
             message.error('连接失败')
         }
@@ -490,16 +509,8 @@ export function SqlTree({ databaseType, config, event$, connectionId, onTab, dat
                 refreshNodeData(nodeData, treeData)
                 // setTimeout(() => {
                 // }, 0)
-                // console.log('nodeData', nodeData)
-            }
-            // AlaSQL 自动查询
-            if (databaseType == 'alasql') {
-                showSqlInNewtab({
-                    title: '?', // TODO 写死
-                    sql: `SELECT *
-FROM ?
-LIMIT 20;`,
-                })
+                
+                
             }
             
             suggestionAddSchemas(connectionId, dbs.map(item => item.$_name))
@@ -674,6 +685,10 @@ LIMIT 1000;`
         setTreeData([...treeData])
         setSelectedKeys([getSchemaKey(schemaName)])
         loadTables(schemaName, treeData)
+
+        
+
+        // 读取字段为了代码填充
         if (databaseType == 'postgresql') {
             // TODO
         }
@@ -767,7 +782,7 @@ LIMIT 1000;`
             sql = `SELECT TOP 20 * FROM [${$__schemaName}].[${$_table_name}]`
         }
         else if (databaseType == 'alasql') {
-            sql = `SELECT *\nFROM ?\nLIMIT 20;`
+            sql = `SELECT *\nFROM ${tableName}\nLIMIT 20;`
         }
         else if (databaseType == 'postgresql') {
             sql = `SELECT *\nFROM "${schemaName}"."${tableName}"\nLIMIT 20;`
