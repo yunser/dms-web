@@ -18,6 +18,7 @@ import ReactJson from 'react-json-view'
 import JSON5 from 'json5'
 import copy from 'copy-to-clipboard';
 import { request } from '../utils/http';
+import moment from 'moment';
 
 // console.log('JJJ', JSON.stringify({
 //     name: 'root',
@@ -129,7 +130,13 @@ export function JsonEditor({ config, key, event$, data = {}, onUploaded }) {
     async function uploadJson(json) {
         let res = await request.post(`${config.host}/mysql/connect`, {
             type: 'alasql',
-            jsonList: json,
+            tables: [
+                {
+                    name: moment().format('HHmmss'),
+                    rows: json
+                }
+            ],
+            // jsonList: json,
         })
         console.log('res', res)
         if (res.success) {

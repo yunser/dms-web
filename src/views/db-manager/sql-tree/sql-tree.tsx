@@ -782,7 +782,7 @@ LIMIT 1000;`
             sql = `SELECT TOP 20 * FROM [${$__schemaName}].[${$_table_name}]`
         }
         else if (databaseType == 'alasql') {
-            sql = `SELECT *\nFROM ${tableName}\nLIMIT 20;`
+            sql = `SELECT *\nFROM \`${tableName}\`\nLIMIT 20;`
         }
         else if (databaseType == 'postgresql') {
             sql = `SELECT *\nFROM "${schemaName}"."${tableName}"\nLIMIT 20;`
