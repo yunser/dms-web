@@ -1,7 +1,7 @@
 import { Button, Descriptions, Input, message, Modal, Popover, Space, Table, Tabs } from 'antd';
 import React, { useMemo, useRef, useState } from 'react';
 import styles from './json.module.less';
-import _ from 'lodash';
+import _, { values } from 'lodash';
 import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
@@ -125,6 +125,40 @@ export function JsonEditor({ config, key, event$, data = {}, onUploaded }) {
 
     function getCode() {
         return code_ref.current
+    }
+
+    function toInsertSql(list) {
+        if (!list.length) {
+            message.error('array empty')
+            return
+        }
+        const tableName = `tbl${moment().format('HHmm')}`
+        const fields = Object.keys(list[0])
+        const createTableSql = `CREATE TABLE \`${tableName}\` (
+${fields.map(field => {
+                return `    \`${field}\` varchar(64) NULL`
+            }).join(',\n')}
+);`
+        // CREATE TABLE `linxot`.`asd` (
+        //     `id` varchar(64) NULL    ,
+        //     `name` varchar(64) NULL   
+        //    ) 
+        const insertSqls = []
+        for (let item of list) {
+            const values = fields.map(field => {
+                return `'${item[field]}'`
+            }).join(', ')
+            insertSqls.push(`(${values})`)
+        }
+        // console.log('toInsertSql', insertSqls.join('\n'))
+        const insertPrefix = `INSERT INTO \`${tableName}\` (${fields.map(field => `\`${field}\``).join(', ')}) VALUES`
+        const sql = createTableSql + `\n${insertPrefix}${insertSqls.join(',\n')};`
+        event$.emit({
+            type: 'event_show_text',
+            data: {
+                text: sql,
+            }
+        })
     }
 
     async function uploadJson(json) {
@@ -337,14 +371,24 @@ export function JsonEditor({ config, key, event$, data = {}, onUploaded }) {
                         {tab == 'table' && !!jsonObj &&
                             <div className={styles.tableBox}>
                                 <div className={styles.header}>
-                                    <Button
-                                        size="small"
-                                        onClick={() => {
-                                            uploadJson(jsonObj)
-                                        }}
-                                    >
-                                        {t('query')}
-                                    </Button>
+                                    <Space>
+                                        <Button
+                                            size="small"
+                                            onClick={() => {
+                                                uploadJson(jsonObj)
+                                            }}
+                                        >
+                                            {t('query')}
+                                        </Button>
+                                        <Button
+                                            size="small"
+                                            onClick={() => {
+                                                toInsertSql(jsonObj)
+                                            }}
+                                        >
+                                            {t('to_insert_sql')}
+                                        </Button>
+                                    </Space>
                                 </div>
                                 <JsonTable
                                     jsonObj={jsonObj}

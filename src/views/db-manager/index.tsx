@@ -263,6 +263,10 @@ export function DbManager({ config }) {
                 },
             })
         }
+        else if (msg.type == 'event_show_text') {
+            const { text } = msg.data
+            showTextTab(text)
+        }
     })
 
     function closeTabByKey(targetKey) {
@@ -546,12 +550,13 @@ export function DbManager({ config }) {
         
     }
 
-    function showTextTab() {
+    function showTextTab(text = '') {
         addOrActiveTab({
             title: '$i18n.text',
             key: 'text-' + uid(16),
             type: 'text',
             data: {
+                text
                 // url,
             },
         })

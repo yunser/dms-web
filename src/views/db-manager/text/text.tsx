@@ -47,10 +47,10 @@ function SelectionInfo({ event$ }) {
 }
 
 export function TextEditor({ config, event$, data = {} }) {
-    const { defaultJson = '' } = data
+    const { text = '' } = data
     const { t } = useTranslation()
 
-    const [code] = useState(defaultJson)
+    const [code] = useState(text)
     // const [code2, setCode2] = useState('')
     const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
     

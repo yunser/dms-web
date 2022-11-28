@@ -366,6 +366,7 @@ i18n
                     'logger': 'Logger',
                     'alasql': 'AlaSQL',
                     'alasql.drop_file': 'After dragging and dropping the xlsx, csv or JSON file and uploading it, you can use SQL queries',
+                    'to_insert_sql': 'to Insert SQL',
                 }
             },
             zh: {
@@ -725,6 +726,7 @@ i18n
                     'logger': '日志',
                     'alasql': 'AlaSQL',
                     'alasql.drop_file': '拖拽表格文件到这里上传后，可以使用 SQL 查询数据。支持 CSV、XLSX 和 JSON 格式的文件。',
+                    'to_insert_sql': '转成插入 SQL 语句',
                 }
             }
         },
