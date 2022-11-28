@@ -231,6 +231,7 @@ export function TableList({ config, onJson, connectionId, onTab, dbName, data = 
     const [keyword, setKeyword] = useState('')
     // const [filterKeyword] = useState('')
     // const refreshByKeyword = 
+    const [selectedRowKeys, setSelectedRowKeys] = useState([])
     
     const [list, setList] = useState([])
     
@@ -272,6 +273,7 @@ export function TableList({ config, onJson, connectionId, onTab, dbName, data = 
         // });
         setLoading(true)
         setSortedInfo({})
+        setSelectedRowKeys([])
         let res = await request.post(`${config.host}/mysql/tables`, {
             dbName,
             connectionId,
@@ -338,8 +340,10 @@ export function TableList({ config, onJson, connectionId, onTab, dbName, data = 
         })
     }
 
-    async function truncate(item) {
-        const sql = `TRUNCATE TABLE \`${item.TABLE_SCHEMA}\`.\`${item.TABLE_NAME}\`;`
+    async function truncateTable(items) {
+        const sql = items.map(item => {
+            return `TRUNCATE TABLE \`${item.TABLE_SCHEMA}\`.\`${item.TABLE_NAME}\`;`
+        }).join('\n')
         console.log('truncate', sql)
         showSqlInNewtab({
             title: 'TRUNCATE TABLE',
@@ -347,8 +351,11 @@ export function TableList({ config, onJson, connectionId, onTab, dbName, data = 
         })
     }
 
-    async function drop(item) {
-        const sql = `DROP TABLE \`${item.TABLE_SCHEMA}\`.\`${item.TABLE_NAME}\`;`
+    async function dropTable(items) {
+        
+        const sql = items.map(item => {
+            return `DROP TABLE \`${item.TABLE_SCHEMA}\`.\`${item.TABLE_NAME}\`;`
+        }).join('\n')
         showSqlInNewtab({
             title: 'DROP TABLE',
             sql,
@@ -546,10 +553,10 @@ LIMIT 20`,
                                     ]}
                                     onClick={({ _item, key, keyPath, domEvent }) => {
                                         if (key == 'drop') {
-                                            drop(item)
+                                            dropTable([item])
                                         }
                                         else if (key == 'truncate') {
-                                            truncate(item)
+                                            truncateTable([item])
                                         }
                                         else if (key == 'partInfo') {
                                             partInfo(item)
@@ -579,9 +586,7 @@ LIMIT 20`,
 
     return (
         <div className={styles.tablesBox}>
-            <div style={{
-                marginBottom: 8
-            }}>
+            <div className={styles.header}>
                 <Space>
                     <IconButton
                         tooltip={t('refresh')}
@@ -622,6 +627,33 @@ LIMIT 20`,
                         导出 JSON
                     </Button> */}
                 </Space>
+                {selectedRowKeys.length > 0 &&
+                    <Space>
+                        <Button
+                            size="small"
+                            danger
+                            onClick={() => {
+                                const tableNames = selectedRowKeys
+                                const items = tableNames.map(tableName => {
+                                    return list.find(item => item.TABLE_NAME == tableName)
+                                })
+                                dropTable(items)
+                            }}
+                        >{t('delete')}</Button>
+                        <Button
+                            size="small"
+                            danger
+                            onClick={() => {
+                                const tableNames = selectedRowKeys
+                                const items = tableNames.map(tableName => {
+                                    return list.find(item => item.TABLE_NAME == tableName)
+                                })
+                                truncateTable(items)
+                            }}
+                        >{t('truncate')}</Button>
+
+                    </Space>
+                }
             </div>
             {/* <div className={styles.header}>
                 <DebounceInput
@@ -720,6 +752,12 @@ LIMIT 20`,
                 rowKey="TABLE_NAME"
                 columns={columns}
                 bordered
+                rowSelection={{
+                    selectedRowKeys,
+                    onChange(selectedRowKeys, selectedRows, info) {
+                        setSelectedRowKeys(selectedRowKeys)
+                    },
+                }}
                 onChange={(pagination, filters, sorter) => {
                     console.log('Various parameters', pagination, filters, sorter);
                     // setFilteredInfo(filters);
