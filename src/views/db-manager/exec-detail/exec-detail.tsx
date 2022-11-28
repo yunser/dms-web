@@ -167,8 +167,12 @@ function HeaderCell({ name, onCopyValue }) {
                                         key: 'copy',
                                     },
                                     {
-                                        label: t('copy_value'),
+                                        label: t('copy_value') + ` (,)`,
                                         key: 'copy_value',
+                                    },
+                                    {
+                                        label: t('copy_value') + ` (\\n)`,
+                                        key: 'copy_value_2',
                                     },
                                 ]}
                                 onClick={({ key, domEvent }) => {
@@ -179,7 +183,10 @@ function HeaderCell({ name, onCopyValue }) {
                                         message.info(t('copied'))
                                     }
                                     else if (key == 'copy_value') {
-                                        onCopyValue && onCopyValue()
+                                        onCopyValue && onCopyValue('')
+                                    }
+                                    else if (key == 'copy_value_2') {
+                                        onCopyValue && onCopyValue('mult_line')
                                     }
                                 }}
                             />
@@ -915,17 +922,30 @@ export function ExecDetail(props) {
                 title: (
                     <HeaderCell
                         name={field.name}
-                        onCopyValue={() => {
+                        onCopyValue={(type) => {
                             const values = []
                             for (let item of list) {
                                 values.push(item[key].value)
                             }
-                            const copyText = values.map(value => {
-                                if (value == null) {
-                                    return 'null'
-                                }
-                                return `'${value}'`
-                            }).join(', ')
+                            let copyText
+                            if (type == 'mult_line') {
+                                copyText = values.filter(item => item != null)
+                                    // .map(value => {
+                                    //     if (value == null) {
+                                    //         return 'null'
+                                    //     }
+                                    //     return `'${value}'`
+                                    // })
+                                    .join('\n')
+                            }
+                            else {
+                                copyText = values.map(value => {
+                                    if (value == null) {
+                                        return 'null'
+                                    }
+                                    return `'${value}'`
+                                }).join(', ')
+                            }
                             copy(copyText)
                             message.success('Copied')
                         }}
