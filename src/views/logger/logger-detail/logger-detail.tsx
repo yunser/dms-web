@@ -1,4 +1,4 @@
-import { Button, Checkbox, Col, Descriptions, Drawer, Empty, Form, Input, InputNumber, message, Modal, Pagination, Popover, Row, Select, Space, Table, Tabs } from 'antd';
+import { Button, Checkbox, Col, Descriptions, Drawer, Empty, Form, Input, InputNumber, message, Modal, Pagination, Popover, Row, Select, Space, Table, Tabs, Tag } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import styles from './logger-detail.module.less';
 import _ from 'lodash';
@@ -480,14 +480,29 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
                             {
                                 title: t('time'),
                                 dataIndex: 'time',
-                                width: 170,
+                                width: 240,
                                 render(value) {
                                     if (!value) {
                                         return '--'
                                     }
+                                    const m = moment(value)
+                                    const minite = moment().diff(m, 'minute') + 1
+                                    let tag = ''
+                                    if (minite < 60) {
+                                        tag = `-${minite} min`
+                                    }
+                                    else if (minite < 24 * 60) {
+                                        const hour = (minite / 60).toFixed(1)
+                                        tag = `-${hour} h`
+                                    }
                                     return (
                                         <div className={styles.fullCell}>
-                                            <div className={styles.timeValue}>{moment(value).format('YYYY-MM-DD HH:mm:ss')}</div>
+                                            <div className={styles.timeCell}>
+                                                <div className={styles.timeValue}>{m.format('YYYY-MM-DD HH:mm:ss')}</div>
+                                                {!!tag &&
+                                                    <Tag className={styles.timeTag}>{tag}</Tag>
+                                                }
+                                            </div>
                                         </div>
                                     )
                                 }
@@ -506,7 +521,7 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
                                     return (
                                         <div className={styles.content}
                                             style={{
-                                                maxWidth: document.body.clientWidth - 240 - (detailItem.type == 'file' ? 240 : 0)
+                                                maxWidth: document.body.clientWidth - 240 - 60 - (detailItem.type == 'file' ? 240 : 0)
                                             }}
                                         >
                                             {!!traceId &&
