@@ -76,6 +76,17 @@ function TimeSelector({ value, onChange }) {
         setOpen(true)
     }
 
+    let showTimeText
+    if (value.type == 'today') {
+        showTimeText = '今天'
+    }
+    else if (value.type == 'relative') {
+        showTimeText = `${value.number} ${unitLabels[value.unit]}`
+    }
+    else {
+        showTimeText = `${startTime}~${endTime}`
+    }
+
     return (
         <div>
             <Popover
@@ -128,6 +139,16 @@ function TimeSelector({ value, onChange }) {
                                         </div>
                                     )
                                 })}
+                                <Button
+                                    onClick={() => {
+                                        onChange && onChange({
+                                            type: 'today',
+                                        })
+                                        setOpen(false)
+                                    }}
+                                >
+                                    今天
+                                </Button>
                             </div>
                             {/* {tab == 'custom' &&
                             } */}
@@ -171,13 +192,14 @@ function TimeSelector({ value, onChange }) {
                 <Button
                     onClick={showModal}
                 >
-                    {value.type == 'relative' ?
+                    {showTimeText}
+                    {/* {value.type == 'relative' ?
                         <div>{value.number} {unitLabels[value.unit]}</div>
                     :
                         <div>
                             {startTime}~{endTime}
                         </div>
-                    }
+                    } */}
                 </Button>
             </Popover>
         </div>
@@ -222,7 +244,8 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onConnnec
     const [loading, setLoading] = useState(false)
     const [keyword, setKeyword] = useState('')
     const [searchKeyword, setSearchKeyword] = useState('')
-    const [limit, setLimit] = useState(100)
+    const default_limit = 100
+    const [limit, setLimit] = useState(default_limit)
     // const [searchLimit, setSearchLimit] = useState(limit)
     const [ts, setTs] = useState('1')
     // 
@@ -243,7 +266,11 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onConnnec
         let startTime
         let endTime
         if (time) {
-            if (time.type == 'relative') {
+            if (time.type == 'today') {
+                startTime = moment().startOf('day').format('YYYY-MM-DD HH:mm:ss')
+                endTime = moment().format('YYYY-MM-DD HH:mm:ss')
+            }
+            else if (time.type == 'relative') {
                 startTime = moment().add(-time.number, time.unit).format('YYYY-MM-DD HH:mm:ss')
                 endTime = moment().format('YYYY-MM-DD HH:mm:ss')
             }
@@ -264,7 +291,7 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onConnnec
             endTime,
             ts,
             page,
-            pageSize: detailItem.type == 'grafana' ? (limit || 1000) : pageSize,
+            pageSize: detailItem.type == 'grafana' ? (limit || default_limit) : pageSize,
             queryTotal: page == 1,
             type,
         })
@@ -473,21 +500,17 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onConnnec
                     </Space>
                 </div>
                 <div className={styles.pageBox}>
-                    {detailItem.type == 'grafana' ?
-                        <div></div>
-                    :
-                        <Pagination
-                            total={total}
-                            current={page}
-                            pageSize={pageSize}
-                            showSizeChanger={false}
-                            showTotal={total => `共 ${total} 条记录`}
-                            onChange={(current) => {
-                                setPage(current)
-                            }}
-                            // size="small"
-                        />
-                    }
+                    <Pagination
+                        total={total}
+                        current={page}
+                        pageSize={(detailItem.type == 'grafana') ? (limit || default_limit) : pageSize}
+                        showSizeChanger={false}
+                        showTotal={total => `共 ${total} 条记录`}
+                        onChange={(current) => {
+                            setPage(current)
+                        }}
+                        // size="small"
+                    />
                     <div className={styles.query}>{query} {queryTime}</div>
                 </div>
                 <div className={styles.body}>
