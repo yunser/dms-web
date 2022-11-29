@@ -528,14 +528,23 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
                                                     setDetailVisible(true)
                                                 }}
                                             >查看</span>
+                                            {' | '}
                                             <span
                                                 className={styles.view}
                                                 onClick={() => {
+                                                    try {
+                                                        JSON.parse(item.content)
+                                                    }
+                                                    catch (err) {
+                                                        message.error('content is not JSON')
+                                                        return
+                                                    }
                                                     setDetail(item)
                                                     setDetailView('json')
                                                     setDetailVisible(true)
                                                 }}
                                             >JSON 查看</span>
+                                            {' | '}
                                             <span
                                                 className={styles.view}
                                                 onClick={() => {
