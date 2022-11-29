@@ -18,17 +18,6 @@ const unitLabels = {
     'hour': '小时'
 }
 
-const quickQueries = [
-    {
-        label: '__req',
-        value: '__req',
-    },
-    {
-        label: 'event_alarm_998832937149672657',
-        value: 'event_alarm_998832937149672657',
-    },
-]
-
 function TimeSelector({ value, onChange }) {
     
     const [open, setOpen] = useState(false)
@@ -207,6 +196,13 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
         end: '',
     })
     
+    const quickQueries = (detailItem.quickQueries || []).map(item => {
+        return {
+            ...item,
+            label: item.title,
+            value: item.id,
+        }
+    })
 
     const { t } = useTranslation()
     const [contextList, setContextList] = useState([])
@@ -307,10 +303,11 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
     }, [curFile, page, time, type, searchKeyword, ts])
 
     function quickSelect(value) {
-        const fItem = quickQueries.find(item => item.value == value)
+        const fItem = quickQueries.find(item => item.id == value)
+        console.log('value', value, fItem)
         if (fItem) {
-            setKeyword(fItem.value)
-            setSearchKeyword(fItem.value)
+            setKeyword(fItem.content)
+            setSearchKeyword(fItem.content)
         }
     }
 
