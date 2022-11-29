@@ -86,7 +86,7 @@ function TimeSelector({ value, onChange }) {
                 }}
                 content={
                     <div className={styles.timeBox}>
-                        <Tabs
+                        {/* <Tabs
                             activeKey={tab}
                             defaultActiveKey="1"
                             onChange={key => {
@@ -102,62 +102,64 @@ function TimeSelector({ value, onChange }) {
                                     key: 'custom',
                                 },
                             ]}
-                        />
+                        /> */}
                         <div>
-                            {tab == 'relative' &&
-                                <div className={styles.times}>
-                                    {quickTimes.map(item => {
-                                        return (
-                                            <div>
-                                                <Button
-                                                    onClick={() => {
-                                                        onChange && onChange({
-                                                            type: 'relative',
-                                                            number: item.number,
-                                                            unit: item.unit,
-                                                        })
-                                                        setOpen(false)
-                                                    }}
-                                                >
-                                                    {item.number} {unitLabels[item.unit]}
-                                                </Button>
-                                            </div>
-                                        )
-                                    })}
-                                </div>
-                            }
-                            {tab == 'custom' &&
-                                <div>
-                                    <Space>
-                                        <Input
-                                            value={startTime}
-                                            onChange={e => {
-                                                setStartTime(e.target.value)
-                                            }}
-                                            style={{ width: 240 }}
-                                        />
-                                        <div>~</div>
-                                        <Input
-                                            value={endTime}
-                                            onChange={e => {
-                                                setEndTime(e.target.value)
-                                            }}
-                                            style={{ width: 240 }}
-                                        />
-                                        <Button
-                                            onClick={() => {
-                                                onChange && onChange({
-                                                    type: 'custom',
-                                                    start: startTime,
-                                                    end: endTime,
-                                                })
-                                                setOpen(false)
-                                            }}
-                                            
-                                        >确定</Button>
-                                    </Space>
-                                </div>
-                            }
+                            {/* {tab == 'relative' &&
+                            } */}
+                            <div className={styles.sectionTitle}>相对</div>
+                            <div className={styles.times}>
+                                {quickTimes.map(item => {
+                                    return (
+                                        <div>
+                                            <Button
+                                                onClick={() => {
+                                                    onChange && onChange({
+                                                        type: 'relative',
+                                                        number: item.number,
+                                                        unit: item.unit,
+                                                    })
+                                                    setOpen(false)
+                                                }}
+                                            >
+                                                {item.number} {unitLabels[item.unit]}
+                                            </Button>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                            {/* {tab == 'custom' &&
+                            } */}
+                            <div className={styles.sectionTitle}>自定义</div>
+                            <div>
+                                <Space>
+                                    <Input
+                                        value={startTime}
+                                        onChange={e => {
+                                            setStartTime(e.target.value)
+                                        }}
+                                        style={{ width: 240 }}
+                                    />
+                                    <div>~</div>
+                                    <Input
+                                        value={endTime}
+                                        onChange={e => {
+                                            setEndTime(e.target.value)
+                                        }}
+                                        style={{ width: 240 }}
+                                    />
+                                    <Button
+                                        onClick={() => {
+                                            onChange && onChange({
+                                                type: 'custom',
+                                                start: startTime,
+                                                end: endTime,
+                                            })
+                                            setOpen(false)
+                                        }}
+                                        
+                                    >确定</Button>
+                                </Space>
+                            </div>
                         </div>
                     </div>
                 } 
@@ -493,7 +495,7 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
                             {
                                 title: t('time'),
                                 dataIndex: 'time',
-                                width: 240,
+                                width: 200,
                                 render(value, _item, _index) {
                                     if (!value) {
                                         return '--'
@@ -512,7 +514,7 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
                                         <div className={styles.fullCell}>
                                             <div className={styles.timeCell}>
                                                 {/* {_index}: */}
-                                                <div className={styles.timeValue}>{m.format('YYYY-MM-DD HH:mm:ss')}</div>
+                                                <div className={styles.timeValue}>{m.format('MM-DD HH:mm:ss')}</div>
                                                 {!!tag &&
                                                     <Tag className={styles.timeTag}>{tag}</Tag>
                                                 }
@@ -535,7 +537,7 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
                                     return (
                                         <div className={styles.content}
                                             style={{
-                                                maxWidth: document.body.clientWidth - 240 - 60 - (detailItem.type == 'file' ? 240 : 0)
+                                                maxWidth: document.body.clientWidth - 200 - 60 - (detailItem.type == 'file' ? 240 : 0)
                                             }}
                                         >
                                             {!!traceId &&
