@@ -77,8 +77,12 @@ function TimeSelector({ value, onChange }) {
     }
 
     let showTimeText
+    
     if (value.type == 'today') {
         showTimeText = '今天'
+    }
+    else if (value.type == 'yesterday') {
+        showTimeText = '昨天'
     }
     else if (value.type == 'relative') {
         showTimeText = `${value.number} ${unitLabels[value.unit]}`
@@ -148,6 +152,16 @@ function TimeSelector({ value, onChange }) {
                                     }}
                                 >
                                     今天
+                                </Button>
+                                <Button
+                                    onClick={() => {
+                                        onChange && onChange({
+                                            type: 'yesterday',
+                                        })
+                                        setOpen(false)
+                                    }}
+                                >
+                                    昨天
                                 </Button>
                             </div>
                             {/* {tab == 'custom' &&
@@ -269,6 +283,10 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onConnnec
             if (time.type == 'today') {
                 startTime = moment().startOf('day').format('YYYY-MM-DD HH:mm:ss')
                 endTime = moment().format('YYYY-MM-DD HH:mm:ss')
+            }
+            else if (time.type == 'yesterday') {
+                startTime = moment().add(-1, 'days').startOf('day').format('YYYY-MM-DD HH:mm:ss')
+                endTime = moment().add(-1, 'days').endOf('day').format('YYYY-MM-DD HH:mm:ss')
             }
             else if (time.type == 'relative') {
                 startTime = moment().add(-time.number, time.unit).format('YYYY-MM-DD HH:mm:ss')
