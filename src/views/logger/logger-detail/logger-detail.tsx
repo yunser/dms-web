@@ -218,6 +218,8 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
     const [loading, setLoading] = useState(false)
     const [keyword, setKeyword] = useState('')
     const [searchKeyword, setSearchKeyword] = useState('')
+    const [limit, setLimit] = useState(100)
+    // const [searchLimit, setSearchLimit] = useState(limit)
     const [ts, setTs] = useState('1')
     // 
     const [detail, setDetail] = useState(null)
@@ -258,7 +260,7 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
             endTime,
             ts,
             page,
-            pageSize,
+            pageSize: detailItem.type == 'grafana' ? (limit || 1000) : pageSize,
             queryTotal: page == 1,
             type,
         })
@@ -424,6 +426,13 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
                                 setTs('' + new Date().getTime())
                             }}
                         />
+                        <InputNumber
+                            placeholder="limit"
+                            value={limit}
+                            onChange={value => {
+                                setLimit(value)
+                            }}
+                        />
                         <Select
                             value={''}
                             className={styles.quickSelect}
@@ -443,17 +452,21 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
                     </Space>
                 </div>
                 <div className={styles.pageBox}>
-                    <Pagination
-                        total={total}
-                        current={page}
-                        pageSize={pageSize}
-                        showSizeChanger={false}
-                        showTotal={total => `共 ${total} 条记录`}
-                        onChange={(current) => {
-                            setPage(current)
-                        }}
-                        // size="small"
-                    />
+                    {detailItem.type == 'grafana' ?
+                        <div></div>
+                    :
+                        <Pagination
+                            total={total}
+                            current={page}
+                            pageSize={pageSize}
+                            showSizeChanger={false}
+                            showTotal={total => `共 ${total} 条记录`}
+                            onChange={(current) => {
+                                setPage(current)
+                            }}
+                            // size="small"
+                        />
+                    }
                     <div className={styles.query}>{query} {queryTime}</div>
                 </div>
                 <div className={styles.body}>
@@ -481,7 +494,7 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
                                 title: t('time'),
                                 dataIndex: 'time',
                                 width: 240,
-                                render(value) {
+                                render(value, _item, _index) {
                                     if (!value) {
                                         return '--'
                                     }
@@ -498,6 +511,7 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
                                     return (
                                         <div className={styles.fullCell}>
                                             <div className={styles.timeCell}>
+                                                {/* {_index}: */}
                                                 <div className={styles.timeValue}>{m.format('YYYY-MM-DD HH:mm:ss')}</div>
                                                 {!!tag &&
                                                     <Tag className={styles.timeTag}>{tag}</Tag>
