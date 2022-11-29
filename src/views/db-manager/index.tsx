@@ -1197,6 +1197,7 @@ export function DbManager({ config }) {
                                     {item.type == 'logger-detail' &&
                                         <LoggerDetail
                                             config={config}
+                                            event$={event$}
                                             item={item.data.item}
                                         />
                                     }

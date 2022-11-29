@@ -12,6 +12,8 @@ import Item from 'antd/lib/list/Item';
 import moment from 'moment';
 import { request } from '@/views/db-manager/utils/http';
 import ReactJson from 'react-json-view';
+import { IconButton } from '@/views/db-manager/icon-button';
+import { ExportOutlined } from '@ant-design/icons';
 
 const unitLabels = {
     'minute': '分钟',
@@ -182,7 +184,7 @@ function TimeSelector({ value, onChange }) {
     )
 }
 
-export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect, }) {
+export function LoggerDetail({ event$, connectionId, item: detailItem, onConnnect, }) {
 
     const config = {
         host: 'http://localhost:7003',
@@ -437,6 +439,7 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
                         />
                         <Select
                             value={''}
+                            placeholder="快速搜索"
                             className={styles.quickSelect}
                             options={quickQueries}
                             onChange={value => {
@@ -451,6 +454,22 @@ export function LoggerDetail({ event, connectionId, item: detailItem, onConnnect
                         >
                             {t('refresh')}
                         </Button> */}
+                    </Space>
+                    <Space>
+                        <IconButton
+                            tooltip={t('export_json')}
+                            onClick={() => {
+                                event$.emit({
+                                    type: 'event_show_json',
+                                    data: {
+                                        json: JSON.stringify(list, null, 4)
+                                        // connectionId,
+                                    },
+                                })
+                            }}
+                        >
+                            <ExportOutlined />
+                        </IconButton>
                     </Space>
                 </div>
                 <div className={styles.pageBox}>
