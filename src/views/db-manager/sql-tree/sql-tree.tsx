@@ -152,6 +152,10 @@ function TreeTitle({ keyword, loading = false, nodeData, onAction, onClick, onDo
                                     label: t('table_create'),
                                     key: 'table_create',
                                 },
+                                {
+                                    label: t('copy_name'),
+                                    key: 'copy_name',
+                                },
                             ]
                         :
                             [
@@ -1019,7 +1023,12 @@ LIMIT 1000;`
                                         }
                                         else if (key == 'copy_name') {
                                             console.log('nodeData', nodeData)
-                                            copy(nodeData.itemData.$_table_name)
+                                            if (nodeData.type == 'schema') {
+                                                copy(nodeData.itemData.$_name)
+                                            }
+                                            else {
+                                                copy(nodeData.itemData.$_table_name)
+                                            }
                                             message.info(t('copied'))
                                         }
                                         else if (key == 'table_list') {
