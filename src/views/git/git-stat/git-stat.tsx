@@ -341,23 +341,7 @@ export function GitStat({ config, event$, projectPath,  }) {
                     {!!stat &&
                         <div>
                             <div className={styles.exportBox}>
-                                <IconButton
-                                    tooltip={t('export_json')}
-                                    // size="small"
-                                    className={styles.refresh}
-                                    onClick={() => {
-                                        event$.emit({
-                                            type: 'event_show_json',
-                                            data: {
-                                                json: JSON.stringify(list, null, 4)
-                                                // connectionId,
-                                            },
-                                        })
-                                        // exportAllKeys()
-                                    }}
-                                >
-                                    <ExportOutlined />
-                                </IconButton>
+                                
                             </div>
                             <div className={styles.stats}>
                                 <div className={styles.item}>过去 1 月提交数：{stat.monthCommit}</div>

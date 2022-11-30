@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { BranchesOutlined, CopyOutlined, DownloadOutlined, EllipsisOutlined, PlusOutlined, TagOutlined } from '@ant-design/icons';
+import { BranchesOutlined, CopyOutlined, DownloadOutlined, EllipsisOutlined, ExportOutlined, PlusOutlined, TagOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
@@ -14,11 +14,11 @@ import { DiffText } from '../git-diff';
 import moment from 'moment';
 import { FullCenterBox } from '@/views/db-manager/redis-client';
 // import { saveAs } from 'file-saver'
-import { Gitgraph } from '@gitgraph/react'
+// import { Gitgraph } from '@gitgraph/react'
 import { CopyButton } from '@/views/db-manager/copy-button';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { ResetModal } from '../reset-modal';
-import { useVirtualList } from 'ahooks'
+// import { useVirtualList } from 'ahooks'
 import { TagEditor } from '../tag-edit';
 import { BranchModal } from '../branch-modal';
 import List from 'rc-virtual-list';
@@ -357,134 +357,161 @@ export function CommitList({ config, event$, projectPath,  }) {
                         <Empty />
                     </FullCenterBox>
                 :
-                    <div className={styles.list}>
-                        <List 
-                            data={showList} 
-                            height={320} 
-                            itemHeight={32} 
-                            itemKey="hash"
-                        >
-                            {item => {
-                                return (
-                                    <div
-                                        className={classNames(styles.item, {
-                                            [styles.active]: curCommit && curCommit.hash == item.hash
-                                        })}
-                                        onClick={() => {
-                                            show(item)
-                                        }}
-                                        key={item.hash}
-                                    >
-                                        <div className={styles.left}>
-                                            {item.branches?.length > 0 &&
-                                                <div className={styles.tags}>
-                                                    {item.branches.map(branch => {
-                                                        const simpleName = branch.name
-                                                        // const simpleName = branch.name.replace(/^remotes\//, '')
-                                                        return (
-                                                            <Tag
-                                                                key={branch.name}
-                                                                color="blue"
-                                                            >
-                                                                <BranchesOutlined />
-                                                                {' '}
-                                                                {simpleName}
-                                                            </Tag>
+                    <div className={styles.listBox}>
+                        <div className={styles.header}>
+                            {/* 时间 */}
+                            {t('time')}
+                            {/* |
+                            导出 */}
+                            <IconButton
+                                tooltip={t('export_json')}
+                                // size="small"
+                                className={styles.refresh}
+                                onClick={() => {
+                                    event$.emit({
+                                        type: 'event_show_json',
+                                        data: {
+                                            json: JSON.stringify(list, null, 4)
+                                            // connectionId,
+                                        },
+                                    })
+                                    // exportAllKeys()
+                                }}
+                            >
+                                <ExportOutlined />
+                            </IconButton>
+                        </div>
+                        <div className={styles.list}>
+                            <List 
+                                data={showList} 
+                                height={320 - 32} 
+                                itemHeight={32} 
+                                itemKey="hash"
+                            >
+                                {item => {
+                                    const time = moment(item.date).format('MM/DD HH:mm')
+                                    return (
+                                        <div
+                                            className={classNames(styles.item, {
+                                                [styles.active]: curCommit && curCommit.hash == item.hash
+                                            })}
+                                            onClick={() => {
+                                                show(item)
+                                            }}
+                                            key={item.hash}
+                                        >
+                                            <div className={styles.left}>
+                                                <div className={styles.time}>{time}</div>
+                                                {item.branches?.length > 0 &&
+                                                    <div className={styles.tags}>
+                                                        {item.branches.map(branch => {
+                                                            const simpleName = branch.name
+                                                            // const simpleName = branch.name.replace(/^remotes\//, '')
+                                                            return (
+                                                                <Tag
+                                                                    key={branch.name}
+                                                                    color="blue"
+                                                                >
+                                                                    <BranchesOutlined />
+                                                                    {' '}
+                                                                    {simpleName}
+                                                                </Tag>
+                                                                )
+                                                            })}
+                                                    </div>
+                                                }
+                                                {item.tags?.length > 0 &&
+                                                    <div className={styles.tags}>
+                                                        {item.tags.map(tag => {
+                                                            return (
+                                                                <Tag
+                                                                    color="green"
+                                                                    key={tag}
+                                                                >
+                                                                    <TagOutlined />
+                                                                    {' '}
+                                                                    {tag}
+                                                                </Tag>
                                                             )
                                                         })}
+                                                    </div>
+                                                }
+                                                <div className={styles.msg}>
+                                                    {item.message}
                                                 </div>
-                                            }
-                                            {item.tags?.length > 0 &&
-                                                <div className={styles.tags}>
-                                                    {item.tags.map(tag => {
-                                                        return (
-                                                            <Tag
-                                                                color="green"
-                                                                key={tag}
-                                                            >
-                                                                <TagOutlined />
-                                                                {' '}
-                                                                {tag}
-                                                            </Tag>
-                                                        )
-                                                    })}
-                                                </div>
-                                            }
-                                            <div className={styles.msg}>
-                                                {item.message}
                                             </div>
-                                        </div>
-                                        <Dropdown
-                                            trigger={['click']}
-                                            overlay={
-                                                <Menu
-                                                    items={[
-                                                        {
-                                                            label: t('git.branch.create'),
-                                                            key: 'branch_create',
-                                                        },
-                                                        {
-                                                            label: t('git.tag.create'),
-                                                            key: 'tag_create',
-                                                        },
-                                                        {
-                                                            type: 'divider',
-                                                        },
-                                                        {
-                                                            label: t('git.copy_hash'),
-                                                            key: 'copy_hash',
-                                                        },
-                                                        {
-                                                            label: t('git.cherry_pick'),
-                                                            key: 'cherry_pick',
-                                                        },
-                                                        {
-                                                            type: 'divider',
-                                                        },
-                                                        {
-                                                            label: t('git.branch.reset_to_commit'),
-                                                            key: 'reset_commit',
-                                                        },
-                                                        {
-                                                            label: t('export_json'),
-                                                            key: 'export_json',
-                                                        },
-                                                    ]}
-                                                    onClick={({ key }) => {
-                                                        if (key == 'reset_commit') {
-                                                            setResetModalVisible(true)
-                                                            setResetCommit(item)
-                                                        }
-                                                        else if (key == 'tag_create') {
-                                                            setTagModalVisible(true)
-                                                        }
-                                                        else if (key == 'branch_create') {
-                                                            setBranchModalVisible(true)
-                                                        }
-                                                        else if (key == 'copy_hash') {
-                                                            copyHash(item)
-                                                        }
-                                                        else if (key == 'cherry_pick') {
-                                                            cherryPickCommitItem(item)
-                                                        }
-                                                        else if (key == 'export_json') {
-                                                            exportCommitItem(item)
-                                                        }
-                                                        
-                                                    }}
-                                                />
-                                            }
-                                        >
-                                            <IconButton
-                                                // onClick={e => e.preventDefault()}
+                                            <Dropdown
+                                                trigger={['click']}
+                                                overlay={
+                                                    <Menu
+                                                        items={[
+                                                            {
+                                                                label: t('git.branch.create'),
+                                                                key: 'branch_create',
+                                                            },
+                                                            {
+                                                                label: t('git.tag.create'),
+                                                                key: 'tag_create',
+                                                            },
+                                                            {
+                                                                type: 'divider',
+                                                            },
+                                                            {
+                                                                label: t('git.copy_hash'),
+                                                                key: 'copy_hash',
+                                                            },
+                                                            {
+                                                                label: t('git.cherry_pick'),
+                                                                key: 'cherry_pick',
+                                                            },
+                                                            {
+                                                                type: 'divider',
+                                                            },
+                                                            {
+                                                                label: t('git.branch.reset_to_commit'),
+                                                                key: 'reset_commit',
+                                                            },
+                                                            {
+                                                                label: t('export_json'),
+                                                                key: 'export_json',
+                                                            },
+                                                        ]}
+                                                        onClick={({ key }) => {
+                                                            if (key == 'reset_commit') {
+                                                                setResetModalVisible(true)
+                                                                setResetCommit(item)
+                                                            }
+                                                            else if (key == 'tag_create') {
+                                                                setTagModalVisible(true)
+                                                            }
+                                                            else if (key == 'branch_create') {
+                                                                setBranchModalVisible(true)
+                                                            }
+                                                            else if (key == 'copy_hash') {
+                                                                copyHash(item)
+                                                            }
+                                                            else if (key == 'cherry_pick') {
+                                                                cherryPickCommitItem(item)
+                                                            }
+                                                            else if (key == 'export_json') {
+                                                                exportCommitItem(item)
+                                                            }
+                                                            
+                                                        }}
+                                                    />
+                                                }
                                             >
-                                                <EllipsisOutlined />
-                                            </IconButton>
-                                        </Dropdown>
-                                    </div>
-                                )
-                            }}
-                        </List>
+                                                <IconButton
+                                                    // onClick={e => e.preventDefault()}
+                                                >
+                                                    <EllipsisOutlined />
+                                                </IconButton>
+                                            </Dropdown>
+                                        </div>
+                                    )
+                                }}
+                            </List>
+                        </div>
                     </div>
                 }
             </div>

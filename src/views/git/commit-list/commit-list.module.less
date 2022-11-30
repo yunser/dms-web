@@ -52,7 +52,23 @@
         // border: 1px solid #f00;
     }
 }
+.listBox {
+    display: flex;
+    flex-direction: column;
+    .header {
+        flex: 0 0 32px;
+        display: flex;
+        justify-content: space-between;
+        flex-direction: row;
+        align-items: center;
+        padding: 0 16px;
+        // height: 32px;
+        // border: 1px solid #000;
+        border-bottom: 1px solid var(--border-color);
+    }
+}
 .list {
+    flex: 1 0 auto;
     // border-top: 1px solid var(--border-color);
     font-size: 12px;
     // border: 1px solid #000;
@@ -88,6 +104,10 @@
             text-overflow: ellipsis;
             // border: 1px solid #f00;
         }
+    }
+    .time {
+        // border: 1px solid #000;
+        width: 90px;
     }
     .tag {
         display: flex;
