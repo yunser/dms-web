@@ -20,7 +20,8 @@ export function MergeModal({ config, event$, projectPath, onSuccess, onCancel })
     const [remotes, setRemotes] = useState([])
     const [current, setCurrent] = useState('')
     const [loading, setLoading] = useState(false)
-
+    const [tab, setTab] = useState('mergeFrom')
+    // const [tab, setTab] = useState('mergeTo')
 
     const [branches, setBranches] = useState([])
 
@@ -73,28 +74,72 @@ export function MergeModal({ config, event$, projectPath, onSuccess, onCancel })
 
     async function handleOk() {
         const values = await form.validateFields()
-        setLoading(true)
-        // const values = await form.validateFields()
-        // console.log('values', values)
-        // return
-        let res = await request.post(`${config.host}/git/merge`, {
-            projectPath,
-            fromBranch: values.branch,
-            toBranch: current,
-        })
-        console.log('pull/res', res)
-        if (res.success) {
-            // setRemotes(res.data)
-            onSuccess && onSuccess()
-            // setCurrent(res.data.current)
-            event$.emit({
-                type: 'event_reload_history',
-                data: {
-                    commands: res.data.commands,
-                }
+        if (tab == 'mergeFrom') {
+            setLoading(true)
+            let res = await request.post(`${config.host}/git/merge`, {
+                projectPath,
+                fromBranch: values.branch,
+                toBranch: current,
             })
+            console.log('pull/res', res)
+            if (res.success) {
+                onSuccess && onSuccess()
+                event$.emit({
+                    type: 'event_reload_history',
+                    data: {
+                        commands: res.data.commands,
+                    }
+                })
+            }
+            setLoading(false)
         }
-        setLoading(false)
+        else {
+            message.info(`正在切换分支到 ${values.branch}`)
+            setLoading(true)
+            let res = await request.post(`${config.host}/git/checkout`, {
+                projectPath,
+                branchName: values.branch,
+            })
+            // console.log('ret', ret)
+            if (res.success) {
+                let res = await request.post(`${config.host}/git/merge`, {
+                    projectPath,
+                    fromBranch: current,
+                    toBranch: values.branch,
+                })
+                console.log('pull/res', res)
+                if (res.success) {
+                    onSuccess && onSuccess()
+                    event$.emit({
+                        type: 'event_reload_history',
+                        data: {
+                            commands: res.data.commands,
+                        }
+                    })
+                }
+                // message.success('连接成功')
+                // onConnnect && onConnnect()
+                // message.success(t('success'))
+                // onClose && onClose()
+                // onSuccess && onSuccess()
+                // loadBranches()
+                // event$.emit({
+                //     type: 'event_reload_history',
+                //     data: {
+                //         commands: res.data.commands,
+                //     }
+                // })
+                // event$.emit({
+                //     type: 'event_refresh_commit_list',
+                //     data: {
+                //         commands: res.data.commands,
+                //     }
+                // })
+            }
+            else {
+                setLoading(false)
+            }
+        }
     }
 
     useEffect(() => {
@@ -117,6 +162,23 @@ export function MergeModal({ config, event$, projectPath, onSuccess, onCancel })
             >
                 {/* {loading ? 'Pulling' : 'Pull Finished'} */}
                 {/* <div className={styles.help}>合并以下分支到 {current} 分支</div> */}
+                <Tabs
+                    activeKey={tab}
+                    defaultActiveKey="1"
+                    onChange={key => {
+                        setTab(key)
+                    }}
+                    items={[
+                        {
+                            label: `合并`,
+                            key: 'mergeFrom',
+                        },
+                        {
+                            label: `合并到`,
+                            key: 'mergeTo',
+                        },
+                    ]}
+                />
                 <Form
                     form={form}
                     labelCol={{ span: 8 }}
@@ -129,35 +191,53 @@ export function MergeModal({ config, event$, projectPath, onSuccess, onCancel })
                     //     wrapperCol: { span: 24 },
                     // }}
                 >
-                    <Form.Item
-                        name="branch"
-                        label={t('git.branch')}
-                        rules={[ { required: true, }, ]}
-                    >
-                        <Select
-                            options={branches.map(r => {
-                                return {
-                                    label: r.name,
-                                    value: r.name,
-                                }
-                            })}
-                        />
-                    </Form.Item>
-                    <Form.Item
-                        // name="branch"
-                        label={t('git.merge.toBranch')}
-                        // rules={[ { required: true, }, ]}
-                    >
-                        {current}
-                        {/* <Select
-                            options={branches.map(r => {
-                                return {
-                                    label: r.name,
-                                    value: r.name,
-                                }
-                            })}
-                        /> */}
-                    </Form.Item>
+                    {tab == 'mergeFrom' &&
+                        <>
+                            <Form.Item
+                                name="branch"
+                                label={t('git.branch')}
+                                rules={[ { required: true, }, ]}
+                            >
+                                <Select
+                                    options={branches.map(r => {
+                                        return {
+                                            label: r.name,
+                                            value: r.name,
+                                        }
+                                    })}
+                                />
+                            </Form.Item>
+                            <Form.Item
+                                label={t('git.merge.toBranch')}
+                            >
+                                {current}
+                            </Form.Item>
+                        </>
+                    }
+                    {tab == 'mergeTo' &&
+                        <>
+                            <Form.Item
+                                label={t('git.merge.fromBranch')}
+                            >
+                                {current}
+                            </Form.Item>
+                            <Form.Item
+                                name="branch"
+                                label={t('git.merge.toBranch')}
+                                rules={[ { required: true, }, ]}
+                            >
+                                <Select
+                                    options={branches.map(r => {
+                                        return {
+                                            label: r.name,
+                                            value: r.name,
+                                        }
+                                    })}
+                                />
+                            </Form.Item>
+                            
+                        </>
+                    }
                 </Form>
             </Modal>
         </div>

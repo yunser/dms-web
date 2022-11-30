@@ -243,6 +243,7 @@ i18n
                     'git.fetch': 'Fetch',
                     'git.merge': 'Merge',
                     'git.merge.merge_branch': 'Merge Branch',
+                    'git.merge.fromBranch': 'from Branch',
                     'git.merge.toBranch': 'to Branch',
                     'git.branch': 'Branch',
                     'git.branches': 'Branches',
