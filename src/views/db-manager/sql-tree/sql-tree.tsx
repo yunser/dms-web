@@ -281,7 +281,7 @@ function DebounceInput(props: InputProps) {
 }
 
 
-export function SqlTree({ databaseType, config, event$, connectionId, onTab, data = {} }: any) {
+export function SqlTree({ databaseType, curConnect, config, event$, connectionId, onTab, data = {} }: any) {
     console.warn('SqlTree/render')
     
     const { defaultJson = '' } = data
@@ -507,14 +507,17 @@ export function SqlTree({ databaseType, config, event$, connectionId, onTab, dat
             const schemaNames = treeData.map(item => item.itemData.$_name)
                 .filter(n => n != 'information_schema')
             console.log('schemaNames', schemaNames)
+            
+            if (curConnect?.defaultDatabase && schemaNames.includes(curConnect.defaultDatabase)) {
+                const nodeData = treeData.find(item => item.itemData.$_name == curConnect?.defaultDatabase)
+                refreshNodeData(nodeData, treeData)
+            }
             // 数据库只有一个（忽略 information_schema）时，自动加载表格
-            if (schemaNames.length == 1) {
+            else if (schemaNames.length == 1) {
                 const nodeData = treeData.find(item => item.itemData.$_name == schemaNames[0])
                 refreshNodeData(nodeData, treeData)
                 // setTimeout(() => {
                 // }, 0)
-                
-                
             }
             
             suggestionAddSchemas(connectionId, dbs.map(item => item.$_name))

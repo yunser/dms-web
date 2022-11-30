@@ -216,7 +216,7 @@ function Status({ databaseType, config, event$, connectionId }) {
     )
 }
 
-export function DataBaseDetail({ databaseType = 'mysql', connectionId, event$, config, onJson }) {
+export function DataBaseDetail({ databaseType = 'mysql', curConnect, connectionId, event$, config, onJson }) {
     console.warn('DataBaseDetail/render')
 
     const { t } = useTranslation()
@@ -436,6 +436,7 @@ export function DataBaseDetail({ databaseType = 'mysql', connectionId, event$, c
                     config={config}
                     connectionId={connectionId}
                     databaseType={databaseType}
+                    curConnect={curConnect}
                     onTab={tab => {
                         setActiveKey(tab.key)
                         setTabs([
