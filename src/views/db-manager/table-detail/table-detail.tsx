@@ -19,6 +19,32 @@ function hasValue(value) {
     return !!value || value === 0
 }
 
+function hasValueOrNull(value) {
+    return !!value || value === 0 || value === null
+}
+
+function formatStringOrNull(value) {
+    if (value === null) {
+        return 'NULL'
+    }
+    return `'${value}'`
+}
+
+function computeValue(value) {
+    let _value = value.value
+    if (value.newValue !== undefined) {
+        _value = value.newValue
+    }
+    return _value
+}
+
+function computeNewOldValue(newValue, oldValue) {
+
+    if (newValue !== undefined) {
+        return newValue
+    }
+    return oldValue
+}
 
 const functionMap = {
     sqlite: {},
@@ -79,6 +105,8 @@ function ColumnModal({ item, onCancel, onOk }) {
     const { t } = useTranslation()
     const [form] = Form.useForm()
     // console.log('item', item)
+    const columnDefault = Form.useWatch('COLUMN_DEFAULT', form)
+
     useEffect(() => {
         const values = {}
         for (let key in item) {
@@ -184,7 +212,21 @@ function ColumnModal({ item, onCancel, onOk }) {
                     label={t('default')}
                     // rules={[ { required: true, }, ]}
                 >
-                    <Input />
+                    <Input
+                        placeholder={columnDefault == null ? 'NULL' : ''}
+                        addonAfter={
+                            <Button 
+                                style={{ width: 80 }} 
+                                onClick={() => {
+                                    form.setFieldsValue({
+                                        COLUMN_DEFAULT: null,
+                                    })
+                                }}
+                            >
+                                NULL
+                            </Button>
+                        }
+                    />
                 </Form.Item>
                 <Form.Item
                     name="COLUMN_COMMENT"
@@ -309,11 +351,8 @@ function Cell({ value, selectOptions, index, dataIndex, onChange }) {
     const [isEdit, setIsEdit] = useState(false)
     const [inputValue, setInputValue] = useState(value.value)
     useEffect(() => {
-        let _value = value.value
-        if (value.newValue != undefined) {
-            _value = value.newValue
-        }
-        setInputValue(_value)
+        console.log('setInputValue', value.value, value.newValue, computeValue(value))
+        setInputValue(computeValue(value))
     }, [value.value, value.newValue])
     
     
@@ -342,6 +381,8 @@ function Cell({ value, selectOptions, index, dataIndex, onChange }) {
     //         document.removeEventListener('click', clickHandler)
     //     }
     // }, [isEdit, value, inputValue, dataIndex])
+
+    const displayValue = computeNewOldValue(inputValue, value.value)
     return (
         <div
             className={styles.cell}
@@ -420,6 +461,7 @@ function Cell({ value, selectOptions, index, dataIndex, onChange }) {
                                 }}
                             />
                         </div>
+                        // TODO type2 是什么？
                     : dataIndex == 'type2' ?
                         <div>
                             {/* {inputValue} */}
@@ -484,7 +526,11 @@ function Cell({ value, selectOptions, index, dataIndex, onChange }) {
                                 }, 0)
                             }}
                         >
-                            {inputValue || value.value}
+                            {displayValue == null ?
+                                <div className={styles.null}>NULL</div>
+                            :
+                                <div>{displayValue}</div>
+                            }
                             {/* （->{value.newValue}） */}
                             </div>
                     }
@@ -773,7 +819,8 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
                 const typeSql = row.COLUMN_TYPE.newValue || row.COLUMN_TYPE.value
                 const nullSql = (row.IS_NULLABLE.newValue || row.IS_NULLABLE.value) == 'YES' ? 'NULL' : 'NOT NULL'
                 const autoIncrementSql = (row.EXTRA.newValue || row.EXTRA.value) == 'auto_increment' ? 'AUTO_INCREMENT' : ''
-                const defaultSql = hasValue(row.COLUMN_DEFAULT.newValue || row.COLUMN_DEFAULT.value) ? `DEFAULT '${row.COLUMN_DEFAULT.newValue || row.COLUMN_DEFAULT.value}'` : ''
+                // const defaultSql = hasValueOrNull(row.COLUMN_DEFAULT.newValue || row.COLUMN_DEFAULT.value) ? `DEFAULT '${row.COLUMN_DEFAULT.newValue || row.COLUMN_DEFAULT.value}'` : ''
+                const defaultSql = hasValueOrNull(computeValue(row.COLUMN_DEFAULT)) ? `DEFAULT ${formatStringOrNull(computeValue(row.COLUMN_DEFAULT))}` : ''
                 const commentSql = hasValue(row.COLUMN_COMMENT.newValue || row.COLUMN_COMMENT.value) ? `COMMENT '${row.COLUMN_COMMENT.newValue || row.COLUMN_COMMENT.value}'` : ''
                 // const commentSql = hasValue(row.COLUMN_COMMENT.newValue) ? `COMMENT '${row.COLUMN_COMMENT.newValue}'` : ''
                 const rowSql = `${changeType} ${nameSql} ${typeSql} ${nullSql} ${autoIncrementSql} ${defaultSql} ${commentSql}`
@@ -1878,6 +1925,7 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
                         const idx = tableColumns.findIndex(item => item.__id == columnModalItem.__id)
                         // console.log('idx', idx)
                         if (idx == -1) {
+                            message.error('index error')
                             return
                         }
                         for (let key in values) {
