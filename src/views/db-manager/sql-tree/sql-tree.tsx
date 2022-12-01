@@ -3,7 +3,6 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './sql-tree.module.less';
 import _, { debounce } from 'lodash';
 import classNames from 'classnames'
-// console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import { Editor } from '../editor/Editor';
 import { IconButton } from '../icon-button';
@@ -13,6 +12,7 @@ import { request } from '../utils/http';
 import { i18n } from '@/i18n';
 import { FullCenterBox } from '../redis-client';
 import copy from 'copy-to-clipboard';
+import moment from 'moment';
 
 function getTableKey(tableName: string) {
     return `table-${tableName}`
@@ -551,8 +551,6 @@ LIMIT 1000;`
             sql: fieldNamesSql,
             // tableName,
             // dbName,
-        }, {
-            // noMessage: true,
         })
         console.log('表字段', res.data)
         setTabbleAllFields(tableName, res.data.map(item => item.COLUMN_NAME))
@@ -625,11 +623,29 @@ LIMIT 1000;`
         const tableName = nodeData.itemData.$_table_name
         const schemaName = nodeData.itemData.$table_schema
         
-        let sql
-        sql = `SELECT COUNT(*) FROM \`${schemaName}\`.\`${tableName}\`;`
+        const createTableSql = `SHOW CREATE TABLE \`${schemaName}\`.\`${tableName}\`;`
+        const { success, data } = await request.post(`${config.host}/mysql/execSqlSimple`, {
+            connectionId,
+            sql: createTableSql,
+            // tableName,
+            // dbName,
+        })
+        if (!success) {
+            return
+        }
+        if (!data.length) {
+            return
+        }
+        const backupTableName = `${tableName}_bk_${moment().format('yyMMDD_HHmm')}`
+        const checkSql = `SELECT COUNT(*) FROM \`${tableName}\`;`
+        const createSql = (data[0]['Create Table'] + ';').replace(/`[\d\D]+?`/, `\`${backupTableName}\``)
+        console.log('createSql', JSON.stringify(createSql))
+        const insertSql = `INSERT INTO \`${backupTableName}\` (SELECT * FROM \`${tableName}\`);`
+        const checkSql2 = `SELECT COUNT(*) FROM \`${backupTableName}\`;`
+        const showSql = [checkSql, createSql, insertSql, checkSql2].join('\n')
         showSqlInNewtab({
-            title: 'DROP TABLE',
-            sql,
+            title: 'Backup Table',
+            sql: showSql,
         })
     }
 
