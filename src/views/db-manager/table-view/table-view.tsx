@@ -783,6 +783,14 @@ export function TableViewer({ config, databaseType = 'mysql', connectionId, even
             dataIndex: 'COLUMN_COMMENT',
         },
         {
+            title: t('COLLATION_NAME'),
+            dataIndex: 'COLLATION_NAME',
+        },
+        {
+            title: t('CHARACTER_SET_NAME'),
+            dataIndex: 'CHARACTER_SET_NAME',
+        },
+        {
             title: '',
             dataIndex: '__empty',
         },
