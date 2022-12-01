@@ -1,4 +1,4 @@
-import { Button, Checkbox, Descriptions, Form, Input, message, Modal, Select, Space, Table, Tabs } from 'antd';
+import { Button, Checkbox, Descriptions, Divider, Form, Input, message, Modal, Select, Space, Table, Tabs, Tooltip } from 'antd';
 import React, { useMemo } from 'react';
 import { VFC, useRef, useState, useEffect } from 'react';
 import { request } from '../utils/http';
@@ -74,6 +74,129 @@ const idxTest = [
 
 // parseColumns(idxTest[1])
 // parseColumns(idxTest[2])
+
+function ColumnModal({ item, onCancel, onOk }) {
+    const { t } = useTranslation()
+    const [form] = Form.useForm()
+    // console.log('item', item)
+    useEffect(() => {
+        const values = {}
+        for (let key in item) {
+            values[key] = item[key].value
+        }
+        // console.log('values', values)
+        form.setFieldsValue(values)
+    }, [item])
+
+    return (
+        <Modal
+            open={true}
+            title={t('column_edit')}
+            onCancel={onCancel}
+            onOk={async () => {
+                const values = await form.validateFields()
+                console.log('values', values)
+                onOk && onOk(values)
+            }}
+        >
+            <Form
+                form={form}
+                labelCol={{ span: 6 }}
+                wrapperCol={{ span: 18 }}
+                initialValues={{
+                    position: 'last',
+                    // port: 6379,
+                    // db: 0,
+                }}
+                // layout={{
+                //     labelCol: { span: 0 },
+                //     wrapperCol: { span: 24 },
+                // }}
+            >
+                <Form.Item
+                    name="COLUMN_NAME"
+                    label={t('column_name')}
+                    rules={[ { required: true, }, ]}
+                >
+                    <Input />
+                </Form.Item>
+                <Form.Item
+                    name="COLUMN_TYPE"
+                    label={t('type')}
+                    rules={[ { required: true, }, ]}
+                >
+                    <Input />
+                </Form.Item>
+                <Form.Item
+                    name="IS_NULLABLE"
+                    label={t('nullable')}
+                    rules={[ { required: true, }, ]}
+                >
+                    <Select
+                        options={[
+                            {
+                                label: 'no',
+                                value: 'NO',
+                            },
+                            {
+                                label: 'yes',
+                                value: 'YES',
+                            },
+                        ]}
+                    />
+                </Form.Item>
+                <Form.Item
+                    name="COLUMN_KEY"
+                    label={t('primary_key')}
+                >
+                    <Select
+                        options={[
+                            {
+                                label: 'no',
+                                value: '',
+                            },
+                            {
+                                label: 'yes',
+                                value: 'PRI',
+                            },
+                        ]}
+                    />
+                </Form.Item>
+                <Form.Item
+                    name="EXTRA"
+                    label={t('auto_increment')}
+                >
+                    <Select
+                        options={[
+                            {
+                                label: 'no',
+                                value: '',
+                            },
+                            {
+                                label: 'yes',
+                                value: 'auto_increment',
+                            },
+                        ]}
+                    />
+                </Form.Item>
+                <Form.Item
+                    name="COLUMN_DEFAULT"
+                    label={t('default')}
+                    // rules={[ { required: true, }, ]}
+                >
+                    <Input />
+                </Form.Item>
+                <Form.Item
+                    name="COLUMN_COMMENT"
+                    label={t('comment')}
+                    // rules={[ { required: true, }, ]}
+                >
+                    <Input.TextArea rows={4} />
+                </Form.Item>
+            </Form>
+        </Modal>
+    )
+}
 
 function ColumnSelector({ value: _value, onChange, options }) {
     const { t } = useTranslation()
@@ -186,9 +309,12 @@ function Cell({ value, selectOptions, index, dataIndex, onChange }) {
     const [isEdit, setIsEdit] = useState(false)
     const [inputValue, setInputValue] = useState(value.value)
     useEffect(() => {
-
-        setInputValue(value.value)
-    }, [value.value])
+        let _value = value.value
+        if (value.newValue != undefined) {
+            _value = value.newValue
+        }
+        setInputValue(_value)
+    }, [value.value, value.newValue])
     
     
     
@@ -226,6 +352,7 @@ function Cell({ value, selectOptions, index, dataIndex, onChange }) {
             
             {isEdit ?
                 // <SimpleInput
+                // <div>?*3:{inputValue}</div>
                 <SimpleInput
                     inputId={id}
                     // ref={inputRef}
@@ -267,7 +394,7 @@ function Cell({ value, selectOptions, index, dataIndex, onChange }) {
                                 checked={inputValue == 'auto_increment'}
                                 onChange={(e) => {
                                     console.log('check', e.target.checked)
-                                    const newValue = e.target.checked ? 'auto_increment' : 'no_increment'
+                                    const newValue = e.target.checked ? 'auto_increment' : ''
                                     setInputValue(newValue)
                                     onChange && onChange({
                                         ...value,
@@ -283,7 +410,7 @@ function Cell({ value, selectOptions, index, dataIndex, onChange }) {
                                 checked={inputValue == 'PRI'}
                                 onChange={(e) => {
                                     console.log('check', e.target.checked)
-                                    const newValue = e.target.checked ? 'PRI' : 'NOT_PRI'
+                                    const newValue = e.target.checked ? 'PRI' : ''
                                     setInputValue(newValue)
                                     onChange && onChange({
                                         ...value,
@@ -409,6 +536,8 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
     // const editType = 
     const newNameRef = useRef(null)
     
+    const [columnModalItem, setColumnModalItem] = useState(null)
+    const [columnModalVisible, setColumnModalVisible] = useState(false)
     const [columnKeyword, setColumnKeyword] = useState('')
     const [tableColumns, setTableColumns] = useState([])
 
@@ -421,6 +550,8 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
         })
     }, [tableColumns, columnKeyword])
 
+    console.log('filteredTableColumns', filteredTableColumns)
+    
     const [loading, setLoading] = useState(false)
     const [indexes, setIndexes] = useState([])
     const [removedRows, setRemovedRows] = useState([])
@@ -891,6 +1022,7 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
 
     function onColumnCellChange({ index, dataIndex, value,}) {
         console.log('onColumnCellChange', index, dataIndex, value)
+        // onColumnCellChange 8 COLUMN_COMMENT {value: '节点名字', newValue: '节点名字3'}
         tableColumns[index][dataIndex] = value
         setTableColumns([...tableColumns])
     }
@@ -922,7 +1054,12 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
             }),
         },
         {
-            title: t('nullable'),
+            // title: t('nullable'),
+            title: (
+                <Tooltip title={t('nullable')}>
+                    <div>NU</div>
+                </Tooltip>
+            ),
             dataIndex: 'IS_NULLABLE',
             render: EditableCellRender({
                 dataIndex: 'IS_NULLABLE',
@@ -930,7 +1067,12 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
             }),
         },
         {
-            title: t('primary_key'),
+            // title: t('primary_key'),
+            title: (
+                <Tooltip title={t('primary_key')}>
+                    <div>PK</div>
+                </Tooltip>
+            ),
             dataIndex: 'COLUMN_KEY',
             // render(value) {
             //     return (
@@ -943,7 +1085,12 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
             }),
         },
         {
-            title: t('auto_increment'),
+            // title: t('auto_increment'),
+            title: (
+                <Tooltip title={t('auto_increment')}>
+                    <div>AI</div>
+                </Tooltip>
+            ),
             dataIndex: 'EXTRA',
             // render(value) {
             //     return (
@@ -971,23 +1118,38 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
                 dataIndex: 'COLUMN_COMMENT',
                 onChange: onColumnCellChange,
             }),
+            // render(value) {
+            //     return (
+            //         <div>?{JSON.stringify(value)}</div>
+            //     )
+            // }
         },
         {
             title: t('actions'),
             dataIndex: 'op',
             render(_value, item) {
                 return (
-                    <a
-                        onClick={() => {
-                            setTableColumns(tableColumns.filter(_item => _item.__id != item.__id))
-                            if (!item.__new) {
-                                setRemovedRows([
-                                    ...removedRows,
-                                    item,
-                                ])
-                            }
-                        }}
-                    >{t('delete')}</a>
+                    <Space 
+                        split={<Divider type="vertical" />}
+                    >
+                        <a
+                            onClick={() => {
+                                setColumnModalVisible(true)
+                                setColumnModalItem(item)
+                            }}
+                        >{t('edit')}</a>
+                        <a
+                            onClick={() => {
+                                setTableColumns(tableColumns.filter(_item => _item.__id != item.__id))
+                                if (!item.__new) {
+                                    setRemovedRows([
+                                        ...removedRows,
+                                        item,
+                                    ])
+                                }
+                            }}
+                        >{t('delete')}</a>
+                    </Space>
                 )
             }
         },
@@ -1561,6 +1723,7 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
                                                     pagination={false}
                                                     size="small"
                                                     rowKey="__id"
+                                                    key={JSON.parse(JSON.stringify(filteredTableColumns))}
                                                 />
                                             </div>
                                         }
@@ -1698,6 +1861,34 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
                         else {
                             loadTableInfo()
                         }
+                    }}
+                />
+            }
+            {columnModalVisible &&
+                <ColumnModal
+                    item={columnModalItem}
+                    onCancel={() => {
+                        setColumnModalItem(null)
+                        setColumnModalVisible(false)
+                    }}
+                    onOk={(values) => {
+                        // console.log('values', values)
+                        // console.log('columnModalItem', columnModalItem)
+                        // console.log('tableColumns', tableColumns)
+                        const idx = tableColumns.findIndex(item => item.__id == columnModalItem.__id)
+                        // console.log('idx', idx)
+                        if (idx == -1) {
+                            return
+                        }
+                        for (let key in values) {
+                            tableColumns[idx][key] = {
+                                ...tableColumns[idx][key],
+                                newValue: values[key]
+                            }
+                        }
+                        setTableColumns([...tableColumns])
+                        setColumnModalItem(null)
+                        setColumnModalVisible(false)
                     }}
                 />
             }
