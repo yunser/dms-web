@@ -188,6 +188,10 @@ function TreeTitle({ keyword, loading = false, nodeData, onAction, onClick, onDo
                                     key: 'count_all',
                                 },
                                 {
+                                    label: t('backup'),
+                                    key: 'backup',
+                                },
+                                {
                                     label: t('copy_name'),
                                     key: 'copy_name',
                                 },
@@ -588,9 +592,9 @@ LIMIT 1000;`
     async function showCreateTable(nodeData) {
         const tableName = nodeData.itemData.$_table_name
         const schemaName = nodeData.itemData.$table_schema
-        const sql = `show create table \`${schemaName}\`.\`${tableName}\`;`
+        const sql = `SHOW CREATE TABLE \`${schemaName}\`.\`${tableName}\`;`
         showSqlInNewtab({
-            title: 'Show create table',
+            title: 'Show Create Table',
             sql,
         })
     }
@@ -601,7 +605,7 @@ LIMIT 1000;`
 
         const sql = `TRUNCATE TABLE \`${schemaName}\`.\`${tableName}\`;`
         showSqlInNewtab({
-            title: 'TRUNCATE TABLE',
+            title: 'Truncate Table',
             sql,
         })
     }
@@ -611,6 +615,18 @@ LIMIT 1000;`
         const schemaName = nodeData.itemData.$table_schema
         
         const sql = `DROP TABLE \`${schemaName}\`.\`${tableName}\`;`
+        showSqlInNewtab({
+            title: 'Drop Table',
+            sql,
+        })
+    }
+
+    async function backup(nodeData) {
+        const tableName = nodeData.itemData.$_table_name
+        const schemaName = nodeData.itemData.$table_schema
+        
+        let sql
+        sql = `SELECT COUNT(*) FROM \`${schemaName}\`.\`${tableName}\`;`
         showSqlInNewtab({
             title: 'DROP TABLE',
             sql,
@@ -624,7 +640,7 @@ LIMIT 1000;`
         let sql
         sql = `SELECT COUNT(*) FROM \`${schemaName}\`.\`${tableName}\`;`
         showSqlInNewtab({
-            title: 'DROP TABLE',
+            title: 'Count Table',
             sql,
         })
     }
@@ -634,7 +650,7 @@ LIMIT 1000;`
         // return
         const sql = `USE \`${nodeData.itemData.SCHEMA_NAME}\`;`
         showSqlInNewtab({
-            title: 'USE',
+            title: 'Use Database',
             sql,
         })
     }
@@ -1023,6 +1039,9 @@ LIMIT 1000;`
                                         }
                                         else if (key == 'count_all') {
                                             countAll(nodeData)
+                                        }
+                                        else if (key == 'backup') {
+                                            backup(nodeData)
                                         }
                                         else if (key == 'copy_name') {
                                             console.log('nodeData', nodeData)
