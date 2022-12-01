@@ -19,13 +19,16 @@ function hasValue(value) {
     return !!value || value === 0
 }
 
-function hasValueOrNull(value) {
-    return !!value || value === 0 || value === null
+function hasValueOrNullOrEmpty(value) {
+    return !!value || value === 0 || value === null || value === ''
 }
 
 function formatStringOrNull(value) {
     if (value === null) {
         return 'NULL'
+    }
+    if (value === 'CURRENT_TIMESTAMP') {
+        return 'CURRENT_TIMESTAMP'
     }
     return `'${value}'`
 }
@@ -215,16 +218,51 @@ function ColumnModal({ item, onCancel, onOk }) {
                     <Input
                         placeholder={columnDefault == null ? 'NULL' : ''}
                         addonAfter={
-                            <Button 
-                                style={{ width: 80 }} 
-                                onClick={() => {
-                                    form.setFieldsValue({
-                                        COLUMN_DEFAULT: null,
-                                    })
+                            // <Button 
+                            //     style={{ width: 80 }} 
+                            //     onClick={() => {
+                            //         form.setFieldsValue({
+                            //             COLUMN_DEFAULT: null,
+                            //         })
+                            //     }}
+                            // >
+                            //     NULL
+                            // </Button>
+                            <Select
+                                value={''}
+                                style={{ width: 180 }} 
+                                options={[
+                                    {
+                                        label: 'NULL',
+                                        value: 'null',
+                                    },
+                                    {
+                                        label: 'EMPTY TEXT',
+                                        value: 'empty',
+                                    },
+                                    {
+                                        label: 'CURRENT_TIMESTAMP',
+                                        value: 'now',
+                                    },
+                                ]}
+                                onChange={value => {
+                                    if (value == 'null') {
+                                        form.setFieldsValue({
+                                            COLUMN_DEFAULT: null,
+                                        })
+                                    }
+                                    else if (value == 'empty') {
+                                        form.setFieldsValue({
+                                            COLUMN_DEFAULT: '',
+                                        })
+                                    }
+                                    else if (value == 'now') {
+                                        form.setFieldsValue({
+                                            COLUMN_DEFAULT: 'CURRENT_TIMESTAMP',
+                                        })
+                                    }
                                 }}
-                            >
-                                NULL
-                            </Button>
+                            />
                         }
                     />
                 </Form.Item>
@@ -528,6 +566,8 @@ function Cell({ value, selectOptions, index, dataIndex, onChange }) {
                         >
                             {displayValue == null ?
                                 <div className={styles.null}>NULL</div>
+                            : displayValue == 'CURRENT_TIMESTAMP' ?
+                                <div className={styles.null}>CURRENT_TIMESTAMP</div>
                             :
                                 <div>{displayValue}</div>
                             }
@@ -820,7 +860,7 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
                 const nullSql = (row.IS_NULLABLE.newValue || row.IS_NULLABLE.value) == 'YES' ? 'NULL' : 'NOT NULL'
                 const autoIncrementSql = (row.EXTRA.newValue || row.EXTRA.value) == 'auto_increment' ? 'AUTO_INCREMENT' : ''
                 // const defaultSql = hasValueOrNull(row.COLUMN_DEFAULT.newValue || row.COLUMN_DEFAULT.value) ? `DEFAULT '${row.COLUMN_DEFAULT.newValue || row.COLUMN_DEFAULT.value}'` : ''
-                const defaultSql = hasValueOrNull(computeValue(row.COLUMN_DEFAULT)) ? `DEFAULT ${formatStringOrNull(computeValue(row.COLUMN_DEFAULT))}` : ''
+                const defaultSql = hasValueOrNullOrEmpty(computeValue(row.COLUMN_DEFAULT)) ? `DEFAULT ${formatStringOrNull(computeValue(row.COLUMN_DEFAULT))}` : ''
                 const commentSql = hasValue(row.COLUMN_COMMENT.newValue || row.COLUMN_COMMENT.value) ? `COMMENT '${row.COLUMN_COMMENT.newValue || row.COLUMN_COMMENT.value}'` : ''
                 // const commentSql = hasValue(row.COLUMN_COMMENT.newValue) ? `COMMENT '${row.COLUMN_COMMENT.newValue}'` : ''
                 const rowSql = `${changeType} ${nameSql} ${typeSql} ${nullSql} ${autoIncrementSql} ${defaultSql} ${commentSql}`
