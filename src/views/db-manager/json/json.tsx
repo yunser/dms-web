@@ -139,10 +139,6 @@ ${fields.map(field => {
                 return `    \`${field}\` varchar(64) NULL`
             }).join(',\n')}
 );`
-        // CREATE TABLE `linxot`.`asd` (
-        //     `id` varchar(64) NULL    ,
-        //     `name` varchar(64) NULL   
-        //    ) 
         const insertSqls = []
         for (let item of list) {
             const values = fields.map(field => {

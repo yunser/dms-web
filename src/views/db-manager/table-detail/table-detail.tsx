@@ -285,10 +285,10 @@ function Cell({ value, selectOptions, index, dataIndex, onChange }) {
                                     console.log('check', e.target.checked)
                                     const newValue = e.target.checked ? 'PRI' : 'NOT_PRI'
                                     setInputValue(newValue)
-                                    // onChange && onChange({
-                                    //     ...value,
-                                    //     newValue,
-                                    // })
+                                    onChange && onChange({
+                                        ...value,
+                                        newValue,
+                                    })
 
                                 }}
                             />
@@ -619,7 +619,7 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
                     'COLUMN_NAME',
                     'COLUMN_TYPE',
                     'IS_NULLABLE',
-                    // 'COLUMN_KEY',
+                    'COLUMN_KEY',
                     'EXTRA',
                     'COLUMN_DEFAULT',
                     'COLUMN_COMMENT',
@@ -676,9 +676,8 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
             let keySql = newKeyColumns.map(item => (item.COLUMN_NAME.newValue || item.COLUMN_NAME.value))
                 .map(item => `\`${item}\``)
                 .join(',')
-            rowSqls.push(`ADD PRIMARY KEY(${keySql})`)
+            rowSqls.push(`${editType == 'create' ? '' : 'ADD '}PRIMARY KEY(${keySql})`)
         }
-        // return
 
         // 索引删除逻辑
         const idxSqls = []
