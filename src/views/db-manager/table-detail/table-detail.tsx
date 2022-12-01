@@ -15,6 +15,23 @@ import moment from 'moment';
 // console.log('lodash', _)
 const { TabPane } = Tabs
 
+const ItemHelper = {
+    mixValue(item, key) {
+        const value = item[key]
+        let _value = value.value
+        if (value.newValue !== undefined) {
+            _value = value.newValue
+        }
+        return _value
+    },
+    newValue(item, key) {
+        return item[key].newValue
+    },
+    oldValue(item, key) {
+        return item[key].value
+    },
+}
+
 function hasValue(value) {
     return !!value || value === 0
 }
@@ -49,7 +66,8 @@ function computeNewOldValue(newValue, oldValue) {
     return oldValue
 }
 
-const functionMap = {
+// functionMap
+const dbMap = {
     sqlite: {},
     mssql: {},
     postgresql: {},
@@ -113,7 +131,7 @@ function ColumnModal({ item, onCancel, onOk }) {
     useEffect(() => {
         const values = {}
         for (let key in item) {
-            values[key] = computeValue(item[key])
+            values[key] = ItemHelper.mixValue(item, key)
         }
         // console.log('values', values)
         form.setFieldsValue(values)
@@ -389,7 +407,6 @@ function Cell({ value, selectOptions, index, dataIndex, onChange }) {
     const [isEdit, setIsEdit] = useState(false)
     const [inputValue, setInputValue] = useState(value.value)
     useEffect(() => {
-        console.log('setInputValue', value.value, value.newValue, computeValue(value))
         setInputValue(computeValue(value))
     }, [value.value, value.newValue])
     
@@ -430,8 +447,6 @@ function Cell({ value, selectOptions, index, dataIndex, onChange }) {
         >
             
             {isEdit ?
-                // <SimpleInput
-                // <div>?*3:{inputValue}</div>
                 <SimpleInput
                     inputId={id}
                     // ref={inputRef}
@@ -440,12 +455,20 @@ function Cell({ value, selectOptions, index, dataIndex, onChange }) {
                         setInputValue(e.target.value)
                     }}
                     onBlur={() => {
-                        console.log('onBlur')
+                        console.log('onBlur', value)
                         // console.log('change', index, dataIndex, inputValue)
-                        onChange && onChange({
-                            ...value,
-                            newValue: inputValue,
-                        })
+                        if (value.__new) {
+                            onChange && onChange({
+                                ...value,
+                                newValue: inputValue,
+                            })
+                        }
+                        else {
+                            onChange && onChange({
+                                ...value,
+                                newValue: inputValue === value.value ? undefined : inputValue,
+                            })
+                        }
                         setIsEdit(false)    
                     }}
                 />
@@ -632,7 +655,7 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
             return tableColumns
         }
         return tableColumns.filter(item => {
-            return (item.COLUMN_NAME.newValue || item.COLUMN_NAME.value || '').toLowerCase().includes(columnKeyword.toLowerCase())
+            return (ItemHelper.mixValue(item, 'COLUMN_NAME') || '').toLowerCase().includes(columnKeyword.toLowerCase())
         })
     }, [tableColumns, columnKeyword])
 
@@ -847,22 +870,20 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
             }
             if (rowChanged) {
                 // changed = true
-                const changeType = editType == 'create' ? '' : row.__new ? 'ADD COLUMN' : row.COLUMN_NAME.newValue ? 'CHANGE COLUMN' : 'MODIFY COLUMN'
-                let _nameSql = hasValue(row.COLUMN_NAME.newValue) ? `\`${row.COLUMN_NAME.newValue}\`` : ''
+                const changeType = editType == 'create' ? '' : row.__new ? 'ADD COLUMN' : ItemHelper.newValue(row, 'COLUMN_NAME') ? 'CHANGE COLUMN' : 'MODIFY COLUMN'
+                let _nameSql = hasValue(ItemHelper.newValue(row, 'COLUMN_NAME')) ? `\`${ItemHelper.newValue(row, 'COLUMN_NAME')}\`` : ''
                 let nameSql
                 if (row.__new) {
-                    nameSql = `\`${row.COLUMN_NAME.newValue}\``
+                    nameSql = `\`${ItemHelper.newValue(row, 'COLUMN_NAME')}\``
                 }
                 else {
                     nameSql = `\`${row.COLUMN_NAME.value}\` ${_nameSql}`
                 }
-                const typeSql = row.COLUMN_TYPE.newValue || row.COLUMN_TYPE.value
-                const nullSql = (row.IS_NULLABLE.newValue || row.IS_NULLABLE.value) == 'YES' ? 'NULL' : 'NOT NULL'
-                const autoIncrementSql = (row.EXTRA.newValue || row.EXTRA.value) == 'auto_increment' ? 'AUTO_INCREMENT' : ''
-                // const defaultSql = hasValueOrNull(row.COLUMN_DEFAULT.newValue || row.COLUMN_DEFAULT.value) ? `DEFAULT '${row.COLUMN_DEFAULT.newValue || row.COLUMN_DEFAULT.value}'` : ''
-                const defaultSql = hasValueOrNullOrEmpty(computeValue(row.COLUMN_DEFAULT)) ? `DEFAULT ${formatStringOrNull(computeValue(row.COLUMN_DEFAULT))}` : ''
-                const commentSql = hasValue(row.COLUMN_COMMENT.newValue || row.COLUMN_COMMENT.value) ? `COMMENT '${row.COLUMN_COMMENT.newValue || row.COLUMN_COMMENT.value}'` : ''
-                // const commentSql = hasValue(row.COLUMN_COMMENT.newValue) ? `COMMENT '${row.COLUMN_COMMENT.newValue}'` : ''
+                const typeSql = ItemHelper.mixValue(row, 'COLUMN_TYPE')
+                const nullSql = ItemHelper.mixValue(row, 'IS_NULLABLE') == 'YES' ? 'NULL' : 'NOT NULL'
+                const autoIncrementSql = ItemHelper.mixValue(row, 'EXTRA') == 'auto_increment' ? 'AUTO_INCREMENT' : ''
+                const defaultSql = hasValueOrNullOrEmpty(ItemHelper.mixValue(row, 'COLUMN_DEFAULT')) ? `DEFAULT ${formatStringOrNull(ItemHelper.mixValue(row, 'COLUMN_DEFAULT'))}` : ''
+                const commentSql = hasValue(ItemHelper.mixValue(row, 'COLUMN_COMMENT')) ? `COMMENT '${ItemHelper.mixValue(row, 'COLUMN_COMMENT')}'` : ''
                 const rowSql = `${changeType} ${nameSql} ${typeSql} ${nullSql} ${autoIncrementSql} ${defaultSql} ${commentSql}`
                 //  int(11) NULL AFTER \`content\`
                 
@@ -877,9 +898,9 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
         }
         // 主键逻辑
         const oldKeyColumns = tableColumns.filter(item => item.COLUMN_KEY.value == 'PRI')
-        const newKeyColumns = tableColumns.filter(item => (item.COLUMN_KEY.newValue || item.COLUMN_KEY.value) == 'PRI')
+        const newKeyColumns = tableColumns.filter(item => ItemHelper.mixValue(item, 'COLUMN_KEY') == 'PRI')
         const oldKeys = oldKeyColumns.map(item => item.COLUMN_NAME.value).join(',')
-        const newKeys = newKeyColumns.map(item => (item.COLUMN_NAME.newValue || item.COLUMN_NAME.value)).join(',')
+        const newKeys = newKeyColumns.map(item => ItemHelper.mixValue(item, 'COLUMN_NAME')).join(',')
 
         const isKeyChanged = oldKeys != newKeys
         console.log('oldKeyColumns', oldKeyColumns)
@@ -891,7 +912,7 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
             rowSqls.push(`DROP PRIMARY KEY`)
         }
         if (isKeyChanged && newKeyColumns.length) {
-            let keySql = newKeyColumns.map(item => (item.COLUMN_NAME.newValue || item.COLUMN_NAME.value))
+            let keySql = newKeyColumns.map(item => ItemHelper.mixValue(item, 'COLUMN_NAME'))
                 .map(item => `\`${item}\``)
                 .join(',')
             rowSqls.push(`${editType == 'create' ? '' : 'ADD '}PRIMARY KEY(${keySql})`)
@@ -921,19 +942,19 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
             }
             // if (rowChanged) {
             function addIndex() {
-                const columnsSql = (idxRow['columns'].newValue || idxRow['columns'].value)
+                const columnsSql = ItemHelper.mixValue(idxRow, 'columns')
                     // .trim()
                     // .split(', ')
                     .map(item => `\`${item}\``)
                     .join(', ')
-                const commentSql = hasValue(idxRow.comment.newValue || idxRow.comment.value) ? `COMMENT '${idxRow.comment.newValue || idxRow.comment.value}'` : ''
-                const idxSql = (idxRow.type2.newValue || idxRow.type2.value) == 'Unique' ? 'UNIQUE INDEX' : 'INDEX'
+                const commentSql = hasValue(ItemHelper.mixValue(idxRow, 'comment')) ? `COMMENT '${ItemHelper.mixValue(idxRow, 'comment')}'` : ''
+                const idxSql = ItemHelper.mixValue(idxRow, 'type2') == 'Unique' ? 'UNIQUE INDEX' : 'INDEX'
                 console.log('idxRow.type2', idxRow.type2)
                 if (editType == 'create') {
-                    idxSqls.push(`${idxSql} \`${idxRow['name'].newValue || idxRow['name'].value}\` (${columnsSql}) ${commentSql}`)
+                    idxSqls.push(`${idxSql} \`${ItemHelper.mixValue(idxRow, 'name')}\` (${columnsSql}) ${commentSql}`)
                 }
                 else {
-                    idxSqls.push(`ADD ${idxSql} \`${idxRow['name'].newValue || idxRow['name'].value}\` (${columnsSql}) ${commentSql}`)
+                    idxSqls.push(`ADD ${idxSql} \`${ItemHelper.mixValue(idxRow, 'name')}\` (${columnsSql}) ${commentSql}`)
                 }
             }
             if (idxRow.__new) {
@@ -1311,7 +1332,7 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
                         value={value}
                         dataIndex="columns"
                         selectOptions={tableColumns.map(item => {
-                            const value = item['COLUMN_NAME'].newValue || item['COLUMN_NAME'].value
+                            const value = ItemHelper.mixValue(item, 'COLUMN_NAME')
                             return {
                                 label: value,
                                 value,
@@ -1527,14 +1548,14 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
         //     label: t('indexes'),
         //     key: 'index',
         // })
-        console.log('databaseType', databaseType, functionMap[databaseType])
-        if (functionMap[databaseType].partition) {
+        console.log('databaseType', databaseType, dbMap[databaseType])
+        if (dbMap[databaseType].partition) {
             tabs.push({
                 label: t('partition'),
                 key: 'partition',
             })
         }
-        if (functionMap[databaseType].trigger) {
+        if (dbMap[databaseType].trigger) {
             tabs.push({
                 label: t('triggers'),
                 key: 'trigger',
@@ -1751,24 +1772,31 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
                                                                 __new: true,
                                                                 COLUMN_NAME: {
                                                                     value: '',
+                                                                    __new: true,
                                                                 },
                                                                 COLUMN_TYPE: {
                                                                     value: '',
+                                                                    __new: true,
                                                                 },
                                                                 IS_NULLABLE: {
                                                                     value: 'YES',
+                                                                    __new: true,
                                                                 },
                                                                 COLUMN_DEFAULT: {
                                                                     value: null,
+                                                                    __new: true,
                                                                 },
                                                                 COLUMN_COMMENT: {
                                                                     value: '',
+                                                                    __new: true,
                                                                 },
                                                                 COLUMN_KEY: {
                                                                     value: '',
+                                                                    __new: true,
                                                                 },
                                                                 EXTRA: {
                                                                     value: '',
+                                                                    __new: true,
                                                                 },
                                                                 // CHARACTER_MAXIMUM_LENGTH: 32
                                                                 // CHARACTER_OCTET_LENGTH: 96
