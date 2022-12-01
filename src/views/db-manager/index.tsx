@@ -618,10 +618,10 @@ export function DbManager({ config }) {
             label: t('webdav'),
             key: 'webdav-home',
         },
-        // {
-        //     label: t('http'),
-        //     key: 'http-home',
-        // },
+        {
+            label: t('http'),
+            key: 'http-home',
+        },
         // {
         //     label: t('json_table'),
         //     key: 'json_table',
