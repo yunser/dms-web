@@ -113,7 +113,7 @@ function ColumnModal({ item, onCancel, onOk }) {
     useEffect(() => {
         const values = {}
         for (let key in item) {
-            values[key] = item[key].value
+            values[key] = computeValue(item[key])
         }
         // console.log('values', values)
         form.setFieldsValue(values)
@@ -963,13 +963,13 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
         let sql
         if (editType == 'update') {
             sql = `ALTER TABLE \`${dbName}\`.\`${tableInfo.TABLE_NAME}\`
-${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')}`
+${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`
         }
         else {
             newNameRef.current = values.TABLE_NAME
             sql = `CREATE TABLE \`${dbName}\`.\`${values.TABLE_NAME}\` (
 ${[...rowSqls, ...idxSqls].join(' ,\n')}
-) ${attrSqls.join(' ,\n')}`
+) ${attrSqls.join(' ,\n')};`
         }
         console.log('sql', sql)
         // setSql(sql)
