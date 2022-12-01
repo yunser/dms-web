@@ -286,7 +286,7 @@ function Cell({ value, selectOptions, index, dataIndex, onChange }) {
                                 checked={inputValue == 'PRI'}
                                 onChange={(e) => {
                                     console.log('check', e.target.checked)
-                                    const newValue = e.target.checked ? 'PRI' : 'NOT_PRI'
+                                    const newValue = e.target.checked ? 'PRI' : ''
                                     setInputValue(newValue)
                                     // onChange && onChange({
                                     //     ...value,
@@ -750,10 +750,6 @@ export function TableViewer({ config, databaseType = 'mysql', connectionId, even
                 )
             }
         },
-        // {
-        //     title: t('primary_key'),
-        //     dataIndex: 'COLUMN_KEY',
-        // },
         {
             title: t('auto_increment'),
             dataIndex: 'EXTRA',
@@ -770,6 +766,17 @@ export function TableViewer({ config, databaseType = 'mysql', connectionId, even
         {
             title: t('default'),
             dataIndex: 'COLUMN_DEFAULT',
+            render(value) {
+                if (value == null) {
+                    return <div className={styles.null}>NULL</div>
+                }
+                // if (value == '') {
+                //     return <div className={styles.null}>EMPTY TEXT</div>
+                // }
+                return (
+                    <div>{value}</div>
+                )
+            }
         },
         {
             title: t('comment'),
@@ -806,10 +813,6 @@ export function TableViewer({ config, databaseType = 'mysql', connectionId, even
             title: t('type'),
             dataIndex: 'type2',
             width: 120,
-            // render: EditableCellRender({
-            //     dataIndex: 'type2',
-            //     onChange: onIndexCellChange,
-            // }),
             render(value, _item, index) {
                 return (
                     <Cell
@@ -836,10 +839,6 @@ export function TableViewer({ config, databaseType = 'mysql', connectionId, even
             title: t('index_columns'),
             dataIndex: 'columns',
             width: 400,
-            // render: EditableCellRender({
-            //     dataIndex: 'columns',
-            //     onChange: onIndexCellChange,
-            // }),
             render(value, _item, index) {
                 return (
                     <Cell
