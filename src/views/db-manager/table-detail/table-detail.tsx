@@ -30,6 +30,9 @@ const ItemHelper = {
     oldValue(item, key) {
         return item[key].value
     },
+    isValueChanged(item, key) {
+        return item[key].newValue !== item[key].value
+    },
 }
 
 function hasValue(value) {
@@ -321,11 +324,27 @@ function TypeInput({ value, onChange }) {
     )
 }
 
-function ColumnModal({ item, onCancel, onOk }) {
+function ColumnModal({ item, onCancel, onOk, characterSets, characterSetMap }) {
     const { t } = useTranslation()
     const [form] = Form.useForm()
-    // console.log('item', item)
+    console.log('ColumnModal/item', item)
     const columnDefault = Form.useWatch('COLUMN_DEFAULT', form)
+
+    const characterSet = Form.useWatch('CHARACTER_SET_NAME', form)
+    const collations = useMemo(() => {
+        if (!characterSet) {
+            return []
+        }
+        if (!characterSetMap[characterSet]) {
+            return []
+        }
+        return characterSetMap[characterSet].map(item => {
+            return {
+                label: item,
+                value: item,
+            }
+        })
+    }, [characterSet, characterSetMap])
 
     useEffect(() => {
         const values = {}
@@ -379,7 +398,7 @@ function ColumnModal({ item, onCancel, onOk }) {
                 <Form.Item
                     name="IS_NULLABLE"
                     label={t('nullable')}
-                    rules={[ { required: true, }, ]}
+                    // rules={[ { required: true, }, ]}
                 >
                     <Select
                         options={[
@@ -487,9 +506,30 @@ function ColumnModal({ item, onCancel, onOk }) {
                 <Form.Item
                     name="COLUMN_COMMENT"
                     label={t('comment')}
-                    // rules={[ { required: true, }, ]}
                 >
                     <Input.TextArea rows={4} />
+                </Form.Item>
+                <Form.Item
+                    name="CHARACTER_SET_NAME"
+                    label={t('character_set')}
+                >
+                    <Select
+                        options={characterSets}
+                        onChange={() => {
+                            console.log('change')
+                            form.setFieldsValue({
+                                COLLATION_NAME: null,
+                            })
+                        }}
+                    />
+                </Form.Item>
+                <Form.Item
+                    name="COLLATION_NAME"
+                    label={t('collation')}
+                >
+                    <Select
+                        options={collations}
+                    />
                 </Form.Item>
             </Form>
         </Modal>
@@ -1063,6 +1103,8 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
                     'EXTRA',
                     'COLUMN_DEFAULT',
                     'COLUMN_COMMENT',
+                    'CHARACTER_SET_NAME',
+                    'COLLATION_NAME',
                 ]
                 if (hasValue(row[field].newValue) && checkFields.includes(field)) {
                     rowChanged = true
@@ -1071,20 +1113,29 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
             if (rowChanged) {
                 // changed = true
                 const changeType = editType == 'create' ? '' : row.__new ? 'ADD COLUMN' : ItemHelper.newValue(row, 'COLUMN_NAME') ? 'CHANGE COLUMN' : 'MODIFY COLUMN'
-                let _nameSql = hasValue(ItemHelper.newValue(row, 'COLUMN_NAME')) ? `\`${ItemHelper.newValue(row, 'COLUMN_NAME')}\`` : ''
                 let nameSql
                 if (row.__new) {
                     nameSql = `\`${ItemHelper.newValue(row, 'COLUMN_NAME')}\``
                 }
                 else {
+                    let _nameSql = hasValue(ItemHelper.newValue(row, 'COLUMN_NAME')) ? `\`${ItemHelper.newValue(row, 'COLUMN_NAME')}\`` : ''
                     nameSql = `\`${row.COLUMN_NAME.value}\` ${_nameSql}`
                 }
                 const typeSql = ItemHelper.mixValue(row, 'COLUMN_TYPE')
+                let codeSql = ``
+                if (ItemHelper.isValueChanged(row, 'CHARACTER_SET_NAME') || ItemHelper.isValueChanged(row, 'COLLATION_NAME')) {
+                    codeSql = `CHARACTER SET ${ItemHelper.mixValue(row, 'CHARACTER_SET_NAME')}`
+                    const collation = ItemHelper.mixValue(row, 'COLLATION_NAME')
+                    if (collation) {
+                        codeSql += ` COLLATE ${collation}`
+                    }
+                }
+
                 const nullSql = ItemHelper.mixValue(row, 'IS_NULLABLE') == 'YES' ? 'NULL' : 'NOT NULL'
                 const autoIncrementSql = ItemHelper.mixValue(row, 'EXTRA') == 'auto_increment' ? 'AUTO_INCREMENT' : ''
                 const defaultSql = hasValueOrNullOrEmpty(ItemHelper.mixValue(row, 'COLUMN_DEFAULT')) ? `DEFAULT ${formatStringOrNull(ItemHelper.mixValue(row, 'COLUMN_DEFAULT'))}` : ''
                 const commentSql = hasValue(ItemHelper.mixValue(row, 'COLUMN_COMMENT')) ? `COMMENT '${ItemHelper.mixValue(row, 'COLUMN_COMMENT')}'` : ''
-                const rowSql = `${changeType} ${nameSql} ${typeSql} ${nullSql} ${autoIncrementSql} ${defaultSql} ${commentSql}`
+                const rowSql = `${changeType} ${nameSql} ${typeSql} ${codeSql} ${nullSql} ${autoIncrementSql} ${defaultSql} ${commentSql}`
                 //  int(11) NULL AFTER \`content\`
                 
                 rowSqls.push(rowSql)
@@ -1875,7 +1926,6 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
                                                         <Form.Item
                                                             name="characterSet"
                                                             label={t('character_set')}
-                                                            // rules={editType == 'create' ? [] : [ { required: true, }, ]}
                                                         >
                                                             <Select
                                                                 options={characterSets}
@@ -1885,17 +1935,14 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
                                                                         collation: null,
                                                                     })
                                                                 }}
-                                                                // onChange={}
                                                             />
                                                         </Form.Item>
                                                         <Form.Item
                                                             name="collation"
                                                             label={t('collation')}
-                                                            // rules={[ { required: true, }, ]}
                                                         >
                                                             <Select
                                                                 options={collations}
-                                                                // onChange={}
                                                             />
                                                         </Form.Item>
                                                         {/* <Form.Item
@@ -2182,6 +2229,8 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
             {columnModalVisible &&
                 <ColumnModal
                     item={columnModalItem}
+                    characterSetMap={characterSetMap}
+                    characterSets={characterSets}
                     onCancel={() => {
                         setColumnModalItem(null)
                         setColumnModalVisible(false)
