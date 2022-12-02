@@ -1,4 +1,4 @@
-import { Button, Checkbox, Descriptions, Divider, Form, Input, message, Modal, Select, Space, Table, Tabs, Tooltip } from 'antd';
+import { Button, Checkbox, Descriptions, Divider, Form, Input, message, Modal, Popover, Select, Space, Table, Tabs, Tooltip } from 'antd';
 import React, { useMemo } from 'react';
 import { VFC, useRef, useState, useEffect } from 'react';
 import { request } from '../utils/http';
@@ -8,7 +8,7 @@ import { ExecModal } from '../exec-modal/exec-modal';
 import { uid } from 'uid';
 import { useTranslation } from 'react-i18next';
 import { IconButton } from '../icon-button';
-import { ReloadOutlined } from '@ant-design/icons';
+import { QuestionOutlined, ReloadOutlined } from '@ant-design/icons';
 import filesize from 'file-size';
 import { CodeDebuger } from '../code-debug';
 import moment from 'moment';
@@ -122,6 +122,205 @@ const idxTest = [
 // parseColumns(idxTest[1])
 // parseColumns(idxTest[2])
 
+function parseColumnType(value: string) {
+    if (!value) {
+        return {
+            type: '',
+            length: '',
+        }
+    }
+    if (!value.includes('(')) {
+        return {
+            type: value,
+            length: '',
+        }
+    }
+    const idx = value.indexOf('(')
+    const type = value.substring(0, idx)
+    const m = value.match(/\(([\d\D]+)\)/)
+    if (!m) {
+        return {
+            type,
+            length: '',
+        }    
+    }
+    return {
+        type,
+        length: m[1],
+    }
+}
+
+function TypeInput({ value, onChange }) {
+    const { t } = useTranslation()
+    // console.log('TypeInput/value', value)
+    // const [lentg]
+
+    const { type, length } = parseColumnType(value)
+
+    return (
+        <Space>
+            {/* <Input
+                style={{ width: 240}}
+                value={value}
+                onChange={onChange}
+                // addonAfter={
+                //     <Popover
+                //         title="设置类型"
+                //         content={
+                //             <div>
+                //                 1212
+                //             </div>
+                //         }
+                //     >
+                //         <Button 
+                //             size="small"
+                //             style={{ width: 80 }} 
+                //             onClick={() => {
+                //                 form.setFieldsValue({
+                //                     COLUMN_DEFAULT: null,
+                //                 })
+                //             }}
+                //         >
+                //             设置
+                //         </Button>
+                //     </Popover>
+                // }
+            /> */}
+            <Select
+                showSearch={true}
+                value={type}
+                options={[
+                    {
+                        label: 'tinyint',
+                        value: 'tinyint',
+                    },
+                    {
+                        label: 'smallint',
+                        value: 'smallint',
+                    },
+                    {
+                        label: 'mediumint',
+                        value: 'mediumint',
+                    },
+                    {
+                        label: 'integer',
+                        value: 'integer',
+                    },
+                    {
+                        label: 'int',
+                        value: 'int',
+                    },
+                    {
+                        label: 'bigint',
+                        value: 'bigint',
+                    },
+                    {
+                        label: 'float',
+                        value: 'float',
+                    },
+                    {
+                        label: 'double',
+                        value: 'double',
+                    },
+                    {
+                        label: 'decimal',
+                        value: 'decimal',
+                    },
+                    {
+                        label: 'date',
+                        value: 'date',
+                    },
+                    {
+                        label: 'time',
+                        value: 'time',
+                    },
+                    {
+                        label: 'year',
+                        value: 'year',
+                    },
+                    {
+                        label: 'datetime',
+                        value: 'datetime',
+                    },
+                    {
+                        label: 'timestamp',
+                        value: 'timestamp',
+                    },
+                    {
+                        label: 'char',
+                        value: 'char',
+                    },
+                    {
+                        label: 'varchar',
+                        value: 'varchar',
+                    },
+                    {
+                        label: 'tinyblob',
+                        value: 'tinyblob',
+                    },
+                    {
+                        label: 'tinytext',
+                        value: 'tinytext',
+                    },
+                    {
+                        label: 'blob',
+                        value: 'blob',
+                    },
+                    {
+                        label: 'text',
+                        value: 'text',
+                    },
+                    {
+                        label: 'mediumblob',
+                        value: 'mediumblob',
+                    },
+                    {
+                        label: 'mediumtext',
+                        value: 'mediumtext',
+                    },
+                    {
+                        label: 'longblob',
+                        value: 'longblob',
+                    },
+                    {
+                        label: 'longtext',
+                        value: 'longtext',
+                    },
+                ]}
+                onChange={value => {
+                    onChange && onChange(value.toLocaleLowerCase())
+                }}
+                style={{ width: 130}}
+            />
+            <Input
+                placeholder="length"
+                value={length}
+                onChange={e => {
+                    const { value } = e.target
+                    if (value) {
+                        onChange && onChange(`${type}(${value})`)
+                    }
+                    else {
+                        onChange && onChange(`${type}`)
+                    }
+                }}
+                style={{ width: 80}}
+            />
+            {value}
+            <IconButton
+                tabindex={-1}
+                size="small"
+                tooltip={t('help')}
+                onClick={() => {
+                    window.open('https://www.runoob.com/mysql/mysql-data-types.html', '_blank')
+                }}
+            >
+                <QuestionOutlined />
+            </IconButton>
+        </Space>
+    )
+}
+
 function ColumnModal({ item, onCancel, onOk }) {
     const { t } = useTranslation()
     const [form] = Form.useForm()
@@ -139,6 +338,7 @@ function ColumnModal({ item, onCancel, onOk }) {
 
     return (
         <Modal
+            width={800}
             open={true}
             title={t('column_edit')}
             onCancel={onCancel}
@@ -174,7 +374,7 @@ function ColumnModal({ item, onCancel, onOk }) {
                     label={t('type')}
                     rules={[ { required: true, }, ]}
                 >
-                    <Input />
+                    <TypeInput />   
                 </Form.Item>
                 <Form.Item
                     name="IS_NULLABLE"
