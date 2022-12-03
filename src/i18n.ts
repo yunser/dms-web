@@ -371,6 +371,8 @@ i18n
                     'backup': 'Backup',
                     'column_edit': 'Edit Column',
                     'move_up': 'Move Up',
+                    'move_down': 'Move Down',
+                    'insert_above': 'Insert Above',
                 }
             },
             zh: {
@@ -734,6 +736,8 @@ i18n
                     'backup': '备份',
                     'column_edit': '编辑列',
                     'move_up': '上移',
+                    'move_down': '下移',
+                    'insert_above': '往上插入',
                 }
             }
         },

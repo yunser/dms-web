@@ -8,7 +8,7 @@ import { ExecModal } from '../exec-modal/exec-modal';
 import { uid } from 'uid';
 import { useTranslation } from 'react-i18next';
 import { IconButton } from '../icon-button';
-import { ArrowUpOutlined, PlusOutlined, QuestionOutlined, ReloadOutlined } from '@ant-design/icons';
+import { ArrowDownOutlined, ArrowUpOutlined, InsertRowAboveOutlined, PlusOutlined, QuestionOutlined, ReloadOutlined } from '@ant-design/icons';
 import filesize from 'file-size';
 import { CodeDebuger } from '../code-debug';
 import moment from 'moment';
@@ -1447,9 +1447,9 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
             title: t(''),
             dataIndex: '__oldIndex',
             width: 48,
-            render(value) {
+            render(value, _item, index) {
                 return (
-                    <div className={styles.cellWrap}>{value + 1}</div>
+                    <div className={styles.cellWrap}>{index + 1}</div>
                 )
             }
             // render: EditableCellRender({
@@ -1731,6 +1731,7 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
         setRemovedRows([])
         setRemovedIndexes([])
         setPartitionSelectedRowKeys([])
+        setColSelectedRowKeys([])
         if (dbName && tableName) {
             setLoading(true)
             let res = await request.post(`${config.host}/mysql/tableDetail`, {
@@ -1857,6 +1858,65 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
     }, [tableName])
     
     console.log('render/indexes', indexes)
+
+    function addColumn(index) {
+        const newItem = {
+            __id: uid(32),
+            __new: true,
+            COLUMN_NAME: {
+                value: '',
+                __new: true,
+            },
+            COLUMN_TYPE: {
+                value: '',
+                __new: true,
+            },
+            IS_NULLABLE: {
+                value: 'YES',
+                __new: true,
+            },
+            COLUMN_DEFAULT: {
+                value: null,
+                __new: true,
+            },
+            COLUMN_COMMENT: {
+                value: '',
+                __new: true,
+            },
+            COLUMN_KEY: {
+                value: '',
+                __new: true,
+            },
+            EXTRA: {
+                value: '',
+                __new: true,
+            },
+            // CHARACTER_MAXIMUM_LENGTH: 32
+            // CHARACTER_OCTET_LENGTH: 96
+            // CHARACTER_SET_NAME: "utf8"
+            // COLLATION_NAME: "utf8_general_ci"
+            // COLUMN_KEY: ""
+            // DATA_TYPE: "varchar"
+            // DATETIME_PRECISION: null
+            // EXTRA: ""
+            // GENERATION_EXPRESSION: ""
+            // NUMERIC_PRECISION: null
+            // NUMERIC_SCALE: null
+            // ORDINAL_POSITION: 2
+            // PRIVILEGES: "select,insert,update,references"
+            // TABLE_CATALOG: "def"
+            // TABLE_NAME: "a_test5"
+            // TABLE_SCHEMA: "linxot"
+        }
+        if (index == -1) {
+            tableColumns.push(newItem)
+        }
+        else {
+            newItem.__idxChanged = true
+            tableColumns.splice(index, 0, newItem)
+        }
+        setTableColumns([...tableColumns])
+    }
 
     const tabs = [
         {
@@ -2097,58 +2157,24 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
                                                             size="small"
                                                             icon={<PlusOutlined />}
                                                             onClick={() => {
-                                                                tableColumns.push({
-                                                                    __id: uid(32),
-                                                                    __new: true,
-                                                                    COLUMN_NAME: {
-                                                                        value: '',
-                                                                        __new: true,
-                                                                    },
-                                                                    COLUMN_TYPE: {
-                                                                        value: '',
-                                                                        __new: true,
-                                                                    },
-                                                                    IS_NULLABLE: {
-                                                                        value: 'YES',
-                                                                        __new: true,
-                                                                    },
-                                                                    COLUMN_DEFAULT: {
-                                                                        value: null,
-                                                                        __new: true,
-                                                                    },
-                                                                    COLUMN_COMMENT: {
-                                                                        value: '',
-                                                                        __new: true,
-                                                                    },
-                                                                    COLUMN_KEY: {
-                                                                        value: '',
-                                                                        __new: true,
-                                                                    },
-                                                                    EXTRA: {
-                                                                        value: '',
-                                                                        __new: true,
-                                                                    },
-                                                                    // CHARACTER_MAXIMUM_LENGTH: 32
-                                                                    // CHARACTER_OCTET_LENGTH: 96
-                                                                    // CHARACTER_SET_NAME: "utf8"
-                                                                    // COLLATION_NAME: "utf8_general_ci"
-                                                                    // COLUMN_KEY: ""
-                                                                    // DATA_TYPE: "varchar"
-                                                                    // DATETIME_PRECISION: null
-                                                                    // EXTRA: ""
-                                                                    // GENERATION_EXPRESSION: ""
-                                                                    // NUMERIC_PRECISION: null
-                                                                    // NUMERIC_SCALE: null
-                                                                    // ORDINAL_POSITION: 2
-                                                                    // PRIVILEGES: "select,insert,update,references"
-                                                                    // TABLE_CATALOG: "def"
-                                                                    // TABLE_NAME: "a_test5"
-                                                                    // TABLE_SCHEMA: "linxot"
-                                                                })
-                                                                setTableColumns([...tableColumns])
+                                                                addColumn(-1)
                                                             }}
                                                         >
                                                             {t('add')}
+                                                        </Button>
+                                                        <Button
+                                                            size="small"
+                                                            disabled={!(colSelectedRowKeys.length == 1)}
+                                                            icon={<InsertRowAboveOutlined />}
+                                                            onClick={() => {
+                                                                const rowKey = colSelectedRowKeys[0]
+                                                                console.log('rowKey', rowKey)
+                                                                // setTableColumns([...tableColumns])
+                                                                const rowIdx = tableColumns.findIndex(_item => _item.__id == rowKey)
+                                                                addColumn(rowIdx)
+                                                            }}
+                                                        >
+                                                            {t('insert_above')}
                                                         </Button>
                                                         <Button
                                                             size="small"
@@ -2174,6 +2200,31 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
                                                             }}
                                                         >
                                                             {t('move_up')}
+                                                        </Button>
+                                                        <Button
+                                                            size="small"
+                                                            disabled={!(colSelectedRowKeys.length == 1)}
+                                                            icon={<ArrowDownOutlined />}
+                                                            onClick={() => {
+                                                                const rowKey = colSelectedRowKeys[0]
+                                                                console.log('rowKey', rowKey)
+                                                                // setTableColumns([...tableColumns])
+                                                                const rowIdx = tableColumns.findIndex(_item => _item.__id == rowKey)
+                                                                if (rowIdx == tableColumns.length - 1) {
+                                                                    return
+                                                                }
+                                                                console.log('rowIdx', rowIdx)
+                                                                const tmp = tableColumns[rowIdx + 1]
+                                                                tableColumns[rowIdx + 1] = tableColumns[rowIdx]
+                                                                tableColumns[rowIdx] = tmp
+
+                                                                tableColumns[rowIdx + 1].__idxChanged = true
+                                                                tableColumns[rowIdx].__idxChanged = true
+                                                                setTableColumns([...tableColumns])
+
+                                                            }}
+                                                        >
+                                                            {t('move_down')}
                                                         </Button>
                                                     </Space>
                                                     {/* <Input
