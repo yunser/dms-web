@@ -12,6 +12,7 @@ import { QuestionOutlined, ReloadOutlined } from '@ant-design/icons';
 import filesize from 'file-size';
 import { CodeDebuger } from '../code-debug';
 import moment from 'moment';
+import classNames from 'classnames';
 // console.log('lodash', _)
 const { TabPane } = Tabs
 
@@ -30,8 +31,12 @@ const ItemHelper = {
     oldValue(item, key) {
         return item[key].value
     },
-    isValueChanged(item, key) {
-        return item[key].newValue !== item[key].value
+    isKeyValueChanged(item, key) {
+        return item[key].newValue !== undefined && item[key].newValue !== item[key].value
+    },
+    isValueChanged(value) {
+        return (value.newValue !== undefined && value.newValue !== value.value)
+            || value.__new
     },
 }
 
@@ -680,7 +685,10 @@ function Cell({ value, selectOptions, index, dataIndex, onChange }) {
     const displayValue = computeNewOldValue(inputValue, value.value)
     return (
         <div
-            className={styles.cell}
+            className={classNames(styles.cell, {
+                // [styles.changed]: value.newValue !== undefined && value.value !== value.newValue,
+                [styles.changed]: ItemHelper.isValueChanged(value),
+            })}
             onClick={(e) => {
                 e.stopPropagation()
             }}
@@ -1123,7 +1131,7 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
                 }
 
                 let codeSql = ``
-                if (['varchar'].includes(ItemHelper.mixValue(row, 'COLUMN_TYPE')) && (ItemHelper.isValueChanged(row, 'CHARACTER_SET_NAME') || ItemHelper.isValueChanged(row, 'COLLATION_NAME'))) {
+                if (['varchar'].includes(ItemHelper.mixValue(row, 'COLUMN_TYPE')) && (ItemHelper.isKeyValueChanged(row, 'CHARACTER_SET_NAME') || ItemHelper.isKeyValueChanged(row, 'COLLATION_NAME'))) {
                     codeSql = `CHARACTER SET ${ItemHelper.mixValue(row, 'CHARACTER_SET_NAME')}`
                     const collation = ItemHelper.mixValue(row, 'COLLATION_NAME')
                     if (collation) {
@@ -1136,6 +1144,7 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
                 const autoIncrementSql = ItemHelper.mixValue(row, 'EXTRA') == 'auto_increment' ? 'AUTO_INCREMENT' : ''
                 let defaultSql = ''
                 if (ItemHelper.mixValue(row, 'IS_NULLABLE') != 'YES' && ItemHelper.mixValue(row, 'COLUMN_DEFAULT') === null) {
+                    // 避免出现 NOT NULL DEFAULT NULL 的情况
                 }
                 else {
                     defaultSql = hasValueOrNullOrEmpty(ItemHelper.mixValue(row, 'COLUMN_DEFAULT')) ? `DEFAULT ${formatStringOrNull(ItemHelper.mixValue(row, 'COLUMN_DEFAULT'))}` : ''
