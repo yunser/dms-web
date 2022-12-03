@@ -1159,13 +1159,24 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
             
             const typeSql = ItemHelper.mixValue(row, 'COLUMN_TYPE')
             const nullSql = ItemHelper.mixValue(row, 'IS_NULLABLE') == 'YES' ? 'NULL' : 'NOT NULL'
-            const autoIncrementSql = ItemHelper.mixValue(row, 'EXTRA') == 'auto_increment' ? 'AUTO_INCREMENT' : ''
+            const isAI = ItemHelper.mixValue(row, 'EXTRA') == 'auto_increment'
+            const autoIncrementSql = isAI ? 'AUTO_INCREMENT' : ''
+
             let defaultSql = ''
-            if (ItemHelper.mixValue(row, 'IS_NULLABLE') != 'YES' && ItemHelper.mixValue(row, 'COLUMN_DEFAULT') === null) {
-                // 避免出现 NOT NULL DEFAULT NULL 的情况
-            }
-            else {
-                defaultSql = hasValueOrNullOrEmpty(ItemHelper.mixValue(row, 'COLUMN_DEFAULT')) ? `DEFAULT ${formatStringOrNull(ItemHelper.mixValue(row, 'COLUMN_DEFAULT'))}` : ''
+            {
+                const defaultValue = ItemHelper.mixValue(row, 'COLUMN_DEFAULT')
+                if (ItemHelper.mixValue(row, 'IS_NULLABLE') != 'YES' && defaultValue === null) {
+                    // 避免出现 NOT NULL DEFAULT NULL 的错误
+                }
+                else if (ItemHelper.mixValue(row, 'IS_NULLABLE') == 'YES' && defaultValue === null) {
+                    // 避免出现 NULL DEFAULT NULL 的情况（没问题，不够简洁）
+                }
+                else if (isAI) {
+                    // 避免出现 AUTO_INCREMENT DEFAULT '9' 的错误
+                }
+                else {
+                    defaultSql = hasValueOrNullOrEmpty(defaultValue) ? `DEFAULT ${formatStringOrNull(defaultValue)}` : ''
+                }
             }
             const commentSql = hasValue(ItemHelper.mixValue(row, 'COLUMN_COMMENT')) ? `COMMENT '${ItemHelper.mixValue(row, 'COLUMN_COMMENT')}'` : ''
 
@@ -1180,8 +1191,18 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
                     positionSql = `AFTER \`${prevItemName}\``
                 }
             }
-            const rowSql = `${changeType} ${nameSql} ${typeSql} ${codeSql} ${nullSql} ${autoIncrementSql} ${defaultSql} ${commentSql} ${positionSql}`
-            //  int(11) NULL AFTER \`content\`
+            // const rowSql = `${changeType} ${nameSql} ${typeSql} ${codeSql} ${nullSql} ${autoIncrementSql} ${defaultSql} ${commentSql} ${positionSql}`
+            const rowSql = [
+                changeType,
+                nameSql,
+                typeSql,
+                codeSql,
+                nullSql,
+                autoIncrementSql,
+                defaultSql,
+                commentSql,
+                positionSql,
+            ].filter(item => item).join(' ')
             
             rowSqls.push(rowSql)
         })
