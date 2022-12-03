@@ -559,25 +559,27 @@ function ColumnSelector({ value: _value, onChange, options }) {
                 const idx = value.findIndex(v => v == item.value)
                 // if (idx)
                 return (
-                    <div className={styles.ColumnSelectorCheck}>
-                        <Checkbox
-                            className={styles.checkbox}
-                            checked={idx != -1}
-                            onClick={() => {
-                                let newValue
-                                if (value.includes(item.value)) {
-                                    newValue = value.filter(v => v != item.value)
-                                }
-                                else {
-                                    newValue = [
-                                        ...value,
-                                        item.value
-                                    ]
-                                }
-                                setValue(newValue)
-                            }}
-                        />
-                        <div className={styles.index}>{idx == -1 ? '' : (idx + 1)}</div>
+                    <div className={styles.cellWrap}>
+                        <div className={styles.ColumnSelectorCheck}>
+                            <Checkbox
+                                className={styles.checkbox}
+                                checked={idx != -1}
+                                onClick={() => {
+                                    let newValue
+                                    if (value.includes(item.value)) {
+                                        newValue = value.filter(v => v != item.value)
+                                    }
+                                    else {
+                                        newValue = [
+                                            ...value,
+                                            item.value
+                                        ]
+                                    }
+                                    setValue(newValue)
+                                }}
+                            />
+                            <div className={styles.index}>{idx == -1 ? '' : (idx + 1)}</div>
+                        </div>
                     </div>
                 )
             }
@@ -724,7 +726,7 @@ function Cell({ value, selectOptions, index, dataIndex, onChange }) {
             :
                 <>
                     {dataIndex == 'IS_NULLABLE' ?
-                        <div>
+                        <div className={styles.cellCheckboxWrap}>
                             <Checkbox
                                 checked={inputValue == 'YES'}
                                 onChange={(e) => {
@@ -740,7 +742,7 @@ function Cell({ value, selectOptions, index, dataIndex, onChange }) {
                             />
                         </div>
                     : dataIndex == 'EXTRA' ?
-                        <div>
+                        <div className={styles.cellCheckboxWrap}>
                             <Checkbox
                                 checked={inputValue == 'auto_increment'}
                                 onChange={(e) => {
@@ -756,7 +758,7 @@ function Cell({ value, selectOptions, index, dataIndex, onChange }) {
                             />
                         </div>
                     : dataIndex == 'COLUMN_KEY' ?
-                        <div>
+                        <div className={styles.cellCheckboxWrap}>
                             <Checkbox
                                 checked={inputValue == 'PRI'}
                                 onChange={(e) => {
@@ -1415,7 +1417,7 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
         {
             title: t('column_name'),
             dataIndex: 'COLUMN_NAME',
-            width: 360,
+            width: 320,
             render: EditableCellRender({
                 dataIndex: 'COLUMN_NAME',
                 onChange: onColumnCellChange,
@@ -1505,27 +1507,29 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
             dataIndex: 'op',
             render(_value, item) {
                 return (
-                    <Space 
-                        split={<Divider type="vertical" />}
-                    >
-                        <a
-                            onClick={() => {
-                                setColumnModalVisible(true)
-                                setColumnModalItem(item)
-                            }}
-                        >{t('edit')}</a>
-                        <a
-                            onClick={() => {
-                                setTableColumns(tableColumns.filter(_item => _item.__id != item.__id))
-                                if (!item.__new) {
-                                    setRemovedRows([
-                                        ...removedRows,
-                                        item,
-                                    ])
-                                }
-                            }}
-                        >{t('delete')}</a>
-                    </Space>
+                    <div className={styles.cellWrap}>
+                        <Space 
+                            split={<Divider type="vertical" />}
+                        >
+                            <a
+                                onClick={() => {
+                                    setColumnModalVisible(true)
+                                    setColumnModalItem(item)
+                                }}
+                            >{t('edit')}</a>
+                            <a
+                                onClick={() => {
+                                    setTableColumns(tableColumns.filter(_item => _item.__id != item.__id))
+                                    if (!item.__new) {
+                                        setRemovedRows([
+                                            ...removedRows,
+                                            item,
+                                        ])
+                                    }
+                                }}
+                            >{t('delete')}</a>
+                        </Space>
+                    </div>
                 )
             }
         },
@@ -2097,6 +2101,7 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
                                                 </div>
                                                 <Table
                                                     columns={columnColumns}
+                                                    className={styles.noPaddingTable}
                                                     dataSource={filteredTableColumns}
                                                     bordered
                                                     pagination={false}
