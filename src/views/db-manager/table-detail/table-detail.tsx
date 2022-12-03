@@ -33,6 +33,7 @@ const ItemHelper = {
     },
     isKeyValueChanged(item, key) {
         return item[key].newValue !== undefined && item[key].newValue !== item[key].value
+            || item[key].__new
     },
     isValueChanged(value) {
         return (value.newValue !== undefined && value.newValue !== value.value)
@@ -1114,7 +1115,8 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
                     'CHARACTER_SET_NAME',
                     'COLLATION_NAME',
                 ]
-                if (hasValue(row[field].newValue) && checkFields.includes(field)) {
+                // if (checkFields.includes(field) && hasValue(row[field].newValue)) {
+                if (checkFields.includes(field) && ItemHelper.isValueChanged(row[field])) {
                     rowChanged = true
                 }
             }
