@@ -195,6 +195,7 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
             color: values.color,
             description: values.description,
             httpProxyUrl: values.httpProxyUrl,
+            defaultDatabase: values.defaultDatabase || '',
             type: values.type,
             databasePath: values.databasePath,
         }
@@ -316,6 +317,7 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
                 form={form}
                 labelCol={{ span: 8 }}
                 wrapperCol={{ span: 16 }}
+                size="small"
                 initialValues={{
                 }}
                 // layout={{
@@ -406,28 +408,30 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
                 <Form.Item
                     name="path"
                     label={t('folder')}
-                    // rules={[{ required: true, },]}
                 >
                     <Input />
                 </Form.Item>
                 <Form.Item
                     name="color"
                     label={t('color')}
-                    // rules={[{ required: true, },]}
                 >
                     <ColorSelector />
                 </Form.Item>
                 <Form.Item
                     name="description"
                     label={t('description')}
-                    // rules={[{ required: true, },]}
+                >
+                    <Input />
+                </Form.Item>
+                <Form.Item
+                    name="defaultDatabase"
+                    label={t('default_database')}
                 >
                     <Input />
                 </Form.Item>
                 <Form.Item
                     name="httpProxyUrl"
                     label={t('http_proxy_url')}
-                    // rules={[{ required: true, },]}
                 >
                     <Input />
                 </Form.Item>

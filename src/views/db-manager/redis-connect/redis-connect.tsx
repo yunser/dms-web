@@ -574,8 +574,8 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
         >
             <Form
                 form={form}
-                labelCol={{ span: 6 }}
-                wrapperCol={{ span: 18 }}
+                labelCol={{ span: 8 }}
+                wrapperCol={{ span: 16 }}
                 // layout={{
                 //     labelCol: { span: 0 },
                 //     wrapperCol: { span: 24 },

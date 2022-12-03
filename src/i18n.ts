@@ -190,7 +190,7 @@ i18n
                     view: 'View',
                     user_name: 'User Name',
                     test_connection: 'Test Connection',
-                    default_database: 'Default DB',
+                    default_database: 'Default Database',
                     user_name_helper: 'Username are only supported in Redis 6 and later',
                     rename: 'Rename',
                     copy: 'Copy',
