@@ -1459,7 +1459,24 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
             // }
             render: EditableCellRender({
                 dataIndex: 'COLUMN_KEY',
-                onChange: onColumnCellChange,
+                onChange(values) {
+                    console.log('values', values)
+                    onColumnCellChange(values)
+                    // console.log('filteredTableColumns2', filteredTableColumns)
+                    // if (ItemHelper.mixValue(values.value) == 'PRI') {
+                    //     // onColumnCellChange({
+                    //     //     dataIndex
+                    //     //     : 
+                    //     //     "COLUMN_KEY"
+                    //     //     index
+                    //     //     : 
+                    //     //     1
+                    //     //     value
+                    //     //     : 
+                    //     //     {value: '', newValue: 'PRI'}
+                    //     // })
+                    // }
+                },
             }),
         },
         {

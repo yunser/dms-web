@@ -1309,7 +1309,9 @@ export function ExecDetail(props) {
                         </div>
                     :
                         <div className={styles.emptyFullBox}>
-                            {t('no_content')}
+                            <CheckCircleOutlined className={styles.successIcon} />
+                            {/* {t('no_content')} */}
+                            {t('success')}
                         </div>
                     }
                     {!!result &&
