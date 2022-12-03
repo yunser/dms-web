@@ -12,6 +12,7 @@ import { KeyOutlined, ReloadOutlined } from '@ant-design/icons';
 import filesize from 'file-size';
 import { CodeDebuger } from '../code-debug';
 import moment from 'moment';
+import { dbFunConfigMap } from '../utils/database';
 // console.log('lodash', _)
 const { TabPane } = Tabs
 
@@ -47,15 +48,6 @@ const Billing = app.model.define('billing', {
 `
 }
 
-const functionMap = {
-    sqlite: {},
-    mssql: {},
-    postgresql: {},
-    mysql: {
-        partition: {},
-        trigger: {},
-    }
-}
 
 function parseColumns(item) {
     const { sql } = item
@@ -1061,7 +1053,7 @@ export function TableViewer({ config, databaseType = 'mysql', connectionId, even
         //     label: t('indexes'),
         //     key: 'index',
         // })
-        console.log('databaseType', databaseType, functionMap[databaseType])
+        console.log('databaseType', databaseType, dbFunConfigMap[databaseType])
         // if (functionMap[databaseType].partition) {
         //     tabs.push({
         //         label: t('partition'),

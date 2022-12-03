@@ -13,11 +13,14 @@ import filesize from 'file-size';
 import { CodeDebuger } from '../code-debug';
 import moment from 'moment';
 import classNames from 'classnames';
+import { dbFunConfigMap } from '../utils/database';
+import { _if } from '../utils/helper';
 // console.log('lodash', _)
 const { TabPane } = Tabs
 
 const ItemHelper = {
     mixValue(item, key) {
+        console.log('mixValue', item, key)
         const value = item[key]
         let _value = value.value
         if (value.newValue !== undefined) {
@@ -73,17 +76,6 @@ function computeNewOldValue(newValue, oldValue) {
         return newValue
     }
     return oldValue
-}
-
-// functionMap
-const dbMap = {
-    sqlite: {},
-    mssql: {},
-    postgresql: {},
-    mysql: {
-        partition: {},
-        trigger: {},
-    }
 }
 
 function parseColumns(item) {
@@ -893,6 +885,8 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
     const { t } = useTranslation()
     const [tableName,setTableName] = useState(oldTableName)
     const [editType,setEditType] = useState(oldTableName ? 'update' : 'create')
+    const isCreateMode = editType == 'create' || databaseType == 'sqlite'
+    const isForceCreate = editType == 'update' && databaseType == 'sqlite'
     // const editType = 
     const newNameRef = useRef(null)
     
@@ -1104,6 +1098,8 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
         // const idxChangedCols = []
         // console.log('idxChangedCols', idxChangedCols)
         const rowSqls = []
+        const sqliteOldCols: string[] = []
+        const sqliteNewCols: string[] = []
         tableColumns.forEach((row, rowIdx) => {
             // console.log('row', row)
             let rowChanged = false
@@ -1114,12 +1110,14 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
                     'COLUMN_TYPE',
                     'IS_NULLABLE',
                     'COLUMN_KEY',
-                    'EXTRA',
                     'COLUMN_DEFAULT',
                     'COLUMN_COMMENT',
                     'CHARACTER_SET_NAME',
                     'COLLATION_NAME',
                 ]
+                if (dbFunConfigMap[databaseType].autoIncrement) {
+                    checkFields.push('EXTRA')
+                }
                 // if (checkFields.includes(field) && hasValue(row[field].newValue)) {
                 if (checkFields.includes(field) && ItemHelper.isValueChanged(row[field])) {
                     rowChanged = true
@@ -1133,19 +1131,26 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
                 rowChanged = true
                 // idxChangedCols.push(idxRow)
             }
-            if (!rowChanged) {
+            if (!rowChanged && !isForceCreate) {
                 return
             }
             // changed = true
-            const changeType = editType == 'create' ? '' : row.__new ? 'ADD COLUMN' : ItemHelper.newValue(row, 'COLUMN_NAME') ? 'CHANGE COLUMN' : 'MODIFY COLUMN'
+            const changeType = isCreateMode ? '' : row.__new ? 'ADD COLUMN' : ItemHelper.newValue(row, 'COLUMN_NAME') ? 'CHANGE COLUMN' : 'MODIFY COLUMN'
             let nameSql
             if (row.__new) {
-                nameSql = `\`${ItemHelper.newValue(row, 'COLUMN_NAME')}\``
+                nameSql = `\`${ItemHelper.mixValue(row, 'COLUMN_NAME')}\``
             }
             else {
-                // TODO
-                let _nameSql = hasValue(ItemHelper.newValue(row, 'COLUMN_NAME')) ? `\`${ItemHelper.newValue(row, 'COLUMN_NAME')}\`` : ''
-                nameSql = `\`${row.COLUMN_NAME.value}\` ${_nameSql}`
+                if (isForceCreate) {
+                    nameSql = `\`${ItemHelper.mixValue(row, 'COLUMN_NAME')}\``
+                    sqliteOldCols.push(ItemHelper.oldValue(row, 'COLUMN_NAME'))
+                    sqliteNewCols.push(ItemHelper.mixValue(row, 'COLUMN_NAME'))
+                }
+                else {
+                    // TODO
+                    let _nameSql = hasValue(ItemHelper.newValue(row, 'COLUMN_NAME')) ? `\`${ItemHelper.newValue(row, 'COLUMN_NAME')}\`` : ''
+                    nameSql = `\`${row.COLUMN_NAME.value}\` ${_nameSql}`
+                }
             }
 
             let codeSql = ``
@@ -1159,8 +1164,13 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
             
             const typeSql = ItemHelper.mixValue(row, 'COLUMN_TYPE')
             const nullSql = ItemHelper.mixValue(row, 'IS_NULLABLE') == 'YES' ? 'NULL' : 'NOT NULL'
-            const isAI = ItemHelper.mixValue(row, 'EXTRA') == 'auto_increment'
-            const autoIncrementSql = isAI ? 'AUTO_INCREMENT' : ''
+
+            let isAI = false
+            let autoIncrementSql = ''
+            if (dbFunConfigMap[databaseType].autoIncrement) {
+                isAI = ItemHelper.mixValue(row, 'EXTRA') == 'auto_increment'
+                autoIncrementSql = isAI ? 'AUTO_INCREMENT' : ''
+            }
 
             let defaultSql = ''
             {
@@ -1301,20 +1311,32 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
             message.info('No changed')
             return
         }
-        let sql
-        if (editType == 'update') {
-            sql = `ALTER TABLE \`${dbName}\`.\`${tableInfo.TABLE_NAME}\`
-${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`
+        let sqlList = []
+        if (editType == 'create' || isForceCreate) {
+            newNameRef.current = values.TABLE_NAME
+            let bkTableName
+            if (isForceCreate) {
+                bkTableName = `_${oldTableName}_old_${moment().format('YYYYMMDD_HHmmss')}`
+                sqlList.push(`ALTER TABLE "${dbName}"."${oldTableName}" RENAME TO "${bkTableName}";`)
+            }
+            sqlList.push(`CREATE TABLE \`${dbName}\`.\`${values.TABLE_NAME}\` (
+${[...rowSqls, ...idxSqls].join(' ,\n')}
+    ) ${attrSqls.join(' ,\n')};`)
+
+            if (isForceCreate) {
+                const oldColSql = sqliteOldCols.map(col => `"${col}"`).join(', ')
+                const newColSql = sqliteNewCols.map(col => `"${col}"`).join(', ')
+                sqlList.push(`INSERT INTO "${dbName}"."${values.TABLE_NAME}" (${newColSql}) SELECT ${oldColSql} FROM "${dbName}"."${bkTableName}";`)
+            }
         }
         else {
-            newNameRef.current = values.TABLE_NAME
-            sql = `CREATE TABLE \`${dbName}\`.\`${values.TABLE_NAME}\` (
-${[...rowSqls, ...idxSqls].join(' ,\n')}
-) ${attrSqls.join(' ,\n')};`
+            sqlList.push(`ALTER TABLE \`${dbName}\`.\`${tableInfo.TABLE_NAME}\`
+${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
         }
-        console.log('sql', sql)
+        
+        console.log('sql', sqlList)
         // setSql(sql)
-        setExecSql(sql)
+        setExecSql(sqlList.join('\n\n'))
     }
 
     function truncatePartition(items) {
@@ -1543,7 +1565,7 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
                 },
             }),
         },
-        {
+        ..._if(dbFunConfigMap[databaseType].autoIncrement, {
             // title: t('auto_increment'),
             title: (
                 <Tooltip title={t('auto_increment')}>
@@ -1551,16 +1573,11 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
                 </Tooltip>
             ),
             dataIndex: 'EXTRA',
-            // render(value) {
-            //     return (
-            //         <div>{value.value}</div>
-            //     )
-            // }
             render: EditableCellRender({
                 dataIndex: 'EXTRA',
                 onChange: onColumnCellChange,
             }),
-        },
+        }),
         {
             title: t('default'),
             dataIndex: 'COLUMN_DEFAULT',
@@ -1962,14 +1979,14 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
         //     label: t('indexes'),
         //     key: 'index',
         // })
-        console.log('databaseType', databaseType, dbMap[databaseType])
-        if (dbMap[databaseType].partition) {
+        console.log('databaseType', databaseType, dbFunConfigMap[databaseType])
+        if (dbFunConfigMap[databaseType].partition) {
             tabs.push({
                 label: t('partition'),
                 key: 'partition',
             })
         }
-        if (dbMap[databaseType].trigger) {
+        if (dbFunConfigMap[databaseType].trigger) {
             tabs.push({
                 label: t('triggers'),
                 key: 'trigger',
@@ -2068,7 +2085,9 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
                                                             label={t('name')}
                                                             rules={[ { required: true, }, ]}
                                                         >
-                                                            <Input />
+                                                            <Input
+                                                                suffix={<div>@{dbName}</div>}
+                                                            />
                                                         </Form.Item>
                                                         <Form.Item
                                                             name="TABLE_COMMENT"

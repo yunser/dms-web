@@ -601,7 +601,14 @@ LIMIT 1000;`
         const tableName = nodeData.itemData.$_table_name
         const schemaName = nodeData.itemData.$table_schema
 
-        const sql = `TRUNCATE TABLE \`${schemaName}\`.\`${tableName}\`;`
+        let sql
+        if (databaseType == 'sqlite') {
+            // sqlite 不支持 TRUNCATE
+            sql = `DELETE FROM \`${schemaName}\`.\`${tableName}\`;`
+        }
+        else {
+            sql = `TRUNCATE TABLE \`${schemaName}\`.\`${tableName}\`;`
+        }
         showSqlInNewtab({
             title: 'Truncate Table',
             sql,
@@ -671,7 +678,7 @@ LIMIT 1000;`
     function schemaUse(nodeData) {
         console.log('nodeData', nodeData)
         // return
-        const sql = `USE \`${nodeData.itemData.SCHEMA_NAME}\`;`
+        const sql = `USE \`${nodeData.itemData.$_schema_name}\`;`
         showSqlInNewtab({
             title: 'Use Database',
             sql,
@@ -857,24 +864,6 @@ LIMIT 1000;`
                     >
                         <ReloadOutlined />
                     </IconButton>
-                    {/* <IconButton
-                        tooltip={t('table_create')}
-                        onClick={() => {
-                            let tabKey = '' + new Date().getTime()
-                            onTab && onTab({
-                                title: 'New Table',
-                                key: tabKey,
-                                type: 'tableDetail',
-                                // defaultSql: `SELECT * FROM \`${dbName}\`.\`${tableName}\` LIMIT 20;`,
-                                data: {
-                                    dbName,
-                                    tableName: null,
-                                },
-                            })
-                        }}
-                    >
-                        <PlusOutlined />
-                    </IconButton> */}
                     <IconButton
                         tooltip={t('list_view')}
                         onClick={() => {
@@ -887,17 +876,6 @@ LIMIT 1000;`
                                     connectionId,
                                 },
                             })
-                            // onTab && onTab({
-                            //     title: 'Tables',
-                            //     key: tabKey,
-                            //     type: 'table_list',
-                            //     // defaultSql: `SELECT * FROM \`${dbName}\`.\`${tableName}\` LIMIT 20;`,
-                            //     data: {
-                            //         dbName,
-                            //         // tableName,
-                            //     },
-                            // })
-
                         }}
                     >
                         <UnorderedListOutlined />
@@ -1081,22 +1059,9 @@ LIMIT 1000;`
                                                 type: 'event_view_tables',
                                                 data: {
                                                     connectionId,
-                                                    schemaName: nodeData.itemData.SCHEMA_NAME,
+                                                    schemaName: nodeData.itemData.$_name,
                                                 }
                                             })
-                                            // console.log('nodeData', nodeData)
-                                            // // return
-                                            // let tabKey = '' + new Date().getTime()
-                                            // onTab && onTab({
-                                            //     title: `${t('tables')} - ${nodeData.itemData.SCHEMA_NAME}`,
-                                            //     key: tabKey,
-                                            //     type: 'table_list',
-                                            //     // defaultSql: `SELECT * FROM \`${dbName}\`.\`${tableName}\` LIMIT 20;`,
-                                            //     data: {
-                                            //         dbName: nodeData.itemData.SCHEMA_NAME,
-                                            //         // tableName,
-                                            //     },
-                                            // })
                                         }
                                         else if (key == 'table_create') {
                                             console.log('nodeData', nodeData)
@@ -1106,9 +1071,8 @@ LIMIT 1000;`
                                                 title: 'New Table',
                                                 key: tabKey,
                                                 type: 'tableDetail',
-                                                // defaultSql: `SELECT * FROM \`${dbName}\`.\`${tableName}\` LIMIT 20;`,
                                                 data: {
-                                                    dbName: nodeData.itemData.SCHEMA_NAME,
+                                                    dbName: nodeData.itemData.$_name,
                                                     tableName: null,
                                                 },
                                             })
