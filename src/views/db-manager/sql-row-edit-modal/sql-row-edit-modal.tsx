@@ -17,27 +17,19 @@ const { TextArea } = Input
 export function RowEditModal({ config, onOk, item, onCancel, onSuccess, tableName, dbName }) {
     const { t } = useTranslation()
 
-    // const [columns, setColumns] = useState([])
-    const [list, setList] = useState([])
+    const [formItems, setFormItems] = useState([])
     const [form] = Form.useForm()
-    const columns = [
-        {
-            title: t('field'),
-            dataIndex: 'field',
-            width: 240,
-        },
-        {
-            title: t('value'),
-            dataIndex: 'value',
-        },
-    ]
+
+    // console.log('RowEditModal/item', item)
+    // console.log('RowEditModal/formItems', formItems)
 
     useEffect(() => {
         const list = [] 
         const values = {}
+
         for (let key in item) {
             console.log('key', key)
-            if (key != '_idx') {
+            if (item[key] && item[key].fieldName) {
                 const { fieldName, value } = item[key]
                 list.push({
                     field: fieldName,
@@ -47,8 +39,8 @@ export function RowEditModal({ config, onOk, item, onCancel, onSuccess, tableNam
                 values[fieldName] = value
             }
         }
-        console.log('list', list)
-        setList(list)
+        // console.log('list', list)
+        setFormItems(list)
         form.setFieldsValue(values)
     }, [item])
 
@@ -85,7 +77,7 @@ export function RowEditModal({ config, onOk, item, onCancel, onSuccess, tableNam
                 //     wrapperCol: { span: 24 },
                 // }}
             >
-                {list.map(item => {
+                {formItems.map(item => {
                     return (
                         <Form.Item
                             name={item.field}
