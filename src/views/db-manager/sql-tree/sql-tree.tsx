@@ -654,7 +654,14 @@ LIMIT 1000;`
         const schemaName = nodeData.itemData.$table_schema
         
         let sql
-        sql = `SELECT COUNT(*) FROM \`${schemaName}\`.\`${tableName}\`;`
+        if (databaseType == 'mssql') {
+            // console.log('nodeData.itemData', nodeData.itemData)
+            const { $__schemaName, $_table_name } = nodeData.itemData
+            sql = `SELECT COUNT(*) FROM [${$__schemaName}].[${$_table_name}]`
+        }
+        else {
+            sql = `SELECT COUNT(*) FROM \`${schemaName}\`.\`${tableName}\`;`
+        }
         showSqlInNewtab({
             title: 'Count Table',
             sql,
