@@ -370,6 +370,7 @@ i18n
                     'to_insert_sql': 'to Insert SQL',
                     'backup': 'Backup',
                     'column_edit': 'Edit Column',
+                    'move_up': 'Move Up',
                 }
             },
             zh: {
@@ -732,6 +733,7 @@ i18n
                     'to_insert_sql': '转成插入 SQL 语句',
                     'backup': '备份',
                     'column_edit': '编辑列',
+                    'move_up': '上移',
                 }
             }
         },

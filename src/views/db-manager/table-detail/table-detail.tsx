@@ -8,7 +8,7 @@ import { ExecModal } from '../exec-modal/exec-modal';
 import { uid } from 'uid';
 import { useTranslation } from 'react-i18next';
 import { IconButton } from '../icon-button';
-import { QuestionOutlined, ReloadOutlined } from '@ant-design/icons';
+import { ArrowUpOutlined, PlusOutlined, QuestionOutlined, ReloadOutlined } from '@ant-design/icons';
 import filesize from 'file-size';
 import { CodeDebuger } from '../code-debug';
 import moment from 'moment';
@@ -923,7 +923,8 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
     const [curTab, setCurTab] = useState('basic')
     const [form] = Form.useForm()
     const [nginxs, setNginxs] = useState([])
-    const [selectedRowKeys, setSelectedRowKeys] = useState([])
+    const [colSelectedRowKeys, setColSelectedRowKeys] = useState([])
+    const [partionSelectedRowKeys, setPartitionSelectedRowKeys] = useState([])
     const [characterSets, setCharacterSets] = useState([])
     const [characterSetMap, setCharacterSetMap] = useState({})
     const characterSet = Form.useWatch('characterSet', form)
@@ -1100,8 +1101,10 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
         }
 
         // let changed = false
+        // const idxChangedCols = []
+        // console.log('idxChangedCols', idxChangedCols)
         const rowSqls = []
-        for (let row of tableColumns) {
+        tableColumns.forEach((row, rowIdx) => {
             // console.log('row', row)
             let rowChanged = false
             for (let field in row) {
@@ -1122,44 +1125,66 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
                     rowChanged = true
                 }
             }
-            if (rowChanged) {
-                // changed = true
-                const changeType = editType == 'create' ? '' : row.__new ? 'ADD COLUMN' : ItemHelper.newValue(row, 'COLUMN_NAME') ? 'CHANGE COLUMN' : 'MODIFY COLUMN'
-                let nameSql
-                if (row.__new) {
-                    nameSql = `\`${ItemHelper.newValue(row, 'COLUMN_NAME')}\``
-                }
-                else {
-                    let _nameSql = hasValue(ItemHelper.newValue(row, 'COLUMN_NAME')) ? `\`${ItemHelper.newValue(row, 'COLUMN_NAME')}\`` : ''
-                    nameSql = `\`${row.COLUMN_NAME.value}\` ${_nameSql}`
-                }
-
-                let codeSql = ``
-                if (['varchar'].includes(ItemHelper.mixValue(row, 'COLUMN_TYPE')) && (ItemHelper.isKeyValueChanged(row, 'CHARACTER_SET_NAME') || ItemHelper.isKeyValueChanged(row, 'COLLATION_NAME'))) {
-                    codeSql = `CHARACTER SET ${ItemHelper.mixValue(row, 'CHARACTER_SET_NAME')}`
-                    const collation = ItemHelper.mixValue(row, 'COLLATION_NAME')
-                    if (collation) {
-                        codeSql += ` COLLATE ${collation}`
-                    }
-                }
-                
-                const typeSql = ItemHelper.mixValue(row, 'COLUMN_TYPE')
-                const nullSql = ItemHelper.mixValue(row, 'IS_NULLABLE') == 'YES' ? 'NULL' : 'NOT NULL'
-                const autoIncrementSql = ItemHelper.mixValue(row, 'EXTRA') == 'auto_increment' ? 'AUTO_INCREMENT' : ''
-                let defaultSql = ''
-                if (ItemHelper.mixValue(row, 'IS_NULLABLE') != 'YES' && ItemHelper.mixValue(row, 'COLUMN_DEFAULT') === null) {
-                    // 避免出现 NOT NULL DEFAULT NULL 的情况
-                }
-                else {
-                    defaultSql = hasValueOrNullOrEmpty(ItemHelper.mixValue(row, 'COLUMN_DEFAULT')) ? `DEFAULT ${formatStringOrNull(ItemHelper.mixValue(row, 'COLUMN_DEFAULT'))}` : ''
-                }
-                const commentSql = hasValue(ItemHelper.mixValue(row, 'COLUMN_COMMENT')) ? `COMMENT '${ItemHelper.mixValue(row, 'COLUMN_COMMENT')}'` : ''
-                const rowSql = `${changeType} ${nameSql} ${typeSql} ${codeSql} ${nullSql} ${autoIncrementSql} ${defaultSql} ${commentSql}`
-                //  int(11) NULL AFTER \`content\`
-                
-                rowSqls.push(rowSql)
+            // const isIdxChanged = !idxRow.__new && idxRow.__oldIndex != index
+            // if (isIdxChanged) {
+            //     idxChangedCols.push(idxRow)
+            // }
+            if (row.__idxChanged) {
+                rowChanged = true
+                // idxChangedCols.push(idxRow)
             }
-        }
+            if (!rowChanged) {
+                return
+            }
+            // changed = true
+            const changeType = editType == 'create' ? '' : row.__new ? 'ADD COLUMN' : ItemHelper.newValue(row, 'COLUMN_NAME') ? 'CHANGE COLUMN' : 'MODIFY COLUMN'
+            let nameSql
+            if (row.__new) {
+                nameSql = `\`${ItemHelper.newValue(row, 'COLUMN_NAME')}\``
+            }
+            else {
+                // TODO
+                let _nameSql = hasValue(ItemHelper.newValue(row, 'COLUMN_NAME')) ? `\`${ItemHelper.newValue(row, 'COLUMN_NAME')}\`` : ''
+                nameSql = `\`${row.COLUMN_NAME.value}\` ${_nameSql}`
+            }
+
+            let codeSql = ``
+            if (['varchar'].includes(ItemHelper.mixValue(row, 'COLUMN_TYPE')) && (ItemHelper.isKeyValueChanged(row, 'CHARACTER_SET_NAME') || ItemHelper.isKeyValueChanged(row, 'COLLATION_NAME'))) {
+                codeSql = `CHARACTER SET ${ItemHelper.mixValue(row, 'CHARACTER_SET_NAME')}`
+                const collation = ItemHelper.mixValue(row, 'COLLATION_NAME')
+                if (collation) {
+                    codeSql += ` COLLATE ${collation}`
+                }
+            }
+            
+            const typeSql = ItemHelper.mixValue(row, 'COLUMN_TYPE')
+            const nullSql = ItemHelper.mixValue(row, 'IS_NULLABLE') == 'YES' ? 'NULL' : 'NOT NULL'
+            const autoIncrementSql = ItemHelper.mixValue(row, 'EXTRA') == 'auto_increment' ? 'AUTO_INCREMENT' : ''
+            let defaultSql = ''
+            if (ItemHelper.mixValue(row, 'IS_NULLABLE') != 'YES' && ItemHelper.mixValue(row, 'COLUMN_DEFAULT') === null) {
+                // 避免出现 NOT NULL DEFAULT NULL 的情况
+            }
+            else {
+                defaultSql = hasValueOrNullOrEmpty(ItemHelper.mixValue(row, 'COLUMN_DEFAULT')) ? `DEFAULT ${formatStringOrNull(ItemHelper.mixValue(row, 'COLUMN_DEFAULT'))}` : ''
+            }
+            const commentSql = hasValue(ItemHelper.mixValue(row, 'COLUMN_COMMENT')) ? `COMMENT '${ItemHelper.mixValue(row, 'COLUMN_COMMENT')}'` : ''
+
+            let positionSql = ''
+            if (row.__idxChanged) {
+                if (rowIdx == 0) {
+                    positionSql = 'FIRST'
+                }
+                else {
+                    const prevItem = tableColumns[rowIdx - 1]
+                    const prevItemName = ItemHelper.mixValue(prevItem, 'COLUMN_NAME')
+                    positionSql = `AFTER \`${prevItemName}\``
+                }
+            }
+            const rowSql = `${changeType} ${nameSql} ${typeSql} ${codeSql} ${nullSql} ${autoIncrementSql} ${defaultSql} ${commentSql} ${positionSql}`
+            //  int(11) NULL AFTER \`content\`
+            
+            rowSqls.push(rowSql)
+        })
         // 列删除逻辑
         if (removedRows.length) {
             for (let removedRow of removedRows) {
@@ -1196,8 +1221,9 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
             }
         }
         console.log('indexes', indexes)
+        
         // 新增索引逻辑
-        for (let idxRow of indexes) {
+        indexes.forEach((idxRow) => {
             const checkFields = [
                 'name',
                 'type2',
@@ -1234,7 +1260,9 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
                 idxSqls.push(`DROP INDEX \`${idxRow['name'].value}\``)
                 addIndex()
             }
-        }
+        })
+        // for (let idxRow of indexes) {
+        // }
 
 
         // must before 「No changed」check
@@ -1247,6 +1275,7 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
             ...rowSqls,
             ...idxSqls,
         ]
+        
         if (!allSqls.length) {
             message.info('No changed')
             return
@@ -1414,6 +1443,20 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
     
 
     const columnColumns = [
+        {
+            title: t(''),
+            dataIndex: '__oldIndex',
+            width: 48,
+            render(value) {
+                return (
+                    <div className={styles.cellWrap}>{value + 1}</div>
+                )
+            }
+            // render: EditableCellRender({
+            //     dataIndex: 'COLUMN_NAME',
+            //     onChange: onColumnCellChange,
+            // }),
+        },
         {
             title: t('column_name'),
             dataIndex: 'COLUMN_NAME',
@@ -1687,7 +1730,7 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
         
         setRemovedRows([])
         setRemovedIndexes([])
-        setSelectedRowKeys([])
+        setPartitionSelectedRowKeys([])
         if (dbName && tableName) {
             setLoading(true)
             let res = await request.post(`${config.host}/mysql/tableDetail`, {
@@ -1699,9 +1742,10 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
             })
             // console.log('loadTableInfo', res)
             if (res.success) {
-                setTableColumns(res.data.columns.map(col => {
+                setTableColumns(res.data.columns.map((col, idx) => {
                     const newCol = {}
                     newCol.__id = uid(32)
+                    newCol.__oldIndex = idx
                     for (let key in col) {
                         newCol[key] = {
                             value: col[key],
@@ -2048,63 +2092,90 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
                                                             console.log('Bour OK')
                                                         }}
                                                     /> */}
-                                                    
-                                                    <Button
-                                                        size="small"
-                                                        onClick={() => {
-                                                            tableColumns.push({
-                                                                __id: uid(32),
-                                                                __new: true,
-                                                                COLUMN_NAME: {
-                                                                    value: '',
+                                                    <Space>
+                                                        <Button
+                                                            size="small"
+                                                            icon={<PlusOutlined />}
+                                                            onClick={() => {
+                                                                tableColumns.push({
+                                                                    __id: uid(32),
                                                                     __new: true,
-                                                                },
-                                                                COLUMN_TYPE: {
-                                                                    value: '',
-                                                                    __new: true,
-                                                                },
-                                                                IS_NULLABLE: {
-                                                                    value: 'YES',
-                                                                    __new: true,
-                                                                },
-                                                                COLUMN_DEFAULT: {
-                                                                    value: null,
-                                                                    __new: true,
-                                                                },
-                                                                COLUMN_COMMENT: {
-                                                                    value: '',
-                                                                    __new: true,
-                                                                },
-                                                                COLUMN_KEY: {
-                                                                    value: '',
-                                                                    __new: true,
-                                                                },
-                                                                EXTRA: {
-                                                                    value: '',
-                                                                    __new: true,
-                                                                },
-                                                                // CHARACTER_MAXIMUM_LENGTH: 32
-                                                                // CHARACTER_OCTET_LENGTH: 96
-                                                                // CHARACTER_SET_NAME: "utf8"
-                                                                // COLLATION_NAME: "utf8_general_ci"
-                                                                // COLUMN_KEY: ""
-                                                                // DATA_TYPE: "varchar"
-                                                                // DATETIME_PRECISION: null
-                                                                // EXTRA: ""
-                                                                // GENERATION_EXPRESSION: ""
-                                                                // NUMERIC_PRECISION: null
-                                                                // NUMERIC_SCALE: null
-                                                                // ORDINAL_POSITION: 2
-                                                                // PRIVILEGES: "select,insert,update,references"
-                                                                // TABLE_CATALOG: "def"
-                                                                // TABLE_NAME: "a_test5"
-                                                                // TABLE_SCHEMA: "linxot"
-                                                            })
-                                                            setTableColumns([...tableColumns])
-                                                        }}
-                                                    >
-                                                        {t('add')}
-                                                    </Button>
+                                                                    COLUMN_NAME: {
+                                                                        value: '',
+                                                                        __new: true,
+                                                                    },
+                                                                    COLUMN_TYPE: {
+                                                                        value: '',
+                                                                        __new: true,
+                                                                    },
+                                                                    IS_NULLABLE: {
+                                                                        value: 'YES',
+                                                                        __new: true,
+                                                                    },
+                                                                    COLUMN_DEFAULT: {
+                                                                        value: null,
+                                                                        __new: true,
+                                                                    },
+                                                                    COLUMN_COMMENT: {
+                                                                        value: '',
+                                                                        __new: true,
+                                                                    },
+                                                                    COLUMN_KEY: {
+                                                                        value: '',
+                                                                        __new: true,
+                                                                    },
+                                                                    EXTRA: {
+                                                                        value: '',
+                                                                        __new: true,
+                                                                    },
+                                                                    // CHARACTER_MAXIMUM_LENGTH: 32
+                                                                    // CHARACTER_OCTET_LENGTH: 96
+                                                                    // CHARACTER_SET_NAME: "utf8"
+                                                                    // COLLATION_NAME: "utf8_general_ci"
+                                                                    // COLUMN_KEY: ""
+                                                                    // DATA_TYPE: "varchar"
+                                                                    // DATETIME_PRECISION: null
+                                                                    // EXTRA: ""
+                                                                    // GENERATION_EXPRESSION: ""
+                                                                    // NUMERIC_PRECISION: null
+                                                                    // NUMERIC_SCALE: null
+                                                                    // ORDINAL_POSITION: 2
+                                                                    // PRIVILEGES: "select,insert,update,references"
+                                                                    // TABLE_CATALOG: "def"
+                                                                    // TABLE_NAME: "a_test5"
+                                                                    // TABLE_SCHEMA: "linxot"
+                                                                })
+                                                                setTableColumns([...tableColumns])
+                                                            }}
+                                                        >
+                                                            {t('add')}
+                                                        </Button>
+                                                        <Button
+                                                            size="small"
+                                                            disabled={!(colSelectedRowKeys.length == 1)}
+                                                            icon={<ArrowUpOutlined />}
+                                                            onClick={() => {
+                                                                const rowKey = colSelectedRowKeys[0]
+                                                                console.log('rowKey', rowKey)
+                                                                // setTableColumns([...tableColumns])
+                                                                const rowIdx = tableColumns.findIndex(_item => _item.__id == rowKey)
+                                                                if (rowIdx == 0) {
+                                                                    return
+                                                                }
+                                                                console.log('rowIdx', rowIdx)
+                                                                const tmp = tableColumns[rowIdx - 1]
+                                                                tableColumns[rowIdx - 1] = tableColumns[rowIdx]
+                                                                tableColumns[rowIdx] = tmp
+
+                                                                tableColumns[rowIdx - 1].__idxChanged = true
+                                                                tableColumns[rowIdx].__idxChanged = true
+                                                                setTableColumns([...tableColumns])
+
+                                                            }}
+                                                        >
+                                                            {t('move_up')}
+                                                        </Button>
+                                                    </Space>
                                                     {/* <Input
                                                         value={columnKeyword}
                                                         onChange={e => {
@@ -2118,6 +2189,72 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
                                                 </div>
                                                 <Table
                                                     columns={columnColumns}
+                                                    rowSelection={{
+                                                        type: 'radio',
+                                                        selectedRowKeys: colSelectedRowKeys,
+                                                        hideSelectAll: true,
+                                                        fixed: true,
+                                                        // renderCell(_value, _item, rowIdx) {
+                                                        //     // return (
+                                                        //     //     <div>
+                                                        //     //         <Button>1</Button>
+                                                        //     //     </div>
+                                                        //     // )
+                                                        //     return (
+                                                        //         <SimpleCell
+                                                        //             onClick={(e) => {
+                                                        //                 // console.log('_value', _value)
+                                                        //                 // console.log('e', e)
+                                                                        
+                                                        //                 const itemKey = _item._idx
+                                                        //                 // console.log('itemKey', itemKey)
+                                                        //                 // 多选
+                    
+                                                        //                 if (e.metaKey) {
+                                                        //                     console.log('metaKey')
+                                                        //                     if (selectedRowKeys.includes(itemKey)) {
+                                                        //                         console.log('又了')
+                                                        //                         setSelectedRowKeys(selectedRowKeys.filter(it => it != itemKey))
+                                                        //                     }
+                                                        //                     else {
+                                                        //                         console.log('没有')
+                                                        //                         setSelectedRowKeys([...selectedRowKeys, itemKey])
+                                                        //                     }
+                                                        //                 }
+                                                        //                 else if (e.shiftKey) {
+                                                        //                     if (selectedRowKeys.length) {
+                                                        //                         const fromIdx = selectedRowKeys[0]
+                                                        //                         const min = Math.min(fromIdx, itemKey)
+                                                        //                         const max = Math.max(fromIdx, itemKey)
+                                                        //                         const newKeys = []
+                                                        //                         for (let i = min; i <= max; i++) {
+                                                        //                             newKeys.push(i)
+                                                        //                         }
+                                                        //                         setSelectedRowKeys(newKeys)
+                                                        //                     }
+                                                        //                     else {
+                                                        //                         setSelectedRowKeys([itemKey])
+                                                        //                     }
+                                                        //                 }
+                                                        //                 else {
+                                                        //                     console.log('单选')
+                                                        //                     // 单选
+                                                        //                     if (selectedRowKeys.includes(itemKey)) {
+                                                        //                         setSelectedRowKeys([])
+                                                        //                     }
+                                                        //                     else {
+                                                        //                         setSelectedRowKeys([itemKey])
+                                                        //                     }
+                                                        //                 }
+                                                        //             }}
+                                                        //             text={rowIdx + 1} color="#999" />
+                                                        //     )
+                                                        // },
+                                                        columnWidth: 0,
+                                                        onChange(selectedRowKeys, selectedRows) {
+                                                            setColSelectedRowKeys(selectedRowKeys)
+                                                        }
+                                                    }}
                                                     className={styles.noPaddingTable}
                                                     dataSource={filteredTableColumns}
                                                     bordered
@@ -2174,13 +2311,13 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
                                         }
                                         {item.key == 'partition' &&
                                             <div>
-                                                {selectedRowKeys.length > 0 &&
+                                                {partionSelectedRowKeys.length > 0 &&
                                                     <div className={styles.tool}>
                                                         <Space>
                                                             <Button
                                                                 size="small"
                                                                 onClick={() => {
-                                                                    truncatePartition(selectedRowKeys.map(name => {
+                                                                    truncatePartition(partionSelectedRowKeys.map(name => {
                                                                         return partitions.find(item => item.PARTITION_NAME == name)
                                                                     }))
                                                                 }}
@@ -2190,7 +2327,7 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
                                                             <Button
                                                                 size="small"
                                                                 onClick={() => {
-                                                                    dropPartition(selectedRowKeys.map(name => {
+                                                                    dropPartition(partionSelectedRowKeys.map(name => {
                                                                         return partitions.find(item => item.PARTITION_NAME == name)
                                                                     }))
                                                                 }}
@@ -2206,9 +2343,9 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
                                                     bordered
                                                     pagination={false}
                                                     rowSelection={{
-                                                        selectedRowKeys,
+                                                        selectedRowKeys: partionSelectedRowKeys,
                                                         onChange(selectedRowKeys, selectedRows, info) {
-                                                            setSelectedRowKeys(selectedRowKeys)
+                                                            setPartitionSelectedRowKeys(selectedRowKeys)
                                                         },
                                                     }}
                                                     size="small"
