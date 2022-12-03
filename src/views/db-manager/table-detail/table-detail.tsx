@@ -1121,19 +1121,25 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
                     let _nameSql = hasValue(ItemHelper.newValue(row, 'COLUMN_NAME')) ? `\`${ItemHelper.newValue(row, 'COLUMN_NAME')}\`` : ''
                     nameSql = `\`${row.COLUMN_NAME.value}\` ${_nameSql}`
                 }
-                const typeSql = ItemHelper.mixValue(row, 'COLUMN_TYPE')
+
                 let codeSql = ``
-                if (ItemHelper.isValueChanged(row, 'CHARACTER_SET_NAME') || ItemHelper.isValueChanged(row, 'COLLATION_NAME')) {
+                if (['varchar'].includes(ItemHelper.mixValue(row, 'COLUMN_TYPE')) && (ItemHelper.isValueChanged(row, 'CHARACTER_SET_NAME') || ItemHelper.isValueChanged(row, 'COLLATION_NAME'))) {
                     codeSql = `CHARACTER SET ${ItemHelper.mixValue(row, 'CHARACTER_SET_NAME')}`
                     const collation = ItemHelper.mixValue(row, 'COLLATION_NAME')
                     if (collation) {
                         codeSql += ` COLLATE ${collation}`
                     }
                 }
-
+                
+                const typeSql = ItemHelper.mixValue(row, 'COLUMN_TYPE')
                 const nullSql = ItemHelper.mixValue(row, 'IS_NULLABLE') == 'YES' ? 'NULL' : 'NOT NULL'
                 const autoIncrementSql = ItemHelper.mixValue(row, 'EXTRA') == 'auto_increment' ? 'AUTO_INCREMENT' : ''
-                const defaultSql = hasValueOrNullOrEmpty(ItemHelper.mixValue(row, 'COLUMN_DEFAULT')) ? `DEFAULT ${formatStringOrNull(ItemHelper.mixValue(row, 'COLUMN_DEFAULT'))}` : ''
+                let defaultSql = ''
+                if (ItemHelper.mixValue(row, 'IS_NULLABLE') != 'YES' && ItemHelper.mixValue(row, 'COLUMN_DEFAULT') === null) {
+                }
+                else {
+                    defaultSql = hasValueOrNullOrEmpty(ItemHelper.mixValue(row, 'COLUMN_DEFAULT')) ? `DEFAULT ${formatStringOrNull(ItemHelper.mixValue(row, 'COLUMN_DEFAULT'))}` : ''
+                }
                 const commentSql = hasValue(ItemHelper.mixValue(row, 'COLUMN_COMMENT')) ? `COMMENT '${ItemHelper.mixValue(row, 'COLUMN_COMMENT')}'` : ''
                 const rowSql = `${changeType} ${nameSql} ${typeSql} ${codeSql} ${nullSql} ${autoIncrementSql} ${defaultSql} ${commentSql}`
                 //  int(11) NULL AFTER \`content\`
