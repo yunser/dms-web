@@ -9,7 +9,7 @@ import { Editor } from '../editor/Editor';
 import storage from '../storage'
 import { request } from '../utils/http'
 import { IconButton } from '../icon-button';
-import { DatabaseOutlined, ExportOutlined, FolderOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { DatabaseOutlined, ExportOutlined, FolderOutlined, PlusOutlined, QuestionOutlined, ReloadOutlined } from '@ant-design/icons';
 import { uid } from 'uid';
 import { CodeDebuger } from '../code-debug';
 import { ColorSelector } from '../color-selector';
@@ -799,15 +799,31 @@ ${t('password')}: ${data.password}`
             </div>
             <div className={styles.layoutRight}>
                 <div className={styles.tool}>
-                    <Button
-                        onClick={() => {
-                            event$.emit({
-                                type: 'event_mysql_compare',
-                            })
-                        }}
-                    >
-                        数据库结构对比
-                    </Button>
+                    <Space>
+                        <IconButton
+                            tooltip={t('help')}
+                            onClick={() => {
+                                event$.emit({
+                                    type: 'event_show_help',
+                                    data: {
+                                        fileName: 'mysql',
+                                    },
+                                })
+                            }}
+                        >
+                            <QuestionOutlined />
+                        </IconButton>
+                        <Button
+                            size="small"
+                            onClick={() => {
+                                event$.emit({
+                                    type: 'event_mysql_compare',
+                                })
+                            }}
+                        >
+                            数据库结构对比
+                        </Button>
+                    </Space>
                 </div>
                 <Table
                     dataSource={connections}

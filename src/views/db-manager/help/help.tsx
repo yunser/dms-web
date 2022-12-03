@@ -67,6 +67,10 @@ export function Help(props) {
             name: 'README.md',
         },
         {
+            title: 'MySQL',
+            name: 'mysql.md',
+        },
+        {
             title: 'Git',
             name: 'git.md',
         },
