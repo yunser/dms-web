@@ -69,6 +69,14 @@ export function GitProject({ config, event$, project, onList }) {
         }
     })
     
+    async function openInTerminal(path: string) {
+        let ret = await request.post(`${config.host}/openInTerminal`, {
+            path,
+        })
+        // if (ret.success) {
+        // }
+    }
+
     async function openInFinder(path: string) {
         let ret = await request.post(`${config.host}/file/openInFinder`, {
             sourceType: 'local',
@@ -103,11 +111,18 @@ export function GitProject({ config, event$, project, onList }) {
                                     if (key == 'open_in_finder') {
                                         openInFinder(projectPath)
                                     }
+                                    else if (key == 'open_in_terminal') {
+                                        openInTerminal(projectPath)
+                                    }
                                 }}
                                 items={[
                                     {
                                         label: t('file.open_in_finder'),
                                         key: 'open_in_finder',
+                                    },
+                                    {
+                                        label: t('open_in_terminal'),
+                                        key: 'open_in_terminal',
                                     },
                                 ]}
                             />

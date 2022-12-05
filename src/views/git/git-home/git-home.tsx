@@ -213,13 +213,21 @@ export function GitHome({ event$, onProject }) {
         })
     }
 
+    async function openInTerminal(path: string) {
+        let ret = await request.post(`${config.host}/openInTerminal`, {
+            path,
+        })
+        // if (ret.success) {
+        // }
+    }
+
     async function openInFinder(path: string) {
         let ret = await request.post(`${config.host}/file/openInFinder`, {
             sourceType: 'local',
             path,
         })
-        if (ret.success) {
-        }
+        // if (ret.success) {
+        // }
     }
 
     async function addToFavorite(item, isFavorite) {
@@ -464,6 +472,10 @@ export function GitHome({ event$, onProject }) {
                                                                         label: t('file.open_in_finder'),
                                                                         key: 'open_in_finder',
                                                                     },
+                                                                    {
+                                                                        label: t('open_in_terminal'),
+                                                                        key: 'open_in_terminal',
+                                                                    },
                                                                     
                                                                 ])}
                                                                 onClick={({ key, domEvent }) => {
@@ -491,6 +503,9 @@ export function GitHome({ event$, onProject }) {
                                                                     }
                                                                     else if (key == 'open_in_finder') {
                                                                         openInFinder(item.path)
+                                                                    }
+                                                                    else if (key == 'open_in_terminal') {
+                                                                        openInTerminal(item.path)
                                                                     }
                                                                     else if (key == 'open_in_new_tab') {
                                                                         onProject && onProject(item, true)
