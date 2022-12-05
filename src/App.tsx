@@ -133,6 +133,13 @@ function Lab() {
 export default function App() {
     // const [count, setCount] = useState(0)
 
+    useEffect(() => {
+        window.onbeforeunload = () => {
+            console.log("onbeforeunload");
+            return "提示语";   
+        }
+    }, [])
+
     return (
         <Router>
             <div className="App">
