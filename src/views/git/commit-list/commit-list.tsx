@@ -360,7 +360,11 @@ export function CommitList({ config, event$, projectPath,  }) {
                     <div className={styles.listBox}>
                         <div className={styles.header}>
                             {/* 时间 */}
-                            {t('time')}
+                            <div className={styles.headerCells}>
+                                <div className={styles.timeCell}>{t('time')}</div>
+                                <div className={styles.authorCell}>{t('git.author')}</div>
+                                <div></div>
+                            </div>
                             {/* |
                             导出 */}
                             <IconButton
@@ -402,6 +406,7 @@ export function CommitList({ config, event$, projectPath,  }) {
                                         >
                                             <div className={styles.left}>
                                                 <div className={styles.time}>{time}</div>
+                                                <div className={styles.author}>{item.author_name}</div>
                                                 {item.branches?.length > 0 &&
                                                     <div className={styles.tags}>
                                                         {item.branches.map(branch => {
