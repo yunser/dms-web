@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { ArrowRightOutlined, BranchesOutlined, DeleteOutlined, DownloadOutlined, EllipsisOutlined, PlusOutlined } from '@ant-design/icons';
+import { ArrowDownOutlined, ArrowRightOutlined, ArrowUpOutlined, BranchesOutlined, DeleteOutlined, DownloadOutlined, EllipsisOutlined, PlusOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
@@ -178,6 +178,16 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
             :
                 <div className={styles.list}>
                     {branches.map(item => {
+                        let ahead = 0
+                        let aheadM = item.label.match(/ahead (\d+)/)
+                        if (aheadM) {
+                            ahead = parseInt(aheadM[1])
+                        }
+                        let behind = 0
+                        let behindM = item.label.match(/behind (\d+)/)
+                        if (behindM) {
+                            behind = parseInt(behindM[1])
+                        }
                         return (
                             <div 
                                 className={styles.item}
@@ -203,6 +213,22 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
                                         </div>
                                     }
                                 </div>
+                                {(ahead > 0 || behind > 0) &&
+                                    <div className={styles.tag}>
+                                        {ahead > 0 &&
+                                            <div className={styles.tagItem}>
+                                                <div className={styles.num}>{ahead}</div>
+                                                <ArrowUpOutlined />
+                                            </div>
+                                        }
+                                        {behind > 0 &&
+                                            <div className={styles.tagItem}>
+                                                <div className={styles.num}>{behind}</div>
+                                                <ArrowDownOutlined />
+                                            </div>
+                                        }
+                                    </div>
+                                }
                                 <Space>
                                     <Dropdown
                                         trigger={['click']}
