@@ -13,7 +13,7 @@ import { request } from '@/views/db-manager/utils/http';
 import { CommitItem } from '../commit-item';
 // import { saveAs } from 'file-saver'
 
-export function BranchModal({ config, event$, projectPath, commit, onSuccess, onCancel }) {
+export function BranchModal({ config, event$, current, projectPath, commit, onSuccess, onCancel }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
 
@@ -96,6 +96,13 @@ export function BranchModal({ config, event$, projectPath, commit, onSuccess, on
                     >
                         <Input />
                     </Form.Item>
+                    {!!current &&
+                        <Form.Item
+                            label={t('git.branch.current')}
+                        >
+                            {current}
+                        </Form.Item>
+                    }
                     {!!commit &&
                         <Form.Item
                             // name="name"

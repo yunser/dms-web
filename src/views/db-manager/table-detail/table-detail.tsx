@@ -886,6 +886,8 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
     const [tableName,setTableName] = useState(oldTableName)
     const [editType,setEditType] = useState(oldTableName ? 'update' : 'create')
     const isCreateMode = editType == 'create' || databaseType == 'sqlite'
+    // Sqlite是不能像其他数据库那样对列进行修改的，包括队列的重命名，删除列，修改列属性等操作
+    // 当然，Sqlite是直接可以新增列的
     const isForceCreate = editType == 'update' && databaseType == 'sqlite'
     // const editType = 
     const newNameRef = useRef(null)

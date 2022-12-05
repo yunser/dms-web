@@ -240,6 +240,7 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
                 <BranchModal
                     config={config}
                     event$={event$}
+                    current={current}
                     projectPath={projectPath}
                     onCancel={() => {
                         setBranchModalVisible(false)
