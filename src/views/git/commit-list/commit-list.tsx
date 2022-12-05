@@ -363,6 +363,7 @@ export function CommitList({ config, event$, projectPath,  }) {
                             <div className={styles.headerCells}>
                                 <div className={styles.timeCell}>{t('time')}</div>
                                 <div className={styles.authorCell}>{t('git.author')}</div>
+                                <div className={styles.hashCell}>{t('git.hash')}</div>
                                 <div></div>
                             </div>
                             {/* |
@@ -407,6 +408,7 @@ export function CommitList({ config, event$, projectPath,  }) {
                                             <div className={styles.left}>
                                                 <div className={styles.time}>{time}</div>
                                                 <div className={styles.author}>{item.author_name}</div>
+                                                <div className={styles.hash}>{item.hash.substring(0, 7)}</div>
                                                 {item.branches?.length > 0 &&
                                                     <div className={styles.tags}>
                                                         {item.branches.map(branch => {
