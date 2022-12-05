@@ -1,0 +1,46 @@
+token literal names:
+null
+null
+null
+null
+null
+','
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+
+token symbolic names:
+null
+SELECT
+FROM
+WHERE
+YES_OR_NO
+SEP
+SelectItems
+SelectItem
+IDENTIFIER
+INT
+FLOAT
+TABLE_NAME
+WHERE_COND
+WS
+NUMBER
+FLOATP
+ATTRS
+
+rule names:
+prog
+list
+expr
+
+
+atn:
+[3, 24715, 42794, 33075, 47597, 16764, 15335, 30598, 22884, 3, 18, 23, 4, 2, 9, 2, 4, 3, 9, 3, 4, 4, 9, 4, 3, 2, 3, 2, 3, 2, 3, 3, 3, 3, 3, 3, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 5, 4, 21, 10, 4, 3, 4, 2, 2, 5, 2, 4, 6, 2, 2, 2, 20, 2, 8, 3, 2, 2, 2, 4, 11, 3, 2, 2, 2, 6, 14, 3, 2, 2, 2, 8, 9, 5, 6, 4, 2, 9, 10, 7, 2, 2, 3, 10, 3, 3, 2, 2, 2, 11, 12, 7, 8, 2, 2, 12, 13, 7, 2, 2, 3, 13, 5, 3, 2, 2, 2, 14, 15, 7, 3, 2, 2, 15, 16, 7, 8, 2, 2, 16, 17, 7, 4, 2, 2, 17, 20, 7, 13, 2, 2, 18, 19, 7, 5, 2, 2, 19, 21, 7, 11, 2, 2, 20, 18, 3, 2, 2, 2, 20, 21, 3, 2, 2, 2, 21, 7, 3, 2, 2, 2, 3, 20]

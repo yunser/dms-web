@@ -2,10 +2,12 @@
 // jshint ignore: start
 import antlr4 from 'antlr4';
 import KVListener from './KVListener.js';
-const serializedATN = [4,1,3,14,2,0,7,0,2,1,7,1,1,0,1,0,1,0,1,1,1,1,1,1,
-1,1,1,1,1,1,1,1,0,0,2,0,2,0,0,11,0,4,1,0,0,0,2,7,1,0,0,0,4,5,3,2,1,0,5,6,
-5,0,0,1,6,1,1,0,0,0,7,8,5,3,0,0,8,9,5,1,0,0,9,10,5,3,0,0,10,11,5,2,0,0,11,
-12,5,3,0,0,12,3,1,0,0,0,0];
+const serializedATN = [4,1,16,21,2,0,7,0,2,1,7,1,2,2,7,2,1,0,1,0,1,0,1,1,
+1,1,1,1,1,2,1,2,1,2,1,2,1,2,1,2,3,2,19,8,2,1,2,0,0,3,0,2,4,0,0,18,0,6,1,
+0,0,0,2,9,1,0,0,0,4,12,1,0,0,0,6,7,3,4,2,0,7,8,5,0,0,1,8,1,1,0,0,0,9,10,
+5,6,0,0,10,11,5,0,0,1,11,3,1,0,0,0,12,13,5,1,0,0,13,14,5,6,0,0,14,15,5,2,
+0,0,15,18,5,11,0,0,16,17,5,3,0,0,17,19,5,9,0,0,18,16,1,0,0,0,18,19,1,0,0,
+0,19,5,1,0,0,0,1,18];
 
 
 const atn = new antlr4.atn.ATNDeserializer().deserialize(serializedATN);
@@ -17,9 +19,12 @@ const sharedContextCache = new antlr4.PredictionContextCache();
 export default class KVParser extends antlr4.Parser {
 
     static grammarFileName = "java-escape";
-    static literalNames = [ null, "':'", "'='" ];
-    static symbolicNames = [ null, null, null, "INT" ];
-    static ruleNames = [ "prog", "expr" ];
+    static literalNames = [ null, null, null, null, null, "','" ];
+    static symbolicNames = [ null, "SELECT", "FROM", "WHERE", "YES_OR_NO", 
+                             "SEP", "SelectItems", "SelectItem", "IDENTIFIER", 
+                             "INT", "FLOAT", "TABLE_NAME", "WHERE_COND", 
+                             "WS", "NUMBER", "FLOATP", "ATTRS" ];
+    static ruleNames = [ "prog", "list", "expr" ];
 
     constructor(input) {
         super(input);
@@ -40,9 +45,34 @@ export default class KVParser extends antlr4.Parser {
 	    this.enterRule(localctx, 0, KVParser.RULE_prog);
 	    try {
 	        this.enterOuterAlt(localctx, 1);
-	        this.state = 4;
+	        this.state = 6;
 	        this.expr();
-	        this.state = 5;
+	        this.state = 7;
+	        this.match(KVParser.EOF);
+	    } catch (re) {
+	    	if(re instanceof antlr4.error.RecognitionException) {
+		        localctx.exception = re;
+		        this._errHandler.reportError(this, re);
+		        this._errHandler.recover(this, re);
+		    } else {
+		    	throw re;
+		    }
+	    } finally {
+	        this.exitRule();
+	    }
+	    return localctx;
+	}
+
+
+
+	list() {
+	    let localctx = new ListContext(this, this._ctx, this.state);
+	    this.enterRule(localctx, 2, KVParser.RULE_list);
+	    try {
+	        this.enterOuterAlt(localctx, 1);
+	        this.state = 9;
+	        this.match(KVParser.SelectItems);
+	        this.state = 10;
 	        this.match(KVParser.EOF);
 	    } catch (re) {
 	    	if(re instanceof antlr4.error.RecognitionException) {
@@ -62,19 +92,28 @@ export default class KVParser extends antlr4.Parser {
 
 	expr() {
 	    let localctx = new ExprContext(this, this._ctx, this.state);
-	    this.enterRule(localctx, 2, KVParser.RULE_expr);
+	    this.enterRule(localctx, 4, KVParser.RULE_expr);
+	    var _la = 0; // Token type
 	    try {
 	        this.enterOuterAlt(localctx, 1);
-	        this.state = 7;
-	        this.match(KVParser.INT);
-	        this.state = 8;
-	        this.match(KVParser.T__0);
-	        this.state = 9;
-	        this.match(KVParser.INT);
-	        this.state = 10;
-	        this.match(KVParser.T__1);
-	        this.state = 11;
-	        this.match(KVParser.INT);
+	        this.state = 12;
+	        this.match(KVParser.SELECT);
+	        this.state = 13;
+	        this.match(KVParser.SelectItems);
+	        this.state = 14;
+	        this.match(KVParser.FROM);
+	        this.state = 15;
+	        this.match(KVParser.TABLE_NAME);
+	        this.state = 18;
+	        this._errHandler.sync(this);
+	        _la = this._input.LA(1);
+	        if(_la===3) {
+	            this.state = 16;
+	            this.match(KVParser.WHERE);
+	            this.state = 17;
+	            this.match(KVParser.INT);
+	        }
+
 	    } catch (re) {
 	    	if(re instanceof antlr4.error.RecognitionException) {
 		        localctx.exception = re;
@@ -93,12 +132,26 @@ export default class KVParser extends antlr4.Parser {
 }
 
 KVParser.EOF = antlr4.Token.EOF;
-KVParser.T__0 = 1;
-KVParser.T__1 = 2;
-KVParser.INT = 3;
+KVParser.SELECT = 1;
+KVParser.FROM = 2;
+KVParser.WHERE = 3;
+KVParser.YES_OR_NO = 4;
+KVParser.SEP = 5;
+KVParser.SelectItems = 6;
+KVParser.SelectItem = 7;
+KVParser.IDENTIFIER = 8;
+KVParser.INT = 9;
+KVParser.FLOAT = 10;
+KVParser.TABLE_NAME = 11;
+KVParser.WHERE_COND = 12;
+KVParser.WS = 13;
+KVParser.NUMBER = 14;
+KVParser.FLOATP = 15;
+KVParser.ATTRS = 16;
 
 KVParser.RULE_prog = 0;
-KVParser.RULE_expr = 1;
+KVParser.RULE_list = 1;
+KVParser.RULE_expr = 2;
 
 class ProgContext extends antlr4.ParserRuleContext {
 
@@ -139,6 +192,45 @@ class ProgContext extends antlr4.ParserRuleContext {
 
 
 
+class ListContext extends antlr4.ParserRuleContext {
+
+    constructor(parser, parent, invokingState) {
+        if(parent===undefined) {
+            parent = null;
+        }
+        if(invokingState===undefined || invokingState===null) {
+            invokingState = -1;
+        }
+        super(parent, invokingState);
+        this.parser = parser;
+        this.ruleIndex = KVParser.RULE_list;
+    }
+
+	SelectItems() {
+	    return this.getToken(KVParser.SelectItems, 0);
+	};
+
+	EOF() {
+	    return this.getToken(KVParser.EOF, 0);
+	};
+
+	enterRule(listener) {
+	    if(listener instanceof KVListener ) {
+	        listener.enterList(this);
+		}
+	}
+
+	exitRule(listener) {
+	    if(listener instanceof KVListener ) {
+	        listener.exitList(this);
+		}
+	}
+
+
+}
+
+
+
 class ExprContext extends antlr4.ParserRuleContext {
 
     constructor(parser, parent, invokingState) {
@@ -153,17 +245,29 @@ class ExprContext extends antlr4.ParserRuleContext {
         this.ruleIndex = KVParser.RULE_expr;
     }
 
-	INT = function(i) {
-		if(i===undefined) {
-			i = null;
-		}
-	    if(i===null) {
-	        return this.getTokens(KVParser.INT);
-	    } else {
-	        return this.getToken(KVParser.INT, i);
-	    }
+	SELECT() {
+	    return this.getToken(KVParser.SELECT, 0);
 	};
 
+	SelectItems() {
+	    return this.getToken(KVParser.SelectItems, 0);
+	};
+
+	FROM() {
+	    return this.getToken(KVParser.FROM, 0);
+	};
+
+	TABLE_NAME() {
+	    return this.getToken(KVParser.TABLE_NAME, 0);
+	};
+
+	WHERE() {
+	    return this.getToken(KVParser.WHERE, 0);
+	};
+
+	INT() {
+	    return this.getToken(KVParser.INT, 0);
+	};
 
 	enterRule(listener) {
 	    if(listener instanceof KVListener ) {
@@ -184,4 +288,5 @@ class ExprContext extends antlr4.ParserRuleContext {
 
 
 KVParser.ProgContext = ProgContext; 
+KVParser.ListContext = ListContext; 
 KVParser.ExprContext = ExprContext; 

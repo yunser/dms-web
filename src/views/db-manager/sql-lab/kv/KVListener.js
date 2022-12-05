@@ -7,23 +7,28 @@ export default class KVListener extends antlr4.tree.ParseTreeListener {
 
 	// Enter a parse tree produced by KVParser#prog.
 	enterProg(ctx) {
-        console.log('enterProg')
 	}
 
 	// Exit a parse tree produced by KVParser#prog.
 	exitProg(ctx) {
-        console.log('exitProg')
+	}
+
+
+	// Enter a parse tree produced by KVParser#list.
+	enterList(ctx) {
+	}
+
+	// Exit a parse tree produced by KVParser#list.
+	exitList(ctx) {
 	}
 
 
 	// Enter a parse tree produced by KVParser#expr.
 	enterExpr(ctx) {
-        console.log('enterExpr')
 	}
 
 	// Exit a parse tree produced by KVParser#expr.
 	exitExpr(ctx) {
-        console.log('exitExpr')
 	}
 
 
