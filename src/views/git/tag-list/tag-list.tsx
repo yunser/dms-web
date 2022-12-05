@@ -90,6 +90,15 @@ export function TagList({ config, event$, projectPath }) {
         }
     })
 
+    function exportTags() {
+        event$.emit({
+            type: 'event_show_json',
+            data: {
+                json: JSON.stringify(tags, null, 4)
+            },
+        })
+    }
+
     return (
         <div>
             <div className={styles.header}>
@@ -98,14 +107,48 @@ export function TagList({ config, event$, projectPath }) {
                     {'    '}
                     {t('git.tag')}
                 </div>
-                <IconButton
-                    tooltip={t('git.tag.create')}
-                    onClick={() => {
-                        setTagModalVisible(true)
-                    }}
-                >
-                    <PlusOutlined />
-                </IconButton>
+                <Space>
+                    <IconButton
+                        tooltip={t('git.tag.create')}
+                        onClick={() => {
+                            setTagModalVisible(true)
+                        }}
+                    >
+                        <PlusOutlined />
+                    </IconButton>
+                    <Dropdown
+                        trigger={['click']}
+                        overlay={
+                            <Menu
+                                items={[
+                                    {
+                                        label: t('export_json'),
+                                        key: 'export_json',
+                                    },
+                                    // {
+                                    //     label: t('manage'),
+                                    //     key: 'manage',
+                                    // },
+                                ]}
+                                onClick={({ key }) => {
+                                    if (key == 'export_json') {
+                                        exportTags()
+                                    }
+                                    // else if (key == 'manage') {
+                                    //     setManageVisible(true)
+                                    // }
+                                }}
+                            />
+                        }
+                    >
+                        <IconButton
+                            onClick={e => e.preventDefault()}
+                        >
+                            <EllipsisOutlined />
+                        </IconButton>
+                    </Dropdown>
+
+                </Space>
             </div>
             {tags.length == 0 ?
                 <FullCenterBox
