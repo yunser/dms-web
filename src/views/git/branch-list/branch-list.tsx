@@ -23,9 +23,10 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
     const [branchDeleteModalVisible, setBranchDeleteModalVisible] = useState(false)
     const [editBranch, setEditBranch] = useState(null)
     const [current, setCurrent] = useState('')
+    const [allBranches, setAllBranches] = useState([])
     const [branches, setBranches] = useState([])
     const [branchModalVisible, setBranchModalVisible] = useState(false)
-
+    const [manageVisible, setManageVisible] = useState(false)
     async function loadBranches() {
         let res = await request.post(`${config.host}/git/branch`, {
             projectPath,
@@ -42,6 +43,7 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
 
             // const branchs = []
             onBranch && onBranch(res.data.list)
+            setAllBranches(res.data.list)
             setBranches(res.data.list.filter(item => {
                 // 不显示远程的分支
                 if (item.name.startsWith(('remotes/'))) {
@@ -142,12 +144,18 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
                                     {
                                         label: t('export_json'),
                                         key: 'export_json',
-                                        // disabled: item.name == current,
+                                    },
+                                    {
+                                        label: t('manage'),
+                                        key: 'manage',
                                     },
                                 ]}
                                 onClick={({ key }) => {
                                     if (key == 'export_json') {
                                         exportBranches()
+                                    }
+                                    else if (key == 'manage') {
+                                        setManageVisible(true)
                                     }
                                 }}
                             />
@@ -266,8 +274,78 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
                     }}
                     onSuccess={() => {
                         setBranchDeleteModalVisible(false)
+                        setManageVisible(false)
                     }}
                 />
+            }
+            {manageVisible &&
+                <Modal
+                    open={true}
+                    title={t('git.branch')}
+                    width={800}
+                    onCancel={() => {
+                        setManageVisible(false)
+                    }}
+                    footer={null}
+                >
+                    <Table
+                        dataSource={allBranches}
+                        size="small"
+                        pagination={false}
+                        columns={[
+                            {
+                                title: t('name'),
+                                dataIndex: 'name',
+                            },
+                            {
+                                title: t('type'),
+                                dataIndex: 'type',
+                                render(_value, item) {
+                                    let type
+                                    if (item.name.startsWith('remotes/')) {
+                                        type = 'remote'
+                                    }
+                                    else {
+                                        type = 'local'
+                                    }
+                                    return (
+                                        <div>{type}</div>
+                                    )
+                                }
+                            },
+                            {
+                                title: t('git.commit'),
+                                dataIndex: 'commit',
+                            },
+                            {
+                                title: t('label'),
+                                dataIndex: 'label',
+                                render(value) {
+                                    return (
+                                        <div className={styles.labelCell}>{value}</div>
+                                    )
+                                }
+                            },
+                            {
+                                title: t('actions'),
+                                dataIndex: 'op',
+                                render(_value, item) {
+                                    return (
+                                        <div>
+                                            <Button
+                                                size="small"
+                                                onClick={() => {
+                                                    setBranchDeleteModalVisible(true)
+                                                    setEditBranch(item)
+                                                }}
+                                            >{t('delete')}</Button>
+                                        </div>
+                                    )
+                                }
+                            },
+                        ]}
+                    />
+                </Modal>
             }
         </div>
     )

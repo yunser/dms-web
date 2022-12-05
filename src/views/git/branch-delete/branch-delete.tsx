@@ -25,7 +25,7 @@ export function BranchDeleteModal({ config, event$, projectPath, branch, commit,
 
     const [branches, setBranches] = useState([])
 
-    
+    const isRemote = branch.name.startsWith('remotes/')
 
     console.log('remotes', remotes)
 
@@ -105,16 +105,18 @@ export function BranchDeleteModal({ config, event$, projectPath, branch, commit,
                 // footer={null}
             >
                 {`${t('git.branch.delete.confirm')}「${branch.name}」？`}
-                <div className={styles.form}>
-                    <Checkbox
-                        value={force}
-                        onChange={e => {
-                            setFource(e.target.checked)
-                        }}
-                    >
-                        {t('git.delete.force')}
-                    </Checkbox>
-                </div>
+                {!isRemote &&
+                    <div className={styles.form}>
+                        <Checkbox
+                            value={force}
+                            onChange={e => {
+                                setFource(e.target.checked)
+                            }}
+                        >
+                            {t('git.delete.force')}
+                        </Checkbox>
+                    </div>
+                }
                 {!!error &&
                     <div className={styles.error}>
                         <pre>{error}</pre>
