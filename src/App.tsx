@@ -136,6 +136,7 @@ export default function App() {
     useEffect(() => {
         window.onbeforeunload = () => {
             console.log("onbeforeunload");
+            // 询问框提示语不可自定义 好像是之前出现过漏洞 诈骗之类的,所以自定义无效 只能使用默认
             return "提示语";   
         }
     }, [])

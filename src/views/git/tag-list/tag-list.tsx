@@ -15,13 +15,99 @@ import { TagEditor } from '../tag-edit';
 import { FullCenterBox } from '@/views/db-manager/redis-client';
 // import { saveAs } from 'file-saver'
 
+function RemoveTagList({ config, projectPath }) {
+    const { t } = useTranslation()
+
+    const [loading, setLoading] = useState(false)
+    const [removeTags, setRemoveTags] = useState([])
+
+    async function loadRemoveTags() {
+        setLoading(true)
+        let res = await request.post(`${config.host}/git/tag/remoteList`, {
+            projectPath,
+        })
+        setLoading(false)
+        if (res.success) {
+            setRemoveTags(res.data.list)
+            // setCurrent(res.data.current)
+        }
+    }
+
+    useEffect(() => {
+        loadRemoveTags()
+    }, [])
+
+    return (
+        <Table
+            loading={loading}
+            dataSource={removeTags}
+            size="small"
+            pagination={false}
+            columns={[
+                {
+                    title: t('name'),
+                    dataIndex: 'name',
+                },
+                // {
+                //     title: t('type'),
+                //     dataIndex: 'type',
+                //     render(_value, item) {
+                //         let type
+                //         if (item.name.startsWith('remotes/')) {
+                //             type = 'remote'
+                //         }
+                //         else {
+                //             type = 'local'
+                //         }
+                //         return (
+                //             <div>{type}</div>
+                //         )
+                //     }
+                // },
+                // {
+                //     title: t('git.commit'),
+                //     dataIndex: 'commit',
+                // },
+                // {
+                //     title: t('label'),
+                //     dataIndex: 'label',
+                //     render(value) {
+                //         return (
+                //             <div className={styles.labelCell}>{value}</div>
+                //         )
+                //     }
+                // },
+                // {
+                //     title: t('actions'),
+                //     dataIndex: 'op',
+                //     render(_value, item) {
+                //         return (
+                //             <div>
+                //                 <Button
+                //                     size="small"
+                //                     onClick={() => {
+                //                         setBranchDeleteModalVisible(true)
+                //                         setEditBranch(item)
+                //                     }}
+                //                 >{t('delete')}</Button>
+                //             </div>
+                //         )
+                //     }
+                // },
+            ]}
+        />
+    )
+}
+
 export function TagList({ config, event$, projectPath }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
 
     const [tagModalVisible, setTagModalVisible] = useState(false)
     const [tags, setTags] = useState([])
+    
     // const [current, setCurrent] = useState('')
+    const [manageVisible, setManageVisible] = useState(false)
 
     async function loadTags() {
         let res = await request.post(`${config.host}/git/tag/list`, {
@@ -125,18 +211,18 @@ export function TagList({ config, event$, projectPath }) {
                                         label: t('export_json'),
                                         key: 'export_json',
                                     },
-                                    // {
-                                    //     label: t('manage'),
-                                    //     key: 'manage',
-                                    // },
+                                    {
+                                        label: t('manage'),
+                                        key: 'manage',
+                                    },
                                 ]}
                                 onClick={({ key }) => {
                                     if (key == 'export_json') {
                                         exportTags()
                                     }
-                                    // else if (key == 'manage') {
-                                    //     setManageVisible(true)
-                                    // }
+                                    else if (key == 'manage') {
+                                        setManageVisible(true)
+                                    }
                                 }}
                             />
                         }
@@ -222,6 +308,22 @@ export function TagList({ config, event$, projectPath }) {
                         })
                     }}
                 />
+            }
+            {manageVisible &&
+                <Modal
+                    open={true}
+                    title={t('git.tag')}
+                    width={800}
+                    onCancel={() => {
+                        setManageVisible(false)
+                    }}
+                    footer={null}
+                >
+                    <RemoveTagList
+                        projectPath={projectPath}
+                        config={config}
+                    />
+                </Modal>
             }
         </div>
     )
