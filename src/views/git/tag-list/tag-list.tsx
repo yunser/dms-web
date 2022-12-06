@@ -28,7 +28,10 @@ function RemoveTagList({ config, projectPath }) {
         })
         setLoading(false)
         if (res.success) {
-            setRemoveTags(res.data.list)
+            const list = res.data.list.filter(item => !item.name.endsWith('^{}'))
+            setRemoveTags(list)
+            
+            // refs/tags/20.10.30.1^{}
             // setCurrent(res.data.current)
         }
     }
@@ -37,65 +40,93 @@ function RemoveTagList({ config, projectPath }) {
         loadRemoveTags()
     }, [])
 
+    function deleteRemoteTag(item) {
+        Modal.confirm({
+            // title: 'Confirm',
+            // icon: <ExclamationCircleOutlined />,
+            content: `${t('delete')}「${item.name}」?`,
+            async onOk() {
+                
+                let ret = await request.post(`${config.host}/git/tag/deleteRemote`, {
+                    projectPath,
+                    name: item.name,
+                })
+                // console.log('ret', ret)
+                if (ret.success) {
+                    // message.success('连接成功')
+                    // onConnnect && onConnnect()
+                    // onClose && onClose()
+                    message.success(t('success'))
+                    loadRemoveTags()
+                    // onSuccess && onSuccess()
+                }
+            }
+        })
+    }
+
     return (
-        <Table
-            loading={loading}
-            dataSource={removeTags}
-            size="small"
-            pagination={false}
-            columns={[
-                {
-                    title: t('name'),
-                    dataIndex: 'name',
-                },
-                // {
-                //     title: t('type'),
-                //     dataIndex: 'type',
-                //     render(_value, item) {
-                //         let type
-                //         if (item.name.startsWith('remotes/')) {
-                //             type = 'remote'
-                //         }
-                //         else {
-                //             type = 'local'
-                //         }
-                //         return (
-                //             <div>{type}</div>
-                //         )
-                //     }
-                // },
-                // {
-                //     title: t('git.commit'),
-                //     dataIndex: 'commit',
-                // },
-                // {
-                //     title: t('label'),
-                //     dataIndex: 'label',
-                //     render(value) {
-                //         return (
-                //             <div className={styles.labelCell}>{value}</div>
-                //         )
-                //     }
-                // },
-                // {
-                //     title: t('actions'),
-                //     dataIndex: 'op',
-                //     render(_value, item) {
-                //         return (
-                //             <div>
-                //                 <Button
-                //                     size="small"
-                //                     onClick={() => {
-                //                         setBranchDeleteModalVisible(true)
-                //                         setEditBranch(item)
-                //                     }}
-                //                 >{t('delete')}</Button>
-                //             </div>
-                //         )
-                //     }
-                // },
-            ]}
-        />
+        <div>
+            <div>remote origin:</div>
+            <Table
+                loading={loading}
+                dataSource={removeTags}
+                size="small"
+                pagination={false}
+                columns={[
+                    {
+                        title: t('name'),
+                        dataIndex: 'name',
+                    },
+                    // {
+                    //     title: t('type'),
+                    //     dataIndex: 'type',
+                    //     render(_value, item) {
+                    //         let type
+                    //         if (item.name.startsWith('remotes/')) {
+                    //             type = 'remote'
+                    //         }
+                    //         else {
+                    //             type = 'local'
+                    //         }
+                    //         return (
+                    //             <div>{type}</div>
+                    //         )
+                    //     }
+                    // },
+                    // {
+                    //     title: t('git.commit'),
+                    //     dataIndex: 'commit',
+                    // },
+                    // {
+                    //     title: t('label'),
+                    //     dataIndex: 'label',
+                    //     render(value) {
+                    //         return (
+                    //             <div className={styles.labelCell}>{value}</div>
+                    //         )
+                    //     }
+                    // },
+                    {
+                        title: t('actions'),
+                        dataIndex: 'op',
+                        render(_value, item) {
+                            return (
+                                <div>
+                                    <Button
+                                        size="small"
+                                        onClick={() => {
+                                            // setBranchDeleteModalVisible(true)
+                                            // setEditBranch(item)
+                                            deleteRemoteTag(item)
+                                        }}
+                                    >{t('delete')}</Button>
+                                </div>
+                            )
+                        }
+                    },
+                ]}
+            />
+        </div>
     )
 }
 
