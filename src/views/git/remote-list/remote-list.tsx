@@ -73,6 +73,15 @@ export function RemoteList({ config, event$, projectPath }) {
         })
     }
 
+    function exportList() {
+        event$.emit({
+            type: 'event_show_json',
+            data: {
+                json: JSON.stringify(remotes, null, 4)
+            },
+        })
+    }
+
     return (
         <div className={styles.remoteBox}>
             {/* <div>远程列表:</div> */}
@@ -82,14 +91,47 @@ export function RemoteList({ config, event$, projectPath }) {
                     {'    '}
                     {t('git.remotes')}
                 </div>
-                <IconButton
-                    tooltip={t('git.remote.create')}
-                    onClick={() => {
-                        setModalVisible(true)
-                    }}
-                >
-                    <PlusOutlined />
-                </IconButton>
+                <Space>
+                    <IconButton
+                        tooltip={t('git.remote.create')}
+                        onClick={() => {
+                            setModalVisible(true)
+                        }}
+                    >
+                        <PlusOutlined />
+                    </IconButton>
+                    <Dropdown
+                        trigger={['click']}
+                        overlay={
+                            <Menu
+                                items={[
+                                    {
+                                        label: t('export_json'),
+                                        key: 'export_json',
+                                    },
+                                    // {
+                                    //     label: t('manage'),
+                                    //     key: 'manage',
+                                    // },
+                                ]}
+                                onClick={({ key }) => {
+                                    if (key == 'export_json') {
+                                        exportList()
+                                    }
+                                    // else if (key == 'manage') {
+                                    //     setManageVisible(true)
+                                    // }
+                                }}
+                            />
+                        }
+                    >
+                        <IconButton
+                            onClick={e => e.preventDefault()}
+                        >
+                            <EllipsisOutlined />
+                        </IconButton>
+                    </Dropdown>
+                </Space>
             </div>
             {remotes.length == 0 ?
                 <FullCenterBox
