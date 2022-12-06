@@ -19,6 +19,8 @@ export function RemoteList({ config, event$, projectPath }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
 
+    const [manageVisible, setManageVisible] = useState(false)
+
     const [modalVisible, setModalVisible] = useState(false)
     const [remotes, setRemotes] = useState([])
     // const [current, setCurrent] = useState('')
@@ -109,18 +111,18 @@ export function RemoteList({ config, event$, projectPath }) {
                                         label: t('export_json'),
                                         key: 'export_json',
                                     },
-                                    // {
-                                    //     label: t('manage'),
-                                    //     key: 'manage',
-                                    // },
+                                    {
+                                        label: t('manage'),
+                                        key: 'manage',
+                                    },
                                 ]}
                                 onClick={({ key }) => {
                                     if (key == 'export_json') {
                                         exportList()
                                     }
-                                    // else if (key == 'manage') {
-                                    //     setManageVisible(true)
-                                    // }
+                                    else if (key == 'manage') {
+                                        setManageVisible(true)
+                                    }
                                 }}
                             />
                         }
@@ -197,6 +199,46 @@ export function RemoteList({ config, event$, projectPath }) {
                         loadRemotes()
                     }}
                 />
+            }
+            {manageVisible &&
+                <Modal
+                    open={true}
+                    title={t('git.tag')}
+                    width={800}
+                    onCancel={() => {
+                        setManageVisible(false)
+                    }}
+                    footer={null}
+                >
+                    <Table
+                        dataSource={remotes}
+                        pagination={false}
+                        bordered
+                        size="small"
+                        columns={[
+                            {
+                                title: t('name'),
+                                dataIndex: 'name',
+                            },
+                            {
+                                title: t('url'),
+                                dataIndex: ['refs', 'fetch'],
+                            },
+                            // {
+                            //     title: t('git.push_url'),
+                            //     dataIndex: ['refs', 'push'],
+                            // },
+                            // {
+                            //     title: t('git.fetch_url'),
+                            //     dataIndex: ['refs', 'fetch'],
+                            // },
+                            // {
+                            //     title: t('git.push_url'),
+                            //     dataIndex: ['refs', 'push'],
+                            // },
+                        ]}
+                    />
+                </Modal>
             }
         </div>
     )
