@@ -74,6 +74,7 @@ function RemoveTagList({ config, projectPath }) {
                 
                 let ret = await request.post(`${config.host}/git/tag/deleteRemote`, {
                     projectPath,
+                    remoteName: curRemote,
                     name: item.name,
                 })
                 // console.log('ret', ret)
