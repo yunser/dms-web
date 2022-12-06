@@ -169,7 +169,7 @@ export function TagPushModal({ tag, config, event$, projectPath, onSuccess, onCa
                         label={t('git.tag')}
                         // rules={[ { required: true, }, ]}
                     >
-                        {tag}
+                        {tag || t('all')}
                     </Form.Item>
                 </Form>
                 {!!error &&

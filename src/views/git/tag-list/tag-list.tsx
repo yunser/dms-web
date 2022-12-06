@@ -14,6 +14,7 @@ import { IconButton } from '@/views/db-manager/icon-button';
 import { TagEditor } from '../tag-edit';
 import { FullCenterBox } from '@/views/db-manager/redis-client';
 import { TagPushModal } from '../tag-push';
+import { TagDeleteModal } from '../tag-delete';
 // import { saveAs } from 'file-saver'
 
 function RemoveTagList({ config, projectPath }) {
@@ -180,6 +181,8 @@ export function TagList({ config, event$, projectPath }) {
     const [pushTag, setPushTag] = useState('')
     const [tagModalVisible, setTagModalVisible] = useState(false)
     const [tags, setTags] = useState([])
+    const [deleteVisible, setDeleteVisible] = useState(false)
+    const [deleteItem, setDeleteItem] = useState(null)
     
     // const [current, setCurrent] = useState('')
     const [manageVisible, setManageVisible] = useState(false)
@@ -202,7 +205,10 @@ export function TagList({ config, event$, projectPath }) {
         }
     }
 
-    async function deleteItem(item) {
+    async function deleteItem2(item) {
+        setDeleteItem(item)
+        setDeleteVisible(true)
+        return
         Modal.confirm({
             title: t('git.tag.delete'),
             // icon: <ExclamationCircleOutlined />,
@@ -283,12 +289,16 @@ export function TagList({ config, event$, projectPath }) {
                             <Menu
                                 items={[
                                     {
-                                        label: t('export_json'),
-                                        key: 'export_json',
+                                        label: t('git.push'),
+                                        key: 'push',
                                     },
                                     {
                                         label: t('manage'),
                                         key: 'manage',
+                                    },
+                                    {
+                                        label: t('export_json'),
+                                        key: 'export_json',
                                     },
                                 ]}
                                 onClick={({ key }) => {
@@ -297,6 +307,10 @@ export function TagList({ config, event$, projectPath }) {
                                     }
                                     else if (key == 'manage') {
                                         setManageVisible(true)
+                                    }
+                                    else if (key == 'push') {
+                                        setPushTag(null)
+                                        setPushVisible(true)
                                     }
                                 }}
                             />
@@ -351,7 +365,7 @@ export function TagList({ config, event$, projectPath }) {
                                                 ]}
                                                 onClick={({ key }) => {
                                                     if (key == 'delete') {
-                                                        deleteItem(item)
+                                                        deleteItem2(item)
                                                     }
                                                     else if (key == 'push') {
                                                         setPushVisible(true)
@@ -424,6 +438,27 @@ export function TagList({ config, event$, projectPath }) {
                         //     data: {},
                         // })
                     }}
+                />
+            }
+            {deleteVisible &&
+                <TagDeleteModal
+                    projectPath={projectPath}
+                    config={config}
+                    tag={deleteItem}
+                    event$={event$}
+                    onCancel={() => {
+                        setDeleteVisible(false)
+                    }}
+                    onSuccess={() => {
+                        setDeleteVisible(false)
+                        // loadTags()
+                        loadTags()
+                        event$.emit({
+                            type: 'event_refresh_commit_list',
+                            data: {},
+                        })
+                    }}
+
                 />
             }
         </div>

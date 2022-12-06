@@ -142,12 +142,12 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
                             <Menu
                                 items={[
                                     {
-                                        label: t('export_json'),
-                                        key: 'export_json',
-                                    },
-                                    {
                                         label: t('manage'),
                                         key: 'manage',
+                                    },
+                                    {
+                                        label: t('export_json'),
+                                        key: 'export_json',
                                     },
                                 ]}
                                 onClick={({ key }) => {
