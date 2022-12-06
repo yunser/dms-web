@@ -13,6 +13,7 @@ import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { TagEditor } from '../tag-edit';
 import { FullCenterBox } from '@/views/db-manager/redis-client';
+import { TagPushModal } from '../tag-push';
 // import { saveAs } from 'file-saver'
 
 function RemoveTagList({ config, projectPath }) {
@@ -175,6 +176,8 @@ export function TagList({ config, event$, projectPath }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
 
+    const [pushVisible, setPushVisible] = useState(false)
+    const [pushTag, setPushTag] = useState('')
     const [tagModalVisible, setTagModalVisible] = useState(false)
     const [tags, setTags] = useState([])
     
@@ -337,6 +340,10 @@ export function TagList({ config, event$, projectPath }) {
                                             <Menu
                                                 items={[
                                                     {
+                                                        label: t('git.push'),
+                                                        key: 'push',
+                                                    },
+                                                    {
                                                         label: t('git.tag.delete'),
                                                         key: 'delete',
                                                         danger: true,
@@ -345,7 +352,10 @@ export function TagList({ config, event$, projectPath }) {
                                                 onClick={({ key }) => {
                                                     if (key == 'delete') {
                                                         deleteItem(item)
-
+                                                    }
+                                                    else if (key == 'push') {
+                                                        setPushVisible(true)
+                                                        setPushTag(item.name)
                                                     }
                                                 }}
                                             />
@@ -396,6 +406,25 @@ export function TagList({ config, event$, projectPath }) {
                         config={config}
                     />
                 </Modal>
+            }
+            {pushVisible &&
+                <TagPushModal
+                    projectPath={projectPath}
+                    config={config}
+                    tag={pushTag}
+                    event$={event$}
+                    onCancel={() => {
+                        setPushVisible(false)
+                    }}
+                    onSuccess={() => {
+                        setPushVisible(false)
+                        // loadTags()
+                        // event$.emit({
+                        //     type: 'event_refresh_commit_list',
+                        //     data: {},
+                        // })
+                    }}
+                />
             }
         </div>
     )
