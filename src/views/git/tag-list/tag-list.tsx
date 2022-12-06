@@ -1,4 +1,4 @@
-import { Button, Descriptions, Dropdown, Empty, Input, Menu, message, Modal, Popover, Space, Table, Tabs } from 'antd';
+import { Button, Descriptions, Dropdown, Empty, Input, Menu, message, Modal, Popover, Select, Space, Table, Tabs } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './tag-list.module.less';
 import _ from 'lodash';
@@ -20,11 +20,14 @@ function RemoveTagList({ config, projectPath }) {
 
     const [loading, setLoading] = useState(false)
     const [removeTags, setRemoveTags] = useState([])
-
+    const [remotes, setRemotes] = useState([])
+    const [curRemote, setCurRemote] = useState('')
     async function loadRemoveTags() {
         setLoading(true)
+        setRemoveTags([])
         let res = await request.post(`${config.host}/git/tag/remoteList`, {
             projectPath,
+            remoteName: curRemote,
         })
         setLoading(false)
         if (res.success) {
@@ -36,9 +39,31 @@ function RemoveTagList({ config, projectPath }) {
         }
     }
 
+    async function loadRemotes() {
+        let res = await request.post(`${config.host}/git/remote/list`, {
+            projectPath,
+        })
+        // console.log('res', res)
+        if (res.success) {
+            const remotes = res.data
+            setRemotes(remotes)
+            if (remotes.length) {
+                setCurRemote(remotes[0].name)
+            }
+            // setCurrent(res.data.current)
+        }
+    }
+
     useEffect(() => {
-        loadRemoveTags()
+        loadRemotes()
     }, [])
+
+    useEffect(() => {
+        if (!curRemote) {
+            return
+        }
+        loadRemoveTags()
+    }, [curRemote])
 
     function deleteRemoteTag(item) {
         Modal.confirm({
@@ -66,7 +91,22 @@ function RemoveTagList({ config, projectPath }) {
 
     return (
         <div>
-            <div>remote origin:</div>
+            <Space className={styles.tool}>
+                <div>remote:</div>
+                <Select
+                    value={curRemote}
+                    style={{ width: 160 }}
+                    onChange={value => {
+                        setCurRemote(value)
+                    }}
+                    options={remotes.map(item => {
+                        return {
+                            label: item.name,
+                            value: item.name,
+                        }
+                    })}
+                />
+            </Space>
             <Table
                 loading={loading}
                 dataSource={removeTags}
