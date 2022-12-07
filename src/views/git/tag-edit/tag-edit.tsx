@@ -1,5 +1,5 @@
 import { Button, Descriptions, Form, Input, message, Modal, Popover, Space, Table, Tabs } from 'antd';
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './remote-edit.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
@@ -23,8 +23,33 @@ export function TagEditor({ config, commit, event$, projectPath, onSuccess, onCa
     const { t } = useTranslation()
     const [curTab, setCurTab] = useState('status')
     // const [curTab, setCurTab] = useState('commit-list')
-    
+    const [curCommit, setCurCommit] = useState(null)
+
     const [form] = Form.useForm()
+
+    useEffect(() => {
+        loadList()
+    }, [])
+
+    async function loadList() {
+        // setListLoading(true)
+        // loadBranch()
+        // loadTags()
+        let res = await request.post(`${config.host}/git/commit/list`, {
+            projectPath,
+            limit: 1,
+        }, {
+            // noMessage: true,
+        })
+        // console.log('res', res)
+        if (res.success) {
+            const list = res.data
+            if (list.length > 0) {
+                setCurCommit(list[0])
+            }
+        }
+        // setListLoading(false)
+    }
 
     console.log('commitHash', commit)
     async function handleOk() {
@@ -77,7 +102,7 @@ export function TagEditor({ config, commit, event$, projectPath, onSuccess, onCa
                 >
                     <Input />
                 </Form.Item>
-                {!!commit &&
+                {!!commit ?
                     <Form.Item
                         // name="name"
                         label={t('git.commit')}
@@ -88,6 +113,18 @@ export function TagEditor({ config, commit, event$, projectPath, onSuccess, onCa
                         />
                         {/* {commit.hash} */}
                     </Form.Item>
+                :
+                    <Form.Item
+                    // name="name"
+                    label={t('git.commit')}
+                    // rules={[ { required: true, }, ]}
+                >
+                    {curCommit &&
+                        <CommitItem
+                            commit={curCommit}
+                        />
+                    }
+                </Form.Item>
                 }
                 
                 {/* <Form.Item
