@@ -1,6 +1,6 @@
-import { Button, Descriptions, Form, Input, message, Modal, Popover, Space, Table, Tabs } from 'antd';
+import { Button, Checkbox, Descriptions, Form, Input, message, Modal, Popover, Space, Table, Tabs } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import styles from './remote-edit.module.less';
+import styles from './tag-edit.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
 // console.log('lodash', _)
@@ -24,7 +24,7 @@ export function TagEditor({ config, commit, event$, projectPath, onSuccess, onCa
     const [curTab, setCurTab] = useState('status')
     // const [curTab, setCurTab] = useState('commit-list')
     const [curCommit, setCurCommit] = useState(null)
-
+    const [pushRemote, setPushRemote] = useState(false)
     const [form] = Form.useForm()
 
     useEffect(() => {
@@ -57,6 +57,7 @@ export function TagEditor({ config, commit, event$, projectPath, onSuccess, onCa
         const reqData = {
             projectPath,
             name: values.name,
+            pushRemote,
         }
         if (commit) {
             reqData.commit = commit.hash
@@ -126,6 +127,17 @@ export function TagEditor({ config, commit, event$, projectPath, onSuccess, onCa
                     }
                 </Form.Item>
                 }
+                <div className={styles.form}>
+                    <Checkbox
+                        checked={pushRemote}
+                        onChange={e => {
+                            setPushRemote(e.target.checked)
+                        }}
+                    >
+                        推送到远程分支（暂时仅支持 origin）
+                        {/* {t('git.delete.force')} */}
+                    </Checkbox>
+                </div>
                 
                 {/* <Form.Item
                     name="url"
