@@ -13,7 +13,7 @@ import { request } from '@/views/db-manager/utils/http';
 import { CommitItem } from '../commit-item';
 // import { saveAs } from 'file-saver'
 
-export function BranchModal({ config, event$, current, projectPath, commit, onSuccess, onCancel }) {
+export function BranchModal({ config, event$, remoteName, current, projectPath, commit, onSuccess, onCancel }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
 
@@ -42,6 +42,9 @@ export function BranchModal({ config, event$, current, projectPath, commit, onSu
         if (commit) {
             reqData.commit = commit.hash
         }
+        if (remoteName) {
+            reqData.remoteBranch = remoteName.substring(8)
+        }
         let res = await request.post(`${config.host}/git/branch/create`, reqData)
         console.log('pull/res', res)
         if (res.success) {
@@ -63,6 +66,16 @@ export function BranchModal({ config, event$, current, projectPath, commit, onSu
         // loadBranches()
         // pull()
     }, [])
+
+    useEffect(() => {
+        if (remoteName) {
+            const after = remoteName.substring(8)
+            const idx = after.indexOf('/')
+            form.setFieldsValue({
+                name: after.substring(idx + 1),
+            })
+        }
+    }, [remoteName])
 
     return (
         <div>
@@ -105,13 +118,18 @@ export function BranchModal({ config, event$, current, projectPath, commit, onSu
                     }
                     {!!commit &&
                         <Form.Item
-                            // name="name"
                             label={t('git.commit')}
-                            // rules={[ { required: true, }, ]}
                         >
                             <CommitItem
                                 commit={commit}
                             />
+                        </Form.Item>
+                    }
+                    {!!remoteName &&
+                        <Form.Item
+                            label={t('git.remote_branch')}
+                        >
+                            {remoteName.substring(8)}
                         </Form.Item>
                     }
                 </Form>

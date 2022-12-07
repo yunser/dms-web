@@ -26,7 +26,11 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
     const [current, setCurrent] = useState('')
     const [allBranches, setAllBranches] = useState([])
     const [branches, setBranches] = useState([])
+
+    const [branchModalRemote, setBranchModaRemote] = useState('')
     const [branchModalVisible, setBranchModalVisible] = useState(false)
+
+    // const [manageVisible, setManageVisible] = useState(true)
     const [manageVisible, setManageVisible] = useState(false)
     async function loadBranches() {
         let res = await request.post(`${config.host}/git/branch`, {
@@ -132,6 +136,7 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
                     <IconButton
                         tooltip={t('git.branch.create')}
                         onClick={() => {
+                            setBranchModaRemote('')
                             setBranchModalVisible(true)
                         }}
                     >
@@ -275,7 +280,8 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
                 <BranchModal
                     config={config}
                     event$={event$}
-                    current={current}
+                    // current={current}
+                    remoteName={branchModalRemote}
                     projectPath={projectPath}
                     onCancel={() => {
                         setBranchModalVisible(false)
@@ -371,15 +377,24 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
                                 dataIndex: 'op',
                                 render(_value, item) {
                                     return (
-                                        <div>
+                                        <Space>
                                             <Button
                                                 size="small"
+                                                onClick={() => {
+                                                    setBranchModaRemote(item.name)
+                                                    setBranchModalVisible(true)
+                                                }}
+                                                disabled={!item.name.startsWith('remotes/')}
+                                            >{t('git.checkout')}</Button>
+                                            <Button
+                                                size="small"
+                                                danger
                                                 onClick={() => {
                                                     setBranchDeleteModalVisible(true)
                                                     setEditBranch(item)
                                                 }}
                                             >{t('delete')}</Button>
-                                        </div>
+                                        </Space>
                                     )
                                 }
                             },
