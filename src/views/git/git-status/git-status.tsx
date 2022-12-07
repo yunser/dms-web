@@ -334,19 +334,14 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
 
     async function openInFinder(path: string) {
         let ret = await request.post(`${config.host}/file/openInFinder`, {
-            // sourceType,
             path,
-            // type: item.type,
         })
-        // console.log('ret', ret)
-        if (ret.success) {
-            // message.success('连接成功')
-            // onConnnect && onConnnect()
-            // message.success(t('success'))
-            // onClose && onClose()
-            // onSuccess && onSuccess()
-            // loadList()
-        }
+    }
+
+    async function openInVsCode(path: string) {
+        let ret = await request.post(`${config.host}/file/openInVsCode`, {
+            path,
+        })
     }
 
     async function checkoutFile(path) {
@@ -501,30 +496,12 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                                             overlay={
                                                                 <Menu
                                                                     items={[
-                                                                        // ...(item.working_dir == '?' ? [
-                                                                        //     {
-                                                                        //         label: t('git.delete_file'),
-                                                                        //         key: 'remove_file',
-                                                                        //     },
-                                                                        // ] : [
-                                                                        //     {
-                                                                        //         label: t('git.discard_change'),
-                                                                        //         key: 'key_checkout_file',
-                                                                        //     },
-                                                                        // ]),
                                                                         {
                                                                             label: t('file.open_in_finder'),
                                                                             key: 'finder',
                                                                         },
                                                                     ]}
                                                                     onClick={({ key }) => {
-                                                                        // if (key == 'key_checkout_file') {
-                                                                        //     checkoutFile(item.path)
-                                                                        // }
-                                                                        // else if (key == 'remove_file') {
-                                                                        //     removeFile(item.path)
-                                                                        // }
-                                                                        // else 
                                                                         if (key == 'finder') {
                                                                             console.log('item', item)
                                                                             openInFinder(projectPath + '/' + item)
@@ -625,6 +602,10 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                                                             label: t('file.open_in_finder'),
                                                                             key: 'finder',
                                                                         },
+                                                                        {
+                                                                            label: t('file.open_in_vscode'),
+                                                                            key: 'open_in_vscode',
+                                                                        },
                                                                     ]}
                                                                     onClick={({ key }) => {
                                                                         if (key == 'key_checkout_file') {
@@ -635,6 +616,9 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                                                         }
                                                                         else if (key == 'finder') {
                                                                             openInFinder(projectPath + '/' + item.path)
+                                                                        }
+                                                                        else if (key == 'open_in_vscode') {
+                                                                            openInVsCode(projectPath + '/' + item.path)
                                                                         }
                                                                     }}
                                                                 />
