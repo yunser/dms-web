@@ -22,7 +22,7 @@ export function BranchDeleteModal({ config, event$, projectPath, branch, commit,
     const [loading, setLoading] = useState(false)
     const [force, setFource] = useState(false)
     const [error, setError] = useState('')
-
+    const [deleteRemote, setDeleteRemote] = useState(false)
     const [branches, setBranches] = useState([])
 
     const isRemote = branch.name.startsWith('remotes/')
@@ -37,6 +37,7 @@ export function BranchDeleteModal({ config, event$, projectPath, branch, commit,
             projectPath,
             name: branch.name,
             force,
+            deleteRemote,
         }, {
             noMessage: true,
         })
@@ -108,12 +109,25 @@ export function BranchDeleteModal({ config, event$, projectPath, branch, commit,
                 {!isRemote &&
                     <div className={styles.form}>
                         <Checkbox
-                            value={force}
+                            checked={force}
                             onChange={e => {
                                 setFource(e.target.checked)
                             }}
                         >
                             {t('git.delete.force')}
+                        </Checkbox>
+                    </div>
+                }
+                {!isRemote &&
+                    <div className={styles.form}>
+                        <Checkbox
+                            checked={deleteRemote}
+                            onChange={e => {
+                                setDeleteRemote(e.target.checked)
+                            }}
+                        >
+                            删除远程分支（暂时仅支持 origin）
+                            {/* {t('git.delete.force')} */}
                         </Checkbox>
                     </div>
                 }

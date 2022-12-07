@@ -14,6 +14,7 @@ import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/db-manager/redis-client';
 import { BranchDeleteModal } from '../branch-delete';
 import { BranchModal } from '../branch-modal';
+import moment from 'moment';
 // import { saveAs } from 'file-saver'
 
 export function BranchList({ config, event$, projectPath, onBranch }) {
@@ -308,7 +309,7 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
                 <Modal
                     open={true}
                     title={t('git.branch')}
-                    width={800}
+                    width={1200}
                     onCancel={() => {
                         setManageVisible(false)
                     }}
@@ -349,6 +350,19 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
                                 render(value) {
                                     return (
                                         <div className={styles.labelCell}>{value}</div>
+                                    )
+                                }
+                            },
+                            {
+                                title: t('time'),
+                                dataIndex: ['commitObj', 'date'],
+                                render(value) {
+                                    if (!value) {
+                                        return '?'
+                                    }
+                                    return (
+                                        <div>{moment(value).format('YYYY-MM-DD HH:mm')}</div>
+                                        // <div className={styles.labelCell}>{value}</div>
                                     )
                                 }
                             },
