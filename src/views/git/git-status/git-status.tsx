@@ -493,7 +493,52 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                                             onClick={() => {
                                                                 diff(item, true)
                                                             }}
-                                                        >{item}</div>
+                                                        >
+                                                            <div className={styles.path}>{item}</div>
+                                                        </div>
+                                                        <Dropdown
+                                                            trigger={['click']}
+                                                            overlay={
+                                                                <Menu
+                                                                    items={[
+                                                                        // ...(item.working_dir == '?' ? [
+                                                                        //     {
+                                                                        //         label: t('git.delete_file'),
+                                                                        //         key: 'remove_file',
+                                                                        //     },
+                                                                        // ] : [
+                                                                        //     {
+                                                                        //         label: t('git.discard_change'),
+                                                                        //         key: 'key_checkout_file',
+                                                                        //     },
+                                                                        // ]),
+                                                                        {
+                                                                            label: t('file.open_in_finder'),
+                                                                            key: 'finder',
+                                                                        },
+                                                                    ]}
+                                                                    onClick={({ key }) => {
+                                                                        // if (key == 'key_checkout_file') {
+                                                                        //     checkoutFile(item.path)
+                                                                        // }
+                                                                        // else if (key == 'remove_file') {
+                                                                        //     removeFile(item.path)
+                                                                        // }
+                                                                        // else 
+                                                                        if (key == 'finder') {
+                                                                            console.log('item', item)
+                                                                            openInFinder(projectPath + '/' + item)
+                                                                        }
+                                                                    }}
+                                                                />
+                                                            }
+                                                        >
+                                                            <IconButton
+                                                                onClick={e => e.preventDefault()}
+                                                            >
+                                                                <EllipsisOutlined />
+                                                            </IconButton>
+                                                        </Dropdown>
                                                     </div>
                                                 )
                                             })}
@@ -551,7 +596,8 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                                             :
                                                                 <Tag>{item.working_dir}</Tag>
                                                             }
-                                                            <div className={styles.path}>{item.path}</div></div>
+                                                            <div className={styles.path}>{item.path}</div>
+                                                        </div>
                                                             {/* <Button
                                                                 size="small"
                                                                 onClick={() => {
@@ -559,47 +605,47 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                                                 }}
                                                             >
                                                                 checkout</Button> */}
-                                                            <Dropdown
-                                                                trigger={['click']}
-                                                                overlay={
-                                                                    <Menu
-                                                                        items={[
-                                                                            ...(item.working_dir == '?' ? [
-                                                                                {
-                                                                                    label: t('git.delete_file'),
-                                                                                    key: 'remove_file',
-                                                                                },
-                                                                            ] : [
-                                                                                {
-                                                                                    label: t('git.discard_change'),
-                                                                                    key: 'key_checkout_file',
-                                                                                },
-                                                                            ]),
+                                                        <Dropdown
+                                                            trigger={['click']}
+                                                            overlay={
+                                                                <Menu
+                                                                    items={[
+                                                                        ...(item.working_dir == '?' ? [
                                                                             {
-                                                                                label: t('file.open_in_finder'),
-                                                                                key: 'finder',
+                                                                                label: t('git.delete_file'),
+                                                                                key: 'remove_file',
                                                                             },
-                                                                        ]}
-                                                                        onClick={({ key }) => {
-                                                                            if (key == 'key_checkout_file') {
-                                                                                checkoutFile(item.path)
-                                                                            }
-                                                                            else if (key == 'remove_file') {
-                                                                                removeFile(item.path)
-                                                                            }
-                                                                            else if (key == 'finder') {
-                                                                                openInFinder(item.path)
-                                                                            }
-                                                                        }}
-                                                                    />
-                                                                }
+                                                                        ] : [
+                                                                            {
+                                                                                label: t('git.discard_change'),
+                                                                                key: 'key_checkout_file',
+                                                                            },
+                                                                        ]),
+                                                                        {
+                                                                            label: t('file.open_in_finder'),
+                                                                            key: 'finder',
+                                                                        },
+                                                                    ]}
+                                                                    onClick={({ key }) => {
+                                                                        if (key == 'key_checkout_file') {
+                                                                            checkoutFile(item.path)
+                                                                        }
+                                                                        else if (key == 'remove_file') {
+                                                                            removeFile(item.path)
+                                                                        }
+                                                                        else if (key == 'finder') {
+                                                                            openInFinder(projectPath + '/' + item.path)
+                                                                        }
+                                                                    }}
+                                                                />
+                                                            }
+                                                        >
+                                                            <IconButton
+                                                                onClick={e => e.preventDefault()}
                                                             >
-                                                                <IconButton
-                                                                    onClick={e => e.preventDefault()}
-                                                                >
-                                                                    <EllipsisOutlined />
-                                                                </IconButton>
-                                                            </Dropdown>
+                                                                <EllipsisOutlined />
+                                                            </IconButton>
+                                                        </Dropdown>
                                                     </div>
                                                 )
                                             })}
