@@ -23,11 +23,41 @@ function Commit({ config, event$, stagedLength, gitConfig, projectPath, onSucces
     const { t } = useTranslation()
     const [infoVisible, setInfoVisible] = useState(false)
     // const [infoVisible, setInfoVisible] = useState(true)
+    const [pushRemote, setPushRemote] = useState(false)
+    const [commitLoading, setCommitLoading] = useState(false)
     const [commitOptions, setCommitOptions] = useState('')
     const [formData, setFormData] = useState({
         message: '',
     })
+    const [current, setCurrent] = useState('')
 
+    async function loadBranches() {
+        let res = await request.post(`${config.host}/git/branch`, {
+            projectPath,
+            // connectionId,
+            // sql: lineCode,
+            // tableName,
+            // dbName,
+            // logger: true,
+        }, {
+            // noMessage: true,
+        })
+        // console.log('res', res)
+        if (res.success) {
+
+            // const branchs = []
+            // onBranch && onBranch(res.data.list)
+            const curBranch = res.data.current
+            console.log('curBranch', curBranch)
+            setCurrent(curBranch)
+        }
+    }
+
+    
+    useEffect(() => {
+        // loadRemotes()
+        loadBranches()
+    }, [])
     
     async function submit() {
         if (!formData.message) {
@@ -36,11 +66,16 @@ function Commit({ config, event$, stagedLength, gitConfig, projectPath, onSucces
         }
         // const values = await form.validateFields()
         // console.log('msg', values)
+        setCommitLoading(true)
         let res = await request.post(`${config.host}/git/commit`, {
             projectPath,
             message: formData.message,
-            amend: commitOptions == 'amend'
+            amend: commitOptions == 'amend',
+            pushRemote,
+            remoteName: 'origin',
+            branchName: current,
         })
+        setCommitLoading(false)
         // console.log('res', res)
         if (res.success) {
             // message.success('success')
@@ -57,6 +92,25 @@ function Commit({ config, event$, stagedLength, gitConfig, projectPath, onSucces
             })
             // setStatus(res.data.status)
             // setCurrent(res.data.current)
+
+            // if (pushRemote) {
+            //     let res2 = await request.post(`${config.host}/git/push`, {
+            //         projectPath,
+            //         // remoteName: values.remoteName,
+            //         remoteName: 'origin',
+            //         branchName: current,
+            //     }, {
+            //         // noMessage: true,
+            //     })
+            //     if (res2.success) {
+            //         event$.emit({
+            //             type: 'event_reload_history',
+            //             data: {
+            //                 commands: res.data.commands,
+            //             }
+            //         })
+            //     }
+            // }
         }
     }
 
@@ -73,6 +127,7 @@ function Commit({ config, event$, stagedLength, gitConfig, projectPath, onSucces
                     <Space>
                         <div className={styles.opts}>{t('git.commit_options')}:</div>
                         <Select
+                            disabled={commitLoading}
                             className={styles.select}
                             size="small"
                             value={commitOptions}
@@ -97,6 +152,7 @@ function Commit({ config, event$, stagedLength, gitConfig, projectPath, onSucces
                         message: e.target.value,
                     })
                 }}
+                disabled={commitLoading}
                 // placeholder={t('git.commit_message') + `, ${t('git.enter_to_commit')}`}
                 placeholder={t('git.commit_message')}
                 rows={infoVisible ? 4 : 1}
@@ -113,17 +169,32 @@ function Commit({ config, event$, stagedLength, gitConfig, projectPath, onSucces
             {infoVisible &&
                 <div className={styles.button}>
                     <Space>
+                        <Checkbox
+                            checked={pushRemote}
+                            disabled={commitLoading}
+                            onClick={() => {
+                                // console.log('add', item.path)
+                                setPushRemote(!pushRemote)
+                            }}
+                        />
+                        <div>立即推送变更到 origin/{current}
+                            {/* /xxx？ */}
+                        </div>
+                    </Space>
+                    <Space>
                         <Button
                             // type="primary"
                             size="small"
                             onClick={() => {
                                 setInfoVisible(false)
                             }}
+                            disabled={commitLoading}
                         >{t('cancel')}</Button>
                         <Button
                             type="primary"
                             size="small"
-                            disabled={!((stagedLength > 0) || (commitOptions == 'amend'))}
+                            loading={commitLoading}
+                            disabled={!(((stagedLength > 0) || (commitOptions == 'amend')) && !commitLoading)}
                             onClick={() => {
                                 submit()
                             }}
@@ -258,14 +329,6 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
         // loadBranch()
         let res = await request.post(`${config.host}/git/getConfig`, {
             projectPath,
-            // remoteName: 'origin',
-            // connectionId,
-            // sql: lineCode,
-            // tableName,
-            // dbName,
-            // logger: true,
-        }, {
-            // noMessage: true,
         })
         console.log('getConfig/res', res.data)
         if (res.success) {

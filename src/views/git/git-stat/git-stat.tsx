@@ -18,7 +18,6 @@ import { Gitgraph } from '@gitgraph/react'
 import { CopyButton } from '@/views/db-manager/copy-button';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { ResetModal } from '../reset-modal';
-import { useVirtualList } from 'ahooks'
 import { TagEditor } from '../tag-edit';
 import { BranchModal } from '../branch-modal';
 import ReactEcharts from 'echarts-for-react';
@@ -176,7 +175,7 @@ export function GitStat({ config, event$, projectPath,  }) {
         //     "hash": "727bfac6ad159647701f1265bc89fdd6c5c33759",
         //     "date": "2022-10-12T16:32:36+08:00",
         //     "message": "fix(uni-nav-bar): nvue 下，fixed 不生效的bug",
-        //     "refs": "HEAD -> master, origin/master, origin/HEAD",
+        //     "refs": "HEAD -> master, orig/master, orig/HEAD",
         //     "body": "",
         //     "author_name": "mehaotian",
         //     "author_email": "490272692@qq.com"
@@ -277,13 +276,6 @@ export function GitStat({ config, event$, projectPath,  }) {
 
     const containerRef = useRef(null);
     const wrapperRef = useRef(null);
-    // const originalList = useMemo(() => Array.from(Array(99999).keys()), []);
-    const [vList] = useVirtualList(showList, {
-        containerTarget: containerRef,
-        wrapperTarget: wrapperRef,
-        itemHeight: 32,
-        overscan: 10,
-    });
     // console.log('showList.le', showList.length)
     // console.log('vList', vList)
 
