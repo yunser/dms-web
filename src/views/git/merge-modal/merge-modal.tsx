@@ -1,4 +1,4 @@
-import { Button, Descriptions, Form, Input, message, Modal, Popover, Select, Space, Table, Tabs } from 'antd';
+import { Button, Checkbox, Descriptions, Form, Input, message, Modal, Popover, Select, Space, Table, Tabs } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './merge-modal.module.less';
 import _ from 'lodash';
@@ -21,25 +21,18 @@ export function MergeModal({ config, event$, projectPath, onSuccess, onCancel })
     const [current, setCurrent] = useState('')
     const [loading, setLoading] = useState(false)
     const [tab, setTab] = useState('mergeFrom')
+    const [pushRemote, setPushRemote] = useState(false)
     // const [tab, setTab] = useState('mergeTo')
 
     const [branches, setBranches] = useState([])
 
     
     async function loadBranches() {
-        let res = await request.post(`${config.host}/git/branch`, {
+        const reqData = {
             projectPath,
-            // connectionId,
-            // sql: lineCode,
-            // tableName,
-            // dbName,
-            // logger: true,
-        }, {
-            // noMessage: true,
-        })
-        // console.log('res', res)
+        }
+        let res = await request.post(`${config.host}/git/branch`, reqData)
         if (res.success) {
-
             // const branchs = []
             // onBranch && onBranch(res.data.list)
             const curBranch = res.data.current
@@ -76,11 +69,15 @@ export function MergeModal({ config, event$, projectPath, onSuccess, onCancel })
         const values = await form.validateFields()
         if (tab == 'mergeFrom') {
             setLoading(true)
-            let res = await request.post(`${config.host}/git/merge`, {
+            const reqData = {
                 projectPath,
                 fromBranch: values.branch,
                 toBranch: current,
-            })
+            }
+            if (tab == 'mergeFrom' && pushRemote) {
+                reqData.pushRemote = pushRemote
+            }
+            let res = await request.post(`${config.host}/git/merge`, reqData)
             console.log('pull/res', res)
             if (res.success) {
                 onSuccess && onSuccess()
@@ -239,6 +236,21 @@ export function MergeModal({ config, event$, projectPath, onSuccess, onCancel })
                         </>
                     }
                 </Form>
+                {tab == 'mergeFrom' &&
+                    <Space>
+                        <Checkbox
+                            checked={pushRemote}
+                            // disabled={commitLoading}
+                            onClick={() => {
+                                // console.log('add', item.path)
+                                setPushRemote(!pushRemote)
+                            }}
+                        />
+                        <div>立即推送变更到 origin/{current}
+                            {/* /xxx？ */}
+                        </div>
+                    </Space>
+                }
             </Modal>
         </div>
     )
