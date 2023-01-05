@@ -176,10 +176,9 @@ function Commit({ config, event$, stagedLength, gitConfig, projectPath, onSucces
                                 // console.log('add', item.path)
                                 setPushRemote(!pushRemote)
                             }}
-                        />
-                        <div>立即推送变更到 origin/{current}
-                            {/* /xxx？ */}
-                        </div>
+                        >
+                            {t('git.push.now')} origin/{current}
+                        </Checkbox>
                     </Space>
                     <Space>
                         <Button

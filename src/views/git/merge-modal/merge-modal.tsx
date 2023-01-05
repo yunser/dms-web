@@ -167,11 +167,11 @@ export function MergeModal({ config, event$, projectPath, onSuccess, onCancel })
                     }}
                     items={[
                         {
-                            label: `合并`,
+                            label: t('git.merge'),
                             key: 'mergeFrom',
                         },
                         {
-                            label: `合并到`,
+                            label: t('git.merge.merge_to'),
                             key: 'mergeTo',
                         },
                     ]}
@@ -245,10 +245,9 @@ export function MergeModal({ config, event$, projectPath, onSuccess, onCancel })
                                 // console.log('add', item.path)
                                 setPushRemote(!pushRemote)
                             }}
-                        />
-                        <div>立即推送变更到 origin/{current}
-                            {/* /xxx？ */}
-                        </div>
+                        >
+                            {t('git.push.now')} origin/{current}
+                        </Checkbox>
                     </Space>
                 }
             </Modal>
