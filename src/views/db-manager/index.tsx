@@ -318,6 +318,21 @@ export function DbManager({ config }) {
     }
 
     function handleCommand(key, commandData = {}) {
+        const app = funCommands.find(item => item.key == key)
+        if (app) {
+            console.log('app', app)
+            const historyApps = storage.get('historyApps', [])
+            let newHistoryApps = historyApps.filter(item => item.command != app.key)
+            newHistoryApps.unshift({
+                name: app.label,
+                command: app.key,
+                id: '' + new Date().getTime(),
+            })
+            if (newHistoryApps.length > 8) {
+                newHistoryApps = newHistoryApps.slice(0, 8)
+            }
+            storage.set('historyApps', newHistoryApps)
+        }
         if (key == 'help') {
             addOrActiveTab({
                 title: '$i18n.help',

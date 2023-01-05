@@ -380,6 +380,8 @@ i18n
                     'insert_above': 'Insert Above',
                     'manage': 'Manage',
                     'monitor': 'Monitor',
+                    'recently_used': 'Recently Used',
+                    'recommend': 'Recommend',
                 }
             },
             zh: {
@@ -752,6 +754,8 @@ i18n
                     'insert_above': '往上插入',
                     'manage': '管理',
                     'monitor': '监控',
+                    'recently_used': '最近使用',
+                    'recommend': '推荐',
                 }
             }
         },
