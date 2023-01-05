@@ -1091,6 +1091,10 @@ export function TableViewer({ config, databaseType = 'mysql', connectionId, even
                                 >
                                 调试
                             </Button> */}
+                            <div className={styles.tableNameBox}>
+                                {tableInfo.TABLE_NAME}
+                                <div className={styles.comment}>{tableInfo.TABLE_COMMENT}</div>
+                            </div>
                             {editType == 'update' &&
                                 <IconButton
                                     tooltip={t('refresh')}
@@ -1140,7 +1144,7 @@ export function TableViewer({ config, databaseType = 'mysql', connectionId, even
                                         <div>
                                             <div className={styles.formBox}>
                                                 <div className={styles.tableName}>{tableInfo.TABLE_NAME}</div>
-                                                <div className={styles.comment}>{tableInfo.TABLE_COMMENT}</div>
+                                                <div className={styles.bigComment}>{tableInfo.TABLE_COMMENT}</div>
                                             </div>
                                             {editType == 'update' &&
                                                 <Descriptions column={1}>
