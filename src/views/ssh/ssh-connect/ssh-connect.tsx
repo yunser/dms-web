@@ -20,6 +20,26 @@ import { FileList } from '../../file/file-list'
 import storage from '@/utils/storage';
 import { uid } from 'uid';
 
+function parseSize(sizeText: string) {
+    return parseInt(sizeText.replace('kB', '').trim())
+}
+
+function parseStat(stat) {
+    const rows = stat.split('\n')
+    const cupStat = rows[0]
+    const [ cpu, _user, _nice, _system, _idle ] = cupStat.split(/\s+/)
+    // CPU利用率   =   100   *（user   +   nice   +   system）/（user   +   nice   +   system   +   idle）
+    console.log('ccpp', _user, _nice, _system, _idle)
+    const [user, nice, system, idle] = [_user, _nice, _system, _idle].map(item => {
+        return parseInt(item.trim())
+    })
+    console.log('user, nice, system, idle', user, nice, system, idle)
+    const cpuRate = (user + nice + system) / (user + nice + system + idle)
+    return {
+        cpuUsage: Math.floor(100 * cpuRate),
+    }
+}
+
 function InputPassword(props) {
     const [visible, setVisible] = useState(false)
     return (
@@ -51,6 +71,9 @@ export function SshConnect({ config, tabKey, event$ }) {
     const [curItem, setCurItem] = useState(null)
     const [view, setView] = useState('list')
     const [keyword, setKeyword] = useState('')
+
+    const [moniteItem, setMoniteItem] = useState(null)
+    const [moniteVisible, setMoniteVisible] = useState(false)
     // const [curTab, setCurTab] = useState('commit-list')
     // const config = {
     //     host: 'http://localhost:10086',
@@ -254,6 +277,16 @@ export function SshConnect({ config, tabKey, event$ }) {
                                                     >
                                                         SFTP
                                                     </Button>
+                                                    <Button
+                                                        size="small"
+                                                        onClick={() => {
+                                                            setMoniteVisible(true)
+                                                            setMoniteItem(item)
+                                                        }}
+                                                        icon={<FileOutlined />}
+                                                    >
+                                                        {t('monitor')}
+                                                    </Button>
                                                     
                                                     <Dropdown
                                                         trigger={['click']}
@@ -364,6 +397,15 @@ export function SshConnect({ config, tabKey, event$ }) {
                     onSuccess={() => {
                         setModalVisible(false)
                         loadList()
+                    }}
+                />
+            }
+            {moniteVisible &&
+                <MonitorModal
+                    item={moniteItem}
+                    config={config}
+                    onCancel={() => {
+                        setMoniteVisible(false)
                     }}
                 />
             }
@@ -564,4 +606,86 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
             </Form>
         </Modal>
     );
+}
+
+function parseMemInfo(meminfo: string) {
+    console.log('meminfo', meminfo)
+    const result = {}
+    meminfo.split('\n').filter(item => item).forEach(row => {
+        console.log('row', row)
+        const [ key, value ] = row.split(':')
+        result[key] = value.trim()
+    })
+    return result
+}
+
+function MonitorModal({ item, onCancel, config }) {
+
+    const { t } = useTranslation()
+    const [result, setResult] = useState(null)
+    const [loading, setLoading] = useState(false)
+    
+    async function loadData() {
+        setLoading(true)
+        let res = await request.post(`${config.host}/ssh/connection/monite`, {
+            id: item.id,
+        })
+        setLoading(false)
+        if (res.success) {
+            console.log('loadData', res.data)
+            // const { meminfo } = res.data
+            const memInfo = parseMemInfo(res.data.meminfo)
+            console.log('memInfo', memInfo)
+            // total=used+free+buff/cache
+            // MemAvailable
+            // MemFree
+
+            // MemTotal
+            // Buffers
+            // Cached
+            // total=used+free+buff/cache
+            // https://blog.csdn.net/heymyyl/article/details/80073534
+
+            const { cpuUsage } = parseStat(res.data.stat)
+            setResult({
+                // MemTotal: memInfo.MemTotal,
+                memoryPercent: Math.floor((parseSize(memInfo.MemTotal) - parseSize(memInfo.MemFree) - parseSize(memInfo.Buffers) - parseSize(memInfo.Cached)) / parseSize(memInfo.MemTotal) * 100),
+                cpuUsage,
+            })
+        }
+    }
+
+    useEffect(() => {
+        loadData()
+    }, [item])
+
+    return (
+        <Modal
+            title={t('monitor')}
+            open={true}
+            onCancel={onCancel}
+            footer={null}
+        >
+            {loading ?
+                <Spin />
+            : !!result ?
+                <div className={styles.dataList}>
+                    <div className={styles.item}>
+                        <div className={styles.key}>CPU</div>
+                        <div className={styles.value}>
+                            {result.cpuUsage}%
+                        </div>
+                    </div>
+                    <div className={styles.item}>
+                        <div className={styles.key}>内存</div>
+                        <div className={styles.value}>
+                            {result.memoryPercent}%
+                        </div>
+                    </div>
+                </div>
+            :
+                <div>error</div>
+            }
+        </Modal>
+    )
 }

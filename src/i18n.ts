@@ -379,6 +379,7 @@ i18n
                     'move_down': 'Move Down',
                     'insert_above': 'Insert Above',
                     'manage': 'Manage',
+                    'monitor': 'Monitor',
                 }
             },
             zh: {
@@ -750,6 +751,7 @@ i18n
                     'move_down': '下移',
                     'insert_above': '往上插入',
                     'manage': '管理',
+                    'monitor': '监控',
                 }
             }
         },
