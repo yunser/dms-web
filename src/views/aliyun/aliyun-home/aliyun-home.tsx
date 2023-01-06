@@ -40,6 +40,7 @@ export function AliyunHome({ config, onClickItem }) {
     const [content, setContent] = useState('')
 
     const [installed, setInstalled] = useState(false)
+    const [allList, setAllList] = useState([])
     const [ecsList, setEcsList] = useState([])
     const [rdsList, setRdsList] = useState([])
     const [certList, setCertList] = useState([])
@@ -56,6 +57,64 @@ export function AliyunHome({ config, onClickItem }) {
         if (res.success) {
             const { installed, ecs, rds, cert, domain, billing, tencentServer, tencentMysql, tencentLighthouse } = res.data
             setInstalled(installed)
+            const allList = [
+                ...ecs.map(item => {
+                    return {
+                        type: 'ecs',
+                        name: item.instanceName,
+                        expireTime: item.expiredTime,
+                    }
+                }),
+                ...rds.map(item => {
+                    return {
+                        type: 'rds',
+                        name: item.DBInstanceDescription,
+                        expireTime: item.expireTime,
+                    }
+                }),
+                ...cert.map(item => {
+                    return {
+                        type: 'ssl',
+                        name: item.domain,
+                        expireTime: item.certEndTime,
+                    }
+                }),
+                ...domain.map(item => {
+                    return {
+                        type: 'domain',
+                        name: item.DomainName,
+                        expireTime: item.ExpirationDate,
+                    }
+                }),
+                ...tencentServer.map(item => {
+                    return {
+                        type: 'tencentServer',
+                        name: item.InstanceName,
+                        expireTime: item.ExpiredTime,
+                    }
+                }),
+                ...tencentMysql.map(item => {
+                    return {
+                        type: 'tencentMysql',
+                        name: item.InstanceName,
+                        expireTime: item.DeadlineTime,
+                    }
+                }),
+                ...tencentLighthouse.map(item => {
+                    return {
+                        type: 'tencentLighthouse',
+                        name: item.InstanceName,
+                        expireTime: item.ExpiredTime,
+                    }
+                }),
+            ]
+                .sort((a, b) => {
+                    function score(item) {
+                        return - moment(item.expireTime).toDate().getTime()
+                    }
+                    return score(b) - score(a)
+                })
+            setAllList(allList)
             setEcsList(ecs.sort((a, b) => {
                 function score(item) {
                     return - moment(item.expiredTime).toDate().getTime()
@@ -320,9 +379,49 @@ export function AliyunHome({ config, onClickItem }) {
         </div>
     )
 
+    // console.log('allList', allList)
+
     const main = (
         <div>
-            欢迎使用阿里云/腾讯云助手
+            <div className={styles.welcome}>欢迎使用阿里云/腾讯云助手</div>
+
+            <div className={styles.section}>
+                {/* <div className={styles.title}>一个月内快到期产品：</div> */}
+                <Table
+                    dataSource={allList}
+                    columns={[
+                        {
+                            title: '名称',
+                            dataIndex: 'name',
+                            width: 320,
+                        },
+                        {
+                            title: '类型',
+                            dataIndex: 'type',
+                            width: 160,
+                            render(value) {
+                                const map = {
+                                    ecs: 'ECS',
+                                    rds: 'RDS',
+                                    ssl: 'SSL',
+                                    domain: 'Domain',
+                                    // tencentServer: 'Tencent Server',
+                                    tencentServer: '腾讯服务器',
+                                    tencentMysql: '腾讯 MySQL',
+                                    tencentLighthouse: '腾讯轻量服务器',
+                                }
+                                return map[value] || value
+                            },
+                        },
+                        {
+                            title: '到期时间',
+                            dataIndex: 'expireTime',
+                            render: ExpireTimeRender,
+                        },
+                    ]}
+                    size="small"
+                />
+            </div>
         </div>
     )
 
