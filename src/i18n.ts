@@ -384,6 +384,10 @@ i18n
                     'monitor': 'Monitor',
                     'recently_used': 'Recently Used',
                     'recommend': 'Recommend',
+                    'ssh.memory': 'Memory',
+                    'ssh.load_avg': 'Load Average',
+                    'ssh.uptime': 'Uptime',
+                    'ssh.cores': 'Cores',
                 }
             },
             zh: {
@@ -760,6 +764,10 @@ i18n
                     'monitor': '监控',
                     'recently_used': '最近使用',
                     'recommend': '推荐',
+                    'ssh.memory': '内存',
+                    'ssh.load_avg': '平均负载',
+                    'ssh.uptime': '正常运行时间',
+                    'ssh.cores': '核',
                 }
             }
         },

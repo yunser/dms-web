@@ -40,6 +40,46 @@ function parseStat(stat) {
     }
 }
 
+function parseLoadAvg(loadavg) {
+    const arr = loadavg.split(/\s+/)
+    return `${arr[0]} / ${arr[1]} / ${arr[2]}`
+}
+
+function parseUpTime(uptime) {
+    const arr = uptime.split(/\s+/)
+    const second = parseFloat(arr[0])
+    // const m = moment().add(-1 * second, 'seconds')
+    const minite = 60
+    const hour = 60 * minite
+    const day = 24 * hour
+    if (second > day) {
+        return Math.floor(second / day) + 'd'
+    }
+    if (second > hour) {
+        return Math.floor(second / hour) + 'h'
+    }
+    if (second > minite) {
+        return Math.floor(second / minite) + 'min'
+    }
+    return second + 's'
+}
+
+function parseCpuInfo(cpuinfo) {
+    console.log('cpuinfo', cpuinfo)
+    const infoObj = {}
+    const arr = cpuinfo.split('\n')
+    for (let line of arr) {
+        console.log('line', line)
+        const _arr = line.split(':')
+        if (_arr[1]) {
+            infoObj[_arr[0].trim()] = _arr[1].trim()
+        }
+    }
+    console.log('infoObj', infoObj)   
+    // return infoObj['cpu cores']
+    return infoObj['siblings']
+}
+
 function InputPassword(props) {
     const [visible, setVisible] = useState(false)
     return (
@@ -651,6 +691,9 @@ function MonitorModal({ item, onCancel, config }) {
                 // MemTotal: memInfo.MemTotal,
                 memoryPercent: Math.floor((parseSize(memInfo.MemTotal) - parseSize(memInfo.MemFree) - parseSize(memInfo.Buffers) - parseSize(memInfo.Cached)) / parseSize(memInfo.MemTotal) * 100),
                 cpuUsage,
+                loadavg: parseLoadAvg(res.data.loadavg),
+                uptime: parseUpTime(res.data.uptime),
+                cpuinfo: parseCpuInfo(res.data.cpuinfo),
             })
         }
     }
@@ -671,15 +714,30 @@ function MonitorModal({ item, onCancel, config }) {
             : !!result ?
                 <div className={styles.dataList}>
                     <div className={styles.item}>
-                        <div className={styles.key}>CPU</div>
+                        <div className={styles.key}>CPU
+                            <div className={styles.tag}>{result.cpuinfo} {t('ssh.cores')}</div>
+                        </div>
                         <div className={styles.value}>
-                            {result.cpuUsage}%
+                             {result.cpuUsage}%
                         </div>
                     </div>
                     <div className={styles.item}>
-                        <div className={styles.key}>内存</div>
+                        <div className={styles.key}>{t('ssh.memory')}</div>
                         <div className={styles.value}>
                             {result.memoryPercent}%
+                        </div>
+                    </div>
+                    <div className={styles.item}>
+                        <div className={styles.key}>{t('ssh.load_avg')}</div>
+                        <div className={styles.value}>
+                            {result.loadavg}
+                        </div>
+                    </div>
+
+                    <div className={styles.item}>
+                        <div className={styles.key}>{t('ssh.uptime')}</div>
+                        <div className={styles.value}>
+                            {result.uptime}
                         </div>
                     </div>
                 </div>
