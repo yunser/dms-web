@@ -388,6 +388,7 @@ i18n
                     'ssh.load_avg': 'Load Average',
                     'ssh.uptime': 'Uptime',
                     'ssh.cores': 'Cores',
+                    'sql.compare': 'Database Compare',
                 }
             },
             zh: {
@@ -768,6 +769,7 @@ i18n
                     'ssh.load_avg': '平均负载',
                     'ssh.uptime': '正常运行时间',
                     'ssh.cores': '核',
+                    'sql.compare': '数据库结构对比',
                 }
             }
         },

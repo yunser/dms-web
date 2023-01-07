@@ -1,4 +1,4 @@
-import { Button, Checkbox, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Select, Space, Spin, Table, Tabs, Tree } from 'antd';
+import { Button, Checkbox, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Select, Space, Spin, Table, Tabs, Tag, Tree } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './sql-connect.module.less';
 import _ from 'lodash';
@@ -15,8 +15,52 @@ import { CodeDebuger } from '../code-debug';
 import { ColorSelector } from '../color-selector';
 import copy from 'copy-to-clipboard';
 import { FullCenterBox } from '../redis-client';
+import { useInterval } from 'ahooks';
 
 
+function RecentlyUsedDb({ originConnections, onItemSelect }) {
+    const { t } = useTranslation()
+    const [historyApps, setHistoryApps] = useState([])
+
+    async function loadHistoryApps() {
+        const historyApps = storage.get('historyConnections', [])        
+        setHistoryApps(historyApps)
+    }
+
+    useEffect(() => {
+        loadHistoryApps()
+    }, [])
+
+    useInterval(() => {
+        loadHistoryApps()
+    }, 1000)
+
+    // console.log('historyConnections', historyApps)
+    
+    if (historyApps.length < 1) {
+        return <></>
+    }
+    const fItem = originConnections.find(item => item.id == historyApps[0].id)
+    if (!fItem) {
+        return <></>
+    }
+
+    return (
+        <div className={styles.recentlyUsedDb}>
+            <Space>
+                <div>{t('recently_used')}:</div>
+                <Tag
+                    className={styles.tag}
+                    onClick={() => {
+                        onItemSelect && onItemSelect(fItem)
+                    }}
+                >
+                    <a>{fItem.name}</a>
+                </Tag>
+            </Space>
+        </div>
+    )
+}
 
 function lastSplit(text: string, sep: string) {
     const idx = text.lastIndexOf(sep)
@@ -459,6 +503,7 @@ export function SqlConnector({ config, event$, onConnnect, onJson }) {
     const [connecting, setConnecting] = useState(false)
     const [loading, setLoading] = useState(false)
     const [connections, setConnections] = useState([])
+    const [originConnections, setOriginConnections] = useState([])
 
     
     // const treeData = useMemo(() => {
@@ -484,6 +529,7 @@ export function SqlConnector({ config, event$, onConnnect, onJson }) {
         if (res.success) {
             // setProjects([])
             let connections = res.data.list
+            setOriginConnections(JSON.parse(JSON.stringify(connections)))
             if (keyword) {
                 connections = connections.filter(item => item.name.toLowerCase().includes(keyword.toLowerCase()))
             }
@@ -513,6 +559,17 @@ export function SqlConnector({ config, event$, onConnnect, onJson }) {
                 ...ret.data,
                 curConnect: reqData,
             })
+
+            const historyConnections = storage.get('historyConnections', [])
+            let newHistoryConnections = historyConnections.filter(item => item.id != reqData.id)
+            newHistoryConnections.unshift({
+                _name: reqData.name,
+                id: reqData.id,
+            })
+            if (newHistoryConnections.length > 8) {
+                newHistoryConnections = newHistoryConnections.slice(0, 8)
+            }
+            storage.set('historyConnections', newHistoryConnections)
         }
         setConnecting(false)
     }
@@ -822,9 +879,15 @@ ${t('password')}: ${data.password}`
                                 })
                             }}
                         >
-                            数据库结构对比
+                            {t('sql.compare')}
                         </Button>
                     </Space>
+                    <RecentlyUsedDb
+                        originConnections={originConnections}
+                        onItemSelect={item => {
+                            _connect(item)
+                        }}
+                    />
                 </div>
                 <Table
                     dataSource={connections}
