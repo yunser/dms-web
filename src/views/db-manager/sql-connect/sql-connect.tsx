@@ -189,7 +189,7 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
             name: values.name || 'Unnamed',
             host: values.host || 'localhost',
             port: values.port || defaultPort,
-            user: values.user,
+            user: values.user || 'root',
             password: values.password,
             path: values.path,
             color: values.color,
@@ -252,9 +252,8 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
         const reqData = {
             host: values.host || 'localhost',
             port: values.port || defaultPort,
-            // user: values.user,
             password: values.password,
-            user: values.user,
+            user: values.user || 'root',
             // db: values.defaultDatabase || 0,
             test: true,
             httpProxyUrl: values.httpProxyUrl,
@@ -382,9 +381,11 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
                     <Form.Item
                         name="user"
                         label={t('user')}
-                        rules={[{ required: true, },]}
+                        // rules={[{ required: true, },]}
                     >
-                        <Input />
+                        <Input
+                            placeholder="root"
+                        />
                     </Form.Item>
                 }
                 {type != 'sqlite' &&
