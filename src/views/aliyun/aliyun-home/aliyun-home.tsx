@@ -391,7 +391,7 @@ export function AliyunHome({ config, onClickItem }) {
                     dataSource={allList}
                     columns={[
                         {
-                            title: '名称',
+                            title: '产品名称',
                             dataIndex: 'name',
                             width: 320,
                         },

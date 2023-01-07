@@ -15,8 +15,34 @@ import { FullCenterBox } from '@/views/db-manager/redis-client';
 import moment from 'moment';
 // import { saveAs } from 'file-saver'
 
+function isInclude(text: string, subText: string) {
+    // console.log('isInclude', text, subText)
+    // let subIdx = 0
+    // for (let idx = 0; idx < text.length; idx++) {
+    //     const char = text.charAt(idx)
+    //     if (text.charAt(idx) == subText.charAt(subIdx)) {
+    //         subIdx++
+    //     }
+    // }
+    // console.log('isInclude/subIdx', subIdx)
+    // return subIdx == subText.length
+    const keywords = subText.trim().split(/\s+/)
+    for (let keyword of keywords) {
+        if (!text.includes(keyword)) {
+            return false
+        }
+    }
+    return true
+}
+
 function visibleFilter(list) {
     return list.filter(item => item.visible != false)
+}
+
+function search(projects, keyword) {
+    const keywordL = keyword.toLowerCase()
+    return projects
+        .filter(p => isInclude(p.name.toLowerCase(), keywordL))
 }
 
 export function GitHome({ event$, onProject }) {
@@ -45,7 +71,7 @@ export function GitHome({ event$, onProject }) {
         if (!keyword) {
             return projects    
         }
-        return projects.filter(p => p.name.toLowerCase().includes(keyword.toLowerCase()))
+        return search(projects, keyword)
         // return projects
     }, [projects, keyword])
 
