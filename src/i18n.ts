@@ -389,6 +389,7 @@ i18n
                     'ssh.uptime': 'Uptime',
                     'ssh.cores': 'Cores',
                     'sql.compare': 'Database Compare',
+                    'hide': 'Hide',
                 }
             },
             zh: {
@@ -770,6 +771,7 @@ i18n
                     'ssh.uptime': '正常运行时间',
                     'ssh.cores': '核',
                     'sql.compare': '数据库结构对比',
+                    'hide': '隐藏',
                 }
             }
         },

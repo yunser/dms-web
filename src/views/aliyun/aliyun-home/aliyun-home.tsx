@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { DownloadOutlined, EllipsisOutlined, KeyOutlined, PlusOutlined, ReloadOutlined, StarFilled } from '@ant-design/icons';
+import { CloseCircleOutlined, DownloadOutlined, EllipsisOutlined, EyeInvisibleOutlined, KeyOutlined, PlusOutlined, ReloadOutlined, StarFilled } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 // import { GitProject } from '../git-project';
@@ -15,6 +15,7 @@ import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/db-manager/redis-client';
 import moment from 'moment';
+import { uid } from 'uid';
 // import { saveAs } from 'file-saver'
 
 function ExpireTimeRender(value) {
@@ -113,6 +114,12 @@ export function AliyunHome({ config, onClickItem }) {
                         return - moment(item.expireTime).toDate().getTime()
                     }
                     return score(b) - score(a)
+                })
+                .map(item => {
+                    return {
+                        ...item,
+                        id: uid(32),
+                    }
                 })
             setAllList(allList)
             setEcsList(ecs.sort((a, b) => {
@@ -393,12 +400,12 @@ export function AliyunHome({ config, onClickItem }) {
                         {
                             title: '产品名称',
                             dataIndex: 'name',
-                            width: 320,
+                            width: 280,
                         },
                         {
                             title: '类型',
                             dataIndex: 'type',
-                            width: 160,
+                            width: 120,
                             render(value) {
                                 const map = {
                                     ecs: 'ECS',
@@ -416,7 +423,26 @@ export function AliyunHome({ config, onClickItem }) {
                         {
                             title: '到期时间',
                             dataIndex: 'expireTime',
+                            width: 180,
                             render: ExpireTimeRender,
+                        },
+                        {
+                            title: '操作',
+                            dataIndex: 'op',
+                            render(_value, item) {
+                                return (
+                                    <Space>
+                                        <IconButton
+                                            tooltip={t('hide')}
+                                            onClick={() => {
+                                                setAllList(allList.filter(_item => _item.id != item.id))
+                                            }}
+                                        >
+                                            <EyeInvisibleOutlined />
+                                        </IconButton>
+                                    </Space>
+                                )
+                            },
                         },
                     ]}
                     size="small"
