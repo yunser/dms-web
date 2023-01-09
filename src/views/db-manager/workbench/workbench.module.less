@@ -10,8 +10,10 @@
     flex-wrap: wrap;
     gap: 8px;
     .item {
+        position: relative;
         border: 1px solid var(--border-color);
         width: 240px;
+        height: 64px;
         border-radius: 4px;
         padding: 16px;
         cursor: pointer;
@@ -20,6 +22,14 @@
         }
     }
     .name {
+        margin-top: 4px;
+    }
+    .logo {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 64px;
+        height: 64px;
     }
 }
 .section {

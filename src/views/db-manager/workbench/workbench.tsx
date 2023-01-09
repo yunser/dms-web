@@ -7,6 +7,12 @@ import { useTranslation } from 'react-i18next';
 import storage from '@/utils/storage'
 import { useInterval } from 'ahooks';
 
+const prodLogos = {
+    'mysql': 'mysql.svg',
+    'git': 'git.svg',
+    'json': 'json.svg',
+}
+
 export function Workbench({ config, onCommand }) {
     const { t } = useTranslation()
 
@@ -58,6 +64,9 @@ export function Workbench({ config, onCommand }) {
                                     }}
                                 >
                                     <div className={styles.name}>{item.name}</div>
+                                    {!!prodLogos[item.command] &&
+                                        <img className={styles.logo} src={`/prod-logo/${prodLogos[item.command]}`} />
+                                    }
                                 </div>
                             )
                         })}
@@ -76,6 +85,9 @@ export function Workbench({ config, onCommand }) {
                                 }}
                             >
                                 <div className={styles.name}>{item.name}</div>
+                                {!!prodLogos[item.command] &&
+                                    <img className={styles.logo} src={`/prod-logo/${prodLogos[item.command]}`} />
+                                }
                             </div>
                         )
                     })}
