@@ -10,7 +10,7 @@ import { IconButton } from './icon-button'
 import { BulbOutlined, CloseOutlined, DatabaseOutlined, EllipsisOutlined, ExportOutlined, FolderOutlined, MenuOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons'
 import enUS from 'antd/es/locale/en_US';
 import zhCN from 'antd/es/locale/zh_CN';
-import { EsConnnector } from './es-connectot'
+import { EsConnector } from './es-connectot'
 import { EsDetail } from './es-detail'
 import { uid } from 'uid'
 import { Help } from './help'
@@ -58,7 +58,7 @@ window._sshCount = 0
 const tab_mySql = {
     title: 'MySQL',
     key: 'mysql-connect-0',
-    type: 'connnect',
+    type: 'connect',
     data: {},
     // closable: false,
 }
@@ -66,7 +66,7 @@ const tab_mySql = {
 const tagIconLabel = {
     'git-project': 'GIT',
     'git-detail': 'GIT',
-    'connnect': 'DB',
+    'connect': 'DB',
     'database': 'DB',
     'logger-home': 'LOG',
     'logger-detail': 'LOG',
@@ -883,8 +883,8 @@ export function DbManager({ config }) {
                                 }}
                             >
                                     {item.type == 'elasticsearch' &&
-                                        <EsConnnector
-                                            onConnnect={({ url }) => {
+                                        <EsConnector
+                                            onConnect={({ url }) => {
                                                 addOrActiveTab({
                                                     title: 'ES Indexs',
                                                     key: 'es-indexs',
@@ -910,12 +910,12 @@ export function DbManager({ config }) {
                                             }}
                                         />
                                     }
-                                    {item.type == 'connnect' &&
+                                    {item.type == 'connect' &&
                                         <SqlConnector
                                             config={config}
                                             onJson={json => addJsonTab(json)}
                                             event$={event$}
-                                            onConnnect={({ id, curConnect }) => {
+                                            onConnect={({ id, curConnect }) => {
                                                 // TODO 通过 setTimeout 解决这个问题，原因未知
                                                 // Can't perform a React state update on an unmounted component. This is a no-op, but it indicates a memory leak in your application. To fix, cancel all subscriptions and asynchronous tasks in a useEffect cleanup function
                                                 console.log('curConnect', curConnect)
@@ -1030,8 +1030,8 @@ export function DbManager({ config }) {
                                         <RedisConnect
                                             event$={event$}
                                             config={config}
-                                            onConnnect={({ connectionId, name, defaultDatabase }) => {
-                                                console.log('onConnnect', connectionId)
+                                            onConnect={({ connectionId, name, defaultDatabase }) => {
+                                                console.log('onConnect', connectionId)
                                                 addOrActiveTab({
                                                     // title: 'Redis',
                                                     title: `${name} - Redis`,
@@ -1241,8 +1241,8 @@ export function DbManager({ config }) {
                                         <MongoHome
                                             config={config}
                                             event$={event$}
-                                            onConnnect={({ connectionId, name }) => {
-                                                console.log('onConnnect', connectionId)
+                                            onConnect={({ connectionId, name }) => {
+                                                console.log('onConnect', connectionId)
                                                 addOrActiveTab({
                                                     // title: 'Redis',
                                                     title: `${name}`,

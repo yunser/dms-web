@@ -44,7 +44,7 @@ export function TagDeleteModal({ config, event$, projectPath, tag, commit, onSuc
         // console.log('ret', ret)
         if (res.success) {
             // message.success('连接成功')
-            // onConnnect && onConnnect()
+            // onConnect && onConnect()
             message.success(t('success'))
             // onClose && onClose()
             onSuccess && onSuccess()

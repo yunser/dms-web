@@ -58,7 +58,7 @@ export function SqlEditHandler(props) {
 }
 
 
-export function DatabaseModal({ config, event$, item, getCode, onClose, onSuccess, onConnnect, }) {
+export function DatabaseModal({ config, event$, item, getCode, onClose, onSuccess, onConnect, }) {
     const { t } = useTranslation()
 
     const [loading, setLoading] = useState(false)
@@ -99,7 +99,7 @@ export function DatabaseModal({ config, event$, item, getCode, onClose, onSucces
                     // console.log('ret', ret)
                     if (ret.success) {
                         // message.success('连接成功')
-                        // onConnnect && onConnnect()
+                        // onConnect && onConnect()
                         message.success(t('saved'))
                         event$.emit({
                             type: 'event_sql_list_refresh',
@@ -125,7 +125,7 @@ export function DatabaseModal({ config, event$, item, getCode, onClose, onSucces
                     // console.log('ret', ret)
                     if (ret.success) {
                         // message.success('连接成功')
-                        // onConnnect && onConnnect()
+                        // onConnect && onConnect()
                         message.success('Success')
                         onClose && onClose()
                         onSuccess && onSuccess()

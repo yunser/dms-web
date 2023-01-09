@@ -95,7 +95,7 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
         // console.log('ret', ret)
         if (res.success) {
             // message.success('连接成功')
-            // onConnnect && onConnnect()
+            // onConnect && onConnect()
             message.success(t('success'))
             // onClose && onClose()
             // onSuccess && onSuccess()

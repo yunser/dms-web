@@ -82,7 +82,7 @@ function RemoveTagList({ config, projectPath }) {
                 // console.log('ret', ret)
                 if (ret.success) {
                     // message.success('连接成功')
-                    // onConnnect && onConnnect()
+                    // onConnect && onConnect()
                     // onClose && onClose()
                     message.success(t('success'))
                     loadRemoveTags()
@@ -222,7 +222,7 @@ export function TagList({ config, event$, projectPath }) {
                 // console.log('ret', ret)
                 if (res.success) {
                     // message.success('连接成功')
-                    // onConnnect && onConnnect()
+                    // onConnect && onConnect()
                     message.success(t('success'))
                     // onClose && onClose()
                     // onSuccess && onSuccess()

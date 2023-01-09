@@ -102,7 +102,7 @@ export function ZSetContent({ curDb, onSuccess, connectionId, data, config }) {
                                         // console.log('ret', ret)
                                         if (ret.success) {
                                             // message.success('连接成功')
-                                            // onConnnect && onConnnect()
+                                            // onConnect && onConnect()
                                             message.success(t('success'))
                                             // onClose && onClose()
                                             onSuccess && onSuccess()

@@ -57,7 +57,7 @@ export function RedisRenameModal({ config, onCancel, onSuccess, redisKey, event$
                 // console.log('ret', ret)
                 if (ret.success) {
                     // message.success('连接成功')
-                    // onConnnect && onConnnect()
+                    // onConnect && onConnect()
                     message.success(t('success'))
                     onSuccess && onSuccess()
                 }

@@ -57,7 +57,7 @@ import { request } from '../utils/http'
 // }
 
 
-export function KeyAddModal({ config, type, onCancel, connectionId, item, onClose, onSuccess, onConnnect, }) {
+export function KeyAddModal({ config, type, onCancel, connectionId, item, onClose, onSuccess, onConnect, }) {
     const { t } = useTranslation()
 
     const [loading, setLoading] = useState(false)
@@ -162,7 +162,7 @@ export function KeyAddModal({ config, type, onCancel, connectionId, item, onClos
                 //     // console.log('ret', ret)
                 //     if (ret.success) {
                 //         // message.success('连接成功')
-                //         // onConnnect && onConnnect()
+                //         // onConnect && onConnect()
                 //         message.success('Success')
                 //         onClose && onClose()
                 //         onSuccess && onSuccess()
@@ -178,7 +178,7 @@ export function KeyAddModal({ config, type, onCancel, connectionId, item, onClos
                 //     // console.log('ret', ret)
                 //     if (ret.success) {
                 //         // message.success('连接成功')
-                //         // onConnnect && onConnnect()
+                //         // onConnect && onConnect()
                 //         message.success('Success')
                 //         onClose && onClose()
                 //         onSuccess && onSuccess()

@@ -75,7 +75,7 @@ export function DatabaseRemoveHandler(props) {
 }
 
 
-export function DatabaseModal({ config, onClose, onSuccess, onConnnect, }) {
+export function DatabaseModal({ config, onClose, onSuccess, onConnect, }) {
     const { t } = useTranslation()
 
     const [loading, setLoading] = useState(false)
@@ -125,7 +125,7 @@ export function DatabaseModal({ config, onClose, onSuccess, onConnnect, }) {
         // console.log('ret', ret)
         if (ret.success) {
             // message.success('连接成功')
-            onConnnect && onConnnect()
+            onConnect && onConnect()
         }
         setLoading(false)
         // else {
@@ -146,7 +146,7 @@ export function DatabaseModal({ config, onClose, onSuccess, onConnnect, }) {
                 // console.log('ret', ret)
                 if (ret.success) {
                     // message.success('连接成功')
-                    // onConnnect && onConnnect()
+                    // onConnect && onConnect()
                     message.success('Success')
                     onClose && onClose()
                     onSuccess && onSuccess()

@@ -298,7 +298,7 @@ function DatabaseModal({ config, editType, onCancel, item, onSuccess,
     database,
     collection,
     connectionId,
-    onConnnect, }) {
+    onConnect, }) {
     const { t } = useTranslation()
 
     // const editType = item ? 'update' : 'create'

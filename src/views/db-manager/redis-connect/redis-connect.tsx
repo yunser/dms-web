@@ -36,7 +36,7 @@ function InputPassword(props) {
     )
 }
 
-export function RedisConnect({ config, event$, onConnnect, }) {
+export function RedisConnect({ config, event$, onConnect, }) {
     const { t } = useTranslation()
     const [modalVisible, setModalVisible] = useState(false)
     const [modalItem, setModalItem] = useState(false)
@@ -108,7 +108,7 @@ export function RedisConnect({ config, event$, onConnnect, }) {
         // console.log('ret', ret)
         if (ret.success) {
             // message.success('连接成功')
-            onConnnect && onConnnect({
+            onConnect && onConnect({
                 connectionId: ret.data.connectionId,
                 name: item.name,
                 defaultDatabase: item.defaultDatabase || 0,
@@ -398,7 +398,7 @@ export function RedisConnect({ config, event$, onConnnect, }) {
 
 
 
-function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
+function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
     const { t } = useTranslation()
 
     const editType = item ? 'update' : 'create'

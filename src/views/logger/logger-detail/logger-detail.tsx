@@ -220,7 +220,7 @@ function TimeSelector({ value, onChange }) {
     )
 }
 
-export function LoggerDetail({ event$, connectionId, item: detailItem, onConnnect, }) {
+export function LoggerDetail({ event$, connectionId, item: detailItem, onConnect, }) {
 
     const config = {
         host: 'http://localhost:7003',

@@ -58,7 +58,7 @@ export function ListPushHandler(props) {
 }
 
 
-export function DatabaseModal({ config, type, redisKey, connectionId, item, onClose, onSuccess, onConnnect, }) {
+export function DatabaseModal({ config, type, redisKey, connectionId, item, onClose, onSuccess, onConnect, }) {
     const { t } = useTranslation()
 
     const [loading, setLoading] = useState(false)
@@ -119,7 +119,7 @@ export function DatabaseModal({ config, type, redisKey, connectionId, item, onCl
                         // console.log('ret', ret)
                         if (ret.success) {
                             // message.success('连接成功')
-                            // onConnnect && onConnnect()
+                            // onConnect && onConnect()
                             message.success('Success')
                             onClose && onClose()
                             onSuccess && onSuccess()
@@ -137,7 +137,7 @@ export function DatabaseModal({ config, type, redisKey, connectionId, item, onCl
                         // console.log('ret', ret)
                         if (ret.success) {
                             // message.success('连接成功')
-                            // onConnnect && onConnnect()
+                            // onConnect && onConnect()
                             message.success('Success')
                             onClose && onClose()
                             onSuccess && onSuccess()
@@ -155,7 +155,7 @@ export function DatabaseModal({ config, type, redisKey, connectionId, item, onCl
                         // console.log('ret', ret)
                         if (ret.success) {
                             // message.success('连接成功')
-                            // onConnnect && onConnnect()
+                            // onConnect && onConnect()
                             message.success('Success')
                             onClose && onClose()
                             onSuccess && onSuccess()
@@ -173,7 +173,7 @@ export function DatabaseModal({ config, type, redisKey, connectionId, item, onCl
                         // console.log('ret', ret)
                         if (ret.success) {
                             // message.success('连接成功')
-                            // onConnnect && onConnnect()
+                            // onConnect && onConnect()
                             message.success('Success')
                             onClose && onClose()
                             onSuccess && onSuccess()
@@ -190,7 +190,7 @@ export function DatabaseModal({ config, type, redisKey, connectionId, item, onCl
                         // console.log('ret', ret)
                         if (ret.success) {
                             // message.success('连接成功')
-                            // onConnnect && onConnnect()
+                            // onConnect && onConnect()
                             message.success('Success')
                             onClose && onClose()
                             onSuccess && onSuccess()
@@ -207,7 +207,7 @@ export function DatabaseModal({ config, type, redisKey, connectionId, item, onCl
                         // console.log('ret', ret)
                         if (ret.success) {
                             // message.success('连接成功')
-                            // onConnnect && onConnnect()
+                            // onConnect && onConnect()
                             message.success('Success')
                             onClose && onClose()
                             onSuccess && onSuccess()
@@ -225,7 +225,7 @@ export function DatabaseModal({ config, type, redisKey, connectionId, item, onCl
                         // console.log('ret', ret)
                         if (ret.success) {
                             // message.success('连接成功')
-                            // onConnnect && onConnnect()
+                            // onConnect && onConnect()
                             message.success('Success')
                             onClose && onClose()
                             onSuccess && onSuccess()
@@ -241,7 +241,7 @@ export function DatabaseModal({ config, type, redisKey, connectionId, item, onCl
                         // console.log('ret', ret)
                         if (ret.success) {
                             // message.success('连接成功')
-                            // onConnnect && onConnnect()
+                            // onConnect && onConnect()
                             message.success('Success')
                             onClose && onClose()
                             onSuccess && onSuccess()

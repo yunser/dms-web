@@ -12,7 +12,7 @@ import { CodeDebuger } from '../code-debug';
 import { uid } from 'uid';
 import Item from 'antd/lib/list/Item';
 
-export function RedisLike({ config, event$, connectionId, onConnnect, }) {
+export function RedisLike({ config, event$, connectionId, onConnect, }) {
     const { t } = useTranslation()
     const [modalVisible, setModalVisible] = useState(false)
     const [list, setList] = useState([])

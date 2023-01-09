@@ -141,7 +141,7 @@ export function ZipList({ config, event$, path, tabKey, item, showSide = false }
     //     console.log('connect/res', res)
     //     if (res.success) {
     //         // message.success('连接成功')
-    //         // onConnnect && onConnnect()
+    //         // onConnect && onConnect()
     //         // message.success(t('success'))
     //         // onClose && onClose()
     //         // onSuccess && onSuccess()
@@ -263,7 +263,7 @@ export function ZipList({ config, event$, path, tabKey, item, showSide = false }
         // console.log('ret', ret)
         if (ret.success) {
             // message.success('连接成功')
-            // onConnnect && onConnnect()
+            // onConnect && onConnect()
             // message.success(t('success'))
             // onClose && onClose()
             // onSuccess && onSuccess()
@@ -286,7 +286,7 @@ export function ZipList({ config, event$, path, tabKey, item, showSide = false }
                 // console.log('ret', ret)
                 if (ret.success) {
                     // message.success('连接成功')
-                    // onConnnect && onConnnect()
+                    // onConnect && onConnect()
                     // message.success(t('success'))
                     // onClose && onClose()
                     // onSuccess && onSuccess()
@@ -313,7 +313,7 @@ export function ZipList({ config, event$, path, tabKey, item, showSide = false }
         })
         // console.log('ret', ret)
         if (ret.success) {
-            // onConnnect && onConnnect()
+            // onConnect && onConnect()
             message.success(t('success'))
             // onClose && onClose()
             // onSuccess && onSuccess()

@@ -445,7 +445,7 @@ export function MongoClient({ config, event$, connectionId, }) {
 function DbModal({ config, onCancel, item, onSuccess, 
     database,
     connectionId,
-    onConnnect, }) {
+    onConnect, }) {
     const { t } = useTranslation()
 
     const editType = item ? 'update' : 'create'
@@ -586,7 +586,7 @@ function DbModal({ config, onCancel, item, onSuccess,
 function CollectionModal({ config, onCancel, item, onSuccess, 
     database,
     connectionId,
-    onConnnect, }) {
+    onConnect, }) {
     const { t } = useTranslation()
 
     const editType = item ? 'update' : 'create'
@@ -729,7 +729,7 @@ function DatabaseModal({ config, editType, onCancel, item, onSuccess,
     database,
     collection,
     connectionId,
-    onConnnect, }) {
+    onConnect, }) {
     const { t } = useTranslation()
 
     // const editType = item ? 'update' : 'create'

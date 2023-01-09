@@ -15,7 +15,7 @@ import zhCN from 'antd/es/locale/zh_CN';
 const { TextArea } = Input
 const { TabPane } = Tabs
 
-export function EsConnnector({ config, onConnnect }) {
+export function EsConnector({ config, onConnect }) {
     const { t } = useTranslation()
 
     const [loading, setLoading] = useState(false)
@@ -62,7 +62,7 @@ export function EsConnnector({ config, onConnnect }) {
         // console.log('ret', ret)
         if (ret.success) {
             // message.success('连接成功')
-            onConnnect && onConnnect({
+            onConnect && onConnect({
                 url: pureUrl,
             })
         }

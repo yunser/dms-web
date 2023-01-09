@@ -346,7 +346,7 @@ export function LoggerHome({ config, onItem, event$ }) {
 
 
 
-function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
+function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
     const { t } = useTranslation()
 
     const editType = item ? 'update' : 'create'

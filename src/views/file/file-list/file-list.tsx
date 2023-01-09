@@ -213,7 +213,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         console.log('connect/res', res)
         if (res.success) {
             // message.success('连接成功')
-            // onConnnect && onConnnect()
+            // onConnect && onConnect()
             // message.success(t('success'))
             // onClose && onClose()
             // onSuccess && onSuccess()
@@ -249,7 +249,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         console.log('connect/res', res)
         if (res.success) {
             // message.success('连接成功')
-            // onConnnect && onConnnect()
+            // onConnect && onConnect()
             // message.success(t('success'))
             // onClose && onClose()
             // onSuccess && onSuccess()
@@ -283,7 +283,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         console.log('connect/res', res)
         if (res.success) {
             // message.success('连接成功')
-            // onConnnect && onConnnect()
+            // onConnect && onConnect()
             // message.success(t('success'))
             // onClose && onClose()
             // onSuccess && onSuccess()
@@ -439,7 +439,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         // console.log('ret', ret)
         if (ret.success) {
             // message.success('连接成功')
-            // onConnnect && onConnnect()
+            // onConnect && onConnect()
             // message.success(t('success'))
             // onClose && onClose()
             // onSuccess && onSuccess()
@@ -462,7 +462,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                 // console.log('ret', ret)
                 if (ret.success) {
                     // message.success('连接成功')
-                    // onConnnect && onConnnect()
+                    // onConnect && onConnect()
                     // message.success(t('success'))
                     // onClose && onClose()
                     // onSuccess && onSuccess()
@@ -490,7 +490,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         })
         // console.log('ret', ret)
         if (ret.success) {
-            // onConnnect && onConnnect()
+            // onConnect && onConnect()
             message.success(t('success'))
             // onClose && onClose()
             // onSuccess && onSuccess()

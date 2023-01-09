@@ -520,7 +520,7 @@ export function OssHome({ event$, onClickItem }) {
 
 
 
-function DatabaseModal({ config, onCancel, item, onSuccess, onConnnect, }) {
+function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
     const { t } = useTranslation()
 
     const editType = item ? 'update' : 'create'

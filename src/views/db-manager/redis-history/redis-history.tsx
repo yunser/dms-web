@@ -15,7 +15,7 @@ import { ClearOutlined, ReloadOutlined } from '@ant-design/icons';
 import copy from 'copy-to-clipboard';
 import moment from 'moment';
 
-export function RedisHistory({ config, event$, connectionId, onConnnect, }) {
+export function RedisHistory({ config, event$, connectionId, onConnect, }) {
     const { t } = useTranslation()
     const [modalVisible, setModalVisible] = useState(false)
     const [list, setList] = useState([])

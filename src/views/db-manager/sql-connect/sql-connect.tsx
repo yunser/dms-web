@@ -490,7 +490,7 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
     )
 }
 
-export function SqlConnector({ config, event$, onConnnect, onJson }) {
+export function SqlConnector({ config, event$, onConnect, onJson }) {
     const { t } = useTranslation()
 
     // TODO clear
@@ -555,7 +555,7 @@ export function SqlConnector({ config, event$, onConnnect, onJson }) {
         // console.log('ret', ret)
         if (ret.success) {
             // message.success('连接成功')
-            onConnnect && onConnnect({
+            onConnect && onConnect({
                 ...ret.data,
                 curConnect: reqData,
             })
