@@ -1225,7 +1225,7 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
             }
         }
         // 主键逻辑
-        const oldKeyColumns = tableColumns.filter(item => item.COLUMN_KEY.value == 'PRI')
+        const oldKeyColumns = tableColumns.filter(item => item.COLUMN_KEY.value == 'PRI' && !item.__new)
         const newKeyColumns = tableColumns.filter(item => ItemHelper.mixValue(item, 'COLUMN_KEY') == 'PRI')
         const oldKeys = oldKeyColumns.map(item => item.COLUMN_NAME.value).join(',')
         const newKeys = newKeyColumns.map(item => ItemHelper.mixValue(item, 'COLUMN_NAME')).join(',')
@@ -1912,7 +1912,7 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
                 __new: true,
             },
             IS_NULLABLE: {
-                value: 'YES',
+                value: tableColumns.length == 0 ? '' : 'YES',
                 __new: true,
             },
             COLUMN_DEFAULT: {
@@ -1924,7 +1924,7 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
                 __new: true,
             },
             COLUMN_KEY: {
-                value: '',
+                value: tableColumns.length == 0 ? 'PRI' : '',
                 __new: true,
             },
             EXTRA: {
@@ -2099,15 +2099,6 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
                                                             <Input.TextArea rows={4} />
                                                         </Form.Item>
                                                         <Form.Item
-                                                            name="ENGINE"
-                                                            label={t('nginx')}
-                                                            rules={[]}
-                                                        >
-                                                            <Select
-                                                                options={nginxs}
-                                                            />
-                                                        </Form.Item>
-                                                        <Form.Item
                                                             name="characterSet"
                                                             label={t('character_set')}
                                                         >
@@ -2127,6 +2118,15 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
                                                         >
                                                             <Select
                                                                 options={collations}
+                                                            />
+                                                        </Form.Item>
+                                                        <Form.Item
+                                                            name="ENGINE"
+                                                            label={t('nginx')}
+                                                            rules={[]}
+                                                        >
+                                                            <Select
+                                                                options={nginxs}
                                                             />
                                                         </Form.Item>
                                                         {/* <Form.Item
