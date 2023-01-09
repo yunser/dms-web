@@ -11,6 +11,11 @@ const prodLogos = {
     'mysql': 'mysql.svg',
     'git': 'git.svg',
     'json': 'json.svg',
+    'ssh': 'ssh.svg',
+    'aliyun': 'aliyun.svg',
+    'redis': 'redis.svg',
+    'logger': 'logger.svg',
+    'swagger': 'api.svg',
 }
 
 export function Workbench({ config, onCommand }) {
