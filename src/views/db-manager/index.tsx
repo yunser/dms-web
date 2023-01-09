@@ -1,6 +1,6 @@
 import React, { useState, useId, useEffect, ReactNode, useMemo, useRef } from 'react'
 import styles from './index.module.less'
-import { message, Input, Button, Tabs, Space, Form, Checkbox, InputNumber, ConfigProvider, Tree, Empty, Modal, Dropdown, Menu } from 'antd'
+import { message, Input, Button, Tabs, Space, Form, Checkbox, InputNumber, ConfigProvider, Tree, Empty, Modal, Dropdown, Menu, Tag } from 'antd'
 import storage from './storage'
 import DatabaseList from './databases'
 import { DataBaseDetail } from './databaseDetail'
@@ -61,6 +61,15 @@ const tab_mySql = {
     type: 'connnect',
     data: {},
     // closable: false,
+}
+
+const tagIconLabel = {
+    'git-project': 'GIT',
+    'git-detail': 'GIT',
+    'connnect': 'DB',
+    'database': 'DB',
+    'logger-home': 'LOG',
+    'logger-detail': 'LOG',
 }
 
 function AboutModal({ config, ...otherProps }) {
@@ -848,7 +857,14 @@ export function DbManager({ config }) {
                             }
                             return {
                                 label: (
-                                    <div className={styles.tabLabel}>{item.title.startsWith('$i18n.') ? t(item.title.replace('$i18n.', '')) : item.title}</div>
+                                    <div className={styles.tabLabel}>
+                                        {/* <div className={styles.tag}>GIT</div> */}
+                                        {!!tagIconLabel[item.type] &&
+                                            <Tag>{tagIconLabel[item.type]}</Tag>
+                                        }
+                                        {/* {item.type} */}
+                                        {item.title.startsWith('$i18n.') ? t(item.title.replace('$i18n.', '')) : item.title}
+                                    </div>
                                 ),
                                 key: item.key,
                                 closable: item.closable !== false,
