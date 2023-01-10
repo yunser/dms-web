@@ -501,6 +501,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                 host: values.host || 'localhost',
                 port: values.port || 22,
                 password: values.password,
+                privateKey: values.privateKey,
                 username: values.username,
             })
             if (res.success) {
@@ -515,6 +516,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                     host: values.host || 'localhost',
                     port: values.port || 22,
                     password: values.password,
+                    privateKey: values.privateKey,
                     username: values.username,
                 }
             })
@@ -532,6 +534,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
             port: values.port || 22,
             username: values.username,
             password: values.password,
+            privateKey: values.privateKey,
             test: true,
             // remember: values.remember,
         }
@@ -642,6 +645,13 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                     rules={[{ required: true, },]}
                 >
                     <InputPassword />
+                </Form.Item>
+                <Form.Item
+                    name="privateKey"
+                    label={t('private_key')}
+                    // rules={[{ required: true, },]}
+                >
+                    <Input.TextArea />
                 </Form.Item>
             </Form>
         </Modal>
