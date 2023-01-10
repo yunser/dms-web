@@ -611,6 +611,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                     name="host"
                     label={t('host')}
                     rules={[ { required: true, }, ]}
+                    extra={<div>{t('ssh.host_help')}</div>}
                 >
                     <Input
                         // placeholder="localhost"

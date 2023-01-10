@@ -388,6 +388,7 @@ i18n
                     'ssh.load_avg': 'Load Average',
                     'ssh.uptime': 'Uptime',
                     'ssh.cores': 'Cores',
+                    'ssh.host_help': 'Hostname or IP',
                     'sql.compare': 'Database Compare',
                     'hide': 'Hide',
                 }
@@ -770,6 +771,7 @@ i18n
                     'ssh.load_avg': '平均负载',
                     'ssh.uptime': '正常运行时间',
                     'ssh.cores': '核',
+                    'ssh.host_help': '主机名或 IP',
                     'sql.compare': '数据库结构对比',
                     'hide': '隐藏',
                 }
