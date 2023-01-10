@@ -404,6 +404,22 @@ export function DataBaseDetail({ databaseType = 'mysql', curConnect, connectionI
         })
     }
 
+    function openTableDetail({ tableName, dbName }) {
+        let tabKey = '' + new Date().getTime()
+        addOrActiveTab({
+            title: tableName,
+            type: 'tableDetail',
+            key: tabKey,
+            defaultSql: sql,
+            data: {
+                dbName,
+                tableName,
+            }
+        }, {
+            closeCurrentTab: true,
+        })
+    }
+
     const onEdit = (targetKey: string, action: string) => {
         console.log('targetKey, action', targetKey, action)
         if (action === 'add') {
@@ -650,6 +666,9 @@ export function DataBaseDetail({ databaseType = 'mysql', curConnect, connectionI
                                         event$={event$}
                                         dbName={item.data?.dbName}
                                         tableName={item.data?.tableName}
+                                        onTab={({ tableName, dbName }) => {
+                                            openTableDetail({ tableName, dbName })
+                                        }}
                                     />
                                 }
                                 {item.type == 'tableView' &&

@@ -880,7 +880,8 @@ function EditableCellRender({ dataIndex, onChange } = {}) {
     }
 }
 
-export function TableDetail({ config, databaseType = 'mysql', connectionId, event$, dbName, tableName: oldTableName }) {
+export function TableDetail({ config, databaseType = 'mysql', connectionId, event$, dbName, 
+    tableName: oldTableName, onTab }) {
 
     const { t } = useTranslation()
     const [tableName,setTableName] = useState(oldTableName)
@@ -2488,6 +2489,10 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
                         if (newNameRef.current) {
                             setEditType('update')
                             setTableName(newNameRef.current)
+                            onTab && onTab({
+                                tableName: newNameRef.current,
+                                dbName,
+                            })
                         }
                         else {
                             loadTableInfo()
