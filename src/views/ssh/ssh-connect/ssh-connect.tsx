@@ -80,6 +80,25 @@ function parseCpuInfo(cpuinfo) {
     return infoObj['siblings']
 }
 
+function parseDisk(disk: string) {
+    console.log('disk2', disk)
+    const lines = disk.split('\n')
+    console.log('rows', lines)
+    const results = []
+    for (let line of lines) {
+        const arr = line.split(/\s+/)
+        console.log('arr', arr)
+        if (arr.length == 6) {
+            // if (!line.includes('overlay')) {
+            if (line.includes('/dev/vd')) {
+
+                results.push(`${arr[0].replace('/dev/', '')}：${arr[4]}`)
+            }
+        }
+    }
+    return results
+}
+
 function InputPassword(props) {
     const [visible, setVisible] = useState(false)
     return (
@@ -705,6 +724,7 @@ function MonitorModal({ item, onCancel, config }) {
                 loadavg: parseLoadAvg(res.data.loadavg),
                 uptime: parseUpTime(res.data.uptime),
                 cpuinfo: parseCpuInfo(res.data.cpuinfo),
+                disks: parseDisk(res.data.disk),
             })
         }
     }
@@ -716,6 +736,7 @@ function MonitorModal({ item, onCancel, config }) {
     return (
         <Modal
             title={t('monitor')}
+            width={720}
             open={true}
             onCancel={onCancel}
             footer={null}
@@ -749,6 +770,23 @@ function MonitorModal({ item, onCancel, config }) {
                         <div className={styles.key}>{t('ssh.uptime')}</div>
                         <div className={styles.value}>
                             {result.uptime}
+                        </div>
+                    </div>
+
+                    <div className={styles.item}>
+                        <div className={styles.key}>{t('ssh.disk')}</div>
+                        <div className={styles.value}>
+                            {result.disks.length > 0 ?
+                                <div>
+                                    {result.disks.map(disk => {
+                                        return (
+                                            <div>{disk}</div>
+                                        )
+                                    })}
+                                </div>
+                            :
+                                <div>--</div>
+                            }
                         </div>
                     </div>
                 </div>

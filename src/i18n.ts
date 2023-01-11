@@ -390,6 +390,7 @@ i18n
                     'ssh.cores': 'Cores',
                     'ssh.host_help': 'Hostname or IP',
                     'sql.compare': 'Database Compare',
+                    'ssh.disk': 'Disk',
                     'hide': 'Hide',
                 }
             },
@@ -773,6 +774,7 @@ i18n
                     'ssh.cores': '核',
                     'ssh.host_help': '主机名或 IP',
                     'sql.compare': '数据库结构对比',
+                    'ssh.disk': '磁盘',
                     'hide': '隐藏',
                 }
             }
