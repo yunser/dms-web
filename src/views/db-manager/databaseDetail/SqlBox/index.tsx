@@ -169,6 +169,13 @@ function SqlBox({ config, tabViewId, event$, databaseType, connectionId, onJson,
         }))
     }
 
+    function removeSymbol() {
+        function _removeSymbol(text: string) {
+            return text.replace(/`/g, '')
+        }
+        editor?.setValue(_removeSymbol(getCode()))
+    }
+
     async function run() {
         if (!getCode()) {
             message.warn(t('no_sql'))
@@ -455,6 +462,12 @@ function SqlBox({ config, tabViewId, event$, databaseType, connectionId, onJson,
                                 <SaveOutlined />
                             </IconButton> */}
                         </SqlEditHandler>
+                        <Button 
+                            size="small" 
+                            onClick={removeSymbol}
+                        >
+                            去掉 `
+                        </Button>
                     </Space>
 
                     
