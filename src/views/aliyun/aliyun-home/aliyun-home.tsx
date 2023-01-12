@@ -21,14 +21,19 @@ import { uid } from 'uid';
 function ExpireTimeRender(value) {
     const m = moment(value)
     let color
-    if (m.isBefore(moment().add(7, 'days'))) {
+    let textDecoration
+    if (m.isBefore(moment())) {
+        // color = 'red'
+        textDecoration = 'line-through'
+    }
+    else if (m.isBefore(moment().add(7, 'days'))) {
         color = 'red'
     }
     else if (m.isBefore(moment().add(30, 'days'))) {
         color = 'orange'
     }
     return (
-        <div style={{ color }}>{m.format('YYYY-MM-DD HH:mm:ss')}</div>
+        <div style={{ color, textDecoration }}>{m.format('YYYY-MM-DD HH:mm:ss')}</div>
     )
 }
 
@@ -45,6 +50,7 @@ export function AliyunHome({ config, onClickItem }) {
     const [ecsList, setEcsList] = useState([])
     const [rdsList, setRdsList] = useState([])
     const [certList, setCertList] = useState([])
+    const [cdnCertList, setCdnCertList] = useState([])
     const [domainList, setDomainList] = useState([])
     const [billingList, setBillingList] = useState([])
     const [tencentServerList, setTencentServerList] = useState([])
@@ -56,7 +62,7 @@ export function AliyunHome({ config, onClickItem }) {
         let res = await request.post(`${config.host}/file/aliyun`, {
         })
         if (res.success) {
-            const { installed, ecs, rds, cert, domain, billing, tencentServer, tencentMysql, tencentLighthouse } = res.data
+            const { installed, ecs, rds, cert, cdnCert, domain, billing, tencentServer, tencentMysql, tencentLighthouse } = res.data
             setInstalled(installed)
             const allList = [
                 ...ecs.map(item => {
@@ -78,6 +84,13 @@ export function AliyunHome({ config, onClickItem }) {
                         type: 'ssl',
                         name: item.domain,
                         expireTime: item.certEndTime,
+                    }
+                }),
+                ...cdnCert.map(item => {
+                    return {
+                        type: 'cdnSsl',
+                        name: item.domainName,
+                        expireTime: item.certExpireTime,
                     }
                 }),
                 ...domain.map(item => {
@@ -140,6 +153,13 @@ export function AliyunHome({ config, onClickItem }) {
                 }
                 return score(b) - score(a)
             }))
+            setCdnCertList(cdnCert.sort((a, b) => {
+                function score(item) {
+                    return - moment(new Date(item.certExpireTime)).toDate().getTime()
+                }
+                return score(b) - score(a)
+            }))
+
             setDomainList(domain.sort((a, b) => {
                 function score(item) {
                     return - moment(item.ExpirationDate).toDate().getTime()
@@ -237,6 +257,31 @@ export function AliyunHome({ config, onClickItem }) {
         </div>
     )
 
+    const cdnSsl = (
+        <div>
+            <Table
+                dataSource={cdnCertList}
+                columns={[
+                    {
+                        title: '域名',
+                        dataIndex: 'domainName',
+                        width: 240,
+                        ellipsis: true,
+                    },
+                    {
+                        title: '证书到期时间',
+                        dataIndex: 'certExpireTime',
+                        render: ExpireTimeRender,
+                    },
+                    {
+                        title: '',
+                        dataIndex: '__empty__',
+                    },
+                ]}
+            />
+        </div>
+    )
+
     const ssl = (
         <div>
             <Table
@@ -301,6 +346,15 @@ export function AliyunHome({ config, onClickItem }) {
                     {
                         title: '可用余额',
                         dataIndex: 'availableAmount',
+                        render(value) {
+                            let color
+                            if (value < 0) {
+                                color = 'red'
+                            }
+                            return (
+                                <div style={{ color, }}>{value}</div>
+                            )
+                        }
                     },
                     {
                         title: '',
@@ -411,6 +465,7 @@ export function AliyunHome({ config, onClickItem }) {
                                     ecs: 'ECS',
                                     rds: 'RDS',
                                     ssl: 'SSL',
+                                    cdnSsl: 'CDN SSL',
                                     domain: 'Domain',
                                     // tencentServer: 'Tencent Server',
                                     tencentServer: '腾讯服务器',
@@ -489,14 +544,14 @@ export function AliyunHome({ config, onClickItem }) {
                         children: ssl,
                     },
                     {
+                        label: 'CDN SSL',
+                        key: 'cdnSsl',
+                        children: cdnSsl,
+                    },
+                    {
                         label: 'Domain',
                         key: 'domain',
                         children: domain,
-                    },
-                    {
-                        label: 'Billing',
-                        key: 'billing',
-                        children: billing,
                     },
                     {
                         label: '腾讯服务器',
@@ -512,6 +567,11 @@ export function AliyunHome({ config, onClickItem }) {
                         label: '腾讯轻量服务器',
                         key: 'tencent-lighthouse',
                         children: tencentLighthouse,
+                    },
+                    {
+                        label: '阿里云 Billing',
+                        key: 'billing',
+                        children: billing,
                     },
                 ]}
             />
