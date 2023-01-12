@@ -391,6 +391,7 @@ i18n
                     'ssh.host_help': 'Hostname or IP',
                     'sql.compare': 'Database Compare',
                     'ssh.disk': 'Disk',
+                    'ssh.private_key': 'Private Key',
                     'hide': 'Hide',
                 }
             },
@@ -775,6 +776,7 @@ i18n
                     'ssh.host_help': '主机名或 IP',
                     'sql.compare': '数据库结构对比',
                     'ssh.disk': '磁盘',
+                    'ssh.private_key': '私钥',
                     'hide': '隐藏',
                 }
             }

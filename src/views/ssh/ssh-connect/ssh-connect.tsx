@@ -1,9 +1,8 @@
-import { Button, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Space, Spin, Table, Tabs, Tag } from 'antd';
+import { Button, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Progress, Space, Spin, Table, Tabs, Tag } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './ssh-connect.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
-// console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { CodeOutlined, DownloadOutlined, EllipsisOutlined, ExportOutlined, EyeInvisibleOutlined, EyeOutlined, FileOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
@@ -20,6 +19,19 @@ import { FileList } from '../../file/file-list'
 import storage from '@/utils/storage';
 import { uid } from 'uid';
 
+const topText = `top - 01:16:10 up 168 days,  8:56,  0 users,  load average: 6.52, 3.56, 3.51
+Tasks: 248 total,   2 running, 245 sleeping,   0 stopped,   1 zombie
+%Cpu(s): 40.0 us, 26.7 sy,  0.0 ni, 33.3 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st
+KiB Mem : 15990592 total,   296452 free, 14415472 used,  1278668 buff/cache
+KiB Swap:        0 total,        0 free,        0 used.  1191304 avail Mem 
+
+  PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND
+10907 cjh       20   0 1130364  42536   2580 S  81.2  0.3   0:00.35 beam.smp
+31238 root      20   0 5058368   1.1g   6472 S  31.2  6.9 941:25.81 java
+32759 root      20   0       0      0      0 S   0.0  0.0   0:00.00 kworker/2:2
+`
+const toplist = parseTop(topText)
+// console.log('toplist', )
 function parseSize(sizeText: string) {
     return parseInt(sizeText.replace('kB', '').trim())
 }
@@ -29,11 +41,11 @@ function parseStat(stat) {
     const cupStat = rows[0]
     const [ cpu, _user, _nice, _system, _idle ] = cupStat.split(/\s+/)
     // CPU利用率   =   100   *（user   +   nice   +   system）/（user   +   nice   +   system   +   idle）
-    console.log('ccpp', _user, _nice, _system, _idle)
+    // console.log('ccpp', _user, _nice, _system, _idle)
     const [user, nice, system, idle] = [_user, _nice, _system, _idle].map(item => {
         return parseInt(item.trim())
     })
-    console.log('user, nice, system, idle', user, nice, system, idle)
+    // console.log('user, nice, system, idle', user, nice, system, idle)
     const cpuRate = (user + nice + system) / (user + nice + system + idle)
     return {
         cpuUsage: Math.floor(100 * cpuRate),
@@ -65,37 +77,70 @@ function parseUpTime(uptime) {
 }
 
 function parseCpuInfo(cpuinfo) {
-    console.log('cpuinfo', cpuinfo)
+    // console.log('cpuinfo', cpuinfo)
     const infoObj = {}
     const arr = cpuinfo.split('\n')
     for (let line of arr) {
-        console.log('line', line)
+        // console.log('line', line)
         const _arr = line.split(':')
         if (_arr[1]) {
             infoObj[_arr[0].trim()] = _arr[1].trim()
         }
     }
-    console.log('infoObj', infoObj)   
+    // console.log('infoObj', infoObj)   
     // return infoObj['cpu cores']
     return infoObj['siblings']
 }
 
 function parseDisk(disk: string) {
-    console.log('disk2', disk)
+    // console.log('disk2', disk)
     const lines = disk.split('\n')
-    console.log('rows', lines)
+    // console.log('rows', lines)
     const results = []
     for (let line of lines) {
         const arr = line.split(/\s+/)
-        console.log('arr', arr)
+        // console.log('arr', arr)
         if (arr.length == 6) {
             // if (!line.includes('overlay')) {
             if (line.includes('/dev/vd')) {
-
-                results.push(`${arr[0].replace('/dev/', '')}：${arr[4]}`)
+                const name = arr[0].replace('/dev/', '')
+                const percent = parseInt(arr[4].replace('%', '').trim())
+                results.push({
+                    name,
+                    percent,
+                    // text: `${name}：${percent}%`,
+                })
             }
         }
     }
+    return results
+}
+
+function parseTop(top) {
+    // console.log('parseTop', top)
+    const arr = top.split('\n\n')
+    // console.log('parseTop/arr', arr)
+    if (!arr[1]) {
+        return []
+    }
+    const lines = arr[1].split('\n')
+    // console.log('parseTop/lines', lines)
+    const results = []
+    for (let line of lines) {
+        const lineArr = line.split(/\s+/)
+        // console.log('parseTop/lineArr', lineArr)
+        if (lineArr.length == 12) {
+            const [PID, USER, PR, NI, VIRT, RES, SHR, S, CPU, MEM, TIME, COMMAND] = lineArr
+            results.push({
+                PID,
+                CPU,
+                MEM,
+                COMMAND,
+            })
+
+        }
+    }
+    console.log('parseTop/results', results)
     return results
 }
 
@@ -206,7 +251,7 @@ export function SshConnect({ config, tabKey, event$ }) {
                 let res = await request.post(`${config.host}/ssh/connection/delete`, {
                     id: item.id,
                 })
-                console.log('get/res', res.data)
+                // console.log('get/res', res.data)
                 if (res.success) {
                     message.success(t('success'))
                     // onSuccess && onSuccess()
@@ -668,10 +713,13 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                 </Form.Item>
                 <Form.Item
                     name="privateKey"
-                    label={t('private_key')}
+                    label={t('ssh.private_key')}
+                    // extra="12"
                     // rules={[{ required: true, },]}
                 >
-                    <Input.TextArea />
+                    <Input.TextArea
+                        placeholder="填写后则不使用密码"
+                    />
                 </Form.Item>
             </Form>
         </Modal>
@@ -679,10 +727,10 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
 }
 
 function parseMemInfo(meminfo: string) {
-    console.log('meminfo', meminfo)
+    // console.log('meminfo', meminfo)
     const result = {}
     meminfo.split('\n').filter(item => item).forEach(row => {
-        console.log('row', row)
+        // console.log('row', row)
         const [ key, value ] = row.split(':')
         result[key] = value.trim()
     })
@@ -702,10 +750,11 @@ function MonitorModal({ item, onCancel, config }) {
         })
         setLoading(false)
         if (res.success) {
-            console.log('loadData', res.data)
+            // console.log('loadData', res.data)
+            // return
             // const { meminfo } = res.data
             const memInfo = parseMemInfo(res.data.meminfo)
-            console.log('memInfo', memInfo)
+            // console.log('memInfo', memInfo)
             // total=used+free+buff/cache
             // MemAvailable
             // MemFree
@@ -725,6 +774,7 @@ function MonitorModal({ item, onCancel, config }) {
                 uptime: parseUpTime(res.data.uptime),
                 cpuinfo: parseCpuInfo(res.data.cpuinfo),
                 disks: parseDisk(res.data.disk),
+                processes: parseTop(res.data.top),
             })
         }
     }
@@ -735,7 +785,7 @@ function MonitorModal({ item, onCancel, config }) {
 
     return (
         <Modal
-            title={t('monitor')}
+            title={t('monitor') + ` (${item.name})`}
             width={720}
             open={true}
             onCancel={onCancel}
@@ -744,50 +794,120 @@ function MonitorModal({ item, onCancel, config }) {
             {loading ?
                 <Spin />
             : !!result ?
-                <div className={styles.dataList}>
-                    <div className={styles.item}>
-                        <div className={styles.key}>CPU
-                            <div className={styles.tag}>{result.cpuinfo} {t('ssh.cores')}</div>
-                        </div>
-                        <div className={styles.value}>
-                             {result.cpuUsage}%
-                        </div>
-                    </div>
-                    <div className={styles.item}>
-                        <div className={styles.key}>{t('ssh.memory')}</div>
-                        <div className={styles.value}>
-                            {result.memoryPercent}%
-                        </div>
-                    </div>
-                    <div className={styles.item}>
-                        <div className={styles.key}>{t('ssh.load_avg')}</div>
-                        <div className={styles.value}>
-                            {result.loadavg}
-                        </div>
+                <div className={styles.body}>
+                    <div className={styles.tools}>
+                        <IconButton
+                            tooltip={t('refresh')}
+                            // size="small"
+                            className={styles.refresh}
+                            onClick={() => {
+                                // loadKeys()
+                                loadData()
+                            }}
+                        >
+                            <ReloadOutlined />
+                        </IconButton>
                     </div>
 
-                    <div className={styles.item}>
-                        <div className={styles.key}>{t('ssh.uptime')}</div>
-                        <div className={styles.value}>
-                            {result.uptime}
+                    <div className={styles.dataList}>
+                        <div className={styles.item}>
+                            <div className={styles.key}>{t('ssh.memory')}</div>
+                            <div className={styles.value}>
+                                {/* {result.memoryPercent}% */}
+                                <Progress
+                                    className={styles.bigProgress}
+                                    type="circle"
+                                    percent={result.memoryPercent}
+                                    width={48}
+                                    trailColor="#eee"
+                                />
+                            </div>
+                        </div>
+                        <div className={styles.item}>
+                            <div className={styles.key}>CPU
+                                <div className={styles.tag}>{result.cpuinfo} {t('ssh.cores')}</div>
+                            </div>
+                            <div className={styles.value}>
+                                {/* {result.cpuUsage}% */}
+                                <Progress
+                                    className={styles.bigProgress}
+                                    type="circle"
+                                    percent={result.cpuUsage}
+                                    width={48}
+                                    trailColor="#eee"
+                                />
+                            </div>
+                        </div>
+                        <div className={styles.item}>
+                            <div className={styles.key}>{t('ssh.load_avg')}</div>
+                            <div className={styles.value}>
+                                {result.loadavg}
+                            </div>
+                        </div>
+
+                        
+
+                        <div className={styles.item}>
+                            <div className={styles.key}>{t('ssh.disk')}</div>
+                            <div className={styles.value}>
+                                {result.disks.length > 0 ?
+                                    <div className={styles.disks}>
+                                        {result.disks.map(disk => {
+                                            return (
+                                                <div className={styles.item}>
+                                                    <div className={styles.name}>{disk.name}</div>
+                                                    <Progress className={styles.progress} percent={disk.percent} size="small" />
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                :
+                                    <div>--</div>
+                                }
+                            </div>
+                        </div>
+                        <div className={styles.item}>
+                            <div className={styles.key}>{t('ssh.uptime')}</div>
+                            <div className={styles.value}>
+                                {result.uptime}
+                            </div>
                         </div>
                     </div>
-
-                    <div className={styles.item}>
-                        <div className={styles.key}>{t('ssh.disk')}</div>
-                        <div className={styles.value}>
-                            {result.disks.length > 0 ?
-                                <div>
-                                    {result.disks.map(disk => {
-                                        return (
-                                            <div>{disk}</div>
-                                        )
-                                    })}
-                                </div>
-                            :
-                                <div>--</div>
-                            }
-                        </div>
+                    <div className={styles.processBox}>
+                        <Table
+                            dataSource={result.processes}
+                            columns={[
+                                {
+                                    title: '进程',
+                                    dataIndex: 'PID',
+                                    width: 160,
+                                    sorter: (a, b) => a.PID - b.PID,
+                                },
+                                {
+                                    title: 'CPU',
+                                    dataIndex: 'CPU',
+                                    width: 80,
+                                    sortDirections: ['descend', 'ascend'],
+                                    sorter: (a, b) => a.CPU - b.CPU,
+                                },
+                                {
+                                    title: '内存',
+                                    dataIndex: 'MEM',
+                                    width: 80,
+                                    sortDirections: ['descend', 'ascend'],
+                                    sorter: (a, b) => a.MEM - b.MEM,
+                                },
+                                {
+                                    title: '命令',
+                                    dataIndex: 'COMMAND',
+                                },
+                            ]}
+                            size="small"
+                            scroll={{
+                                y: 400,
+                            }}
+                            pagination={false}
+                        />
                     </div>
                 </div>
             :
