@@ -172,8 +172,12 @@ function TreeTitle({ keyword, loading = false, nodeData, onAction, onClick, onDo
                                     key: 'export_struct',
                                 },
                                 {
+                                    type: 'divider',
+                                },
+                                {
                                     label: t('table_truncate'),
                                     key: 'truncate',
+                                    danger: true,
                                 },
                                 {
                                     label: t('table_drop'),
