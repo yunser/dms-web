@@ -167,10 +167,10 @@ function TreeTitle({ keyword, loading = false, nodeData, onAction, onClick, onDo
                                     label: t('view_table'),
                                     key: 'view_table',
                                 },
-                                {
-                                    label: t('export_struct'),
-                                    key: 'export_struct',
-                                },
+                                // {
+                                //     label: t('export_struct'),
+                                //     key: 'export_struct',
+                                // },
                                 {
                                     type: 'divider',
                                 },
@@ -190,6 +190,10 @@ function TreeTitle({ keyword, loading = false, nodeData, onAction, onClick, onDo
                                 {
                                     label: t('count_all'),
                                     key: 'count_all',
+                                },
+                                {
+                                    label: t('duplicate'),
+                                    key: 'duplicate',
                                 },
                                 {
                                     label: t('backup'),
@@ -660,6 +664,36 @@ LIMIT 1000;`
         })
     }
 
+    async function duplicate(nodeData) {
+        const tableName = nodeData.itemData.$_table_name
+        const schemaName = nodeData.itemData.$table_schema
+        
+        const createTableSql = `SHOW CREATE TABLE \`${schemaName}\`.\`${tableName}\`;`
+        const { success, data } = await request.post(`${config.host}/mysql/execSqlSimple`, {
+            connectionId,
+            sql: createTableSql,
+            // tableName,
+            // dbName,
+        })
+        if (!success) {
+            return
+        }
+        if (!data.length) {
+            return
+        }
+        const backupTableName = `${tableName}_copy`
+        // const checkSql = `SELECT COUNT(*) FROM \`${tableName}\`;`
+        const createSql = (data[0]['Create Table'] + ';').replace(/`[\d\D]+?`/, `\`${backupTableName}\``)
+        // console.log('createSql', JSON.stringify(createSql))
+        // const insertSql = `INSERT INTO \`${backupTableName}\` (SELECT * FROM \`${tableName}\`);`
+        // const checkSql2 = `SELECT COUNT(*) FROM \`${backupTableName}\`;`
+        // const showSql = [checkSql, createSql, insertSql, checkSql2].join('\n')
+        showSqlInNewtab({
+            title: 'Backup Table',
+            sql: createSql,
+        })
+    }
+
     async function countAll(nodeData) {
         const tableName = nodeData.itemData.$_table_name
         const schemaName = nodeData.itemData.$table_schema
@@ -1047,6 +1081,9 @@ LIMIT 1000;`
                                         }
                                         else if (key == 'backup') {
                                             backup(nodeData)
+                                        }
+                                        else if (key == 'duplicate') {
+                                            duplicate(nodeData)
                                         }
                                         else if (key == 'copy_name') {
                                             console.log('nodeData', nodeData)
