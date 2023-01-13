@@ -775,6 +775,8 @@ function MonitorModal({ item, onCancel, config }) {
                 cpuinfo: parseCpuInfo(res.data.cpuinfo),
                 disks: parseDisk(res.data.disk),
                 processes: parseTop(res.data.top),
+                // version: res.data.version,
+                version: res.data.version.split('-')[0],
             })
         }
     }
@@ -873,6 +875,7 @@ function MonitorModal({ item, onCancel, config }) {
                             </div>
                         </div>
                     </div>
+                    <div className={styles.infoBox}>{result.version}</div>
                     <div className={styles.processBox}>
                         <Table
                             dataSource={result.processes}

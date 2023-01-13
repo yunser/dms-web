@@ -14,10 +14,12 @@ const prodLogos = {
     'git': 'git.svg',
     'json': 'json.svg',
     'ssh': 'ssh.svg',
+    'terminal': 'ssh.svg',
     'aliyun': 'aliyun.svg',
     'redis': 'redis.svg',
-    'logger': 'logger.svg',
     'swagger': 'api.svg',
+    'logger': 'logger.svg',
+    'file': 'logger.svg',
 }
 
 export function Workbench({ config, onCommand }) {
