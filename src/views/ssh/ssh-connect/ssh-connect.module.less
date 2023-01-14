@@ -65,10 +65,15 @@
     .item {
         margin-right: 32px;
     }
+    .loadSvgItem {
+        min-width: 130px;
+    }
     .key {
         display: flex;
         flex-direction: row;
         align-items: center;
+        margin-bottom: 8px;
+        font-size: 12px;
     }
     .value {
         font-size: 16px;
@@ -79,10 +84,14 @@
         color: #fff;
         background-color: #666;
         border-radius: 4px;
-        padding: 2px 4px;
+        padding: 0 4px;
+        height: 16px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
     .bigProgress {
-        margin-top: 8px;
+        // margin-top: 8px;
     }
 }
 .disks {
@@ -114,4 +123,37 @@
 .infoBox {
     margin-bottom: 16px;
     margin-top: 8px;
+}
+
+.items {
+    & > .item {
+        padding: 8px 0;
+        border-bottom: 1px solid var(--border-color);
+        // margin-bottom: 16px;
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+    .serverName {
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+}
+
+.circles {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    // border: 1px solid #f00;
+    .layer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 }

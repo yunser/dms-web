@@ -1,11 +1,11 @@
-import { Button, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Progress, Space, Spin, Table, Tabs, Tag } from 'antd';
+import { Button, Checkbox, Descriptions, Drawer, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Progress, Space, Spin, Table, Tabs, Tag } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './ssh-connect.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { CodeOutlined, DownloadOutlined, EllipsisOutlined, ExportOutlined, EyeInvisibleOutlined, EyeOutlined, FileOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { CodeOutlined, DownloadOutlined, EllipsisOutlined, ExportOutlined, EyeInvisibleOutlined, EyeOutlined, FileOutlined, LineChartOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 // import { GitProject } from '../git-project';
@@ -18,6 +18,56 @@ import { SshDetail } from '../ssh-home';
 import { FileList } from '../../file/file-list'
 import storage from '@/utils/storage';
 import { uid } from 'uid';
+
+function CircleProgress({ percent, width, ...otherProps }) {
+    let color = '#4091f7'
+    if (percent > 90) {
+        color = '#ed5b56'
+    }
+    else if (percent > 80) {
+        color = '#f0af41'
+    }
+    return (
+        <Progress
+            type="circle"
+            percent={percent}
+            width={width}
+            strokeColor={color}
+            trailColor="#eee"
+            // format={() => ''}
+            {...otherProps}
+        />
+    )
+}
+
+function LineProgress({ percent, ...otherProps }) {
+    let color = '#4091f7'
+    if (percent > 90) {
+        color = '#ed5b56'
+    }
+    else if (percent > 80) {
+        color = '#f0af41'
+    }
+    return (
+        <Progress
+            percent={percent}
+            strokeColor={color}
+            trailColor="#eee"
+            {...otherProps}
+        />
+    )
+}
+
+function CheckboxInput({ value, onChange }) {
+    return (
+        <Checkbox
+            checked={value === true}
+            onChange={e => {
+                onChange && onChange(e.target.checked)
+            }}
+        />
+    )
+}
 
 const topText = `top - 01:16:10 up 168 days,  8:56,  0 users,  load average: 6.52, 3.56, 3.51
 Tasks: 248 total,   2 running, 245 sleeping,   0 stopped,   1 zombie
@@ -54,7 +104,13 @@ function parseStat(stat) {
 
 function parseLoadAvg(loadavg) {
     const arr = loadavg.split(/\s+/)
-    return `${arr[0]} / ${arr[1]} / ${arr[2]}`
+    const num1 = parseFloat(arr[0])
+    const num2 = parseFloat(arr[1])
+    const num3 = parseFloat(arr[2])
+    return {
+        text: `${num1} / ${num2} / ${num3}`,
+        nums: [num1, num2, num3]
+    }
 }
 
 function parseUpTime(uptime) {
@@ -89,7 +145,7 @@ function parseCpuInfo(cpuinfo) {
     }
     // console.log('infoObj', infoObj)   
     // return infoObj['cpu cores']
-    return infoObj['siblings']
+    return parseInt(infoObj['siblings'])
 }
 
 function parseDisk(disk: string) {
@@ -178,6 +234,9 @@ export function SshConnect({ config, tabKey, event$ }) {
 
     const [moniteItem, setMoniteItem] = useState(null)
     const [moniteVisible, setMoniteVisible] = useState(false)
+
+    const [dashboardVisible, setDashboardVisible] = useState(false)
+    const [dashboarItems, setDashboardItems] = useState([])
     // const [curTab, setCurTab] = useState('commit-list')
     // const config = {
     //     host: 'http://localhost:10086',
@@ -315,6 +374,18 @@ export function SshConnect({ config, tabKey, event$ }) {
                                 >
                                     <ExportOutlined />
                                 </IconButton>
+                                <Button
+                                    size="small"
+                                    onClick={() => {
+                                        setDashboardVisible(true)
+                                        console.log('projects', projects)
+                                        setDashboardItems(projects.filter(item => item.isMonitor))
+                                        // setMoniteItem(item)
+                                    }}
+                                    icon={<LineChartOutlined />}
+                                >
+                                    {t('monitor')}
+                                </Button>
                             </Space>
                         </div>
                         <div>
@@ -387,7 +458,7 @@ export function SshConnect({ config, tabKey, event$ }) {
                                                             setMoniteVisible(true)
                                                             setMoniteItem(item)
                                                         }}
-                                                        icon={<FileOutlined />}
+                                                        icon={<LineChartOutlined />}
                                                     >
                                                         {t('monitor')}
                                                     </Button>
@@ -513,6 +584,15 @@ export function SshConnect({ config, tabKey, event$ }) {
                     }}
                 />
             }
+            {dashboardVisible &&
+                <DashboardModal
+                    dashboarItems={dashboarItems}
+                    config={config}
+                    onCancel={() => {
+                        setDashboardVisible(false)
+                    }}
+                />
+            }
         </div>
     )
 }
@@ -548,6 +628,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                 password: '',
                 defaultDatabase: null,
                 userName: '',
+                isMonitor: false,
             })
         }
     }, [item])
@@ -567,6 +648,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                 password: values.password,
                 privateKey: values.privateKey,
                 username: values.username,
+                isMonitor: values.isMonitor || false,
             })
             if (res.success) {
                 onSuccess && onSuccess()
@@ -582,6 +664,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                     password: values.password,
                     privateKey: values.privateKey,
                     username: values.username,
+                    isMonitor: values.isMonitor || false,
                 }
             })
             if (res.success) {
@@ -721,6 +804,16 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                         placeholder="填写后则不使用密码"
                     />
                 </Form.Item>
+                <Form.Item
+                    name="isMonitor"
+                    label={t('监控')}
+                    // extra="12"
+                    // rules={[{ required: true, },]}
+                >
+                    <CheckboxInput
+                        // placeholder="填写后则不使用密码"
+                    ></CheckboxInput>
+                </Form.Item>
             </Form>
         </Modal>
     );
@@ -788,7 +881,7 @@ function MonitorModal({ item, onCancel, config }) {
     return (
         <Modal
             title={t('monitor') + ` (${item.name})`}
-            width={720}
+            width={800}
             open={true}
             onCancel={onCancel}
             footer={null}
@@ -840,10 +933,38 @@ function MonitorModal({ item, onCancel, config }) {
                                 />
                             </div>
                         </div>
-                        <div className={styles.item}>
+                        <div className={classNames(styles.item, styles.loadSvgItem)}>
                             <div className={styles.key}>{t('ssh.load_avg')}</div>
                             <div className={styles.value}>
-                                {result.loadavg}
+                                <Space>
+                                    <div className={styles.circles}>
+                                        <div className={styles.layer}>
+                                            <CircleProgress
+                                                className={styles.bigProgress}
+                                                percent={Math.floor(result.loadavg.nums[2] / result.cpuinfo * 100)}
+                                                width={48}
+                                                format={() => ''}
+                                            />
+                                        </div>
+                                        <div className={styles.layer}>
+                                            <CircleProgress
+                                                className={styles.bigProgress}
+                                                percent={Math.floor(result.loadavg.nums[1] / result.cpuinfo * 100)}
+                                                width={32}
+                                                format={() => ''}
+                                            />
+                                        </div>
+                                        <div className={styles.layer}>
+                                            <CircleProgress
+                                                className={styles.bigProgress}
+                                                percent={Math.floor(result.loadavg.nums[0] / result.cpuinfo * 100)}
+                                                width={16}
+                                                format={() => ''}
+                                            />
+                                        </div>
+                                    </div>
+                                    {result.loadavg.text}
+                                </Space>
                             </div>
                         </div>
 
@@ -858,7 +979,10 @@ function MonitorModal({ item, onCancel, config }) {
                                             return (
                                                 <div className={styles.item}>
                                                     <div className={styles.name}>{disk.name}</div>
-                                                    <Progress className={styles.progress} percent={disk.percent} size="small" />
+                                                    <LineProgress
+                                                        className={styles.progress} 
+                                                        percent={disk.percent} 
+                                                        size="small" />
                                                 </div>
                                             )
                                         })}
@@ -917,5 +1041,239 @@ function MonitorModal({ item, onCancel, config }) {
                 <div>error</div>
             }
         </Modal>
+    )
+}
+
+function MonitorItem({ item, config }) {
+
+    const { t } = useTranslation()
+    const [result, setResult] = useState(null)
+    const [loading, setLoading] = useState(false)
+    
+    async function loadData() {
+        setLoading(true)
+        let res = await request.post(`${config.host}/ssh/connection/monite`, {
+            id: item.id,
+        })
+        setLoading(false)
+        if (res.success) {
+            // console.log('loadData', res.data)
+            // return
+            // const { meminfo } = res.data
+            const memInfo = parseMemInfo(res.data.meminfo)
+            // console.log('memInfo', memInfo)
+            // total=used+free+buff/cache
+            // MemAvailable
+            // MemFree
+
+            // MemTotal
+            // Buffers
+            // Cached
+            // total=used+free+buff/cache
+            // https://blog.csdn.net/heymyyl/article/details/80073534
+
+            const { cpuUsage } = parseStat(res.data.stat)
+            setResult({
+                // MemTotal: memInfo.MemTotal,
+                memoryPercent: Math.floor((parseSize(memInfo.MemTotal) - parseSize(memInfo.MemFree) - parseSize(memInfo.Buffers) - parseSize(memInfo.Cached)) / parseSize(memInfo.MemTotal) * 100),
+                cpuUsage,
+                loadavg: parseLoadAvg(res.data.loadavg),
+                uptime: parseUpTime(res.data.uptime),
+                cpuinfo: parseCpuInfo(res.data.cpuinfo),
+                disks: parseDisk(res.data.disk),
+                processes: parseTop(res.data.top),
+                // version: res.data.version,
+                version: res.data.version.split('-')[0],
+            })
+        }
+    }
+
+    useEffect(() => {
+        loadData()
+    }, [item])
+
+    return (
+        <div>
+            {loading ?
+                <Spin />
+            : !!result ?
+                <div className={styles.body}>
+                    <div className={styles.tools}>
+                        <IconButton
+                            tooltip={t('refresh')}
+                            // size="small"
+                            className={styles.refresh}
+                            onClick={() => {
+                                // loadKeys()
+                                loadData()
+                            }}
+                        >
+                            <ReloadOutlined />
+                        </IconButton>
+                    </div>
+
+                    <div className={styles.dataList}>
+                        <div className={styles.item}>
+                            <div className={styles.key}>{t('ssh.memory')}</div>
+                            <div className={styles.value}>
+                                {/* {result.memoryPercent}% */}
+                                <CircleProgress
+                                    className={styles.bigProgress}
+                                    percent={result.memoryPercent}
+                                    width={48}
+                                />
+                            </div>
+                        </div>
+                        <div className={styles.item}>
+                            <div className={styles.key}>CPU
+                                <div className={styles.tag}>{result.cpuinfo} {t('ssh.cores')}</div>
+                            </div>
+                            <div className={styles.value}>
+                                {/* {result.cpuUsage}% */}
+                                <CircleProgress
+                                    className={styles.bigProgress}
+                                    percent={result.cpuUsage}
+                                    width={48}
+                                />
+                            </div>
+                        </div>
+                        <div className={classNames(styles.item, styles.loadSvgItem)}>
+                            <div className={styles.key}>{t('ssh.load_avg')}</div>
+                            <div className={styles.value}>
+                                <Space>
+                                    <div className={styles.circles}>
+                                        <div className={styles.layer}>
+                                            <CircleProgress
+                                                className={styles.bigProgress}
+                                                percent={Math.floor(result.loadavg.nums[2] / result.cpuinfo * 100)}
+                                                width={48}
+                                                format={() => ''}
+                                            />
+                                        </div>
+                                        <div className={styles.layer}>
+                                            <CircleProgress
+                                                className={styles.bigProgress}
+                                                percent={Math.floor(result.loadavg.nums[1] / result.cpuinfo * 100)}
+                                                width={32}
+                                                format={() => ''}
+                                            />
+                                        </div>
+                                        <div className={styles.layer}>
+                                            <CircleProgress
+                                                className={styles.bigProgress}
+                                                percent={Math.floor(result.loadavg.nums[0] / result.cpuinfo * 100)}
+                                                width={16}
+                                                format={() => ''}
+                                            />
+                                        </div>
+                                    </div>
+                                    {result.loadavg.text}
+                                </Space>
+                            </div>
+                        </div>
+
+                        
+
+                        <div className={styles.item}>
+                            <div className={styles.key}>{t('ssh.disk')}</div>
+                            <div className={styles.value}>
+                                {result.disks.length > 0 ?
+                                    <div className={styles.disks}>
+                                        {result.disks.map(disk => {
+                                            return (
+                                                <div className={styles.item}>
+                                                    <div className={styles.name}>{disk.name}</div>
+                                                    <LineProgress
+                                                        className={styles.progress} 
+                                                        percent={disk.percent} 
+                                                        size="small" />
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                :
+                                    <div>--</div>
+                                }
+                            </div>
+                        </div>
+                        <div className={styles.item}>
+                            <div className={styles.key}>{t('ssh.uptime')}</div>
+                            <div className={styles.value}>
+                                {result.uptime}
+                            </div>
+                        </div>
+                    </div>
+                    {/* <div className={styles.infoBox}>{result.version}</div>
+                    <div className={styles.processBox}>
+                        <Table
+                            dataSource={result.processes}
+                            columns={[
+                                {
+                                    title: '进程',
+                                    dataIndex: 'PID',
+                                    width: 160,
+                                    sorter: (a, b) => a.PID - b.PID,
+                                },
+                                {
+                                    title: 'CPU',
+                                    dataIndex: 'CPU',
+                                    width: 80,
+                                    sortDirections: ['descend', 'ascend'],
+                                    sorter: (a, b) => a.CPU - b.CPU,
+                                },
+                                {
+                                    title: '内存',
+                                    dataIndex: 'MEM',
+                                    width: 80,
+                                    sortDirections: ['descend', 'ascend'],
+                                    sorter: (a, b) => a.MEM - b.MEM,
+                                },
+                                {
+                                    title: '命令',
+                                    dataIndex: 'COMMAND',
+                                },
+                            ]}
+                            size="small"
+                            scroll={{
+                                y: 400,
+                            }}
+                            pagination={false}
+                        />
+                    </div> */}
+                </div>
+            :
+                <div>error</div>
+            }
+        </div>
+    )
+}
+
+function DashboardModal({ config, onCancel, dashboarItems }) {
+    const { t } = useTranslation()
+
+    return (
+        <Drawer
+            open={true}
+            title={t('monitor')}
+            width={840}
+            // onCancel={onCancel}
+            onClose={onCancel}
+            footer={null}
+        >
+            <div className={styles.items}>
+                {dashboarItems.map(item => {
+                    return (
+                        <div className={styles.item}>
+                            <div className={styles.serverName}>{item.name}</div>
+                            <MonitorItem
+                                item={item}
+                                config={config}
+                            />
+                        </div>
+                    )
+                })}
+            </div>
+            {/* 212 */}
+        </Drawer>
     )
 }
