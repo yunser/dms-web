@@ -132,7 +132,30 @@ function parseUpTime(uptime) {
     return second + 's'
 }
 
-function parseCpuInfo(cpuinfo) {
+function parseLsb(lsb: string) {
+    console.log('lsb', lsb)
+    const infoObj = {}
+    const arr = lsb.split('\n')
+    for (let line of arr) {
+        // console.log('line', line)
+        const _arr = line.split(':')
+        if (_arr[1]) {
+            infoObj[_arr[0].trim()] = _arr[1].trim()
+        }
+    }
+    // console.log('infoObj', infoObj)
+    // Distributor ID: Ubuntu
+    // Description:    Ubuntu 12.04.1 LTS
+    // Release:        12.04
+    // Codename:       precise
+
+    if (!infoObj['Distributor ID']) {
+        return ''
+    }
+    return `${infoObj['Distributor ID']} ${infoObj['Release']}`
+}
+
+function parseCpuInfo(cpuinfo: string) {
     // console.log('cpuinfo', cpuinfo)
     const infoObj = {}
     const arr = cpuinfo.split('\n')
@@ -872,6 +895,7 @@ function MonitorModal({ item, onCancel, config }) {
                 processes: parseTop(res.data.top),
                 // version: res.data.version,
                 version: res.data.version.split('-')[0],
+                lsb: parseLsb(res.data.lsb),
             })
         }
     }
@@ -1001,7 +1025,10 @@ function MonitorModal({ item, onCancel, config }) {
                             </div>
                         </div>
                     </div>
-                    <div className={styles.infoBox}>{result.version}</div>
+                    <div className={styles.infoBox}>
+                        <div className={styles.version}>{result.version}</div>
+                        <div className={styles.lsb}>{result.lsb}</div>
+                    </div>
                     <div className={styles.processBox}>
                         <Table
                             dataSource={result.processes}
