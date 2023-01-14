@@ -70,6 +70,8 @@ const tagIconLabel = {
     'database': 'DB',
     'logger-home': 'LOG',
     'logger-detail': 'LOG',
+    'oss-home': 'OSS',
+    'file-home': 'FILE',
 }
 
 function AboutModal({ config, ...otherProps }) {

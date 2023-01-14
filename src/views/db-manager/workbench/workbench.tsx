@@ -20,6 +20,7 @@ const prodLogos = {
     'swagger': 'api.svg',
     'logger': 'logger.svg',
     'file': 'logger.svg',
+    'oss-home': 'oss.svg',
 }
 
 export function Workbench({ config, onCommand }) {
