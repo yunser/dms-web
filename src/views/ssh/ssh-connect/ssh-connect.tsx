@@ -222,7 +222,7 @@ function InputPassword(props) {
     )
 }
 
-export function SshConnect({ config, tabKey, event$ }) {
+export function SshConnect({ config, tabKey, onSSh, onSftp, event$ }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [modalVisible, setModalVisible] = useState(false)
@@ -435,8 +435,9 @@ export function SshConnect({ config, tabKey, event$ }) {
                                                     <Button
                                                         size="small"
                                                         onClick={() => {
-                                                            setView('detail')
-                                                            setCurItem(item)
+                                                            // setView('detail')
+                                                            // setCurItem(item)
+                                                            onSSh && onSSh({ item })
                                                         }}
                                                         icon={<CodeOutlined />}
                                                     >
@@ -445,8 +446,9 @@ export function SshConnect({ config, tabKey, event$ }) {
                                                     <Button
                                                         size="small"
                                                         onClick={() => {
-                                                            setView('sftp')
-                                                            setCurItem(item)
+                                                            // setView('sftp')
+                                                            // setCurItem(item)
+                                                            onSftp && onSftp({ item })
                                                         }}
                                                         icon={<FileOutlined />}
                                                     >

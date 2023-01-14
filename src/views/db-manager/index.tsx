@@ -46,6 +46,7 @@ import { GitProject } from '../git/git-project'
 import { LoggerHome } from '../logger/logger-home'
 import { LoggerDetail } from '../logger/logger-detail'
 import { AlasqlHome } from '../slasql/ip-home'
+import { FileList } from '../file/file-list'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -72,6 +73,9 @@ const tagIconLabel = {
     'logger-detail': 'LOG',
     'oss-home': 'OSS',
     'file-home': 'FILE',
+    'sftp-detail': 'SFTP',
+    'ssh-detail': 'SSH',
+    'ssh-connect': 'SSH',
 }
 
 function AboutModal({ config, ...otherProps }) {
@@ -1134,13 +1138,6 @@ export function DbManager({ config }) {
                                             }}
                                         />
                                     }
-                                    {item.type == 'ssh-connect' &&
-                                        <SshConnect
-                                            config={config}
-                                            event$={event$}
-                                            tabKey={item.key}
-                                        />
-                                    }
                                     {item.type == 'file-home' &&
                                         <FileHome
                                             config={config}
@@ -1152,11 +1149,56 @@ export function DbManager({ config }) {
                                             defaultPath={item.data.path}
                                         />
                                     }
+                                    {item.type == 'ssh-connect' &&
+                                        <SshConnect
+                                            config={config}
+                                            event$={event$}
+                                            tabKey={item.key}
+                                            onSSh={({ item }) => {
+                                                addOrActiveTab({
+                                                    title: item.name,
+                                                    key: `terminal-${uid(16)}`,
+                                                    type: 'ssh-detail',
+                                                    data: {
+                                                        item,
+                                                    },
+                                                })
+                                            }}
+                                            onSftp={({ item }) => {
+                                                addOrActiveTab({
+                                                    title: item.name,
+                                                    key: `terminal-${uid(16)}`,
+                                                    type: 'sftp-detail',
+                                                    data: {
+                                                        item,
+                                                    },
+                                                })
+                                            }}
+                                        />
+                                    }
                                     {item.type == 'terminal' &&
                                         <SshDetail
                                             config={config}
                                             local={true}
                                             defaultPath={item.data.path}
+                                            item={item.data.item}
+                                        />
+                                    }
+                                    {item.type == 'ssh-detail' &&
+                                        <SshDetail
+                                            config={config}
+                                            local={true}
+                                            defaultPath={item.data.path}
+                                            item={item.data.item}
+                                        />
+                                    }
+                                    {item.type == 'sftp-detail' &&
+                                        <FileList
+                                            // tabKey={tabKey}
+                                            config={config}
+                                            event$={event$}
+                                            sourceType="ssh"
+                                            item={item.data.item}
                                         />
                                     }
                                     {item.type == 'tcp/udp' &&
