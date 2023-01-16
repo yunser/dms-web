@@ -1021,7 +1021,7 @@ function MonitorModal({ item, onCancel, config }) {
                         <div className={styles.item}>
                             <div className={styles.key}>{t('ssh.uptime')}</div>
                             <div className={styles.value}>
-                                {result.uptime}
+                                <div className={styles.oneRowValue}>{result.uptime}</div>
                             </div>
                         </div>
                     </div>
@@ -1228,7 +1228,7 @@ function MonitorItem({ item, config }) {
                         <div className={styles.item}>
                             <div className={styles.key}>{t('ssh.uptime')}</div>
                             <div className={styles.value}>
-                                {result.uptime}
+                                <div className={styles.oneRowValue}>{result.uptime}</div>
                             </div>
                         </div>
                     </div>
