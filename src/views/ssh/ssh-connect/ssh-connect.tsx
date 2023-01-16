@@ -19,7 +19,9 @@ import { FileList } from '../../file/file-list'
 import storage from '@/utils/storage';
 import { uid } from 'uid';
 
-function CircleProgress({ percent, width, ...otherProps }) {
+function CircleProgress({ percent, width, 
+    format = (percent) => `${percent}%`, 
+    ...otherProps }) {
     let color = '#4091f7'
     if (percent > 90) {
         color = '#ed5b56'
@@ -34,7 +36,8 @@ function CircleProgress({ percent, width, ...otherProps }) {
             width={width}
             strokeColor={color}
             trailColor="#eee"
-            // format={() => ''}
+            format={format}
+            status="normal"
             {...otherProps}
         />
     )
@@ -91,7 +94,7 @@ function parseStat(stat) {
     const cupStat = rows[0]
     const [ cpu, _user, _nice, _system, _idle ] = cupStat.split(/\s+/)
     // CPU利用率   =   100   *（user   +   nice   +   system）/（user   +   nice   +   system   +   idle）
-    // console.log('ccpp', _user, _nice, _system, _idle)
+    console.log('ccpp', _user, _nice, _system, _idle)
     const [user, nice, system, idle] = [_user, _nice, _system, _idle].map(item => {
         return parseInt(item.trim())
     })
@@ -883,11 +886,11 @@ function MonitorModal({ item, onCancel, config }) {
             // total=used+free+buff/cache
             // https://blog.csdn.net/heymyyl/article/details/80073534
 
-            const { cpuUsage } = parseStat(res.data.stat)
+            // const { cpuUsage } = parseStat(res.data.stat)
             setResult({
                 // MemTotal: memInfo.MemTotal,
                 memoryPercent: Math.floor((parseSize(memInfo.MemTotal) - parseSize(memInfo.MemFree) - parseSize(memInfo.Buffers) - parseSize(memInfo.Cached)) / parseSize(memInfo.MemTotal) * 100),
-                cpuUsage,
+                cpuUsage: res.data.cpuUsage,
                 loadavg: parseLoadAvg(res.data.loadavg),
                 uptime: parseUpTime(res.data.uptime),
                 cpuinfo: parseCpuInfo(res.data.cpuinfo),
@@ -935,12 +938,10 @@ function MonitorModal({ item, onCancel, config }) {
                             <div className={styles.key}>{t('ssh.memory')}</div>
                             <div className={styles.value}>
                                 {/* {result.memoryPercent}% */}
-                                <Progress
+                                <CircleProgress
                                     className={styles.bigProgress}
-                                    type="circle"
                                     percent={result.memoryPercent}
                                     width={48}
-                                    trailColor="#eee"
                                 />
                             </div>
                         </div>
@@ -950,12 +951,10 @@ function MonitorModal({ item, onCancel, config }) {
                             </div>
                             <div className={styles.value}>
                                 {/* {result.cpuUsage}% */}
-                                <Progress
+                                <CircleProgress
                                     className={styles.bigProgress}
-                                    type="circle"
                                     percent={result.cpuUsage}
                                     width={48}
-                                    trailColor="#eee"
                                 />
                             </div>
                         </div>
@@ -1101,11 +1100,11 @@ function MonitorItem({ item, config }) {
             // total=used+free+buff/cache
             // https://blog.csdn.net/heymyyl/article/details/80073534
 
-            const { cpuUsage } = parseStat(res.data.stat)
+            // const { cpuUsage } = parseStat(res.data.stat)
             setResult({
                 // MemTotal: memInfo.MemTotal,
                 memoryPercent: Math.floor((parseSize(memInfo.MemTotal) - parseSize(memInfo.MemFree) - parseSize(memInfo.Buffers) - parseSize(memInfo.Cached)) / parseSize(memInfo.MemTotal) * 100),
-                cpuUsage,
+                cpuUsage: res.data.cpuUsage,
                 loadavg: parseLoadAvg(res.data.loadavg),
                 uptime: parseUpTime(res.data.uptime),
                 cpuinfo: parseCpuInfo(res.data.cpuinfo),
@@ -1148,6 +1147,7 @@ function MonitorItem({ item, config }) {
                                 {/* {result.memoryPercent}% */}
                                 <CircleProgress
                                     className={styles.bigProgress}
+                                    // percent={result.memoryPercent}
                                     percent={result.memoryPercent}
                                     width={48}
                                 />
