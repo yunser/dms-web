@@ -76,6 +76,8 @@ const tagIconLabel = {
     'sftp-detail': 'SFTP',
     'ssh-detail': 'SSH',
     'ssh-connect': 'SSH',
+    'redis-client': 'RDS',
+    'redis-connect': 'RDS',
 }
 
 function AboutModal({ config, ...otherProps }) {
