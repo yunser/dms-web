@@ -351,6 +351,7 @@ export function RedisConnect({ config, event$, onConnect, }) {
                                 >
                                     <Space>
                                         <div className={styles.name}>{item.name}</div>
+                                        <div className={styles.info}>{item.host}:{item.port}</div>
                                     </Space>
                                     <Space
                                         onClick={(e) => {

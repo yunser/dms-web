@@ -9,7 +9,7 @@ import { Editor } from '../editor/Editor';
 import storage from '../storage'
 import { request } from '../utils/http'
 import { IconButton } from '../icon-button';
-import { CodeOutlined, ExportOutlined, FolderOutlined, HeartOutlined, HistoryOutlined, InfoCircleOutlined, LinkOutlined, MenuOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { CodeOutlined, ExportOutlined, FolderOutlined, HeartOutlined, HistoryOutlined, InfoCircleOutlined, LinkOutlined, MenuOutlined, PlusOutlined, ProfileOutlined, ReloadOutlined } from '@ant-design/icons';
 
 import { ListContent } from './key-detail-list';
 import { useInterval } from 'ahooks';
@@ -23,6 +23,7 @@ import { RedisLike } from '../redis-like';
 import { RedisInfo } from '../redis-info';
 import { RedisRenameModal } from '../redis-rename';
 import { RedisDuplicateModal } from '../redis-duplicate';
+import { PubSubModal } from '../redis-pubsub';
 // import ReactLoading from 'react-loading';
 
 export function FullCenterBox(props) {
@@ -242,6 +243,8 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
     // duplicate
     const [duplicateVisible, setDuplicateVisible] = useState(false)
     const [duplicateKey, setDuplicateKey] = useState('')
+    // pub/sub
+    const [pubSubVisible, setPubSubVisible] = useState(false)
 
     // tabs
     const [tabInfo, setTabInfo] = useState({
@@ -794,6 +797,17 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                             >
                                 <ExportOutlined />
                             </IconButton>
+                            <IconButton
+                                tooltip={t('发布/订阅')}
+                                // size="small"
+                                className={styles.refresh}
+                                onClick={() => {
+                                    setPubSubVisible(true)
+                                }}
+                            >
+                                {/* <ExportOutlined /> */}
+                                <ProfileOutlined />
+                            </IconButton>
                         </Space>
                     </div>
                     <div className={styles.layoutLeftSearch}>
@@ -1241,6 +1255,15 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                     onSuccess={() => {
                         setDuplicateVisible(false)
                         loadKeys()
+                    }}
+                />
+            }
+            {pubSubVisible &&
+                <PubSubModal
+                    config={config}
+                    connectionId={connectionId}
+                    onCancel={() => {
+                        setPubSubVisible(false)
                     }}
                 />
             }
