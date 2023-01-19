@@ -6,7 +6,7 @@ import classNames from 'classnames'
 import { useTranslation } from 'react-i18next';
 import storage from '@/utils/storage'
 import { useInterval } from 'ahooks';
-import { request } from '../db-manager/utils/http';
+import { request } from '../../db-manager/utils/http';
 import moment from 'moment';
 
 function sleep(ms) {
@@ -17,7 +17,8 @@ function sleep(ms) {
     });
 }
 
-export function MqttHome({ config, onCommand }) {
+export function MqttHome({ config, data }) {
+    const { connectionId } = data
     const { t } = useTranslation()
 
     const WsStatusLabelMap = {
@@ -68,7 +69,7 @@ export function MqttHome({ config, onCommand }) {
     async function publish() {
         const values = await form.validateFields();
         let res = await request.post(`${config.host}/mqtt/publish`, {
-            // connectionId,
+            connectionId,
             topic: values.channel,
             message: values.message.replace('{time}', moment().format('YYYY-MM-DD HH:mm:ss')),
         })

@@ -47,7 +47,8 @@ import { LoggerHome } from '../logger/logger-home'
 import { LoggerDetail } from '../logger/logger-detail'
 import { AlasqlHome } from '../slasql/ip-home'
 import { FileList } from '../file/file-list'
-import { MqttHome } from '../mqtt/mqtt-home'
+import { MqttHome } from '../mqtt/mqtt-home/mqtt-home'
+import { MqttConnect } from '../mqtt/mqtt-connect/mqtt-connect'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -80,6 +81,7 @@ const tagIconLabel = {
     'redis-client': 'RDS',
     'redis-connect': 'RDS',
     'mqtt-home': 'MQTT',
+    'mqtt-detail': 'MQTT',
 }
 
 function AboutModal({ config, ...otherProps }) {
@@ -1039,6 +1041,27 @@ export function DbManager({ config }) {
                                         />
                                     }
                                     {item.type == 'mqtt-home' &&
+                                        <MqttConnect
+                                            config={config}
+                                            event$={event$}
+                                            onConnect={({ connectionId, name }) => {
+                                                console.log('onConnect', connectionId)
+                                                addOrActiveTab({
+                                                    title: `${name}`,
+                                                    key: 'mqtt-' + uid(16),
+                                                    type: 'mqtt-detail',
+                                                    data: {
+                                                        connectionId,
+                                                        // defaultDatabase,
+                                                    },
+                                                }, {
+                                                    // closeCurrentTab: true,
+                                                })
+                                            }}
+                                            // data={item.data}
+                                        />
+                                    }
+                                    {item.type == 'mqtt-detail' &&
                                         <MqttHome
                                             config={config}
                                             event$={event$}
