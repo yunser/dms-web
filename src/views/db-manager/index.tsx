@@ -47,6 +47,7 @@ import { LoggerHome } from '../logger/logger-home'
 import { LoggerDetail } from '../logger/logger-detail'
 import { AlasqlHome } from '../slasql/ip-home'
 import { FileList } from '../file/file-list'
+import { MqttHome } from '../mqtt/mqtt-home'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -78,6 +79,7 @@ const tagIconLabel = {
     'ssh-connect': 'SSH',
     'redis-client': 'RDS',
     'redis-connect': 'RDS',
+    'mqtt-home': 'MQTT',
 }
 
 function AboutModal({ config, ...otherProps }) {
@@ -394,6 +396,19 @@ export function DbManager({ config }) {
                 // closeCurrentTab: true,
             })
         }
+        else if (key == 'mqtt') {
+            addOrActiveTab({
+                // title: `${curConnect.name || 'Unnamed'}`,
+                title: t('mqtt'),
+                key,
+                type: 'mqtt-home',
+                data: {
+                    
+                }
+            }, {
+                // closeCurrentTab: true,
+            })
+        }
         else if (key == 'redis') {
             addOrActiveTab({
                 title: 'Redis',
@@ -697,6 +712,10 @@ export function DbManager({ config }) {
         {
             label: t('alasql'),
             key: 'alasql',
+        },
+        {
+            label: t('mqtt'),
+            key: 'mqtt',
         },
     ]
     function handleTabChange(key: string) {
@@ -1014,6 +1033,13 @@ export function DbManager({ config }) {
                                     }
                                     {item.type == 'text' &&
                                         <TextEditor
+                                            config={config}
+                                            event$={event$}
+                                            data={item.data}
+                                        />
+                                    }
+                                    {item.type == 'mqtt-home' &&
+                                        <MqttHome
                                             config={config}
                                             event$={event$}
                                             data={item.data}

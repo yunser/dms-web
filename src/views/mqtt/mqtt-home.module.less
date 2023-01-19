@@ -1,0 +1,24 @@
+.mqttBox {
+    padding: 16px;
+}
+.sections {
+    display: flex;
+    flex-direction: row;
+    // align-items: center;
+    gap: 8px;
+    .section {
+        flex: 1 0 auto;
+        padding: 0 16px;
+        &:first-child {
+            border-right: 1px solid var(--border-color);
+        }
+        .title {
+            font-size: 16px;
+            margin-bottom: 16px;
+            font-weight: bold;
+        }
+    }
+    .help {
+        margin-top: 16px;
+    }
+}
