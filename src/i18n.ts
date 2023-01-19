@@ -393,6 +393,7 @@ i18n
                     'ssh.disk': 'Disk',
                     'ssh.private_key': 'Private Key',
                     'hide': 'Hide',
+                    'mqtt': 'MQTT',
                 }
             },
             zh: {
@@ -778,6 +779,7 @@ i18n
                     'ssh.disk': '磁盘',
                     'ssh.private_key': '私钥',
                     'hide': '隐藏',
+                    'mqtt': 'MQTT',
                 }
             }
         },

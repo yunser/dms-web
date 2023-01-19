@@ -1,5 +1,5 @@
 import { Button, Descriptions, Form, Input, message, Modal, Popover, Space, Table, Tabs } from 'antd';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './mqtt-home.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
@@ -9,8 +9,26 @@ import { useInterval } from 'ahooks';
 import { request } from '../db-manager/utils/http';
 import moment from 'moment';
 
+function sleep(ms) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve();
+        }, ms);
+    });
+}
+
 export function MqttHome({ config, onCommand }) {
     const { t } = useTranslation()
+
+    const WsStatusLabelMap = {
+        'notConnected': '异常',
+        'error': '异常',
+        'connected': '已连接',
+    }
+
+    const comData = useRef({
+        connectTime: 0,
+    })
 
     const [form] = Form.useForm()
     const [form2] = Form.useForm()
@@ -21,7 +39,8 @@ export function MqttHome({ config, onCommand }) {
     const [page, setPage] = useState(1)
     const [total, setTotal] = useState(0)
     const [loading, setLoading] = useState(false)
-
+    const [wsStatus, setWsStatus] = useState('notConnected')
+    const [wsAction, setWsAction] = useState('')
     async function subscribe() {
         const values = await form2.validateFields();
         let res = await request.post(`${config.host}/mqtt/subscribe`, {
@@ -58,14 +77,47 @@ export function MqttHome({ config, onCommand }) {
         }
     }
 
+    function connect() {
+        comData.current.connectTime = 0
+        initWebSocket()
+    }
+
+    // 有一个属性Socket.readyState，
+    // 0 - 表示连接尚未建立，
+    // 1 - 表示连接已建立，可以进行通信，
+    // 2 - 表示连接正在进行关闭，
+    // 3 - 表示连接已经关闭或者连接不能打开
     function initWebSocket() {
         let first = true
         const ws = new WebSocket('ws://localhost:10087/')
-        ws.onclose = () => {
-            console.log('close socket')
+        console.log('initWebSocket')
+        console.log('readyState', ws.readyState)
+        
+        ws.onclose = async () => {
+            console.log('socket/on-close')
+            setWsStatus('notConnected')
+            console.log('readyState', ws.readyState)
+
+            if (comData.current.connectTime < 3) {
+                comData.current.connectTime++
+                const ms = comData.current.connectTime * 2000
+                const action = `正在第 ${comData.current.connectTime} 次重试连接，等待 ${ms} ms`
+                console.log('time', moment().format('mm:ss'))   
+                console.log(action)
+                setWsAction(action)
+                await sleep(ms)
+                initWebSocket()
+            }
+            else {
+                setWsAction('自动重试连接超过 3 次，连接失败')
+            }
         }
         ws.onopen = () => {
+            comData.current.connectTime = 0
             console.log('onopen', )
+            setWsStatus('connected')
+            setWsAction('')
+            console.log('readyState', ws.readyState)
 
             // const _xterm = xtermRef.current
             ws.send(JSON.stringify({
@@ -76,8 +128,15 @@ export function MqttHome({ config, onCommand }) {
             }))
             console.log('sended')
         }
-        ws.onerror = () => {
-            console.log('socket error')
+        ws.onerror = (err) => {
+            // setWsStatus('error')
+            setWsStatus('notConnected')
+            console.log('socket error', err)
+            console.log('readyState', ws.readyState)
+            // if (ws.)
+
+            // if 
+
         }
         ws.onmessage = (event) => {
             const text = event.data.toString()
@@ -148,6 +207,14 @@ export function MqttHome({ config, onCommand }) {
             {/* <div className={styles.welcome}>
                 {t('welcome')}
             </div> */}
+            <div>
+                WebSocket 状态：{WsStatusLabelMap[wsStatus]}{wsAction}
+                {wsStatus != 'connected' &&
+                    <div>
+                        <Button onClick={connect}>连接</Button>
+                    </div>
+                }
+            </div>
             <div className={styles.sections}>
                 <div className={styles.section}>
                     <div className={styles.title}>发布</div>
