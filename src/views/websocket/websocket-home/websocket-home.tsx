@@ -1,6 +1,6 @@
 import { Button, Descriptions, Form, Input, message, Modal, Popover, Space, Table, Tabs } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import styles from './mqtt-home.module.less';
+import styles from './websocket-home.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
 import { useTranslation } from 'react-i18next';
@@ -8,6 +8,7 @@ import storage from '@/utils/storage'
 import { useInterval } from 'ahooks';
 import { request } from '../../db-manager/utils/http';
 import moment from 'moment';
+import { uid } from 'uid';
 
 function sleep(ms) {
     return new Promise((resolve) => {
@@ -17,7 +18,7 @@ function sleep(ms) {
     });
 }
 
-export function MqttHome({ config, data }) {
+export function WebSocketHome({ config, data }) {
     const { connectionId } = data
     const { t } = useTranslation()
 
@@ -29,8 +30,10 @@ export function MqttHome({ config, data }) {
 
     const comData = useRef({
         connectTime: 0,
+        socket: null,
     })
 
+    const [url, setUrl] = useState('ws://127.0.0.1:7003/ws')
     const [form] = Form.useForm()
     const [form2] = Form.useForm()
     const [isSub, setIsSub] = useState(false)
@@ -42,42 +45,7 @@ export function MqttHome({ config, data }) {
     const [loading, setLoading] = useState(false)
     const [wsStatus, setWsStatus] = useState('notConnected')
     const [wsAction, setWsAction] = useState('')
-    async function subscribe() {
-        const values = await form2.validateFields();
-        let res = await request.post(`${config.host}/mqtt/subscribe`, {
-            // connectionId,
-            channel: values.channel || '*',
-        })
-        if (res.success) {
-            message.success('订阅成功')
-            setIsSub(true)
-        }
-    }
-
-    async function unSubscribe() {
-        const values = await form2.validateFields();
-        let res = await request.post(`${config.host}/mqtt/unSubscribe`, {
-            // connectionId,
-            channel: values.channel || '*',
-        })
-        if (res.success) {
-            message.success('取消订阅成功')
-            setIsSub(false)
-        }
-    }
-
-    async function publish() {
-        const values = await form.validateFields();
-        let res = await request.post(`${config.host}/mqtt/publish`, {
-            connectionId,
-            topic: values.channel,
-            message: values.message.replace('{time}', moment().format('YYYY-MM-DD HH:mm:ss')),
-        })
-        if (res.success) {
-            message.success('发布成功')
-        }
-    }
-
+    
     function connect() {
         comData.current.connectTime = 0
         initWebSocket()
@@ -90,7 +58,7 @@ export function MqttHome({ config, data }) {
     // 3 - 表示连接已经关闭或者连接不能打开
     function initWebSocket() {
         let first = true
-        const ws = new WebSocket('ws://localhost:10087/')
+        const ws = new WebSocket(url)
         console.log('initWebSocket')
         console.log('readyState', ws.readyState)
         
@@ -99,34 +67,35 @@ export function MqttHome({ config, data }) {
             setWsStatus('notConnected')
             console.log('readyState', ws.readyState)
 
-            if (comData.current.connectTime < 3) {
-                comData.current.connectTime++
-                const ms = comData.current.connectTime * 2000
-                const action = `正在第 ${comData.current.connectTime} 次重试连接，等待 ${ms} ms`
-                console.log('time', moment().format('mm:ss'))   
-                console.log(action)
-                setWsAction(action)
-                await sleep(ms)
-                initWebSocket()
-            }
-            else {
-                setWsAction('自动重试连接超过 3 次，连接失败')
-            }
+            // if (comData.current.connectTime < 3) {
+            //     comData.current.connectTime++
+            //     const ms = comData.current.connectTime * 2000
+            //     const action = `正在第 ${comData.current.connectTime} 次重试连接，等待 ${ms} ms`
+            //     console.log('time', moment().format('mm:ss'))   
+            //     console.log(action)
+            //     setWsAction(action)
+            //     await sleep(ms)
+            //     initWebSocket()
+            // }
+            // else {
+            //     setWsAction('自动重试连接超过 3 次，连接失败')
+            // }
         }
         ws.onopen = () => {
             comData.current.connectTime = 0
+            comData.current.socket = ws
             console.log('onopen', )
             setWsStatus('connected')
             setWsAction('')
             console.log('readyState', ws.readyState)
 
             // const _xterm = xtermRef.current
-            ws.send(JSON.stringify({
-                type: 'mqttSubscribe',
-                data: {
-                    // connectionId,
-                },
-            }))
+            // ws.send(JSON.stringify({
+            //     type: 'mqttSubscribe',
+            //     data: {
+            //         // connectionId,
+            //     },
+            // }))
             console.log('sended')
         }
         ws.onerror = (err) => {
@@ -144,23 +113,23 @@ export function MqttHome({ config, data }) {
             console.log('onmessage', text)
             // {"channel":"msg:timer","message":"2023-01-18 22:21:10"}
             // 接收推送的消息
-            let msg
-            try {
-                msg = JSON.parse(text)
-            }
-            catch (err) {
-                console.log('JSON.parse err', err)
-                return
-            }
+            // let msg
+            // try {
+            //     msg = JSON.parse(text)
+            // }
+            // catch (err) {
+            //     console.log('JSON.parse err', err)
+            //     return
+            // }
             
             setList(list => {
                 console.log('list.length', list.length)
                 setList([
                     {
-                        id: msg.id,
-                        topic: msg.topic,
-                        message: msg.message,
-                        time: msg.time,
+                        id: uid(8),
+                        // topic: msg.topic,
+                        message: text,
+                        time: moment().format('YYYY-MM-DD HH:mm:ss'),
                     },
                     ...list,
                 ])
@@ -180,9 +149,9 @@ export function MqttHome({ config, data }) {
     }
 
     useEffect(() => {
-        const ws = initWebSocket()
+        // const ws = initWebSocket()
         return () => {
-            ws.close()
+            // ws.close()
         }
     }, [])
 
@@ -195,7 +164,8 @@ export function MqttHome({ config, data }) {
     useEffect(() => {
         form.setFieldsValue({
             channel: 'msg/dms-test',
-            message: 'dms-msg-content-{time}'
+            // message: 'dms-msg-content-{time}'
+            message: 'ping'
         })
         form2.setFieldsValue({
             channel: 'msg/#',
@@ -203,22 +173,49 @@ export function MqttHome({ config, data }) {
         })
     }, [])
 
+    async function send() {
+        const values = await form.validateFields();
+        comData.current.socket.send(values.message.replace('{time}', moment().format('YYYY-MM-DD HH:mm:ss')))
+
+        // let res = await request.post(`${config.host}/mqtt/publish`, {
+        //     connectionId,
+        //     topic: values.channel,
+        //     message: ,
+        // })
+        // if (res.success) {
+        //     message.success('发布成功')
+        // }
+    }
+
     return (
         <div className={styles.mqttBox}>
             {/* <div className={styles.welcome}>
                 {t('welcome')}
             </div> */}
             <div>
+                <div className={styles.searchBox}>
+                    <Input
+                        className={styles.input}
+                        value={url}
+                        onChange={e => {
+                            setUrl(e.target.value)
+                        }}
+                    />
+                    {wsStatus != 'connected' &&
+                        <div>
+                            <Button
+                                type="primary"
+                                onClick={connect}>连接</Button>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div>
                 WebSocket 状态：{WsStatusLabelMap[wsStatus]}{wsAction}
-                {wsStatus != 'connected' &&
-                    <div>
-                        <Button onClick={connect}>连接</Button>
-                    </div>
-                }
             </div>
             <div className={styles.sections}>
                 <div className={styles.section}>
-                    <div className={styles.title}>发布</div>
+                    {/* <div className={styles.title}>发布</div> */}
                     <Form
                         form={form}
                         // {...layout}
@@ -231,14 +228,7 @@ export function MqttHome({ config, data }) {
                         // onFinishFailed={onFinishFailed}
                     >
                         <Form.Item
-                            label="主题"
-                            name="channel"
-                            rules={[ { required: true, } ]}
-                        >
-                            <Input />
-                        </Form.Item>
-                        <Form.Item
-                            label="消息"
+                            label="内容"
                             name="message"
                             rules={[ { required: true, } ]}
                         >
@@ -248,10 +238,10 @@ export function MqttHome({ config, data }) {
                     <Button
                         type="primary"
                         onClick={() => {
-                            publish()
+                            send()
                         }}
                     >
-                        发布
+                        发送
                     </Button>
 
                 </div>
@@ -328,11 +318,11 @@ export function MqttHome({ config, data }) {
                                     return moment(value).format('HH:mm:ss')
                                 }
                             },
-                            {
-                                title: t('topic'),
-                                dataIndex: 'topic',
-                                width: 200,
-                            },
+                            // {
+                            //     title: t('topic'),
+                            //     dataIndex: 'topic',
+                            //     width: 200,
+                            // },
                             {
                                 title: t('message'),
                                 dataIndex: 'message',

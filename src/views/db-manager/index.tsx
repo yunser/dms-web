@@ -49,6 +49,7 @@ import { AlasqlHome } from '../slasql/ip-home'
 import { FileList } from '../file/file-list'
 import { MqttHome } from '../mqtt/mqtt-home/mqtt-home'
 import { MqttConnect } from '../mqtt/mqtt-connect/mqtt-connect'
+import { WebSocketHome } from '../websocket/websocket-home/websocket-home'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -82,6 +83,7 @@ const tagIconLabel = {
     'redis-connect': 'RDS',
     'mqtt-home': 'MQTT',
     'mqtt-detail': 'MQTT',
+    'websocket-home': 'WS',
 }
 
 function AboutModal({ config, ...otherProps }) {
@@ -404,9 +406,17 @@ export function DbManager({ config }) {
                 title: t('mqtt'),
                 key,
                 type: 'mqtt-home',
-                data: {
-                    
-                }
+                data: {}
+            }, {
+                // closeCurrentTab: true,
+            })
+        }
+        else if (key == 'websocket') {
+            addOrActiveTab({
+                title: t('websocket'),
+                key,
+                type: 'websocket-home',
+                data: {}
             }, {
                 // closeCurrentTab: true,
             })
@@ -718,6 +728,10 @@ export function DbManager({ config }) {
         {
             label: t('mqtt'),
             key: 'mqtt',
+        },
+        {
+            label: t('websocket'),
+            key: 'websocket',
         },
     ]
     function handleTabChange(key: string) {
@@ -1063,6 +1077,13 @@ export function DbManager({ config }) {
                                     }
                                     {item.type == 'mqtt-detail' &&
                                         <MqttHome
+                                            config={config}
+                                            event$={event$}
+                                            data={item.data}
+                                        />
+                                    }
+                                    {item.type == 'websocket-home' &&
+                                        <WebSocketHome
                                             config={config}
                                             event$={event$}
                                             data={item.data}

@@ -394,6 +394,7 @@ i18n
                     'ssh.private_key': 'Private Key',
                     'hide': 'Hide',
                     'mqtt': 'MQTT',
+                    'websocket': 'WebSocket',
                 }
             },
             zh: {
@@ -780,6 +781,7 @@ i18n
                     'ssh.private_key': '私钥',
                     'hide': '隐藏',
                     'mqtt': 'MQTT',
+                    'websocket': 'WebSocket',
                 }
             }
         },
