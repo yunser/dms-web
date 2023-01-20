@@ -102,7 +102,6 @@ export function MqttConnect({ config, event$, onConnect, }) {
             user: item.user,
             password: item.password,
             userName: item.userName,
-            db: item.defaultDatabase || 0,
             // remember: values.remember,
         }
         // if (values.remember) {
@@ -115,7 +114,6 @@ export function MqttConnect({ config, event$, onConnect, }) {
             onConnect && onConnect({
                 connectionId: ret.data.connectionId,
                 name: item.name,
-                defaultDatabase: item.defaultDatabase || 0,
             })
         }
         // setLoading(false)
@@ -133,7 +131,7 @@ export function MqttConnect({ config, event$, onConnect, }) {
                 // setConnections(newConnects)
                 // storage.set('connections', newConnects)
                 // loadList()
-                let res = await request.post(`${config.host}/redis/connection/delete`, {
+                let res = await request.post(`${config.host}/mqtt/connection/delete`, {
                     id: item.id,
                 })
                 console.log('get/res', res.data)
@@ -422,7 +420,6 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
         if (item) {
             form.setFieldsValue({
                 ...item,
-                defaultDatabase: item.defaultDatabase || 0,
             })
         }
         else {
@@ -431,7 +428,6 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                 host: '',
                 port: null,
                 password: '',
-                defaultDatabase: null,
                 userName: '',
             })
         }
@@ -444,11 +440,10 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
         const saveOrUpdateData = {
             name: values.name || t('unnamed'),
             host: values.host || 'localhost',
-            port: values.port || 6379,
+            port: values.port || 1883,
             // user: values.user,
             password: values.password || '',
             userName: values.userName,
-            defaultDatabase: values.defaultDatabase || 0,
         }
         if (editType == 'create') {
             // const connections = storage.get('redis-connections', [])
@@ -463,7 +458,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                 
             //     // db: values.db,
             // })
-            let res = await request.post(`${config.host}/redis/connection/create`, {
+            let res = await request.post(`${config.host}/mqtt/connection/create`, {
                 // id: item.id,
                 // data: {
                 // }
@@ -486,7 +481,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
             //     ..._connections[idx],
             //     ...saveOrUpdateData,
             // }
-            let res = await request.post(`${config.host}/redis/connection/update`, {
+            let res = await request.post(`${config.host}/mqtt/connection/update`, {
                 id: item.id,
                 data: {
                     ...saveOrUpdateData,
@@ -516,11 +511,10 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
         setTestLoading(true)
         const reqData = {
             host: values.host || 'localhost',
-            port: values.port || 6379,
+            port: values.port || 1883,
             // user: values.user,
             password: values.password || '',
             userName: values.userName,
-            db: values.defaultDatabase || 0,
             test: true,
             // remember: values.remember,
         }
@@ -549,13 +543,14 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                         justifyContent: 'space-between',
                     }}
                 >
-                    <Button key="back"
+                    <div></div>
+                    {/* <Button key="back"
                         loading={testLoading}
                         disabled={testLoading || loading}
                         onClick={handleTestConnection}
                     >
                         {t('test_connection')}
-                    </Button>
+                    </Button> */}
                     <Space>
                         <Button
                             // key="submit"
@@ -608,7 +603,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                     // rules={[{ required: true, },]}
                 >
                     <InputNumber
-                        placeholder="6379"
+                        placeholder="1883"
                     />
                 </Form.Item>
                 {/* <Form.Item
@@ -618,6 +613,12 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                 >
                     <Input />
                 </Form.Item> */}
+                <Form.Item
+                    name="userName"
+                    label={t('user_name')}
+                >
+                    <Input />
+                </Form.Item>
                 <Form.Item
                     name="password"
                     label={t('password')}
@@ -635,22 +636,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                         autoComplete="new-password"
                     />
                 </Form.Item> */}
-                <Form.Item
-                    name="defaultDatabase"
-                    label={t('default_database')}
-                    // rules={[{ required: true, },]}
-                >
-                    <InputNumber
-                        placeholder="0"
-                    />
-                </Form.Item>
-                <Form.Item
-                    name="userName"
-                    label={t('user_name')}
-                    extra={t('user_name_helper')}
-                >
-                    <Input />
-                </Form.Item>
+                
                 {/* <Form.Item name="remember" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>
                     <Checkbox>Remember me</Checkbox>
                 </Form.Item> */}
