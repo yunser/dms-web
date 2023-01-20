@@ -246,44 +246,6 @@ export function WebSocketHome({ config, data }) {
 
                 </div>
                 <div className={styles.section}>
-                    <div className={styles.title}>订阅</div>
-                    {isSub ?
-                        <Space>
-                            {/* <Button
-                                type="primary"
-                                onClick={() => {
-                                    unSubscribe()
-                                }}
-                            >
-                                取消订阅
-                            </Button> */}
-                            
-
-                        </Space>
-                    :
-                        <div>
-                            <Form
-                                form={form2}
-                            >
-                                <Form.Item
-                                    label="主题"
-                                    name="channel"
-                                    // rules={[ { required: true, } ]}
-                                >
-                                    <Input placeholder="*" />
-                                </Form.Item>
-                            </Form>
-                            {/* <Button
-                                type="primary"
-                                onClick={() => {
-                                    subscribe()
-                                }}
-                            >
-                                订阅
-                            </Button> */}
-
-                        </div>
-                    }
                     <Space>
                         <Button
                             size="small"
@@ -301,13 +263,13 @@ export function WebSocketHome({ config, data }) {
                         dataSource={list}
                         bordered
                         size="small"
-                        pagination={false}
-                        // pagination={{
-                        //     total,
-                        //     current: page,
-                        //     pageSize,
-                        //     showSizeChanger: false,
-                        // }}
+                        // pagination={false}
+                        pagination={{
+                            // total,
+                            // current: page,
+                            pageSize,
+                            showSizeChanger: false,
+                        }}
                         rowKey="id"
                         columns={[
                             {

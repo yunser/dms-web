@@ -5,7 +5,7 @@ import _ from 'lodash';
 import { useTranslation } from 'react-i18next';
 import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
-import { CodeOutlined, ExportOutlined, FolderOutlined, HeartOutlined, HistoryOutlined, InfoCircleOutlined, LinkOutlined, MenuOutlined, PlusOutlined, ProfileOutlined, ReloadOutlined } from '@ant-design/icons';
+import { ClearOutlined, CodeOutlined, DeleteOutlined, ExportOutlined, FolderOutlined, HeartOutlined, HistoryOutlined, InfoCircleOutlined, LinkOutlined, MenuOutlined, PlusOutlined, ProfileOutlined, ReloadOutlined } from '@ant-design/icons';
 import { useInterval } from 'ahooks';
 import { RedisKeyDetail } from './key-detail';
 import { KeyAddModal } from './key-add';
@@ -323,6 +323,36 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
         }
     }
 
+    async function flush() {
+        Modal.confirm({
+            // title: 'Confirm',
+            // icon: <ExclamationCircleOutlined />,
+            content: `确认清空当前数据库的数据?`,
+            async onOk() {
+                let ret = await request.post(`${config.host}/redis/flush`, {
+                    connectionId,
+                })
+                // console.log('ret', ret)
+                if (ret.success) {
+                    // message.success('连接成功')
+                    // onConnect && onConnect()
+                    message.success(t('success'))
+                    loadKeys()
+                    // onClose && onClose()
+                    // onSuccess && onSuccess()
+                }
+            }
+        })
+        let res = await request.post(`${config.host}/redis/keys`, {
+            // dbName,
+            connectionId,
+            db: curDb,
+            keyword: searchKeyword,
+        })
+        if (res.success) {
+
+        }
+    }
 
     async function loadKeys() {
         setLoading(true)
@@ -777,15 +807,24 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                                 <ExportOutlined />
                             </IconButton>
                             <IconButton
-                                tooltip={t('发布/订阅')}
+                                tooltip={t('redis.pubsub')}
                                 // size="small"
                                 className={styles.refresh}
                                 onClick={() => {
                                     setPubSubVisible(true)
                                 }}
                             >
-                                {/* <ExportOutlined /> */}
                                 <ProfileOutlined />
+                            </IconButton>
+                            <IconButton
+                                tooltip={t('clear')}
+                                // size="small"
+                                className={styles.refresh}
+                                onClick={() => {
+                                    flush()
+                                }}
+                            >
+                                <ClearOutlined />
                             </IconButton>
                         </Space>
                     </div>

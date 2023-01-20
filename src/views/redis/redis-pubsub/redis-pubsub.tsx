@@ -154,7 +154,7 @@ export function PubSubModal({ config, event$, connectionId, onCancel, }) {
 
     return (
         <Modal
-            title="发布订阅"
+            title={t('redis.pubsub')}
             open={true}
             width={1200}
             onCancel={onCancel}
@@ -163,7 +163,7 @@ export function PubSubModal({ config, event$, connectionId, onCancel, }) {
             
             <div className={styles.sections}>
                 <div className={styles.section}>
-                    <div className={styles.title}>发布</div>
+                    <div className={styles.title}>{t('redis.publish')}</div>
                     <Form
                         form={form}
                         // {...layout}
@@ -193,7 +193,7 @@ export function PubSubModal({ config, event$, connectionId, onCancel, }) {
                             publish()
                         }}
                     >
-                        发布
+                        {t('redis.publish')}
                     </Button>
 
                 </div>
