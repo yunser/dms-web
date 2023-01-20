@@ -1,7 +1,7 @@
 import { Button, Descriptions, Input, message, Modal, Popover, Space, Table, Tabs } from 'antd';
 import React, { useMemo } from 'react';
 import { VFC, useRef, useState, useEffect } from 'react';
-import { request } from '../utils/http';
+import { request } from '@/views/db-manager/utils/http';;
 import styles from './sql-quick.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'

@@ -11,7 +11,7 @@ import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
-import { FullCenterBox } from '@/views/db-manager/redis-client';
+
 import moment from 'moment';
 // import { saveAs } from 'file-saver'
 import filesize from 'file-size'
@@ -23,6 +23,7 @@ import { ZipList } from '../zip-list';
 import { pdfjs, Document, Page } from 'react-pdf'
 import { read, writeFileXLSX, utils } from "xlsx";
 import copy from 'copy-to-clipboard';
+import { FullCenterBox } from '@/views/common/full-center-box';
 
 interface File {
     name: string

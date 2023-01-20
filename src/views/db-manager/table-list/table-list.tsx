@@ -5,13 +5,13 @@ import _, { debounce } from 'lodash';
 import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
-import { Editor } from '../editor/Editor';
-import { IconButton } from '../icon-button';
+import { Editor } from '@/views/db-manager/editor/Editor';
+import { IconButton } from '@/views/db-manager/icon-button';
 import { DatabaseOutlined, DownOutlined, ExportOutlined, FormatPainterOutlined, ReloadOutlined, TableOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import { suggestionAdd } from '../suggestion';
 import { SorterResult } from 'antd/lib/table/interface';
 import { useEventEmitter } from 'ahooks';
-import { request } from '../utils/http';
+import { request } from '@/views/db-manager/utils/http';;
 import filesize from 'file-size'
 
 function getHightlight(title: string, keyword: string) {

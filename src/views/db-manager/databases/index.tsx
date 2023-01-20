@@ -8,11 +8,11 @@ import {
 import React, { Component, Fragment, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import styles from './databases.module.less'
-import { IconButton } from '../icon-button';
+import { IconButton } from '@/views/db-manager/icon-button';
 import { ExportOutlined, ReloadOutlined } from '@ant-design/icons';
 import { DatabaseEditHandler } from '../db-edit';
 import { DatabaseRemoveHandler } from '../db-remove';
-import { request } from '../utils/http';
+import { request } from '@/views/db-manager/utils/http';;
 import { CodeDebuger } from '../code-debug';
 
 export default function DatabaseList({ connectionId, config, event$, onJson, onSelectDatabase }) {

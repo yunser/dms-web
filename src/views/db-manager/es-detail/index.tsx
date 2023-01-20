@@ -26,7 +26,7 @@ import { useTranslation } from 'react-i18next'
 import { IconButton } from '../icon-button'
 import { ExecModal } from '../exec-modal/exec-modal'
 import { HistoryList } from '../history'
-import { request } from '../utils/http'
+import { request } from '@/views/db-manager/utils/http';
 
 const { TabPane } = Tabs
 

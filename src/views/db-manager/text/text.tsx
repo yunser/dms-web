@@ -5,8 +5,8 @@ import _ from 'lodash';
 import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
-import { Editor } from '../editor/Editor';
-import { IconButton } from '../icon-button';
+import { Editor } from '@/views/db-manager/editor/Editor';
+import { IconButton } from '@/views/db-manager/icon-button';
 import { FormatPainterOutlined } from '@ant-design/icons';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { DownloadOutlined } from '@ant-design/icons';

@@ -5,16 +5,16 @@ import _ from 'lodash';
 import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
-import { Editor } from '../editor/Editor';
+import { Editor } from '@/views/db-manager/editor/Editor';
 import storage from '../storage'
-import { request } from '../utils/http'
-import { IconButton } from '../icon-button';
+import { request } from '@/views/db-manager/utils/http';
+import { IconButton } from '@/views/db-manager/icon-button';
 import { DatabaseOutlined, ExportOutlined, FolderOutlined, PlusOutlined, QuestionOutlined, ReloadOutlined } from '@ant-design/icons';
 import { uid } from 'uid';
 import { CodeDebuger } from '../code-debug';
 import { ColorSelector } from '../color-selector';
 import copy from 'copy-to-clipboard';
-import { FullCenterBox } from '../redis-client';
+import { FullCenterBox } from '@/views/common/full-center-box'
 import { useInterval } from 'ahooks';
 
 

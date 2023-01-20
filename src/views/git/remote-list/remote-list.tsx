@@ -12,7 +12,7 @@ import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { RemoteEditor } from '../remote-edit';
-import { FullCenterBox } from '@/views/db-manager/redis-client';
+import { FullCenterBox } from '@/views/common/full-center-box';
 // import { saveAs } from 'file-saver'
 
 export function RemoteList({ config, event$, projectPath }) {

@@ -20,7 +20,8 @@ import { CloseCircleOutlined } from '@ant-design/icons'
 import { CheckCircleOutlined } from '@ant-design/icons'
 import { SaveOutlined } from '@ant-design/icons'
 import { SqlEditHandler } from '../../sql-edit'
-import { FullCenterBox } from '../../redis-client'
+import { FullCenterBox } from '@/views/common/full-center-box'
+
 // var parse = require('sql-parse').parse;
 // console.log('asd')
 

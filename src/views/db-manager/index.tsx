@@ -15,8 +15,6 @@ import { EsDetail } from './es-detail'
 import { uid } from 'uid'
 import { Help } from './help'
 import { JsonEditor } from './json'
-import { RedisConnect } from './redis-connect'
-import { RedisClient } from './redis-client'
 import { Workbench } from './workbench'
 import { SqlConnector } from './sql-connect'
 import { UserList } from './user-list'
@@ -50,6 +48,8 @@ import { FileList } from '../file/file-list'
 import { MqttHome } from '../mqtt/mqtt-home/mqtt-home'
 import { MqttConnect } from '../mqtt/mqtt-connect/mqtt-connect'
 import { WebSocketHome } from '../websocket/websocket-home/websocket-home'
+import { RedisConnect } from '../redis/redis-connect'
+import { RedisClient } from '../redis/redis-client'
 
 // console.log('styles', styles)
 const { TextArea } = Input

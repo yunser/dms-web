@@ -11,7 +11,7 @@ import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
-import { FullCenterBox } from '@/views/db-manager/redis-client';
+import { FullCenterBox } from '@/views/common/full-center-box';
 import moment from 'moment';
 // import { saveAs } from 'file-saver'
 import filesize from 'file-size'
@@ -46,14 +46,10 @@ export function FileNameModal({ config, type, path, onSuccess, sourceType, onCan
         const values = await form.validateFields()
         setLoading(true)
         const res = await request.post(`${config.host}/file/create`, {
-            // connectionId: connectionId,
             path,
             name: values.name,
             sourceType,
             type,
-            // field: '',
-            // value: 'New Item',
-            // dbName,
         })
         if (res.success) {
             onSuccess && onSuccess()

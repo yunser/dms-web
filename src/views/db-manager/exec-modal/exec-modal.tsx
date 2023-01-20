@@ -1,7 +1,7 @@
 import { Button, Descriptions, Input, message, Modal, Popover, Space, Table, Tabs } from 'antd';
 import React, { useMemo } from 'react';
 import { VFC, useRef, useState, useEffect } from 'react';
-import { request } from '../utils/http';
+import { request } from '@/views/db-manager/utils/http';;
 import styles from './exec-modal.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
@@ -9,7 +9,7 @@ import classNames from 'classnames'
 import copy from 'copy-to-clipboard';
 import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
-import { Editor } from '../editor/Editor';
+import { Editor } from '@/views/db-manager/editor/Editor';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
 const { TabPane } = Tabs

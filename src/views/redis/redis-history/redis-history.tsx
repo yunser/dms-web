@@ -5,12 +5,9 @@ import _ from 'lodash';
 import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
-import { Editor } from '../editor/Editor';
-import storage from '../storage'
-import { request } from '../utils/http'
-import { CodeDebuger } from '../code-debug';
+import { request } from '@/views/db-manager/utils/http';
 import { uid } from 'uid';
-import { IconButton } from '../icon-button';
+import { IconButton } from '@/views/db-manager/icon-button';
 import { ClearOutlined, ReloadOutlined } from '@ant-design/icons';
 import copy from 'copy-to-clipboard';
 import moment from 'moment';

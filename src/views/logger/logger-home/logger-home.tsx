@@ -13,7 +13,7 @@ import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
 // import { ProjectEditor } from '../project-edit';
 import { IconButton } from '@/views/db-manager/icon-button';
-import { FullCenterBox } from '@/views/db-manager/redis-client';
+import { FullCenterBox } from '@/views/common/full-center-box';
 // import { saveAs } from 'file-saver'
 import { FileList } from '../../file/file-list'
 import storage from '@/utils/storage';

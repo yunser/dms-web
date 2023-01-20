@@ -11,7 +11,7 @@ import saveAs from 'file-saver';
 import { useEventEmitter, useKeyPress } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
-import { FullCenterBox } from '@/views/db-manager/redis-client';
+import { FullCenterBox } from '@/views/common/full-center-box';
 import moment from 'moment';
 // import { saveAs } from 'file-saver'
 import filesize from 'file-size'

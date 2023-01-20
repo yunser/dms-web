@@ -4,7 +4,7 @@ import styles from './logger-detail.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
 import { useTranslation } from 'react-i18next';
-import { Editor } from '../editor/Editor';
+import { Editor } from '@/views/db-manager/editor/Editor';
 import storage from '../storage'
 import { CodeDebuger } from '../code-debug';
 import { uid } from 'uid';

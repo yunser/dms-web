@@ -4,13 +4,13 @@ import styles from './sql-tree.module.less';
 import _, { debounce } from 'lodash';
 import classNames from 'classnames'
 import { useTranslation } from 'react-i18next';
-import { Editor } from '../editor/Editor';
-import { IconButton } from '../icon-button';
+import { Editor } from '@/views/db-manager/editor/Editor';
+import { IconButton } from '@/views/db-manager/icon-button';
 import { AimOutlined, CodeOutlined, ConsoleSqlOutlined, DatabaseOutlined, DeploymentUnitOutlined, FormatPainterOutlined, HistoryOutlined, InfoCircleOutlined, PlusOutlined, QuestionCircleOutlined, ReloadOutlined, SyncOutlined, TableOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
 import { getTableFieldMap, setAllFields, setTabbleAllFields, suggestionAdd, suggestionAddSchemas } from '../suggestion';
-import { request } from '../utils/http';
+import { request } from '@/views/db-manager/utils/http';;
 import { i18n } from '@/i18n';
-import { FullCenterBox } from '../redis-client';
+import { FullCenterBox } from '@/views/common/full-center-box'
 import copy from 'copy-to-clipboard';
 import moment from 'moment';
 

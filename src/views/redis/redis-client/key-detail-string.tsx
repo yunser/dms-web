@@ -5,14 +5,10 @@ import _ from 'lodash';
 import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
-import { Editor } from '../editor/Editor';
-import storage from '../storage'
-import { request } from '../utils/http'
-import { IconButton } from '../icon-button';
-import { FolderOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { request } from '@/views/db-manager/utils/http';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import humanFormat from 'human-format'
-import { ListPushHandler } from './list-push';
+import { Editor } from '@/views/db-manager/editor/Editor';
 
 const timeScale = new humanFormat.Scale({
   ms: 1,

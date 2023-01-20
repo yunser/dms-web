@@ -11,7 +11,7 @@ import { GitProject } from '../git-project';
 import { request } from '@/views/db-manager/utils/http';
 import { ProjectEditor } from '../project-edit';
 import { IconButton } from '@/views/db-manager/icon-button';
-import { FullCenterBox } from '@/views/db-manager/redis-client';
+import { FullCenterBox } from '@/views/common/full-center-box';
 import moment from 'moment';
 // import { saveAs } from 'file-saver'
 

@@ -1,7 +1,7 @@
 import { Button, Descriptions, Dropdown, Empty, Input, Menu, message, Modal, Popover, Space, Table, Tabs } from 'antd';
 import React, { useMemo } from 'react';
 import { VFC, useRef, useState, useEffect } from 'react';
-import { request } from '../utils/http';
+import { request } from '@/views/db-manager/utils/http';;
 import styles from './exec-detail.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
@@ -9,7 +9,7 @@ import classNames from 'classnames'
 import copy from 'copy-to-clipboard';
 import { CheckCircleOutlined, CloseCircleOutlined, CopyOutlined, EllipsisOutlined, EyeOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
-import { IconButton } from '../icon-button';
+import { IconButton } from '@/views/db-manager/icon-button';
 import { CopyButton } from '../copy-button';
 import { ExecModal } from '../exec-modal/exec-modal';
 import saveAs from 'file-saver';

@@ -31,7 +31,7 @@ import { HistoryList } from '../sql-history'
 import debounce from 'lodash/debounce'
 import { SqlTree } from '../sql-tree'
 import { TableList } from '../table-list'
-import { request } from '../utils/http'
+import { request } from '@/views/db-manager/utils/http';
 import { useInterval } from 'ahooks'
 import { t } from 'i18next'
 import DatabaseList from '../databases'

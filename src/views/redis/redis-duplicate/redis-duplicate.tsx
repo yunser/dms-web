@@ -1,13 +1,13 @@
 import { Button, Checkbox, Col, Descriptions, Empty, Form, Input, InputNumber, message, Modal, Popover, Row, Select, Space, Table, Tabs } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
-import styles from './redis-rename.module.less';
+import styles from './redis-duplicate.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
-import { Editor } from '../editor/Editor';
+import { Editor } from '@/views/db-manager/editor/Editor';
 import storage from '../storage'
-import { request } from '../utils/http'
+import { request } from '@/views/db-manager/utils/http';
 import { CodeDebuger } from '../code-debug';
 import { uid } from 'uid';
 import { t } from 'i18next';
@@ -27,7 +27,7 @@ function handleRes(res) {
     return res
 }
 
-export function RedisRenameModal({ config, onCancel, onSuccess, redisKey, event$, connectionId, defaultDatabase = 0 }) {
+export function RedisDuplicateModal({ config, onCancel, onSuccess, redisKey, event$, connectionId, defaultDatabase = 0 }) {
     const [curDb, setCurDb] = useState(defaultDatabase)
     const { t } = useTranslation()
     const [code, setCode] = useState('')
@@ -42,14 +42,14 @@ export function RedisRenameModal({ config, onCancel, onSuccess, redisKey, event$
     
     return (
         <Modal
-            title={t('rename')}
+            title={t('duplicate')}
             visible={true}
             onCancel={onCancel}
             confirmLoading={loading}
             onOk={async () => {
                 const values = await form.validateFields()
                 setLoading(true)
-                let ret = await request.post(`${config.host}/redis/rename`, {
+                let ret = await request.post(`${config.host}/redis/clone`, {
                     connectionId,
                     key: redisKey,
                     newKey: values.name,

@@ -5,7 +5,7 @@ import _ from 'lodash';
 import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
-import { request } from '../utils/http';
+import { request } from '@/views/db-manager/utils/http';;
 import { marked } from 'marked'
 
 function Tester() {

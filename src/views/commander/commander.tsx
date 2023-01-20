@@ -6,8 +6,8 @@ import { Empty, message, Modal } from 'antd'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import storage from '../db-manager/storage'
-import { FullCenterBox } from '../db-manager/redis-client'
 import { AppstoreOutlined, SettingOutlined, ToolOutlined } from '@ant-design/icons'
+import { FullCenterBox } from '../common/full-center-box'
 
 function ModalContent({ commands, onCommand, onCancel }) {
     const { t } = useTranslation()

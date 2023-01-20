@@ -2,16 +2,10 @@ import { Button, Checkbox, Descriptions, Dropdown, Empty, Form, Input, InputNumb
 import React, { useEffect, useMemo, useState } from 'react';
 import styles from './redis-client.module.less';
 import _ from 'lodash';
-import classNames from 'classnames'
-// console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
-import { Editor } from '../editor/Editor';
-import storage from '../storage'
-import { request } from '../utils/http'
-import { IconButton } from '../icon-button';
+import { request } from '@/views/db-manager/utils/http';
+import { IconButton } from '@/views/db-manager/icon-button';
 import { CodeOutlined, ExportOutlined, FolderOutlined, HeartOutlined, HistoryOutlined, InfoCircleOutlined, LinkOutlined, MenuOutlined, PlusOutlined, ProfileOutlined, ReloadOutlined } from '@ant-design/icons';
-
-import { ListContent } from './key-detail-list';
 import { useInterval } from 'ahooks';
 import { RedisKeyDetail } from './key-detail';
 import { KeyAddModal } from './key-add';
@@ -24,23 +18,8 @@ import { RedisInfo } from '../redis-info';
 import { RedisRenameModal } from '../redis-rename';
 import { RedisDuplicateModal } from '../redis-duplicate';
 import { PubSubModal } from '../redis-pubsub';
-// import ReactLoading from 'react-loading';
+import { FullCenterBox } from '@/views/common/full-center-box';
 
-export function FullCenterBox(props) {
-    const { children, height } = props
-    return (
-        <div
-            className={styles.fullCenterBox}
-            style={{
-                // width: '100%',
-                // height: '100%',
-                height,
-            }}
-        >
-            {children}
-        </div>
-    )
-}
 
 function Status({ config, connectionId }) {
     const { t } = useTranslation()
@@ -954,6 +933,7 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                                                             {
                                                                 label: t('delete'),
                                                                 key: 'key_delete',
+                                                                danger: true,
                                                             },
                                                         ]}
                                                         onClick={async ({ _item, key, keyPath, domEvent }) => {

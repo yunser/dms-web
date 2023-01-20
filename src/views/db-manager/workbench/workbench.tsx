@@ -6,7 +6,7 @@ import classNames from 'classnames'
 import { useTranslation } from 'react-i18next';
 import storage from '@/utils/storage'
 import { useInterval } from 'ahooks';
-import { IconButton } from '../icon-button';
+import { IconButton } from '@/views/db-manager/icon-button';
 import { EyeInvisibleOutlined } from '@ant-design/icons';
 
 const prodLogos = {

@@ -12,7 +12,7 @@ import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
 import { DiffText } from '../git-diff';
 import moment from 'moment';
-import { FullCenterBox } from '@/views/db-manager/redis-client';
+import { FullCenterBox } from '@/views/common/full-center-box';
 // import { saveAs } from 'file-saver'
 // import { Gitgraph } from '@gitgraph/react'
 import { CopyButton } from '@/views/db-manager/copy-button';

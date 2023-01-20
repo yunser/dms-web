@@ -5,10 +5,8 @@ import _ from 'lodash';
 import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
-import { Editor } from '../editor/Editor';
-import storage from '../storage'
-import { request } from '../utils/http'
-import { IconButton } from '../icon-button';
+import { request } from '@/views/db-manager/utils/http';
+import { IconButton } from '@/views/db-manager/icon-button';
 import { FolderOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 
 import humanFormat from 'human-format'
@@ -23,47 +21,34 @@ const timeScale = new humanFormat.Scale({
 })
 
 
-export function ListContent({ curDb, connectionId, onSuccess, data, config }) {
+export function SetContent({ curDb, onSuccess, data, connectionId, config }) {
     const { t } = useTranslation()
+
     // const [curDb] = useState(0)
     const [itemDetail, setItemDetail] = useState(null)
 
     console.log('/data', data)
-
+    
     const list = useMemo(() => {
-        return data.items.map((item, index) => {
-            return {
-                index,
-                value: item,
-            }
-        })
+        return data.items
+            .map((item, index) => {
+                return {
+                    // index,
+                    value: item,
+                }
+            })
+            .sort((a, b) => {
+                return a.value.localeCompare(b.value)
+            })
     }, [data])
 
-    // async function loadInfo() {
-    //     // setLoading(true)
-    //     let res = await request.post(`${config.host}/redis/info`, {
-    //         // dbName,
-    //     })
-    //     if (res.success) {
-    //         console.log('DbSelector/info', res.data)
-    //     } else {
-    //         message.error('连接失败')
-    //     }
-    //     // setLoading(false)
-    // }
-
-    useEffect(() => {
-        // loadKeys()
-        // loadInfo()
-    }, [curDb])
-
     const columns = [
-        {
-            title: t('index'),
-            dataIndex: 'index',
-            width: 80,
-            ellipsis: true,
-        },
+        // {
+        //     title: t('index'),
+        //     dataIndex: 'index',
+        //     width: 80,
+        //     ellipsis: true,
+        // },
         {
             title: t('value'),
             dataIndex: 'value',
@@ -77,9 +62,10 @@ export function ListContent({ curDb, connectionId, onSuccess, data, config }) {
                 return (
                     <Space>
                         <ListPushHandler
-                            connectionId={connectionId}
                             config={config}
+                            connectionId={connectionId}
                             redisKey={data.key}
+                            type="set"
                             item={{
                                 index,
                                 value: item.value,
@@ -97,14 +83,16 @@ export function ListContent({ curDb, connectionId, onSuccess, data, config }) {
                             size="small"
                             onClick={async () => {
                                 Modal.confirm({
+                                    // title: 'Confirm',
+                                    // icon: <ExclamationCircleOutlined />,
                                     content: `${t('delete')}「${item.value}」?`,
                                     async onOk() {
                                         
-                                        let ret = await request.post(`${config.host}/redis/lremIndex`, {
-                                            connectionId: connectionId,
+                                        let ret = await request.post(`${config.host}/redis/srem`, {
+                                            connectionId,
                                             key: data.key,
                                             // connectionId,
-                                            index,
+                                            value: item.value,
                                         })
                                         // console.log('ret', ret)
                                         if (ret.success) {
@@ -126,6 +114,24 @@ export function ListContent({ curDb, connectionId, onSuccess, data, config }) {
         },
     ]
 
+    // async function loadInfo() {
+    //     // setLoading(true)
+    //     let res = await request.post(`${config.host}/redis/info`, {
+    //         // dbName,
+    //     })
+    //     if (res.success) {
+    //         console.log('DbSelector/info', res.data)
+    //     } else {
+    //         message.error('连接失败')
+    //     }
+    //     // setLoading(false)
+    // }
+
+    useEffect(() => {
+        // loadKeys()
+        // loadInfo()
+    }, [curDb])
+
     return (
         <>
             <div className={styles.body}>
@@ -135,33 +141,38 @@ export function ListContent({ curDb, connectionId, onSuccess, data, config }) {
                     size="small"
                     pagination={false}
                 />
-                {/* <div className={styles.items}>
-                    {list.map((item, index) => {
-                        return (
-                            <div
-                                className={styles.item}
-                                // onClick={() => {
-                                //     loadItem(index)
-                                // }}
-                            >
-                                <div className={styles.content}>
-                                    {item.value}
+                <div className={styles.contentBox}>
+                    {/* {curDb}
+                    /{totalDb} */}
+                    {/* <div className={styles.items}>
+                        {data.items.map((item, index) => {
+                            return (
+                                <div
+                                    className={styles.item}
+                                    // onClick={() => {
+                                    //     loadItem(index)
+                                    // }}
+                                >
+                                    <div className={styles.content}>
+                                        {item}
+                                    </div>
+                                    
                                 </div>
-                                
-                            </div>
-                        )
-                    })}
-                </div> */}
-                {!!itemDetail &&
-                    <div>?</div>
-                }
+                            )
+                        })}
+                    </div> */}
+                    {!!itemDetail &&
+                        <div>?</div>
+                    }
+                </div>
             </div>
             <div className={styles.footer}>
                 <ListPushHandler
                     config={config}
-                    connectionId={connectionId}
                     redisKey={data.key}
+                    connectionId={connectionId}
                     onSuccess={onSuccess}
+                    type="set"
                 >
                     <Button
                         size="small"

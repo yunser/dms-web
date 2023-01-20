@@ -5,10 +5,8 @@ import _ from 'lodash';
 import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
-import { Editor } from '../editor/Editor';
-import storage from '../storage'
-import { request } from '../utils/http'
-import { IconButton } from '../icon-button';
+import { request } from '@/views/db-manager/utils/http';
+import { IconButton } from '@/views/db-manager/icon-button';
 import { DeleteOutlined, EllipsisOutlined, FolderOutlined, HeartOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 
 import humanFormat from 'human-format'
@@ -21,7 +19,8 @@ import copy from 'copy-to-clipboard';
 import { t } from 'i18next';
 import { RedisTtlModal } from '../redis-ttl';
 import { StringContent } from './key-detail-string';
-import { FullCenterBox } from './redis-client';
+import { FullCenterBox } from '@/views/common/full-center-box';
+
 
 export function RedisKeyDetail({ config, event$, connectionId, redisKey, onRemove }) {
 

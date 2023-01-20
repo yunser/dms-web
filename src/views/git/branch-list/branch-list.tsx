@@ -11,7 +11,7 @@ import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
-import { FullCenterBox } from '@/views/db-manager/redis-client';
+import { FullCenterBox } from '@/views/common/full-center-box';
 import { BranchDeleteModal } from '../branch-delete';
 import { BranchModal } from '../branch-modal';
 import moment from 'moment';

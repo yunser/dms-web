@@ -1,13 +1,13 @@
 import { Button, Checkbox, Descriptions, Divider, Form, Input, message, Modal, Popover, Select, Space, Table, Tabs, Tooltip } from 'antd';
 import React, { useMemo } from 'react';
 import { VFC, useRef, useState, useEffect } from 'react';
-import { request } from '../utils/http';
+import { request } from '@/views/db-manager/utils/http';;
 import styles from './table-detail.module.less';
 import _ from 'lodash';
 import { ExecModal } from '../exec-modal/exec-modal';
 import { uid } from 'uid';
 import { useTranslation } from 'react-i18next';
-import { IconButton } from '../icon-button';
+import { IconButton } from '@/views/db-manager/icon-button';
 import { ArrowDownOutlined, ArrowUpOutlined, InsertRowAboveOutlined, PlusOutlined, QuestionOutlined, ReloadOutlined } from '@ant-design/icons';
 import filesize from 'file-size';
 import { CodeDebuger } from '../code-debug';

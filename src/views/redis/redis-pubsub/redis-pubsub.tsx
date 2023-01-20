@@ -5,10 +5,8 @@ import _ from 'lodash';
 import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
-import { Editor } from '../editor/Editor';
-import storage from '../storage'
-import { request } from '../utils/http'
-import { CodeDebuger } from '../code-debug';
+import { Editor } from '@/views/db-manager/editor/Editor';
+import { request } from '@/views/db-manager/utils/http';
 import { uid } from 'uid';
 import Item from 'antd/lib/list/Item';
 import moment from 'moment';

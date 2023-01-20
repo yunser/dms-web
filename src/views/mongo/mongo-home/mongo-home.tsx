@@ -5,14 +5,13 @@ import _ from 'lodash';
 import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
-// import { Editor } from '../editor/Editor';
+// import { Editor } from '@/views/db-manager/editor/Editor';
 // import storage from '../../db-manager/storage'
-// import { CodeDebuger } from '../code-debug';
 import { uid } from 'uid';
 import { EllipsisOutlined, ExportOutlined, EyeInvisibleOutlined, EyeOutlined, EyeTwoTone, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
-import { FullCenterBox } from '@/views/db-manager/redis-client';
+import { FullCenterBox } from '@/views/common/full-center-box';
 
 function InputPassword(props) {
     const [visible, setVisible] = useState(false)
