@@ -217,7 +217,6 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
             // message.success(t('success'))
             // onClose && onClose()
             // onSuccess && onSuccess()
-            // loadList()
             setConnected(true)
             setSourceType(res.data.connectionId)
             const defaultPath =
@@ -253,7 +252,6 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
             // message.success(t('success'))
             // onClose && onClose()
             // onSuccess && onSuccess()
-            // loadList()
             setConnected(true)
             setSourceType(res.data.connectionId)
             const defaultPath =
@@ -1071,7 +1069,19 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                             }}
                         />
                         {sourceType != 'local' &&
-                            <div>{connected ? t('connected') : t('disconnected')}</div>
+                            <Space>
+                                <div>{connected ? t('connected') : t('disconnected')}</div>
+                                {!connected &&
+                                    <Button
+                                        size="small"
+                                        onClick={() => {
+                                            connect()
+                                        }}
+                                    >
+                                        {t('connect')}
+                                    </Button>
+                                }
+                            </Space>
                         }
                     </Space>
                 </div>
