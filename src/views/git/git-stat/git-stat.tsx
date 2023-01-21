@@ -52,7 +52,7 @@ function CalenderChart({ list }) {
             },
             xAxis: {
               type: 'category',
-              data: times,
+              data: times.reverse(),
               boundaryGap: true,
             },
             yAxis: {
