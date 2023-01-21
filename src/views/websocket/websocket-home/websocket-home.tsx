@@ -24,7 +24,7 @@ export function WebSocketHome({ }) {
     const { t } = useTranslation()
 
     const WsStatusLabelMap = {
-        'notConnected': t('connect_unknown'),
+        'notConnected': t('disconnected'),
         'error': t('connect_error'),
         'connected': t('connected'),
     }

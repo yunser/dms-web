@@ -187,6 +187,10 @@ export function SshDetail({ config, local = false, defaultPath, item, onBack }) 
             // console.log('_ws', _ws)
             // console.log('wsRef', wsRef)
             if (wsRef.current) {
+                if (wsRef.current.readyState != 1) {
+                    message.error(t('disconnected'))
+                    return
+                }
                 // console.log('send')
                 wsRef.current.send(JSON.stringify({
                     type: 'command',
@@ -195,6 +199,7 @@ export function SshDetail({ config, local = false, defaultPath, item, onBack }) 
             }
         })
         xterm.focus()
+        
         // xterm.writeln('Welcome to use webssh!')
         // xterm.write('Hello from \x1B[1;3;31mxterm.js\x1B[0m $ ')
         // xterm.on('data',(data)=>{
@@ -253,6 +258,9 @@ export function SshDetail({ config, local = false, defaultPath, item, onBack }) 
 
     function initWebSocket() {
         let first = true
+
+        term && term.focus()
+
         const ws = new WebSocket('ws://localhost:10087/')
         ws.onclose = () => {
             console.log('close socket')
@@ -347,6 +355,10 @@ export function SshDetail({ config, local = false, defaultPath, item, onBack }) 
 
     console.log('termIdRef.current', termIdRef.current)
 
+    function checkConnection() {
+
+    }
+
     return (
         <div  className={styles.terminalApp}>
             <div className={styles.terminalBox}>
@@ -378,7 +390,7 @@ export function SshDetail({ config, local = false, defaultPath, item, onBack }) 
             </div>
             <div className={styles.statusBox}>
                 <Space>
-                    <div>{connected ? t('connected') : t('connect_unknown')}</div>
+                    <div>{connected ? t('connected') : t('disconnected')}</div>
                     {!connected &&
                         <Button
                             size="small"
@@ -389,6 +401,14 @@ export function SshDetail({ config, local = false, defaultPath, item, onBack }) 
                             {t('connect')}
                         </Button>
                     }
+                    {/* <Button
+                        size="small"
+                        onClick={() => {
+                            checkConnection()
+                        }}
+                    >
+                        检查连接
+                    </Button> */}
                 </Space>
             </div>
             {/* {!local &&

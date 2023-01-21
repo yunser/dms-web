@@ -1071,7 +1071,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                             }}
                         />
                         {sourceType != 'local' &&
-                            <div>{connected ? t('connected') : t('connect_unknown')}</div>
+                            <div>{connected ? t('connected') : t('disconnected')}</div>
                         }
                     </Space>
                 </div>

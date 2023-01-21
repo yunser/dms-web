@@ -612,7 +612,7 @@ export function ZipList({ config, event$, path, tabKey, item, showSide = false }
                             }}
                         /> */}
                         {/* {sourceType != 'local' &&
-                            <div>{connected ? t('connected') : t('connect_unknown')}</div>
+                            <div>{connected ? t('connected') : t('disconnected')}</div>
                         } */}
                     </Space>
                 </div>
