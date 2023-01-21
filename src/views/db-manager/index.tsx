@@ -18,7 +18,6 @@ import { JsonEditor } from './json'
 import { Workbench } from './workbench'
 import { SqlConnector } from './sql-connect'
 import { UserList } from './user-list'
-import { TextEditor } from './text'
 import { useEventEmitter } from 'ahooks'
 import { getTheme, toggleTheme } from '../../theme'
 import { GitHome } from '../git/git-home'
@@ -50,6 +49,7 @@ import { MqttConnect } from '../mqtt/mqtt-connect/mqtt-connect'
 import { WebSocketHome } from '../websocket/websocket-home/websocket-home'
 import { RedisConnect } from '../redis/redis-connect'
 import { RedisClient } from '../redis/redis-client'
+import { TextEditor } from '../text/text'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -412,14 +412,15 @@ export function DbManager({ config }) {
             })
         }
         else if (key == 'websocket') {
-            addOrActiveTab({
-                title: t('websocket'),
-                key,
-                type: 'websocket-home',
-                data: {}
-            }, {
-                // closeCurrentTab: true,
-            })
+            window.open('/websocket', '_blank')
+            // addOrActiveTab({
+            //     title: t('websocket'),
+            //     key,
+            //     type: 'websocket-home',
+            //     data: {}
+            // }, {
+            //     // closeCurrentTab: true,
+            // })
         }
         else if (key == 'redis') {
             addOrActiveTab({
@@ -642,10 +643,6 @@ export function DbManager({ config }) {
             key: 'json',
         },
         {
-            label: t('text'),
-            key: 'text',
-        },
-        {
             label: t('redis'),
             key: 'redis',
         },
@@ -706,32 +703,36 @@ export function DbManager({ config }) {
             key: 'logger',
         },
         {
-            label: t('model'),
-            key: 'model',
-        },
-        {
-            label: t('tcp/udp'),
-            key: 'tcp/udp',
-        },
-        {
-            label: t('elasticsearch'),
-            key: 'elasticsearch',
-        },
-        {
             label: t('mongo'),
             key: 'mongo',
         },
         {
-            label: t('alasql'),
-            key: 'alasql',
+            label: t('websocket'),
+            key: 'websocket',
         },
         {
             label: t('mqtt'),
             key: 'mqtt',
         },
         {
-            label: t('websocket'),
-            key: 'websocket',
+            label: t('elasticsearch'),
+            key: 'elasticsearch',
+        },
+        {
+            label: t('alasql'),
+            key: 'alasql',
+        },
+        {
+            label: t('text'),
+            key: 'text',
+        },
+        {
+            label: t('model'),
+            key: 'model',
+        },
+        {
+            label: t('tcp/udp'),
+            key: 'tcp/udp',
         },
     ]
     function handleTabChange(key: string) {
@@ -1084,9 +1085,6 @@ export function DbManager({ config }) {
                                     }
                                     {item.type == 'websocket-home' &&
                                         <WebSocketHome
-                                            config={config}
-                                            event$={event$}
-                                            data={item.data}
                                         />
                                     }
                                     {item.type == 'markdown' &&

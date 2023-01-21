@@ -20,8 +20,7 @@ function sleep(ms) {
     });
 }
 
-export function WebSocketHome({ config, data }) {
-    const { connectionId } = data
+export function WebSocketHome({ }) {
     const { t } = useTranslation()
 
     const WsStatusLabelMap = {

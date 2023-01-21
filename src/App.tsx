@@ -43,6 +43,9 @@ import { ProductionHome } from './views/production/production-home'
 import { SqlLab } from './views/db-manager/sql-lab'
 import { LoggerDetail } from './views/logger/logger-detail'
 import { AlasqlHome } from './views/slasql/ip-home'
+import { WebSocketHome } from './views/websocket/websocket-home/websocket-home'
+import { useTitle } from 'ahooks'
+import { useTranslation } from 'react-i18next'
 
 function GitPage() {
     return (
@@ -130,6 +133,17 @@ function Lab() {
     )
 }
 
+function WebSocketPage() {
+    const { t } = useTranslation()
+
+    useTitle(t('websocket'))
+
+    return (
+        <WebSocketHome
+        />
+    )
+}
+
 export default function App() {
     // const [count, setCount] = useState(0)
 
@@ -158,6 +172,7 @@ export default function App() {
                     <Route path="/logger" element={<FullApp><LoggerDetail /></FullApp>} />
                     <Route path="/lab" element={<FullApp><Lab /></FullApp>} />
                     <Route path="/alasql" element={<FullApp><AlasqlHome /></FullApp>} />
+                    <Route path="/websocket" element={<FullApp><WebSocketPage /></FullApp>} />
                 </Routes>
             </div>
         </Router>
