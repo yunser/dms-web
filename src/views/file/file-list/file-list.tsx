@@ -136,6 +136,8 @@ function CollectionList({ config, event$, onItemClick }) {
     )
 }
 
+// _sourceType: local ssh oss:linxot-public oss:undefined（坚果云）
+// 
 export function FileList({ config, sourceType: _sourceType = 'local', event$, tabKey,
     item, webdavItem, ossItem, defaultPath: _defaultPath }) {
     // const showSide = _sourceType == 'local'
@@ -147,13 +149,23 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
 
     const [sourceType, setSourceType] = useState(_sourceType ? '' : (item ? '' : 'local'))
 
-    const defaultPath =
-        _defaultPath ? _defaultPath
-            : _sourceType ? '/'
-            : item ?
-            (item.username == 'root' ? '/root' : `/home/${item.username}`)
-            :
-                ''
+    let defaultPath = ''
+    if (_defaultPath) {
+        // 有指定的，用指定的
+        defaultPath = _defaultPath
+    }
+    else if (_sourceType == 'ssh' && item) {
+        defaultPath = item.username == 'root' ? '/root' : `/home/${item.username}`
+    }
+    else if (_sourceType) {
+        defaultPath = '/'
+    }
+    else {
+        defaultPath = ''
+    }
+    console.log('@cjh/_defaultPath', defaultPath, _defaultPath)
+    console.log('@cjh/_sourceType', _sourceType)
+
 
     const [curPath, setCurPath] = useState(defaultPath)
     const [loading, setLoading] = useState(false)
@@ -219,13 +231,6 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
             // onSuccess && onSuccess()
             setConnected(true)
             setSourceType(res.data.connectionId)
-            const defaultPath =
-                _sourceType
-                    ? '/'
-                    : item ?
-                        (item.username == 'root' ? '/root' : `/home/${item.username}`)
-                        :
-                        ''
             setCurPath(defaultPath)
         }
         setConnecting(false)
@@ -301,22 +306,20 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
     }
 
     useEffect(() => {
-        if (!!item) {
-            connect()
-        }
-        else if (webdavItem) {
+        if (webdavItem) {
             webdavConnect(webdavItem)
         }
+        else if (_sourceType == 'ssh' && !!item) {
+            connect()
+        }
+        else if (_sourceType == 'local') {
+            setSourceType('local')
+        }
+        else if (_sourceType.startsWith('oss')) {
+            ossConnect(ossItem)
+        }
         else {
-            if (_sourceType == 'local') {
-                setSourceType('local')
-            }
-            else {
-                console.log('_sourceType', _sourceType)
-                if (_sourceType != 'local') {
-                    ossConnect(ossItem)
-                }
-            }
+            message.error('unknown source type')
         }
     }, [item])
 
