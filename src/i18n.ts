@@ -116,7 +116,7 @@ i18n
                     data_free: 'Data Free',
                     reconnect: 'Reconnect',
                     connect_error: 'Connect Error',
-                    connect_unknown: 'Unconnect',
+                    connect_unknown: 'Disconnected',
                     connected: 'Connected',
                     loading: 'Loading...',
                     confirm_sql: 'The following is the SQL to be executed, please confirm',
@@ -399,6 +399,8 @@ i18n
                     'hide': 'Hide',
                     'mqtt': 'MQTT',
                     'websocket': 'WebSocket',
+                    'disconnect': 'Disconnect',
+                    'auto_connect': 'Auto Connect',
                 }
             },
             zh: {
@@ -790,6 +792,8 @@ i18n
                     'hide': '隐藏',
                     'mqtt': 'MQTT',
                     'websocket': 'WebSocket',
+                    'disconnect': '断开连接',
+                    'auto_connect': '自动重连',
                 }
             }
         },

@@ -9,6 +9,7 @@ import { useInterval } from 'ahooks';
 import { request } from '../../db-manager/utils/http';
 import moment from 'moment';
 import { uid } from 'uid';
+import { ArrowDownOutlined, ArrowUpOutlined, InfoCircleOutlined, UpOutlined } from '@ant-design/icons';
 
 function sleep(ms) {
     return new Promise((resolve) => {
@@ -23,9 +24,9 @@ export function WebSocketHome({ config, data }) {
     const { t } = useTranslation()
 
     const WsStatusLabelMap = {
-        'notConnected': '未连接',
-        'error': '异常',
-        'connected': '已连接',
+        'notConnected': t('connect_unknown'),
+        'error': t('connect_error'),
+        'connected': t('connected'),
     }
 
     const comData = useRef({
@@ -88,7 +89,7 @@ export function WebSocketHome({ config, data }) {
             console.log('readyState', ws.readyState)
             listAddItem({
                 type: 'info',
-                message: 'INFO - 连接关闭',
+                message: '连接关闭',
             })
             console.log('autoConnect', autoConnect)
             if (autoConnect) {
@@ -134,7 +135,7 @@ export function WebSocketHome({ config, data }) {
             console.log('sended')
             listAddItem({
                 type: 'info',
-                message: 'INFO - 连接成功',
+                message: '连接成功',
             })
         }
         ws.onerror = (e) => {
@@ -162,7 +163,7 @@ export function WebSocketHome({ config, data }) {
             //     return
             // }
             listAddItem({
-                type: 'message',
+                type: 'received',
                 message: text,
             })
             // const _xterm = xtermRef.current
@@ -205,7 +206,13 @@ export function WebSocketHome({ config, data }) {
 
     async function send() {
         const values = await form.validateFields();
-        comData.current.socket.send(values.message.replace('{time}', moment().format('YYYY-MM-DD HH:mm:ss')))
+        const msg = values.message.replace('{time}', moment().format('YYYY-MM-DD HH:mm:ss'))
+        comData.current.socket.send(msg)
+        listAddItem({
+            type: 'sent',
+            message: msg,
+        })
+        
 
         // let res = await request.post(`${config.host}/mqtt/publish`, {
         //     connectionId,
@@ -237,31 +244,34 @@ export function WebSocketHome({ config, data }) {
                         <div>
                             <Button
                                 type="primary"
-                                onClick={connect}>连接</Button>
+                                onClick={connect}>{t('connect')}</Button>
                         </div>
                     :
                         <div>
                             <Button
                                 type="primary"
-                                onClick={disconnect}>断开连接</Button>
+                                onClick={disconnect}>{t('disconnect')}</Button>
                         </div>
                     }
                 </div>
             </div>
-            <div>
-                WebSocket 状态：{WsStatusLabelMap[wsStatus]}{wsAction}
-
+            <div className={styles.statusBar}>
+                <div>
+                    {/* WebSocket 状态： */}
+                    {WsStatusLabelMap[wsStatus]}{wsAction}</div>
                 <Checkbox
                     checked={autoConnect}
                     onChange={e => {
                         setAutoConnect(e.target.checked)
                     }}
                 >
-                    自动重连
+                    {t('auto_connect')}
                 </Checkbox>
+                {/* <Space>
+                </Space> */}
             </div>
             <div className={styles.sections}>
-                <div className={styles.section}>
+                <div className={classNames(styles.section, styles.sectionLeft)}>
                     {/* <div className={styles.title}>发布</div> */}
                     <Form
                         form={form}
@@ -275,11 +285,12 @@ export function WebSocketHome({ config, data }) {
                         // onFinishFailed={onFinishFailed}
                     >
                         <Form.Item
-                            label="内容"
+                            // label="内容"
+                            messageVariables={{ label: '内容' }}
                             name="message"
                             rules={[ { required: true, } ]}
                         >
-                            <Input.TextArea rows={8} />
+                            <Input.TextArea rows={16} />
                         </Form.Item>
                     </Form>
                     <Button
@@ -293,60 +304,97 @@ export function WebSocketHome({ config, data }) {
                     </Button>
 
                 </div>
-                <div className={styles.section}>
-                    <Space>
-                        <Button
-                            size="small"
-                            onClick={() => {
-                                setList([])
-                            }}
-                        >
-                            {t('clear')}
-                        </Button>
-                    </Space>
+                <div className={classNames(styles.section, styles.sectionRight)}>
+                    <div className={styles.toolBox}>
+                        <Space>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    setList([])
+                                }}
+                            >
+                                {t('clear')}
+                            </Button>
+                        </Space>
+                    </div>
 
                     {/* <div className={styles.help}>暂不支持在界面显示，消息请在后端控制台查看</div> */}
-                    <Table
-                        loading={loading}
-                        dataSource={list}
-                        bordered
-                        size="small"
-                        // pagination={false}
-                        pagination={{
-                            // total,
-                            // current: page,
-                            pageSize,
-                            showSizeChanger: false,
-                        }}
-                        rowKey="id"
-                        columns={[
-                            {
-                                title: t('time'),
-                                dataIndex: 'time',
-                                width: 80,
-                                render(value) {
-                                    return moment(value).format('HH:mm:ss')
-                                }
-                            },
-                            {
-                                title: t('type'),
-                                dataIndex: 'type',
-                                width: 200,
-                            },
-                            {
-                                title: t('message'),
-                                dataIndex: 'message',
-                                // width: 240,
-                            },
-                            // {
-                            //     title: '',
-                            //     dataIndex: '_empty',
-                            // },
-                        ]}
-                        onChange={({ current }) => {
-                            // setPage(current)
-                        }}
-                    />
+                    <div className={styles.table}>
+
+                        <Table
+                            loading={loading}
+                            dataSource={list}
+                            bordered
+                            size="small"
+                            // pagination={false}
+                            pagination={{
+                                // total,
+                                // current: page,
+                                pageSize,
+                                showSizeChanger: false,
+                            }}
+                            rowKey="id"
+                            columns={[
+                                {
+                                    title: t('time'),
+                                    dataIndex: 'time',
+                                    width: 80,
+                                    render(value) {
+                                        return moment(value).format('HH:mm:ss')
+                                    }
+                                },
+                                // {
+                                //     title: t('type'),
+                                //     dataIndex: 'type',
+                                //     width: 200,
+                                //     render(value) {
+                                //         return (
+                                //             <div>
+                                //                 {value}
+                                //                 {value == 'sent' &&
+                                //                     <ArrowUpOutlined className={styles.typeIcon} />
+                                //                 }
+                                //                 {value == 'received' &&
+                                //                     <ArrowDownOutlined className={styles.typeIcon} />
+                                //                 }
+                                //                 {value == 'info' &&
+                                //                     <InfoCircleOutlined className={styles.typeIcon} />
+                                //                 }
+                                //             </div>
+                                //         )
+                                //     }
+                                // },
+                                {
+                                    title: t('message'),
+                                    dataIndex: 'message',
+                                    // width: 240,
+                                    render(value, item) {
+                                        return (
+                                            <div>
+                                                {item.type == 'sent' &&
+                                                    <ArrowUpOutlined className={styles.typeIcon} />
+                                                }
+                                                {item.type == 'received' &&
+                                                    <ArrowDownOutlined className={styles.typeIcon} />
+                                                }
+                                                {item.type == 'info' &&
+                                                    <InfoCircleOutlined className={styles.typeIcon} />
+                                                }
+                                                {value}
+                                            </div>
+                                        )
+                                    }
+                                },
+                                // {
+                                //     title: '',
+                                //     dataIndex: '_empty',
+                                // },
+                            ]}
+                            onChange={({ current }) => {
+                                // setPage(current)
+                            }}
+                        />
+                    </div>
 
                     {/* <hr /> */}
 
