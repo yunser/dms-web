@@ -5,7 +5,7 @@ import _ from 'lodash';
 import { useTranslation } from 'react-i18next';
 import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
-import { ClearOutlined, CodeOutlined, DeleteOutlined, ExportOutlined, FolderOutlined, HeartOutlined, HistoryOutlined, InfoCircleOutlined, LinkOutlined, MenuOutlined, PlusOutlined, ProfileOutlined, ReloadOutlined } from '@ant-design/icons';
+import { ClearOutlined, CodeOutlined, DeleteOutlined, EllipsisOutlined, ExportOutlined, FolderOutlined, HeartOutlined, HistoryOutlined, InfoCircleOutlined, LinkOutlined, MenuOutlined, PlusOutlined, ProfileOutlined, ReloadOutlined } from '@ant-design/icons';
 import { useInterval } from 'ahooks';
 import { RedisKeyDetail } from './key-detail';
 import { KeyAddModal } from './key-add';
@@ -752,15 +752,8 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                                 }
                                 trigger={['click']}
                             >
-                                {/* <a onClick={e => e.preventDefault()}>
-                                <Space>
-                                    Click me
-                                    <DownOutlined />
-                                </Space>
-                                </a> */}
                                 <IconButton
                                     tooltip={t('add')}
-                                    // size="small"
                                     className={styles.refresh}
                                 >
                                     <PlusOutlined />
@@ -778,7 +771,6 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                             </IconButton>
                             <IconButton
                                 tooltip={t('favorite_keys')}
-                                // size="small"
                                 className={styles.refresh}
                                 onClick={() => {
                                     addLikeTab()
@@ -787,28 +779,7 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                                 <HeartOutlined />
                             </IconButton>
                             <IconButton
-                                tooltip={t('info')}
-                                // size="small"
-                                className={styles.refresh}
-                                onClick={() => {
-                                    addInfoTab()
-                                }}
-                            >
-                                <InfoCircleOutlined />
-                            </IconButton>
-                            <IconButton
-                                tooltip={t('export_json')}
-                                // size="small"
-                                className={styles.refresh}
-                                onClick={() => {
-                                    exportAllKeys()
-                                }}
-                            >
-                                <ExportOutlined />
-                            </IconButton>
-                            <IconButton
                                 tooltip={t('redis.pubsub')}
-                                // size="small"
                                 className={styles.refresh}
                                 onClick={() => {
                                     setPubSubVisible(true)
@@ -816,16 +787,56 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                             >
                                 <ProfileOutlined />
                             </IconButton>
-                            <IconButton
-                                tooltip={t('clear')}
-                                // size="small"
-                                className={styles.refresh}
-                                onClick={() => {
-                                    flush()
-                                }}
+                            <Dropdown
+                                trigger={['click']}
+                                overlay={
+                                    <Menu
+                                        items={[
+                                            {
+                                                label: t('info'),
+                                                key: 'info',
+                                                icon: <InfoCircleOutlined />
+                                            },
+                                            {
+                                                label: t('export_json'),
+                                                key: 'export_json',
+                                                icon: <ExportOutlined />
+                                            },
+                                            {
+                                                type: 'divider',
+                                            },
+                                            {
+                                                label: t('clear'),
+                                                key: 'clear',
+                                                danger: true,
+                                                icon: <ClearOutlined />
+                                            },
+                                        ]}
+                                        onClick={({ key }) => {
+                                            if (key == 'info') {
+                                                addInfoTab()
+                                            }
+                                            else if (key == 'clear') {
+                                                flush()
+                                            }
+                                            else if (key == 'export_json') {
+                                                exportAllKeys()
+                                            }
+                                        }}
+                                    />
+                                }
                             >
-                                <ClearOutlined />
-                            </IconButton>
+                                <IconButton
+                                    tooltip={t('more')}
+                                    // size="small"
+                                    className={styles.refresh}
+                                    onClick={() => {
+                                        // flush()
+                                    }}
+                                >
+                                    <EllipsisOutlined />
+                                </IconButton>
+                            </Dropdown>
                         </Space>
                     </div>
                     <div className={styles.layoutLeftSearch}>

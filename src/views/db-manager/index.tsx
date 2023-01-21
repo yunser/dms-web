@@ -1110,7 +1110,7 @@ export function DbManager({ config }) {
                                                 console.log('onConnect', connectionId)
                                                 addOrActiveTab({
                                                     // title: 'Redis',
-                                                    title: `${name} - Redis`,
+                                                    title: `${name}`,
                                                     key: 'redis-' + uid(16),
                                                     type: 'redis-client',
                                                     data: {
