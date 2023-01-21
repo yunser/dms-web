@@ -159,6 +159,7 @@ export function PubSubModal({ config, event$, connectionId, onCancel, }) {
             width={1200}
             onCancel={onCancel}
             footer={null}
+            maskClosable={false}
         >
             
             <div className={styles.sections}>
@@ -173,14 +174,14 @@ export function PubSubModal({ config, event$, connectionId, onCancel, }) {
                         // onFinishFailed={onFinishFailed}
                     >
                         <Form.Item
-                            label="频道"
+                            label={t('redis.channel')}
                             name="channel"
                             rules={[ { required: true, } ]}
                         >
                             <Input />
                         </Form.Item>
                         <Form.Item
-                            label="消息"
+                            label={t('message')}
                             name="message"
                             rules={[ { required: true, } ]}
                         >
@@ -198,7 +199,7 @@ export function PubSubModal({ config, event$, connectionId, onCancel, }) {
 
                 </div>
                 <div className={styles.section}>
-                    <div className={styles.title}>订阅</div>
+                    <div className={styles.title}>{t('redis.subscribe')}</div>
                     {isSub ?
                         <Space>
                             <Button
@@ -225,7 +226,7 @@ export function PubSubModal({ config, event$, connectionId, onCancel, }) {
                                 form={form2}
                             >
                                 <Form.Item
-                                    label="频道"
+                                    label={t('redis.channel')}
                                     name="channel"
                                     // rules={[ { required: true, } ]}
                                 >
@@ -238,7 +239,7 @@ export function PubSubModal({ config, event$, connectionId, onCancel, }) {
                                     subscribe()
                                 }}
                             >
-                                订阅
+                                {t('redis.subscribe')}
                             </Button>
 
                         </div>
@@ -260,7 +261,7 @@ export function PubSubModal({ config, event$, connectionId, onCancel, }) {
                         rowKey="id"
                         columns={[
                             {
-                                title: t('时间'),
+                                title: t('time'),
                                 dataIndex: 'time',
                                 width: 240,
                                 render(value) {
@@ -268,7 +269,7 @@ export function PubSubModal({ config, event$, connectionId, onCancel, }) {
                                 }
                             },
                             {
-                                title: t('channel'),
+                                title: t('redis.channel'),
                                 dataIndex: 'channel',
                                 width: 240,
                             },

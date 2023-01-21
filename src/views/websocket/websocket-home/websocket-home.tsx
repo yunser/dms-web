@@ -51,6 +51,10 @@ export function WebSocketHome({ config, data }) {
         initWebSocket()
     }
 
+    function disconnect() {
+        comData.current.socket && comData.current.socket.close()
+    }
+
     // 有一个属性Socket.readyState，
     // 0 - 表示连接尚未建立，
     // 1 - 表示连接已建立，可以进行通信，
@@ -62,8 +66,9 @@ export function WebSocketHome({ config, data }) {
         console.log('initWebSocket')
         console.log('readyState', ws.readyState)
         
-        ws.onclose = async () => {
-            console.log('socket/on-close')
+        ws.onclose = async (e) => {
+            console.log('socket/on-close', e)
+            console.log('websocket 断开: ' + e.code + ' ' + e.reason + ' ' + e.wasClean)
             setWsStatus('notConnected')
             console.log('readyState', ws.readyState)
 
@@ -80,6 +85,28 @@ export function WebSocketHome({ config, data }) {
             // else {
             //     setWsAction('自动重试连接超过 3 次，连接失败')
             // }
+            setList(list => {
+                console.log('list.lengthV2', list.length)
+                return [
+                    {
+                        id: uid(8),
+                        type: 'info',
+                        message: 'INFO - 连接关闭',
+                        time: moment().format('YYYY-MM-DD HH:mm:ss'),
+                    },
+                    ...list,
+                ]
+                return []
+            })
+            // setList([
+            //     {
+            //         id: uid(8),
+            //         type: 'info',
+            //         message: 'INFO - 连接关闭',
+            //         time: moment().format('YYYY-MM-DD HH:mm:ss'),
+            //     },
+            //     ...list,
+            // ])
         }
         ws.onopen = () => {
             comData.current.connectTime = 0
@@ -97,16 +124,36 @@ export function WebSocketHome({ config, data }) {
             //     },
             // }))
             console.log('sended')
+            setList(list => {
+                console.log('list.lengthV2', list.length)
+                return [
+                    {
+                        id: uid(8),
+                        type: 'info',
+                    message: 'INFO - 连接成功',
+                        time: moment().format('YYYY-MM-DD HH:mm:ss'),
+                    },
+                    ...list,
+                ]
+                return []
+            })
         }
-        ws.onerror = (err) => {
+        ws.onerror = (e) => {
             // setWsStatus('error')
-            setWsStatus('notConnected')
-            console.log('socket error', err)
+            console.log('websocket/onerror', e)
+            // console.log('socket errorStr', e.toString())
             console.log('readyState', ws.readyState)
-            // if (ws.)
+            setWsStatus('notConnected')
 
-            // if 
-
+            setList([
+                {
+                    id: uid(8),
+                    type: 'info',
+                    message: 'ERROR - 发生错误',
+                    time: moment().format('YYYY-MM-DD HH:mm:ss'),
+                },
+                ...list,
+            ])
         }
         ws.onmessage = (event) => {
             const text = event.data.toString()
@@ -123,16 +170,17 @@ export function WebSocketHome({ config, data }) {
             // }
             
             setList(list => {
-                console.log('list.length', list.length)
-                setList([
+                console.log('list.lengthV2', list.length)
+                return [
                     {
                         id: uid(8),
+                        type: 'message',
                         // topic: msg.topic,
                         message: text,
                         time: moment().format('YYYY-MM-DD HH:mm:ss'),
                     },
                     ...list,
-                ])
+                ]
                 return []
             })
             // const _xterm = xtermRef.current
@@ -187,6 +235,8 @@ export function WebSocketHome({ config, data }) {
         // }
     }
 
+    console.log('render/list', list)
+
     return (
         <div className={styles.mqttBox}>
             {/* <div className={styles.welcome}>
@@ -201,11 +251,17 @@ export function WebSocketHome({ config, data }) {
                             setUrl(e.target.value)
                         }}
                     />
-                    {wsStatus != 'connected' &&
+                    {wsStatus != 'connected' ?
                         <div>
                             <Button
                                 type="primary"
                                 onClick={connect}>连接</Button>
+                        </div>
+                    :
+                        <div>
+                            <Button
+                                type="primary"
+                                onClick={disconnect}>断开连接</Button>
                         </div>
                     }
                 </div>
@@ -240,8 +296,9 @@ export function WebSocketHome({ config, data }) {
                         onClick={() => {
                             send()
                         }}
+                        disabled={wsStatus != 'connected'}
                     >
-                        发送
+                        {t('send')}
                     </Button>
 
                 </div>
@@ -253,7 +310,7 @@ export function WebSocketHome({ config, data }) {
                                 setList([])
                             }}
                         >
-                            清除
+                            {t('clear')}
                         </Button>
                     </Space>
 
@@ -273,18 +330,18 @@ export function WebSocketHome({ config, data }) {
                         rowKey="id"
                         columns={[
                             {
-                                title: t('时间'),
+                                title: t('time'),
                                 dataIndex: 'time',
                                 width: 80,
                                 render(value) {
                                     return moment(value).format('HH:mm:ss')
                                 }
                             },
-                            // {
-                            //     title: t('topic'),
-                            //     dataIndex: 'topic',
-                            //     width: 200,
-                            // },
+                            {
+                                title: t('type'),
+                                dataIndex: 'type',
+                                width: 200,
+                            },
                             {
                                 title: t('message'),
                                 dataIndex: 'message',
