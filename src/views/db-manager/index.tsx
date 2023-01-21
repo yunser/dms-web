@@ -1260,6 +1260,18 @@ export function DbManager({ config }) {
                                             local={true}
                                             defaultPath={item.data.path}
                                             item={item.data.item}
+                                            onSftpPath={path => {
+                                                console.log('onSftpPath', path, item.data.item)
+                                                addOrActiveTab({
+                                                    title: item.data.item.name,
+                                                    key: `terminal-${uid(16)}`,
+                                                    type: 'sftp-detail',
+                                                    data: {
+                                                        item: item.data.item,
+                                                        defaultPath: path,
+                                                    },
+                                                })
+                                            }}
                                         />
                                     }
                                     {item.type == 'sftp-detail' &&
@@ -1269,6 +1281,7 @@ export function DbManager({ config }) {
                                             event$={event$}
                                             sourceType="ssh"
                                             item={item.data.item}
+                                            defaultPath={item.data.defaultPath}
                                         />
                                     }
                                     {item.type == 'tcp/udp' &&

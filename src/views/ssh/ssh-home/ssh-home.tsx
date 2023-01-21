@@ -73,7 +73,7 @@ function Commands({ config, onClickItem }) {
     )
 }
 
-export function SshDetail({ config, local = false, defaultPath, item, onBack }) {
+export function SshDetail({ config, local = false, defaultPath, item, onBack, onSftpPath }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [list, setList] = useState<File[]>([])
@@ -264,6 +264,7 @@ export function SshDetail({ config, local = false, defaultPath, item, onBack }) 
         const ws = new WebSocket('ws://localhost:10087/')
         ws.onclose = () => {
             console.log('close socket')
+            message.error(t('disconnected'))
             setConnected(false)
         }
         ws.onopen = () => {
@@ -316,6 +317,11 @@ export function SshDetail({ config, local = false, defaultPath, item, onBack }) 
                 }
                 _xterm.write(msg.data)
             }
+            else if (msg.type == 'pwd') {
+                const { path } = msg.data
+                console.log('path', path)
+                onSftpPath && onSftpPath(path)
+            }
 
         }
         wsRef.current = ws
@@ -356,7 +362,11 @@ export function SshDetail({ config, local = false, defaultPath, item, onBack }) 
     console.log('termIdRef.current', termIdRef.current)
 
     function checkConnection() {
-
+        wsRef.current.send(JSON.stringify({
+            type: 'pwd',
+            data: {},
+            //  + '\r'
+        }))
     }
 
     return (
@@ -401,14 +411,16 @@ export function SshDetail({ config, local = false, defaultPath, item, onBack }) 
                             {t('connect')}
                         </Button>
                     }
-                    {/* <Button
-                        size="small"
-                        onClick={() => {
-                            checkConnection()
-                        }}
-                    >
-                        检查连接
-                    </Button> */}
+                    {connected &&
+                        <Button
+                            size="small"
+                            onClick={() => {
+                                checkConnection()
+                            }}
+                        >
+                            SFTP
+                        </Button>
+                    }
                 </Space>
             </div>
             {/* {!local &&
