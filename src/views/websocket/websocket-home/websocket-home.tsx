@@ -9,7 +9,8 @@ import { useInterval } from 'ahooks';
 import { request } from '../../db-manager/utils/http';
 import moment from 'moment';
 import { uid } from 'uid';
-import { ArrowDownOutlined, ArrowUpOutlined, InfoCircleOutlined, UpOutlined } from '@ant-design/icons';
+import { ArrowDownOutlined, ArrowUpOutlined, CheckCircleOutlined, InfoCircleOutlined, UpOutlined } from '@ant-design/icons';
+import copy from 'copy-to-clipboard';
 
 function sleep(ms) {
     return new Promise((resolve) => {
@@ -32,6 +33,7 @@ export function WebSocketHome({ config, data }) {
     const comData = useRef({
         connectTime: 0,
         socket: null,
+        isUserDisconnect: false,
     })
 
     const [url, setUrl] = useState('ws://127.0.0.1:7003/ws')
@@ -68,6 +70,7 @@ export function WebSocketHome({ config, data }) {
     }
 
     function disconnect() {
+        comData.current.isUserDisconnect = true
         comData.current.socket && comData.current.socket.close()
     }
 
@@ -89,33 +92,37 @@ export function WebSocketHome({ config, data }) {
             console.log('readyState', ws.readyState)
             listAddItem({
                 type: 'info',
-                message: '连接关闭',
+                message: t('Disconnected from') + ` ${url}`,
             })
             console.log('autoConnect', autoConnect)
             if (autoConnect) {
                 if (comData.current.connectTime < 3) {
                     comData.current.connectTime++
-                    const ms = comData.current.connectTime * 2000
-                    const action = `正在第 ${comData.current.connectTime} 次重试连接，等待 ${ms} ms`
+                    const second = comData.current.connectTime * 3
+                    const action = t('reconnect_info').replace('{times}', '' + comData.current.connectTime)
+                        .replace('{time}', `${second} s`)
                     listAddItem({
-                        type: 'message',
+                        type: 'info',
                         message: action,
                     })
                     console.log('time', moment().format('mm:ss'))   
                     console.log(action)
                     setWsAction(action)
-                    await sleep(ms)
+                    await sleep(second * 1000)
                     initWebSocket()
                 }
                 else {
+                    const action = t('reconnect_fail')
                     listAddItem({
-                        type: 'message',
-                        message: '自动重试连接超过 3 次，连接失败',
+                        type: 'info',
+                        message: action,
                     })
-                    setWsAction('自动重试连接超过 3 次，连接失败')
+                    setWsAction(action)
                 }
             }
-            
+            if (comData.current.isUserDisconnect) {
+                comData.current.isUserDisconnect = false
+            }
         }
         ws.onopen = () => {
             comData.current.connectTime = 0
@@ -132,10 +139,11 @@ export function WebSocketHome({ config, data }) {
             //         // connectionId,
             //     },
             // }))
-            console.log('sended')
+            // console.log('sended')
             listAddItem({
-                type: 'info',
-                message: '连接成功',
+                // type: 'info',
+                type: 'connected',
+                message: t('connected_to') + ` ${url}`,
             })
         }
         ws.onerror = (e) => {
@@ -144,10 +152,10 @@ export function WebSocketHome({ config, data }) {
             // console.log('socket errorStr', e.toString())
             console.log('readyState', ws.readyState)
             setWsStatus('notConnected')
-            listAddItem({
-                type: 'info',
-                message: 'ERROR - 发生错误',
-            })
+            // listAddItem({
+            //     type: 'info',
+            //     message: 'ERROR - 发生错误',
+            // })
         }
         ws.onmessage = (event) => {
             const text = event.data.toString()
@@ -256,9 +264,10 @@ export function WebSocketHome({ config, data }) {
                 </div>
             </div>
             <div className={styles.statusBar}>
-                <div>
-                    {/* WebSocket 状态： */}
-                    {WsStatusLabelMap[wsStatus]}{wsAction}</div>
+                <Space>
+                    <div>{WsStatusLabelMap[wsStatus]}</div>
+                    <div>{wsAction}</div>
+                </Space>
                 <Checkbox
                     checked={autoConnect}
                     onChange={e => {
@@ -286,7 +295,7 @@ export function WebSocketHome({ config, data }) {
                     >
                         <Form.Item
                             // label="内容"
-                            messageVariables={{ label: '内容' }}
+                            messageVariables={{ label: t('content') }}
                             name="message"
                             rules={[ { required: true, } ]}
                         >
@@ -380,7 +389,16 @@ export function WebSocketHome({ config, data }) {
                                                 {item.type == 'info' &&
                                                     <InfoCircleOutlined className={styles.typeIcon} />
                                                 }
-                                                {value}
+                                                {item.type == 'connected' &&
+                                                    <CheckCircleOutlined className={styles.typeIcon} />
+                                                }
+                                                
+                                                <span className={styles.message}
+                                                    onClick={() => {
+                                                        copy(value)
+                                                        message.info(t('copied'))
+                                                    }}
+                                                >{value}</span>
                                             </div>
                                         )
                                     }

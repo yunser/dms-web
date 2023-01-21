@@ -401,6 +401,10 @@ i18n
                     'websocket': 'WebSocket',
                     'disconnect': 'Disconnect',
                     'auto_connect': 'Auto Connect',
+                    'connected_to': 'Connected to',
+                    'disconnected_from': 'Disconnected from',
+                    'reconnect_info': 'Retrying connection for the {times} time, waiting for {time}',
+                    'reconnect_fail': 'Automatically retry connection for more than 3 times, connection failed',
                 }
             },
             zh: {
@@ -794,6 +798,10 @@ i18n
                     'websocket': 'WebSocket',
                     'disconnect': '断开连接',
                     'auto_connect': '自动重连',
+                    'connected_to': '已连接到',
+                    'disconnected_from': '断开连接从 ',
+                    'reconnect_info': '正在第 {times} 次重试连接，等待 {time}',
+                    'reconnect_fail': '自动重试连接超过 3 次，连接失败',
                 }
             }
         },
