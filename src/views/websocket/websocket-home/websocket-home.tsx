@@ -1,4 +1,4 @@
-import { Button, Descriptions, Form, Input, message, Modal, Popover, Space, Table, Tabs } from 'antd';
+import { Button, Checkbox, Descriptions, Form, Input, message, Modal, Popover, Space, Table, Tabs } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './websocket-home.module.less';
 import _ from 'lodash';
@@ -36,7 +36,7 @@ export function WebSocketHome({ config, data }) {
     const [url, setUrl] = useState('ws://127.0.0.1:7003/ws')
     const [form] = Form.useForm()
     const [form2] = Form.useForm()
-    const [isSub, setIsSub] = useState(false)
+    const [autoConnect, setAutoConnect] = useState(false)
     const [modalVisible, setModalVisible] = useState(false)
     const [list, setList] = useState([])
     const pageSize = 10
@@ -45,6 +45,21 @@ export function WebSocketHome({ config, data }) {
     const [loading, setLoading] = useState(false)
     const [wsStatus, setWsStatus] = useState('notConnected')
     const [wsAction, setWsAction] = useState('')
+
+    function listAddItem(item) {
+        setList(list => {
+            console.log('list.lengthV2', list.length)
+            return [
+                {
+                    ...item,
+                    id: uid(8),
+                    time: moment().format('YYYY-MM-DD HH:mm:ss'),
+                },
+                ...list,
+            ]
+            return []
+        })
+    }
     
     function connect() {
         comData.current.connectTime = 0
@@ -71,42 +86,35 @@ export function WebSocketHome({ config, data }) {
             console.log('websocket 断开: ' + e.code + ' ' + e.reason + ' ' + e.wasClean)
             setWsStatus('notConnected')
             console.log('readyState', ws.readyState)
-
-            // if (comData.current.connectTime < 3) {
-            //     comData.current.connectTime++
-            //     const ms = comData.current.connectTime * 2000
-            //     const action = `正在第 ${comData.current.connectTime} 次重试连接，等待 ${ms} ms`
-            //     console.log('time', moment().format('mm:ss'))   
-            //     console.log(action)
-            //     setWsAction(action)
-            //     await sleep(ms)
-            //     initWebSocket()
-            // }
-            // else {
-            //     setWsAction('自动重试连接超过 3 次，连接失败')
-            // }
-            setList(list => {
-                console.log('list.lengthV2', list.length)
-                return [
-                    {
-                        id: uid(8),
-                        type: 'info',
-                        message: 'INFO - 连接关闭',
-                        time: moment().format('YYYY-MM-DD HH:mm:ss'),
-                    },
-                    ...list,
-                ]
-                return []
+            listAddItem({
+                type: 'info',
+                message: 'INFO - 连接关闭',
             })
-            // setList([
-            //     {
-            //         id: uid(8),
-            //         type: 'info',
-            //         message: 'INFO - 连接关闭',
-            //         time: moment().format('YYYY-MM-DD HH:mm:ss'),
-            //     },
-            //     ...list,
-            // ])
+            console.log('autoConnect', autoConnect)
+            if (autoConnect) {
+                if (comData.current.connectTime < 3) {
+                    comData.current.connectTime++
+                    const ms = comData.current.connectTime * 2000
+                    const action = `正在第 ${comData.current.connectTime} 次重试连接，等待 ${ms} ms`
+                    listAddItem({
+                        type: 'message',
+                        message: action,
+                    })
+                    console.log('time', moment().format('mm:ss'))   
+                    console.log(action)
+                    setWsAction(action)
+                    await sleep(ms)
+                    initWebSocket()
+                }
+                else {
+                    listAddItem({
+                        type: 'message',
+                        message: '自动重试连接超过 3 次，连接失败',
+                    })
+                    setWsAction('自动重试连接超过 3 次，连接失败')
+                }
+            }
+            
         }
         ws.onopen = () => {
             comData.current.connectTime = 0
@@ -124,18 +132,9 @@ export function WebSocketHome({ config, data }) {
             //     },
             // }))
             console.log('sended')
-            setList(list => {
-                console.log('list.lengthV2', list.length)
-                return [
-                    {
-                        id: uid(8),
-                        type: 'info',
-                    message: 'INFO - 连接成功',
-                        time: moment().format('YYYY-MM-DD HH:mm:ss'),
-                    },
-                    ...list,
-                ]
-                return []
+            listAddItem({
+                type: 'info',
+                message: 'INFO - 连接成功',
             })
         }
         ws.onerror = (e) => {
@@ -144,16 +143,10 @@ export function WebSocketHome({ config, data }) {
             // console.log('socket errorStr', e.toString())
             console.log('readyState', ws.readyState)
             setWsStatus('notConnected')
-
-            setList([
-                {
-                    id: uid(8),
-                    type: 'info',
-                    message: 'ERROR - 发生错误',
-                    time: moment().format('YYYY-MM-DD HH:mm:ss'),
-                },
-                ...list,
-            ])
+            listAddItem({
+                type: 'info',
+                message: 'ERROR - 发生错误',
+            })
         }
         ws.onmessage = (event) => {
             const text = event.data.toString()
@@ -168,20 +161,9 @@ export function WebSocketHome({ config, data }) {
             //     console.log('JSON.parse err', err)
             //     return
             // }
-            
-            setList(list => {
-                console.log('list.lengthV2', list.length)
-                return [
-                    {
-                        id: uid(8),
-                        type: 'message',
-                        // topic: msg.topic,
-                        message: text,
-                        time: moment().format('YYYY-MM-DD HH:mm:ss'),
-                    },
-                    ...list,
-                ]
-                return []
+            listAddItem({
+                type: 'message',
+                message: text,
             })
             // const _xterm = xtermRef.current
             // if (msg.type == 'res') {
@@ -268,6 +250,15 @@ export function WebSocketHome({ config, data }) {
             </div>
             <div>
                 WebSocket 状态：{WsStatusLabelMap[wsStatus]}{wsAction}
+
+                <Checkbox
+                    checked={autoConnect}
+                    onChange={e => {
+                        setAutoConnect(e.target.checked)
+                    }}
+                >
+                    自动重连
+                </Checkbox>
             </div>
             <div className={styles.sections}>
                 <div className={styles.section}>
