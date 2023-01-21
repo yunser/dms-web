@@ -251,14 +251,12 @@ export function SshDetail({ config, local = false, defaultPath, item, onBack }) 
         }
     }, [])
 
-    useEffect(() => {
-        if (!term) {
-            return
-        }
+    function initWebSocket() {
         let first = true
         const ws = new WebSocket('ws://localhost:10087/')
         ws.onclose = () => {
             console.log('close socket')
+            setConnected(false)
         }
         ws.onopen = () => {
             console.log('onopen', )
@@ -313,6 +311,13 @@ export function SshDetail({ config, local = false, defaultPath, item, onBack }) 
 
         }
         wsRef.current = ws
+    }
+
+    useEffect(() => {
+        if (!term) {
+            return
+        }
+        initWebSocket()
         return () => {
             // ws.close()
         }
@@ -372,7 +377,19 @@ export function SshDetail({ config, local = false, defaultPath, item, onBack }) 
                 />
             </div>
             <div className={styles.statusBox}>
-                <div>{connected ? t('connected') : t('connect_unknown')}</div>
+                <Space>
+                    <div>{connected ? t('connected') : t('connect_unknown')}</div>
+                    {!connected &&
+                        <Button
+                            size="small"
+                            onClick={() => {
+                                initWebSocket()
+                            }}
+                        >
+                            {t('connect')}
+                        </Button>
+                    }
+                </Space>
             </div>
             {/* {!local &&
                 <div className={styles.toolBox}>
