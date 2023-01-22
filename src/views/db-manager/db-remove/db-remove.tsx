@@ -107,32 +107,6 @@ export function DatabaseModal({ config, onClose, onSuccess, onConnect, }) {
 //         form.setFieldsValue(redisInfo)
 //     }, [])
 
-    async function  connect() {
-        setLoading(true)
-        const values = await form.validateFields()
-        const reqData = {
-            host: values.host,
-            port: values.port,
-            user: values.user,
-            password: values.password,
-            db: values.db,
-            remember: values.remember,
-        }
-        if (values.remember) {
-            storage.set('redisInfo', reqData)
-        }
-        let ret = await request.post(`${config.host}/redis/connect`, reqData)
-        // console.log('ret', ret)
-        if (ret.success) {
-            // message.success('连接成功')
-            onConnect && onConnect()
-        }
-        setLoading(false)
-        // else {
-        //     message.error('连接失败')
-        // }
-    }
-
     return (
         <Modal
             title="新增数据库"

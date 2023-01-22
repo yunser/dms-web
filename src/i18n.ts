@@ -407,6 +407,8 @@ i18n
                     'reconnect_info': 'Retrying connection for the {times} time, waiting for {time}',
                     'reconnect_fail': 'Automatically retry connection for more than 3 times, connection failed',
                     'redis.load_more_keys': 'Load more keys',
+                    'parse': 'Parse',
+                    'from_url': 'From URL',
                 }
             },
             zh: {
@@ -806,6 +808,8 @@ i18n
                     'reconnect_info': '正在第 {times} 次重试连接，等待 {time}',
                     'reconnect_fail': '自动重试连接超过 3 次，连接失败',
                     'redis.load_more_keys': '加载更多键',
+                    'parse': '解析',
+                    'from_url': '从 URL 解析',
                 }
             }
         },

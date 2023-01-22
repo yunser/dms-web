@@ -12,6 +12,10 @@ import { EllipsisOutlined, ExportOutlined, EyeInvisibleOutlined, EyeOutlined, Ey
 import { FullCenterBox } from '@/views/common/full-center-box'
 import { IconButton } from '@/views/db-manager/icon-button';
 import { request } from '@/views/db-manager/utils/http';
+import URLParse from 'url-parse'
+
+
+
 
 function InputPassword(props) {
     const [visible, setVisible] = useState(false)
@@ -57,6 +61,7 @@ export function RedisConnect({ config, event$, onConnect, }) {
 //     "user": "",
 //     "password": ""
 // }`)
+    
 
     async function loadList() {
         // const connections = storage.get('redis-connections', [])
@@ -410,8 +415,9 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
 //     "user": "",
 //     "password": ""
 // }`)
-
-    
+    const [ urlVisible, setUrlVisible ] = useState(false)
+    const [ url, setUrl ] = useState('')
+    // const [ url, setUrl ] = useState('redis://default:redispw@localhost:55000')
 
     useEffect(() => {
         if (item) {
@@ -431,6 +437,35 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
             })
         }
     }, [item])
+
+    function parseUrl() {
+        if (!url) {
+            message.error('Please enter URL')
+            return
+        }
+        const urlObj = new URLParse(url)
+        console.log('urlObj', urlObj)
+        if (urlObj.protocol != 'redis:' && urlObj.protocol != 'rediss:') {
+            message.error('protocol must be redis: or rediss:')
+            return
+        }
+        const fieldsVlaue = {
+            host: urlObj.hostname,
+            port: parseInt(urlObj.port || '6379'),
+            password: urlObj.password,
+            userName: urlObj.username || '',
+            name: `${urlObj.username || 'default'}@${urlObj.hostname}`,
+            defaultDatabase: 0,
+        }
+        // /16
+        const m = urlObj.pathname.match(/^\/(\d+)$/)
+        console.log('m', m)
+        if (m) {
+            fieldsVlaue.defaultDatabase = parseInt(m[1])
+        }
+        form.setFieldsValue(fieldsVlaue)
+        // setUrlVisible(false)
+    }
 
     async function handleOk() {
         const values = await form.validateFields()
@@ -660,6 +695,40 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                     </Space>
                 </Form.Item> */}
             </Form>
+
+            {/* or from url */}
+            {urlVisible ?
+                <div className={styles.urlBox}>
+                    <Input
+                        className={styles.urlInput}
+                        value={url}
+                        onChange={e => {
+                            setUrl((e.target.value))
+                        }}
+                        placeholder="redis[s]://username:password@host:port/database"
+                    />
+                    <Button
+                        type="primary"
+                        onClick={() => {
+                            parseUrl()
+                        }}
+                    >
+                        {t('parse')}
+                    </Button>
+                </div>
+            :
+                <div className={styles.fromBox}>
+                    <Button
+                        className={styles.fromBtn}
+                        type="link"
+                        onClick={() => {
+                            setUrlVisible(true)
+                        }}
+                    >
+                        {t('from_url')}
+                    </Button>
+                </div>
+            }
         </Modal>
     );
 }

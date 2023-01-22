@@ -518,7 +518,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
             test: true,
             // remember: values.remember,
         }
-        let ret = await request.post(`${config.host}/redis/connect`, reqData)
+        let ret = await request.post(`${config.host}/mqtt/connect`, reqData)
         // console.log('ret', ret)
         if (ret.success) {
             message.success(t('success'))
