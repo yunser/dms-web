@@ -1,5 +1,5 @@
 import { Button, Checkbox, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Select, Space, Spin, Table, Tabs, Tooltip, Tree } from 'antd';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './redis-client.module.less';
 import _ from 'lodash';
 import { useTranslation } from 'react-i18next';
@@ -142,7 +142,7 @@ function DbSelector({ curDb, connectionId, onDatabaseChange, config }) {
                 <div>{t('db')}</div>
                 <Select
                     size="small"
-                    className={styles.select}
+                    className={styles.dbSelect}
                     value={curDb}
                     // Redis 默认数据库数量 16，16 * 32 = 512
                     listHeight={512}
@@ -209,7 +209,11 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
     const [keyword, setKeyword] = useState('')
     const [searchType, setSearchType] = useState('blur')
     const [searchKeyword, setSearchKeyword] = useState('')
+    const [total, setTotal] = useState(0)
     const [list, setList] = useState([])
+    const comData = useRef({
+        cursor: 0,
+    })
     // tree
     const [treeData, setTreeData] = useState([])
     const [expandedKeys, setExpandedKeys ] = useState([])
@@ -235,6 +239,10 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
             // }
         ],
     })
+
+    async function loadMore() {
+        await _loadKeys()
+    }
 
     function closeAllTab() {
         setTabInfo({
@@ -343,31 +351,40 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                 }
             }
         })
-        let res = await request.post(`${config.host}/redis/keys`, {
-            // dbName,
-            connectionId,
-            db: curDb,
-            keyword: searchKeyword,
-        })
-        if (res.success) {
-
-        }
     }
 
     async function loadKeys() {
+        comData.current.cursor = 0
+        await _loadKeys()
+    }
+
+    async function _loadKeys() {
         setLoading(true)
         let res = await request.post(`${config.host}/redis/keys`, {
             // dbName,
             connectionId,
             db: curDb,
+            cursor: comData.current.cursor,
             keyword: searchKeyword,
+            pageSize: 1000,
         })
+        const originList = list
         if (res.success) {
             // message.info('连接成功')
             // const list = res.data
             // console.log('res', list)
-            const { list } = res.data
-            setList(res.data.list)
+            
+            const { list: _list, total, cursor } = res.data
+            let list = []
+            if (comData.current.cursor == 0) {
+                list = _list
+            }
+            else {
+                list = [...originList, ..._list]
+            }
+            setTotal(total)
+            comData.current.cursor = cursor
+            setList(list)
             // const treeData = []
             const treeObj = {}
             for (let item of list) {
@@ -424,10 +441,6 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
         }
         setLoading(false)
     }
-
-
-
-    
 
     useEffect(() => {
         loadKeys()
@@ -582,6 +595,18 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                 }
             }
         })
+    }
+
+    async function gen2000() {
+        let res = await request.post(`${config.host}/redis/gen2000`, {
+            connectionId,
+            number: 2000,
+        })
+        console.log('get/res', res.data)
+        if (res.success) {
+            message.success(t('success'))
+            loadKeys()
+        }
     }
 
     function exportAllKeys() {
@@ -811,6 +836,10 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                                                 danger: true,
                                                 icon: <ClearOutlined />
                                             },
+                                            // {
+                                            //     label: t('生成 2000 条数据'),
+                                            //     key: 'gen_2000',
+                                            // },
                                         ]}
                                         onClick={({ key }) => {
                                             if (key == 'info') {
@@ -821,6 +850,9 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                                             }
                                             else if (key == 'export_json') {
                                                 exportAllKeys()
+                                            }
+                                            else if (key == 'gen_2000') {
+                                                gen2000()
                                             }
                                         }}
                                     />
@@ -920,173 +952,187 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                             <Empty />
                         </FullCenterBox>
                     :
-                        <Tree
-                            className={styles.tree}
-                            height={document.body.clientHeight - 42 - 48 - 16 - 80}
-                            treeData={treeData}
-                            expandedKeys={expandedKeys}
-                            onExpand={(expandedKeys) => {
-                                setExpandedKeys(expandedKeys)
-                            }}
-                            onSelect={(selectedKeys, info) => {
-                                const { key, type } = info.node
-                                if (type == 'type_folder') {
-                                    if (expandedKeys.includes(key)) {
-                                        setExpandedKeys(expandedKeys.filter(_key => _key != key))
+                        <div>
+                            <Tree
+                                className={styles.tree}
+                                height={document.body.clientHeight - 42 - 48 - 16 - 80}
+                                treeData={treeData}
+                                expandedKeys={expandedKeys}
+                                onExpand={(expandedKeys) => {
+                                    setExpandedKeys(expandedKeys)
+                                }}
+                                onSelect={(selectedKeys, info) => {
+                                    const { key, type } = info.node
+                                    if (type == 'type_folder') {
+                                        if (expandedKeys.includes(key)) {
+                                            setExpandedKeys(expandedKeys.filter(_key => _key != key))
+                                        }
+                                        else {
+                                            setExpandedKeys([
+                                                ...expandedKeys,
+                                                key,
+                                            ])
+                                        }
                                     }
-                                    else {
-                                        setExpandedKeys([
-                                            ...expandedKeys,
-                                            key,
-                                        ])
+                                }}
+                                titleRender={nodeData => {
+                                    // console.log('nodeData?', nodeData)
+                                    const { level = 0 } = nodeData
+                                    const item = nodeData.itemData
+                                    const colorMap = {
+                                        string: '#66a642',
+                                        list: '#dc9742',
+                                        set: '#4088cc',
+                                        hash: '#ad6ccb',
+                                        zset: '#c84f46',
                                     }
-                                }
-                            }}
-                            titleRender={nodeData => {
-                                // console.log('nodeData?', nodeData)
-                                const { level = 0 } = nodeData
-                                const item = nodeData.itemData
-                                const colorMap = {
-                                    string: '#66a642',
-                                    list: '#dc9742',
-                                    set: '#4088cc',
-                                    hash: '#ad6ccb',
-                                    zset: '#c84f46',
-                                }
-                                return (
-                                    <div className={styles.treeTitle}
-                                        style={{
-                                            width: 400 - level * 24 - 56,
+                                    return (
+                                        <div className={styles.treeTitle}
+                                            style={{
+                                                width: 400 - level * 24 - 56,
+                                            }}
+                                        >
+                                            {nodeData.type == 'type_key' &&
+                                                <Dropdown
+                                                    overlay={(
+                                                        <Menu
+                                                            items={[
+                                                                {
+                                                                    label: t('open_in_new_tab'),
+                                                                    key: 'open_in_new_tab',
+                                                                },
+                                                                {
+                                                                    label: t('copy_key_name'),
+                                                                    key: 'copy_key_name',
+                                                                },
+                                                                {
+                                                                    label: t('duplicate'),
+                                                                    key: 'duplicate',
+                                                                },
+                                                                {
+                                                                    label: t('rename'),
+                                                                    key: 'rename',
+                                                                },
+                                                                {
+                                                                    label: t('delete'),
+                                                                    key: 'key_delete',
+                                                                    danger: true,
+                                                                },
+                                                            ]}
+                                                            onClick={async ({ _item, key, keyPath, domEvent }) => {
+                                                                // onAction && onAction(key)
+                                                                if (key == 'open_in_new_tab') {
+                                                                    addKey2Tab(nodeData.itemData.key, { openInNewTab: true })
+                                                                }
+                                                                else if (key == 'key_delete') {
+                                                                    console.log('nodeData', nodeData)
+                                                                    removeKey(nodeData.itemData.key)
+                                                                }
+                                                                else if (key == 'copy_key_name') {
+                                                                    console.log('nodeData', nodeData)
+                                                                    // removeKey(item.key)
+                                                                    copy(nodeData.itemData.key)
+                                                                    message.info(t('copied'))
+                                                                }
+                                                                else if (key == 'rename') {
+                                                                    console.log('nodeData', nodeData)
+                                                                    setRenameModalVisible(true)
+                                                                    setRenameKey(nodeData.itemData.key)
+                                                                }
+                                                                else if (key == 'duplicate') {
+                                                                    setDuplicateVisible(true)
+                                                                    setDuplicateKey(nodeData.itemData.key)
+                                                                }
+                                                            }}
+                                                        >
+                                                        </Menu>
+                                                    )}
+                                                    trigger={['contextMenu']}
+                                                >
+                                                    <div className={styles.item}
+                                                        onClick={async () => {
+                                                            addKey2Tab(item.key)
+                                                        }}
+                                                    >
+                                                        <div className={styles.type}
+                                                            style={{
+                                                                backgroundColor: colorMap[item.type] || '#000'
+                                                            }}
+                                                        >{item.type}</div>
+                                                        <div className={styles.name}>{item.key}</div>
+                                                    </div>
+                                                </Dropdown>
+                                            }
+                                            {nodeData.type == 'type_folder' &&
+                                                <Dropdown
+                                                    overlay={(
+                                                        <Menu
+                                                            items={[
+                                                                // {
+                                                                //     label: t('export_json'),
+                                                                //     key: 'key_export_keys',
+                                                                // },
+                                                                {
+                                                                    label: t('export'),
+                                                                    key: 'key_export_keys',
+                                                                    children: [
+                                                                        {
+                                                                            label: t('export_keys'),
+                                                                            key: 'key_export_keys',
+                                                                        },
+                                                                        {
+                                                                            label: t('export_key_and_value'),
+                                                                            key: 'key_export_key_value',
+                                                                        },
+                                                                    ]
+                                                                },
+                                                                {
+                                                                    label: t('delete'),
+                                                                    key: 'key_delete',
+                                                                },
+                                                            ]}
+                                                            onClick={async ({ _item, key, keyPath, domEvent }) => {
+                                                                // onAction && onAction(key)
+                                                                if (key == 'key_delete') {
+                                                                    console.log('removeKeys', nodeData)
+                                                                    removeKeys(nodeData)
+                                                                }
+                                                                else if (key == 'key_export_keys') {
+                                                                    exportKeys(nodeData)
+                                                                }
+                                                                else if (key == 'key_export_key_value') {
+                                                                    exportKeyValue(nodeData)
+                                                                }
+                                                            }}
+                                                        >
+                                                        </Menu>
+                                                    )}
+                                                    trigger={['contextMenu']}
+                                                >
+                                                    <div className={styles.folderNode}>
+                                                        <FolderOutlined className={styles.icon} />
+                                                        {nodeData.title}
+                                                        <div className={styles.keyNum}>{nodeData.keyNum} {t('num_keys')}</div>
+                                                    </div>
+                                                </Dropdown>
+                                            }
+                                        </div>
+                                    )
+                                }}
+                            />
+                            {list.length != total && !keyword &&
+                                <div className={styles.moreBox}>
+                                    <Button
+                                        size="small"
+                                        onClick={() => {
+                                            loadMore()
                                         }}
                                     >
-                                        {nodeData.type == 'type_key' &&
-                                            <Dropdown
-                                                overlay={(
-                                                    <Menu
-                                                        items={[
-                                                            {
-                                                                label: t('open_in_new_tab'),
-                                                                key: 'open_in_new_tab',
-                                                            },
-                                                            {
-                                                                label: t('copy_key_name'),
-                                                                key: 'copy_key_name',
-                                                            },
-                                                            {
-                                                                label: t('duplicate'),
-                                                                key: 'duplicate',
-                                                            },
-                                                            {
-                                                                label: t('rename'),
-                                                                key: 'rename',
-                                                            },
-                                                            {
-                                                                label: t('delete'),
-                                                                key: 'key_delete',
-                                                                danger: true,
-                                                            },
-                                                        ]}
-                                                        onClick={async ({ _item, key, keyPath, domEvent }) => {
-                                                            // onAction && onAction(key)
-                                                            if (key == 'open_in_new_tab') {
-                                                                addKey2Tab(nodeData.itemData.key, { openInNewTab: true })
-                                                            }
-                                                            else if (key == 'key_delete') {
-                                                                console.log('nodeData', nodeData)
-                                                                removeKey(nodeData.itemData.key)
-                                                            }
-                                                            else if (key == 'copy_key_name') {
-                                                                console.log('nodeData', nodeData)
-                                                                // removeKey(item.key)
-                                                                copy(nodeData.itemData.key)
-                                                                message.info(t('copied'))
-                                                            }
-                                                            else if (key == 'rename') {
-                                                                console.log('nodeData', nodeData)
-                                                                setRenameModalVisible(true)
-                                                                setRenameKey(nodeData.itemData.key)
-                                                            }
-                                                            else if (key == 'duplicate') {
-                                                                setDuplicateVisible(true)
-                                                                setDuplicateKey(nodeData.itemData.key)
-                                                            }
-                                                        }}
-                                                    >
-                                                    </Menu>
-                                                )}
-                                                trigger={['contextMenu']}
-                                            >
-                                                <div className={styles.item}
-                                                    onClick={async () => {
-                                                        addKey2Tab(item.key)
-                                                    }}
-                                                >
-                                                    <div className={styles.type}
-                                                        style={{
-                                                            backgroundColor: colorMap[item.type] || '#000'
-                                                        }}
-                                                    >{item.type}</div>
-                                                    <div className={styles.name}>{item.key}</div>
-                                                </div>
-                                            </Dropdown>
-                                        }
-                                        {nodeData.type == 'type_folder' &&
-                                            <Dropdown
-                                                overlay={(
-                                                    <Menu
-                                                        items={[
-                                                            // {
-                                                            //     label: t('export_json'),
-                                                            //     key: 'key_export_keys',
-                                                            // },
-                                                            {
-                                                                label: t('export'),
-                                                                key: 'key_export_keys',
-                                                                children: [
-                                                                    {
-                                                                        label: t('export_keys'),
-                                                                        key: 'key_export_keys',
-                                                                    },
-                                                                    {
-                                                                        label: t('export_key_and_value'),
-                                                                        key: 'key_export_key_value',
-                                                                    },
-                                                                ]
-                                                            },
-                                                            {
-                                                                label: t('delete'),
-                                                                key: 'key_delete',
-                                                            },
-                                                        ]}
-                                                        onClick={async ({ _item, key, keyPath, domEvent }) => {
-                                                            // onAction && onAction(key)
-                                                            if (key == 'key_delete') {
-                                                                console.log('removeKeys', nodeData)
-                                                                removeKeys(nodeData)
-                                                            }
-                                                            else if (key == 'key_export_keys') {
-                                                                exportKeys(nodeData)
-                                                            }
-                                                            else if (key == 'key_export_key_value') {
-                                                                exportKeyValue(nodeData)
-                                                            }
-                                                        }}
-                                                    >
-                                                    </Menu>
-                                                )}
-                                                trigger={['contextMenu']}
-                                            >
-                                                <div className={styles.folderNode}>
-                                                    <FolderOutlined className={styles.icon} />
-                                                    {nodeData.title}
-                                                    <div className={styles.keyNum}>{nodeData.keyNum} {t('num_keys')}</div>
-                                                </div>
-                                            </Dropdown>
-                                        }
-                                    </div>
-                                )
-                            }}
-                        />
+                                        {t('redis.load_more_keys')}
+                                    </Button>
+                                </div>
+                            }
+                        </div>
                     }
                 </div>
                 <div className={styles.footer}>
@@ -1095,7 +1141,7 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                             config={config}
                             connectionId={connectionId}
                         />
-                        <div>{list.length} {t('num_keys')}</div>
+                        <div>{total} {t('num_keys')}</div>
                     </Space>
                     <DbSelector
                         connectionId={connectionId}

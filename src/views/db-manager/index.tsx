@@ -1118,7 +1118,7 @@ export function DbManager({ config }) {
                                                         defaultDatabase,
                                                     },
                                                 }, {
-                                                    closeCurrentTab: true,
+                                                    // closeCurrentTab: true,
                                                 })
                                             }}
                                         />
