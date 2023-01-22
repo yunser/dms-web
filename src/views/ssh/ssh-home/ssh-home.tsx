@@ -73,7 +73,7 @@ function Commands({ config, onClickItem }) {
     )
 }
 
-export function SshDetail({ config, local = false, defaultPath, item, onBack, onSftpPath }) {
+export function SshDetail({ config, defaultPath, item, onSftpPath }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [list, setList] = useState<File[]>([])

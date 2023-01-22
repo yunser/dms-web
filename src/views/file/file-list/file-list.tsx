@@ -139,7 +139,7 @@ function CollectionList({ config, event$, onItemClick }) {
 // _sourceType: local ssh oss:linxot-public oss:undefined（坚果云）
 // 
 export function FileList({ config, sourceType: _sourceType = 'local', event$, tabKey,
-    item, webdavItem, ossItem, defaultPath: _defaultPath }) {
+    item, webdavItem, ossItem, defaultPath: _defaultPath, onSshPath }) {
     // const showSide = _sourceType == 'local'
     const showSide = true
     // const { defaultJson = '' } = data
@@ -1003,6 +1003,17 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                             >
                                 <UploadOutlined />
                             </IconButton>
+                        }
+                        {sourceType != 'local' &&
+                            <Button
+                                size="small"
+                                // tooltip={t('upload')}
+                                onClick={() => {
+                                    onSshPath && onSshPath(curPath)
+                                }}
+                            >
+                                SSH
+                            </Button>
                         }
                         <Dropdown
                             overlay={

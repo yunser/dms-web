@@ -1282,6 +1282,18 @@ export function DbManager({ config }) {
                                             sourceType="ssh"
                                             item={item.data.item}
                                             defaultPath={item.data.defaultPath}
+                                            onSshPath={path => {
+                                                console.log('onSshPath', path)
+                                                addOrActiveTab({
+                                                    title: item.data.item.name,
+                                                    key: `terminal-${uid(16)}`,
+                                                    type: 'ssh-detail',
+                                                    data: {
+                                                        item: item.data.item,
+                                                        path,
+                                                    },
+                                                })
+                                            }}
                                         />
                                     }
                                     {item.type == 'tcp/udp' &&
