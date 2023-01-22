@@ -1106,7 +1106,7 @@ export function DbManager({ config }) {
                                         <RedisConnect
                                             event$={event$}
                                             config={config}
-                                            onConnect={({ connectionId, name, defaultDatabase }) => {
+                                            onConnect={({ connectionId, name, defaultDatabase, item }) => {
                                                 console.log('onConnect', connectionId)
                                                 addOrActiveTab({
                                                     // title: 'Redis',
@@ -1114,6 +1114,7 @@ export function DbManager({ config }) {
                                                     key: 'redis-' + uid(16),
                                                     type: 'redis-client',
                                                     data: {
+                                                        item,
                                                         connectionId,
                                                         defaultDatabase,
                                                     },
@@ -1127,7 +1128,7 @@ export function DbManager({ config }) {
                                         <RedisClient
                                             config={config}
                                             event$={event$}
-                                            
+                                            item={item.data.item}
                                             connectionId={item.data.connectionId}
                                             defaultDatabase={item.data.defaultDatabase}
                                         />

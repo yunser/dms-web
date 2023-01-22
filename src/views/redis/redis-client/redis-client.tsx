@@ -19,6 +19,7 @@ import { RedisRenameModal } from '../redis-rename';
 import { RedisDuplicateModal } from '../redis-duplicate';
 import { PubSubModal } from '../redis-pubsub';
 import { FullCenterBox } from '@/views/common/full-center-box';
+import moment from 'moment';
 
 
 function Status({ config, connectionId }) {
@@ -26,6 +27,9 @@ function Status({ config, connectionId }) {
     const [status, setStatus] = useState('unknown')
     // 仅用于心跳
     async function ping() {
+        if (!connectionId) {
+            return
+        }
         // setLoading(true)
         let res = await request.post(`${config.host}/redis/ping`, {
             connectionId,
@@ -45,10 +49,12 @@ function Status({ config, connectionId }) {
         // setLoading(false)
     }
 
+    // TODO 依赖 connectionId
     useInterval(() => {
         ping()
     }, 30 * 1000, {
         immediate: true,
+        
     })
 
     const colors = {
@@ -87,6 +93,9 @@ function DbSelector({ curDb, connectionId, onDatabaseChange, config }) {
 
     async function loadKeys() {
         // setLoading(true)
+        if (!connectionId) {
+            return
+        }
         let res = await request.post(`${config.host}/redis/config`, {
             connectionId,
             // dbName,
@@ -132,7 +141,7 @@ function DbSelector({ curDb, connectionId, onDatabaseChange, config }) {
     useEffect(() => {
         loadKeys()
         // loadInfo()
-    }, [curDb])
+    }, [connectionId, curDb])
 
     return (
         <div>
@@ -200,10 +209,20 @@ function obj2Tree(obj, handler) {
     return handleObj(obj, '_____root', '', 0).sort(sorter)
 }
 
-export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 }) {
+function sleep(ms) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve();
+        }, ms);
+    });
+}
+
+export function RedisClient({ config, event$, connectionId: _connectionId, 
+    item: _item, defaultDatabase = 0 }) {
     const [curDb, setCurDb] = useState(defaultDatabase)
     const { t } = useTranslation()
     
+    const [ connectionId, setConnectionId ] = useState(_connectionId)
     const [loading, setLoading] = useState(false)
     
     const [keyword, setKeyword] = useState('')
@@ -213,7 +232,20 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
     const [list, setList] = useState([])
     const comData = useRef({
         cursor: 0,
+        connectTime: 0,
+        connectionId: _connectionId,
     })
+    const [wsStatus, setWsStatus] = useState('disconnected')
+    const colors = {
+        connected: 'green',
+        disconnected: 'red',
+    }
+    const tooltips = {
+        connected: t('connected'),
+        disconnected: t('disconnected'),
+        // unknown: 'Un Connect',
+    }
+
     // tree
     const [treeData, setTreeData] = useState([])
     const [expandedKeys, setExpandedKeys ] = useState([])
@@ -238,6 +270,137 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
             //     label: '111',
             // }
         ],
+    })
+
+    useEffect(() => {
+        if (connectionId) {
+            loadKeys()
+        }
+    }, [connectionId, curDb, searchKeyword])
+
+    function initWebSocket() {
+        let first = true
+        const ws = new WebSocket('ws://localhost:10087/')
+        console.log('initWebSocket')
+        console.log('readyState', ws.readyState)
+        
+        ws.onclose = async () => {
+            console.log('socket/on-close')
+            setWsStatus('disconnected')
+            console.log('readyState', ws.readyState)
+
+            // if (comData.current.connectTime < 3) {
+            //     comData.current.connectTime++
+            //     const ms = comData.current.connectTime * 2000
+            //     const action = `正在第 ${comData.current.connectTime} 次重试连接，等待 ${ms} ms`
+            //     console.log('time', moment().format('mm:ss'))   
+            //     console.log(action)
+            //     // setWsAction(action)
+            //     await sleep(ms)
+            //     initWebSocket()
+            // }
+            // else {
+            //     // setWsAction('自动重试连接超过 3 次，连接失败')
+            // }
+        }
+        ws.onopen = () => {
+            comData.current.connectTime = 0
+            console.log('onopen', )
+            setWsStatus('connected')
+            // setWsAction('')
+            console.log('readyState', ws.readyState)
+
+            // const _xterm = xtermRef.current
+            ws.send(JSON.stringify({
+                type: 'redisBind',
+                data: {
+                    connectionId: comData.current.connectionId,
+                },
+            }))
+            // console.log('sended')
+        }
+        ws.onerror = (err) => {
+            // setWsStatus('error')
+            setWsStatus('disconnected')
+            console.log('socket error', err)
+            console.log('readyState', ws.readyState)
+            // if (ws.)
+
+            // if 
+
+        }
+        ws.onmessage = (event) => {
+            const text = event.data.toString()
+            console.log('onmessage', text)
+            // {"channel":"msg:timer","message":"2023-01-18 22:21:10"}
+            // 接收推送的消息
+            let msg
+            try {
+                msg = JSON.parse(text)
+            }
+            catch (err) {
+                console.log('JSON.parse err', err)
+                return
+            }
+        }
+        return ws
+    }
+
+    async function connect() {
+        console.log('重连', _item)
+        const item = _item
+        const reqData = {
+            host: item.host,
+            port: item.port,
+            user: item.user,
+            password: item.password,
+            userName: item.userName,
+            db: item.defaultDatabase || 0,
+            // remember: values.remember,
+        }
+        // if (values.remember) {
+        //     storage.set('redisInfo', reqData)
+        // }
+        let ret = await request.post(`${config.host}/redis/connect`, reqData)
+        // console.log('ret', ret)
+        if (ret.success) {
+            message.success('连接成功')
+            setConnectionId(ret.data.connectionId)
+            comData.current.connectionId = ret.data.connectionId
+            initWebSocket()
+            // onConnect && onConnect({
+            //     connectionId: ret.data.connectionId,
+            //     name: item.name,
+            //     defaultDatabase: item.defaultDatabase || 0,
+            //     item,
+            // })
+        }
+    }
+
+    useEffect(() => {
+        connect()
+    }, [_item])
+
+    async function reconnect() {
+        console.log('重连', _item)
+        connect()
+    }
+
+    event$.useSubscription(msg => {
+        console.log('RedisClient/onmessage', msg)
+        // console.log(val);
+        if (msg.type == 'event_show_key') {
+            const { connectionId: _connectionId, key } = msg.data
+            if (_connectionId == connectionId) {
+                addKey2Tab(key)
+            }
+        }
+        else if (msg.type == 'event_open_command') {
+            const { connectionId: _connectionId, command } = msg.data
+            if (_connectionId == connectionId) {
+                addEditorTab(command)
+            }
+        }
     })
 
     async function loadMore() {
@@ -343,7 +506,6 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                 // console.log('ret', ret)
                 if (ret.success) {
                     // message.success('连接成功')
-                    // onConnect && onConnect()
                     message.success(t('success'))
                     loadKeys()
                     // onClose && onClose()
@@ -365,7 +527,6 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                 // console.log('ret', ret)
                 if (ret.success) {
                     // message.success('连接成功')
-                    // onConnect && onConnect()
                     message.success(t('success'))
                     loadKeys()
                     // onClose && onClose()
@@ -463,10 +624,6 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
         }
         setLoading(false)
     }
-
-    useEffect(() => {
-        loadKeys()
-    }, [curDb, searchKeyword])
 
     function addLikeTab() {
         const tabKey = uid(32)
@@ -582,23 +739,6 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
             })
         }
     }
-
-    event$.useSubscription(msg => {
-        console.log('RedisClient/onmessage', msg)
-        // console.log(val);
-        if (msg.type == 'event_show_key') {
-            const { connectionId: _connectionId, key } = msg.data
-            if (_connectionId == connectionId) {
-                addKey2Tab(key)
-            }
-        }
-        else if (msg.type == 'event_open_command') {
-            const { connectionId: _connectionId, command } = msg.data
-            if (_connectionId == connectionId) {
-                addEditorTab(command)
-            }
-        }
-    })
 
     function removeKey(key, cb) {
         Modal.confirm({
@@ -1168,10 +1308,33 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                 </div>
                 <div className={styles.footer}>
                     <Space>
-                        <Status
+                        {/* <Status
                             config={config}
                             connectionId={connectionId}
-                        />
+                        /> */}
+                        {/* {wsStatus} */}
+                        <Tooltip
+                            placement="topLeft"
+                            title={tooltips[wsStatus]}
+                        >
+                            <LinkOutlined
+                                style={{
+                                    // fontWeight: 'bold',
+                                    color: colors[wsStatus],
+                                }}
+                            />
+                        </Tooltip>
+                        {wsStatus != 'connected' &&
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    reconnect()
+                                }}
+                            >
+                                {/* 重连 */}
+                                {t('connect')}
+                            </Button>
+                        }
                         <div>{total} {t('num_keys')}</div>
                     </Space>
                     <DbSelector

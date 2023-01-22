@@ -94,6 +94,13 @@ export function RedisConnect({ config, event$, onConnect, }) {
     }, [])
 
     async function connect(item) {
+        onConnect && onConnect({
+            connectionId: null,
+            name: item.name,
+            defaultDatabase: item.defaultDatabase || 0,
+            item,
+        })
+        return
         // setLoading(true)
         // const values = await form.validateFields()
         const reqData = {
@@ -116,6 +123,7 @@ export function RedisConnect({ config, event$, onConnect, }) {
                 connectionId: ret.data.connectionId,
                 name: item.name,
                 defaultDatabase: item.defaultDatabase || 0,
+                item,
             })
         }
         // setLoading(false)
