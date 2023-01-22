@@ -5,6 +5,7 @@ import {
     Input,
     Menu,
     message,
+    Modal,
     Space,
     Tabs,
     Tooltip,
@@ -22,7 +23,7 @@ import SqlBox from './SqlBox'
 // import type { DataNode, TreeProps } from 'antd/es/tree';
 import { TableDetail } from '../table-detail/table-detail'
 // import { suggestionAdd } from '../suggestion'
-import { CloseOutlined, DatabaseOutlined, DownOutlined, EllipsisOutlined, HistoryOutlined, MenuOutlined, ReloadOutlined, TableOutlined } from '@ant-design/icons';
+import { CloseOutlined, DatabaseOutlined, DownOutlined, EllipsisOutlined, HistoryOutlined, LinkOutlined, MenuOutlined, ReloadOutlined, TableOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next'
 import { IconButton } from '../icon-button'
 import { ExecModal } from '../exec-modal/exec-modal'
@@ -41,6 +42,7 @@ import { suggestionAdd } from '../suggestion'
 import { MySqlInfo } from '../mysql-info'
 import { SqlQuickPanel } from '../sql-quick/sql-quick'
 import { TableViewer } from '../table-view/table-view'
+import storage from '@/utils/storage'
 
 // console.log('ddd.0')
 // _.debounce(() => {
@@ -181,7 +183,7 @@ function Status({ databaseType, config, event$, connectionId }) {
     return (
         <div className={styles.statusBox}>
             {/* {connectionId} */}
-            {!!err ?
+            {/* {!!err ?
                 <div className={styles.error}>
                     <div>{t('connect_error')}</div>
                     <Button
@@ -195,7 +197,7 @@ function Status({ databaseType, config, event$, connectionId }) {
                 <div className={styles.success}>
                     {t('connected')}
                 </div>
-            }
+            } */}
 
             {/* <CurrentSchema
                 config={config}
@@ -216,11 +218,12 @@ function Status({ databaseType, config, event$, connectionId }) {
     )
 }
 
-export function DataBaseDetail({ databaseType = 'mysql', curConnect, connectionId, event$, config, onJson }) {
+export function DataBaseDetail({ databaseType = 'mysql', curConnect, _connectionId, event$, config, onJson }) {
     console.warn('DataBaseDetail/render')
 
     const { t } = useTranslation()
 
+    const [connectionId, setConnectionId] = useState(_connectionId)
     const [sql, setSql] = useState('')
     const first_key = 'key-zero'
     const tabs_default: Array<TabProps> = [
@@ -245,11 +248,22 @@ export function DataBaseDetail({ databaseType = 'mysql', curConnect, connectionI
     const [activeKey, _setActiveKey] = useState('')
     const [tabViewId, setTabViewId] = useState('')
     const [tabs, setTabs] = useState(tabs_default)
-
-    function setActiveKey(key) {
-        setTabViewId('' + new Date().getTime())
-        _setActiveKey(key)
+    const [wsStatus, setWsStatus] = useState('disconnected')
+    const colors = {
+        connected: 'green',
+        disconnected: 'red',
     }
+    const tooltips = {
+        connected: t('connected'),
+        disconnected: t('disconnected'),
+        // unknown: 'Un Connect',
+    }
+    const [connecting, setConnecting] = useState(false)
+    const comData = useRef({
+        // cursor: 0,
+        connectTime: 0,
+        connectionId: _connectionId,
+    })
 
     event$.useSubscription(msg => {
         console.log('dbManager/onmessage', msg)
@@ -327,6 +341,136 @@ export function DataBaseDetail({ databaseType = 'mysql', curConnect, connectionI
         }
     })
 
+    function setActiveKey(key) {
+        setTabViewId('' + new Date().getTime())
+        _setActiveKey(key)
+    }
+
+    function initWebSocket() {
+        let first = true
+        const ws = new WebSocket('ws://localhost:10087/')
+        console.log('initWebSocket')
+        console.log('readyState', ws.readyState)
+        
+        ws.onclose = async () => {
+            console.log('socket/on-close')
+            setWsStatus('disconnected')
+            console.log('readyState', ws.readyState)
+
+            // if (comData.current.connectTime < 3) {
+            //     comData.current.connectTime++
+            //     const ms = comData.current.connectTime * 2000
+            //     const action = `正在第 ${comData.current.connectTime} 次重试连接，等待 ${ms} ms`
+            //     console.log('time', moment().format('mm:ss'))   
+            //     console.log(action)
+            //     // setWsAction(action)
+            //     await sleep(ms)
+            //     initWebSocket()
+            // }
+            // else {
+            //     // setWsAction('自动重试连接超过 3 次，连接失败')
+            // }
+        }
+        ws.onopen = () => {
+            comData.current.connectTime = 0
+            console.log('onopen', )
+            setWsStatus('connected')
+            // setWsAction('')
+            console.log('readyState', ws.readyState)
+
+            // const _xterm = xtermRef.current
+            ws.send(JSON.stringify({
+                type: 'dbBind',
+                data: {
+                    connectionId: comData.current.connectionId,
+                },
+            }))
+            // console.log('sended')
+        }
+        ws.onerror = (err) => {
+            // setWsStatus('error')
+            setWsStatus('disconnected')
+            console.log('socket error', err)
+            console.log('readyState', ws.readyState)
+            // if (ws.)
+
+            // if 
+
+        }
+        ws.onmessage = (event) => {
+            const text = event.data.toString()
+            console.log('onmessage', text)
+            // {"channel":"msg:timer","message":"2023-01-18 22:21:10"}
+            // 接收推送的消息
+            let msg
+            try {
+                msg = JSON.parse(text)
+            }
+            catch (err) {
+                console.log('JSON.parse err', err)
+                return
+            }
+        }
+        return ws
+    }
+
+    async function connect() {
+        setConnecting(true)
+        const reqData = {
+            ...curConnect,
+        }
+        let ret = await request.post(`${config.host}/mysql/connect`, reqData)
+        // console.log('ret', ret)
+        if (ret.success) {
+            // message.success('连接成功')
+            // onConnect && onConnect({
+            //     ...ret.data,
+            //     curConnect: reqData,
+            // })
+            setConnectionId(ret.data.connectionId)
+            
+    
+            const historyConnections = storage.get('historyConnections', [])
+            let newHistoryConnections = historyConnections.filter(item => item.id != reqData.id)
+            newHistoryConnections.unshift({
+                _name: reqData.name,
+                id: reqData.id,
+            })
+            if (newHistoryConnections.length > 8) {
+                newHistoryConnections = newHistoryConnections.slice(0, 8)
+            }
+            storage.set('historyConnections', newHistoryConnections)
+
+            comData.current.connectionId = ret.data.connectionId
+            initWebSocket()
+        }
+        setConnecting(false)
+    }
+    
+    useEffect(() => {
+        connect()
+    }, [curConnect])
+
+    useEffect(() => {
+        if (!connectionId) {
+            return
+        }
+        if (databaseType == 'postgresql') {
+
+        }
+        else if (databaseType == 'sqlite') {
+
+        }
+        else if (databaseType == 'mssql') {
+
+        }
+        else if (databaseType == 'alasql') {
+
+        }
+        else {
+            loadAllTables()
+        }
+    }, [connectionId])
 
     async function loadAllTables() {
         let res = await request.post(`${config.host}/mysql/execSqlSimple`, {
@@ -361,23 +505,7 @@ export function DataBaseDetail({ databaseType = 'mysql', curConnect, connectionI
         // setLoading(false)
     }
 
-    useEffect(() => {
-        if (databaseType == 'postgresql') {
-
-        }
-        else if (databaseType == 'sqlite') {
-
-        }
-        else if (databaseType == 'mssql') {
-
-        }
-        else if (databaseType == 'alasql') {
-
-        }
-        else {
-            loadAllTables()
-        }
-    }, [])
+    
 
     function addOrActiveTab(tab, { closeCurrentTab = false,} = {}) {
         const exists = tabs.find(t => t.key == tab.key)
@@ -462,6 +590,29 @@ export function DataBaseDetail({ databaseType = 'mysql', curConnect, connectionI
                     }}
                 />
                 <div className={styles.status}>
+                    <Space>
+                        <Tooltip
+                            placement="topLeft"
+                            title={tooltips[wsStatus]}
+                            >
+                            <LinkOutlined
+                                style={{
+                                    // fontWeight: 'bold',
+                                    color: colors[wsStatus],
+                                }}
+                                />
+                        </Tooltip>
+                        {wsStatus != 'connected' &&
+                            <Button
+                            size="small"
+                            onClick={() => {
+                                connect()
+                            }}
+                            >
+                                {t('connect')}
+                            </Button>
+                        }
+                    </Space>
                     <Status
                         databaseType={databaseType}
                         event$={event$}
@@ -715,6 +866,20 @@ export function DataBaseDetail({ databaseType = 'mysql', curConnect, connectionI
                     tableName={null}
                     dbName={null}
                 />
+            }
+            {connecting &&
+                <Modal
+                    open={true}
+                    // centered
+                    // title="connecting"
+                    title={null}
+                    footer={null}
+                    onCancel={() => {
+                        setConnecting(false)
+                    }}
+                >
+                    {t('connecting')}
+                </Modal>
             }
         </div>
     )

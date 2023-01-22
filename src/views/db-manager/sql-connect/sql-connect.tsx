@@ -550,28 +550,33 @@ export function SqlConnector({ config, event$, onConnect, onJson }) {
     }, [keyword])
 
     async function _connect(reqData) {
-        setConnecting(true)
-        let ret = await request.post(`${config.host}/mysql/connect`, reqData)
-        // console.log('ret', ret)
-        if (ret.success) {
-            // message.success('连接成功')
-            onConnect && onConnect({
-                ...ret.data,
-                curConnect: reqData,
-            })
+        onConnect && onConnect({
+            id: null,
+            curConnect: reqData,
+        })
+        return
+        // setConnecting(true)
+        // let ret = await request.post(`${config.host}/mysql/connect`, reqData)
+        // // console.log('ret', ret)
+        // if (ret.success) {
+        //     // message.success('连接成功')
+        //     onConnect && onConnect({
+        //         ...ret.data,
+        //         curConnect: reqData,
+        //     })
 
-            const historyConnections = storage.get('historyConnections', [])
-            let newHistoryConnections = historyConnections.filter(item => item.id != reqData.id)
-            newHistoryConnections.unshift({
-                _name: reqData.name,
-                id: reqData.id,
-            })
-            if (newHistoryConnections.length > 8) {
-                newHistoryConnections = newHistoryConnections.slice(0, 8)
-            }
-            storage.set('historyConnections', newHistoryConnections)
-        }
-        setConnecting(false)
+        //     const historyConnections = storage.get('historyConnections', [])
+        //     let newHistoryConnections = historyConnections.filter(item => item.id != reqData.id)
+        //     newHistoryConnections.unshift({
+        //         _name: reqData.name,
+        //         id: reqData.id,
+        //     })
+        //     if (newHistoryConnections.length > 8) {
+        //         newHistoryConnections = newHistoryConnections.slice(0, 8)
+        //     }
+        //     storage.set('historyConnections', newHistoryConnections)
+        // }
+        // setConnecting(false)
     }
 
     async function connect(data) {

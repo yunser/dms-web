@@ -541,8 +541,11 @@ export function SqlTree({ databaseType, curConnect, config, event$, connectionId
     }
 
     useEffect(() => {
+        if (!connectionId) {
+            return
+        }
         loadDbList()
-    }, [])
+    }, [connectionId])
 
 
     async function loadTableFields({schemaName, tableName}) {

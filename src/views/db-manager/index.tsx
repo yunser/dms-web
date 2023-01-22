@@ -1030,7 +1030,7 @@ export function DbManager({ config }) {
                                             data={item.data}
                                             key={item.key}
                                             config={config}
-                                            onUploaded={({ id }) => {
+                                            onUploaded={({ connectionId }) => {
                                                 const key = '' + new Date().getTime()
                                                 addOrActiveTab({
                                                     // title: `${curConnect.name || 'Unnamed'}`,
@@ -1039,7 +1039,7 @@ export function DbManager({ config }) {
                                                     type: 'database',
                                                     data: {
                                                         name: null,
-                                                        connectionId: id,
+                                                        connectionId,
                                                         databaseType: 'alasql',
                                                     }
                                                 }, {
@@ -1408,7 +1408,7 @@ export function DbManager({ config }) {
                                         <AlasqlHome
                                             config={config}
                                             event$={event$}
-                                            onUploaded={({ id, name = '' }) => {
+                                            onUploaded={({ connectionId, name = '' }) => {
                                                 const key = '' + new Date().getTime()
                                                 addOrActiveTab({
                                                     // title: `${curConnect.name || 'Unnamed'}`,
@@ -1417,7 +1417,7 @@ export function DbManager({ config }) {
                                                     type: 'database',
                                                     data: {
                                                         name: null,
-                                                        connectionId: id,
+                                                        connectionId,
                                                         databaseType: 'alasql',
                                                     }
                                                 }, {
