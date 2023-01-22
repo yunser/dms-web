@@ -353,6 +353,28 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
         })
     }
 
+    async function flushAll() {
+        Modal.confirm({
+            // title: 'Confirm',
+            // icon: <ExclamationCircleOutlined />,
+            content: `确认清空全部数据库的数据?`,
+            async onOk() {
+                let ret = await request.post(`${config.host}/redis/flushAll`, {
+                    connectionId,
+                })
+                // console.log('ret', ret)
+                if (ret.success) {
+                    // message.success('连接成功')
+                    // onConnect && onConnect()
+                    message.success(t('success'))
+                    loadKeys()
+                    // onClose && onClose()
+                    // onSuccess && onSuccess()
+                }
+            }
+        })
+    }
+
     async function loadKeys() {
         comData.current.cursor = 0
         await _loadKeys()
@@ -831,8 +853,14 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                                                 type: 'divider',
                                             },
                                             {
-                                                label: t('clear'),
-                                                key: 'clear',
+                                                label: t('clear_current_database'),
+                                                key: 'flush',
+                                                danger: true,
+                                                icon: <ClearOutlined />
+                                            },
+                                            {
+                                                label: t('clear_all'),
+                                                key: 'flush_all',
                                                 danger: true,
                                                 icon: <ClearOutlined />
                                             },
@@ -845,8 +873,11 @@ export function RedisClient({ config, event$, connectionId, defaultDatabase = 0 
                                             if (key == 'info') {
                                                 addInfoTab()
                                             }
-                                            else if (key == 'clear') {
+                                            else if (key == 'flush') {
                                                 flush()
+                                            }
+                                            else if (key == 'flush_all') {
+                                                flushAll()
                                             }
                                             else if (key == 'export_json') {
                                                 exportAllKeys()
