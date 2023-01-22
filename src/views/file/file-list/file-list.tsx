@@ -431,20 +431,23 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         window.open(`http://localhost:3002?data=${encodeURIComponent(downloadUrl)}`, '_blank')
     }
 
+    async function openInOs(path: string) {
+        let ret = await request.post(`${config.host}/file/openInOs`, {
+            sourceType,
+            path,
+        })
+        if (ret.success) {
+            // message.success('连接成功')
+        }
+    }
+
     async function openInFinder(path: string) {
         let ret = await request.post(`${config.host}/file/openInFinder`, {
             sourceType,
             path,
-            // type: item.type,
         })
-        // console.log('ret', ret)
         if (ret.success) {
             // message.success('连接成功')
-            // onConnect && onConnect()
-            // message.success(t('success'))
-            // onClose && onClose()
-            // onSuccess && onSuccess()
-            // loadList()
         }
     }
 
@@ -1198,6 +1201,9 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                 else if (key == 'finder') {
                                                                     openInFinder(item.path)
                                                                 }
+                                                                else if (key == 'open_in_os') {
+                                                                    openInOs(item.path)
+                                                                }
                                                                 else if (key == 'clear') {
                                                                     clearItem(item)
                                                                 }
@@ -1234,6 +1240,10 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                     {
                                                                         label: t('file.open_in_finder'),
                                                                         key: 'finder',
+                                                                    },
+                                                                    {
+                                                                        label: t('file.open_in_os'),
+                                                                        key: 'open_in_os',
                                                                     },
                                                                 ] : []),
                                                                 ...(sourceType != 'local' ? [
