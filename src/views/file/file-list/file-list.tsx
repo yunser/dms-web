@@ -1,4 +1,4 @@
-import { Button, Descriptions, Divider, Dropdown, Empty, Input, Menu, message, Modal, Popover, Space, Spin, Table, Tabs, Tag } from 'antd';
+import { Button, Descriptions, Divider, Dropdown, Empty, Input, Menu, message, Modal, Popover, Space, Spin, Table, Tabs, Tag, Tooltip } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './file-list.module.less';
 import _ from 'lodash';
@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { AppstoreOutlined, CodeOutlined, CreditCardOutlined, DatabaseOutlined, DownloadOutlined, EllipsisOutlined, FileOutlined, FileSearchOutlined, FileWordOutlined, FolderOutlined, HomeOutlined, LeftOutlined, PlusOutlined, ReloadOutlined, UploadOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, CodeOutlined, CreditCardOutlined, DatabaseOutlined, DownloadOutlined, EllipsisOutlined, FileOutlined, FileSearchOutlined, FileWordOutlined, FolderOutlined, HomeOutlined, LeftOutlined, LinkOutlined, PlusOutlined, ReloadOutlined, UploadOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
@@ -48,7 +48,7 @@ function myGetIconForFile(path) {
     if (_path.endsWith('.apk')) {
         return 'folder_type_android.svg'
     }
-    
+
     return getIconForFile(_path)
 }
 
@@ -173,15 +173,15 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
     const [fileModalPath, setFileModalPath] = useState('')
     const [fileEditModalVisible, setFileEditModalVisible] = useState(false)
     const [pathModalVisible, setPathModalVisible] = useState(false)
-    
+
     const [ossInfoItem, setOssInfoItem] = useState(true)
     const [ossInfoVisible, setOssInfoVisible] = useState(false)
 
     const [infoVisible, setInfoVisible] = useState(false)
     const [fileInfoPath, setFileInfoPath] = useState('')
-    
+
     const [keyword, setKeyword] = useState('')
-    
+
     const [folderVisible, setFolderVisible] = useState(false)
     const [folderType, setFolderType] = useState('')
 
@@ -202,6 +202,23 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
     const [info, setInfo] = useState(null)
     const rootRef = useRef(null)
 
+    const [wsStatus, setWsStatus] = useState('disconnected')
+    const colors = {
+        connected: 'green',
+        disconnected: 'red',
+    }
+    const tooltips = {
+        connected: t('connected'),
+        disconnected: t('disconnected'),
+        // unknown: 'Un Connect',
+    }
+    const comData = useRef({
+        // cursor: 0,
+        connectTime: 0,
+        connectionId: '',
+    })
+
+
     console.log('FileList/sourceType', sourceType)
     console.log('FileList/_sourceType', _sourceType)
 
@@ -214,7 +231,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         })
     }, [list, keyword])
 
-    async function connect() {
+    async function sftpConnect() {
         // console.log('flow/1', )
         setConnecting(true)
         let res = await request.post(`${config.host}/sftp/connect`, {
@@ -232,6 +249,9 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
             setConnected(true)
             setSourceType(res.data.connectionId)
             setCurPath(defaultPath)
+
+            comData.current.connectionId = res.data.connectionId
+            initWebSocket()
         }
         setConnecting(false)
     }
@@ -305,12 +325,80 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         setConnecting(false)
     }
 
-    useEffect(() => {
+    function initWebSocket() {
+        let first = true
+        const ws = new WebSocket('ws://localhost:10087/')
+        console.log('initWebSocket')
+        console.log('readyState', ws.readyState)
+        
+        ws.onclose = async () => {
+            console.log('socket/on-close')
+            setWsStatus('disconnected')
+            console.log('readyState', ws.readyState)
+
+            // if (comData.current.connectTime < 3) {
+            //     comData.current.connectTime++
+            //     const ms = comData.current.connectTime * 2000
+            //     const action = `正在第 ${comData.current.connectTime} 次重试连接，等待 ${ms} ms`
+            //     console.log('time', moment().format('mm:ss'))   
+            //     console.log(action)
+            //     // setWsAction(action)
+            //     await sleep(ms)
+            //     initWebSocket()
+            // }
+            // else {
+            //     // setWsAction('自动重试连接超过 3 次，连接失败')
+            // }
+        }
+        ws.onopen = () => {
+            comData.current.connectTime = 0
+            console.log('onopen', )
+            setWsStatus('connected')
+            // setWsAction('')
+            console.log('readyState', ws.readyState)
+
+            // const _xterm = xtermRef.current
+            ws.send(JSON.stringify({
+                type: 'sftpBind',
+                data: {
+                    connectionId: comData.current.connectionId,
+                },
+            }))
+            // console.log('sended')
+        }
+        ws.onerror = (err) => {
+            // setWsStatus('error')
+            setWsStatus('disconnected')
+            console.log('socket error', err)
+            console.log('readyState', ws.readyState)
+            // if (ws.)
+
+            // if 
+
+        }
+        ws.onmessage = (event) => {
+            const text = event.data.toString()
+            console.log('onmessage', text)
+            // {"channel":"msg:timer","message":"2023-01-18 22:21:10"}
+            // 接收推送的消息
+            let msg
+            try {
+                msg = JSON.parse(text)
+            }
+            catch (err) {
+                console.log('JSON.parse err', err)
+                return
+            }
+        }
+        return ws
+    }
+
+    function connect() {
         if (webdavItem) {
             webdavConnect(webdavItem)
         }
         else if (_sourceType == 'ssh' && !!item) {
-            connect()
+            sftpConnect()
         }
         else if (_sourceType == 'local') {
             setSourceType('local')
@@ -321,6 +409,10 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         else {
             message.error('unknown source type')
         }
+    }
+    
+    useEffect(() => {
+        connect()
     }, [item])
 
     async function loadList() {
@@ -788,7 +880,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         }
     }
 
-    function uploadFile({ file, name, onSuccess = () => {} }) {
+    function uploadFile({ file, name, onSuccess = () => { } }) {
         let formData = new FormData()
         console.log('file', file)
         formData.append('file', file)
@@ -832,67 +924,97 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         <div ref={rootRef} className={styles.fileBox}>
             {showSide &&
                 <div className={styles.side}>
-                    {!!info &&
-                        <div className={styles.sideList}>
-                            <div className={styles.item}
-                                onClick={() => {
-                                    setCurPath(info.homePath + '/' + 'Desktop')
-                                }}
-                            >
-                                <CreditCardOutlined className={styles.icon} />
-                                {t('file.desktop')}
+                    <div className={styles.sideTop}>
+                        {!!info &&
+                            <div className={styles.sideList}>
+                                <div className={styles.item}
+                                    onClick={() => {
+                                        setCurPath(info.homePath + '/' + 'Desktop')
+                                    }}
+                                >
+                                    <CreditCardOutlined className={styles.icon} />
+                                    {t('file.desktop')}
+                                </div>
+                                <div className={styles.item}
+                                    onClick={() => {
+                                        setCurPath(info.homePath + '/' + 'Downloads')
+                                    }}
+                                >
+                                    <DownloadOutlined className={styles.icon} />
+                                    {t('file.download')}
+                                </div>
+                                <div className={styles.item}
+                                    onClick={() => {
+                                        setCurPath(info.homePath + '/' + 'Documents')
+                                    }}
+                                >
+                                    <FileWordOutlined className={styles.icon} />
+                                    {t('file.document')}
+                                </div>
+                                <div className={styles.item}
+                                    onClick={() => {
+                                        setCurPath('/Applications')
+                                    }}
+                                >
+                                    <AppstoreOutlined className={styles.icon} />
+                                    {t('file.app')}
+                                </div>
+                                <div className={styles.item}
+                                    onClick={() => {
+                                        setCurPath(info.homePath)
+                                    }}
+                                >
+                                    <HomeOutlined className={styles.icon} />
+                                    {t('file.home')}
+                                </div>
+                                <Divider />
+                                <div className={styles.item}
+                                    onClick={() => {
+                                        setCurPath(info.homePath + '/.yunser/dms-cli')
+                                    }}
+                                >
+                                    <DatabaseOutlined className={styles.icon} />
+                                    DMS - DB
+                                </div>
+                                <Divider />
                             </div>
-                            <div className={styles.item}
-                                onClick={() => {
-                                    setCurPath(info.homePath + '/' + 'Downloads')
-                                }}
-                            >
-                                <DownloadOutlined className={styles.icon} />
-                                {t('file.download')}
-                            </div>
-                            <div className={styles.item}
-                                onClick={() => {
-                                    setCurPath(info.homePath + '/' + 'Documents')
-                                }}
-                            >
-                                <FileWordOutlined className={styles.icon} />
-                                {t('file.document')}
-                            </div>
-                            <div className={styles.item}
-                                onClick={() => {
-                                    setCurPath('/Applications')
-                                }}
-                            >
-                                <AppstoreOutlined className={styles.icon} />
-                                {t('file.app')}
-                            </div>
-                            <div className={styles.item}
-                                onClick={() => {
-                                    setCurPath(info.homePath)
-                                }}
-                            >
-                                <HomeOutlined className={styles.icon} />
-                                {t('file.home')}
-                            </div>
-                            <Divider />
-                            <div className={styles.item}
-                                onClick={() => {
-                                    setCurPath(info.homePath + '/.yunser/dms-cli')
-                                }}
-                            >
-                                <DatabaseOutlined className={styles.icon} />
-                                DMS - DB
-                            </div>
-                            <Divider />
+                        }
+                        <CollectionList
+                            config={config}
+                            event$={event$}
+                            onItemClick={item => {
+                                setCurPath(item.path)
+                            }}
+                        />
+                    </div>
+                    {_sourceType == 'ssh' &&
+                        <div className={styles.sideBottom}>
+                            <Space>
+                                <Tooltip
+                                    placement="topLeft"
+                                    title={tooltips[wsStatus]}
+                                    >
+                                    <LinkOutlined
+                                        style={{
+                                            // fontWeight: 'bold',
+                                            color: colors[wsStatus],
+                                        }}
+                                        />
+                                </Tooltip>
+                                {/* {sourceType} */}
+                                {wsStatus != 'connected' &&
+                                    <Button
+                                        size="small"
+                                        onClick={() => {
+                                            connect()
+                                        }}
+                                        >
+                                        {t('connect')}
+                                    </Button>
+                                }
+                            </Space>
                         </div>
                     }
-                    <CollectionList
-                        config={config}
-                        event$={event$}
-                        onItemClick={item => {
-                            setCurPath(item.path)
-                        }}
-                    />
                 </div>
             }
             <div className={styles.main}>
@@ -1092,7 +1214,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                     <Button
                                         size="small"
                                         onClick={() => {
-                                            connect()
+                                            sftpConnect()
                                         }}
                                     >
                                         {t('connect')}
@@ -1438,7 +1560,10 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                     open={true}
                     title={t('connect')}
                     footer={false}
-                    closable={false}
+                    // closable={false}
+                    onCancel={() => {
+                        setConnecting(false)
+                    }}
                 >
                     {t('connecting')}
                 </Modal>
@@ -1486,13 +1611,13 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                     onCancel={() => {
                         setOssInfoVisible(false)
                     }}
-                    // onOk={({ name }) => {
-                    //     setOssInfoVisible(false)
-                    //     uploadFile({
-                    //         file: pasteFile,
-                    //         name,
-                    //     })
-                    // }}
+                // onOk={({ name }) => {
+                //     setOssInfoVisible(false)
+                //     uploadFile({
+                //         file: pasteFile,
+                //         name,
+                //     })
+                // }}
                 />
             }
         </div>
