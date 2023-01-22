@@ -534,7 +534,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
             console.log('e/e.keyCode', e.keyCode)
             console.log('e.metaKey', e.metaKey)
             console.log('tabKey', tabKey, window.__activeKey)
-            if (tabKey != window.__activeKey) {
+            if (tabKey && window.__activeKey && tabKey != window.__activeKey) {
                 return
             }
             // const parent = rootRef.current.parentNode
