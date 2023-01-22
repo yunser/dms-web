@@ -664,19 +664,29 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
     async function handleOk() {
         const values = await form.validateFields()
         // setLoading(true)
-        let _connections
+        const host = values.host || 'localhost'
+        const username = values.username
+        let name = values.name
+        if (!name) {
+            if (host && username) {
+                name = `${username}@${host}`
+            }
+            else {
+                name = t('unnamed')
+            }
+        }
+        const saveOrUpdateData = {
+            name,
+            host,
+            port: values.port || 22,
+            password: values.password,
+            privateKey: values.privateKey,
+            username,
+            isMonitor: values.isMonitor || false,
+        }
         if (editType == 'create') {
             let res = await request.post(`${config.host}/ssh/connection/create`, {
-                // id: item.id,
-                // data: {
-                // }
-                name: values.name || t('unnamed'),
-                host: values.host || 'localhost',
-                port: values.port || 22,
-                password: values.password,
-                privateKey: values.privateKey,
-                username: values.username,
-                isMonitor: values.isMonitor || false,
+                ...saveOrUpdateData,
             })
             if (res.success) {
                 onSuccess && onSuccess()
@@ -686,13 +696,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
             let res = await request.post(`${config.host}/ssh/connection/update`, {
                 id: item.id,
                 data: {
-                    name: values.name || t('unnamed'),
-                    host: values.host || 'localhost',
-                    port: values.port || 22,
-                    password: values.password,
-                    privateKey: values.privateKey,
-                    username: values.username,
-                    isMonitor: values.isMonitor || false,
+                    ...saveOrUpdateData,
                 }
             })
             if (res.success) {
