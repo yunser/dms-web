@@ -229,11 +229,23 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
         setLoading(true)
         // const connections = storage.get('connections', [])
         // let newConnects
+        const host = values.host || 'localhost'
+        const user = values.user || 'root'
+        let name = values.name
+        if (!name) {
+            if (host && user) {
+                name = `${user}@${host}`
+            }
+            else {
+                name = 'Unnamed'
+            }
+        }
+
         const saveOrUpdateData = {
-            name: values.name || 'Unnamed',
-            host: values.host || 'localhost',
+            name,
+            host,
             port: values.port || defaultPort,
-            user: values.user || 'root',
+            user,
             password: values.password,
             path: values.path,
             color: values.color,
@@ -319,7 +331,6 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
             visible={true}
             onCancel={onCancel}
             maskClosable={false}
-            // onOk={save}
             footer={(
                 <div
                     style={{
