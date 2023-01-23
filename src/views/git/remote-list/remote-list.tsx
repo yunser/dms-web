@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { CloudOutlined, DownloadOutlined, EllipsisOutlined, PlusOutlined } from '@ant-design/icons';
+import { CloudOutlined, DownloadOutlined, EllipsisOutlined, GithubOutlined, PlusOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
@@ -144,12 +144,31 @@ export function RemoteList({ config, event$, projectPath }) {
             :
                 <div className={styles.list}>
                     {remotes.map(item => {
+                        // git@github.com:yunser/aliyun-cli.git
+                        let githubUrl = ''
+                        const m = item.refs.fetch.match(/git@github.com:([\w-]+?)\/([\w-]+?).git/)
+                        if (m) {
+                            const [_, user, repo] = m
+                            githubUrl = `https://github.com/${user}/${repo}`
+                        }
                         return (
                             <div
                                 className={styles.item}
                                 key={item.name}
                             >
-                                <div className={styles.name}>{item.name}</div>
+                                <Space>
+                                    <div className={styles.name}>{item.name}</div>
+                                    {!!githubUrl &&
+                                        <IconButton
+                                            tooltip="Github"
+                                            onClick={() => {
+                                                window.open(githubUrl, '_blank')
+                                            }}
+                                        >
+                                            <GithubOutlined />
+                                        </IconButton>
+                                    }
+                                </Space>
                                 <Space>
                                     <Dropdown
                                         trigger={['click']}
