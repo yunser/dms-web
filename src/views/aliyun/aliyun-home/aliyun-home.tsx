@@ -46,6 +46,7 @@ export function AliyunHome({ config, onClickItem }) {
     const [content, setContent] = useState('')
 
     const [installed, setInstalled] = useState(false)
+    const [info, setInfo] = useState(null)
     const [allList, setAllList] = useState([])
     const [ecsList, setEcsList] = useState([])
     const [rdsList, setRdsList] = useState([])
@@ -62,8 +63,9 @@ export function AliyunHome({ config, onClickItem }) {
         let res = await request.post(`${config.host}/file/aliyun`, {
         })
         if (res.success) {
-            const { installed, ecs, rds, cert, cdnCert, domain, billing, tencentServer, tencentMysql, tencentLighthouse } = res.data
+            const { installed, info, ecs, rds, cert, cdnCert, domain, billing, tencentServer, tencentMysql, tencentLighthouse } = res.data
             setInstalled(installed)
+            setInfo(info)
             const allList = [
                 ...ecs.map(item => {
                     return {
@@ -503,6 +505,9 @@ export function AliyunHome({ config, onClickItem }) {
                     size="small"
                 />
             </div>
+            {!!info &&
+                <div className={styles.updateTime}>数据更新于：{info.updateTime}</div>
+            }
         </div>
     )
 
