@@ -310,7 +310,6 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
             // setWsAction('')
             console.log('readyState', ws.readyState)
 
-            // const _xterm = xtermRef.current
             ws.send(JSON.stringify({
                 type: 'redisBind',
                 data: {

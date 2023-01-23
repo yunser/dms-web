@@ -378,7 +378,6 @@ export function DataBaseDetail({ databaseType = 'mysql', curConnect, _connection
             // setWsAction('')
             console.log('readyState', ws.readyState)
 
-            // const _xterm = xtermRef.current
             ws.send(JSON.stringify({
                 type: 'dbBind',
                 data: {

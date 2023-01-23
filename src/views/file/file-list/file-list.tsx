@@ -357,7 +357,6 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
             // setWsAction('')
             console.log('readyState', ws.readyState)
 
-            // const _xterm = xtermRef.current
             ws.send(JSON.stringify({
                 type: 'sftpBind',
                 data: {

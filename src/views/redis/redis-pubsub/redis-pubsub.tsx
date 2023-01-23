@@ -86,7 +86,6 @@ export function PubSubModal({ config, event$, connectionId, onCancel, }) {
         ws.onopen = () => {
             console.log('onopen', )
 
-            // const _xterm = xtermRef.current
             ws.send(JSON.stringify({
                 type: 'redisSubscribe',
                 data: {
@@ -125,15 +124,6 @@ export function PubSubModal({ config, event$, connectionId, onCancel, }) {
                 ])
                 return []
             })
-            // const _xterm = xtermRef.current
-            // if (msg.type == 'res') {
-            //     if (first) {
-            //         first = false
-            //         setConnected(true)
-            //     }
-            //     _xterm.write(msg.data)
-            // }
-
         }
         return ws
     }

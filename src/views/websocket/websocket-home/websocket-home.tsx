@@ -131,7 +131,6 @@ export function WebSocketHome({ }) {
             setWsAction('')
             console.log('readyState', ws.readyState)
 
-            // const _xterm = xtermRef.current
             // ws.send(JSON.stringify({
             //     type: 'mqttSubscribe',
             //     data: {
@@ -173,15 +172,6 @@ export function WebSocketHome({ }) {
                 type: 'received',
                 message: text,
             })
-            // const _xterm = xtermRef.current
-            // if (msg.type == 'res') {
-            //     if (first) {
-            //         first = false
-            //         setConnected(true)
-            //     }
-            //     _xterm.write(msg.data)
-            // }
-
         }
         return ws
     }

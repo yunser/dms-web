@@ -120,7 +120,6 @@ export function MqttHome({ config, data }) {
             setWsAction('')
             console.log('readyState', ws.readyState)
 
-            // const _xterm = xtermRef.current
             ws.send(JSON.stringify({
                 type: 'mqttSubscribe',
                 data: {
@@ -166,15 +165,6 @@ export function MqttHome({ config, data }) {
                 ])
                 return []
             })
-            // const _xterm = xtermRef.current
-            // if (msg.type == 'res') {
-            //     if (first) {
-            //         first = false
-            //         setConnected(true)
-            //     }
-            //     _xterm.write(msg.data)
-            // }
-
         }
         return ws
     }

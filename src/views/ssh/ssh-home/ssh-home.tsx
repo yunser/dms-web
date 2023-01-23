@@ -79,6 +79,7 @@ export function SshDetail({ config, defaultPath, item, onSftpPath }) {
     const [list, setList] = useState<File[]>([])
     const [curPath, setCurPath] = useState('')
     const [connected, setConnected] = useState(false)
+    const [isActive, setIsActive] = useState(false)
     const [term, setTerm] = useState(null)
     // const config = {
     //     host: 'http://localhost:10086'
@@ -370,8 +371,20 @@ export function SshDetail({ config, defaultPath, item, onSftpPath }) {
     }
 
     return (
-        <div  className={styles.terminalApp}>
-            <div className={styles.terminalBox}>
+        <div className={styles.terminalApp}>
+            <div className={styles.terminalBox}
+                onFocus={() => {
+                    console.log('terminalBox/onFocus', )
+                    setIsActive(true)
+                }}
+                onBlur={() => {
+                    console.log('terminalBox/onBlur', )
+                    setIsActive(false)
+                }}
+                style={{
+                    opacity: isActive ? 1 : 0.7,
+                }}
+            >
                 {/* ssh */}
                 {/* <button
                     onClick={() => {
