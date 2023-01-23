@@ -136,7 +136,11 @@ function CollectionList({ config, event$, onItemClick }) {
     )
 }
 
-// _sourceType: local ssh oss:linxot-public oss:undefined（坚果云）
+// _sourceType: 
+// local
+// ssh
+// oss:linxot-public
+// oss:undefined（坚果云）
 // 
 export function FileList({ config, sourceType: _sourceType = 'local', event$, tabKey,
     item, webdavItem, ossItem, defaultPath: _defaultPath, onSshPath }) {
@@ -924,6 +928,22 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
             {showSide &&
                 <div className={styles.side}>
                     <div className={styles.sideTop}>
+                        {_sourceType == 'ssh' &&
+                            <div>
+                                <div className={styles.sideList}>
+                                    <div className={styles.item}
+                                        onClick={() => {
+                                            const path = (item.username == 'root') ? '/root' : `/home/${item.username}`
+                                            setCurPath(path)
+                                        }}
+                                    >
+                                        <CreditCardOutlined className={styles.icon} />
+                                        {t('file.home')}
+                                    </div>
+                                </div>
+                                <Divider />
+                            </div>
+                        }
                         {!!info &&
                             <div className={styles.sideList}>
                                 <div className={styles.item}
