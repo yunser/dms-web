@@ -167,9 +167,6 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
     else {
         defaultPath = ''
     }
-    console.log('@cjh/_defaultPath', defaultPath, _defaultPath)
-    console.log('@cjh/_sourceType', _sourceType)
-
 
     const [curPath, setCurPath] = useState(defaultPath)
     const [loading, setLoading] = useState(false)
@@ -221,10 +218,6 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         connectTime: 0,
         connectionId: '',
     })
-
-
-    console.log('FileList/sourceType', sourceType)
-    console.log('FileList/_sourceType', _sourceType)
 
     const filteredList = useMemo(() => {
         if (!keyword) {

@@ -10,9 +10,71 @@ import { FullCenterBox } from '@/views/common/full-center-box';
 import moment from 'moment';
 // import { saveAs } from 'file-saver'
 import { FileUtil } from '../utils/utl';
+import Mode from 'stat-mode'
 
+// console.log('mode', Mode)
 interface File {
     name: string
+}
+
+function ModeView({ mode }) {
+
+    const m = new Mode(mode)
+
+    let owner = `${m.owner.read ? 'r' : '-'}${m.owner.write ? 'w' : '-'}${m.owner.execute ? 'x' : '-'}`
+    let group = `${m.group.read ? 'r' : '-'}${m.group.write ? 'w' : '-'}${m.owner.execute ? 'x' : '-'}`
+    let others = `${m.others.read ? 'r' : '-'}${m.others.write ? 'w' : '-'}${m.others.execute ? 'x' : '-'}`
+    
+    // let modeText = `${m.isDirectory() ? 'd' : '-'} ${owner} ${group} ${others}`
+
+    const dataSource = ['owner', 'group', 'others'].map(who => {
+        return {
+            who,
+            read: m[who].read,
+            write: m[who].write,
+            execute: m[who].execute,
+        }
+    })
+    return (
+        <div>
+            {/* {mode} */}
+            <div>
+                {/* {modeText} */}
+                <Table
+                    pagination={false}
+                    dataSource={dataSource}
+                    size="small"
+                    columns={[
+                        {
+                            title: 'who',
+                            dataIndex: 'who',
+                        },
+                        {
+                            title: 'read',
+                            dataIndex: 'read',
+                            render(value) {
+                                return value ? 'Y' : '-'
+                            }
+                        },
+                        {
+                            title: 'write',
+                            dataIndex: 'write',
+                            render(value) {
+                                return value ? 'Y' : '-'
+                            }
+                        },
+                        {
+                            title: 'execute',
+                            dataIndex: 'execute',
+                            render(value) {
+                                return value ? 'Y' : '-'
+                            }
+                        },
+                    ]}
+                />
+            </div>
+        </div>
+    )
 }
 
 export function FileInfo({ config, path, sourceType, onCancel }) {
@@ -65,20 +127,21 @@ export function FileInfo({ config, path, sourceType, onCancel }) {
                 <div>
                     {!!stat &&
                         <Descriptions column={1}>
-                            {/* <Descriptions.Item
+                            <Descriptions.Item
                                 label="创建时间"
                             >
-                                {moment(stat.birthtime).format('YYYY-MM-DD HH:mm:ss')}
-                            </Descriptions.Item> */}
+                                {moment(stat.createTime).format('YYYY-MM-DD HH:mm:ss')}
+                            </Descriptions.Item>
                             <Descriptions.Item
                                 label="修改时间"
                             >
                                 {moment(stat.modifyTime).format('YYYY-MM-DD HH:mm:ss')}
                             </Descriptions.Item>
                             <Descriptions.Item
-                                label="模式"
+                                label="权限"
                             >
-                                {stat.mode}
+                                <ModeView mode={stat.mode} />
+                                {/* {stat.mode} */}
                             </Descriptions.Item>
                         </Descriptions>
                     }
