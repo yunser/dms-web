@@ -74,6 +74,7 @@ function Commands({ config, onClickItem }) {
 }
 
 export function SshDetail({ config, defaultPath, item, onSftpPath }) {
+    const isSsh = !!item
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [list, setList] = useState<File[]>([])
@@ -107,7 +108,6 @@ export function SshDetail({ config, defaultPath, item, onSftpPath }) {
     //     }, {
     //         // noMessage: true,
     //     })
-    //     // console.log('res', res)
     //     if (res.success) {
     //         // setProjects([])
     //         const list = (res.data.list as File[])
@@ -169,7 +169,6 @@ export function SshDetail({ config, defaultPath, item, onSftpPath }) {
             fitAddon.fit()
             if (wsRef.current) {
                 const pd = fitAddon.proposeDimensions()
-                // console.log('_pd', pd)
                 const rect = elem.getBoundingClientRect()
                 wsRef.current.send(JSON.stringify({
                     type: 'resize',
@@ -184,9 +183,6 @@ export function SshDetail({ config, defaultPath, item, onSftpPath }) {
         }
         fit()
         xterm.onData(data =>  {
-            // console.log('onData', data)
-            // console.log('_ws', _ws)
-            // console.log('wsRef', wsRef)
             if (wsRef.current) {
                 if (wsRef.current.readyState != 1) {
                     message.error(t('disconnected'))
@@ -360,8 +356,6 @@ export function SshDetail({ config, defaultPath, item, onSftpPath }) {
     //     }
     // })
 
-    console.log('termIdRef.current', termIdRef.current)
-
     function checkConnection() {
         wsRef.current.send(JSON.stringify({
             type: 'pwd',
@@ -374,11 +368,9 @@ export function SshDetail({ config, defaultPath, item, onSftpPath }) {
         <div className={styles.terminalApp}>
             <div className={styles.terminalBox}
                 onFocus={() => {
-                    console.log('terminalBox/onFocus', )
                     setIsActive(true)
                 }}
                 onBlur={() => {
-                    console.log('terminalBox/onBlur', )
                     setIsActive(false)
                 }}
                 style={{
@@ -424,7 +416,7 @@ export function SshDetail({ config, defaultPath, item, onSftpPath }) {
                             {t('connect')}
                         </Button>
                     }
-                    {connected &&
+                    {connected && isSsh &&
                         <Button
                             size="small"
                             onClick={() => {
