@@ -58,9 +58,10 @@ export function AliyunHome({ config, onClickItem }) {
     const [tencentMysqlList, setTencentMysqlList] = useState([])
     const [tencentLighthouseList, setTencentLighthouseList] = useState([])
     const [tab, setTab] = useState('main')
+    const [updating, setUpdating] = useState(false)
 
     async function loadData() {
-        let res = await request.post(`${config.host}/file/aliyun`, {
+        let res = await request.post(`${config.host}/aliyun/data`, {
         })
         if (res.success) {
             const { installed, info, ecs, rds, cert, cdnCert, domain, billing, tencentServer, tencentMysql, tencentLighthouse } = res.data
@@ -192,6 +193,17 @@ export function AliyunHome({ config, onClickItem }) {
                 }
                 return score(b) - score(a)
             }))
+        }
+    }
+
+    async function update() {
+        setUpdating(true)
+        let res = await request.post(`${config.host}/aliyun/update`, {
+        })
+        setUpdating(false)
+        if (res.success) {
+            message.success(t('success'))
+            loadData()
         }
     }
 
@@ -514,11 +526,19 @@ export function AliyunHome({ config, onClickItem }) {
     return (
         <div className={styles.container} key={tab}>
             <div>
-                <Button
-                    onClick={() => {
-                        loadData()
-                    }}
-                >刷新</Button>
+                <Space>
+                    <Button
+                        onClick={() => {
+                            loadData()
+                        }}
+                    >刷新</Button>
+                    <Button
+                        loading={updating}
+                        onClick={() => {
+                            update()
+                        }}
+                    >更新数据</Button>
+                </Space>
             </div>
 
                     {/* {tab} */}
