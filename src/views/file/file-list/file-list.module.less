@@ -43,16 +43,58 @@
             display: flex;
             align-items: center;
         }
-        .path {
+        .pathBox {
             // border: 1px solid #000;
             margin-left: 16px;
             max-width: 480px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            cursor: pointer;
+            // cursor: pointer;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            &:hover {
+                .editBtn {
+                    visibility: visible;
+                    // display: block !important;
+                }    
+            }
             .input {
                 width: 400px;
+            }
+            .editBtn {
+                visibility: hidden;
+            }
+        }
+        .pathList {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            .item {
+                position: relative;
+                padding: 0 8px 0 4px;
+                // border: 1px solid #000;
+                border-radius: 4px;
+                cursor: pointer;
+                &:hover {
+                    // background-color: var(--color-f1);
+                    text-decoration: underline;
+                }
+                &:before {
+                    position: absolute;
+                    top: 0;
+                    right: calc(100% - 0px);
+                    content: '/';
+                    // border: 1px solid #000;
+                }
+                &:last-child {
+                    cursor: default;
+                    &:hover {
+                        // background-color: var(--color-f1);
+                        text-decoration: none;
+                    }
+                }
             }
         }
     }

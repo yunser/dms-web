@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { AppstoreOutlined, CodeOutlined, CreditCardOutlined, DatabaseOutlined, DownloadOutlined, EllipsisOutlined, FileOutlined, FileSearchOutlined, FileWordOutlined, FolderOutlined, HomeOutlined, LeftOutlined, LinkOutlined, PlusOutlined, ReloadOutlined, UploadOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, CodeOutlined, CreditCardOutlined, DatabaseOutlined, DownloadOutlined, EditOutlined, EllipsisOutlined, FileOutlined, FileSearchOutlined, FileWordOutlined, FolderOutlined, HomeOutlined, LeftOutlined, LinkOutlined, PlusOutlined, ReloadOutlined, UploadOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
@@ -83,6 +83,40 @@ function getParentPath(curPath: string) {
     const newPath = curPath.substring(0, idx)
     console.log('newPath', newPath)
     return newPath || '/'
+}
+
+function PathRender({ path, onPath }) {
+    const arr: string[] = path.split('/').filter(item => item)
+    return (
+        // <div>{path}</div>
+        <div className={styles.pathList}>
+            <IconButton
+                onClick={() => {
+                    onPath && onPath('/')
+                }}
+            >
+                <HomeOutlined />
+            </IconButton>
+            {arr.length == 0 &&
+                <div>/</div>
+            }
+            {arr.map((item, index) => {
+                return (
+                    <div 
+                        className={styles.item}
+                        onClick={() => {
+                            console.log('index', index)
+                            const path = '/' + arr.slice(0, index + 1).join('/')
+                            console.log('path', path)
+                            onPath && onPath(path)
+                        }}
+                    >
+                        {item}
+                    </div>
+                )
+            })}
+        </div>
+    )
 }
 
 function CollectionList({ config, event$, onItemClick }) {
@@ -1196,12 +1230,25 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                 <EllipsisOutlined />
                             </IconButton>
                         </Dropdown>
-                        <div className={styles.path}
+                        <div className={styles.pathBox}
                             onClick={() => {
-                                setPathModalVisible(true)
                             }}
-                        >
-                            {curPath}
+                            >
+                            {/* {curPath} */}
+                            <PathRender
+                                path={curPath}
+                                onPath={path => {
+                                    setCurPath(path)
+                                }}
+                            />
+                            <IconButton
+                                className={styles.editBtn}
+                                onClick={() => {
+                                    setPathModalVisible(true)
+                                }}
+                            >
+                                <EditOutlined />
+                            </IconButton>
                             {/* <Input
                                 className={styles.input}
                                 value={curPath}
