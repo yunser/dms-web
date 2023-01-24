@@ -344,7 +344,7 @@ export function RedisConnect({ config, event$, onConnect, }) {
                         </IconButton>
                     </Space>
                 </div>
-                <div>
+                <div className={styles.filterBox}>
                     <Input
                         placeholder={t('filter')}
                         value={keyword}
@@ -365,7 +365,7 @@ export function RedisConnect({ config, event$, onConnect, }) {
                         description="没有记录"
                     />
                 : view == 'list' ?
-                    <div classwName={styles.list}>
+                    <div className={styles.list}>
                         {filterdConnections.map((item, index) => {
                             return (
                                 <div

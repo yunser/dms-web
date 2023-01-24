@@ -73,7 +73,7 @@ function Commands({ config, onClickItem }) {
     )
 }
 
-export function SshDetail({ config, defaultPath, item, onSftpPath }) {
+export function SshDetail({ config, defaultPath, item, onSftpPath, onClone }) {
     const isSsh = !!item
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
@@ -364,6 +364,10 @@ export function SshDetail({ config, defaultPath, item, onSftpPath }) {
         }))
     }
 
+    function newTab() {
+        onClone && onClone()
+    }
+
     return (
         <div className={styles.terminalApp}>
             <div className={styles.terminalBox}
@@ -416,6 +420,14 @@ export function SshDetail({ config, defaultPath, item, onSftpPath }) {
                             {t('connect')}
                         </Button>
                     }
+                    <Button
+                        size="small"
+                        onClick={() => {
+                            newTab()
+                        }}
+                    >
+                        {t('new_tab')}
+                    </Button>
                     {connected && isSsh &&
                         <Button
                             size="small"

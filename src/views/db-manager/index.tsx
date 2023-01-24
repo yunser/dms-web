@@ -1273,6 +1273,14 @@ export function DbManager({ config }) {
                                                     },
                                                 })
                                             }}
+                                            onClone={() => {
+                                                addOrActiveTab({
+                                                    title: item.data.item.name,
+                                                    key: `terminal-${uid(16)}`,
+                                                    type: 'ssh-detail',
+                                                    data: item.data,
+                                                })
+                                            }}
                                         />
                                     }
                                     {item.type == 'sftp-detail' &&
@@ -1292,6 +1300,17 @@ export function DbManager({ config }) {
                                                     data: {
                                                         item: item.data.item,
                                                         path,
+                                                    },
+                                                })
+                                            }}
+                                            onClone={({ defaultPath }) => {
+                                                addOrActiveTab({
+                                                    title: item.data.item.name,
+                                                    key: `sftp-${uid(16)}`,
+                                                    type: 'sftp-detail',
+                                                    data: {
+                                                        ...item.data,
+                                                        defaultPath,
                                                     },
                                                 })
                                             }}

@@ -411,6 +411,7 @@ i18n
                     'redis.load_more_keys': 'Load more keys',
                     'parse': 'Parse',
                     'from_url': 'From URL',
+                    'new_tab': 'New Tab',
                 }
             },
             zh: {
@@ -814,6 +815,7 @@ i18n
                     'redis.load_more_keys': '加载更多键',
                     'parse': '解析',
                     'from_url': '从 URL 解析',
+                    'new_tab': '新标签页',
                 }
             }
         },

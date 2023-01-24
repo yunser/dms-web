@@ -177,7 +177,7 @@ function CollectionList({ config, event$, onItemClick }) {
 // oss:undefined（坚果云）
 // 
 export function FileList({ config, sourceType: _sourceType = 'local', event$, tabKey,
-    item, webdavItem, ossItem, defaultPath: _defaultPath, onSshPath }) {
+    item, webdavItem, ossItem, defaultPath: _defaultPath, onSshPath, onClone }) {
     // const showSide = _sourceType == 'local'
     const showSide = true
     // const { defaultJson = '' } = data
@@ -1535,6 +1535,18 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                     </div>
                         }
                     </div>
+                </div>
+                <div className={styles.footer}>
+                    <Button
+                        size="small"
+                        onClick={() => {
+                            onClone && onClone({
+                                defaultPath: curPath,
+                            })
+                        }}
+                    >
+                        {t('new_tab')}
+                    </Button>
                 </div>
             </div>
             {fileDetailModalVisible &&
