@@ -55,6 +55,15 @@ export function RedisConnect({ config, event$, onConnect, }) {
     ])
     const [view, setView] = useState('list')
     const [loading, setLoading] = useState(false)
+    const [keyword, setKeyword] = useState('')
+
+    const filterdConnections = useMemo(() => {
+        if (!keyword) {
+            return connections    
+        }
+        return connections.filter(p => p.name.toLowerCase().includes(keyword.toLowerCase()))
+        // return projects
+    }, [connections, keyword])
     // const [form] = Form.useForm()
 //     const [code, setCode] = useState(`{
 //     "host": "",
@@ -335,6 +344,16 @@ export function RedisConnect({ config, event$, onConnect, }) {
                         </IconButton>
                     </Space>
                 </div>
+                <div>
+                    <Input
+                        placeholder={t('filter')}
+                        value={keyword}
+                        allowClear
+                        onChange={e => {
+                            setKeyword(e.target.value)
+                        }}
+                    />
+                </div>
                 {loading ?
                     <FullCenterBox
                         height={320}
@@ -346,8 +365,8 @@ export function RedisConnect({ config, event$, onConnect, }) {
                         description="没有记录"
                     />
                 : view == 'list' ?
-                    <div className={styles.list}>
-                        {connections.map((item, index) => {
+                    <div classwName={styles.list}>
+                        {filterdConnections.map((item, index) => {
                             return (
                                 <div
                                     key={item.id}
@@ -379,7 +398,7 @@ export function RedisConnect({ config, event$, onConnect, }) {
                     </div>
                 :
                     <Table
-                        dataSource={connections}
+                        dataSource={filterdConnections}
                         pagination={false}
                         columns={columns}
                         bordered
