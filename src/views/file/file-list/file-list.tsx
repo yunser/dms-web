@@ -1537,16 +1537,19 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                     </div>
                 </div>
                 <div className={styles.footer}>
-                    <Button
-                        size="small"
-                        onClick={() => {
-                            onClone && onClone({
-                                defaultPath: curPath,
-                            })
-                        }}
-                    >
-                        {t('new_tab')}
-                    </Button>
+                    <Space>
+                        <div>{list.length} {t('files')}</div>
+                        <Button
+                            size="small"
+                            onClick={() => {
+                                onClone && onClone({
+                                    defaultPath: curPath,
+                                })
+                            }}
+                        >
+                            {t('new_tab')}
+                        </Button>
+                    </Space>
                 </div>
             </div>
             {fileDetailModalVisible &&

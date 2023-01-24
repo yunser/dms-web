@@ -412,6 +412,7 @@ i18n
                     'parse': 'Parse',
                     'from_url': 'From URL',
                     'new_tab': 'New Tab',
+                    'files': 'Files',
                 }
             },
             zh: {
@@ -816,6 +817,7 @@ i18n
                     'parse': '解析',
                     'from_url': '从 URL 解析',
                     'new_tab': '新标签页',
+                    'files': '文件',
                 }
             }
         },
