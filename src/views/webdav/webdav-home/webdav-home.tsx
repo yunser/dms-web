@@ -309,17 +309,15 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
     async function handleOk() {
         const values = await form.validateFields()
         // setLoading(true)
-        let _connections
+        const saveOrUpdateData = {
+            name: values.name || t('unnamed'),
+            url: values.url || 'localhost',
+            password: values.password,
+            username: values.username,
+        }
         if (editType == 'create') {
             let res = await request.post(`${config.host}/webdav/connection/create`, {
-                // id: item.id,
-                // data: {
-                // }
-                name: values.name || t('unnamed'),
-                url: values.url || 'localhost',
-                // port: values.port || 22,
-                password: values.password,
-                username: values.username,
+                ...saveOrUpdateData,
             })
             if (res.success) {
                 onSuccess && onSuccess()
@@ -329,11 +327,12 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
             let res = await request.post(`${config.host}/webdav/connection/update`, {
                 id: item.id,
                 data: {
-                    name: values.name || t('unnamed'),
-                    host: values.host || 'localhost',
-                    port: values.port || 22,
-                    password: values.password,
-                    username: values.username,
+                    ...saveOrUpdateData,
+                    // name: values.name || t('unnamed'),
+                    // host: values.host || 'localhost',
+                    // port: values.port || 22,
+                    // password: values.password,
+                    // username: values.username,
                 }
             })
             if (res.success) {

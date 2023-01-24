@@ -695,10 +695,6 @@ export function DbManager({ config }) {
             key: 'ip',
         },
         {
-            label: t('project'),
-            key: 'project',
-        },
-        {
             label: t('logger'),
             key: 'logger',
         },
@@ -719,21 +715,25 @@ export function DbManager({ config }) {
             key: 'elasticsearch',
         },
         {
-            label: t('alasql'),
-            key: 'alasql',
-        },
-        {
             label: t('text'),
             key: 'text',
-        },
-        {
-            label: t('model'),
-            key: 'model',
         },
         {
             label: t('tcp/udp'),
             key: 'tcp/udp',
         },
+        {
+            label: t('alasql'),
+            key: 'alasql',
+        },
+        // {
+        //     label: t('model'),
+        //     key: 'model',
+        // },
+        // {
+        //     label: t('project'),
+        //     key: 'project',
+        // },
     ]
     function handleTabChange(key: string) {
         console.log('set key', key)
