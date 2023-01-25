@@ -79,6 +79,10 @@ export function FileNameModal({ config, type, path, onSuccess, sourceType, onCan
                     // port: 6379,
                     // db: 0,
                 }}
+                onFinish={() => {
+                    console.log('onFinish', )
+                    handleOk()
+                }}
                 // layout={{
                 //     labelCol: { span: 0 },
                 //     wrapperCol: { span: 24 },
@@ -90,26 +94,11 @@ export function FileNameModal({ config, type, path, onSuccess, sourceType, onCan
                     rules={[ { required: true, }, ]}
                 >
                     <Input
+                        autoFocus
+                        // on
                         // disabled={!(editType == 'create')}
                     />
                 </Form.Item>
-                {/* <Form.Item
-                    name="characterSet"
-                    label="Character Set"
-                    // rules={editType == 'create' ? [] : [ { required: true, }, ]}
-                >
-                    <Select
-                        options={characterSets}
-                        onChange={() => {
-                            console.log('change')
-                            form.setFieldsValue({
-                                collation: null,
-                            })
-                        }}
-                        // onChange={}
-                    />
-                </Form.Item> */}
-                
             </Form>
         </Modal>
     )

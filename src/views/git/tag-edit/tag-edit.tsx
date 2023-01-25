@@ -91,6 +91,9 @@ export function TagEditor({ config, commit, event$, projectPath, onSuccess, onCa
                 initialValues={{
                     port: 3306,
                 }}
+                onFinish={() => {
+                    handleOk()
+                }}
                 // layout={{
                 //     labelCol: { span: 0 },
                 //     wrapperCol: { span: 24 },
@@ -101,7 +104,7 @@ export function TagEditor({ config, commit, event$, projectPath, onSuccess, onCa
                     label={t('name')}
                     rules={[ { required: true, }, ]}
                 >
-                    <Input />
+                    <Input autoFocus />
                 </Form.Item>
                 {!!commit ?
                     <Form.Item

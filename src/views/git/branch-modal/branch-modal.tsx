@@ -97,6 +97,9 @@ export function BranchModal({ config, event$, remoteName, current, projectPath, 
                     initialValues={{
                         port: 3306,
                     }}
+                    onFinish={() => {
+                        handleOk()
+                    }}
                     // layout={{
                     //     labelCol: { span: 0 },
                     //     wrapperCol: { span: 24 },
@@ -107,7 +110,7 @@ export function BranchModal({ config, event$, remoteName, current, projectPath, 
                         label={t('git.branch.name')}
                         rules={[ { required: true, }, ]}
                     >
-                        <Input />
+                        <Input autoFocus />
                     </Form.Item>
                     {!!current &&
                         <Form.Item
