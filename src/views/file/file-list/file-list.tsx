@@ -262,7 +262,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         })
     }, [list, keyword])
 
-    async function sftpConnect() {
+    async function sftpConnect(refreshPath: boolean) {
         // console.log('flow/1', )
         setConnecting(true)
         let res = await request.post(`${config.host}/sftp/connect`, {
@@ -279,7 +279,9 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
             // onSuccess && onSuccess()
             setConnected(true)
             setSourceType(res.data.connectionId)
-            setCurPath(defaultPath)
+            if (refreshPath) {
+                setCurPath(defaultPath)
+            }
 
             comData.current.connectionId = res.data.connectionId
             initWebSocket()
@@ -423,12 +425,12 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         return ws
     }
 
-    function connect() {
+    function connect(refreshPath = true) {
         if (webdavItem) {
             webdavConnect(webdavItem)
         }
         else if (_sourceType == 'ssh' && !!item) {
-            sftpConnect()
+            sftpConnect(refreshPath)
         }
         else if (_sourceType == 'local') {
             setSourceType('local')
@@ -1052,7 +1054,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                     <Button
                                         size="small"
                                         onClick={() => {
-                                            connect()
+                                            connect(false)
                                         }}
                                         >
                                         {t('connect')}
