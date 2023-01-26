@@ -8,14 +8,8 @@ import storage from '@/utils/storage'
 import { useInterval } from 'ahooks';
 import { request } from '../../db-manager/utils/http';
 import moment from 'moment';
+import { sleep } from '@yunser/sleep'
 
-function sleep(ms) {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve();
-        }, ms);
-    });
-}
 
 export function MqttHome({ config, data }) {
     const { connectionId } = data

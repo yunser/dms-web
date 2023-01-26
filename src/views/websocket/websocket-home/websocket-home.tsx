@@ -11,14 +11,7 @@ import moment from 'moment';
 import { uid } from 'uid';
 import { ArrowDownOutlined, ArrowUpOutlined, CheckCircleOutlined, InfoCircleOutlined, UpOutlined } from '@ant-design/icons';
 import copy from 'copy-to-clipboard';
-
-function sleep(ms) {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve();
-        }, ms);
-    });
-}
+import { sleep } from '@yunser/sleep'
 
 export function WebSocketHome({ }) {
     const { t } = useTranslation()

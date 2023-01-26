@@ -12,6 +12,7 @@
     "@huse/transition-state": "^1.1.1",
     "@types/antlr4": "^4.11.1",
     "@yunser/random-util": "^0.0.1",
+    "@yunser/sleep": "^0.0.1",
     "@yunser/style-reset": "0.0.2",
     "@yunser/tree-lib": "0.0.5",
     "@yunser/ui-std": "^0.0.29",

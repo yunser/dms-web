@@ -209,14 +209,6 @@ function obj2Tree(obj, handler) {
     return handleObj(obj, '_____root', '', 0).sort(sorter)
 }
 
-function sleep(ms) {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve();
-        }, ms);
-    });
-}
-
 export function RedisClient({ config, event$, connectionId: _connectionId, 
     item: _item, defaultDatabase = 0 }) {
     const [curDb, setCurDb] = useState(defaultDatabase)

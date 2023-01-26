@@ -1340,7 +1340,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                         {filteredList.map(item => {
                                             const isImage = FileUtil.isImage(item.path)
                                             const isMarkdown = item.path.endsWith('.md')
-
+                                            
                                             return (
                                                 <Dropdown
                                                     key={item.name}
@@ -1407,9 +1407,9 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                     key: 'edit',
                                                                 },
                                                                 {
-                                                                    visible: sourceType.includes('oss'),
                                                                     label: t('oss_info'),
                                                                     key: 'oss_info',
+                                                                    visible: sourceType.includes('oss'),
                                                                 },
                                                                 // {
                                                                 //     label: t('open_with_nginx'),
@@ -1419,22 +1419,21 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                     label: t('info'),
                                                                     key: 'info',
                                                                 },
-                                                                ...(sourceType == 'local' ? [
-                                                                    {
-                                                                        label: t('file.open_in_finder'),
-                                                                        key: 'finder',
-                                                                    },
-                                                                    {
-                                                                        label: t('file.open_in_os'),
-                                                                        key: 'open_in_os',
-                                                                    },
-                                                                ] : []),
-                                                                ...(sourceType != 'local' ? [
-                                                                    {
-                                                                        label: t('download'),
-                                                                        key: 'download',
-                                                                    },
-                                                                ] : []),
+                                                                {
+                                                                    label: t('file.open_in_finder'),
+                                                                    key: 'finder',
+                                                                    visible: sourceType == 'local',
+                                                                },
+                                                                {
+                                                                    label: t('file.open_in_os'),
+                                                                    key: 'open_in_os',
+                                                                    visible: sourceType == 'local',
+                                                                },
+                                                                {
+                                                                    label: t('download'),
+                                                                    key: 'download',
+                                                                    visible: sourceType != 'local',
+                                                                },
                                                                 {
                                                                     type: 'divider',
                                                                 },
@@ -1461,6 +1460,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                 {
                                                                     label: t('clear'),
                                                                     key: 'clear',
+                                                                    visible: item.type == 'FILE',
                                                                 },
                                                                 {
                                                                     type: 'divider',
