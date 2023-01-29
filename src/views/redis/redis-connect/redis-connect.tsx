@@ -13,6 +13,7 @@ import { FullCenterBox } from '@/views/common/full-center-box'
 import { IconButton } from '@/views/db-manager/icon-button';
 import { request } from '@/views/db-manager/utils/http';
 import URLParse from 'url-parse'
+import { SearchUtil } from '@/utils/search';
 
 
 
@@ -58,10 +59,9 @@ export function RedisConnect({ config, event$, onConnect, }) {
     const [keyword, setKeyword] = useState('')
 
     const filterdConnections = useMemo(() => {
-        if (!keyword) {
-            return connections    
-        }
-        return connections.filter(p => p.name.toLowerCase().includes(keyword.toLowerCase()))
+        return SearchUtil.search(connections, keyword, {
+            attributes: ['name', 'host'],
+        })
         // return projects
     }, [connections, keyword])
     // const [form] = Form.useForm()
@@ -360,10 +360,14 @@ export function RedisConnect({ config, event$, onConnect, }) {
                     >
                         <Spin />
                     </FullCenterBox>
-                : connections.length == 0 ?
-                    <Empty
-                        description="没有记录"
-                    />
+                : filterdConnections.length == 0 ?
+                    <FullCenterBox
+                        height={320}
+                    >
+                        <Empty
+                            description="没有记录"
+                        />
+                    </FullCenterBox>
                 : view == 'list' ?
                     <div className={styles.list}>
                         {filterdConnections.map((item, index) => {
