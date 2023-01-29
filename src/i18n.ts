@@ -413,6 +413,7 @@ i18n
                     'from_url': 'From URL',
                     'new_tab': 'New Tab',
                     'files': 'Files',
+                    'export_file_name': 'Export File Name',
                 }
             },
             zh: {
@@ -818,6 +819,7 @@ i18n
                     'from_url': '从 URL 解析',
                     'new_tab': '新标签页',
                     'files': '文件',
+                    'export_file_name': '导出文件名',
                 }
             }
         },

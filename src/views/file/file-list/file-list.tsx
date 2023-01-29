@@ -1208,6 +1208,15 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                 },
                                             })
                                         }
+                                        else if (key == 'export_file_name') {
+                                            event$.emit({
+                                                type: 'event_show_json',
+                                                data: {
+                                                    json: list.map(item => `* ${item.name}`).join('\n')
+                                                    // connectionId,
+                                                },
+                                            })
+                                        }
                                     }}
                                     items={[
                                         {
@@ -1219,8 +1228,15 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                             key: 'add_to_favorite',
                                         },
                                         {
+                                            type: 'divider',
+                                        },
+                                        {
                                             label: t('export_json'),
                                             key: 'export_json',
+                                        },
+                                        {
+                                            label: t('export_file_name'),
+                                            key: 'export_file_name',
                                         },
                                     ]}
                                 />
