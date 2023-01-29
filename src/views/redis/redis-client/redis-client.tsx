@@ -801,6 +801,22 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
         })
     }
 
+    async function setAsDefaultDatabase() {
+        let res = await request.post(`${config.host}/redis/connection/update`, {
+            id: _item.id,
+            data: {
+                ..._item,
+                defaultDatabase: curDb,
+            },
+        })
+        console.log('get/res', res.data)
+        if (res.success) {
+            message.success(t('success'))
+            // loadKeys()
+            // closeTabByKeys(keys)
+        }
+    }
+
     function removeKeys(nodeData) {
         Modal.confirm({
             // title: 'Confirm',
@@ -973,12 +989,17 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
                                             {
                                                 label: t('info'),
                                                 key: 'info',
-                                                icon: <InfoCircleOutlined />
+                                                // icon: <InfoCircleOutlined />
                                             },
                                             {
                                                 label: t('export_json'),
                                                 key: 'export_json',
-                                                icon: <ExportOutlined />
+                                                // icon: <ExportOutlined />
+                                            },
+                                            {
+                                                label: t('set_as_default_database'),
+                                                key: 'set_as_default_database',
+                                                // icon: <ClearOutlined />
                                             },
                                             {
                                                 type: 'divider',
@@ -1015,6 +1036,9 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
                                             }
                                             else if (key == 'gen_2000') {
                                                 gen2000()
+                                            }
+                                            else if (key == 'set_as_default_database') {
+                                                setAsDefaultDatabase()
                                             }
                                         }}
                                     />

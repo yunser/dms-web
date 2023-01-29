@@ -414,6 +414,7 @@ i18n
                     'new_tab': 'New Tab',
                     'files': 'Files',
                     'export_file_name': 'Export File Name',
+                    'set_as_default_database': 'Set as Default Database',
                 }
             },
             zh: {
@@ -820,6 +821,7 @@ i18n
                     'new_tab': '新标签页',
                     'files': '文件',
                     'export_file_name': '导出文件名',
+                    'set_as_default_database': '设为默认数据库',
                 }
             }
         },
