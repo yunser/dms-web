@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { DeleteOutlined, DownloadOutlined, EllipsisOutlined, PlusOutlined, TagOutlined } from '@ant-design/icons';
+import { DeleteOutlined, DownloadOutlined, DownOutlined, EllipsisOutlined, PlusOutlined, RightOutlined, TagOutlined, UpOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
@@ -183,7 +183,7 @@ export function TagList({ config, event$, projectPath }) {
     const [tags, setTags] = useState([])
     const [deleteVisible, setDeleteVisible] = useState(false)
     const [deleteItem, setDeleteItem] = useState(null)
-    
+    const [detailVisible, setDetailVisible] = useState(false)
     // const [current, setCurrent] = useState('')
     const [manageVisible, setManageVisible] = useState(false)
 
@@ -269,12 +269,35 @@ export function TagList({ config, event$, projectPath }) {
     return (
         <div>
             <div className={styles.header}>
-                <div>
+                <div className={styles.title}
+                    onClick={() => {
+                        setDetailVisible(!detailVisible)
+                    }}
+                >
                     <TagOutlined />
                     {'    '}
                     {t('git.tag')}
                 </div>
                 <Space>
+                    {detailVisible ?
+                        <IconButton
+                            tooltip={t('hide_content')}
+                            onClick={() => {
+                                setDetailVisible(false)
+                            }}
+                        >
+                            <UpOutlined />
+                        </IconButton>
+                    :
+                        <IconButton
+                            tooltip={t('show_content')}
+                            onClick={() => {
+                                setDetailVisible(true)
+                            }}
+                        >
+                            <RightOutlined />
+                        </IconButton>
+                    }
                     <IconButton
                         tooltip={t('git.tag.create')}
                         onClick={() => {
@@ -325,66 +348,70 @@ export function TagList({ config, event$, projectPath }) {
 
                 </Space>
             </div>
-            {tags.length == 0 ?
-                <FullCenterBox
-                    height={160}
-                >
-                    <Empty />
-                </FullCenterBox>
-            :
-                <div className={styles.list}>
-                    {tags.map(item => {
-                        return (
-                            <div 
-                                className={styles.item}
-                                key={item.name}
-                            >
-                                <div className={styles.left}>
-                                    <div className={styles.status}>
-                                        {/* {item.name == current &&
-                                            <div className={styles.current}></div>
-                                        } */}
-                                    </div>
-                                    <div className={styles.name}>{item.name}</div>
-                                </div>
-                                <Space>
-                                    <Dropdown
-                                        trigger={['click']}
-                                        overlay={
-                                            <Menu
-                                                items={[
-                                                    {
-                                                        label: t('git.push'),
-                                                        key: 'push',
-                                                    },
-                                                    {
-                                                        label: t('git.tag.delete'),
-                                                        key: 'delete',
-                                                        danger: true,
-                                                    },
-                                                ]}
-                                                onClick={({ key }) => {
-                                                    if (key == 'delete') {
-                                                        deleteItem2(item)
-                                                    }
-                                                    else if (key == 'push') {
-                                                        setPushVisible(true)
-                                                        setPushTag(item.name)
-                                                    }
-                                                }}
-                                            />
-                                        }
+            {detailVisible &&
+                <div>
+                    {tags.length == 0 ?
+                        <FullCenterBox
+                            height={160}
+                        >
+                            <Empty />
+                        </FullCenterBox>
+                    :
+                        <div className={styles.list}>
+                            {tags.map(item => {
+                                return (
+                                    <div 
+                                        className={styles.item}
+                                        key={item.name}
                                     >
-                                        <IconButton
-                                            onClick={e => e.preventDefault()}
-                                        >
-                                            <EllipsisOutlined />
-                                        </IconButton>
-                                    </Dropdown>
-                                </Space>
-                            </div>
-                        )
-                    })}
+                                        <div className={styles.left}>
+                                            <div className={styles.status}>
+                                                {/* {item.name == current &&
+                                                    <div className={styles.current}></div>
+                                                } */}
+                                            </div>
+                                            <div className={styles.name}>{item.name}</div>
+                                        </div>
+                                        <Space>
+                                            <Dropdown
+                                                trigger={['click']}
+                                                overlay={
+                                                    <Menu
+                                                        items={[
+                                                            {
+                                                                label: t('git.push'),
+                                                                key: 'push',
+                                                            },
+                                                            {
+                                                                label: t('git.tag.delete'),
+                                                                key: 'delete',
+                                                                danger: true,
+                                                            },
+                                                        ]}
+                                                        onClick={({ key }) => {
+                                                            if (key == 'delete') {
+                                                                deleteItem2(item)
+                                                            }
+                                                            else if (key == 'push') {
+                                                                setPushVisible(true)
+                                                                setPushTag(item.name)
+                                                            }
+                                                        }}
+                                                    />
+                                                }
+                                            >
+                                                <IconButton
+                                                    onClick={e => e.preventDefault()}
+                                                >
+                                                    <EllipsisOutlined />
+                                                </IconButton>
+                                            </Dropdown>
+                                        </Space>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    }
                 </div>
             }
             {tagModalVisible &&

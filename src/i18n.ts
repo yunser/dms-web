@@ -416,6 +416,8 @@ i18n
                     'export_file_name': 'Export File Name',
                     'set_as_default_database': 'Set as Default Database',
                     'run_selected_row': 'Run Selected Line',
+                    'hide_content': 'Hide Content',
+                    'show_content': 'Show Content',
                 }
             },
             zh: {
@@ -824,6 +826,8 @@ i18n
                     'export_file_name': '导出文件名',
                     'set_as_default_database': '设为默认数据库',
                     'run_selected_row': '执行当前行',
+                    'hide_content': '隐藏内容',
+                    'show_content': '显示内容',
                 }
             }
         },
