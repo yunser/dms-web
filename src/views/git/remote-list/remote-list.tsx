@@ -145,11 +145,19 @@ export function RemoteList({ config, event$, projectPath }) {
                 <div className={styles.list}>
                     {remotes.map(item => {
                         // git@github.com:yunser/aliyun-cli.git
+                        // https://github.com/yunser/aliyun-cli.git
                         let githubUrl = ''
                         const m = item.refs.fetch.match(/git@github.com:([\w-]+?)\/([\w-]+?).git/)
                         if (m) {
                             const [_, user, repo] = m
                             githubUrl = `https://github.com/${user}/${repo}`
+                        }
+                        else {
+                            const m2 = item.refs.fetch.match(/https:\/\/github.com\/([\w-]+?)\/([\w-]+?).git/)
+                            if (m2) {
+                                const [_, user, repo] = m2
+                                githubUrl = `https://github.com/${user}/${repo}`
+                            }
                         }
                         return (
                             <div
