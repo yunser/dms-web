@@ -15,6 +15,7 @@ import { TagEditor } from '../tag-edit';
 import { FullCenterBox } from '@/views/common/full-center-box';
 import { TagPushModal } from '../tag-push';
 import { TagDeleteModal } from '../tag-delete';
+import copy from 'copy-to-clipboard';
 // import { saveAs } from 'file-saver'
 
 function RemoveTagList({ config, projectPath }) {
@@ -387,6 +388,10 @@ export function TagList({ config, event$, projectPath }) {
                                                                 key: 'delete',
                                                                 danger: true,
                                                             },
+                                                            {
+                                                                label: t('copy_name'),
+                                                                key: 'copy_name',
+                                                            },
                                                         ]}
                                                         onClick={({ key }) => {
                                                             if (key == 'delete') {
@@ -395,6 +400,10 @@ export function TagList({ config, event$, projectPath }) {
                                                             else if (key == 'push') {
                                                                 setPushVisible(true)
                                                                 setPushTag(item.name)
+                                                            }
+                                                            else if (key == 'copy_name') {
+                                                                copy(item.name)
+                                                                message.success('copied')
                                                             }
                                                         }}
                                                     />

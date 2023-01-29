@@ -15,6 +15,7 @@ import { FullCenterBox } from '@/views/common/full-center-box';
 import { BranchDeleteModal } from '../branch-delete';
 import { BranchModal } from '../branch-modal';
 import moment from 'moment';
+import copy from 'copy-to-clipboard';
 // import { saveAs } from 'file-saver'
 
 export function BranchList({ config, event$, projectPath, onBranch }) {
@@ -252,6 +253,10 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
                                                         danger: true,
                                                         disabled: item.name == current,
                                                     },
+                                                    {
+                                                        label: t('copy_name'),
+                                                        key: 'copy_name',
+                                                    },
                                                 ]}
                                                 onClick={({ key }) => {
                                                     if (key == 'delete') {
@@ -259,6 +264,10 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
                                                     }
                                                     else if (key == 'switch') {
                                                         switchItem(item)
+                                                    }
+                                                    else if (key == 'copy_name') {
+                                                        copy(item.name)
+                                                        message.success('copied')
                                                     }
                                                 }}
                                             />
