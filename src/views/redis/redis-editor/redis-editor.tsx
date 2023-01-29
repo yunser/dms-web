@@ -19,6 +19,9 @@ function handleRes(res) {
         return `${res}`
     }
     if (Array.isArray(res)) {
+        if (res.length == 0) {
+            return '(empty list or set)'
+        }
         return res.join('\n')
     }
     return res

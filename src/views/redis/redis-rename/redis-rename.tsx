@@ -10,20 +10,6 @@ import { uid } from 'uid';
 import { t } from 'i18next';
 
 
-
-function handleRes(res) {
-    if (res == null) {
-        return `(nil)`
-    }
-    if (typeof res == 'string') {
-        return `"${res}"`
-    }
-    if (Array.isArray(res)) {
-        return res.join('\n')
-    }
-    return res
-}
-
 export function RedisRenameModal({ config, onCancel, onSuccess, redisKey, event$, connectionId, defaultDatabase = 0 }) {
     const [curDb, setCurDb] = useState(defaultDatabase)
     const { t } = useTranslation()
