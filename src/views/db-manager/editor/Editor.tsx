@@ -23,6 +23,9 @@ export const Editor: VFC = ({ lang = 'sql',
     console.warn('Editor/render')
     // value = { code }
     //  = { e => setCode(e.target.value)}
+    const refData = useRef({
+        selection: null,
+    })
     
     event$ && event$.useSubscription(msg => {
         console.log('dbManager/onmessage', msg)
@@ -99,6 +102,8 @@ export const Editor: VFC = ({ lang = 'sql',
                 // selectionStartLineNumber: 1
                 // startColumn: 5
                 // startLineNumber: 1
+                
+                refData.current.selection = selection
                 const selectionValue = _editor.getModel().getValueInRange(selection)
                 // console.log('selectionValue', selectionValue)
 

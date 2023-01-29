@@ -36,7 +36,10 @@ export function RedisEditor({ config, event$, defaultCommand = '', connectionId,
     const [loading, setLoading] = useState(false)
     const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
     const code_ref = useRef('')
-    
+    const refData = useRef({
+        selection: null,
+    })
+
     function getCode() {
         return code_ref.current
     }
@@ -45,12 +48,7 @@ export function RedisEditor({ config, event$, defaultCommand = '', connectionId,
         code_ref.current = code
     }
 
-    async function run() {
-        const lines = getCode().split('\n').map(item => item.trim()).filter(item => item)
-        if (lines.length == 0) {
-            message.error('请输入代码')
-            return
-        }
+    async function _run(lines) {
         setLoading(true)
         let res = await request.post(`${config.host}/redis/execCommands`, {
             connectionId,
@@ -63,6 +61,39 @@ export function RedisEditor({ config, event$, defaultCommand = '', connectionId,
             setHasResult(true)
         }
         setLoading(false)
+    }
+
+    async function run() {
+        const lines = getCode().split('\n').map(item => item.trim()).filter(item => item)
+        if (lines.length == 0) {
+            message.error('请输入代码')
+            return
+        }
+        await _run(lines)
+    }
+
+    async function runSelection() {
+        // console.log('refData.current.selection', refData.current.selection)
+        const { selection } = refData.current
+        if (selection) {
+            // const range = {
+            //     startLineNumber: selection.startLineNumber,
+            //     startColumn: 0,
+            //     endLineNumber: selection.startLineNumber,
+            //     endColumn: 4
+            // }
+            const line = editor.getModel().getLineContent(selection.startLineNumber).trim()
+            if (!line) {
+                message.error('empty')
+                return
+            }
+            await _run([line])
+            // console.log('value', value)
+
+        }
+        else {
+            message.error('no_selection')
+        }
     }
 
     return (
@@ -87,18 +118,33 @@ export function RedisEditor({ config, event$, defaultCommand = '', connectionId,
                         // console.warn('ExecDetail/setEditor')
                         setEditor(editor)
                     }}
+                    onSelectionChange={({ selection }) => {
+                        // console.log('selection', selection)
+                        refData.current.selection = selection
+                    }}
                 />
             </div>
             <div className={styles.toolBox}>
-                <Button
-                    size="small"
-                    loading={loading}
-                    onClick={() => {
-                        run()
-                    }}
-                >
-                    {t('run')}
-                </Button>
+                <Space>
+                    <Button
+                        size="small"
+                        loading={loading}
+                        onClick={() => {
+                            run()
+                        }}
+                    >
+                        {t('run')}
+                    </Button>
+                    <Button
+                        size="small"
+                        loading={loading}
+                        onClick={() => {
+                            runSelection()
+                        }}
+                    >
+                        {t('run_selected_row')}
+                    </Button>
+                </Space>
             </div>
             <div className={styles.resultBox}>
                 {hasResult ?
