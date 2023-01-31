@@ -441,7 +441,6 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
             name: values.name || t('unnamed'),
             host: values.host || 'localhost',
             port: values.port || 1883,
-            // user: values.user,
             password: values.password || '',
             userName: values.userName,
         }
@@ -510,9 +509,9 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
         const values = await form.validateFields()
         setTestLoading(true)
         const reqData = {
+            name: values.name || t('unnamed'),
             host: values.host || 'localhost',
             port: values.port || 1883,
-            // user: values.user,
             password: values.password || '',
             userName: values.userName,
             test: true,
@@ -543,14 +542,14 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                         justifyContent: 'space-between',
                     }}
                 >
-                    <div></div>
-                    {/* <Button key="back"
+                    {/* <div></div> */}
+                    <Button key="back"
                         loading={testLoading}
                         disabled={testLoading || loading}
                         onClick={handleTestConnection}
                     >
                         {t('test_connection')}
-                    </Button> */}
+                    </Button>
                     <Space>
                         <Button
                             // key="submit"
