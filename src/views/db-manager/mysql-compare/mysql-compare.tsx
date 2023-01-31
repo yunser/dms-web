@@ -103,6 +103,9 @@ function DbSelector({ config, onSuccess }) {
                         console.log('value', value)
                         setConnectionId(value)
                     }}
+                    showSearch={true}
+                    optionFilterProp="label"
+                    // searchValue="label"
                 />
                 <Select
                     options={schemas}
@@ -116,6 +119,7 @@ function DbSelector({ config, onSuccess }) {
                             schemaName,
                         })
                     }}
+                    showSearch={true}
                 />
             </Space>
         </div>
