@@ -64,7 +64,8 @@ function lastSplit(text: string, sep: string) {
 }
 
 function getCopyName(fileName: string, copyText: string) {
-    const suffix = `-${copyText}`
+    // const suffix = `-${copyText}`
+    const suffix = moment().format('_YYYYMMDD_HHmmss')
     if (fileName.includes('.')) {
         const [name, ext] = lastSplit(fileName, '.')
         return `${name}${suffix}.${ext}`
