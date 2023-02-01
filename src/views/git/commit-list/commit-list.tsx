@@ -309,6 +309,18 @@ export function CommitList({ config, event$, projectPath,  }) {
             // .splice(0, 100)
     }, [list])
 
+    async function openInFinder(path: string) {
+        let ret = await request.post(`${config.host}/file/openInFinder`, {
+            path,
+        })
+    }
+
+    async function openInVsCode(path: string) {
+        let ret = await request.post(`${config.host}/file/openInVsCode`, {
+            path,
+        })
+    }
+
     // return (
     //     <div>
     //         <Gitgraph>
@@ -570,7 +582,41 @@ export function CommitList({ config, event$, projectPath,  }) {
                                                 onClick={() => {
                                                     loadFile(file)
                                                 }}
-                                            >{file}</div>
+                                            >
+                                                <div className={styles.name}>{file}</div>
+                                                <Dropdown
+                                                    trigger={['click']}
+                                                    overlay={
+                                                        <Menu
+                                                            items={[
+                                                                {
+                                                                    label: t('file.open_in_finder'),
+                                                                    key: 'finder',
+                                                                },
+                                                                {
+                                                                    label: t('file.open_in_vscode'),
+                                                                    key: 'open_in_vscode',
+                                                                },
+                                                            ]}
+                                                            onClick={({ key }) => {
+                                                                if (key == 'finder') {
+                                                                    console.log('item', file)
+                                                                    openInFinder(projectPath + '/' + file)
+                                                                }
+                                                                else if (key == 'open_in_vscode') {
+                                                                    openInVsCode(projectPath + '/' + file)
+                                                                }
+                                                            }}
+                                                        />
+                                                    }
+                                                >
+                                                    <IconButton
+                                                        onClick={e => e.preventDefault()}
+                                                    >
+                                                        <EllipsisOutlined />
+                                                    </IconButton>
+                                                </Dropdown>
+                                            </div>
                                             
                                         )
                                     })}
