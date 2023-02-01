@@ -124,6 +124,7 @@ export function DbManager({ config }) {
     // console.log('i18n', i18n)
     const [aboutVisible, setAboutVisible] = useState(false)
     const commanderRef = useRef(null)
+    const tabContentRef = useRef(null)
     // const [lang, setLang] = useState('en')
     const lang = useMemo(() => {
         if (i18n.language.includes('zh')) {
@@ -137,6 +138,20 @@ export function DbManager({ config }) {
     useEffect(() => {
         document.title = t('site_title')
     }, [lang])
+
+    useEffect(() => {
+        if (!tabContentRef.current) {
+            return () => {}
+        }
+        const handleKeyDown = e => {
+            // console.log('e', e.code, e)
+            // console.log('tabContentRef keydown', )
+        }
+        window.addEventListener('keydown', handleKeyDown)
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown)
+        }
+    }, [tabContentRef.current])
 
     const tab_workbench = {
         title: '$i18n.workbench',
@@ -216,7 +231,7 @@ export function DbManager({ config }) {
 
     useEffect(() => {
         function handleKeyDown(e: KeyboardEvent) {
-            console.log('e', e.code, e)
+            // console.log('e', e.code, e)
             if (document.activeElement?.nodeName == 'INPUT' || document.activeElement?.nodeName == 'TEXTAREA') {
                 return
             }
@@ -916,7 +931,10 @@ export function DbManager({ config }) {
                         })}
                     />
                 </div>
-                <div className={styles.appBody}>
+                <div className={styles.appBody}
+                    ref={tabContentRef}
+                    // onKeyDown={e }
+                >
                     {tabs.map(item => {
                         return (
                             <div
@@ -1290,6 +1308,7 @@ export function DbManager({ config }) {
                                             event$={event$}
                                             sourceType="ssh"
                                             item={item.data.item}
+                                            tabKey={item.key}
                                             defaultPath={item.data.defaultPath}
                                             onSshPath={path => {
                                                 console.log('onSshPath', path)
@@ -1347,6 +1366,7 @@ export function DbManager({ config }) {
                                     {item.type == 'ip' &&
                                         <IpHome
                                             config={config}
+                                            tabKey={item.key}
                                             // local={true}
                                             // defaultPath={item.data.path}
                                         />

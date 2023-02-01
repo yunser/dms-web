@@ -323,10 +323,10 @@ export function ZipList({ config, event$, path, tabKey, item, showSide = false }
 
     useEffect(() => {
         function handleKeyDown(e: KeyboardEvent) {
-            console.log('e', e.code, e)
-            console.log('e/e.keyCode', e.keyCode)
-            console.log('e.metaKey', e.metaKey)
-            console.log('tabKey', tabKey, window.__activeKey)
+            // console.log('e', e.code, e)
+            // console.log('e/e.keyCode', e.keyCode)
+            // console.log('e.metaKey', e.metaKey)
+            // console.log('tabKey', tabKey, window.__activeKey)
             if (tabKey != window.__activeKey) {
                 return
             }

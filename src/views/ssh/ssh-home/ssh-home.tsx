@@ -346,16 +346,6 @@ export function SshDetail({ config, defaultPath, item, onSftpPath, onClone }) {
         // loadList()
     }, [curPath])
 
-    // useKeyPress([], e => {
-    //     function handleKeyDown(e) {
-    //         console.log('e', e.code)
-    //     }
-    //     window.addEventListener('keydown', handleKeyDown)
-    //     return () => {
-    //         window.removeEventListener('keydown', handleKeyDown)
-    //     }
-    // })
-
     function checkConnection() {
         wsRef.current.send(JSON.stringify({
             type: 'pwd',

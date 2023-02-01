@@ -95,7 +95,7 @@ function ModalContent({ commands, onCommand, onCancel }) {
 
     useEffect(() => {
         const handleKeyDown = e => {
-            console.log('e', e.code, e)
+            // console.log('e', e.code, e)
             if (e.code == 'Escape') {
                 onCancel && onCancel()
             }

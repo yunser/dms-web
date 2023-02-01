@@ -31,11 +31,11 @@ function ExpireTimeRender(value) {
     )
 }
 
-export function IpHome({ config, onClickItem }) {
+export function IpHome({ tabKey, config, onClickItem }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [curIp, setCurIp] = useState('--')
-
+    
     async function loadData() {
         let res = await request.get('https://nodeapi.yunser.com/ip/me')
         console.log('res', res)
@@ -48,9 +48,27 @@ export function IpHome({ config, onClickItem }) {
         loadData()
     }, [])
 
+    useEffect(() => {
+        function handleKeyDown(e) {
+            if (tabKey && window.__activeKey && tabKey != window.__activeKey) {
+                return
+            }
+            console.log('IP keydown', e.target)
+            console.log('IP keydown/tabKey', tabKey, window.__activeKey)
+        }
+        window.addEventListener('keydown', handleKeyDown)
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown)
+        }
+    }, [])
+
 
     return (
-        <div className={styles.container}>
+        <div className={styles.container}
+            onKeyDown={(e) => {
+                console.log('IP keydown 22222', e.target)
+            }}
+        >
             <div className={styles.ip}>{curIp}</div>
         </div>
     )

@@ -657,10 +657,10 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
 
     useEffect(() => {
         function handleKeyDown(e: KeyboardEvent) {
-            console.log('e', e.code, e)
-            console.log('e/e.keyCode', e.keyCode)
-            console.log('e.metaKey', e.metaKey)
-            console.log('tabKey', tabKey, window.__activeKey)
+            // console.log('e', e.code, e)
+            // console.log('e/e.keyCode', e.keyCode)
+            // console.log('e.metaKey', e.metaKey)
+            // console.log('tabKey', tabKey, window.__activeKey)
             if (tabKey && window.__activeKey && tabKey != window.__activeKey) {
                 return
             }
