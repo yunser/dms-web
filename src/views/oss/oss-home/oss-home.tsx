@@ -14,6 +14,7 @@ import { request } from '@/views/db-manager/utils/http';
 // import { ProjectEditor } from '../project-edit';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/common/full-center-box';
+import { getGlobalConfig } from '@/config';
 // import { saveAs } from 'file-saver'
 
 export function OssHome({ event$, onClickItem }) {
@@ -23,9 +24,7 @@ export function OssHome({ event$, onClickItem }) {
     const [view, setView] = useState('list')
     const [keyword, setKeyword] = useState('')
     // const [curTab, setCurTab] = useState('commit-list')
-    const config = {
-        host: 'http://localhost:10086',
-    }
+    const config = getGlobalConfig()
     const [accessKeys, setAccessKeys] = useState([])
     
 

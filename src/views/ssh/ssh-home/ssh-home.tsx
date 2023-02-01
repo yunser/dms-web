@@ -1,20 +1,11 @@
-import { Button, Descriptions, Dropdown, Empty, Input, Menu, message, Modal, Popover, Space, Table, Tabs, Tag } from 'antd';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Button, message, Space } from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
 import styles from './ssh-home.module.less';
 import _ from 'lodash';
-import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { DownloadOutlined, EllipsisOutlined, FileOutlined, FolderOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
-import saveAs from 'file-saver';
-import { useEventEmitter, useKeyPress } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
-import { IconButton } from '@/views/db-manager/icon-button';
-import { FullCenterBox } from '@/views/common/full-center-box';
-import moment from 'moment';
 // import { saveAs } from 'file-saver'
-import filesize from 'file-size'
 
 import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
@@ -82,9 +73,6 @@ export function SshDetail({ config, defaultPath, item, onSftpPath, onClone }) {
     const [connected, setConnected] = useState(false)
     const [isActive, setIsActive] = useState(false)
     const [term, setTerm] = useState(null)
-    // const config = {
-    //     host: 'http://localhost:10086'
-    // }
 
     const xtermRef = useRef<Terminal>(null)
     // const _xterm = xtermRef.current

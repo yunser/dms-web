@@ -14,6 +14,7 @@ import { request } from '@/views/db-manager/utils/http';
 // import { ProjectEditor } from '../project-edit';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/common/full-center-box';
+import { getGlobalConfig } from '@/config';
 // import { saveAs } from 'file-saver'
 
 function InputPassword(props) {
@@ -47,9 +48,7 @@ export function WebDavHome({ onClickItem }) {
     const [view, setView] = useState('list')
     const [keyword, setKeyword] = useState('')
     // const [curTab, setCurTab] = useState('commit-list')
-    const config = {
-        host: 'http://localhost:10086',
-    }
+    const config = getGlobalConfig()
     const [projects, setProjects] = useState([])
     // const projects = [
     //     {

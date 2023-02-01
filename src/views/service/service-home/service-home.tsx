@@ -14,6 +14,7 @@ import { request } from '@/views/db-manager/utils/http';
 // import { ProjectEditor } from '../project-edit';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/common/full-center-box';
+import { getGlobalConfig } from '@/config';
 // import { saveAs } from 'file-saver'
 
 export function ServiceHome({ onClickItem }) {
@@ -25,9 +26,7 @@ export function ServiceHome({ onClickItem }) {
     const [content, setContent] = useState('')
     const [list, setList] = useState([])
     
-    const config = {
-        host: 'http://localhost:10086'
-    }
+    const config = getGlobalConfig()
 
     async function loadList() {
         const values = await form.validateFields()

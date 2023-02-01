@@ -16,7 +16,7 @@ const projectRootDir = path.resolve(__dirname);
 export default defineConfig({
     server: {
         // host: '192.168.6.7',
-        port: 3001,
+        port: 12306,
     },
     // css: {
     //     preprocessorOptions: {
@@ -31,6 +31,7 @@ export default defineConfig({
     resolve: {
         alias: [
             { find: /^~/, replacement: '' },
+            { find: /^@\/config/, replacement: path.resolve(projectRootDir, 'src/config')},
             { find: /^@\/components/, replacement: path.resolve(projectRootDir, 'src/components')},
             { find: /^@\/canvas/, replacement: path.resolve(projectRootDir, 'src/canvas') },
             { find: /^@\/canvas-web/, replacement: path.resolve(projectRootDir, 'src/canvas-web') },

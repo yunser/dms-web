@@ -15,6 +15,7 @@ import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/common/full-center-box';
 import { SwaggerDetail } from '../swagger-detail';
+import { getGlobalConfig } from '@/config';
 // import { saveAs } from 'file-saver'
 
 export function SwaggerHome({ event$, onClickItem }) {
@@ -24,9 +25,7 @@ export function SwaggerHome({ event$, onClickItem }) {
     const [view, setView] = useState('list')
     const [keyword, setKeyword] = useState('')
     // const [curTab, setCurTab] = useState('commit-list')
-    const config = {
-        host: 'http://localhost:10086',
-    }
+    const config = getGlobalConfig()
     const [accessKeys, setAccessKeys] = useState([])
     
 

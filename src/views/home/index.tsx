@@ -5,6 +5,7 @@ import classes from './layout.module.less'
 // import rough from 'roughjs';
 import { useTranslation, Trans } from "react-i18next";
 import { DbManager } from '../db-manager';
+import { getGlobalConfig } from '@/config';
 
 const initialValue = [
     {
@@ -37,10 +38,7 @@ export function HomePage() {
             {/* Home */}
             {/* 1 */}
             <DbManager
-                config={{
-                    // host: 'http://localhost:7003'
-                    host: 'http://localhost:10086'
-                }}
+                config={getGlobalConfig()}
             />
 
             

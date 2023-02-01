@@ -13,6 +13,7 @@ import { ProjectEditor } from '../project-edit';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/common/full-center-box';
 import moment from 'moment';
+import { getGlobalConfig } from '@/config';
 // import { saveAs } from 'file-saver'
 
 function isInclude(text: string, subText: string) {
@@ -53,9 +54,7 @@ export function GitHome({ event$, onProject }) {
     const [keyword, setKeyword] = useState('')
     const searchInputRef = useRef<InputRef>(null)
     // const [curTab, setCurTab] = useState('commit-list')
-    const config = {
-        host: 'http://localhost:10086',
-    }
+    const config = getGlobalConfig()
     const [projects, setProjects] = useState([])
     // const projects = [
     //     {

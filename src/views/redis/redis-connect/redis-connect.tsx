@@ -760,7 +760,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                     </Button>
                 </div>
             }
-            <div className={styles.help}>Supports Redis >= 2.6.12</div>
+            <div className={styles.help}>{'Supports Redis >= 2.6.12'}</div>
         </Modal>
     );
 }

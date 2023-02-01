@@ -51,9 +51,6 @@ export function LoggerHome({ config, onItem, event$ }) {
     const [view, setView] = useState('list')
     const [keyword, setKeyword] = useState('')
     // const [curTab, setCurTab] = useState('commit-list')
-    // const config = {
-    //     host: 'http://localhost:10086',
-    // }
     const [projects, setProjects] = useState([])
     // const projects = [
     //     {

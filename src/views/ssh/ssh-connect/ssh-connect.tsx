@@ -263,10 +263,6 @@ export function SshConnect({ config, tabKey, onSSh, onSftp, event$ }) {
 
     const [dashboardVisible, setDashboardVisible] = useState(false)
     const [dashboarItems, setDashboardItems] = useState([])
-    // const [curTab, setCurTab] = useState('commit-list')
-    // const config = {
-    //     host: 'http://localhost:10086',
-    // }
     const [projects, setProjects] = useState([])
     // const projects = [
     //     {

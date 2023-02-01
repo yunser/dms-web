@@ -95,5 +95,4 @@ export const _delete = {
     parseSource,
     parseWhere,
     createObj,
-    parseWhere,
 }

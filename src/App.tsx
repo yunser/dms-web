@@ -46,6 +46,7 @@ import { AlasqlHome } from './views/slasql/ip-home'
 import { WebSocketHome } from './views/websocket/websocket-home/websocket-home'
 import { useTitle } from 'ahooks'
 import { useTranslation } from 'react-i18next'
+import { getGlobalConfig } from './config'
 
 function GitPage() {
     return (
@@ -86,9 +87,7 @@ function SwaggerDetailPage() {
     const url = searchParams.get('url')
     console.log('url', url)
 
-    const config = {
-        host: 'http://localhost:10086',
-    }
+    const config = getGlobalConfig()
 
     if (url) {
         return (
