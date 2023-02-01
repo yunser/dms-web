@@ -33,6 +33,7 @@ export function FilePathModal({ config, type, path, onSuccess, sourceType, onCan
     const { t } = useTranslation()
     // const [list, setList] = useState<File[]>([])
     // const [content, setContent] = useState('')
+    const inputRef = useRef(null);
     const [form] = Form.useForm()
 
     async function handleOk() {
@@ -46,6 +47,17 @@ export function FilePathModal({ config, type, path, onSuccess, sourceType, onCan
             path,
         })
     }, [path])
+
+
+    useEffect(() => {
+        if (!inputRef.current) {
+            return
+        }
+        console.log('inputRef.current', inputRef.current)
+        inputRef.current!.focus({
+            cursor: 'all',
+        })
+    }, [inputRef.current])
 
     return (
         <Modal
@@ -64,6 +76,9 @@ export function FilePathModal({ config, type, path, onSuccess, sourceType, onCan
                     // port: 6379,
                     // db: 0,
                 }}
+                onFinish={() => {
+                    handleOk()
+                }}
                 // layout={{
                 //     labelCol: { span: 0 },
                 //     wrapperCol: { span: 24 },
@@ -76,6 +91,8 @@ export function FilePathModal({ config, type, path, onSuccess, sourceType, onCan
                 >
                     <Input
                         // disabled={!(editType == 'create')}
+                        // autoFocus
+                        ref={inputRef}
                     />
                 </Form.Item>
                 
