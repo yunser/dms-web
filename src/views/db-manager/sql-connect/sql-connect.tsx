@@ -16,6 +16,7 @@ import { ColorSelector } from '../color-selector';
 import copy from 'copy-to-clipboard';
 import { FullCenterBox } from '@/views/common/full-center-box'
 import { useInterval } from 'ahooks';
+import { SearchUtil } from '@/utils/search';
 
 
 function RecentlyUsedDb({ originConnections, onItemSelect }) {
@@ -542,7 +543,10 @@ export function SqlConnector({ config, event$, onConnect, onJson }) {
             let connections = res.data.list
             setOriginConnections(JSON.parse(JSON.stringify(connections)))
             if (keyword) {
-                connections = connections.filter(item => item.name.toLowerCase().includes(keyword.toLowerCase()))
+                connections = SearchUtil.search(connections, keyword, {
+                    attributes: ['name', 'host'],
+                })
+                // connections = connections.filter(item => item.name.toLowerCase().includes(keyword.toLowerCase()))
             }
             // const connections = storage.get('connections', [])
             setConnections(connections)
