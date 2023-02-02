@@ -18,6 +18,7 @@ import { SshDetail } from '../ssh-home';
 import { FileList } from '../../file/file-list'
 import storage from '@/utils/storage';
 import { uid } from 'uid';
+import { SearchUtil } from '@/utils/search';
 
 function CircleProgress({ percent, width, 
     format = (percent) => `${percent}%`, 
@@ -274,11 +275,15 @@ export function SshConnect({ config, tabKey, onSSh, onSftp, event$ }) {
     //         path: '/Users/yunser/app/git-auto',
     //     },
     // ]
-    const filterdProjects = useMemo(() => {
-        if (!keyword) {
-            return projects    
-        }
-        return projects.filter(p => p.name.toLowerCase().includes(keyword.toLowerCase()))
+    const filteredProjects = useMemo(() => {
+        return SearchUtil.search(projects, keyword, {
+            attributes: ['name', 'host'],
+        })
+        
+        // if (!keyword) {
+        //     return projects    
+        // }
+        // return projects.filter(p => p.name.toLowerCase().includes(keyword.toLowerCase()))
         // return projects
     }, [projects, keyword])
 
@@ -426,7 +431,7 @@ export function SshConnect({ config, tabKey, onSSh, onSftp, event$ }) {
                             >
                                 <Spin />
                             </FullCenterBox>
-                        : filterdProjects.length == 0 ?
+                        : filteredProjects.length == 0 ?
                             <FullCenterBox
                                 height={320}
                             >
@@ -435,7 +440,7 @@ export function SshConnect({ config, tabKey, onSSh, onSftp, event$ }) {
                         :
                             <div className={styles.listWrap}>
                                 <div className={styles.list}>
-                                    {filterdProjects.map(item => {
+                                    {filteredProjects.map(item => {
                                         return (
                                             <div
                                                 key={item.id}
