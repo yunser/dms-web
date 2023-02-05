@@ -351,7 +351,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
             test: true,
             // remember: values.remember,
         }
-        let ret = await request.post(`${config.host}/ssh/connect`, reqData)
+        let ret = await request.post(`${config.host}/webdav/connect`, reqData)
         // console.log('ret', ret)
         if (ret.success) {
             message.success(t('success'))
@@ -376,14 +376,14 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                         justifyContent: 'space-between',
                     }}
                 >
-                    <div></div>
-                    {/* <Button key="back"
+                    {/* <div></div> */}
+                    <Button key="back"
                         loading={loading}
                         disabled={loading}
                         onClick={handleTestConnection}
                     >
                         {t('test_connection')}
-                    </Button> */}
+                    </Button>
                     <Space>
                         <Button
                             // key="submit"
