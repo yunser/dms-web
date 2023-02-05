@@ -1,11 +1,11 @@
-import { Button, Checkbox, Descriptions, Drawer, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Progress, Space, Spin, Table, Tabs, Tag } from 'antd';
+import { Button, Checkbox, Descriptions, Drawer, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Progress, Space, Spin, Table, Tabs, Tag, Tooltip } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './ssh-connect.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { CodeOutlined, DownloadOutlined, EllipsisOutlined, ExportOutlined, EyeInvisibleOutlined, EyeOutlined, FileOutlined, LineChartOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { CodeOutlined, DownloadOutlined, EllipsisOutlined, ExportOutlined, EyeInvisibleOutlined, EyeOutlined, FileOutlined, LineChartOutlined, PlusOutlined, QuestionOutlined, ReloadOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 // import { GitProject } from '../git-project';
@@ -452,6 +452,13 @@ export function SshConnect({ config, tabKey, onSSh, onSftp, event$ }) {
                                                 <Space>
                                                     <div className={styles.name}>{item.name}</div>
                                                     <div className={styles.info}>{item.username}@{item.host}</div>
+                                                    {!!item.note &&
+                                                        <Tooltip
+                                                            title={item.note}
+                                                        >
+                                                            <QuestionOutlined />    
+                                                        </Tooltip>
+                                                    }
                                                 </Space>
                                                 <Space
                                                     onClick={(e) => {
@@ -684,6 +691,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
             privateKey: values.privateKey,
             username,
             isMonitor: values.isMonitor || false,
+            note: values.note || '',
         }
         if (editType == 'create') {
             let res = await request.post(`${config.host}/ssh/connection/create`, {
@@ -835,6 +843,14 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                 >
                     <Input.TextArea
                         placeholder="填写后则不使用密码"
+                    />
+                </Form.Item>
+                <Form.Item
+                    name="note"
+                    label={t('note')}
+                >
+                    <Input.TextArea
+                        // placeholder="备注"
                     />
                 </Form.Item>
                 <Form.Item
