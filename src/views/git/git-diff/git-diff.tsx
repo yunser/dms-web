@@ -1,4 +1,4 @@
-import { Button, Checkbox, Descriptions, Form, Input, message, Modal, Popover, Space, Table, Tabs } from 'antd';
+import { Button, Checkbox, Descriptions, Empty, Form, Input, message, Modal, Popover, Space, Table, Tabs } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './git-diff.module.less';
 import _, { add } from 'lodash';
@@ -10,10 +10,19 @@ import { DownloadOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
+import { FullCenterBox } from '@/views/common/full-center-box';
 // import { saveAs } from 'file-saver'
 
 export function DiffText({ text }) {
     const arr = text.split('\n')
+
+    if (text === '') {
+        return (
+            <FullCenterBox>
+                <Empty />
+            </FullCenterBox>
+        )
+    }
     return (
         <div className={styles.diffBox}>
             <div className={styles.lines}>
