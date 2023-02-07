@@ -14,6 +14,8 @@ import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/common/full-center-box';
 import { SearchUtil } from '@/utils/search';
 
+
+
 function InputPassword(props) {
     const [visible, setVisible] = useState(false)
     return (
@@ -51,6 +53,7 @@ export function MongoHome({ config, event$, onConnect, }) {
         //     name: 'XXX2',
         // },
     ])
+    
     const filteredConnections = useMemo(() => {
         return SearchUtil.search(connections, keyword, {
             attributes: ['name', 'host', 'username'],

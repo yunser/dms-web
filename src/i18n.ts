@@ -418,6 +418,8 @@ i18n
                     'run_selected_row': 'Run Selected Line',
                     'hide_content': 'Hide Content',
                     'show_content': 'Show Content',
+                    'server_info': 'Server Infomation',
+                    'version': 'Version',
                 }
             },
             zh: {
@@ -828,6 +830,8 @@ i18n
                     'run_selected_row': '执行当前行',
                     'hide_content': '隐藏内容',
                     'show_content': '显示内容',
+                    'server_info': '服务器信息',
+                    'version': '版本',
                 }
             }
         },

@@ -1,7 +1,7 @@
 import { Button, Checkbox, Col, Descriptions, Drawer, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Pagination, Popover, Radio, Row, Space, Spin, Table, Tabs } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import styles from './mongo-client.module.less';
-import _ from 'lodash';
+import _, { after } from 'lodash';
 import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
@@ -9,12 +9,51 @@ import { useTranslation } from 'react-i18next';
 // import storage from '../../db-manager/storage'
 // import { CodeDebuger } from '../code-debug';
 import { uid } from 'uid';
-import { EllipsisOutlined, ExportOutlined, EyeInvisibleOutlined, EyeOutlined, EyeTwoTone, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { EllipsisOutlined, ExportOutlined, EyeInvisibleOutlined, EyeOutlined, EyeTwoTone, InfoCircleOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/common/full-center-box';
 import { MongoDocument } from '../mongo-document';
 import { MongoIndex } from '../mongo-index';
+
+function ServerInfoModal({ config, connectionId, onCancel }) {
+
+    const { t } = useTranslation()
+
+    const [loading, setLoading] = useState(false)
+    const [serverInfo, setServerInfo] = useState(null)
+
+    async function loadServerInfo() {
+        let ret = await request.post(`${config.host}/mongo/serverInfo`, {
+            connectionId,
+        })
+        // console.log('ret', ret)
+        if (ret.success) {
+            setServerInfo(ret.data)
+            // message.success('连接成功')
+            // onConnect && onConnect({
+            //     connectionId: ret.data.connectionId,
+            //     name: item.name,
+            // })
+        }
+    }
+    
+    useEffect(() => {
+        loadServerInfo()
+    }, [])
+
+    return (
+        <Modal
+            title={t('server_info')}
+            open={true}
+            onCancel={onCancel}
+        >
+            {!!serverInfo &&
+                <div>{t('version')}: {serverInfo.version}</div>
+            }
+        </Modal>
+    )
+}
 
 function removeObjId(obj) {
     const result = {}
@@ -35,6 +74,8 @@ export function MongoClient({ config, event$, connectionId, }) {
     // db
     const [dbModalVisible, setDbModalVisible] = useState(false)
     const [dbModalItem, setDbModalItem] = useState(null)
+
+    const [infoVisible, setInfoVisible] = useState(false)
 
     const [databases, setDatabases] = useState([])
     const [collectionLoading, setCollectionLoading] = useState(false)
@@ -254,6 +295,14 @@ export function MongoClient({ config, event$, connectionId, }) {
                             <PlusOutlined />
                         </IconButton>
                         <IconButton
+                            tooltip={t('info')}
+                            onClick={() => {
+                                setInfoVisible(true)
+                            }}
+                        >
+                            <InfoCircleOutlined />
+                        </IconButton>
+                        <IconButton
                             tooltip={t('export_json')}
                             onClick={() => {
                                 event$.emit({
@@ -435,6 +484,15 @@ export function MongoClient({ config, event$, connectionId, }) {
                     onSuccess={() => {
                         setDbModalVisible(false)
                         loadDatabases()
+                    }}
+                />
+            }
+            {infoVisible &&
+                <ServerInfoModal
+                    config={config}
+                    connectionId={connectionId}
+                    onCancel={() => {
+                        setInfoVisible(false)
                     }}
                 />
             }
