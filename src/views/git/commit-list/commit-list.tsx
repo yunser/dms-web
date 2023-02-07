@@ -110,12 +110,22 @@ export function CommitList({ config, event$, projectPath,  }) {
         console.log('fres', res)
         if (res.success) {
             const { files } = res.data
-            setFiles(files)
+            const _files = files.map(file => {
+                console.log('file', file)
+                let oldName = file
+                // let oldName = 'app/middleware/{errorHandler.js => errordeal.js}'
+                let m = oldName.match(/{[\d\D]+=> ([\d\D]+)}/)
+                if (m) {
+                    return oldName.substring(0, m.index) + m[1]
+                }
+                return oldName
+            })
+            setFiles(_files)
             // setFileDiff(res.data.res)
             // setCurFile('')
-            if (files.length > 0) {
+            if (_files.length > 0) {
                 setTimeout(() => {
-                    loadFile(files[0], item)
+                    loadFile(_files[0], item)
                 }, 0)
             }
             event$.emit({
