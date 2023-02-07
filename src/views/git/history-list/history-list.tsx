@@ -1,4 +1,4 @@
-import { Button, Descriptions, Dropdown, Empty, Input, Menu, message, Modal, Popover, Space, Table, Tabs } from 'antd';
+import { Button, Descriptions, Dropdown, Empty, Input, Menu, message, Modal, Popover, Space, Table, Tabs, Tooltip } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './history-list.module.less';
 import _ from 'lodash';
@@ -6,20 +6,21 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { CloudOutlined, DownloadOutlined, EllipsisOutlined, HistoryOutlined, PlusOutlined } from '@ant-design/icons';
+import { CloudOutlined, DownloadOutlined, EllipsisOutlined, EyeOutlined, EyeTwoTone, HistoryOutlined, PlusOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { RemoteEditor } from '../remote-edit';
 import { FullCenterBox } from '@/views/common/full-center-box';
+import copy from 'copy-to-clipboard';
 // import { saveAs } from 'file-saver'
 
 export function HistoryList({ config, event$, projectPath }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
 
-    const [modalVisible, setModalVisible] = useState(false)
+    const [moreVisible, setMoreVisible] = useState(false)
     const [histories, setHistories] = useState([])
     // const [current, setCurrent] = useState('')
 
@@ -95,14 +96,14 @@ export function HistoryList({ config, event$, projectPath }) {
                     {'    '}
                     {t('history')}
                 </div>
-                {/* <IconButton
+                <IconButton
                     tooltip={t('git.remote.create')}
                     onClick={() => {
-                        setModalVisible(true)
+                        setMoreVisible(true)
                     }}
                 >
-                    <PlusOutlined />
-                </IconButton> */}
+                    <EyeOutlined />
+                </IconButton>
             </div>
             {histories.length == 0 ?
                 <FullCenterBox
@@ -118,7 +119,36 @@ export function HistoryList({ config, event$, projectPath }) {
                                 className={styles.item}
                                 key={item.id}
                             >
-                                <div className={styles.command}>{item.command}</div>
+                                <Tooltip
+                                    title={item.command}
+                                >
+                                    <div className={styles.command}>{item.command}</div>
+                                </Tooltip>
+                                <Dropdown
+                                    trigger={['click']}
+                                    overlay={
+                                        <Menu
+                                            items={[
+                                                {
+                                                    label: t('copy'),
+                                                    key: 'copy',
+                                                },
+                                            ]}
+                                            onClick={({ key }) => {
+                                                if (key == 'copy') {
+                                                    copy(item.command)
+                                                    message.success(t('copied'))
+                                                }
+                                            }}
+                                        />
+                                    }
+                                >
+                                    <IconButton
+                                        onClick={e => e.preventDefault()}
+                                    >
+                                        <EllipsisOutlined />
+                                    </IconButton>
+                                </Dropdown>
                                 {/* <Space>
                                     <Dropdown
                                         trigger={['click']}
@@ -164,6 +194,27 @@ export function HistoryList({ config, event$, projectPath }) {
                     }}
                 />
             } */}
+            {moreVisible &&
+                <Modal
+                    title={t('history')}
+                    open={true}
+                    width={800}
+                    onCancel={() => {
+                        setMoreVisible(false)
+                    }}
+                    footer={null}
+                >
+                    <Table
+                        dataSource={histories}
+                        columns={[
+                            {
+                                title: t('command'),
+                                dataIndex: 'command',
+                            },
+                        ]}
+                    />
+                </Modal>
+            }
         </div>
     )
 }
