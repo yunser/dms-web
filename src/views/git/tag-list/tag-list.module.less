@@ -17,14 +17,23 @@
         justify-content: space-between;
         align-items: center;
         // border: 1px solid var(--border-color);
-        .left {
-            display: flex;
-            align-items: center;
-        }
+    }
+    .left {
+        flex: 1 0 auto;
+        width: 0;
+        display: flex;
+        align-items: center;
+        // border: 1px solid #000;
+        gap: 8px;
     }
     .status {
         width: 24px;
         // border: 1px solid #f00;
+    }
+    .name {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     .current {
         width: 8px;

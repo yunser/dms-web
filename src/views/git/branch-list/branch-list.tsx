@@ -207,6 +207,7 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
                                         }
                                     </div>
                                     <div className={styles.name}>{item.name}</div>
+                                    {/* <div className={styles.}></div> */}
                                     {item.name != current &&
                                         <div className={styles.switch}>
                                             <IconButton
@@ -220,22 +221,24 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
                                         </div>
                                     }
                                 </div>
-                                {(ahead > 0 || behind > 0) &&
-                                    <div className={styles.tag}>
-                                        {ahead > 0 &&
-                                            <div className={styles.tagItem}>
-                                                <div className={styles.num}>{ahead}</div>
-                                                <ArrowUpOutlined />
-                                            </div>
-                                        }
-                                        {behind > 0 &&
-                                            <div className={styles.tagItem}>
-                                                <div className={styles.num}>{behind}</div>
-                                                <ArrowDownOutlined />
-                                            </div>
-                                        }
-                                    </div>
-                                }
+                                <div className={styles.tagBox}>
+                                    {(ahead > 0 || behind > 0) &&
+                                        <div className={styles.tag}>
+                                            {ahead > 0 &&
+                                                <div className={styles.tagItem}>
+                                                    <div className={styles.num}>{ahead}</div>
+                                                    <ArrowUpOutlined />
+                                                </div>
+                                            }
+                                            {behind > 0 &&
+                                                <div className={styles.tagItem}>
+                                                    <div className={styles.num}>{behind}</div>
+                                                    <ArrowDownOutlined />
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+                                </div>
                                 <Space>
                                     <Dropdown
                                         trigger={['click']}

@@ -25,10 +25,20 @@
             display: flex;
             align-items: center;
             // border: 1px solid #000;
-            flex: 1 0;
+            flex: 1 0 auto;
+            width: 0;
+            // border: 1px solid #f00;
+        }
+        .name {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            // max-width: 80px;
+            // border: 1px solid #000;
         }
     }
     .status {
+        flex: 0 0 auto;
         width: 24px;
         // border: 1px solid #f00;
         .current {
@@ -47,6 +57,9 @@
         // border: 1px solid #000;
         // flex: 1 0;
         // cursor: pointer;
+    }
+    .tagBox {
+        min-width: 36px;
     }
     .tag {
         height: 20px;
