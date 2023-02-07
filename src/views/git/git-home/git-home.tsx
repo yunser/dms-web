@@ -1,4 +1,4 @@
-import { Button, Descriptions, Dropdown, Empty, Input, InputRef, Menu, message, Modal, Popover, Space, Table, Tabs, Tag } from 'antd';
+import { Alert, Button, Descriptions, Dropdown, Empty, Input, InputRef, Menu, message, Modal, Popover, Space, Table, Tabs, Tag } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './git-home.module.less';
 import _ from 'lodash';
@@ -14,6 +14,8 @@ import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/common/full-center-box';
 import moment from 'moment';
 import { getGlobalConfig } from '@/config';
+import { SearchUtil } from '@/utils/search';
+import storage from '@/utils/storage';
 // import { saveAs } from 'file-saver'
 
 function isInclude(text: string, subText: string) {
@@ -67,6 +69,9 @@ export function GitHome({ event$, onProject }) {
     //     },
     // ]
     const filterdProjects = useMemo(() => {
+        // return SearchUtil.search(projects, keyword, {
+        //     attributes: ['name', 'host'],
+        // })
         if (!keyword) {
             return projects    
         }
@@ -81,6 +86,9 @@ export function GitHome({ event$, onProject }) {
     const [projectModalVisible, setProjectModalVisible] = useState(false)
     const [createType, setCreateType] = useState(false)
     const [activeIndex, setActiveIndex] = useState(0)
+    const [alertVisible] = useState(() => {
+        return storage.get('alertVisible', true)
+    })
     const inputingRef = useRef(false)
     
     useEffect(() => {
@@ -393,6 +401,18 @@ export function GitHome({ event$, onProject }) {
                                 }}
                             />
                         </div>
+                        {alertVisible &&
+                            <div className={styles.alertBox}>
+                                <Alert 
+                                    message={t('git_install')}
+                                    type="info"
+                                    closable
+                                    onClose={() => {
+                                        storage.set('alertVisible', false)
+                                    }}
+                                />
+                            </div>
+                        }
                         {/* <div>{keyword}</div> */}
                         {filterdProjects.length == 0 ?
                             <FullCenterBox

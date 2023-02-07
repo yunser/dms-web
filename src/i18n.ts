@@ -420,6 +420,7 @@ i18n
                     'show_content': 'Show Content',
                     'server_info': 'Server Infomation',
                     'version': 'Version',
+                    'git_install': 'Before use, you should install git in your computer',
                 }
             },
             zh: {
@@ -832,6 +833,7 @@ i18n
                     'show_content': '显示内容',
                     'server_info': '服务器信息',
                     'version': '版本',
+                    'git_install': '使用之前, 你需要先在本机上安装 Git',
                 }
             }
         },
