@@ -12,6 +12,7 @@ import { EllipsisOutlined, ExportOutlined, EyeInvisibleOutlined, EyeOutlined, Ey
 import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/common/full-center-box';
+import { SearchUtil } from '@/utils/search';
 
 function InputPassword(props) {
     const [visible, setVisible] = useState(false)
@@ -39,6 +40,7 @@ export function MongoHome({ config, event$, onConnect, }) {
     const { t } = useTranslation()
     const [modalVisible, setModalVisible] = useState(false)
     const [modalItem, setModalItem] = useState(false)
+    const [keyword, setKeyword] = useState('')
     const [connections, setConnections] = useState([
         // {
         //     id: '1',
@@ -49,6 +51,17 @@ export function MongoHome({ config, event$, onConnect, }) {
         //     name: 'XXX2',
         // },
     ])
+    const filteredConnections = useMemo(() => {
+        return SearchUtil.search(connections, keyword, {
+            attributes: ['name', 'host', 'username'],
+        })
+        
+        // if (!keyword) {
+        //     return projects    
+        // }
+        // return projects.filter(p => p.name.toLowerCase().includes(keyword.toLowerCase()))
+        // return projects
+    }, [connections, keyword])
     const [loading, setLoading] = useState(false)
     // const [form] = Form.useForm()
 //     const [code, setCode] = useState(`{
@@ -258,19 +271,32 @@ export function MongoHome({ config, event$, onConnect, }) {
                         </IconButton>
                     </Space>
                 </div>
+                <div className={styles.filterBox}>
+                    <Input
+                        placeholder={t('filter')}
+                        value={keyword}
+                        allowClear
+                        onChange={e => {
+                            setKeyword(e.target.value)
+                            // if (activeIndex != 0) {
+                            //     setActiveIndex(0)
+                            // }
+                        }}
+                    />
+                </div>
                 {loading ?
                     <FullCenterBox
                         height={320}
                     >
                         <Spin />
                     </FullCenterBox>
-                : connections.length == 0 ?
+                : filteredConnections.length == 0 ?
                     <Empty
                         description="没有记录"
                     />
                 :
                     <Table
-                        dataSource={connections}
+                        dataSource={filteredConnections}
                         pagination={false}
                         columns={columns}
                         bordered
