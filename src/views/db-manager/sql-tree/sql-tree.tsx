@@ -621,7 +621,8 @@ LIMIT 1000;`
             sql = `TRUNCATE TABLE \`${schemaName}\`.\`${tableName}\`;`
         }
         showSqlInNewtab({
-            title: 'Truncate Table',
+            // title: 'Truncate Table',
+            title: `${t('truncate')} ${tableName}`,
             sql,
         })
     }
@@ -632,7 +633,8 @@ LIMIT 1000;`
         
         const sql = `DROP TABLE \`${schemaName}\`.\`${tableName}\`;`
         showSqlInNewtab({
-            title: 'Drop Table',
+            // title: 'Drop Table',
+            title: `${t('drop')} ${tableName}`,
             sql,
         })
     }
@@ -711,7 +713,8 @@ LIMIT 1000;`
             sql = `SELECT COUNT(*) FROM \`${schemaName}\`.\`${tableName}\`;`
         }
         showSqlInNewtab({
-            title: 'Count Table',
+            // title: 'Count Table',
+            title: `count ${tableName}`,
             sql,
         })
     }
