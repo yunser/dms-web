@@ -371,6 +371,7 @@ export function DbManager({ config }) {
             }
             storage.set('historyApps', newHistoryApps)
         }
+        
         if (key == 'help') {
             addOrActiveTab({
                 title: '$i18n.help',
@@ -380,6 +381,16 @@ export function DbManager({ config }) {
                     ...commandData,
                     // url,
                 },
+            })
+        }
+        else if (key == 'workbench') {
+            addOrActiveTab({
+                ...tab_workbench,
+                // title: 'Elasticsearch',
+                // key: 'key-es',
+                // type: 'elasticsearch',
+                // data: {},
+                // // closable: false,
             })
         }
         else if (key == 'elasticsearch') {
@@ -1504,6 +1515,11 @@ export function DbManager({ config }) {
                             icon: 'tool',
                             command: 'close_tab',
                             order: 2,
+                        },
+                        {
+                            name: t('workbench'),
+                            icon: 'tool',
+                            command: 'workbench',
                         },
                     ]}
                     onCommand={command => {
