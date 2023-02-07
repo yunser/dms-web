@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { CloudOutlined, DownloadOutlined, EllipsisOutlined, GithubOutlined, PlusOutlined } from '@ant-design/icons';
+import { CloudOutlined, DownloadOutlined, EllipsisOutlined, GithubOutlined, GitlabOutlined, PlusOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
@@ -159,6 +159,13 @@ export function RemoteList({ config, event$, projectPath }) {
                                 githubUrl = `https://github.com/${user}/${repo}`
                             }
                         }
+                        // ssh://git@gitlab.weyatech.cn:10022/chuangren/cr-admin.git
+                        let gitlabUrl = ''
+                        if (item.refs.fetch.startsWith('ssh://git@gitlab.weyatech.cn:10022')) {
+                            gitlabUrl = item.refs.fetch.replace('ssh://git@gitlab.weyatech.cn:10022', 'http://gitlab.weyatech.cn')
+                                .replace(/.git$/, '')
+                        }
+                        console.log('gitlabUrl', gitlabUrl)
                         return (
                             <div
                                 className={styles.item}
@@ -174,6 +181,16 @@ export function RemoteList({ config, event$, projectPath }) {
                                             }}
                                         >
                                             <GithubOutlined />
+                                        </IconButton>
+                                    }
+                                    {!!gitlabUrl &&
+                                        <IconButton
+                                            tooltip="Gitlab"
+                                            onClick={() => {
+                                                window.open(gitlabUrl, '_blank')
+                                            }}
+                                        >
+                                            <GitlabOutlined />
                                         </IconButton>
                                     }
                                 </Space>
