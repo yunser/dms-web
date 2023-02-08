@@ -1,0 +1,68 @@
+.mqttBox {
+    padding: 16px;
+}
+.sections {
+    display: flex;
+    flex-direction: row;
+    // align-items: center;
+    gap: 8px;
+    .section {
+        flex: 1 0 auto;
+        width: 0;
+        padding: 0 16px;
+        &:first-child {
+            // border-right: 1px solid var(--border-color);
+        }
+        .title {
+            font-size: 16px;
+            margin-bottom: 16px;
+            font-weight: bold;
+        }
+    }
+    .sectionLeft {
+        padding-left: 0;
+        border-right: 1px solid var(--border-color);
+    }
+    .sectionCenter {
+        border-right: 1px solid var(--border-color);
+    }
+    .sectionRight {
+        padding-right: 0;
+    }
+    .help {
+        margin-top: 16px;
+    }
+}
+.searchBox {
+    max-width: 360px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    // border: 1px solid #000;
+    .input {
+        width: 120px;
+        // flex: 1 0 auto;
+        // width: 0;
+    }
+}
+.table {
+    .typeIcon {
+        // margin-left: 8px;
+        margin-right: 8px;
+    }
+    .message {
+        cursor: pointer;
+    }
+}
+.statusBar {
+    margin-top: 16px;
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+.toolBox {
+    margin-bottom: 16px;
+}

@@ -47,6 +47,7 @@ import { WebSocketHome } from './views/websocket/websocket-home/websocket-home'
 import { useTitle } from 'ahooks'
 import { useTranslation } from 'react-i18next'
 import { getGlobalConfig } from './config'
+import { WebSocketServer } from './views/websocket/websocket-server/websocket-server'
 
 function GitPage() {
     return (
@@ -143,6 +144,19 @@ function WebSocketPage() {
     )
 }
 
+
+function WebSocketServerPage() {
+    const { t } = useTranslation()
+
+    useTitle(t('websocket'))
+
+    return (
+        <WebSocketServer
+        />
+    )
+}
+
+
 export default function App() {
     // const [count, setCount] = useState(0)
 
@@ -172,6 +186,7 @@ export default function App() {
                     <Route path="/lab" element={<FullApp><Lab /></FullApp>} />
                     <Route path="/alasql" element={<FullApp><AlasqlHome /></FullApp>} />
                     <Route path="/websocket" element={<FullApp><WebSocketPage /></FullApp>} />
+                    <Route path="/websocket/server" element={<FullApp><WebSocketServerPage /></FullApp>} />
                 </Routes>
             </div>
         </Router>

@@ -1,6 +1,6 @@
-import { Button, Checkbox, Descriptions, Form, Input, message, Modal, Popover, Space, Table, Tabs } from 'antd';
+import { Button, Checkbox, Descriptions, Form, Input, InputNumber, message, Modal, Popover, Space, Table, Tabs } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import styles from './websocket-home.module.less';
+import styles from './websocket-server.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
 import { useTranslation } from 'react-i18next';
@@ -12,10 +12,13 @@ import { uid } from 'uid';
 import { ArrowDownOutlined, ArrowUpOutlined, CheckCircleOutlined, InfoCircleOutlined, UpOutlined } from '@ant-design/icons';
 import copy from 'copy-to-clipboard';
 import { sleep } from '@yunser/sleep'
+import { getGlobalConfig } from '@/config';
 
-export function WebSocketHome({ }) {
+export function WebSocketServer({ }) {
     const { t } = useTranslation()
 
+    const config = getGlobalConfig()
+    
     const WsStatusLabelMap = {
         'notConnected': t('disconnected'),
         'error': t('connect_error'),
@@ -26,19 +29,24 @@ export function WebSocketHome({ }) {
         connectTime: 0,
         socket: null,
         isUserDisconnect: false,
+        connectionId: '',
     })
 
-    const [url, setUrl] = useState('ws://127.0.0.1:9001/')
+    const [url, setUrl] = useState('ws://127.0.0.1:10087/')
+    const [port, setPort] = useState(9001)
     const [form] = Form.useForm()
     const [form2] = Form.useForm()
     const [autoConnect, setAutoConnect] = useState(false)
     const [modalVisible, setModalVisible] = useState(false)
+
+    const [clients, setClients] = useState([])
+
     const [list, setList] = useState([])
     const pageSize = 10
     const [page, setPage] = useState(1)
     const [total, setTotal] = useState(0)
     const [loading, setLoading] = useState(false)
-    const [wsStatus, setWsStatus] = useState('notConnected')
+    const [wsStatus, setWsStatus] = useState('disconnected')
     const [wsAction, setWsAction] = useState('')
 
     function listAddItem(item) {
@@ -55,15 +63,40 @@ export function WebSocketHome({ }) {
             return []
         })
     }
+
+    async function loadClients() {
+        let res = await request.post(`${config.host}/websocket/clients`, {
+            port,
+        })
+        if (res.success) {
+            setClients(res.data.list)
+        }
+    }
     
-    function connect() {
-        comData.current.connectTime = 0
-        initWebSocket()
+    async function createWebSockerServer() {
+        let res = await request.post(`${config.host}/websocket/createServer`, {
+            port,
+        })
+        if (res.success) {
+            comData.current.connectTime = 0
+            const { connectionId } = res.data.connectionId
+            comData.current.connectionId = connectionId
+            initWebSocket(connectionId)
+            message.success(t('success'))
+        }
     }
 
-    function disconnect() {
-        comData.current.isUserDisconnect = true
-        comData.current.socket && comData.current.socket.close()
+    async function closeWebSocketServer() {
+        
+        let res = await request.post(`${config.host}/websocket/closeServer`, {
+            connectionId: comData.current.connectionId,
+        })
+        if (res.success) {
+            comData.current.isUserDisconnect = true
+            comData.current.socket && comData.current.socket.close()
+            
+            setWsStatus('disconnected')
+        }
     }
 
     // 有一个属性Socket.readyState，
@@ -71,50 +104,50 @@ export function WebSocketHome({ }) {
     // 1 - 表示连接已建立，可以进行通信，
     // 2 - 表示连接正在进行关闭，
     // 3 - 表示连接已经关闭或者连接不能打开
-    function initWebSocket() {
+    function initWebSocket(connectionId) {
         let first = true
         const ws = new WebSocket(url)
         console.log('initWebSocket')
         console.log('readyState', ws.readyState)
         
         ws.onclose = async (e) => {
-            console.log('socket/on-close', e)
-            console.log('websocket 断开: ' + e.code + ' ' + e.reason + ' ' + e.wasClean)
-            setWsStatus('notConnected')
-            console.log('readyState', ws.readyState)
-            listAddItem({
-                type: 'info',
-                message: t('Disconnected from') + ` ${url}`,
-            })
-            console.log('autoConnect', autoConnect)
-            if (autoConnect) {
-                if (comData.current.connectTime < 3) {
-                    comData.current.connectTime++
-                    const second = comData.current.connectTime * 3
-                    const action = t('reconnect_info').replace('{times}', '' + comData.current.connectTime)
-                        .replace('{time}', `${second} s`)
-                    listAddItem({
-                        type: 'info',
-                        message: action,
-                    })
-                    console.log('time', moment().format('mm:ss'))   
-                    console.log(action)
-                    setWsAction(action)
-                    await sleep(second * 1000)
-                    initWebSocket()
-                }
-                else {
-                    const action = t('reconnect_fail')
-                    listAddItem({
-                        type: 'info',
-                        message: action,
-                    })
-                    setWsAction(action)
-                }
-            }
-            if (comData.current.isUserDisconnect) {
-                comData.current.isUserDisconnect = false
-            }
+            // console.log('socket/on-close', e)
+            // console.log('websocket 断开: ' + e.code + ' ' + e.reason + ' ' + e.wasClean)
+            // setWsStatus('disconnected')
+            // console.log('readyState', ws.readyState)
+            // listAddItem({
+            //     type: 'info',
+            //     message: t('Disconnected from') + ` ${url}`,
+            // })
+            // console.log('autoConnect', autoConnect)
+            // if (autoConnect) {
+            //     if (comData.current.connectTime < 3) {
+            //         comData.current.connectTime++
+            //         const second = comData.current.connectTime * 3
+            //         const action = t('reconnect_info').replace('{times}', '' + comData.current.connectTime)
+            //             .replace('{time}', `${second} s`)
+            //         listAddItem({
+            //             type: 'info',
+            //             message: action,
+            //         })
+            //         console.log('time', moment().format('mm:ss'))   
+            //         console.log(action)
+            //         setWsAction(action)
+            //         await sleep(second * 1000)
+            //         initWebSocket(connectionId)
+            //     }
+            //     else {
+            //         const action = t('reconnect_fail')
+            //         listAddItem({
+            //             type: 'info',
+            //             message: action,
+            //         })
+            //         setWsAction(action)
+            //     }
+            // }
+            // if (comData.current.isUserDisconnect) {
+            //     comData.current.isUserDisconnect = false
+            // }
         }
         ws.onopen = () => {
             comData.current.connectTime = 0
@@ -124,25 +157,25 @@ export function WebSocketHome({ }) {
             setWsAction('')
             console.log('readyState', ws.readyState)
 
-            // ws.send(JSON.stringify({
-            //     type: 'mqttSubscribe',
-            //     data: {
-            //         // connectionId,
-            //     },
-            // }))
+            ws.send(JSON.stringify({
+                type: 'websocketServerSubscribe',
+                data: {
+                    connectionId,
+                },
+            }))
             // console.log('sended')
-            listAddItem({
-                // type: 'info',
-                type: 'connected',
-                message: t('connected_to') + ` ${url}`,
-            })
+            // listAddItem({
+            //     // type: 'info',
+            //     type: 'connected',
+            //     message: t('connected_to') + ` ${url}`,
+            // })
         }
         ws.onerror = (e) => {
             // setWsStatus('error')
             console.log('websocket/onerror', e)
             // console.log('socket errorStr', e.toString())
             console.log('readyState', ws.readyState)
-            setWsStatus('notConnected')
+            setWsStatus('disconnected')
             // listAddItem({
             //     type: 'info',
             //     message: 'ERROR - 发生错误',
@@ -197,21 +230,14 @@ export function WebSocketHome({ }) {
     async function send() {
         const values = await form.validateFields();
         const msg = values.message.replace('{time}', moment().format('YYYY-MM-DD HH:mm:ss'))
-        comData.current.socket.send(msg)
-        listAddItem({
-            type: 'sent',
-            message: msg,
-        })
-        
 
-        // let res = await request.post(`${config.host}/mqtt/publish`, {
-        //     connectionId,
-        //     topic: values.channel,
-        //     message: ,
-        // })
-        // if (res.success) {
-        //     message.success('发布成功')
-        // }
+        let res = await request.post(`${config.host}/websocket/sendToClient`, {
+            // connectionId: comData.current.connectionId,
+            content: msg,
+        })
+        if (res.success) {
+            message.success(t('success'))
+        }
     }
 
     console.log('render/list', list)
@@ -223,25 +249,32 @@ export function WebSocketHome({ }) {
             </div> */}
             <div>
                 <div className={styles.searchBox}>
-                    <Input
+                    <InputNumber
                         className={styles.input}
-                        value={url}
-                        onChange={e => {
-                            setUrl(e.target.value)
+                        value={port}
+                        onChange={value => {
+                            setPort(value)
                         }}
                     />
                     {wsStatus != 'connected' ?
                         <div>
                             <Button
                                 type="primary"
-                                onClick={connect}>{t('connect')}</Button>
+                                onClick={createWebSockerServer}
+                            >
+                                {/* {t('connect')} */}
+                                创建 WebSocket 服务
+                            </Button>
                         </div>
                     :
                         <div>
                             <Button
                                 danger
-                                // type="primary"
-                                onClick={disconnect}>{t('disconnect')}</Button>
+                                onClick={closeWebSocketServer}
+                            >
+                                {/* {t('disconnect')} */}
+                                关闭 WebSocket 服务
+                            </Button>
                         </div>
                     }
                 </div>
@@ -251,19 +284,90 @@ export function WebSocketHome({ }) {
                     <div>{WsStatusLabelMap[wsStatus]}</div>
                     <div>{wsAction}</div>
                 </Space>
-                <Checkbox
+                {/* <Checkbox
                     checked={autoConnect}
                     onChange={e => {
                         setAutoConnect(e.target.checked)
                     }}
                 >
                     {t('auto_connect')}
-                </Checkbox>
+                </Checkbox> */}
                 {/* <Space>
                 </Space> */}
             </div>
             <div className={styles.sections}>
                 <div className={classNames(styles.section, styles.sectionLeft)}>
+                    <div>客户端</div>
+                    <div>
+                        <Button
+                            onClick={() => {
+                                loadClients()
+                            }}
+                        >刷新</Button>
+                    </div>
+                    <Table
+                        // loading={loading}
+                        dataSource={clients}
+                        bordered
+                        size="small"
+                        pagination={false}
+                        // pagination={{
+                        //     // total,
+                        //     // current: page,
+                        //     pageSize,
+                        //     showSizeChanger: false,
+                        // }}
+                        rowKey="id"
+                        columns={[
+                            {
+                                title: t('id'),
+                                dataIndex: 'id',
+                                // width: 80,
+                                // render(value) {
+                                //     return moment(value).format('HH:mm:ss')
+                                // }
+                            },
+                            {
+                                title: t('connect_time'),
+                                dataIndex: 'connectTime',
+                                // width: 240,
+                                // render(value, item) {
+                                //     return (
+                                //         <div>
+                                //             {item.type == 'sent' &&
+                                //                 <ArrowUpOutlined className={styles.typeIcon} />
+                                //             }
+                                //             {item.type == 'received' &&
+                                //                 <ArrowDownOutlined className={styles.typeIcon} />
+                                //             }
+                                //             {item.type == 'info' &&
+                                //                 <InfoCircleOutlined className={styles.typeIcon} />
+                                //             }
+                                //             {item.type == 'connected' &&
+                                //                 <CheckCircleOutlined className={styles.typeIcon} />
+                                //             }
+                                            
+                                //             <span className={styles.message}
+                                //                 onClick={() => {
+                                //                     copy(value)
+                                //                     message.info(t('copied'))
+                                //                 }}
+                                //             >{value}</span>
+                                //         </div>
+                                //     )
+                                // }
+                            },
+                            // {
+                            //     title: '',
+                            //     dataIndex: '_empty',
+                            // },
+                        ]}
+                        onChange={({ current }) => {
+                            // setPage(current)
+                        }}
+                    />
+                </div>
+                <div className={classNames(styles.section, styles.sectionCenter)}>
                     {/* <div className={styles.title}>发布</div> */}
                     <Form
                         form={form}
@@ -287,14 +391,11 @@ export function WebSocketHome({ }) {
                     </Form>
                     <Button
                         type="primary"
-                        onClick={() => {
-                            send()
-                        }}
+                        onClick={send}
                         disabled={wsStatus != 'connected'}
                     >
                         {t('send')}
                     </Button>
-
                 </div>
                 <div className={classNames(styles.section, styles.sectionRight)}>
                     <div className={styles.toolBox}>

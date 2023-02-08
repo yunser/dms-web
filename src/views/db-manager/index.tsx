@@ -448,6 +448,17 @@ export function DbManager({ config }) {
             //     // closeCurrentTab: true,
             // })
         }
+        else if (key == 'websocket-server') {
+            window.open('/websocket/server', '_blank')
+            // addOrActiveTab({
+            //     title: t('websocket'),
+            //     key,
+            //     type: 'websocket-home',
+            //     data: {}
+            // }, {
+            //     // closeCurrentTab: true,
+            // })
+        }
         else if (key == 'redis') {
             addOrActiveTab({
                 title: 'Redis',
@@ -731,6 +742,10 @@ export function DbManager({ config }) {
         {
             label: t('websocket'),
             key: 'websocket',
+        },
+        {
+            label: t('websocket_server'),
+            key: 'websocket-server',
         },
         {
             label: t('mqtt'),
