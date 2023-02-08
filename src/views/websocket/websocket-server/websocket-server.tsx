@@ -79,8 +79,9 @@ export function WebSocketServer({ }) {
         })
         if (res.success) {
             comData.current.connectTime = 0
-            const { connectionId } = res.data.connectionId
+            const { connectionId } = res.data
             comData.current.connectionId = connectionId
+            console.log('res/connectionId', connectionId)
             initWebSocket(connectionId)
             message.success(t('success'))
         }
@@ -186,18 +187,24 @@ export function WebSocketServer({ }) {
             console.log('onmessage', text)
             // {"channel":"msg:timer","message":"2023-01-18 22:21:10"}
             // 接收推送的消息
-            // let msg
-            // try {
-            //     msg = JSON.parse(text)
-            // }
-            // catch (err) {
-            //     console.log('JSON.parse err', err)
-            //     return
-            // }
-            listAddItem({
-                type: 'received',
-                message: text,
-            })
+            let msg
+            try {
+                msg = JSON.parse(text)
+            }
+            catch (err) {
+                console.log('JSON.parse err', err)
+                return
+            }
+            if (msg.type == 'clientConnect') {
+                loadClients()
+            }
+            if (msg.type == 'clientClose') {
+                loadClients()
+            }
+            // listAddItem({
+            //     type: 'received',
+            //     message: text,
+            // })
         }
         return ws
     }
