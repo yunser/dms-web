@@ -40,6 +40,7 @@ export function WebSocketServer({ }) {
     const [autoConnect, setAutoConnect] = useState(false)
     const [modalVisible, setModalVisible] = useState(false)
 
+    const [sendTarget, setSendTarget] = useState('')
     const [clients, setClients] = useState([])
 
     // const 
@@ -266,6 +267,7 @@ export function WebSocketServer({ }) {
         let res = await request.post(`${config.host}/websocket/sendToClient`, {
             // connectionId: comData.current.connectionId,
             content: msg,
+            clinetId: sendTarget,
         })
         if (res.success) {
             message.success(t('success'))
@@ -273,6 +275,7 @@ export function WebSocketServer({ }) {
     }
 
     console.log('render/list', messages)
+
 
     async function closeClinet(item) {
         let res = await request.post(`${config.host}/websocket/closeClient`, {
@@ -294,7 +297,8 @@ export function WebSocketServer({ }) {
                     <InputNumber
                         className={styles.input}
                         value={port}
-                        onChange={value => {
+                        disabled={wsStatus == 'connected'}
+                        onChange={value => {    
                             setPort(value)
                         }}
                     />
@@ -404,7 +408,21 @@ export function WebSocketServer({ }) {
                                 dataIndex: '_op',
                                 render(_value, item) {
                                     return (
-                                        <div>
+                                        <Space>
+                                            <Button
+                                                size="small"
+                                                type={item.id == sendTarget ? 'primary' : 'default'}
+                                                onClick={() => {
+                                                    if (item.id == sendTarget) {
+                                                        setSendTarget('')
+                                                    }
+                                                    else {
+                                                        setSendTarget(item.id)
+                                                    }
+                                                }}
+                                            >
+                                                发送消息
+                                            </Button>
                                             <Button
                                                 size="small"
                                                 danger
@@ -414,7 +432,7 @@ export function WebSocketServer({ }) {
                                             >
                                                 断开
                                             </Button>
-                                        </div>
+                                        </Space>
                                     )
                                 }
                             },
@@ -430,6 +448,7 @@ export function WebSocketServer({ }) {
                 </div>
                 <div className={classNames(styles.section, styles.sectionCenter)}>
                     {/* <div className={styles.title}>发布</div> */}
+                    <div>发送消息给{sendTarget ? sendTarget : '全部客户端'}</div>
                     <Form
                         form={form}
                         // {...layout}
