@@ -276,6 +276,15 @@ export function WebSocketServer({ }) {
 
     console.log('render/list', messages)
 
+    async function closeAllClient(item) {
+        let res = await request.post(`${config.host}/websocket/closeClient`, {
+            // connectionId: comData.current.connectionId,
+            // id: item.id,
+        })
+        if (res.success) {
+            message.success(t('success'))
+        }
+    }
 
     async function closeClinet(item) {
         let res = await request.post(`${config.host}/websocket/closeClient`, {
@@ -292,7 +301,11 @@ export function WebSocketServer({ }) {
             {/* <div className={styles.welcome}>
                 {t('welcome')}
             </div> */}
-            <div>
+            <Space>
+                <Space>
+                    <div>{WsStatusLabelMap[wsStatus]}</div>
+                    <div>{wsAction}</div>
+                </Space>
                 <div className={styles.searchBox}>
                     <InputNumber
                         className={styles.input}
@@ -324,12 +337,9 @@ export function WebSocketServer({ }) {
                         </div>
                     }
                 </div>
-            </div>
+            </Space>
             <div className={styles.statusBar}>
-                <Space>
-                    <div>{WsStatusLabelMap[wsStatus]}</div>
-                    <div>{wsAction}</div>
-                </Space>
+                
                 {/* <Checkbox
                     checked={autoConnect}
                     onChange={e => {
@@ -343,13 +353,23 @@ export function WebSocketServer({ }) {
             </div>
             <div className={styles.sections}>
                 <div className={classNames(styles.section, styles.sectionLeft)}>
-                    <div>客户端</div>
-                    <div>
-                        <Button
-                            onClick={() => {
-                                loadClients()
-                            }}
-                        >刷新</Button>
+                    <div className={styles.sectionTitle}>客户端</div>
+                    <div className={styles.tableTool}>
+                        <Space>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    loadClients()
+                                }}
+                            >刷新</Button>
+                            <Button
+                                size="small"
+                                danger
+                                onClick={() => {
+                                    closeAllClient()
+                                }}
+                            >全部断开</Button>
+                        </Space>
                     </div>
                     <Table
                         // loading={loading}
@@ -446,39 +466,10 @@ export function WebSocketServer({ }) {
                         }}
                     />
                 </div>
-                <div className={classNames(styles.section, styles.sectionCenter)}>
-                    {/* <div className={styles.title}>发布</div> */}
-                    <div>发送消息给{sendTarget ? sendTarget : '全部客户端'}</div>
-                    <Form
-                        form={form}
-                        // {...layout}
-                        // name="basic"
-                        // initialValues={{
-                        //     channel: 'msg/dms-test',
-                        //     message: 'dms-msg-content'
-                        // }}
-                        // onFinish={onFinish}
-                        // onFinishFailed={onFinishFailed}
-                    >
-                        <Form.Item
-                            // label="内容"
-                            messageVariables={{ label: t('content') }}
-                            name="message"
-                            rules={[ { required: true, } ]}
-                        >
-                            <Input.TextArea rows={16} />
-                        </Form.Item>
-                    </Form>
-                    <Button
-                        type="primary"
-                        onClick={send}
-                        disabled={wsStatus != 'connected'}
-                    >
-                        {t('send')}
-                    </Button>
-                </div>
+                
                 <div className={classNames(styles.section, styles.sectionRight)}>
-                    <div className={styles.toolBox}>
+                    <div className={styles.sectionTitle}>消息</div>
+                    <div className={styles.tableTool}>
                         <Space>
                             <Button
                                 size="small"
@@ -599,6 +590,37 @@ export function WebSocketServer({ }) {
                         pubsub
                     </Button> */}
 
+                </div>
+                <div className={classNames(styles.section, styles.sectionCenter)}>
+                    {/* <div className={styles.title}>发布</div> */}
+                    <div>发送消息给{sendTarget ? sendTarget : '全部客户端'}</div>
+                    <Form
+                        form={form}
+                        // {...layout}
+                        // name="basic"
+                        // initialValues={{
+                        //     channel: 'msg/dms-test',
+                        //     message: 'dms-msg-content'
+                        // }}
+                        // onFinish={onFinish}
+                        // onFinishFailed={onFinishFailed}
+                    >
+                        <Form.Item
+                            // label="内容"
+                            messageVariables={{ label: t('content') }}
+                            name="message"
+                            rules={[ { required: true, } ]}
+                        >
+                            <Input.TextArea rows={16} />
+                        </Form.Item>
+                    </Form>
+                    <Button
+                        type="primary"
+                        onClick={send}
+                        disabled={wsStatus != 'connected'}
+                    >
+                        {t('send')}
+                    </Button>
                 </div>
             </div>
             
