@@ -69,6 +69,7 @@ export function FileNameModal({ config, type, path, onSuccess, sourceType, onCan
             onOk={handleOk}
             confirmLoading={loading}
             // footer={null}
+            maskClosable={false}
         >
             <Form
                 form={form}
@@ -92,7 +93,7 @@ export function FileNameModal({ config, type, path, onSuccess, sourceType, onCan
                     name="name"
                     label={t('name')}
                     rules={[ { required: true, }, ]}
-                    extra={type == 'FILE' ? '' : '支持绝对路径；支持同时创建多层目录'}
+                    extra={type == 'FILE' ? '支持绝对路径；文件所在目录不存在时会自动创建' : '支持绝对路径；支持同时创建多层目录'}
                 >
                     <Input
                         autoFocus
