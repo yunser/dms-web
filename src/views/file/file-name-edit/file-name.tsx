@@ -92,6 +92,7 @@ export function FileNameModal({ config, type, path, onSuccess, sourceType, onCan
                     name="name"
                     label={t('name')}
                     rules={[ { required: true, }, ]}
+                    extra={type == 'FILE' ? '' : '支持绝对路径；支持同时创建多层目录'}
                 >
                     <Input
                         autoFocus
