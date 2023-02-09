@@ -30,6 +30,7 @@ export function WebSocketServer({ }) {
         socket: null,
         isUserDisconnect: false,
         connectionId: '',
+        messages: [],
     })
 
     const [url, setUrl] = useState('ws://127.0.0.1:10087/')
@@ -41,7 +42,18 @@ export function WebSocketServer({ }) {
 
     const [clients, setClients] = useState([])
 
-    const [list, setList] = useState([])
+    // const 
+    const [messages, setMessages] = useState([])
+
+    function addMessage(item) {
+        setMessages(messages => {
+            return [
+                item,
+                ...messages,
+            ]
+        })
+    }
+
     const pageSize = 10
     const [page, setPage] = useState(1)
     const [total, setTotal] = useState(0)
@@ -50,7 +62,7 @@ export function WebSocketServer({ }) {
     const [wsAction, setWsAction] = useState('')
 
     function listAddItem(item) {
-        setList(list => {
+        setMessages(list => {
             console.log('list.lengthV2', list.length)
             return [
                 {
@@ -112,9 +124,9 @@ export function WebSocketServer({ }) {
         console.log('readyState', ws.readyState)
         
         ws.onclose = async (e) => {
-            // console.log('socket/on-close', e)
-            // console.log('websocket 断开: ' + e.code + ' ' + e.reason + ' ' + e.wasClean)
-            // setWsStatus('disconnected')
+            console.log('socket/on-close', e)
+            console.log('websocket 断开: ' + e.code + ' ' + e.reason + ' ' + e.wasClean)
+            setWsStatus('disconnected')
             // console.log('readyState', ws.readyState)
             // listAddItem({
             //     type: 'info',
@@ -164,6 +176,7 @@ export function WebSocketServer({ }) {
                     connectionId,
                 },
             }))
+            loadClients()
             // console.log('sended')
             // listAddItem({
             //     // type: 'info',
@@ -200,6 +213,18 @@ export function WebSocketServer({ }) {
             }
             if (msg.type == 'clientClose') {
                 loadClients()
+            }
+            // {"type":"reveiveMessage","data":{"clientId":"64a817df944b533e","content":"123"}}
+            if (msg.type == 'reveiveMessage') {
+                const { id, time, clientId, message } = msg.data
+                // loadClients()
+                console.log('原来有', messages.length)
+                addMessage({
+                    clientId,
+                    message,
+                    time,
+                    id,
+                })
             }
             // listAddItem({
             //     type: 'received',
@@ -247,7 +272,17 @@ export function WebSocketServer({ }) {
         }
     }
 
-    console.log('render/list', list)
+    console.log('render/list', messages)
+
+    async function closeClinet(item) {
+        let res = await request.post(`${config.host}/websocket/closeClient`, {
+            // connectionId: comData.current.connectionId,
+            id: item.id,
+        })
+        if (res.success) {
+            message.success(t('success'))
+        }
+    }
 
     return (
         <div className={styles.mqttBox}>
@@ -364,6 +399,25 @@ export function WebSocketServer({ }) {
                                 //     )
                                 // }
                             },
+                            {
+                                title: t('actions'),
+                                dataIndex: '_op',
+                                render(_value, item) {
+                                    return (
+                                        <div>
+                                            <Button
+                                                size="small"
+                                                danger
+                                                onClick={() => {
+                                                    closeClinet(item)
+                                                }}
+                                            >
+                                                断开
+                                            </Button>
+                                        </div>
+                                    )
+                                }
+                            },
                             // {
                             //     title: '',
                             //     dataIndex: '_empty',
@@ -410,7 +464,7 @@ export function WebSocketServer({ }) {
                             <Button
                                 size="small"
                                 onClick={() => {
-                                    setList([])
+                                    setMessages([])
                                 }}
                             >
                                 {t('clear')}
@@ -423,7 +477,7 @@ export function WebSocketServer({ }) {
 
                         <Table
                             loading={loading}
-                            dataSource={list}
+                            dataSource={messages}
                             bordered
                             size="small"
                             // pagination={false}
@@ -435,6 +489,16 @@ export function WebSocketServer({ }) {
                             }}
                             rowKey="id"
                             columns={[
+                                {
+                                    title: t('id'),
+                                    dataIndex: 'id',
+                                    width: 80,
+                                },
+                                {
+                                    title: t('client_id'),
+                                    dataIndex: 'clientId',
+                                    width: 80,
+                                },
                                 {
                                     title: t('time'),
                                     dataIndex: 'time',

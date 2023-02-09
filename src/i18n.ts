@@ -421,6 +421,10 @@ i18n
                     'server_info': 'Server Infomation',
                     'version': 'Version',
                     'git_install': 'Before use, you should install git in your computer',
+                    'websocket_server': 'WebSocket Server',
+                    'connect_time': 'Connect Time',
+                    'id': 'ID',
+                    'client_id': 'Client ID',
                 }
             },
             zh: {
@@ -834,6 +838,10 @@ i18n
                     'server_info': '服务器信息',
                     'version': '版本',
                     'git_install': '使用之前, 你需要先在本机上安装 Git',
+                    'websocket_server': 'WebSocket 服务端',
+                    'connect_time': '连接时间',
+                    'id': 'ID',
+                    'client_id': '客户端 ID',
                 }
             }
         },
