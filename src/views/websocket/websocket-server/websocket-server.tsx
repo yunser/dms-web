@@ -210,9 +210,25 @@ export function WebSocketServer({ }) {
                 return
             }
             if (msg.type == 'clientConnect') {
+                const { id, time, clientId } = msg.data
+                addMessage({
+                    clientId,
+                    message: `客户端 ${clientId} 连接`,
+                    time,
+                    id,
+                    type: 'info',
+                })
                 loadClients()
             }
             if (msg.type == 'clientClose') {
+                const { id, time, clientId } = msg.data
+                addMessage({
+                    clientId,
+                    message: `客户端 ${clientId} 断开连接`,
+                    time,
+                    id,
+                    type: 'info',
+                })
                 loadClients()
             }
             // {"type":"reveiveMessage","data":{"clientId":"64a817df944b533e","content":"123"}}
@@ -297,60 +313,60 @@ export function WebSocketServer({ }) {
     }
 
     return (
-        <div className={styles.mqttBox}>
+        <div className={styles.wsBox}>
             {/* <div className={styles.welcome}>
                 {t('welcome')}
             </div> */}
-            <Space>
+            <div className={styles.header}>
                 <Space>
-                    <div>{WsStatusLabelMap[wsStatus]}</div>
-                    <div>{wsAction}</div>
+                    <Space>
+                        <div>{WsStatusLabelMap[wsStatus]}</div>
+                        <div>{wsAction}</div>
+                    </Space>
+                    <div className={styles.searchBox}>
+                        <InputNumber
+                            className={styles.input}
+                            value={port}
+                            disabled={wsStatus == 'connected'}
+                            onChange={value => {    
+                                setPort(value)
+                            }}
+                        />
+                        {wsStatus != 'connected' ?
+                            <div>
+                                <Button
+                                    type="primary"
+                                    onClick={createWebSockerServer}
+                                >
+                                    {/* {t('connect')} */}
+                                    创建 WebSocket 服务
+                                </Button>
+                            </div>
+                        :
+                            <div>
+                                <Button
+                                    danger
+                                    onClick={closeWebSocketServer}
+                                >
+                                    {/* {t('disconnect')} */}
+                                    关闭 WebSocket 服务
+                                </Button>
+                            </div>
+                        }
+                    </div>
                 </Space>
-                <div className={styles.searchBox}>
-                    <InputNumber
-                        className={styles.input}
-                        value={port}
-                        disabled={wsStatus == 'connected'}
-                        onChange={value => {    
-                            setPort(value)
-                        }}
-                    />
-                    {wsStatus != 'connected' ?
-                        <div>
-                            <Button
-                                type="primary"
-                                onClick={createWebSockerServer}
-                            >
-                                {/* {t('connect')} */}
-                                创建 WebSocket 服务
-                            </Button>
-                        </div>
-                    :
-                        <div>
-                            <Button
-                                danger
-                                onClick={closeWebSocketServer}
-                            >
-                                {/* {t('disconnect')} */}
-                                关闭 WebSocket 服务
-                            </Button>
-                        </div>
-                    }
-                </div>
-            </Space>
-            <div className={styles.statusBar}>
+            </div>
+            {/* <div className={styles.statusBar}>
                 
-                {/* <Checkbox
+                <Checkbox
                     checked={autoConnect}
                     onChange={e => {
                         setAutoConnect(e.target.checked)
                     }}
                 >
                     {t('auto_connect')}
-                </Checkbox> */}
-                {/* <Space>
-                </Space> */}
-            </div>
+                </Checkbox>
+            </div> */}
             <div className={styles.sections}>
                 <div className={classNames(styles.section, styles.sectionLeft)}>
                     <div className={styles.sectionTitle}>客户端</div>
@@ -388,10 +404,6 @@ export function WebSocketServer({ }) {
                             {
                                 title: t('id'),
                                 dataIndex: 'id',
-                                // width: 80,
-                                // render(value) {
-                                //     return moment(value).format('HH:mm:ss')
-                                // }
                             },
                             {
                                 title: t('connect_time'),
@@ -499,11 +511,11 @@ export function WebSocketServer({ }) {
                             }}
                             rowKey="id"
                             columns={[
-                                {
-                                    title: t('id'),
-                                    dataIndex: 'id',
-                                    width: 80,
-                                },
+                                // {
+                                //     title: t('id'),
+                                //     dataIndex: 'id',
+                                //     width: 80,
+                                // },
                                 {
                                     title: t('client_id'),
                                     dataIndex: 'clientId',
@@ -545,18 +557,18 @@ export function WebSocketServer({ }) {
                                     render(value, item) {
                                         return (
                                             <div>
-                                                {item.type == 'sent' &&
+                                                {/* {item.type == 'sent' &&
                                                     <ArrowUpOutlined className={styles.typeIcon} />
                                                 }
                                                 {item.type == 'received' &&
                                                     <ArrowDownOutlined className={styles.typeIcon} />
-                                                }
+                                                } */}
                                                 {item.type == 'info' &&
                                                     <InfoCircleOutlined className={styles.typeIcon} />
                                                 }
-                                                {item.type == 'connected' &&
+                                                {/* {item.type == 'connected' &&
                                                     <CheckCircleOutlined className={styles.typeIcon} />
-                                                }
+                                                } */}
                                                 
                                                 <span className={styles.message}
                                                     onClick={() => {
@@ -593,7 +605,7 @@ export function WebSocketServer({ }) {
                 </div>
                 <div className={classNames(styles.section, styles.sectionCenter)}>
                     {/* <div className={styles.title}>发布</div> */}
-                    <div>发送消息给{sendTarget ? sendTarget : '全部客户端'}</div>
+                    <div className={styles.sendText}>发送消息给{sendTarget ? sendTarget : '全部客户端'}</div>
                     <Form
                         form={form}
                         // {...layout}
