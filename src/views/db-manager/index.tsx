@@ -84,6 +84,8 @@ const tagIconLabel = {
     'mqtt-home': 'MQTT',
     'mqtt-detail': 'MQTT',
     'websocket-home': 'WS',
+    'mongo': 'MG',
+    'mongo-client': 'MG',
 }
 
 function AboutModal({ config, ...otherProps }) {
@@ -1262,6 +1264,18 @@ export function DbManager({ config }) {
                                             webdavItem={item.data.webdavItem}
                                             ossItem={item.data.ossItem}
                                             defaultPath={item.data.path}
+                                            onClone={({ defaultPath }) => {
+                                                console.log('local file clone', defaultPath)
+                                                addOrActiveTab({
+                                                    title: t('file') + `-${(window._fileCount++) + 1}`,
+                                                    key: `file-${uid(16)}`,
+                                                    type: 'file-home',
+                                                    data: {
+                                                        ...item.data,
+                                                        path: defaultPath,
+                                                    },
+                                                })
+                                            }}
                                         />
                                     }
                                     {item.type == 'ssh-connect' &&

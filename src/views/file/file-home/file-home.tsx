@@ -7,7 +7,7 @@ interface File {
     name: string
 }
 
-export function FileHome({ tabKey, sourceType, webdavItem, ossItem, config, event$, defaultPath }) {
+export function FileHome({ tabKey, onClone, sourceType, webdavItem, ossItem, config, event$, defaultPath }) {
 
     return (
         <div className={styles.fileLayout}>
@@ -21,6 +21,7 @@ export function FileHome({ tabKey, sourceType, webdavItem, ossItem, config, even
                     webdavItem={webdavItem}
                     ossItem={ossItem}
                     defaultPath={defaultPath}
+                    onClone={onClone}
                 />
             </div>
             {/* <div className={styles.layoutRight}>
