@@ -22,7 +22,7 @@ import './iconfont.css'
 import './userWorker';
 
 import storage from '@/utils/storage'
-import clssses from './app.module.less'
+import styles from './app.module.less'
 import {
     BrowserRouter as Router,
     Routes,
@@ -48,6 +48,8 @@ import { useTitle } from 'ahooks'
 import { useTranslation } from 'react-i18next'
 import { getGlobalConfig } from './config'
 import { WebSocketServer } from './views/websocket/websocket-server/websocket-server'
+import { TcpServer } from './views/socket/socket-home/tcp-server'
+import { TcpClient } from './views/socket/socket-home/tcp-client'
 
 function GitPage() {
     return (
@@ -156,6 +158,29 @@ function WebSocketServerPage() {
     )
 }
 
+function TcpServerPage() {
+    const { t } = useTranslation()
+    useTitle(t('tcp_server'))
+
+    return (
+        <div className={styles.pageFull}>
+            <TcpServer
+            />
+        </div>
+    )
+}
+
+function TcpClientPage() {
+    const { t } = useTranslation()
+    useTitle(t('tcp_client'))
+
+    return (
+        <div className={styles.pageFull}>
+            <TcpClient
+            />
+        </div>
+    )
+}
 
 export default function App() {
     // const [count, setCount] = useState(0)
@@ -187,6 +212,8 @@ export default function App() {
                     <Route path="/alasql" element={<FullApp><AlasqlHome /></FullApp>} />
                     <Route path="/websocket" element={<FullApp><WebSocketPage /></FullApp>} />
                     <Route path="/websocket/server" element={<FullApp><WebSocketServerPage /></FullApp>} />
+                    <Route path="/tcp/client" element={<FullApp><TcpClientPage /></FullApp>} />
+                    <Route path="/tcp/server" element={<FullApp><TcpServerPage /></FullApp>} />
                 </Routes>
             </div>
         </Router>

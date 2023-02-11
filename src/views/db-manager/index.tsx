@@ -439,27 +439,17 @@ export function DbManager({ config }) {
                 // closeCurrentTab: true,
             })
         }
+        else if (key == 'tcp_client') {
+            window.open('/tcp/client', '_blank')
+        }
+        else if (key == 'tcp_server') {
+            window.open('/tcp/server', '_blank')
+        }
         else if (key == 'websocket') {
             window.open('/websocket', '_blank')
-            // addOrActiveTab({
-            //     title: t('websocket'),
-            //     key,
-            //     type: 'websocket-home',
-            //     data: {}
-            // }, {
-            //     // closeCurrentTab: true,
-            // })
         }
         else if (key == 'websocket-server') {
             window.open('/websocket/server', '_blank')
-            // addOrActiveTab({
-            //     title: t('websocket'),
-            //     key,
-            //     type: 'websocket-home',
-            //     data: {}
-            // }, {
-            //     // closeCurrentTab: true,
-            // })
         }
         else if (key == 'redis') {
             addOrActiveTab({
@@ -762,7 +752,15 @@ export function DbManager({ config }) {
             key: 'text',
         },
         {
-            label: t('tcp/udp'),
+            label: t('tcp_client'),
+            key: 'tcp_client',
+        },
+        {
+            label: t('tcp_server'),
+            key: 'tcp_server',
+        },
+        {
+            label: t('udp'),
             key: 'tcp/udp',
         },
         {
