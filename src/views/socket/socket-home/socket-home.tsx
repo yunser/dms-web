@@ -1,4 +1,4 @@
-import { Button, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Space, Spin, Table, Tabs, Tag, Tree } from 'antd';
+import { Button, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Radio, Space, Spin, Table, Tabs, Tag, Tree } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './socket-home.module.less';
 import _ from 'lodash';
@@ -17,7 +17,7 @@ import { FullCenterBox } from '@/views/common/full-center-box';
 import moment from 'moment';
 // import { saveAs } from 'file-saver'
 
-export function SocketHome({ config, onClickItem }) {
+function TcpClient({ config, onClickItem }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [loading, setLoading] = useState(false)
@@ -156,125 +156,434 @@ export function SocketHome({ config, onClickItem }) {
 
     return (
         <div className={styles.socketApp}>
-            {/* socket */}
-            {connected ?
-                <div>
-                    <Space direction="vertical">
-                        <div>
+            <div>
+                {connected ?
+                    <div>
+                        <Space direction="vertical">
+                            <div>
+                                <Button
+                                    // loading={connecting}
+                                    // type="primary"
+                                    onClick={exit}
+                                >
+                                    {t('关闭连接')}
+                                </Button>
+                            </div>
+                            <div>
+                                <Input.TextArea
+                                    value={content}
+                                    onChange={e => {
+                                        setContent(e.target.value)
+                                    }}
+                                />
+                            </div>
+    
                             <Button
                                 // loading={connecting}
-                                // type="primary"
-                                onClick={exit}
+                                type="primary"
+                                onClick={send}
                             >
-                                {t('关闭连接')}
+                                {t('send')}
                             </Button>
-                        </div>
-                        <div>
-                            <Input.TextArea
-                                value={content}
-                                onChange={e => {
-                                    setContent(e.target.value)
+                            <div>
+                                {wsStatus}
+                            </div>
+                            <Table
+                                loading={loading}
+                                dataSource={list}
+                                bordered
+                                size="small"
+                                pagination={false}
+                                // pagination={{
+                                //     total,
+                                //     current: page,
+                                //     pageSize,
+                                //     showSizeChanger: false,
+                                // }}
+                                rowKey="id"
+                                columns={[
+                                    {
+                                        title: t('时间'),
+                                        dataIndex: 'time',
+                                        width: 80,
+                                        render(value) {
+                                            return moment(value).format('HH:mm:ss')
+                                        }
+                                    },
+                                    {
+                                        title: t('content'),
+                                        dataIndex: 'content',
+                                        // width: 240,
+                                    },
+                                    // {
+                                    //     title: '',
+                                    //     dataIndex: '_empty',
+                                    // },
+                                ]}
+                                onChange={({ current }) => {
+                                    // setPage(current)
                                 }}
                             />
-                        </div>
-
-                        <Button
-                            // loading={connecting}
-                            type="primary"
-                            onClick={send}
-                        >
-                            {t('send')}
-                        </Button>
-                        <div>
-                            {wsStatus}
-                        </div>
-                        <Table
-                            loading={loading}
-                            dataSource={list}
-                            bordered
-                            size="small"
-                            pagination={false}
-                            // pagination={{
-                            //     total,
-                            //     current: page,
-                            //     pageSize,
-                            //     showSizeChanger: false,
+                        </Space>
+    
+                    </div>
+                :
+                    <div className={styles.form}>
+                        <Form
+                            form={form}
+                            labelCol={{ span: 8 }}
+                            wrapperCol={{ span: 16 }}
+                            initialValues={{
+                                host: '127.0.0.1',
+                                port: 465,
+                                // port: 3306,
+                            }}
+                            // layout={{
+                            //     labelCol: { span: 0 },
+                            //     wrapperCol: { span: 24 },
                             // }}
-                            rowKey="id"
-                            columns={[
-                                {
-                                    title: t('时间'),
-                                    dataIndex: 'time',
-                                    width: 80,
-                                    render(value) {
-                                        return moment(value).format('HH:mm:ss')
-                                    }
-                                },
-                                {
-                                    title: t('content'),
-                                    dataIndex: 'content',
-                                    // width: 240,
-                                },
-                                // {
-                                //     title: '',
-                                //     dataIndex: '_empty',
-                                // },
-                            ]}
-                            onChange={({ current }) => {
-                                // setPage(current)
+                        >
+                            <Form.Item
+                                name="host"
+                                label={t('host')}
+                                rules={[ { required: true, }, ]}
+                            >
+                                <Input />
+                            </Form.Item>
+                            <Form.Item
+                                name="port"
+                                label={t('port')}
+                                rules={[ { required: true, }, ]}
+                            >
+                                <InputNumber />
+                            </Form.Item>
+                            <Form.Item
+                                wrapperCol={{ offset: 8, span: 16 }}
+                                // extra="only support TCP"
+                                // name="passowrd"
+                                // label="Passowrd"
+                                // rules={[{ required: true, },]}
+                            >
+                                <Space>
+                                    <Button
+                                        loading={connecting}
+                                        type="primary"
+                                        onClick={connect}
+                                    >
+                                        {t('connect')}
+                                    </Button>
+                                </Space>
+                            </Form.Item>
+                        </Form>
+                    </div>
+                }
+            </div>
+        </div>
+    )
+}
+
+function UdpClient({ config, onClickItem }) {
+    // const { defaultJson = '' } = data
+    const { t } = useTranslation()
+    const [loading, setLoading] = useState(false)
+    const [list, setList] = useState([])
+    const [form] = Form.useForm()
+    const [connecting, setConnecting] = useState(false)
+    const [connected, setConnected] = useState(false)
+    const [content, setContent] = useState('')
+    const [wsStatus, setWsStatus] = useState('notConnected')
+    const comData = useRef({
+        connectTime: 0,
+        connectionId: '',
+    })
+
+    function initWebSocket() {
+        let first = true
+        const ws = new WebSocket('ws://localhost:10087/')
+        console.log('initWebSocket')
+        console.log('readyState', ws.readyState)
+        
+        ws.onclose = async () => {
+            console.log('socket/on-close')
+            setWsStatus('notConnected')
+            console.log('readyState', ws.readyState)
+
+            // if (comData.current.connectTime < 3) {
+            //     comData.current.connectTime++
+            //     const ms = comData.current.connectTime * 2000
+            //     const action = `正在第 ${comData.current.connectTime} 次重试连接，等待 ${ms} ms`
+            //     console.log('time', moment().format('mm:ss'))   
+            //     console.log(action)
+            //     setWsAction(action)
+            //     await sleep(ms)
+            //     initWebSocket()
+            // }
+            // else {
+            //     setWsAction('自动重试连接超过 3 次，连接失败')
+            // }
+        }
+        ws.onopen = () => {
+            setWsStatus('connected')
+            // return
+            comData.current.connectTime = 0
+            console.log('onopen', )
+            // setWsAction('')
+            console.log('readyState', ws.readyState)
+
+            ws.send(JSON.stringify({
+                type: 'tcpSubscribe',
+                data: {
+                    connectionId: comData.current.connectionId,
+                },
+            }))
+            console.log('sended')
+        }
+        ws.onerror = (err) => {
+            // setWsStatus('error')
+            setWsStatus('notConnected')
+            console.log('socket error', err)
+            console.log('readyState', ws.readyState)
+            // if (ws.)
+
+            // if 
+
+        }
+        ws.onmessage = (event) => {
+            const text = event.data.toString()
+            console.log('onmessage', text)
+            // {"channel":"msg:timer","message":"2023-01-18 22:21:10"}
+            // 接收推送的消息
+            let msg
+            try {
+                msg = JSON.parse(text)
+            }
+            catch (err) {
+                console.log('JSON.parse err', err)
+                return
+            }
+            
+            setList(list => {
+                console.log('list.length', list.length)
+                setList([
+                    {
+                        id: msg.id,
+                        content: msg.content,
+                        // message: msg.message,
+                        time: msg.time,
+                    },
+                    ...list,
+                ])
+                return []
+            })
+        }
+        return ws
+    }
+
+    async function send2() {
+        const values = await form.validateFields()
+        // setConnecting(true)
+        let res = await request.post(`${config.host}/socket/udp/send`, {
+            content,
+            host: values.host,
+            port: values.port,
+        })
+        if (res.success) {
+            // onSuccess && onSuccess()
+            message.success(t('success'))
+            // comData.current.connectionId = res.data.connectionId
+            // setConnected(true)
+            // initWebSocket()
+        }
+        // setConnecting(false)
+    }
+
+    async function send() {
+        if (!content) {
+            message.error('no content')
+            return
+        }
+        let res = await request.post(`${config.host}/socket/send`, {
+            content,
+        })
+        if (res.success) {
+            // onSuccess && onSuccess()
+            message.success(t('success'))
+            setContent('')
+            // setConnected(true)
+        }
+    }
+
+    async function exit() {
+        setConnected(false)
+        let res = await request.post(`${config.host}/socket/close`, {
+            content,
+        })
+    }
+
+    return (
+        <div className={styles.socketApp}>
+            <div>
+                {connected ?
+                    <div>
+                        <Space direction="vertical">
+                            <div>
+                                <Button
+                                    // loading={connecting}
+                                    // type="primary"
+                                    onClick={exit}
+                                >
+                                    {t('关闭连接')}
+                                </Button>
+                            </div>
+                            <div>
+                                
+                            </div>
+    
+                            <Button
+                                // loading={connecting}
+                                type="primary"
+                                onClick={send}
+                            >
+                                {t('send')}
+                            </Button>
+                            <div>
+                                {wsStatus}
+                            </div>
+                            <Table
+                                loading={loading}
+                                dataSource={list}
+                                bordered
+                                size="small"
+                                pagination={false}
+                                // pagination={{
+                                //     total,
+                                //     current: page,
+                                //     pageSize,
+                                //     showSizeChanger: false,
+                                // }}
+                                rowKey="id"
+                                columns={[
+                                    {
+                                        title: t('时间'),
+                                        dataIndex: 'time',
+                                        width: 80,
+                                        render(value) {
+                                            return moment(value).format('HH:mm:ss')
+                                        }
+                                    },
+                                    {
+                                        title: t('content'),
+                                        dataIndex: 'content',
+                                        // width: 240,
+                                    },
+                                    // {
+                                    //     title: '',
+                                    //     dataIndex: '_empty',
+                                    // },
+                                ]}
+                                onChange={({ current }) => {
+                                    // setPage(current)
+                                }}
+                            />
+                        </Space>
+    
+                    </div>
+                :
+                    <div className={styles.form}>
+                        <Form
+                            form={form}
+                            labelCol={{ span: 8 }}
+                            wrapperCol={{ span: 16 }}
+                            initialValues={{
+                                host: '127.0.0.1',
+                                port: 465,
+                                // port: 3306,
+                            }}
+                            // layout={{
+                            //     labelCol: { span: 0 },
+                            //     wrapperCol: { span: 24 },
+                            // }}
+                        >
+                            <Form.Item
+                                name="host"
+                                label={t('host')}
+                                rules={[ { required: true, }, ]}
+                            >
+                                <Input />
+                            </Form.Item>
+                            <Form.Item
+                                name="port"
+                                label={t('port')}
+                                rules={[ { required: true, }, ]}
+                            >
+                                <InputNumber />
+                            </Form.Item>
+                            {/* <Form.Item
+                                wrapperCol={{ offset: 8, span: 16 }}
+                            >
+                                <Space>
+                                    <Button
+                                        loading={connecting}
+                                        type="primary"
+                                        onClick={connect}
+                                    >
+                                        {t('connect')}
+                                    </Button>
+                                </Space>
+                            </Form.Item> */}
+                        </Form>
+                        <Input.TextArea
+                            value={content}
+                            placeholder="发送内容"
+                            onChange={e => {
+                                setContent(e.target.value)
                             }}
                         />
-                    </Space>
+                        <div>
+                            <Button
+                                loading={connecting}
+                                type="primary"
+                                onClick={send2}
+                            >
+                                {t('connect')}
+                            </Button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    )
+}
 
-                </div>
+export function SocketHome({ config, onClickItem }) {
+    // const { defaultJson = '' } = data
+
+    const [socketType, setSocketType] = useState('udp')
+
+
+    return (
+        <div className={styles.socketApp}>
+            <div>
+                <Radio.Group 
+                    value={socketType} 
+                    onChange={(e) => {
+                        setSocketType(e.target.value)
+                    }}
+                >
+                    <Radio.Button value="tcp">TCP</Radio.Button>
+                    <Radio.Button value="udp">UDP</Radio.Button>
+                </Radio.Group>
+            </div>
+            {socketType == 'tcp' ?
+                <TcpClient
+                    config={config}
+                />
             :
-                <div className={styles.form}>
-                    <Form
-                        form={form}
-                        labelCol={{ span: 8 }}
-                        wrapperCol={{ span: 16 }}
-                        initialValues={{
-                            host: '127.0.0.1',
-                            port: 465,
-                            // port: 3306,
-                        }}
-                        // layout={{
-                        //     labelCol: { span: 0 },
-                        //     wrapperCol: { span: 24 },
-                        // }}
-                    >
-                        <Form.Item
-                            name="host"
-                            label={t('host')}
-                            rules={[ { required: true, }, ]}
-                        >
-                            <Input />
-                        </Form.Item>
-                        <Form.Item
-                            name="port"
-                            label={t('port')}
-                            rules={[ { required: true, }, ]}
-                        >
-                            <InputNumber />
-                        </Form.Item>
-                        <Form.Item
-                            wrapperCol={{ offset: 8, span: 16 }}
-                            extra="Only support TCP"
-                            // name="passowrd"
-                            // label="Passowrd"
-                            // rules={[{ required: true, },]}
-                        >
-                            <Space>
-                                <Button
-                                    loading={connecting}
-                                    type="primary"
-                                    onClick={connect}
-                                >
-                                    {t('connect')}
-                                </Button>
-                            </Space>
-                        </Form.Item>
-                    </Form>
+                <div>
+                    <UdpClient
+                        config={config}
+                    />
+                    
                 </div>
             }
         </div>
