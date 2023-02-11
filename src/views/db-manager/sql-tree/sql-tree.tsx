@@ -171,19 +171,7 @@ function TreeTitle({ keyword, loading = false, nodeData, onAction, onClick, onDo
                                 //     label: t('export_struct'),
                                 //     key: 'export_struct',
                                 // },
-                                {
-                                    type: 'divider',
-                                },
-                                {
-                                    label: t('table_truncate'),
-                                    key: 'truncate',
-                                    danger: true,
-                                },
-                                {
-                                    label: t('table_drop'),
-                                    key: 'drop',
-                                    danger: true,
-                                },
+                                // --------
                                 {
                                     type: 'divider',
                                 },
@@ -202,6 +190,20 @@ function TreeTitle({ keyword, loading = false, nodeData, onAction, onClick, onDo
                                 {
                                     label: t('copy_name'),
                                     key: 'copy_name',
+                                },
+                                // --------
+                                {
+                                    type: 'divider',
+                                },
+                                {
+                                    label: t('table_truncate'),
+                                    key: 'truncate',
+                                    danger: true,
+                                },
+                                {
+                                    label: t('table_drop'),
+                                    key: 'drop',
+                                    danger: true,
                                 },
                             ]
                         }
