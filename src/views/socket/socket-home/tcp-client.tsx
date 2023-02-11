@@ -198,7 +198,13 @@ export function TcpClient({  }) {
             <div className={styles.layoutLeft}>
                 <div>
                     {wsStatus != 'connected' &&
-                        <div>WebSocket 已断开，请刷新页面后使用</div>
+                        <div>WebSocket 已断开，请刷新页面后使用
+                            <Button
+                                onClick={() => {
+                                    window.location.reload()
+                                }}
+                            >刷新页面</Button>
+                        </div>
                     }
                 </div>
                 {connected ?

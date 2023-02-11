@@ -38,6 +38,20 @@ export function TcpServer({  }) {
         connectionId: '',
         webSocketId: '',
     })
+    const [clients, setClients] = useState([])
+
+    async function loadClients() {
+        let res = await request.post(`${config.host}/socket/tcp/clients`, {
+            content,
+        })
+        if (res.success) {
+            setClients(res.data.list)
+            // onSuccess && onSuccess()
+            // message.success(t('success'))
+            // setContent('')
+            // setConnected(true)
+        }
+    }
 
     function initWebSocket(connectionId) {
         let first = true
@@ -116,6 +130,9 @@ export function TcpServer({  }) {
             else if (msg.type == 'listening') {
                 setConnected(true)
             }
+            else if (msg.type == 'clientChange') {
+                loadClients()
+            }
             else if (msg.type == 'close') {
                 setConnected(false)
             }
@@ -179,6 +196,25 @@ export function TcpServer({  }) {
         // setConnecting(false)
     }
 
+    async function closeClient(item) {
+        let res = await request.post(`${config.host}/socket/tcp/closeClient`, {
+            // content,
+            id: item.id,
+        })
+        if (res.success) {
+            // onSuccess && onSuccess()
+            message.success(t('success'))
+            // comData.current.connectionId = res.data.connectionId
+            // setConnected(true)
+            loadClients()
+            // initWebSocket(res.data.connectionId)
+        }
+    }
+
+    function clear() {
+        setLogs([])
+    }
+
     async function send() {
         if (!content) {
             message.error('no content')
@@ -206,11 +242,17 @@ export function TcpServer({  }) {
         <div className={styles.tcpServerApp}>
             <div className={styles.layoutLeft}>
                 <div>
-                    TCP 服务端（功能不完善，请配合控制台日志使用）
+                    TCP 服务端
                 </div>
                 <div>
                     {wsStatus != 'connected' &&
-                        <div>WebSocket 已断开，请刷新页面后使用</div>
+                        <div>WebSocket 已断开，请刷新页面后使用
+                            <Button
+                                onClick={() => {
+                                    window.location.reload()
+                                }}
+                            >刷新页面</Button>
+                        </div>
                     }
                 </div>
                 <div>
@@ -240,6 +282,76 @@ export function TcpServer({  }) {
                                         关闭服务
                                     </Button>
                                 </div>
+                                <div>客户端：</div>
+                                <Table
+                                    // loading={loading}
+                                    dataSource={clients}
+                                    bordered
+                                    size="small"
+                                    pagination={false}
+                                    // pagination={{
+                                    //     total,
+                                    //     current: page,
+                                    //     pageSize,
+                                    //     showSizeChanger: false,
+                                    // }}
+                                    rowKey="id"
+                                    columns={[
+                                        {
+                                            title: t('id'),
+                                            dataIndex: 'id',
+                                            // width: 80,
+                                            // render(value) {
+                                            //     return moment(value).format('HH:mm:ss')
+                                            // }
+                                        },
+                                        {
+                                            title: t('connectTime'),
+                                            dataIndex: 'connectTime',
+                                            width: 80,
+                                            render(value) {
+                                                return moment(value).format('HH:mm:ss')
+                                            }
+                                        },
+                                        // {
+                                        //     title: t('type'),
+                                        //     dataIndex: 'type',
+                                        //     // width: 240,
+                                        // },
+                                        // {
+                                        //     title: t('content'),
+                                        //     dataIndex: 'content',
+                                        //     // width: 240,
+                                        // },
+                                        // {
+                                        //     title: '',
+                                        //     dataIndex: '_empty',
+                                        // },
+                                        {
+                                            title: t('actions'),
+                                            dataIndex: '__actions',
+                                            // width: 80,
+                                            render(_value, item) {
+                                                return (
+                                                    <Space>
+                                                        <Button
+                                                            size="small"
+                                                            danger
+                                                            onClick={() => {
+                                                                closeClient(item)
+                                                            }}
+                                                        >
+                                                            断开
+                                                        </Button>
+                                                    </Space>
+                                                )
+                                            }
+                                        },
+                                    ]}
+                                    onChange={({ current }) => {
+                                        // setPage(current)
+                                    }}
+                                />
                                 <div>
                                     <Input.TextArea
                                         value={content}
@@ -323,6 +435,18 @@ export function TcpServer({  }) {
                 </div>
             </div>
             <div>
+                <div>日志</div>
+                <div>
+                    <Button
+                        danger
+                        size="small"
+                        onClick={() => {
+                            clear()
+                        }}
+                    >
+                        清空
+                    </Button>
+                </div>
                 <Table
                     loading={loading}
                     dataSource={logs}
