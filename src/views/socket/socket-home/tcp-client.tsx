@@ -1,6 +1,6 @@
 import { Button, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Radio, Space, Spin, Table, Tabs, Tag, Tree } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import styles from './socket-home.module.less';
+import styles from './tcp-client.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
 // console.log('lodash', _)
@@ -23,7 +23,7 @@ export function TcpClient({  }) {
     const config = getGlobalConfig()
     const { t } = useTranslation()
     const [loading, setLoading] = useState(false)
-    const [list, setList] = useState([])
+    const [logs, setLogs] = useState([])
     const [form] = Form.useForm()
     const [connecting, setConnecting] = useState(false)
     const [connected, setConnected] = useState(false)
@@ -32,11 +32,14 @@ export function TcpClient({  }) {
     const comData = useRef({
         connectTime: 0,
         connectionId: '',
+        // webSocket: null,
+        webSocketId: '',
     })
 
-    function initWebSocket() {
+    function initWebSocket(callback) {
         let first = true
         const ws = new WebSocket('ws://localhost:10087/')
+        // comData.current.webSocket = ws
         console.log('initWebSocket')
         console.log('readyState', ws.readyState)
         
@@ -69,11 +72,16 @@ export function TcpClient({  }) {
             console.log('readyState', ws.readyState)
 
             ws.send(JSON.stringify({
-                type: 'tcpSubscribe',
-                data: {
-                    connectionId: comData.current.connectionId,
-                },
+                type: 'getWebSocketId',
+                data: {},
             }))
+            // ws.send(JSON.stringify({
+            //     type: 'tcpSubscribe',
+            //     data: {
+            //         connectionId: comData.current.connectionId,
+            //     },
+            // }))
+            callback && callback(ws)
             console.log('sended')
         }
         ws.onerror = (err) => {
@@ -100,20 +108,30 @@ export function TcpClient({  }) {
                 console.log('JSON.parse err', err)
                 return
             }
-            
-            setList(list => {
-                console.log('list.length', list.length)
-                setList([
-                    {
-                        id: msg.id,
-                        content: msg.content,
-                        // message: msg.message,
-                        time: msg.time,
-                    },
-                    ...list,
-                ])
-                return []
-            })
+            if (msg.type == 'message' || msg.type == 'info' || msg.type == 'sent') {
+                const { data } = msg
+                setLogs(logs => {
+                    return [
+                        {
+                            id: data.id,
+                            content: data.content,
+                            // message: msg.message,
+                            time: data.time,
+                            type: data.type,
+                        },
+                        ...logs,
+                    ]
+                })
+            }
+            else if (msg.type == 'websocketId') {
+                const { webSocketId } = msg.data
+                comData.current.webSocketId = webSocketId
+            }
+
+            // setList(list => {
+            //     console.log('list.length', list.length)
+            //     return []
+            // })
         }
         return ws
     }
@@ -121,26 +139,43 @@ export function TcpClient({  }) {
     async function connect() {
         const values = await form.validateFields()
         setConnecting(true)
-        let res = await request.post(`${config.host}/socket/connect`, {
+        console.log('websocket init ok', )
+        let res = await request.post(`${config.host}/socket/tcp/connect`, {
             host: values.host,
             port: values.port,
+            webSocketId: comData.current.webSocketId,
         })
         if (res.success) {
             // onSuccess && onSuccess()
             message.success(t('success'))
-            comData.current.connectionId = res.data.connectionId
+            const { connectionId } = res.data
+            console.log('connectionId', connectionId)
+            // comData.current.connectionId = res.data.connectionId
+            // comData.current.webSocket = ws
+            // const ws = comData.current.webSocket
+            // ws.send(JSON.stringify({
+            //     type: 'tcpSubscribe',
+            //     data: {
+            //         connectionId,
+            //     },
+            // }))
             setConnected(true)
-            initWebSocket()
         }
+        // initWebSocket(async (ws) => {
+        // })
         setConnecting(false)
     }
+
+    useEffect(() => {
+        initWebSocket()
+    }, [])
 
     async function send() {
         if (!content) {
             message.error('no content')
             return
         }
-        let res = await request.post(`${config.host}/socket/send`, {
+        let res = await request.post(`${config.host}/socket/tcp/send`, {
             content,
         })
         if (res.success) {
@@ -153,24 +188,25 @@ export function TcpClient({  }) {
 
     async function exit() {
         setConnected(false)
-        let res = await request.post(`${config.host}/socket/close`, {
+        let res = await request.post(`${config.host}/socket/tcp/close`, {
             content,
         })
     }
 
     return (
         <div className={styles.tcpClientPage}>
-            <div>
+            <div className={styles.layoutLeft}>
                 {connected ?
                     <div>
                         <Space direction="vertical">
                             <div>
                                 <Button
                                     // loading={connecting}
+                                    danger
                                     // type="primary"
                                     onClick={exit}
                                 >
-                                    {t('关闭连接')}
+                                    {t('断开连接')}
                                 </Button>
                             </div>
                             <div>
@@ -192,42 +228,6 @@ export function TcpClient({  }) {
                             <div>
                                 {wsStatus}
                             </div>
-                            <Table
-                                loading={loading}
-                                dataSource={list}
-                                bordered
-                                size="small"
-                                pagination={false}
-                                // pagination={{
-                                //     total,
-                                //     current: page,
-                                //     pageSize,
-                                //     showSizeChanger: false,
-                                // }}
-                                rowKey="id"
-                                columns={[
-                                    {
-                                        title: t('时间'),
-                                        dataIndex: 'time',
-                                        width: 80,
-                                        render(value) {
-                                            return moment(value).format('HH:mm:ss')
-                                        }
-                                    },
-                                    {
-                                        title: t('content'),
-                                        dataIndex: 'content',
-                                        // width: 240,
-                                    },
-                                    // {
-                                    //     title: '',
-                                    //     dataIndex: '_empty',
-                                    // },
-                                ]}
-                                onChange={({ current }) => {
-                                    // setPage(current)
-                                }}
-                            />
                         </Space>
     
                     </div>
@@ -239,7 +239,7 @@ export function TcpClient({  }) {
                             wrapperCol={{ span: 16 }}
                             initialValues={{
                                 host: '127.0.0.1',
-                                port: 465,
+                                port: 1465,
                                 // port: 3306,
                             }}
                             // layout={{
@@ -281,6 +281,59 @@ export function TcpClient({  }) {
                         </Form>
                     </div>
                 }
+            </div>
+            <div>
+                <div className={styles.toolBox}>
+                    <Button
+                        size="small"
+                        onClick={() => {
+                            setLogs([])
+                        }}
+                    >
+                        clear
+                    </Button>
+                </div>
+                <Table
+                    loading={loading}
+                    dataSource={logs}
+                    bordered
+                    size="small"
+                    pagination={false}
+                    // pagination={{
+                    //     total,
+                    //     current: page,
+                    //     pageSize,
+                    //     showSizeChanger: false,
+                    // }}
+                    rowKey="id"
+                    columns={[
+                        {
+                            title: t('时间'),
+                            dataIndex: 'time',
+                            width: 80,
+                            render(value) {
+                                return moment(value).format('HH:mm:ss')
+                            }
+                        },
+                        {
+                            title: t('type'),
+                            dataIndex: 'type',
+                            // width: 240,
+                        },
+                        {
+                            title: t('content'),
+                            dataIndex: 'content',
+                            // width: 240,
+                        },
+                        // {
+                        //     title: '',
+                        //     dataIndex: '_empty',
+                        // },
+                    ]}
+                    onChange={({ current }) => {
+                        // setPage(current)
+                    }}
+                />
             </div>
         </div>
     )

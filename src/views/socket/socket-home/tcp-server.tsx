@@ -30,6 +30,7 @@ export function TcpServer({  }) {
     const [connected, setConnected] = useState(false)
     const [content, setContent] = useState('')
     const [wsStatus, setWsStatus] = useState('notConnected')
+    const [serverConfig, setServerConfig] = useState({})
     const comData = useRef({
         connectTime: 0,
         connectionId: '',
@@ -44,6 +45,7 @@ export function TcpServer({  }) {
         ws.onclose = async () => {
             console.log('socket/on-close')
             setWsStatus('notConnected')
+            setConnected(false)
             console.log('readyState', ws.readyState)
 
             // if (comData.current.connectTime < 3) {
@@ -131,6 +133,10 @@ export function TcpServer({  }) {
             message.success(t('success'))
             // comData.current.connectionId = res.data.connectionId
             // setConnected(true)
+            setServerConfig({
+                host: values.host,
+                port: values.port,
+            })
             initWebSocket(res.data.connectionId)
         }
         // setConnecting(false)
@@ -141,20 +147,20 @@ export function TcpServer({  }) {
             message.error('no content')
             return
         }
-        let res = await request.post(`${config.host}/socket/send`, {
+        let res = await request.post(`${config.host}/socket/tcp/serverSend`, {
             content,
         })
         if (res.success) {
             // onSuccess && onSuccess()
             message.success(t('success'))
-            setContent('')
+            // setContent('')
             // setConnected(true)
         }
     }
 
-    async function exit() {
+    async function closeServer() {
         setConnected(false)
-        let res = await request.post(`${config.host}/socket/close`, {
+        let res = await request.post(`${config.host}/socket/tcp/closeServer`, {
             content,
         })
     }
@@ -178,8 +184,36 @@ export function TcpServer({  }) {
                                 </Button>
                             </div> */}
                             <div>
-                                正在监听...
+                                正在监听 {serverConfig.host}:{serverConfig.port}
                                 
+                            </div>
+                            <div>
+                                <Button
+                                    danger
+                                    onClick={() => {
+                                        closeServer()
+                                    }}
+                                >
+                                    关闭服务
+                                </Button>
+                            </div>
+                            <div>
+                                <Input.TextArea
+                                    value={content}
+                                    placeholder="发送内容"
+                                    onChange={e => {
+                                        setContent(e.target.value)
+                                    }}
+                                />
+                                <div>
+                                    <Button
+                                        // loading={connecting}
+                                        type="primary"
+                                        onClick={send}
+                                    >
+                                        {t('send')}
+                                    </Button>
+                                </div>
                             </div>
     
                             {/* <Button
@@ -239,7 +273,7 @@ export function TcpServer({  }) {
                             wrapperCol={{ span: 16 }}
                             initialValues={{
                                 host: '0.0.0.0',
-                                port: 465,
+                                port: 1465,
                                 // port: 3306,
                             }}
                             // layout={{
@@ -275,22 +309,7 @@ export function TcpServer({  }) {
                                 </Space>
                             </Form.Item>
                         </Form>
-                        {/* <Input.TextArea
-                            value={content}
-                            placeholder="发送内容"
-                            onChange={e => {
-                                setContent(e.target.value)
-                            }}
-                        />
-                        <div>
-                            <Button
-                                loading={connecting}
-                                type="primary"
-                                onClick={send2}
-                            >
-                                {t('connect')}
-                            </Button>
-                        </div> */}
+                        
                     </div>
                 }
             </div>
