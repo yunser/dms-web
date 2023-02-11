@@ -196,6 +196,11 @@ export function TcpClient({  }) {
     return (
         <div className={styles.tcpClientPage}>
             <div className={styles.layoutLeft}>
+                <div>
+                    {wsStatus != 'connected' &&
+                        <div>WebSocket 已断开，请刷新页面后使用</div>
+                    }
+                </div>
                 {connected ?
                     <div>
                         <Space direction="vertical">
