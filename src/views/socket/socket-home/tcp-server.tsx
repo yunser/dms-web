@@ -57,6 +57,7 @@ export function TcpServer({  }) {
 
     async function loadClients() {
         let res = await request.post(`${config.host}/socket/tcp/clients`, {
+            connectionId: comData.current.connectionId,
             content,
         })
         if (res.success) {
@@ -310,7 +311,7 @@ export function TcpServer({  }) {
         if (res.success) {
             // onSuccess && onSuccess()
             message.success(t('success'))
-            // comData.current.connectionId = res.data.connectionId
+            comData.current.connectionId = res.data.connectionId
             // setConnected(true)
             setServerConfig({
                 host: values.host,
@@ -323,6 +324,7 @@ export function TcpServer({  }) {
 
     async function closeClient(item) {
         const reqData = {
+            connectionId: comData.current.connectionId,
             id: undefined,
         }
         if (item) {
@@ -363,6 +365,7 @@ export function TcpServer({  }) {
             return
         }
         let res = await request.post(`${config.host}/socket/tcp/serverSend`, {
+            connectionId: comData.current.connectionId,
             content,
             clientId: sendTarget,
             contentType: sendType,
@@ -374,6 +377,7 @@ export function TcpServer({  }) {
 
     async function pingClient(item) {
         let res = await request.post(`${config.host}/socket/tcp/serverSend`, {
+            connectionId: comData.current.connectionId,
             content: 'ping',
             clientId: item.id,
         })
@@ -385,7 +389,7 @@ export function TcpServer({  }) {
     async function closeServer() {
         setConnected(false)
         let res = await request.post(`${config.host}/socket/tcp/closeServer`, {
-            content,
+            connectionId: comData.current.connectionId,
         })
         if (res.success) {
             message.success(t('success'))
@@ -394,6 +398,7 @@ export function TcpServer({  }) {
 
     async function _setHexFormat(isHex) {
         let res = await request.post(`${config.host}/socket/tcp/serverConfig`, {
+            connectionId: comData.current.connectionId,
             hex: isHex,
         })
         if (res.success) {
