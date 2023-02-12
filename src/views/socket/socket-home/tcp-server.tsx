@@ -1,4 +1,4 @@
-import { Button, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Radio, Space, Spin, Table, Tabs, Tag, Tree } from 'antd';
+import { Button, Checkbox, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Radio, Select, Space, Spin, Table, Tabs, Tag, Tree } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './tcp-server.module.less';
 import _ from 'lodash';
@@ -20,6 +20,16 @@ import { VSpacer, VSplit } from '@/components/v-space';
 import { LeftRightLayout } from '@/components/left-right-layout';
 // import { saveAs } from 'file-saver'
 
+function Content({ item }) {
+    return (
+        <div className={styles.contentBox}>
+            {item.contentType == 'hex' &&
+                <Tag className={styles.tag}>Hex</Tag>
+            }
+            <pre className={styles.content}>{item.content}</pre>
+        </div>
+    )
+}
 
 export function TcpServer({  }) {
     // const { defaultJson = '' } = data
@@ -29,6 +39,7 @@ export function TcpServer({  }) {
     const [logs, setLogs] = useState([])
     const [form] = Form.useForm()
     const [connecting, setConnecting] = useState(false)
+    const [hexFormat, setHexFormat] = useState(false)
     // 服务的状态
     const [connected, setConnected] = useState(false)
     const [content, setContent] = useState('')
@@ -42,6 +53,7 @@ export function TcpServer({  }) {
     })
     const [clients, setClients] = useState([])
     const [sendTarget, setSendTarget] = useState('')
+    const [sendType, setSendType] = useState('text')
 
     async function loadClients() {
         let res = await request.post(`${config.host}/socket/tcp/clients`, {
@@ -190,11 +202,11 @@ export function TcpServer({  }) {
                             subType: 'received',
                             clientId: data.clientId,
                             content: data.content,
+                            contentType: data.contentType,
                         },
                         ...logs,
                     ]
                 })
-                loadClients()
             }
             else if (msg.type == 'client_send') {
                 const { data } = msg
@@ -207,12 +219,12 @@ export function TcpServer({  }) {
                             subType: 'sent',
                             clientId: data.clientId,
                             content: data.content,
+                            contentType: data.contentType,
                             // content: t('send_to_client').replace('{client}', data.clientId) + ' ' + data.content,
                         },
                         ...logs,
                     ]
                 })
-                loadClients()
             }
             // else if (msg.type == 'message') {
             //     const { data } = msg
@@ -286,12 +298,14 @@ export function TcpServer({  }) {
 
     async function createServer() {
         const values = await form.validateFields()
+        
         // setConnecting(true)
         let res = await request.post(`${config.host}/socket/tcp/createServer`, {
             // content,
             host: values.host,
             port: values.port,
             webSocketId: comData.current.webSocketId,
+            hex: hexFormat,
         })
         if (res.success) {
             // onSuccess && onSuccess()
@@ -351,12 +365,10 @@ export function TcpServer({  }) {
         let res = await request.post(`${config.host}/socket/tcp/serverSend`, {
             content,
             clientId: sendTarget,
+            contentType: sendType,
         })
         if (res.success) {
-            // onSuccess && onSuccess()
             message.success(t('success'))
-            // setContent('')
-            // setConnected(true)
         }
     }
 
@@ -366,10 +378,7 @@ export function TcpServer({  }) {
             clientId: item.id,
         })
         if (res.success) {
-            // onSuccess && onSuccess()
             message.success(t('success'))
-            // setContent('')
-            // setConnected(true)
         }
     }
 
@@ -378,8 +387,20 @@ export function TcpServer({  }) {
         let res = await request.post(`${config.host}/socket/tcp/closeServer`, {
             content,
         })
+        if (res.success) {
+            message.success(t('success'))
+        }
     }
 
+    async function _setHexFormat(isHex) {
+        let res = await request.post(`${config.host}/socket/tcp/serverConfig`, {
+            hex: isHex,
+        })
+        if (res.success) {
+            message.success(t('success'))
+        }
+    }
+    
     return (
         <div className={styles.tcpServerApp}>
             <div className={styles.layoutLeft}>
@@ -428,6 +449,15 @@ export function TcpServer({  }) {
                                             {t('close_tcp_server')}
                                         </Button>
                                     </div>
+                                    <Checkbox
+                                        checked={hexFormat}
+                                        onChange={e => {
+                                            setHexFormat(e.target.checked)
+                                            _setHexFormat(e.target.checked)
+                                        }}
+                                    >
+                                        {t('hex')}
+                                    </Checkbox>
                                 </Space>
                                 
                                 <VSplit size={48} />
@@ -550,14 +580,34 @@ export function TcpServer({  }) {
                                     />
                                     <VSplit size={8} />
                                     <LeftRightLayout>
-                                        <Button
-                                            // loading={connecting}
-                                            type="primary"
-                                            size="small"
-                                            onClick={send}
-                                        >
-                                            {t('send')}
-                                        </Button>
+                                        <Space>
+                                            <Button
+                                                // loading={connecting}
+                                                type="primary"
+                                                size="small"
+                                                onClick={send}
+                                            >
+                                                {t('send')}
+                                            </Button>
+                                            <Select
+                                                size="small"
+                                                className={styles.sendType}
+                                                value={sendType}
+                                                onChange={value => {
+                                                    setSendType(value)
+                                                }}
+                                                options={[
+                                                    {
+                                                        label: t('text'),
+                                                        value: 'text',
+                                                    },
+                                                    {
+                                                        label: t('hex'),
+                                                        value: 'hex',
+                                                    },
+                                                ]}
+                                            />
+                                        </Space>
                                         <div className={styles.sendText}>{t('send_message_to')} {sendTarget ? sendTarget : t('all_client')}</div>
                                     </LeftRightLayout>
                                 </div>
@@ -687,16 +737,15 @@ export function TcpServer({  }) {
                                             {item.subType == 'sent' ?
                                                 <div>
                                                     <div>=> {item.clientId}</div>
-                                                    <pre className={styles.content}>
-                                                        {item.content}
-                                                    </pre>
+                                                    <Content item={item} />
                                                 </div>
                                             : item.subType == 'received' ?
                                                 <div>
                                                     <div>{item.clientId}:</div>
-                                                    <pre className={styles.content}>
+                                                    {/* <pre className={styles.content}>
                                                         {item.content}
-                                                    </pre>
+                                                    </pre> */}
+                                                    <Content item={item} />
                                                 </div>
                                             :
                                                 <div>{value}</div>

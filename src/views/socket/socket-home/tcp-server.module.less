@@ -35,13 +35,24 @@
     max-width: 320px;
     margin-top: 64px;
 }
-.content {
-    padding: 4px 8px;
-    border-radius: 4px;
-    background-color: #f9f9f9;
-    border: 1px solid var(--border-color);
-    margin-bottom: 0;
-    // border: 1px solid #000;
-    overflow-x: auto;
-    max-width: 1200px;
+.contentBox {
+    position: relative;
+    .content {
+        padding: 4px 8px;
+        border-radius: 4px;
+        background-color: #f9f9f9;
+        border: 1px solid var(--border-color);
+        margin-bottom: 0;
+        // border: 1px solid #000;
+        overflow-x: auto;
+        max-width: 1200px;
+    }
+    .tag {
+        position: absolute;
+        top: 0;
+        right: -8px;
+    }
+}
+.sendType {
+    width: 80px;
 }

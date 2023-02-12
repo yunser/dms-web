@@ -447,6 +447,7 @@ i18n
                     'tcp_connected': 'Connected',
                     'tcp_disconnected': 'Disconnected',
                     'ping': 'Ping',
+                    'hex': 'Hex',
                 }
             },
             zh: {
@@ -886,6 +887,7 @@ i18n
                     'tcp_connected': '已连接',
                     'tcp_disconnected': '连接断开',
                     'ping': 'Ping',
+                    'hex': '十六进制',
                 }
             }
         },
