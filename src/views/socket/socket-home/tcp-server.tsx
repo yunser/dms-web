@@ -306,10 +306,13 @@ export function TcpServer({  }) {
     }
 
     async function closeClient(item) {
-        let res = await request.post(`${config.host}/socket/tcp/closeClient`, {
-            // content,
-            id: item.id,
-        })
+        const reqData = {
+            id: undefined,
+        }
+        if (item) {
+            reqData.id = item.id
+        }
+        let res = await request.post(`${config.host}/socket/tcp/closeClient`, reqData)
         if (res.success) {
             // onSuccess && onSuccess()
             message.success(t('success'))
@@ -414,6 +417,18 @@ export function TcpServer({  }) {
                                 <VSplit size={48} />
                                 <div className={styles.sectionTitle}>{t('client')}</div>
                                 
+                                <div>
+                                    <Button
+                                        size="small"
+                                        danger
+                                        onClick={() => {
+                                            closeClient()
+                                        }}
+                                    >
+                                        {t('disconnect_all')}
+                                    </Button>
+                                </div>
+                                <VSplit size={8} />
                                 <Table
                                     // loading={loading}
                                     dataSource={clients}
@@ -465,6 +480,14 @@ export function TcpServer({  }) {
                                             render(_value, item) {
                                                 return (
                                                     <Space>
+                                                        {/* <Button
+                                                            size="small"
+                                                            onClick={() => {
+                                                                // pingClient(item)
+                                                            }}
+                                                        >
+                                                            {t('ping')}
+                                                        </Button> */}
                                                         <Button
                                                             size="small"
                                                             danger
@@ -617,11 +640,10 @@ export function TcpServer({  }) {
                                     return moment(value).format('HH:mm:ss')
                                 }
                             },
-                            {
-                                title: t('type'),
-                                dataIndex: 'type',
-                                // width: 240,
-                            },
+                            // {
+                            //     title: t('type'),
+                            //     dataIndex: 'type',
+                            // },
                             {
                                 title: t('content'),
                                 dataIndex: 'content',
