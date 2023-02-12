@@ -446,6 +446,7 @@ i18n
                     'send_to_client': 'Sent to Client {client}:',
                     'tcp_connected': 'Connected',
                     'tcp_disconnected': 'Disconnected',
+                    'ping': 'Ping',
                 }
             },
             zh: {
@@ -884,6 +885,7 @@ i18n
                     'send_to_client': '发给给客户端 {client}:',
                     'tcp_connected': '已连接',
                     'tcp_disconnected': '连接断开',
+                    'ping': 'Ping',
                 }
             }
         },

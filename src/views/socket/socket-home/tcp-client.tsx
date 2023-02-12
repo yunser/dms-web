@@ -1,7 +1,7 @@
 import { Button, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Radio, Space, Spin, Table, Tabs, Tag, Tree } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './tcp-client.module.less';
-import _ from 'lodash';
+import _, { after } from 'lodash';
 import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
@@ -30,6 +30,7 @@ export function TcpClient({  }) {
     const [connected, setConnected] = useState(false)
     const [content, setContent] = useState('')
     const [wsStatus, setWsStatus] = useState('disconnected')
+    const [serverConfig, setServerConfig] = useState({})
     const comData = useRef({
         connectTime: 0,
         connectionId: '',
@@ -47,7 +48,6 @@ export function TcpClient({  }) {
         ws.onclose = async () => {
             console.log('socket/on-close')
             setWsStatus('disconnected')
-            setConnected(false)
             console.log('readyState', ws.readyState)
 
             // if (comData.current.connectTime < 3) {
@@ -126,6 +126,11 @@ export function TcpClient({  }) {
             }
             else if (msg.type == 'connected') {
                 const { data } = msg
+                setConnected(true)
+                setServerConfig({
+                    host: data.host,
+                    port: data.port,
+                })
                 setLogs(logs => {
                     return [
                         {
@@ -141,6 +146,7 @@ export function TcpClient({  }) {
             }
             else if (msg.type == 'disconnected') {
                 const { data } = msg
+                setConnected(false)
                 setLogs(logs => {
                     return [
                         {
@@ -190,7 +196,6 @@ export function TcpClient({  }) {
             //         connectionId,
             //     },
             // }))
-            setConnected(true)
         }
         // initWebSocket(async (ws) => {
         // })
@@ -201,11 +206,7 @@ export function TcpClient({  }) {
         initWebSocket()
     }, [])
 
-    async function send() {
-        if (!content) {
-            message.error('no content')
-            return
-        }
+    async function _send(content: string) {
         let res = await request.post(`${config.host}/socket/tcp/send`, {
             content,
         })
@@ -213,12 +214,22 @@ export function TcpClient({  }) {
             // onSuccess && onSuccess()
             message.success(t('success'))
             // setContent('')
-            // setConnected(true)
         }
     }
 
-    async function exit() {
-        setConnected(false)
+    async function ping() {
+        _send(('ping'))
+    }
+
+    async function send() {
+        if (!content) {
+            message.error('no content')
+            return
+        }
+        _send((content))
+    }
+
+    async function disconnect() {
         let res = await request.post(`${config.host}/socket/tcp/close`, {
             content,
         })
@@ -244,17 +255,20 @@ export function TcpClient({  }) {
                             {/* <div>
                                 {wsStatus}
                             </div> */}
-                            <div>
+                            <Space>
+                                <div>
+                                    {t('connected')} {serverConfig.host}:{serverConfig.port}
+                                </div>
                                 <Button
                                     // loading={connecting}
                                     danger
                                     // type="primary"
-                                    onClick={exit}
+                                    onClick={disconnect}
                                     size="small"
                                 >
                                     {t('disconnect')}
                                 </Button>
-                            </div>
+                            </Space>
                             <VSplit size={32} />
                             <div>
                                 <Input.TextArea
@@ -266,14 +280,24 @@ export function TcpClient({  }) {
                                 />
                             </div>
                             <VSplit size={8} />
-                            <Button
-                                // loading={connecting}
-                                type="primary"
-                                size="small"
-                                onClick={send}
-                            >
-                                {t('send')}
-                            </Button>
+                            <Space>
+                                <Button
+                                    // loading={connecting}
+                                    type="primary"
+                                    size="small"
+                                    onClick={send}
+                                >
+                                    {t('send')}
+                                </Button>
+                                <Button
+                                    // loading={connecting}
+                                    // type="primary"
+                                    size="small"
+                                    onClick={ping}
+                                >
+                                    {t('ping')}
+                                </Button>
+                            </Space>
                         </div>
     
                     </div>
@@ -363,15 +387,26 @@ export function TcpClient({  }) {
                                 return moment(value).format('HH:mm:ss')
                             }
                         },
-                        {
-                            title: t('type'),
-                            dataIndex: 'type',
-                            width: 120,
-                        },
+                        // {
+                        //     title: t('type'),
+                        //     dataIndex: 'type',
+                        //     width: 120,
+                        // },
                         {
                             title: t('content'),
                             dataIndex: 'content',
                             // width: 240,
+                            render(value, item) {
+                                return (
+                                    <div>
+                                        {(item.type == 'sent' || item.type == 'message') ?
+                                            <pre className={classNames(styles.content, styles[item.type])}>{value}</pre>
+                                        :
+                                            <div>{value}</div>
+                                        }
+                                    </div>
+                                )
+                            }
                         },
                         // {
                         //     title: '',
