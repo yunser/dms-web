@@ -16,6 +16,7 @@ import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/common/full-center-box';
 import moment from 'moment';
 import { getGlobalConfig } from '@/config';
+import { VSpacer, VSplit } from '@/components/v-space';
 // import { saveAs } from 'file-saver'
 
 
@@ -129,12 +130,96 @@ export function TcpServer({  }) {
             }
             else if (msg.type == 'listening') {
                 setConnected(true)
+                const { data } = msg
+                setLogs(logs => {
+                    return [
+                        {
+                            id: data.id,
+                            content: t('server_listening') + ` ${data.host}:${data.port}`,
+                            time: data.time,
+                            type: data.type,
+                        },
+                        ...logs,
+                    ]
+                })
             }
             else if (msg.type == 'clientChange') {
                 loadClients()
             }
+            else if (msg.type == 'client_connected') {
+                const { data } = msg
+                setLogs(logs => {
+                    return [
+                        {
+                            id: data.id,
+                            content: t('client_connected').replace('{client}', data.clientId),
+                            time: data.time,
+                            type: data.type,
+                        },
+                        ...logs,
+                    ]
+                })
+                loadClients()
+            }
+            else if (msg.type == 'client_disconnected') {
+                const { data } = msg
+                setLogs(logs => {
+                    return [
+                        {
+                            id: data.id,
+                            content: t('client_disconnected').replace('{client}', data.clientId),
+                            time: data.time,
+                            type: data.type,
+                        },
+                        ...logs,
+                    ]
+                })
+                loadClients()
+            }
+            else if (msg.type == 'client_message') {
+                const { data } = msg
+                setLogs(logs => {
+                    return [
+                        {
+                            id: data.id,
+                            content: t('client_received').replace('{client}', data.clientId) + data.content,
+                            time: data.time,
+                            type: data.type,
+                        },
+                        ...logs,
+                    ]
+                })
+                loadClients()
+            }
+            else if (msg.type == 'client_send') {
+                const { data } = msg
+                setLogs(logs => {
+                    return [
+                        {
+                            id: data.id,
+                            content: t('send_to_client').replace('{client}', data.clientId) + ' ' + data.content,
+                            time: data.time,
+                            type: data.type,
+                        },
+                        ...logs,
+                    ]
+                })
+                loadClients()
+            }
             else if (msg.type == 'close') {
                 setConnected(false)
+                const { data } = msg
+                setLogs(logs => {
+                    return [
+                        {
+                            id: data.id,
+                            content: t('server_close'),
+                            time: data.time,
+                            type: data.type,
+                        },
+                        ...logs,
+                    ]
+                })
             }
             else if (msg.type == 'message' || msg.type == 'info' || msg.type == 'sent') {
                 const { data } = msg
@@ -211,6 +296,20 @@ export function TcpServer({  }) {
         }
     }
 
+    async function closeAllServer() {
+        let res = await request.post(`${config.host}/socket/tcp/closeAllServer`, {
+            // content,
+        })
+        if (res.success) {
+            // onSuccess && onSuccess()
+            message.success(t('success'))
+            // comData.current.connectionId = res.data.connectionId
+            // setConnected(true)
+            loadClients()
+            // initWebSocket(res.data.connectionId)
+        }
+    }
+
     function clear() {
         setLogs([])
     }
@@ -241,13 +340,14 @@ export function TcpServer({  }) {
     return (
         <div className={styles.tcpServerApp}>
             <div className={styles.layoutLeft}>
-                <div>
-                    TCP 服务端
+                <div className={styles.sectionTitle}>
+                    {t('tcp_server')}
                 </div>
                 <div>
                     {wsStatus != 'connected' &&
                         <div>WebSocket 已断开，请刷新页面后使用
                             <Button
+                                size="small"
                                 onClick={() => {
                                     window.location.reload()
                                 }}
@@ -258,7 +358,7 @@ export function TcpServer({  }) {
                 <div>
                     {connected ?
                         <div>
-                            <Space direction="vertical">
+                            <div>
                                 {/* <div>
                                     <Button
                                         // loading={connecting}
@@ -268,21 +368,28 @@ export function TcpServer({  }) {
                                         {t('关闭连接')}
                                     </Button>
                                 </div> */}
-                                <div>
-                                    正在监听 {serverConfig.host}:{serverConfig.port}
-                                    
-                                </div>
-                                <div>
-                                    <Button
-                                        danger
-                                        onClick={() => {
-                                            closeServer()
-                                        }}
-                                    >
-                                        关闭服务
-                                    </Button>
-                                </div>
-                                <div>客户端：</div>
+                                {/* <VSpacer /> */}
+                                
+                                <Space>
+                                    <div>
+                                        {t('listening')} {serverConfig.host}:{serverConfig.port}
+                                    </div>
+                                    <div>
+                                        <Button
+                                            danger
+                                            size="small"
+                                            onClick={() => {
+                                                closeServer()
+                                            }}
+                                        >
+                                            {t('close_tcp_server')}
+                                        </Button>
+                                    </div>
+                                </Space>
+                                
+                                <VSplit size={48} />
+                                <div className={styles.sectionTitle}>{t('client')}</div>
+                                
                                 <Table
                                     // loading={loading}
                                     dataSource={clients}
@@ -300,15 +407,15 @@ export function TcpServer({  }) {
                                         {
                                             title: t('id'),
                                             dataIndex: 'id',
-                                            // width: 80,
+                                            width: 120,
                                             // render(value) {
                                             //     return moment(value).format('HH:mm:ss')
                                             // }
                                         },
                                         {
-                                            title: t('connectTime'),
+                                            title: t('connect_time'),
                                             dataIndex: 'connectTime',
-                                            width: 80,
+                                            width: 120,
                                             render(value) {
                                                 return moment(value).format('HH:mm:ss')
                                             }
@@ -341,7 +448,7 @@ export function TcpServer({  }) {
                                                                 closeClient(item)
                                                             }}
                                                         >
-                                                            断开
+                                                            {t('disconnect')}
                                                         </Button>
                                                     </Space>
                                                 )
@@ -352,18 +459,23 @@ export function TcpServer({  }) {
                                         // setPage(current)
                                     }}
                                 />
+                                <VSplit size={48} />
                                 <div>
                                     <Input.TextArea
+                                        className={styles.textarea}
                                         value={content}
-                                        placeholder="发送内容"
+                                        placeholder={t('content')}
+                                        rows={8}
                                         onChange={e => {
                                             setContent(e.target.value)
                                         }}
                                     />
+                                    <VSplit size={8} />
                                     <div>
                                         <Button
                                             // loading={connecting}
                                             type="primary"
+                                            size="small"
                                             onClick={send}
                                         >
                                             {t('send')}
@@ -382,7 +494,7 @@ export function TcpServer({  }) {
                                     {wsStatus}
                                 </div> */}
                                 
-                            </Space>
+                            </div>
         
                         </div>
                     :
@@ -424,7 +536,7 @@ export function TcpServer({  }) {
                                             type="primary"
                                             onClick={createServer}
                                         >
-                                            {t('createServer')}
+                                            {t('create_tcp_server')}
                                         </Button>
                                     </Space>
                                 </Form.Item>
@@ -434,60 +546,73 @@ export function TcpServer({  }) {
                     }
                 </div>
             </div>
-            <div>
-                <div>日志</div>
-                <div>
+            <div className={styles.layoutRight}>
+                <div className={styles.rightTopToolBox}>
                     <Button
-                        danger
                         size="small"
                         onClick={() => {
-                            clear()
+                            closeAllServer()
                         }}
                     >
-                        清空
+                        {t('close_all_tcp_server')}
                     </Button>
                 </div>
-                <Table
-                    loading={loading}
-                    dataSource={logs}
-                    bordered
-                    size="small"
-                    pagination={false}
-                    // pagination={{
-                    //     total,
-                    //     current: page,
-                    //     pageSize,
-                    //     showSizeChanger: false,
-                    // }}
-                    rowKey="id"
-                    columns={[
-                        {
-                            title: t('时间'),
-                            dataIndex: 'time',
-                            width: 80,
-                            render(value) {
-                                return moment(value).format('HH:mm:ss')
-                            }
-                        },
-                        {
-                            title: t('type'),
-                            dataIndex: 'type',
-                            // width: 240,
-                        },
-                        {
-                            title: t('content'),
-                            dataIndex: 'content',
-                            // width: 240,
-                        },
-                        // {
-                        //     title: '',
-                        //     dataIndex: '_empty',
-                        // },
-                    ]}
-                    onChange={({ current }) => {
-                        // setPage(current)
-                    }}
-                />
+                <Space direction="vertical">
+
+                    <div className={styles.sectionTitle}>{t('log')}</div>
+                    <div>
+                        <Button
+                            danger
+                            size="small"
+                            onClick={() => {
+                                clear()
+                            }}
+                        >
+                            {t('clear')}
+                        </Button>
+                    </div>
+                    <Table
+                        loading={loading}
+                        dataSource={logs}
+                        bordered
+                        size="small"
+                        pagination={false}
+                        // pagination={{
+                        //     total,
+                        //     current: page,
+                        //     pageSize,
+                        //     showSizeChanger: false,
+                        // }}
+                        rowKey="id"
+                        columns={[
+                            {
+                                title: t('time'),
+                                dataIndex: 'time',
+                                width: 80,
+                                render(value) {
+                                    return moment(value).format('HH:mm:ss')
+                                }
+                            },
+                            {
+                                title: t('type'),
+                                dataIndex: 'type',
+                                // width: 240,
+                            },
+                            {
+                                title: t('content'),
+                                dataIndex: 'content',
+                                // width: 240,
+                            },
+                            // {
+                            //     title: '',
+                            //     dataIndex: '_empty',
+                            // },
+                        ]}
+                        onChange={({ current }) => {
+                            // setPage(current)
+                        }}
+                    />
+                </Space>
 
             </div>
         </div>

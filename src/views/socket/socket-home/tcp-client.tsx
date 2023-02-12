@@ -216,8 +216,9 @@ export function TcpClient({  }) {
                                     danger
                                     // type="primary"
                                     onClick={exit}
+                                    size="small"
                                 >
-                                    {t('断开连接')}
+                                    {t('disconnect')}
                                 </Button>
                             </div>
                             <div>
@@ -293,7 +294,7 @@ export function TcpClient({  }) {
                     </div>
                 }
             </div>
-            <div>
+            <div className={styles.layoutRight}>
                 <div className={styles.toolBox}>
                     <Button
                         size="small"
@@ -319,7 +320,7 @@ export function TcpClient({  }) {
                     rowKey="id"
                     columns={[
                         {
-                            title: t('时间'),
+                            title: t('time'),
                             dataIndex: 'time',
                             width: 80,
                             render(value) {

@@ -338,8 +338,7 @@ export function WebSocketServer({ }) {
                                     type="primary"
                                     onClick={createWebSockerServer}
                                 >
-                                    {/* {t('connect')} */}
-                                    创建 WebSocket 服务
+                                    {t('create_websocket_server')}
                                 </Button>
                             </div>
                         :
@@ -348,8 +347,7 @@ export function WebSocketServer({ }) {
                                     danger
                                     onClick={closeWebSocketServer}
                                 >
-                                    {/* {t('disconnect')} */}
-                                    关闭 WebSocket 服务
+                                    {t('close_websocket_server')}
                                 </Button>
                             </div>
                         }
@@ -369,7 +367,9 @@ export function WebSocketServer({ }) {
             </div> */}
             <div className={styles.sections}>
                 <div className={classNames(styles.section, styles.sectionLeft)}>
-                    <div className={styles.sectionTitle}>客户端</div>
+                    <div className={styles.sectionTitle}>
+                        {t('client')}
+                    </div>
                     <div className={styles.tableTool}>
                         <Space>
                             <Button
@@ -377,14 +377,18 @@ export function WebSocketServer({ }) {
                                 onClick={() => {
                                     loadClients()
                                 }}
-                            >刷新</Button>
+                            >
+                                {t('refresh')}
+                            </Button>
                             <Button
                                 size="small"
                                 danger
                                 onClick={() => {
                                     closeAllClient()
                                 }}
-                            >全部断开</Button>
+                            >
+                                {t('disconnect_all')}
+                            </Button>
                         </Space>
                     </div>
                     <Table
@@ -480,7 +484,9 @@ export function WebSocketServer({ }) {
                 </div>
                 
                 <div className={classNames(styles.section, styles.sectionRight)}>
-                    <div className={styles.sectionTitle}>消息</div>
+                    <div className={styles.sectionTitle}>
+                        {t('message')}
+                    </div>
                     <div className={styles.tableTool}>
                         <Space>
                             <Button
@@ -605,7 +611,7 @@ export function WebSocketServer({ }) {
                 </div>
                 <div className={classNames(styles.section, styles.sectionCenter)}>
                     {/* <div className={styles.title}>发布</div> */}
-                    <div className={styles.sendText}>发送消息给{sendTarget ? sendTarget : '全部客户端'}</div>
+                    <div className={styles.sendText}>{t('send_message_to')} {sendTarget ? sendTarget : t('all_client')}</div>
                     <Form
                         form={form}
                         // {...layout}
