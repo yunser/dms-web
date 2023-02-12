@@ -741,7 +741,7 @@ export function TcpServer({  }) {
                                                 </div>
                                             : item.subType == 'received' ?
                                                 <div>
-                                                    <div>{item.clientId}:</div>
+                                                    <div>{item.clientId} =></div>
                                                     {/* <pre className={styles.content}>
                                                         {item.content}
                                                     </pre> */}

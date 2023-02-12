@@ -1,4 +1,4 @@
-import { Button, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Radio, Space, Spin, Table, Tabs, Tag, Tree } from 'antd';
+import { Button, Checkbox, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Radio, Select, Space, Spin, Table, Tabs, Tag, Tree } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './tcp-client.module.less';
 import _, { after } from 'lodash';
@@ -17,7 +17,20 @@ import { FullCenterBox } from '@/views/common/full-center-box';
 import moment from 'moment';
 import { getGlobalConfig } from '@/config';
 import { VSplit } from '@/components/v-space';
+import { LeftRightLayout } from '@/components/left-right-layout';
 // import { saveAs } from 'file-saver'
+
+
+function Content({ item }) {
+    return (
+        <div className={styles.contentBox}>
+            {item.contentType == 'hex' &&
+                <Tag className={styles.tag}>Hex</Tag>
+            }
+            <pre className={classNames(styles.content, styles[item.type])}>{item.content}</pre>
+        </div>
+    )
+}
 
 export function TcpClient({  }) {
     // const { defaultJson = '' } = data
@@ -31,12 +44,24 @@ export function TcpClient({  }) {
     const [content, setContent] = useState('')
     const [wsStatus, setWsStatus] = useState('disconnected')
     const [serverConfig, setServerConfig] = useState({})
+    const [sendType, setSendType] = useState('text')
+    const [hexFormat, setHexFormat] = useState(false)
     const comData = useRef({
         connectTime: 0,
         connectionId: '',
         // webSocket: null,
         webSocketId: '',
     })
+
+    async function _setHexFormat(isHex) {
+        let res = await request.post(`${config.host}/socket/tcp/config`, {
+            connectionId: comData.current.connectionId,
+            hex: isHex,
+        })
+        if (res.success) {
+            message.success(t('success'))
+        }
+    }
 
     function initWebSocket(callback) {
         let first = true
@@ -116,6 +141,7 @@ export function TcpClient({  }) {
                         {
                             id: data.id,
                             content: data.content,
+                            contentType: data.contentType,
                             // message: msg.message,
                             time: data.time,
                             type: data.type,
@@ -127,6 +153,7 @@ export function TcpClient({  }) {
             else if (msg.type == 'connected') {
                 const { data } = msg
                 setConnected(true)
+                setHexFormat(false)
                 setServerConfig({
                     host: data.host,
                     port: data.port,
@@ -187,7 +214,7 @@ export function TcpClient({  }) {
             message.success(t('success'))
             const { connectionId } = res.data
             console.log('connectionId', connectionId)
-            // comData.current.connectionId = res.data.connectionId
+            comData.current.connectionId = connectionId
             // comData.current.webSocket = ws
             // const ws = comData.current.webSocket
             // ws.send(JSON.stringify({
@@ -208,17 +235,23 @@ export function TcpClient({  }) {
 
     async function _send(content: string) {
         let res = await request.post(`${config.host}/socket/tcp/send`, {
+            connectionId: comData.current.connectionId,
             content,
+            contentType: sendType,
         })
         if (res.success) {
-            // onSuccess && onSuccess()
             message.success(t('success'))
-            // setContent('')
         }
     }
 
     async function ping() {
-        _send(('ping'))
+        let res = await request.post(`${config.host}/socket/tcp/send`, {
+            connectionId: comData.current.connectionId,
+            content: 'ping',
+        })
+        if (res.success) {
+            message.success(t('success'))
+        }
     }
 
     async function send() {
@@ -232,7 +265,11 @@ export function TcpClient({  }) {
     async function disconnect() {
         let res = await request.post(`${config.host}/socket/tcp/close`, {
             content,
+            connectionId: comData.current.connectionId,
         })
+        if (res.success) {
+            // message.success(t('success'))
+        }
     }
 
     return (
@@ -268,6 +305,15 @@ export function TcpClient({  }) {
                                 >
                                     {t('disconnect')}
                                 </Button>
+                                <Checkbox
+                                    checked={hexFormat}
+                                    onChange={e => {
+                                        setHexFormat(e.target.checked)
+                                        _setHexFormat(e.target.checked)
+                                    }}
+                                >
+                                    {t('hex')}
+                                </Checkbox>
                             </Space>
                             <VSplit size={32} />
                             <div>
@@ -280,7 +326,7 @@ export function TcpClient({  }) {
                                 />
                             </div>
                             <VSplit size={8} />
-                            <Space>
+                            <LeftRightLayout>
                                 <Button
                                     // loading={connecting}
                                     type="primary"
@@ -289,15 +335,35 @@ export function TcpClient({  }) {
                                 >
                                     {t('send')}
                                 </Button>
-                                <Button
-                                    // loading={connecting}
-                                    // type="primary"
-                                    size="small"
-                                    onClick={ping}
-                                >
-                                    {t('ping')}
-                                </Button>
-                            </Space>
+                                <Space>
+                                    <Button
+                                        // loading={connecting}
+                                        // type="primary"
+                                        size="small"
+                                        onClick={ping}
+                                    >
+                                        {t('ping')}
+                                    </Button>
+                                    <Select
+                                        size="small"
+                                        className={styles.sendType}
+                                        value={sendType}
+                                        onChange={value => {
+                                            setSendType(value)
+                                        }}
+                                        options={[
+                                            {
+                                                label: t('text'),
+                                                value: 'text',
+                                            },
+                                            {
+                                                label: t('hex'),
+                                                value: 'hex',
+                                            },
+                                        ]}
+                                    />
+                                </Space>
+                            </LeftRightLayout>
                         </div>
     
                     </div>
@@ -400,7 +466,8 @@ export function TcpClient({  }) {
                                 return (
                                     <div>
                                         {(item.type == 'sent' || item.type == 'message') ?
-                                            <pre className={classNames(styles.content, styles[item.type])}>{value}</pre>
+                                            <Content item={item} />
+                                            // <pre className={classNames(styles.content, styles[item.type])}>{value}</pre>
                                         :
                                             <div>{value}</div>
                                         }

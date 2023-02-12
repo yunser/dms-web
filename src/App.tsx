@@ -138,7 +138,7 @@ function Lab() {
 function WebSocketPage() {
     const { t } = useTranslation()
 
-    useTitle(t('websocket'))
+    useTitle(t('websocket_client'))
 
     return (
         <WebSocketHome
@@ -150,7 +150,7 @@ function WebSocketPage() {
 function WebSocketServerPage() {
     const { t } = useTranslation()
 
-    useTitle(t('websocket'))
+    useTitle(t('websocket_server'))
 
     return (
         <WebSocketServer
@@ -210,7 +210,7 @@ export default function App() {
                     <Route path="/logger" element={<FullApp><LoggerDetail /></FullApp>} />
                     <Route path="/lab" element={<FullApp><Lab /></FullApp>} />
                     <Route path="/alasql" element={<FullApp><AlasqlHome /></FullApp>} />
-                    <Route path="/websocket" element={<FullApp><WebSocketPage /></FullApp>} />
+                    <Route path="/websocket/client" element={<FullApp><WebSocketPage /></FullApp>} />
                     <Route path="/websocket/server" element={<FullApp><WebSocketServerPage /></FullApp>} />
                     <Route path="/tcp/client" element={<FullApp><TcpClientPage /></FullApp>} />
                     <Route path="/tcp/server" element={<FullApp><TcpServerPage /></FullApp>} />

@@ -20,7 +20,7 @@ export function WebSocketServer({ }) {
     const config = getGlobalConfig()
     
     const WsStatusLabelMap = {
-        'notConnected': t('disconnected'),
+        'disconnected': t('disconnected'),
         'error': t('connect_error'),
         'connected': t('connected'),
     }
@@ -34,6 +34,7 @@ export function WebSocketServer({ }) {
     })
 
     const [url, setUrl] = useState('ws://127.0.0.1:10087/')
+    const [host, setHost] = useState('0.0.0.0')
     const [port, setPort] = useState(9001)
     const [form] = Form.useForm()
     const [form2] = Form.useForm()
@@ -324,9 +325,19 @@ export function WebSocketServer({ }) {
                         <div>{wsAction}</div>
                     </Space>
                     <div className={styles.searchBox}>
+                        <Input
+                            className={styles.host}
+                            size="small"
+                            value={host}
+                            disabled={wsStatus == 'connected'}
+                            onChange={e => {
+                                setHost(e.target.value)
+                            }}
+                        />
                         <InputNumber
-                            className={styles.input}
+                            className={styles.port}
                             value={port}
+                            size="small"
                             disabled={wsStatus == 'connected'}
                             onChange={value => {    
                                 setPort(value)
@@ -335,6 +346,7 @@ export function WebSocketServer({ }) {
                         {wsStatus != 'connected' ?
                             <div>
                                 <Button
+                                    size="small"
                                     type="primary"
                                     onClick={createWebSockerServer}
                                 >
@@ -345,6 +357,7 @@ export function WebSocketServer({ }) {
                             <div>
                                 <Button
                                     danger
+                                    size="small"
                                     onClick={closeWebSocketServer}
                                 >
                                     {t('close_websocket_server')}
@@ -485,7 +498,7 @@ export function WebSocketServer({ }) {
                 
                 <div className={classNames(styles.section, styles.sectionRight)}>
                     <div className={styles.sectionTitle}>
-                        {t('message')}
+                        {t('log')}
                     </div>
                     <div className={styles.tableTool}>
                         <Space>

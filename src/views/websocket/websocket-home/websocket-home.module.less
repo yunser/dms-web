@@ -1,10 +1,20 @@
 .mqttBox {
-    padding: 16px;
+    height: 100%;
+    // border: 1px solid #000;
+    display: flex;
+    flex-direction: column;
+    & > .header {
+        padding: 16px;
+        border: 1px solid var(--border-color);
+    }
 }
 .sections {
+    flex: 1 0 auto;
+    height: 0;
     display: flex;
     flex-direction: row;
     // align-items: center;
+    border-top: 1px solid var(--border-color);
     gap: 8px;
     .section {
         flex: 1 0 auto;
@@ -21,9 +31,11 @@
     }
     .sectionLeft {
         padding-left: 0;
+        padding: 16px;
     }
     .sectionRight {
         padding-right: 0;
+        padding: 16px;
     }
     .help {
         margin-top: 16px;
@@ -56,6 +68,8 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+    padding: 0 16px;
+    // border: 1px solid #000;
 }
 .toolBox {
     margin-bottom: 16px;

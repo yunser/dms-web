@@ -31,6 +31,7 @@ export function WebSocketHome({ }) {
     const [url, setUrl] = useState('ws://127.0.0.1:9001/')
     const [form] = Form.useForm()
     const [form2] = Form.useForm()
+    const [connecting, setConnecting] = useState(false)
     const [autoConnect, setAutoConnect] = useState(false)
     const [modalVisible, setModalVisible] = useState(false)
     const [list, setList] = useState([])
@@ -76,9 +77,10 @@ export function WebSocketHome({ }) {
         const ws = new WebSocket(url)
         console.log('initWebSocket')
         console.log('readyState', ws.readyState)
-        
+        setConnecting(true)
         ws.onclose = async (e) => {
             console.log('socket/on-close', e)
+            setConnecting(false)
             console.log('websocket 断开: ' + e.code + ' ' + e.reason + ' ' + e.wasClean)
             setWsStatus('notConnected')
             console.log('readyState', ws.readyState)
@@ -121,6 +123,7 @@ export function WebSocketHome({ }) {
             comData.current.socket = ws
             console.log('onopen', )
             setWsStatus('connected')
+            setConnecting(false)
             setWsAction('')
             console.log('readyState', ws.readyState)
 
@@ -221,7 +224,7 @@ export function WebSocketHome({ }) {
             {/* <div className={styles.welcome}>
                 {t('welcome')}
             </div> */}
-            <div>
+            <div className={styles.header}>
                 <div className={styles.searchBox}>
                     <Input
                         className={styles.input}
@@ -234,6 +237,7 @@ export function WebSocketHome({ }) {
                         <div>
                             <Button
                                 type="primary"
+                                loading={connecting}
                                 onClick={connect}>{t('connect')}</Button>
                         </div>
                     :

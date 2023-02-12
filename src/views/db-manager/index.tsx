@@ -446,7 +446,7 @@ export function DbManager({ config }) {
             window.open('/tcp/server', '_blank')
         }
         else if (key == 'websocket') {
-            window.open('/websocket', '_blank')
+            window.open('/websocket/client', '_blank')
         }
         else if (key == 'websocket-server') {
             window.open('/websocket/server', '_blank')
@@ -732,7 +732,7 @@ export function DbManager({ config }) {
             key: 'mongo',
         },
         {
-            label: t('websocket'),
+            label: t('websocket_client'),
             key: 'websocket',
         },
         {
