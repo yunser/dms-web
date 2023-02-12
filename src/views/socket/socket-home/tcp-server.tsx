@@ -17,6 +17,7 @@ import { FullCenterBox } from '@/views/common/full-center-box';
 import moment from 'moment';
 import { getGlobalConfig } from '@/config';
 import { VSpacer, VSplit } from '@/components/v-space';
+import { LeftRightLayout } from '@/components/left-right-layout';
 // import { saveAs } from 'file-saver'
 
 
@@ -40,6 +41,7 @@ export function TcpServer({  }) {
         webSocketId: '',
     })
     const [clients, setClients] = useState([])
+    const [sendTarget, setSendTarget] = useState('')
 
     async function loadClients() {
         let res = await request.post(`${config.host}/socket/tcp/clients`, {
@@ -348,6 +350,20 @@ export function TcpServer({  }) {
         }
         let res = await request.post(`${config.host}/socket/tcp/serverSend`, {
             content,
+            clientId: sendTarget,
+        })
+        if (res.success) {
+            // onSuccess && onSuccess()
+            message.success(t('success'))
+            // setContent('')
+            // setConnected(true)
+        }
+    }
+
+    async function pingClient(item) {
+        let res = await request.post(`${config.host}/socket/tcp/serverSend`, {
+            content: 'ping',
+            clientId: item.id,
         })
         if (res.success) {
             // onSuccess && onSuccess()
@@ -480,14 +496,29 @@ export function TcpServer({  }) {
                                             render(_value, item) {
                                                 return (
                                                     <Space>
-                                                        {/* <Button
+                                                        <Button
+                                                            size="small"
+                                                            type={item.id == sendTarget ? 'primary' : 'default'}
+                                                            onClick={() => {
+                                                                if (item.id == sendTarget) {
+                                                                    setSendTarget('')
+                                                                }
+                                                                else {
+                                                                    setSendTarget(item.id)
+                                                                }
+                                                            }}
+                                                        >
+                                                            {/* 发送消息 */}
+                                                            {t('send')}
+                                                        </Button>
+                                                        <Button
                                                             size="small"
                                                             onClick={() => {
-                                                                // pingClient(item)
+                                                                pingClient(item)
                                                             }}
                                                         >
                                                             {t('ping')}
-                                                        </Button> */}
+                                                        </Button>
                                                         <Button
                                                             size="small"
                                                             danger
@@ -518,7 +549,7 @@ export function TcpServer({  }) {
                                         }}
                                     />
                                     <VSplit size={8} />
-                                    <div>
+                                    <LeftRightLayout>
                                         <Button
                                             // loading={connecting}
                                             type="primary"
@@ -527,7 +558,8 @@ export function TcpServer({  }) {
                                         >
                                             {t('send')}
                                         </Button>
-                                    </div>
+                                        <div className={styles.sendText}>{t('send_message_to')} {sendTarget ? sendTarget : t('all_client')}</div>
+                                    </LeftRightLayout>
                                 </div>
         
                                 {/* <Button
