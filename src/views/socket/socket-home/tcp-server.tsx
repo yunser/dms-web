@@ -710,13 +710,12 @@ export function TcpServer({  }) {
                         dataSource={logs}
                         bordered
                         size="small"
-                        pagination={false}
-                        // pagination={{
-                        //     total,
-                        //     current: page,
-                        //     pageSize,
-                        //     showSizeChanger: false,
-                        // }}
+                        pagination={{
+                            // total,
+                            // current: page,
+                            pageSize: 40,
+                            // showSizeChanger: false,
+                        }}
                         rowKey="id"
                         columns={[
                             {

@@ -254,6 +254,14 @@ export function TcpClient({  }) {
         }
     }
 
+    async function closeAllClient() {
+        let res = await request.post(`${config.host}/socket/tcp/closeAllClient`, {
+        })
+        if (res.success) {
+            message.success(t('success'))
+        }
+    }
+
     async function send() {
         if (!content) {
             message.error('no content')
@@ -419,6 +427,16 @@ export function TcpClient({  }) {
                 }
             </div>
             <div className={styles.layoutRight}>
+                <div className={styles.rightTopToolBox}>
+                    <Button
+                        size="small"
+                        onClick={() => {
+                            closeAllClient()
+                        }}
+                    >
+                        {t('close_all_tcp_client')}
+                    </Button>
+                </div>
                 <div className={styles.toolBox}>
                     <Button
                         size="small"
