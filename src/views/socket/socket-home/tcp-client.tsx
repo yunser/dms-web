@@ -16,6 +16,7 @@ import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/common/full-center-box';
 import moment from 'moment';
 import { getGlobalConfig } from '@/config';
+import { VSplit } from '@/components/v-space';
 // import { saveAs } from 'file-saver'
 
 export function TcpClient({  }) {
@@ -123,6 +124,36 @@ export function TcpClient({  }) {
                     ]
                 })
             }
+            else if (msg.type == 'connected') {
+                const { data } = msg
+                setLogs(logs => {
+                    return [
+                        {
+                            id: data.id,
+                            // message: msg.message,
+                            time: data.time,
+                            type: data.type,
+                            content: t('tcp_connected') +  ` ${data.host}:${data.port}`,
+                        },
+                        ...logs,
+                    ]
+                })
+            }
+            else if (msg.type == 'disconnected') {
+                const { data } = msg
+                setLogs(logs => {
+                    return [
+                        {
+                            id: data.id,
+                            // message: msg.message,
+                            time: data.time,
+                            type: data.type,
+                            content: t('tcp_disconnected'),
+                        },
+                        ...logs,
+                    ]
+                })
+            }
             else if (msg.type == 'websocketId') {
                 const { webSocketId } = msg.data
                 comData.current.webSocketId = webSocketId
@@ -209,7 +240,10 @@ export function TcpClient({  }) {
                 </div>
                 {connected ?
                     <div>
-                        <Space direction="vertical">
+                        <div>
+                            {/* <div>
+                                {wsStatus}
+                            </div> */}
                             <div>
                                 <Button
                                     // loading={connecting}
@@ -221,26 +255,26 @@ export function TcpClient({  }) {
                                     {t('disconnect')}
                                 </Button>
                             </div>
+                            <VSplit size={32} />
                             <div>
                                 <Input.TextArea
                                     value={content}
+                                    rows={8}
                                     onChange={e => {
                                         setContent(e.target.value)
                                     }}
                                 />
                             </div>
-    
+                            <VSplit size={8} />
                             <Button
                                 // loading={connecting}
                                 type="primary"
+                                size="small"
                                 onClick={send}
                             >
                                 {t('send')}
                             </Button>
-                            <div>
-                                {wsStatus}
-                            </div>
-                        </Space>
+                        </div>
     
                     </div>
                 :
@@ -298,25 +332,27 @@ export function TcpClient({  }) {
                 <div className={styles.toolBox}>
                     <Button
                         size="small"
+                        danger
                         onClick={() => {
                             setLogs([])
                         }}
                     >
-                        clear
+                        {t('clear')}
                     </Button>
                 </div>
                 <Table
+                    className={styles.logTable}
                     loading={loading}
                     dataSource={logs}
                     bordered
                     size="small"
-                    pagination={false}
-                    // pagination={{
-                    //     total,
-                    //     current: page,
-                    //     pageSize,
-                    //     showSizeChanger: false,
-                    // }}
+                    // pagination={false}
+                    pagination={{
+                        // total,
+                        // current: page,
+                        pageSize: 20,
+                        // showSizeChanger: false,
+                    }}
                     rowKey="id"
                     columns={[
                         {
@@ -330,7 +366,7 @@ export function TcpClient({  }) {
                         {
                             title: t('type'),
                             dataIndex: 'type',
-                            // width: 240,
+                            width: 120,
                         },
                         {
                             title: t('content'),

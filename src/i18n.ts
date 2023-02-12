@@ -444,6 +444,8 @@ i18n
                     'client_disconnected': 'Client {client} disconnected',
                     'client_received': 'Client {client}: ',
                     'send_to_client': 'Sent to Client {client}:',
+                    'tcp_connected': 'Connected',
+                    'tcp_disconnected': 'Disconnected',
                 }
             },
             zh: {
@@ -880,6 +882,8 @@ i18n
                     'client_disconnected': '客户端 {client} 断开链接',
                     'client_received': '客户端 {client} 发来信息:',
                     'send_to_client': '发给给客户端 {client}:',
+                    'tcp_connected': '已连接',
+                    'tcp_disconnected': '连接断开',
                 }
             }
         },

@@ -182,9 +182,12 @@ export function TcpServer({  }) {
                     return [
                         {
                             id: data.id,
-                            content: t('client_received').replace('{client}', data.clientId) + data.content,
+                            // content: t('client_received').replace('{client}', data.clientId) + data.content,
                             time: data.time,
                             type: data.type,
+                            subType: 'received',
+                            clientId: data.clientId,
+                            content: data.content,
                         },
                         ...logs,
                     ]
@@ -197,15 +200,36 @@ export function TcpServer({  }) {
                     return [
                         {
                             id: data.id,
-                            content: t('send_to_client').replace('{client}', data.clientId) + ' ' + data.content,
                             time: data.time,
                             type: data.type,
+                            subType: 'sent',
+                            clientId: data.clientId,
+                            content: data.content,
+                            // content: t('send_to_client').replace('{client}', data.clientId) + ' ' + data.content,
                         },
                         ...logs,
                     ]
                 })
                 loadClients()
             }
+            // else if (msg.type == 'message') {
+            //     const { data } = msg
+            //     setLogs(logs => {
+            //         return [
+            //             {
+            //                 id: data.id,
+            //                 content: data.content,
+            //                 // message: msg.message,
+            //                 time: data.time,
+            //                 type: data.type,
+            //                 subType: 'received',
+            //                 clientId: data.clientId,
+            //                 content: data.content,
+            //             },
+            //             ...logs,
+            //         ]
+            //     })
+            // }
             else if (msg.type == 'close') {
                 setConnected(false)
                 const { data } = msg
@@ -221,7 +245,7 @@ export function TcpServer({  }) {
                     ]
                 })
             }
-            else if (msg.type == 'message' || msg.type == 'info' || msg.type == 'sent') {
+            else if (msg.type == 'info' || msg.type == 'sent') {
                 const { data } = msg
                 setLogs(logs => {
                     return [
@@ -395,13 +419,13 @@ export function TcpServer({  }) {
                                     dataSource={clients}
                                     bordered
                                     size="small"
-                                    pagination={false}
-                                    // pagination={{
-                                    //     total,
-                                    //     current: page,
-                                    //     pageSize,
-                                    //     showSizeChanger: false,
-                                    // }}
+                                    // pagination={false}
+                                    pagination={{
+                                        // total,
+                                        // current: page,
+                                        pageSize: 20,
+                                        // showSizeChanger: false,
+                                    }}
                                     rowKey="id"
                                     columns={[
                                         {
@@ -602,6 +626,30 @@ export function TcpServer({  }) {
                                 title: t('content'),
                                 dataIndex: 'content',
                                 // width: 240,
+                                render(value, item) {
+                                    // console.log('item', value, item)
+                                    return (
+                                        <div>
+                                            {item.subType == 'sent' ?
+                                                <div>
+                                                    <div>=> {item.clientId}</div>
+                                                    <pre className={styles.content}>
+                                                        {item.content}
+                                                    </pre>
+                                                </div>
+                                            : item.subType == 'received' ?
+                                                <div>
+                                                    <div>{item.clientId}:</div>
+                                                    <pre className={styles.content}>
+                                                        {item.content}
+                                                    </pre>
+                                                </div>
+                                            :
+                                                <div>{value}</div>
+                                            }
+                                        </div>
+                                    )
+                                }
                             },
                             // {
                             //     title: '',

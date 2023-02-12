@@ -2,7 +2,7 @@
 .tcpServerApp {
     height: 100%;
     display: flex;
-    gap: 16px;
+    // gap: 16px;
     // border: 1px solid #000;
     .layoutLeft {
         padding: 16px;
@@ -11,8 +11,11 @@
         border-right: 1px solid var(--border-color);
     }
     .layoutRight {
-        // flex: ;
+        flex: 1 0 auto;
+        width: 0;
         padding: 16px;
+        // border: 1px solid #000;
+        overflow: auto;
     }
 }
 
@@ -31,4 +34,12 @@
 .form {
     max-width: 320px;
     margin-top: 64px;
+}
+.content {
+    padding: 4px 8px;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    border: 1px solid var(--border-color);
+    margin-bottom: 0;
+    // border: 1px solid #000;
 }
