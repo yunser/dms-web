@@ -50,6 +50,7 @@ import { getGlobalConfig } from './config'
 import { WebSocketServer } from './views/websocket/websocket-server/websocket-server'
 import { TcpServer } from './views/socket/socket-home/tcp-server'
 import { TcpClient } from './views/socket/socket-home/tcp-client'
+import { UdpClient } from './views/socket/socket-home/udp-client'
 
 function GitPage() {
     return (
@@ -170,6 +171,18 @@ function TcpServerPage() {
     )
 }
 
+function UdpClientPage() {
+    const { t } = useTranslation()
+    useTitle(t('udp_client'))
+
+    return (
+        <div className={styles.pageFull}>
+            <UdpClient
+            />
+        </div>
+    )
+}
+
 function TcpClientPage() {
     const { t } = useTranslation()
     useTitle(t('tcp_client'))
@@ -214,6 +227,7 @@ export default function App() {
                     <Route path="/websocket/server" element={<FullApp><WebSocketServerPage /></FullApp>} />
                     <Route path="/tcp/client" element={<FullApp><TcpClientPage /></FullApp>} />
                     <Route path="/tcp/server" element={<FullApp><TcpServerPage /></FullApp>} />
+                    <Route path="/udp/client" element={<FullApp><UdpClientPage /></FullApp>} />
                 </Routes>
             </div>
         </Router>

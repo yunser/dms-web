@@ -1,6 +1,6 @@
 import { Button, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Radio, Space, Spin, Table, Tabs, Tag, Tree } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import styles from './socket-home.module.less';
+import styles from './udp-client.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
 // console.log('lodash', _)
@@ -16,12 +16,13 @@ import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/common/full-center-box';
 import moment from 'moment';
 import { getGlobalConfig } from '@/config';
+import { VSplit } from '@/components/v-space';
 // import { saveAs } from 'file-saver'
 
 
-
-function UdpServer({ config, onClickItem }) {
+export function UdpClient({ onClickItem }) {
     // const { defaultJson = '' } = data
+    const config = getGlobalConfig()
     const { t } = useTranslation()
     const [loading, setLoading] = useState(false)
     const [list, setList] = useState([])
@@ -117,11 +118,24 @@ function UdpServer({ config, onClickItem }) {
         return ws
     }
 
-    async function createServer() {
+    async function ping() {
         const values = await form.validateFields()
         // setConnecting(true)
-        let res = await request.post(`${config.host}/socket/udp/createServer`, {
-            // content,
+        let res = await request.post(`${config.host}/socket/udp/send`, {
+            content: 'ping',
+            host: values.host,
+            port: values.port,
+        })
+        if (res.success) {
+            message.success(t('success'))
+        }
+    }
+
+    async function send2() {
+        const values = await form.validateFields()
+        // setConnecting(true)
+        let res = await request.post(`${config.host}/socket/udp/send`, {
+            content,
             host: values.host,
             port: values.port,
         })
@@ -159,11 +173,8 @@ function UdpServer({ config, onClickItem }) {
     }
 
     return (
-        <div>
-            <div>
-                UDP 服务端（功能不完善，请配合控制台日志使用）
-            </div>
-            <div>
+        <div className={styles.udpClientApp}>
+            <div className={styles.layoutLeft}>
                 {connected ?
                     <div>
                         <Space direction="vertical">
@@ -236,7 +247,7 @@ function UdpServer({ config, onClickItem }) {
                             labelCol={{ span: 8 }}
                             wrapperCol={{ span: 16 }}
                             initialValues={{
-                                host: '0.0.0.0',
+                                host: '127.0.0.1',
                                 port: 2465,
                                 // port: 3306,
                             }}
@@ -259,72 +270,49 @@ function UdpServer({ config, onClickItem }) {
                             >
                                 <InputNumber />
                             </Form.Item>
-                            <Form.Item
+                            {/* <Form.Item
                                 wrapperCol={{ offset: 8, span: 16 }}
                             >
                                 <Space>
                                     <Button
                                         loading={connecting}
                                         type="primary"
-                                        onClick={createServer}
+                                        onClick={connect}
                                     >
-                                        {t('createServer')}
+                                        {t('connect')}
                                     </Button>
                                 </Space>
-                            </Form.Item>
+                            </Form.Item> */}
                         </Form>
-                        {/* <Input.TextArea
+                        <Input.TextArea
                             value={content}
                             placeholder="发送内容"
                             onChange={e => {
                                 setContent(e.target.value)
                             }}
                         />
+                        <VSplit size={16} />
                         <div>
-                            <Button
-                                loading={connecting}
-                                type="primary"
-                                onClick={send2}
-                            >
-                                {t('connect')}
-                            </Button>
-                        </div> */}
+                            <Space>
+                                <Button
+                                    loading={connecting}
+                                    type="primary"
+                                    onClick={send2}
+                                >
+                                    {t('send')}
+                                </Button>
+                                <Button
+                                    onClick={() => {
+                                        ping()
+                                    }}
+                                >
+                                    {t('ping')}
+                                </Button>
+                            </Space>
+                        </div>
                     </div>
                 }
             </div>
         </div>
     )
 }
-
-export function SocketHome({ config, onClickItem }) {
-    // const { defaultJson = '' } = data
-
-    const [socketType, setSocketType] = useState('udp_server')
-
-
-    return (
-        <div className={styles.socketApp}>
-            <div>
-                <Radio.Group 
-                    value={socketType} 
-                    onChange={(e) => {
-                        setSocketType(e.target.value)
-                    }}
-                >
-                    {/* <Radio.Button value="tcp_server">TCP 服务端</Radio.Button> */}
-                    <Radio.Button value="udp">UDP</Radio.Button>
-                    <Radio.Button value="udp_server">UDP 服务端</Radio.Button>
-                </Radio.Group>
-            </div>
-            {socketType == 'udp_server' &&
-                <div>
-                    <UdpServer
-                        config={config}
-                    />
-                    
-                </div>
-            }
-        </div>
-    )
-}
-
