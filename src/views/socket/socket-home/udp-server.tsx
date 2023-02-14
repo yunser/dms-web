@@ -191,27 +191,11 @@ export function UdpServer({ onClickItem }) {
         if (res.success) {
             // onSuccess && onSuccess()
             message.success(t('success'))
-            // comData.current.connectionId = res.data.connectionId
+            comData.current.connectionId = res.data.connectionId
             // setConnected(true)
             // initWebSocket()
         }
         // setConnecting(false)
-    }
-
-    async function send() {
-        if (!content) {
-            message.error('no content')
-            return
-        }
-        let res = await request.post(`${config.host}/socket/send`, {
-            content,
-        })
-        if (res.success) {
-            // onSuccess && onSuccess()
-            message.success(t('success'))
-            setContent('')
-            // setConnected(true)
-        }
     }
 
     async function closeAllServer() {
@@ -231,14 +215,14 @@ export function UdpServer({ onClickItem }) {
     async function exit() {
         setConnected(false)
         let res = await request.post(`${config.host}/socket/udp/closeServer`, {
-            content,
+            connectionId: comData.current.connectionId
         })
     }
 
     return (
         <div className={styles.udpServerApp}>
             <div className={styles.layoutLeft}>
-                <div>
+                <div className={styles.sectionTitle}>
                     {t('udp_server')}
                 </div>
                 <div>
@@ -363,7 +347,7 @@ export function UdpServer({ onClickItem }) {
                     </Button>
                 </div>
 
-                <div>{t('log')}</div>
+                <div className={styles.sectionTitle}>{t('log')}</div>
 
                 <VSplit size={16} />
                 

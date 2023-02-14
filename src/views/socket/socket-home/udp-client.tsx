@@ -176,6 +176,7 @@ export function UdpClient({ onClickItem }) {
     return (
         <div className={styles.udpClientApp}>
             <div className={styles.layoutLeft}>
+                <div className={styles.sectionTitle}>{t('udp_client')}</div>
                 <div>
                     {wsStatus != 'connected' &&
                         <div>WebSocket 已断开，请刷新页面后使用
@@ -295,6 +296,7 @@ export function UdpClient({ onClickItem }) {
                 }
             </div>
             <div className={styles.layoutRight}>
+                <div className={styles.sectionTitle}>{t('log')}</div>
                 <Table
                     loading={loading}
                     dataSource={list}
