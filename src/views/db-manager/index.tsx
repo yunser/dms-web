@@ -448,6 +448,9 @@ export function DbManager({ config }) {
         else if (key == 'udp_client') {
             window.open('/udp/client', '_blank')
         }
+        else if (key == 'udp_server') {
+            window.open('/udp/server', '_blank')
+        }
         else if (key == 'websocket') {
             window.open('/websocket/client', '_blank')
         }
@@ -762,13 +765,17 @@ export function DbManager({ config }) {
             label: t('tcp_server'),
             key: 'tcp_server',
         },
-        {
-            label: t('udp'),
-            key: 'tcp/udp',
-        },
+        // {
+        //     label: t('udp'),
+        //     key: 'tcp/udp',
+        // },
         {
             label: t('udp_client'),
             key: 'udp_client',
+        },
+        {
+            label: t('udp_server'),
+            key: 'udp_server',
         },
         {
             label: t('alasql'),
