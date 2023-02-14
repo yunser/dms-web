@@ -70,11 +70,15 @@ export function UdpClient({ onClickItem }) {
             console.log('readyState', ws.readyState)
 
             ws.send(JSON.stringify({
-                type: 'tcpSubscribe',
-                data: {
-                    connectionId: comData.current.connectionId,
-                },
+                type: 'getWebSocketId',
+                data: {},
             }))
+            // ws.send(JSON.stringify({
+            //     type: 'tcpSubscribe',
+            //     data: {
+            //         connectionId: comData.current.connectionId,
+            //     },
+            // }))
             console.log('sended')
         }
         ws.onerror = (err) => {
@@ -101,19 +105,26 @@ export function UdpClient({ onClickItem }) {
                 return
             }
             
-            setList(list => {
-                console.log('list.length', list.length)
-                setList([
-                    {
-                        id: msg.id,
-                        content: msg.content,
-                        // message: msg.message,
-                        time: msg.time,
-                    },
-                    ...list,
-                ])
-                return []
-            })
+            if (msg.type == 'websocketId') {
+                const { webSocketId } = msg.data
+                comData.current.webSocketId = webSocketId
+            }
+            else if (msg.type == 'sent') {
+                setList(list => {
+                    console.log('list.length', list.length)
+                    const { content } = msg.data
+                    setList([
+                        {
+                            id: msg.id,
+                            content,
+                            // message: msg.message,
+                            time: msg.time,
+                        },
+                        ...list,
+                    ])
+                    return []
+                })
+            }
         }
         return ws
     }
@@ -125,6 +136,7 @@ export function UdpClient({ onClickItem }) {
             content: 'ping',
             host: values.host,
             port: values.port,
+            webSocketId: comData.current.webSocketId,
         })
         if (res.success) {
             message.success(t('success'))
@@ -138,6 +150,7 @@ export function UdpClient({ onClickItem }) {
             content,
             host: values.host,
             port: values.port,
+            webSocketId: comData.current.webSocketId,
         })
         if (res.success) {
             // onSuccess && onSuccess()
@@ -149,22 +162,6 @@ export function UdpClient({ onClickItem }) {
         // setConnecting(false)
     }
 
-    async function send() {
-        if (!content) {
-            message.error('no content')
-            return
-        }
-        let res = await request.post(`${config.host}/socket/send`, {
-            content,
-        })
-        if (res.success) {
-            // onSuccess && onSuccess()
-            message.success(t('success'))
-            setContent('')
-            // setConnected(true)
-        }
-    }
-
     async function exit() {
         setConnected(false)
         let res = await request.post(`${config.host}/socket/close`, {
@@ -172,9 +169,25 @@ export function UdpClient({ onClickItem }) {
         })
     }
 
+    useEffect(() => {
+        initWebSocket()
+    }, [])
+
     return (
         <div className={styles.udpClientApp}>
             <div className={styles.layoutLeft}>
+                <div>
+                    {wsStatus != 'connected' &&
+                        <div>WebSocket 已断开，请刷新页面后使用
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    window.location.reload()
+                                }}
+                            >刷新页面</Button>
+                        </div>
+                    }
+                </div>
                 {connected ?
                     <div>
                         <Space direction="vertical">
@@ -198,45 +211,10 @@ export function UdpClient({ onClickItem }) {
                             >
                                 {t('send')}
                             </Button>
-                            <div>
+                            {/* <div>
                                 {wsStatus}
-                            </div>
-                            <Table
-                                loading={loading}
-                                dataSource={list}
-                                bordered
-                                size="small"
-                                pagination={false}
-                                // pagination={{
-                                //     total,
-                                //     current: page,
-                                //     pageSize,
-                                //     showSizeChanger: false,
-                                // }}
-                                rowKey="id"
-                                columns={[
-                                    {
-                                        title: t('时间'),
-                                        dataIndex: 'time',
-                                        width: 80,
-                                        render(value) {
-                                            return moment(value).format('HH:mm:ss')
-                                        }
-                                    },
-                                    {
-                                        title: t('content'),
-                                        dataIndex: 'content',
-                                        // width: 240,
-                                    },
-                                    // {
-                                    //     title: '',
-                                    //     dataIndex: '_empty',
-                                    // },
-                                ]}
-                                onChange={({ current }) => {
-                                    // setPage(current)
-                                }}
-                            />
+                            </div> */}
+                            
                         </Space>
     
                     </div>
@@ -284,13 +262,16 @@ export function UdpClient({ onClickItem }) {
                                 </Space>
                             </Form.Item> */}
                         </Form>
-                        <Input.TextArea
-                            value={content}
-                            placeholder="发送内容"
-                            onChange={e => {
-                                setContent(e.target.value)
-                            }}
-                        />
+                        <div className={styles.textarea}>
+                            <Input.TextArea
+                                value={content}
+                                placeholder="发送内容"
+                                rows={8}
+                                onChange={e => {
+                                    setContent(e.target.value)
+                                }}
+                            />
+                        </div>
                         <VSplit size={16} />
                         <div>
                             <Space>
@@ -312,6 +293,44 @@ export function UdpClient({ onClickItem }) {
                         </div>
                     </div>
                 }
+            </div>
+            <div className={styles.layoutRight}>
+                <Table
+                    loading={loading}
+                    dataSource={list}
+                    bordered
+                    size="small"
+                    pagination={false}
+                    // pagination={{
+                    //     total,
+                    //     current: page,
+                    //     pageSize,
+                    //     showSizeChanger: false,
+                    // }}
+                    rowKey="id"
+                    columns={[
+                        {
+                            title: t('time'),
+                            dataIndex: 'time',
+                            width: 80,
+                            render(value) {
+                                return moment(value).format('HH:mm:ss')
+                            }
+                        },
+                        {
+                            title: t('content'),
+                            dataIndex: 'content',
+                            // width: 240,
+                        },
+                        // {
+                        //     title: '',
+                        //     dataIndex: '_empty',
+                        // },
+                    ]}
+                    onChange={({ current }) => {
+                        // setPage(current)
+                    }}
+                />
             </div>
         </div>
     )
