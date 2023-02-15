@@ -445,6 +445,9 @@ export function DbManager({ config }) {
         else if (key == 'tcp_server') {
             window.open('/tcp/server', '_blank')
         }
+        else if (key == 'http_server') {
+            window.open('/http/server', '_blank')
+        }
         else if (key == 'udp_client') {
             window.open('/udp/client', '_blank')
         }
@@ -764,6 +767,10 @@ export function DbManager({ config }) {
         {
             label: t('tcp_server'),
             key: 'tcp_server',
+        },
+        {
+            label: t('http_server'),
+            key: 'http_server',
         },
         // {
         //     label: t('udp'),

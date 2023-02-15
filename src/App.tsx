@@ -52,6 +52,7 @@ import { TcpServer } from './views/socket/socket-home/tcp-server'
 import { TcpClient } from './views/socket/socket-home/tcp-client'
 import { UdpClient } from './views/socket/socket-home/udp-client'
 import { UdpServer } from './views/socket/socket-home/udp-server'
+import { HttpServer } from './views/socket/socket-home/http-server'
 
 function GitPage() {
     return (
@@ -196,6 +197,19 @@ function UdpServerPage() {
     )
 }
 
+function HttpServerPage() {
+    const { t } = useTranslation()
+    useTitle(t('http_server'))
+
+    return (
+        <div className={styles.pageFull}>
+            <HttpServer
+            />
+        </div>
+    )
+}
+
+
 function TcpClientPage() {
     const { t } = useTranslation()
     useTitle(t('tcp_client'))
@@ -242,6 +256,7 @@ export default function App() {
                     <Route path="/tcp/server" element={<FullApp><TcpServerPage /></FullApp>} />
                     <Route path="/udp/client" element={<FullApp><UdpClientPage /></FullApp>} />
                     <Route path="/udp/server" element={<FullApp><UdpServerPage /></FullApp>} />
+                    <Route path="/http/server" element={<FullApp><HttpServerPage /></FullApp>} />
                 </Routes>
             </div>
         </Router>
