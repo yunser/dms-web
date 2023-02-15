@@ -1440,7 +1440,18 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
                                 </div>
                             )
                         }}
-                        items={tabInfo.items}
+                        items={tabInfo.items.map(item => {
+                            return {
+                                ...item,
+                                label: (
+                                    <div className={styles.tabLabel}>
+                                        <Tooltip title={item.label}>
+                                            {item.label}
+                                        </Tooltip>
+                                    </div>
+                                )
+                            }
+                        })}
                     />
                 </div>
                 <div className={styles.layoutRightBody}>
