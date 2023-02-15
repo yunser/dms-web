@@ -27,7 +27,7 @@ function Content({ item, showInfo = false }) {
             }
             <pre className={styles.content}>{item.content}</pre>
             {showInfo &&
-                <div className={styles.info}>@{item.host}:{item.port}</div>
+                <div className={styles.info}>{item.type == 'received' ? '@' : 'to:'}{item.host}:{item.port}</div>
             }
         </div>
     )
@@ -210,6 +210,25 @@ export function UdpServer({ onClickItem }) {
                             content,
                             time: msg.time,
                             type: 'received',
+                            host,
+                            port,
+                        },
+                        ...list,
+                    ])
+                    return []
+                })
+            }
+            else if (msg.type == 'sent') {
+                setConnected(true)
+                const { host, port, content } = msg.data
+                setLogs(list => {
+                    // console.log('list.length', list.length)
+                    setLogs([
+                        {
+                            id: msg.id,
+                            content,
+                            time: msg.time,
+                            type: 'sent',
                             host,
                             port,
                         },
@@ -501,7 +520,7 @@ export function UdpServer({ onClickItem }) {
                             render(value, item) {
                                 return (
                                     <div>
-                                        {item.type == 'received' ?
+                                        {(item.type == 'received' || item.type == 'sent') ?
                                             <Content item={item} showInfo />
                                         :
                                             <div>{value}</div>
