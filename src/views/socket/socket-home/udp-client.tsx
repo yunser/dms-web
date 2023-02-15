@@ -26,10 +26,10 @@ export function UdpClient({ onClickItem }) {
     const { t } = useTranslation()
     const [loading, setLoading] = useState(false)
     const [list, setList] = useState([])
-    const [form] = Form.useForm()
+    const [targetForm] = Form.useForm()
+    const [content, setContent] = useState('')
     const [connecting, setConnecting] = useState(false)
     const [connected, setConnected] = useState(false)
-    const [content, setContent] = useState('')
     const [wsStatus, setWsStatus] = useState('disconnected')
     const comData = useRef({
         connectTime: 0,
@@ -130,7 +130,7 @@ export function UdpClient({ onClickItem }) {
     }
 
     async function ping() {
-        const values = await form.validateFields()
+        const values = await targetForm.validateFields()
         // setConnecting(true)
         let res = await request.post(`${config.host}/socket/udp/send`, {
             content: 'ping',
@@ -143,8 +143,8 @@ export function UdpClient({ onClickItem }) {
         }
     }
 
-    async function send2() {
-        const values = await form.validateFields()
+    async function sendTo() {
+        const values = await targetForm.validateFields()
         // setConnecting(true)
         let res = await request.post(`${config.host}/socket/udp/send`, {
             content,
@@ -222,7 +222,7 @@ export function UdpClient({ onClickItem }) {
                 :
                     <div className={styles.form}>
                         <Form
-                            form={form}
+                            form={targetForm}
                             labelCol={{ span: 8 }}
                             wrapperCol={{ span: 16 }}
                             initialValues={{
@@ -279,7 +279,7 @@ export function UdpClient({ onClickItem }) {
                                 <Button
                                     loading={connecting}
                                     type="primary"
-                                    onClick={send2}
+                                    onClick={sendTo}
                                 >
                                     {t('send')}
                                 </Button>

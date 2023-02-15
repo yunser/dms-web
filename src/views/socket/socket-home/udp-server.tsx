@@ -39,7 +39,8 @@ export function UdpServer({ onClickItem }) {
     const { t } = useTranslation()
     const [loading, setLoading] = useState(false)
     const [logs, setLogs] = useState([])
-    const [form] = Form.useForm()
+    const [targetForm] = Form.useForm()
+    const [createForm] = Form.useForm()
     const [connecting, setConnecting] = useState(false)
     const [connected, setConnected] = useState(false)
     const [content, setContent] = useState('')
@@ -54,6 +55,33 @@ export function UdpServer({ onClickItem }) {
     useEffect(() => {
         initWebSocket()
     }, [])
+
+    
+    async function ping() {
+        const values = await targetForm.validateFields()
+        let res = await request.post(`${config.host}/socket/udp/serverSend`, {
+            content: 'ping',
+            host: values.host,
+            port: values.port,
+            connectionId: comData.current.connectionId
+        })
+        if (res.success) {
+            message.success(t('success'))
+        }
+    }
+
+    async function sendTo() {
+        const values = await targetForm.validateFields()
+        let res = await request.post(`${config.host}/socket/udp/serverSend`, {
+            content,
+            host: values.host,
+            port: values.port,
+            connectionId: comData.current.connectionId
+        })
+        if (res.success) {
+            message.success(t('success'))
+        }
+    }
 
     function initWebSocket() {
         let first = true
@@ -195,7 +223,7 @@ export function UdpServer({ onClickItem }) {
     }
 
     async function createServer() {
-        const values = await form.validateFields()
+        const values = await createForm.validateFields()
         // setConnecting(true)
         let res = await request.post(`${config.host}/socket/udp/createServer`, {
             // content,
@@ -237,64 +265,128 @@ export function UdpServer({ onClickItem }) {
     return (
         <div className={styles.udpServerApp}>
             <div className={styles.layoutLeft}>
-                <div className={styles.sectionTitle}>
-                    {t('udp_server')}
-                </div>
-                <div>
-                    {wsStatus != 'connected' &&
-                        <div>WebSocket 已断开，请刷新页面后使用
-                            <Button
-                                size="small"
-                                onClick={() => {
-                                    window.location.reload()
+                <div className={styles.layoutLeftTop}>
+                    <div className={styles.sectionTitle}>
+                        {t('udp_server')}
+                    </div>
+                    <div>
+                        {wsStatus != 'connected' &&
+                            <div>WebSocket 已断开，请刷新页面后使用
+                                <Button
+                                    size="small"
+                                    onClick={() => {
+                                        window.location.reload()
+                                    }}
+                                >刷新页面</Button>
+                            </div>
+                        }
+                    </div>
+                    {connected ?
+                        <div>   
+                            <Space direction="vertical">
+                                <Space>
+                                    <div>
+                                        {t('listening')} {serverConfig.host}:{serverConfig.port}
+                                    </div>
+                                    <Button
+                                        // loading={connecting}
+                                        // type="primary"
+                                        danger
+                                        size="small"
+                                        onClick={exit}
+                                    >
+                                        {t('disconnect')}
+                                    </Button>
+                                </Space>
+                                <div>
+                                    
+                                </div>
+        
+                                {/* <Button
+                                    // loading={connecting}
+                                    type="primary"
+                                    onClick={send}
+                                >
+                                    {t('send')}
+                                </Button> */}
+                                {/* <div>
+                                    {wsStatus}
+                                </div> */}
+                                
+                            </Space>
+        
+                        </div>
+                    :
+                        <div className={styles.form}>
+                            <Form
+                                form={createForm}
+                                labelCol={{ span: 8 }}
+                                wrapperCol={{ span: 16 }}
+                                initialValues={{
+                                    host: '0.0.0.0',
+                                    port: 2465,
+                                    // port: 3306,
                                 }}
-                            >刷新页面</Button>
+                                // layout={{
+                                //     labelCol: { span: 0 },
+                                //     wrapperCol: { span: 24 },
+                                // }}
+                            >
+                                <Form.Item
+                                    name="host"
+                                    label={t('host')}
+                                    rules={[ { required: true, }, ]}
+                                >
+                                    <Input />
+                                </Form.Item>
+                                <Form.Item
+                                    name="port"
+                                    label={t('port')}
+                                    rules={[ { required: true, }, ]}
+                                >
+                                    <InputNumber />
+                                </Form.Item>
+                                <Form.Item
+                                    wrapperCol={{ offset: 8, span: 16 }}
+                                >
+                                    <Space>
+                                        <Button
+                                            loading={connecting}
+                                            type="primary"
+                                            onClick={createServer}
+                                        >
+                                            {t('create_udp_server')}
+                                        </Button>
+                                    </Space>
+                                </Form.Item>
+                            </Form>
+                            {/* <Input.TextArea
+                                value={content}
+                                placeholder="发送内容"
+                                onChange={e => {
+                                    setContent(e.target.value)
+                                }}
+                            />
+                            <div>
+                                <Button
+                                    loading={connecting}
+                                    type="primary"
+                                    onClick={send2}
+                                >
+                                    {t('connect')}
+                                </Button>
+                            </div> */}
                         </div>
                     }
                 </div>
-                {connected ?
-                    <div>   
-                        <Space direction="vertical">
-                            <Space>
-                                <div>
-                                    {t('listening')} {serverConfig.host}:{serverConfig.port}
-                                </div>
-                                <Button
-                                    // loading={connecting}
-                                    // type="primary"
-                                    danger
-                                    size="small"
-                                    onClick={exit}
-                                >
-                                    {t('disconnect')}
-                                </Button>
-                            </Space>
-                            <div>
-                                
-                            </div>
-    
-                            {/* <Button
-                                // loading={connecting}
-                                type="primary"
-                                onClick={send}
-                            >
-                                {t('send')}
-                            </Button> */}
-                            {/* <div>
-                                {wsStatus}
-                            </div> */}
-                            
-                        </Space>
-    
-                    </div>
-                :
-                    <div className={styles.form}>
+                {connected &&
+                    <div className={styles.sendBox}>
                         <Form
-                            form={form}
+                            form={targetForm}
                             labelCol={{ span: 8 }}
                             wrapperCol={{ span: 16 }}
                             initialValues={{
-                                host: '0.0.0.0',
+                                host: '127.0.0.1',
                                 port: 2465,
                                 // port: 3306,
                             }}
@@ -317,36 +409,50 @@ export function UdpServer({ onClickItem }) {
                             >
                                 <InputNumber />
                             </Form.Item>
-                            <Form.Item
+                            {/* <Form.Item
                                 wrapperCol={{ offset: 8, span: 16 }}
                             >
                                 <Space>
                                     <Button
                                         loading={connecting}
                                         type="primary"
-                                        onClick={createServer}
+                                        onClick={connect}
                                     >
-                                        {t('create_udp_server')}
+                                        {t('connect')}
                                     </Button>
                                 </Space>
-                            </Form.Item>
+                            </Form.Item> */}
                         </Form>
-                        {/* <Input.TextArea
-                            value={content}
-                            placeholder="发送内容"
-                            onChange={e => {
-                                setContent(e.target.value)
-                            }}
-                        />
+                        <div className={styles.textarea}>
+                            <Input.TextArea
+                                value={content}
+                                placeholder="发送内容"
+                                rows={8}
+                                onChange={e => {
+                                    setContent(e.target.value)
+                                }}
+                            />
+                        </div>
+                        <VSplit size={16} />
                         <div>
-                            <Button
-                                loading={connecting}
-                                type="primary"
-                                onClick={send2}
-                            >
-                                {t('connect')}
-                            </Button>
-                        </div> */}
+                            <Space>
+                                <Button
+                                    loading={connecting}
+                                    type="primary"
+                                    onClick={sendTo}
+                                >
+                                    {t('send')}
+                                </Button>
+                                <Button
+                                    onClick={() => {
+                                        ping()
+                                    }}
+                                >
+                                    {t('ping')}
+                                </Button>
+                            </Space>
+                        </div>
+
                     </div>
                 }
             </div>
