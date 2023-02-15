@@ -19,7 +19,19 @@ import { getGlobalConfig } from '@/config';
 import { VSplit } from '@/components/v-space';
 // import { saveAs } from 'file-saver'
 
-
+function Content({ item, showInfo = false }) {
+    return (
+        <div className={styles.contentBox}>
+            {item.contentType == 'hex' &&
+                <Tag className={styles.tag}>Hex</Tag>
+            }
+            <pre className={styles.content}>{item.content}</pre>
+            {showInfo &&
+                <div className={styles.info}>@{item.host}:{item.port}</div>
+            }
+        </div>
+    )
+}
 
 export function UdpServer({ onClickItem }) {
     const config = getGlobalConfig()
@@ -169,6 +181,9 @@ export function UdpServer({ onClickItem }) {
                             id: msg.id,
                             content,
                             time: msg.time,
+                            type: 'received',
+                            host,
+                            port,
                         },
                         ...list,
                     ])
@@ -356,13 +371,13 @@ export function UdpServer({ onClickItem }) {
                     dataSource={logs}
                     bordered
                     size="small"
-                    pagination={false}
-                    // pagination={{
-                    //     total,
-                    //     current: page,
-                    //     pageSize,
-                    //     showSizeChanger: false,
-                    // }}
+                    // pagination={false}
+                    pagination={{
+                        // total,
+                        // current: page,
+                        pageSize: 20,
+                        // showSizeChanger: false,
+                    }}
                     rowKey="id"
                     columns={[
                         {
@@ -377,6 +392,17 @@ export function UdpServer({ onClickItem }) {
                             title: t('content'),
                             dataIndex: 'content',
                             // width: 240,
+                            render(value, item) {
+                                return (
+                                    <div>
+                                        {item.type == 'received' ?
+                                            <Content item={item} showInfo />
+                                        :
+                                            <div>{value}</div>
+                                        }
+                                    </div>
+                                )
+                            }
                         },
                         // {
                         //     title: '',
