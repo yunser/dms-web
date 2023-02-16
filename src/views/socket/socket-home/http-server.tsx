@@ -180,11 +180,6 @@ export function HttpServer({ onClickItem }) {
             }
             else if (msg.type == 'close') {
                 setConnected(false)
-                const { host, port } = msg.data
-                setServerConfig({
-                    host: host,
-                    port: port,
-                })
                 setLogs(list => {
                     // console.log('list.length', list.length)
                     setLogs([
@@ -199,7 +194,7 @@ export function HttpServer({ onClickItem }) {
                     return []
                 })
             }
-            else if (msg.type == 'message') {
+            else if (msg.type == 'request') {
                 setConnected(true)
                 const { host, port, content } = msg.data
                 setLogs(list => {
@@ -276,7 +271,7 @@ export function HttpServer({ onClickItem }) {
 
     async function exit() {
         setConnected(false)
-        let res = await request.post(`${config.host}/socket/udp/closeServer`, {
+        let res = await request.post(`${config.host}/http/server/closeServer`, {
             connectionId: comData.current.connectionId
         })
     }
@@ -398,82 +393,6 @@ export function HttpServer({ onClickItem }) {
                         </div>
                     }
                 </div>
-                {connected &&
-                    <div className={styles.sendBox}>
-                        <Form
-                            form={targetForm}
-                            labelCol={{ span: 8 }}
-                            wrapperCol={{ span: 16 }}
-                            initialValues={{
-                                host: '127.0.0.1',
-                                port: 2465,
-                                // port: 3306,
-                            }}
-                            // layout={{
-                            //     labelCol: { span: 0 },
-                            //     wrapperCol: { span: 24 },
-                            // }}
-                        >
-                            <Form.Item
-                                name="host"
-                                label={t('host')}
-                                rules={[ { required: true, }, ]}
-                            >
-                                <Input />
-                            </Form.Item>
-                            <Form.Item
-                                name="port"
-                                label={t('port')}
-                                rules={[ { required: true, }, ]}
-                            >
-                                <InputNumber />
-                            </Form.Item>
-                            {/* <Form.Item
-                                wrapperCol={{ offset: 8, span: 16 }}
-                            >
-                                <Space>
-                                    <Button
-                                        loading={connecting}
-                                        type="primary"
-                                        onClick={connect}
-                                    >
-                                        {t('connect')}
-                                    </Button>
-                                </Space>
-                            </Form.Item> */}
-                        </Form>
-                        <div className={styles.textarea}>
-                            <Input.TextArea
-                                value={content}
-                                placeholder="发送内容"
-                                rows={8}
-                                onChange={e => {
-                                    setContent(e.target.value)
-                                }}
-                            />
-                        </div>
-                        <VSplit size={16} />
-                        <div>
-                            <Space>
-                                <Button
-                                    loading={connecting}
-                                    type="primary"
-                                    onClick={sendTo}
-                                >
-                                    {t('send')}
-                                </Button>
-                                <Button
-                                    onClick={() => {
-                                        ping()
-                                    }}
-                                >
-                                    {t('ping')}
-                                </Button>
-                            </Space>
-                        </div>
-
-                    </div>
-                }
             </div>
             <div className={styles.layoutRight}>
                 {/* <div className={styles.rightTopToolBox}>
