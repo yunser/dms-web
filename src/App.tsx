@@ -238,25 +238,25 @@ export default function App() {
             <div className="App">
                 <Routes>
                     <Route path="/" element={<HomePage />} />
-                    <Route path="/git" element={<GitPage />} />
-                    <Route path="/file" element={<FilePage />} />
-                    <Route path="/ssh" element={<SshPage />} />
-                    <Route path="/service" element={<ServiceHome />} />
+                    <Route path="/pages/git" element={<GitPage />} />
+                    <Route path="/pages/file" element={<FilePage />} />
+                    <Route path="/pages/ssh" element={<SshPage />} />
+                    <Route path="/pages/service" element={<ServiceHome />} />
                     {/* <Route path="/swagger" element={<SwaggerHome />} /> */}
-                    <Route path="/swagger" element={<FullApp><SwaggerHome /></FullApp>} />
-                    <Route path="/swagger/detail" element={<FullApp><SwaggerDetailPage /></FullApp>} />
-                    <Route path="/weapp" element={<FullApp><WeappPage /></FullApp>} />
-                    <Route path="/sql" element={<FullApp><SqlLab /></FullApp>} />
-                    <Route path="/logger" element={<FullApp><LoggerDetail /></FullApp>} />
-                    <Route path="/lab" element={<FullApp><Lab /></FullApp>} />
-                    <Route path="/alasql" element={<FullApp><AlasqlHome /></FullApp>} />
-                    <Route path="/websocket/client" element={<FullApp><WebSocketPage /></FullApp>} />
-                    <Route path="/websocket/server" element={<FullApp><WebSocketServerPage /></FullApp>} />
-                    <Route path="/tcp/client" element={<FullApp><TcpClientPage /></FullApp>} />
-                    <Route path="/tcp/server" element={<FullApp><TcpServerPage /></FullApp>} />
-                    <Route path="/udp/client" element={<FullApp><UdpClientPage /></FullApp>} />
-                    <Route path="/udp/server" element={<FullApp><UdpServerPage /></FullApp>} />
-                    <Route path="/http/server" element={<FullApp><HttpServerPage /></FullApp>} />
+                    <Route path="/pages/swagger" element={<FullApp><SwaggerHome /></FullApp>} />
+                    <Route path="/pages/swagger/detail" element={<FullApp><SwaggerDetailPage /></FullApp>} />
+                    <Route path="/pages/weapp" element={<FullApp><WeappPage /></FullApp>} />
+                    <Route path="/pages/sql" element={<FullApp><SqlLab /></FullApp>} />
+                    <Route path="/pages/logger" element={<FullApp><LoggerDetail /></FullApp>} />
+                    <Route path="/pages/lab" element={<FullApp><Lab /></FullApp>} />
+                    <Route path="/pages/alasql" element={<FullApp><AlasqlHome /></FullApp>} />
+                    <Route path="/pages/websocket/client" element={<FullApp><WebSocketPage /></FullApp>} />
+                    <Route path="/pages/websocket/server" element={<FullApp><WebSocketServerPage /></FullApp>} />
+                    <Route path="/pages/tcp/client" element={<FullApp><TcpClientPage /></FullApp>} />
+                    <Route path="/pages/tcp/server" element={<FullApp><TcpServerPage /></FullApp>} />
+                    <Route path="/pages/udp/client" element={<FullApp><UdpClientPage /></FullApp>} />
+                    <Route path="/pages/udp/server" element={<FullApp><UdpServerPage /></FullApp>} />
+                    <Route path="/pages/http/server" element={<FullApp><HttpServerPage /></FullApp>} />
                 </Routes>
             </div>
         </Router>

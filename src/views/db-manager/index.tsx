@@ -440,25 +440,25 @@ export function DbManager({ config }) {
             })
         }
         else if (key == 'tcp_client') {
-            window.open('/tcp/client', '_blank')
+            window.open('/pages/tcp/client', '_blank')
         }
         else if (key == 'tcp_server') {
-            window.open('/tcp/server', '_blank')
+            window.open('/pages/tcp/server', '_blank')
         }
         else if (key == 'http_server') {
-            window.open('/http/server', '_blank')
+            window.open('/pages/http/server', '_blank')
         }
         else if (key == 'udp_client') {
-            window.open('/udp/client', '_blank')
+            window.open('/pages/udp/client', '_blank')
         }
         else if (key == 'udp_server') {
-            window.open('/udp/server', '_blank')
+            window.open('/pages/udp/server', '_blank')
         }
         else if (key == 'websocket') {
-            window.open('/websocket/client', '_blank')
+            window.open('/pages/websocket/client', '_blank')
         }
         else if (key == 'websocket-server') {
-            window.open('/websocket/server', '_blank')
+            window.open('/pages/websocket/server', '_blank')
         }
         else if (key == 'redis') {
             addOrActiveTab({
