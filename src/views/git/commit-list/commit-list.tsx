@@ -431,40 +431,45 @@ export function CommitList({ config, event$, projectPath,  }) {
                                                 <div className={styles.time}>{time}</div>
                                                 <div className={styles.author}>{item.author_name}</div>
                                                 <div className={styles.hash}>{item.hash.substring(0, 7)}</div>
-                                                {item.branches?.length > 0 &&
-                                                    <div className={styles.tags}>
-                                                        {item.branches.map(branch => {
-                                                            const simpleName = branch.name
-                                                            // const simpleName = branch.name.replace(/^remotes\//, '')
-                                                            return (
-                                                                <Tag
-                                                                    key={branch.name}
-                                                                    color="blue"
-                                                                >
-                                                                    <BranchesOutlined />
-                                                                    {' '}
-                                                                    {simpleName}
-                                                                </Tag>
+                                                <div className={styles.tagAll}>
+                                                    {item.branches?.length > 0 &&
+                                                        <>
+                                                            {item.branches.map(branch => {
+                                                                const simpleName = branch.name
+                                                                // const simpleName = branch.name.replace(/^remotes\//, '')
+                                                                return (
+                                                                    <Tag
+                                                                        // className={styles.tag}
+                                                                        key={'branch-' + branch.name}
+                                                                        color="blue"
+                                                                    >
+                                                                        <BranchesOutlined />
+                                                                        {' '}
+                                                                        <span className={styles.tagName}>{simpleName}</span>
+                                                                    </Tag>
+                                                                    )
+                                                                })}
+                                                        </>
+                                                    }
+                                                    {item.tags?.length > 0 &&
+                                                        <>
+                                                            {item.tags.map(tag => {
+                                                                return (
+                                                                    <Tag
+                                                                        // className={styles.tag}
+                                                                        color="green"
+                                                                        key={'tag-' + tag}
+                                                                    >
+                                                                        <TagOutlined />
+                                                                        {' '}
+                                                                        <span className={styles.tagName}>{tag}</span>
+                                                                        {/* {tag} */}
+                                                                    </Tag>
                                                                 )
                                                             })}
-                                                    </div>
-                                                }
-                                                {item.tags?.length > 0 &&
-                                                    <div className={styles.tags}>
-                                                        {item.tags.map(tag => {
-                                                            return (
-                                                                <Tag
-                                                                    color="green"
-                                                                    key={tag}
-                                                                >
-                                                                    <TagOutlined />
-                                                                    {' '}
-                                                                    {tag}
-                                                                </Tag>
-                                                            )
-                                                        })}
-                                                    </div>
-                                                }
+                                                        </>
+                                                    }
+                                                </div>
                                                 <div className={styles.msg}>
                                                     {item.message}
                                                 </div>
