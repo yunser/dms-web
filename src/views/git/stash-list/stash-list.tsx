@@ -16,6 +16,7 @@ import { FullCenterBox } from '@/views/common/full-center-box';
 import { TagPushModal } from '../tag-push';
 import { TagDeleteModal } from '../tag-delete';
 import copy from 'copy-to-clipboard';
+import { StashEditor } from '../stash-edit';
 // import { saveAs } from 'file-saver'
 
 
@@ -112,6 +113,43 @@ export function StashList({ config, event$, projectPath }) {
         })
     }
 
+    async function apply(item) {
+        // console.log('apply', item)
+        // const command = `git stash apply stash@{${item.index}}`
+        // copy(command)
+        // message.success(t('copied'))
+        // console.log('', )
+        console.log('projectPath', projectPath)
+        let res = await request.post(`${config.host}/git/stash/apply`, {
+            projectPath,
+            index: item.index,
+        })
+        // console.log('ret', ret)
+        if (res.success) {
+            // message.success('连接成功')
+            // onConnect && onConnect()
+            message.success(t('success'))
+            // onClose && onClose()
+            // onSuccess && onSuccess()
+            // loadBranches()
+            loadTags()
+            event$.emit({
+                type: 'event_refresh_branch',
+                data: {},
+            })
+            event$.emit({
+                type: 'event_refresh_status',
+                data: {},
+            })
+            event$.emit({
+                type: 'event_reload_history',
+                data: {
+                    commands: res.data.commands,
+                }
+            })
+        }
+    }
+
     return (
         <div>
             <div className={styles.header}>
@@ -144,14 +182,14 @@ export function StashList({ config, event$, projectPath }) {
                             <RightOutlined />
                         </IconButton>
                     }
-                    {/* <IconButton
+                    <IconButton
                         tooltip={t('git.tag.create')}
                         onClick={() => {
                             setTagModalVisible(true)
                         }}
                     >
                         <PlusOutlined />
-                    </IconButton> */}
+                    </IconButton>
                     {/* <Dropdown
                         trigger={['click']}
                         overlay={
@@ -224,10 +262,10 @@ export function StashList({ config, event$, projectPath }) {
                                                 overlay={
                                                     <Menu
                                                         items={[
-                                                            // {
-                                                            //     label: t('git.push'),
-                                                            //     key: 'push',
-                                                            // },
+                                                            {
+                                                                label: t('git.stash.apply'),
+                                                                key: 'apply',
+                                                            },
                                                             // {
                                                             //     label: t('git.tag.delete'),
                                                             //     key: 'delete',
@@ -238,9 +276,10 @@ export function StashList({ config, event$, projectPath }) {
                                                             if (key == 'delete') {
                                                                 // deleteItem2(item)
                                                             }
-                                                            else if (key == 'push') {
-                                                                setPushVisible(true)
-                                                                setPushTag(item.name)
+                                                            else if (key == 'apply') {
+                                                                // setPushVisible(true)
+                                                                // setPushTag(item.name)
+                                                                apply(item)
                                                             }
                                                         }}
                                                     />
@@ -261,7 +300,7 @@ export function StashList({ config, event$, projectPath }) {
                 </div>
             }
             {tagModalVisible &&
-                <TagEditor
+                <StashEditor
                     projectPath={projectPath}
                     config={config}
                     event$={event$}
@@ -275,25 +314,6 @@ export function StashList({ config, event$, projectPath }) {
                             type: 'event_refresh_commit_list',
                             data: {},
                         })
-                    }}
-                />
-            }
-            {pushVisible &&
-                <TagPushModal
-                    projectPath={projectPath}
-                    config={config}
-                    tag={pushTag}
-                    event$={event$}
-                    onCancel={() => {
-                        setPushVisible(false)
-                    }}
-                    onSuccess={() => {
-                        setPushVisible(false)
-                        // loadTags()
-                        // event$.emit({
-                        //     type: 'event_refresh_commit_list',
-                        //     data: {},
-                        // })
                     }}
                 />
             }
