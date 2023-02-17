@@ -250,9 +250,6 @@ export function StashList({ config, event$, projectPath }) {
                                     >
                                         <div className={styles.left}>
                                             <div className={styles.status}>
-                                                {/* {item.name == current &&
-                                                    <div className={styles.current}></div>
-                                                } */}
                                             </div>
                                             <div className={styles.name}>{item.message}</div>
                                         </div>
@@ -311,9 +308,17 @@ export function StashList({ config, event$, projectPath }) {
                         setTagModalVisible(false)
                         loadTags()
                         event$.emit({
-                            type: 'event_refresh_commit_list',
+                            type: 'event_refresh_branch',
                             data: {},
                         })
+                        event$.emit({
+                            type: 'event_refresh_status',
+                            data: {},
+                        })
+                        // event$.emit({
+                        //     type: 'event_refresh_commit_list',
+                        //     data: {},
+                        // })
                     }}
                 />
             }

@@ -66,6 +66,14 @@ export function StashEditor({ config, commit, event$, projectPath, onSuccess, on
         // console.log('res', res)
         if (res.success) {
             onSuccess && onSuccess()
+            // event$.emit({
+            //     type: 'event_refresh_branch',
+            //     data: {},
+            // })
+            // event$.emit({
+            //     type: 'event_refresh_status',
+            //     data: {},
+            // })
             event$.emit({
                 type: 'event_reload_history',
                 data: {
