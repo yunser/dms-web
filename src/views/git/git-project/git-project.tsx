@@ -24,6 +24,7 @@ import { HistoryList } from '../history-list';
 import { UserSetting } from '../user-setting';
 import { request } from '@/views/db-manager/utils/http';
 import { GitStat } from '../git-stat';
+import { StashList } from '../stash-list';
 // import { saveAs } from 'file-saver'
 
 export function GitProject({ config, event$, project, onList }) {
@@ -163,6 +164,13 @@ export function GitProject({ config, event$, project, onList }) {
                 </div>
                 <div className={styles.section}>
                     <RemoteList
+                        config={config}
+                        event$={event$}
+                        projectPath={projectPath}
+                    />
+                </div>
+                <div className={styles.section}>
+                    <StashList
                         config={config}
                         event$={event$}
                         projectPath={projectPath}
