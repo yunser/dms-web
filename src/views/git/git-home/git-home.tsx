@@ -81,6 +81,7 @@ export function GitHome({ event$, onProject }) {
 
     // const event$ = useEventEmitter()
 
+    const [version, setVersion] = useState('21212')
     const [cloneModalVisible, setCloneModalVisible] = useState(false)
     const [projectItem, setProjectItem] = useState(null)
     const [projectModalVisible, setProjectModalVisible] = useState(false)
@@ -162,6 +163,7 @@ export function GitHome({ event$, onProject }) {
         }
     }, [activeIndex, filterdProjects])
 
+    
     // onCompositionStart={() => {
     //     console.log('onCompositionStart')
     //     inputRef.current.inputing = true
@@ -170,6 +172,17 @@ export function GitHome({ event$, onProject }) {
     //     console.log('onCompositionEnd')
     //     inputRef.current.inputing = false
     // }}
+
+    async function loadVersion() {
+        let res = await request.post(`${config.host}/git/version`, {
+        })
+        if (res.success) {
+            // setProjects([])
+            // 2
+            const { agent, installed, major, minor, patch } = res.data.version
+            setVersion(`${major}.${minor}.${patch}`)
+        }
+    }
 
     async function loadList() {
         let res = await request.post(`${config.host}/git/project/list`, {
@@ -207,6 +220,7 @@ export function GitHome({ event$, onProject }) {
 
     useEffect(() => {
         loadList()
+        loadVersion()
     }, [])
 
     useEffect(() => {
@@ -620,6 +634,7 @@ export function GitHome({ event$, onProject }) {
                     }}
                 />
             }
+            <div className={styles.version}>Git v{version}</div>
         </div>
     )
 }
