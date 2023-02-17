@@ -53,18 +53,18 @@ export function StashList({ config, event$, projectPath }) {
     }
 
     async function deleteItem2(item) {
-        setDeleteItem(item)
-        setDeleteVisible(true)
-        return
+        // setDeleteItem(item)
+        // setDeleteVisible(true)
+        // return
         Modal.confirm({
-            title: t('git.tag.delete'),
+            title: t('git.stash.delete'),
             // icon: <ExclamationCircleOutlined />,
-            content: `${t('git.tag.delete.confirm')}「${item.name}」？`,
+            content: `${t('git.stash.delete.confirm')}「${item.message}」？`,
             async onOk() {
                 
-                let res = await request.post(`${config.host}/git/tag/delete`, {
+                let res = await request.post(`${config.host}/git/stash/delete`, {
                     projectPath,
-                    name: item.name,
+                    index: item.index,
                 })
                 // console.log('ret', ret)
                 if (res.success) {
@@ -75,10 +75,10 @@ export function StashList({ config, event$, projectPath }) {
                     // onSuccess && onSuccess()
                     // loadBranches()
                     loadTags()
-                    event$.emit({
-                        type: 'event_refresh_branch',
-                        data: {},
-                    })
+                    // event$.emit({
+                    //     type: 'event_refresh_branch',
+                    //     data: {},
+                    // })
                     event$.emit({
                         type: 'event_reload_history',
                         data: {
@@ -183,7 +183,7 @@ export function StashList({ config, event$, projectPath }) {
                         </IconButton>
                     }
                     <IconButton
-                        tooltip={t('git.tag.create')}
+                        tooltip={t('git.stash.create')}
                         onClick={() => {
                             setTagModalVisible(true)
                         }}
@@ -263,15 +263,15 @@ export function StashList({ config, event$, projectPath }) {
                                                                 label: t('git.stash.apply'),
                                                                 key: 'apply',
                                                             },
-                                                            // {
-                                                            //     label: t('git.tag.delete'),
-                                                            //     key: 'delete',
-                                                            //     danger: true,
-                                                            // },
+                                                            {
+                                                                label: t('git.stash.delete'),
+                                                                key: 'delete',
+                                                                danger: true,
+                                                            },
                                                         ]}
                                                         onClick={({ key }) => {
                                                             if (key == 'delete') {
-                                                                // deleteItem2(item)
+                                                                deleteItem2(item)
                                                             }
                                                             else if (key == 'apply') {
                                                                 // setPushVisible(true)
