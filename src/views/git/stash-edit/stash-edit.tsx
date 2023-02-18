@@ -114,6 +114,7 @@ export function StashEditor({ config, commit, event$, projectPath, onSuccess, on
                 >
                     <Input.TextArea
                         rows={4}
+                        autoFocus
                     />
                 </Form.Item>
             </Form>

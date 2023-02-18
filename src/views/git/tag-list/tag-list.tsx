@@ -295,6 +295,9 @@ export function TagList({ config, event$, projectPath }) {
                             onClick={() => {
                                 setDetailVisible(true)
                             }}
+                            style={{
+                                opacity: tags.length > 0 ? 1 : 0.2,
+                            }}
                         >
                             <RightOutlined />
                         </IconButton>

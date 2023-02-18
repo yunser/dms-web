@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { ArrowDownOutlined, ArrowRightOutlined, ArrowUpOutlined, BranchesOutlined, DeleteOutlined, DownloadOutlined, EllipsisOutlined, PlusOutlined } from '@ant-design/icons';
+import { ArrowDownOutlined, ArrowRightOutlined, ArrowUpOutlined, BranchesOutlined, DeleteOutlined, DownloadOutlined, EllipsisOutlined, PlusOutlined, RightOutlined, UpOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
@@ -27,7 +27,7 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
     const [current, setCurrent] = useState('')
     const [allBranches, setAllBranches] = useState([])
     const [branches, setBranches] = useState([])
-
+const [detailVisible, setDetailVisible] = useState(true)
     const [branchModalRemote, setBranchModaRemote] = useState('')
     const [branchModalVisible, setBranchModalVisible] = useState(false)
 
@@ -128,12 +128,38 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
     return (
         <div className={styles.branchBox}>
             <div className={styles.header}>
-                <div>
+                <div className={styles.title}
+                    onClick={() => {
+                        setDetailVisible(!detailVisible)
+                    }}
+                >
                     <BranchesOutlined />
                     {'    '}
                     {t('git.branches')}
                 </div>
                 <Space>
+                    {detailVisible ?
+                        <IconButton
+                            tooltip={t('hide_content')}
+                            onClick={() => {
+                                setDetailVisible(false)
+                            }}
+                        >
+                            <UpOutlined />
+                        </IconButton>
+                    :
+                        <IconButton
+                            tooltip={t('show_content')}
+                            onClick={() => {
+                                setDetailVisible(true)
+                            }}
+                            style={{
+                                opacity: branches.length > 0 ? 1 : 0.2,
+                            }}
+                        >
+                            <RightOutlined />
+                        </IconButton>
+                    }
                     <IconButton
                         tooltip={t('git.branch.create')}
                         onClick={() => {
@@ -176,116 +202,120 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
                     </Dropdown>
                 </Space>
             </div>
-            {branches.length == 0 ?
-                <FullCenterBox
-                    height={160}
-                >
-                    <Empty />
-                </FullCenterBox>
-            :
-                <div className={styles.list}>
-                    {branches.map(item => {
-                        let ahead = 0
-                        let aheadM = item.label.match(/ahead (\d+)/)
-                        if (aheadM) {
-                            ahead = parseInt(aheadM[1])
-                        }
-                        let behind = 0
-                        let behindM = item.label.match(/behind (\d+)/)
-                        if (behindM) {
-                            behind = parseInt(behindM[1])
-                        }
-                        return (
-                            <div 
-                                className={styles.item}
-                                key={item.name}
-                            >
-                                <div className={styles.left}>
-                                    <div className={styles.status}>
-                                        {item.name == current &&
-                                            <div className={styles.current}></div>
-                                        }
-                                    </div>
-                                    <div className={styles.name}>{item.name}</div>
-                                    {/* <div className={styles.}></div> */}
-                                    {item.name != current &&
-                                        <div className={styles.switch}>
-                                            <IconButton
-                                                tooltip={t('git.branch.switch')}
-                                                onClick={async () => {
-                                                    switchItem(item)
-                                                }}
-                                            >
-                                                <ArrowRightOutlined />
-                                            </IconButton>
-                                        </div>
-                                    }
-                                </div>
-                                <div className={styles.tagBox}>
-                                    {(ahead > 0 || behind > 0) &&
-                                        <div className={styles.tag}>
-                                            {ahead > 0 &&
-                                                <div className={styles.tagItem}>
-                                                    <div className={styles.num}>{ahead}</div>
-                                                    <ArrowUpOutlined />
-                                                </div>
-                                            }
-                                            {behind > 0 &&
-                                                <div className={styles.tagItem}>
-                                                    <div className={styles.num}>{behind}</div>
-                                                    <ArrowDownOutlined />
-                                                </div>
-                                            }
-                                        </div>
-                                    }
-                                </div>
-                                <Space>
-                                    <Dropdown
-                                        trigger={['click']}
-                                        overlay={
-                                            <Menu
-                                                items={[
-                                                    {
-                                                        label: t('git.branch.switch'),
-                                                        key: 'switch',
-                                                        disabled: item.name == current,
-                                                    },
-                                                    {
-                                                        label: t('git.branch.delete'),
-                                                        key: 'delete',
-                                                        danger: true,
-                                                        disabled: item.name == current,
-                                                    },
-                                                    {
-                                                        label: t('copy_name'),
-                                                        key: 'copy_name',
-                                                    },
-                                                ]}
-                                                onClick={({ key }) => {
-                                                    if (key == 'delete') {
-                                                        deleteItem(item)
-                                                    }
-                                                    else if (key == 'switch') {
-                                                        switchItem(item)
-                                                    }
-                                                    else if (key == 'copy_name') {
-                                                        copy(item.name)
-                                                        message.success('copied')
-                                                    }
-                                                }}
-                                            />
-                                        }
+            {detailVisible &&
+                <div>
+                    {branches.length == 0 ?
+                        <FullCenterBox
+                            height={160}
+                        >
+                            <Empty />
+                        </FullCenterBox>
+                    :
+                        <div className={styles.list}>
+                            {branches.map(item => {
+                                let ahead = 0
+                                let aheadM = item.label.match(/ahead (\d+)/)
+                                if (aheadM) {
+                                    ahead = parseInt(aheadM[1])
+                                }
+                                let behind = 0
+                                let behindM = item.label.match(/behind (\d+)/)
+                                if (behindM) {
+                                    behind = parseInt(behindM[1])
+                                }
+                                return (
+                                    <div 
+                                        className={styles.item}
+                                        key={item.name}
                                     >
-                                        <IconButton
-                                            onClick={e => e.preventDefault()}
-                                        >
-                                            <EllipsisOutlined />
-                                        </IconButton>
-                                    </Dropdown>
-                                </Space>
-                            </div>
-                        )
-                    })}
+                                        <div className={styles.left}>
+                                            <div className={styles.status}>
+                                                {item.name == current &&
+                                                    <div className={styles.current}></div>
+                                                }
+                                            </div>
+                                            <div className={styles.name}>{item.name}</div>
+                                            {/* <div className={styles.}></div> */}
+                                            {item.name != current &&
+                                                <div className={styles.switch}>
+                                                    <IconButton
+                                                        tooltip={t('git.branch.switch')}
+                                                        onClick={async () => {
+                                                            switchItem(item)
+                                                        }}
+                                                    >
+                                                        <ArrowRightOutlined />
+                                                    </IconButton>
+                                                </div>
+                                            }
+                                        </div>
+                                        <div className={styles.tagBox}>
+                                            {(ahead > 0 || behind > 0) &&
+                                                <div className={styles.tag}>
+                                                    {ahead > 0 &&
+                                                        <div className={styles.tagItem}>
+                                                            <div className={styles.num}>{ahead}</div>
+                                                            <ArrowUpOutlined />
+                                                        </div>
+                                                    }
+                                                    {behind > 0 &&
+                                                        <div className={styles.tagItem}>
+                                                            <div className={styles.num}>{behind}</div>
+                                                            <ArrowDownOutlined />
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
+                                        </div>
+                                        <Space>
+                                            <Dropdown
+                                                trigger={['click']}
+                                                overlay={
+                                                    <Menu
+                                                        items={[
+                                                            {
+                                                                label: t('git.branch.switch'),
+                                                                key: 'switch',
+                                                                disabled: item.name == current,
+                                                            },
+                                                            {
+                                                                label: t('git.branch.delete'),
+                                                                key: 'delete',
+                                                                danger: true,
+                                                                disabled: item.name == current,
+                                                            },
+                                                            {
+                                                                label: t('copy_name'),
+                                                                key: 'copy_name',
+                                                            },
+                                                        ]}
+                                                        onClick={({ key }) => {
+                                                            if (key == 'delete') {
+                                                                deleteItem(item)
+                                                            }
+                                                            else if (key == 'switch') {
+                                                                switchItem(item)
+                                                            }
+                                                            else if (key == 'copy_name') {
+                                                                copy(item.name)
+                                                                message.success('copied')
+                                                            }
+                                                        }}
+                                                    />
+                                                }
+                                            >
+                                                <IconButton
+                                                    onClick={e => e.preventDefault()}
+                                                >
+                                                    <EllipsisOutlined />
+                                                </IconButton>
+                                            </Dropdown>
+                                        </Space>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    }
                 </div>
             }
             {branchModalVisible &&

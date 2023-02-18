@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { CloudOutlined, DownloadOutlined, EllipsisOutlined, EyeOutlined, EyeTwoTone, HistoryOutlined, PlusOutlined } from '@ant-design/icons';
+import { CloudOutlined, DownloadOutlined, EllipsisOutlined, EyeOutlined, EyeTwoTone, HistoryOutlined, PlusOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
@@ -23,17 +23,6 @@ export function HistoryList({ config, event$, projectPath }) {
     const [moreVisible, setMoreVisible] = useState(false)
     const [histories, setHistories] = useState([])
     // const [current, setCurrent] = useState('')
-
-    async function loadRemotes() {
-        let res = await request.post(`${config.host}/git/remote/list`, {
-            projectPath,
-        })
-        // console.log('res', res)
-        if (res.success) {
-            // setRemotes(res.data)
-            // setCurrent(res.data.current)
-        }
-    }
 
     event$.useSubscription(msg => {
         console.log('Status/onmessage', msg)
@@ -54,39 +43,6 @@ export function HistoryList({ config, event$, projectPath }) {
         // }
     })
 
-    useEffect(() => {
-        // loadRemotes()
-    }, [])
-
-    async function deleteItem(item) {
-        Modal.confirm({
-            title: t('git.remote.delete'),
-            // icon: <ExclamationCircleOutlined />,
-            content: `${t('git.remote.delete.confirm')}「${item.name}」？`,
-            async onOk() {
-                
-                let ret = await request.post(`${config.host}/git/command`, {
-                    projectPath,
-                    commands: ['remote', 'remove', item.name],
-                })
-                // console.log('ret', ret)
-                if (ret.success) {
-                    // message.success('连接成功')
-                    // onConnect && onConnect()
-                    message.success(t('success'))
-                    // onClose && onClose()
-                    // onSuccess && onSuccess()
-                    // loadBranches()
-                    loadRemotes()
-                    // event$.emit({
-                    //     type: 'event_refresh_branch',
-                    //     data: {},
-                    // })
-                }
-            }
-        })
-    }
-
     return (
         <div className={styles.remoteBox}>
             {/* <div>远程列表:</div> */}
@@ -97,12 +53,12 @@ export function HistoryList({ config, event$, projectPath }) {
                     {t('history')}
                 </div>
                 <IconButton
-                    tooltip={t('git.remote.create')}
+                    tooltip={t('manage')}
                     onClick={() => {
                         setMoreVisible(true)
                     }}
                 >
-                    <EyeOutlined />
+                    <UnorderedListOutlined />
                 </IconButton>
             </div>
             {histories.length == 0 ?
@@ -190,7 +146,6 @@ export function HistoryList({ config, event$, projectPath }) {
                     }}
                     onSuccess={() => {
                         setModalVisible(false)
-                        loadRemotes()
                     }}
                 />
             } */}

@@ -274,6 +274,7 @@ i18n
                     'git.tag.delete': 'Delete Tag',
                     'git.tag.delete.confirm': 'Confirm to delete tag',
                     'git.stash': 'Stash',
+                    'git.stash.list': 'Stashes',
                     'git.stash.create': 'Create Stash',
                     'git.stash.apply': 'Apply Stash',
                     'git.stash.delete': 'Drop Stash',
@@ -461,6 +462,7 @@ i18n
                     'tcp_disconnected': 'Disconnected',
                     'ping': 'Ping',
                     'hex': 'Hex',
+                    'all': 'All',
                 }
             },
             zh: {
@@ -727,6 +729,7 @@ i18n
                     'git.tag.delete': '删除标签',
                     'git.tag.delete.confirm': '确定删除标签',
                     'git.stash': '贮藏',
+                    'git.stash.list': '贮藏',
                     'git.stash.create': '创建贮藏',
                     'git.stash.apply': '应用贮藏',
                     'git.stash.delete': '删除贮藏',
@@ -914,6 +917,7 @@ i18n
                     'tcp_disconnected': '连接断开',
                     'ping': 'Ping',
                     'hex': '十六进制',
+                    'all': '全部',
                 }
             }
         },

@@ -30,7 +30,7 @@ export function StashList({ config, event$, projectPath }) {
     const [tags, setTags] = useState([])
     const [deleteVisible, setDeleteVisible] = useState(false)
     const [deleteItem, setDeleteItem] = useState(null)
-    const [detailVisible, setDetailVisible] = useState(true)
+    const [detailVisible, setDetailVisible] = useState(false)
     // const [current, setCurrent] = useState('')
     const [manageVisible, setManageVisible] = useState(false)
 
@@ -50,6 +50,43 @@ export function StashList({ config, event$, projectPath }) {
             setTags(res.data.list)
             // setCurrent(res.data.current)
         }
+    }
+
+    async function deleteAll() {
+        // setDeleteItem(item)
+        // setDeleteVisible(true)
+        // return
+        Modal.confirm({
+            title: t('git.stash.delete'),
+            // icon: <ExclamationCircleOutlined />,
+            content: `${t('git.stash.delete.confirm')} ${t('all')}？`,
+            async onOk() {
+                
+                let res = await request.post(`${config.host}/git/stash/clear`, {
+                    projectPath,
+                })
+                // console.log('ret', ret)
+                if (res.success) {
+                    // message.success('连接成功')
+                    // onConnect && onConnect()
+                    message.success(t('success'))
+                    // onClose && onClose()
+                    // onSuccess && onSuccess()
+                    // loadBranches()
+                    loadTags()
+                    // event$.emit({
+                    //     type: 'event_refresh_branch',
+                    //     data: {},
+                    // })
+                    event$.emit({
+                        type: 'event_reload_history',
+                        data: {
+                            commands: res.data.commands,
+                        }
+                    })
+                }
+            }
+        })
     }
 
     async function deleteItem2(item) {
@@ -160,7 +197,7 @@ export function StashList({ config, event$, projectPath }) {
                 >
                     <WalletOutlined />
                     {'    '}
-                    {t('git.stash')}
+                    {t('git.stash.list')}
                 </div>
                 <Space>
                     {detailVisible ?
@@ -178,6 +215,9 @@ export function StashList({ config, event$, projectPath }) {
                             onClick={() => {
                                 setDetailVisible(true)
                             }}
+                            style={{
+                                opacity: tags.length > 0 ? 1 : 0.2,
+                            }}
                         >
                             <RightOutlined />
                         </IconButton>
@@ -190,22 +230,23 @@ export function StashList({ config, event$, projectPath }) {
                     >
                         <PlusOutlined />
                     </IconButton>
-                    {/* <Dropdown
+                    <Dropdown
                         trigger={['click']}
                         overlay={
                             <Menu
                                 items={[
-                                    {
-                                        label: t('git.push'),
-                                        key: 'push',
-                                    },
-                                    {
-                                        label: t('manage'),
-                                        key: 'manage',
-                                    },
+                                    // {
+                                    //     label: t('manage'),
+                                    //     key: 'manage',
+                                    // },
                                     {
                                         label: t('export_json'),
                                         key: 'export_json',
+                                    },
+                                    {
+                                        label: t('clear_all'),
+                                        key: 'clear_all',
+                                        danger: true,
                                     },
                                 ]}
                                 onClick={({ key }) => {
@@ -215,9 +256,8 @@ export function StashList({ config, event$, projectPath }) {
                                     else if (key == 'manage') {
                                         setManageVisible(true)
                                     }
-                                    else if (key == 'push') {
-                                        setPushTag(null)
-                                        setPushVisible(true)
+                                    else if (key == 'clear_all') {
+                                        deleteAll()
                                     }
                                 }}
                             />
@@ -228,7 +268,7 @@ export function StashList({ config, event$, projectPath }) {
                         >
                             <EllipsisOutlined />
                         </IconButton>
-                    </Dropdown> */}
+                    </Dropdown>
 
                 </Space>
             </div>

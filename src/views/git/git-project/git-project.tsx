@@ -1,4 +1,4 @@
-import { Button, Descriptions, Dropdown, Input, Menu, message, Modal, Popover, Space, Table, Tabs } from 'antd';
+import { Button, Descriptions, Divider, Dropdown, Input, Menu, message, Modal, Popover, Space, Table, Tabs } from 'antd';
 import React, { useMemo, useRef, useState } from 'react';
 import styles from './git-project.module.less';
 import _ from 'lodash';
@@ -169,6 +169,7 @@ export function GitProject({ config, event$, project, onList }) {
                         projectPath={projectPath}
                     />
                 </div>
+                {/* <Divider /> */}
                 <div className={styles.section}>
                     <StashList
                         config={config}
