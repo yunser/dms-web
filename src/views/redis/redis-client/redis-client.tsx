@@ -102,8 +102,6 @@ function DbSelector({ curDb, connectionId, onDatabaseChange, config }) {
             // dbName,
         })
         if (res.success) {
-            console.log('DbSelector/config', res.data.config)
-
             const infos = res.data.info.split('\r\n')
             // "db0:keys=76,expires=35,avg_ttl=67512945473"
             // 107: "db1:keys=70711,expires=26,avg_ttl=28153799"
@@ -117,8 +115,8 @@ function DbSelector({ curDb, connectionId, onDatabaseChange, config }) {
             for (let i = 0; i < totalDb; i++) {
                 let keyNum = 0
                 for (let info of infos) {
-                    if (info.startsWith(`db${i}`)) {
-                        const match = info.match(/keys=(\d+)/)
+                    if (info.startsWith(`db${i}:`)) {
+                        const match = info.match(/keys=(\d+),/)
                         if (match) {
                             keyNum = match[1]
                         }
