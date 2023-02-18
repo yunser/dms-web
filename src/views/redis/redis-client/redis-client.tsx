@@ -1301,6 +1301,10 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
                                                                     ]
                                                                 },
                                                                 {
+                                                                    label: t('copy_key_name'),
+                                                                    key: 'copy_key_name',
+                                                                },
+                                                                {
                                                                     label: t('delete'),
                                                                     key: 'key_delete',
                                                                     danger: true,
@@ -1320,6 +1324,12 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
                                                                 }
                                                                 else if (key == 'export_command') {
                                                                     exportAsCommand(nodeData)
+                                                                }
+                                                                else if (key == 'copy_key_name') {
+                                                                    console.log('nodeData', nodeData)
+                                                                    // removeKey(item.key)
+                                                                    copy(nodeData.itemData.prefix + '*')
+                                                                    message.info(t('copied'))
                                                                 }
                                                             }}
                                                         >

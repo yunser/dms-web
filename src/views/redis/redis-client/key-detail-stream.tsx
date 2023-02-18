@@ -10,6 +10,14 @@ import { request } from '@/views/db-manager/utils/http';
 import humanFormat from 'human-format'
 import { ListPushHandler } from './list-push';
 
+function fields2Str(fields: string[]) {
+    let arr = []
+    for (let idx = 0; idx < fields.length; idx += 2) {
+        arr.push(`${fields[idx]}: ${fields[idx + 1]}`)
+    }
+    return arr.join(', ')
+}
+
 const timeScale = new humanFormat.Scale({
   ms: 1,
   s: 1000,
@@ -70,7 +78,7 @@ export function StreamContent({ curDb, connectionId, onSuccess, data, config }) 
                 console.log('value', value)
                 // return value.join(', ')
                 return (
-                    <div>{value.join(', ')}</div>
+                    <div>{fields2Str(value)}</div>
                 )
             }
         },
@@ -101,7 +109,7 @@ export function StreamContent({ curDb, connectionId, onSuccess, data, config }) 
                             size="small"
                             onClick={async () => {
                                 Modal.confirm({
-                                    content: `${t('delete')}「${item.fields.join(', ')}」?`,
+                                    content: `${t('delete')}「${fields2Str(item.fields)}」?`,
                                     async onOk() {
                                         
                                         let ret = await request.post(`${config.host}/redis/xdel`, {

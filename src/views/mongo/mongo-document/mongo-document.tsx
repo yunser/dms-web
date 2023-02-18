@@ -1,5 +1,5 @@
 import { Button, Checkbox, Col, Descriptions, Drawer, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Pagination, Popover, Row, Space, Spin, Table, Tabs } from 'antd';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './mongo-document.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
@@ -13,6 +13,7 @@ import { EllipsisOutlined, ExportOutlined, EyeInvisibleOutlined, EyeOutlined, Ey
 import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/common/full-center-box';
+import { Editor } from '@/views/db-manager/editor/Editor';
 
 function removeObjId(obj) {
     const result = {}
@@ -330,8 +331,13 @@ function DatabaseModal({ config, editType, onCancel, item, onSuccess,
 //     "user": "",
 //     "password": ""
 // }`)
-
-    
+    const defaultSql = item ? JSON.stringify(removeObjId(item), null, 4) : '{}'
+    const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
+    const [code, setCode] = useState(defaultSql)
+    const [code2, setCode2] = useState(defaultSql)
+    const comData = useRef({
+        data: defaultSql,
+    })
 
     useEffect(() => {
         if (item) {
@@ -373,12 +379,12 @@ function DatabaseModal({ config, editType, onCancel, item, onSuccess,
                 
             //     // db: values.db,
             // })
-            console.log('values', values)
+            // console.log('values', values)
             let res = await request.post(`${config.host}/mongo/document/create`, {
                 connectionId,
                 database,
                 collection,
-                data: JSON.parse(values.data),
+                data: JSON.parse(comData.current.data),
                 // ...saveOrUpdateData,
             })
             if (res.success) {
@@ -403,7 +409,7 @@ function DatabaseModal({ config, editType, onCancel, item, onSuccess,
                 id: item._id,
                 database,
                 collection,
-                data: JSON.parse(values.data),
+                data: JSON.parse(comData.current.data),
             })
             if (res.success) {
                 onSuccess && onSuccess()
@@ -421,10 +427,11 @@ function DatabaseModal({ config, editType, onCancel, item, onSuccess,
 
     return (
         <Modal
-            title={editType == 'create' ? t('新增记录') : t('编辑记录')}
+            title={editType == 'create' ? t('mongo.document.create') : t('mongo.document.update')}
             visible={true}
             maskClosable={false}
             onCancel={onCancel}
+            width={800 + 24 * 2}
             // onOk={async () => {
                 
             // }}
@@ -459,7 +466,7 @@ function DatabaseModal({ config, editType, onCancel, item, onSuccess,
                 </div>
             )}
         >
-            <Form
+            {/* <Form
                 form={form}
                 labelCol={{ span: 6 }}
                 wrapperCol={{ span: 18 }}
@@ -477,7 +484,21 @@ function DatabaseModal({ config, editType, onCancel, item, onSuccess,
                         rows={8}
                     />
                 </Form.Item>
-            </Form>
+            </Form> */}
+            <div className={styles.editorBox}>
+                <Editor
+                    lang="json"
+                    value={code}
+                    // event$={event$}
+                    // onChange={value => setCode2(value)}
+                    onChange={value => {
+                        comData.current.data = value
+                    }}
+                    onEditor={editor => {
+                        setEditor(editor)
+                    }}
+                />
+            </div>
         </Modal>
     );
 }
