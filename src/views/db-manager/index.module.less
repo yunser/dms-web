@@ -29,6 +29,11 @@
             padding-left: 16px;
             font-weight: bold;
             font-size: 20px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 6px;
+            padding-right: 8px;
         }
         .headerLeft {
             flex: 1 0;
@@ -112,5 +117,17 @@
         color: #8a9099;
         font-size: 12px;
         line-height: 1;
+    }
+}
+
+.apps {
+    display: flex;
+    flex-wrap: wrap;
+    width: 480px;
+    .item {
+        width: 240px;
+        margin-bottom: 6px;
+        // border: 1px solid #000;
+        cursor: pointer;
     }
 }

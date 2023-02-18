@@ -1,13 +1,13 @@
 import React, { useState, useId, useEffect, ReactNode, useMemo, useRef } from 'react'
 import styles from './index.module.less'
-import { message, Input, Button, Tabs, Space, Form, Checkbox, InputNumber, ConfigProvider, Tree, Empty, Modal, Dropdown, Menu, Tag } from 'antd'
+import { message, Input, Button, Tabs, Space, Form, Checkbox, InputNumber, ConfigProvider, Tree, Empty, Modal, Dropdown, Menu, Tag, Popover } from 'antd'
 import storage from './storage'
 import DatabaseList from './databases'
 import { DataBaseDetail } from './databaseDetail'
 import { request } from './utils/http'
 import { useTranslation } from 'react-i18next'
 import { IconButton } from './icon-button'
-import { BulbOutlined, CloseOutlined, DatabaseOutlined, EllipsisOutlined, ExportOutlined, FolderOutlined, MenuOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons'
+import { AppstoreOutlined, BulbOutlined, CloseOutlined, DatabaseOutlined, EllipsisOutlined, ExportOutlined, FolderOutlined, MenuOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons'
 import enUS from 'antd/es/locale/en_US';
 import zhCN from 'antd/es/locale/zh_CN';
 import { EsConnector } from './es-connectot'
@@ -869,7 +869,7 @@ export function DbManager({ config }) {
                                 // {
                                 //     type: 'divider',
                                 // },
-                                ...funCommands,
+                                // ...funCommands,
                                 {
                                     type: 'divider',
                                 },
@@ -953,6 +953,31 @@ export function DbManager({ config }) {
                             left: (
                                 <div className={styles.logoBox}>
                                     DMS
+                                    <Popover
+                                        placement="bottomLeft"
+                                        content={
+                                            <div className={styles.apps}>
+                                                {funCommands.map(item => {
+                                                    return (
+                                                        <div
+                                                            className={styles.item}
+                                                            key={item.key}
+                                                            onClick={() => {
+                                                                handleCommand(item.key)
+                                                            }}
+                                                        >
+                                                            {item.label}</div>
+                                                    )
+                                                })}
+                                            </div>
+                                        }
+                                    >
+                                        <IconButton
+                                            onClick={e => e.preventDefault()}
+                                        >
+                                            <AppstoreOutlined />
+                                        </IconButton>
+                                    </Popover>
                                 </div>
                             ),
                             right: tabRight
