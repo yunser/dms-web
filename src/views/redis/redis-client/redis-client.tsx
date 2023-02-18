@@ -802,6 +802,20 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
         })
     }
 
+    function exportAsCommand(nodeData) {
+        const keys = list
+            .filter(item => item.key.startsWith(nodeData.itemData.prefix))
+        //     .map(item => item.key)
+        // console.log('keys', keys)
+        event$.emit({
+            type: 'event_show_json',
+            data: {
+                json: JSON.stringify(keys, null, 4)
+                // connectionId,
+            },
+        })
+    }
+
     async function setAsDefaultDatabase() {
         let res = await request.post(`${config.host}/redis/connection/update`, {
             id: _item.id,
@@ -993,7 +1007,7 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
                                                 // icon: <InfoCircleOutlined />
                                             },
                                             {
-                                                label: t('export_json'),
+                                                label: t('redis.export_json'),
                                                 key: 'export_json',
                                                 // icon: <ExportOutlined />
                                             },
@@ -1032,7 +1046,7 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
                                             else if (key == 'flush_all') {
                                                 flushAll()
                                             }
-                                            else if (key == 'export_json') {
+                                            else if (key == 'redis.export_json') {
                                                 exportAllKeys()
                                             }
                                             else if (key == 'gen_2000') {
@@ -1172,6 +1186,7 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
                                         set: '#4088cc',
                                         hash: '#ad6ccb',
                                         zset: '#c84f46',
+                                        stream: '#b28ac0',
                                     }
                                     return (
                                         <div className={styles.treeTitle}
@@ -1264,18 +1279,23 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
                                                                     key: 'key_export_keys',
                                                                     children: [
                                                                         {
-                                                                            label: t('export_keys'),
+                                                                            label: t('redis.export_keys'),
                                                                             key: 'key_export_keys',
                                                                         },
                                                                         {
-                                                                            label: t('export_key_and_value'),
+                                                                            label: t('redis.export_json'),
                                                                             key: 'key_export_key_value',
                                                                         },
+                                                                        // {
+                                                                        //     label: t('redis.export_command'),
+                                                                        //     key: 'export_command',
+                                                                        // },
                                                                     ]
                                                                 },
                                                                 {
                                                                     label: t('delete'),
                                                                     key: 'key_delete',
+                                                                    danger: true,
                                                                 },
                                                             ]}
                                                             onClick={async ({ _item, key, keyPath, domEvent }) => {
@@ -1289,6 +1309,9 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
                                                                 }
                                                                 else if (key == 'key_export_key_value') {
                                                                     exportKeyValue(nodeData)
+                                                                }
+                                                                else if (key == 'export_command') {
+                                                                    exportAsCommand(nodeData)
                                                                 }
                                                             }}
                                                         >

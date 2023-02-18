@@ -11,6 +11,7 @@ import { DeleteOutlined, EllipsisOutlined, FolderOutlined, HeartOutlined, PlusOu
 
 import humanFormat from 'human-format'
 import { ListPushHandler } from './list-push';
+import { StreamContent } from './key-detail-stream';
 import { ListContent } from './key-detail-list';
 import { SetContent } from './key-detail-set';
 import { ZSetContent } from './key-detail-zset';
@@ -69,6 +70,66 @@ export function RedisKeyDetail({ config, event$, connectionId, redisKey, onRemov
             },
         })
     }
+    function exportAsCommand() {
+        console.log('result', result)
+        let command = ''
+        // let exportObj = {}
+        function toString(str: string) {
+            if (str.match(/\s/)) {
+                return `"${str.replace(/\"/g, '\\"')}"`
+            }
+            return str
+        }
+        if (result.type == 'string') {
+            console.log('ppp', result.value.replace(/"/g, '\"'))
+            command = `SET ${toString(result.key)} ${toString(result.value)}`
+        }
+        else if (result.type == 'list') {
+            command = 
+                [
+                    `DEL ${toString(result.key)}`,
+                    ...result.items.map(item => `RPUSH ${toString(result.key)} ${toString(item)}`),
+                ].join('\n')
+        }
+        else if (result.type == 'set') {
+            command = 
+                [
+                    `DEL ${toString(result.key)}`,
+                    ...result.items.map(item => `SADD ${toString(result.key)} ${toString(item)}`),
+                ].join('\n')
+        }
+        else if (result.type == 'zset') {
+            command = 
+                [
+                    `DEL ${toString(result.key)}`,
+                    ...result.items.map(item => `ZADD ${toString(result.key)} ${item.score} ${toString(item.member)}`),
+                ].join('\n')
+        }
+        else if (result.type == 'hash') {
+            command = 
+                [
+                    `DEL ${toString(result.key)}`,
+                    ...result.items.map(item => `HSET ${toString(result.key)} ${toString(item.key)} ${toString(item.value)}`),
+                ].join('\n')
+        }
+        else {
+            message.error('unknown type')
+            // exportObj = {
+            //     type: result.type,
+            //     key: result.key,
+            //     items: result.items,
+            // }
+        }
+
+        event$.emit({
+            type: 'event_show_json',
+            data: {
+                json: command,
+                // connectionId,
+            },
+        })
+    }
+    
     
     async function like() {
         let res = await request.post(`${config.host}/redis/key/create`, {
@@ -204,9 +265,12 @@ export function RedisKeyDetail({ config, event$, connectionId, redisKey, onRemov
                                             },
                                             {
                                                 key: 'export_json',
-                                                // danger: true,
                                                 label: t('export_json'),
-                                            }
+                                            },
+                                            {
+                                                key: 'export_command',
+                                                label: t('redis.export_command'),
+                                            },
                                         ]}
                                         onClick={({ key }) => {
                                             if (key == 'copy_key_name') {
@@ -215,6 +279,9 @@ export function RedisKeyDetail({ config, event$, connectionId, redisKey, onRemov
                                             }
                                             else if (key == 'export_json') {
                                                 exportJson()
+                                            }
+                                            else if (key == 'export_command') {
+                                                exportAsCommand()
                                             }
                                         }}
                                     />        
@@ -274,6 +341,16 @@ export function RedisKeyDetail({ config, event$, connectionId, redisKey, onRemov
                         }
                         {result.type == 'list' &&
                             <ListContent
+                                connectionId={connectionId}
+                                config={config}
+                                data={result}
+                                onSuccess={() => {
+                                    loadKey(result.key)
+                                }}
+                            />
+                        }
+                        {result.type == 'stream' &&
+                            <StreamContent
                                 connectionId={connectionId}
                                 config={config}
                                 data={result}
