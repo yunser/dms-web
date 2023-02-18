@@ -64,7 +64,7 @@ export function StreamContent({ curDb, connectionId, onSuccess, data, config }) 
         {
             title: t('redis.fields'),
             dataIndex: 'fields',
-            width: 560,
+            width: 480,
             ellipsis: true,
             render(value) {
                 console.log('value', value)
@@ -96,19 +96,19 @@ export function StreamContent({ curDb, connectionId, onSuccess, data, config }) 
                                 {t('edit')}
                             </Button>
                         </ListPushHandler> */}
-                        {/* <Button
+                        <Button
                             danger
                             size="small"
                             onClick={async () => {
                                 Modal.confirm({
-                                    content: `${t('delete')}「${item.value}」?`,
+                                    content: `${t('delete')}「${item.fields.join(', ')}」?`,
                                     async onOk() {
                                         
-                                        let ret = await request.post(`${config.host}/redis/lremIndex`, {
+                                        let ret = await request.post(`${config.host}/redis/xdel`, {
                                             connectionId: connectionId,
                                             key: data.key,
                                             // connectionId,
-                                            index,
+                                            id: item.id,
                                         })
                                         // console.log('ret', ret)
                                         if (ret.success) {
@@ -123,7 +123,7 @@ export function StreamContent({ curDb, connectionId, onSuccess, data, config }) 
                             }}
                         >
                             {t('delete')}
-                        </Button> */}
+                        </Button>
                     </Space>
                 )
             }
