@@ -463,6 +463,11 @@ i18n
                     'ping': 'Ping',
                     'hex': 'Hex',
                     'all': 'All',
+                    'app.group.network': 'Network',
+                    'app.group.data': 'Data',
+                    'app.group.tool': 'Tool',
+                    'app.group.file': 'File',
+                    'app.group.other': 'Other',
                 }
             },
             zh: {
@@ -918,6 +923,11 @@ i18n
                     'ping': 'Ping',
                     'hex': '十六进制',
                     'all': '全部',
+                    'app.group.network': '网络',
+                    'app.group.data': '数据',
+                    'app.group.tool': '工具',
+                    'app.group.file': '文件',
+                    'app.group.other': '其他',
                 }
             }
         },

@@ -675,46 +675,52 @@ export function DbManager({ config }) {
         {
             label: t('mysql'),
             key: 'mysql',
-        },
-        {
-            label: t('json'),
-            key: 'json',
+            group: 'data',
         },
         {
             label: t('redis'),
             key: 'redis',
+            group: 'data',
         },
         {
             label: t('git'),
             key: 'git',
+            group: 'tool',
         },
         {
             label: t('ssh/sftp'),
             key: 'ssh',
+            group: 'tool',
         },
         {
             label: t('file'),
             key: 'file',
+            group: 'file',
         },
         {
             label: t('terminal'),
             key: 'terminal',
+            group: 'tool',
+        },
+        {
+            label: t('json'),
+            key: 'json',
+            group: 'tool',
         },
         {
             label: t('markdown'),
             key: 'markdown',
+            group: 'tool',
         },
         {
             label: t('oss'),
             key: 'oss-home',
+            group: 'file',
         },
         {
             label: t('webdav'),
             key: 'webdav-home',
-        },
-        {
-            label: t('http'),
-            key: 'http-home',
+            group: 'file',
         },
         // {
         //     label: t('json_table'),
@@ -723,70 +729,91 @@ export function DbManager({ config }) {
         {
             label: t('aliyun'),
             key: 'aliyun',
+            group: 'tool',
         },
         {
             label: t('swagger'),
             key: 'swagger',
-        },
-        {
-            label: t('ip'),
-            key: 'ip',
+            group: 'tool',
         },
         {
             label: t('logger'),
             key: 'logger',
+            group: 'tool',
         },
         {
             label: t('mongo'),
             key: 'mongo',
-        },
-        {
-            label: t('websocket_client'),
-            key: 'websocket',
-        },
-        {
-            label: t('websocket_server'),
-            key: 'websocket-server',
-        },
-        {
-            label: t('mqtt'),
-            key: 'mqtt',
-        },
-        {
-            label: t('elasticsearch'),
-            key: 'elasticsearch',
-        },
-        {
-            label: t('text'),
-            key: 'text',
+            group: 'data',
         },
         {
             label: t('tcp_client'),
             key: 'tcp_client',
+            group: 'network',
         },
         {
             label: t('tcp_server'),
             key: 'tcp_server',
+            group: 'network',
+        },
+        {
+            label: t('udp_client'),
+            key: 'udp_client',
+            group: 'network',
+        },
+        {
+            label: t('udp_server'),
+            key: 'udp_server',
+            group: 'network',
         },
         {
             label: t('http_server'),
             key: 'http_server',
+            group: 'network',
+        },
+        {
+            label: t('websocket_client'),
+            key: 'websocket',
+            group: 'network',
+        },
+        {
+            label: t('websocket_server'),
+            key: 'websocket-server',
+            group: 'network',
+        },
+        {
+            label: t('ip'),
+            key: 'ip',
+            group: 'network',
+        },
+        {
+            label: t('http'),
+            key: 'http-home',
+            group: 'network',
+        },
+        {
+            label: t('mqtt'),
+            key: 'mqtt',
+            group: 'data',
+        },
+        {
+            label: t('elasticsearch'),
+            key: 'elasticsearch',
+            group: 'data',
+        },
+        {
+            label: t('text'),
+            key: 'text',
+            group: 'tool',
         },
         // {
         //     label: t('udp'),
         //     key: 'tcp/udp',
         // },
         {
-            label: t('udp_client'),
-            key: 'udp_client',
-        },
-        {
-            label: t('udp_server'),
-            key: 'udp_server',
-        },
-        {
             label: t('alasql'),
             key: 'alasql',
+            group: 'other',
         },
         // {
         //     label: t('model'),
@@ -797,6 +824,46 @@ export function DbManager({ config }) {
         //     key: 'project',
         // },
     ]
+
+    const funGroups = useMemo(() => {
+        const groups = [
+            {
+                id: 'tool',
+                name: t('app.group.tool'),
+                apps: [],
+            },
+            {
+                id: 'data',
+                name: t('app.group.data'),
+                apps: [],
+            },
+            {
+                id: 'file',
+                name: t('app.group.file'),
+                apps: [],
+            },
+            {
+                id: 'network',
+                name: t('app.group.network'),
+                apps: [],
+            },
+            {
+                id: 'other',
+                name: t('app.group.other'),
+                apps: [],
+            },
+        ]
+        for (let group of groups) {
+            if (group.id == 'other') {
+                group.apps = funCommands.filter(item => (item.group == 'other') || !item.group)
+            }
+            else {
+                group.apps = funCommands.filter(item => item.group == group.id)
+            }
+        }
+        return groups
+    }, [funCommands])
+
     function handleTabChange(key: string) {
         console.log('set key', key)
         setActiveKey(key)
@@ -956,19 +1023,30 @@ export function DbManager({ config }) {
                                     <Popover
                                         placement="bottomLeft"
                                         content={
-                                            <div className={styles.apps}>
-                                                {funCommands.map(item => {
-                                                    return (
-                                                        <div
-                                                            className={styles.item}
-                                                            key={item.key}
-                                                            onClick={() => {
-                                                                handleCommand(item.key)
-                                                            }}
-                                                        >
-                                                            {item.label}</div>
-                                                    )
-                                                })}
+                                            <div>
+                                                <div className={styles.groups}>
+                                                    {funGroups.map(group => {
+                                                        return (
+                                                            <div className={styles.group}>
+                                                                <div className={styles.groupName}>{group.name}</div>
+                                                                <div className={styles.apps}>
+                                                                    {group.apps.map(item => {
+                                                                        return (
+                                                                            <div
+                                                                                className={styles.item}
+                                                                                key={item.key}
+                                                                                onClick={() => {
+                                                                                    handleCommand(item.key)
+                                                                                }}
+                                                                            >
+                                                                                {item.label}</div>
+                                                                        )
+                                                                    })}
+                                                                </div>
+                                                            </div>
+                                                        )
+                                                    })}
+                                                </div>
                                             </div>
                                         }
                                     >
