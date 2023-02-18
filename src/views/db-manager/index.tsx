@@ -443,6 +443,9 @@ export function DbManager({ config }) {
         else if (key == 'tcp_server') {
             window.open('/pages/tcp/server', '_blank')
         }
+        else if (key == 'monitor') {
+            window.open('/pages/service', '_blank')
+        }
         else if (key == 'http_server') {
             window.open('/pages/http/server', '_blank')
         }
@@ -821,6 +824,11 @@ export function DbManager({ config }) {
         //     label: t('project'),
         //     key: 'project',
         // },
+        {
+            label: t('monitor'),
+            key: 'monitor',
+            group: 'tool',
+        },
     ]
 
     const funGroups = useMemo(() => {
