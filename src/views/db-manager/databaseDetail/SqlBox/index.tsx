@@ -371,7 +371,6 @@ function SqlBox({ config, tabViewId, event$, databaseType, connectionId, onJson,
     // console.log('render.execResults', execResults)
 
     const onEdit = (targetKey: string, action: string) => {
-        console.log('targetKey, action', targetKey, action)
         // this[action](targetKey);
         if (action === 'add') {
         }

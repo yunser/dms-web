@@ -1,6 +1,5 @@
 const storage = {
     set (key, value) {
-        console.log('set', key, value)
         if (value === undefined || value === null) {
             localStorage.setItem(key, null)
             return

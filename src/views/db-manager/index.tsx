@@ -265,7 +265,6 @@ export function DbManager({ config }) {
     }, [])
 
     event$.useSubscription(msg => {
-        console.log('dbManager/onmessage', msg)
         // console.log(val);
         if (msg.type == 'event_show_json') {
             const { json } = msg.data
@@ -360,7 +359,6 @@ export function DbManager({ config }) {
     function handleCommand(key, commandData = {}) {
         const app = funCommands.find(item => item.key == key)
         if (app) {
-            console.log('app', app)
             const historyApps = storage.get('historyApps', [])
             let newHistoryApps = historyApps.filter(item => item.command != app.key)
             newHistoryApps.unshift({
@@ -865,12 +863,10 @@ export function DbManager({ config }) {
     }, [funCommands])
 
     function handleTabChange(key: string) {
-        console.log('set key', key)
         setActiveKey(key)
     }
 
     const onEdit = (targetKey: string, action: string) => {
-        console.log('targetKey, action', targetKey, action)
         // this[action](targetKey);
         if (action === 'add') {
             // let tabKey = '' + new Date().getTime()

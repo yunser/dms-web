@@ -362,8 +362,6 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
     function initWebSocket() {
         let first = true
         const ws = new WebSocket('ws://localhost:10087/')
-        console.log('initWebSocket')
-        console.log('readyState', ws.readyState)
         
         ws.onclose = async () => {
             console.log('socket/on-close')
@@ -541,7 +539,6 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         const link = document.createElement("a")
         // let temp = res.headers["content-disposition"].split(";")[1].split("filename=")[1];
         // const fileName = decodeURIComponent(temp);  
-        // console.log('fileName_',fileName)
         link.style.display = "none"
         link.href = downloadUrl
         link.setAttribute('download', item.name)
@@ -635,14 +632,12 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
             // const file = null
             if (items && items.length) {
                 // 检索剪切板items
-                console.log('items', items)
                 for (let i = 0; i < items.length; i++) {
                     const item = items[i]
                     console.log('type', item.type)
                     // application/zip
                     if (items[i].type.indexOf('image') !== -1) {
                         const file = items[i].getAsFile()
-                        console.log('file', file)
                         setPasteFile(file)
                         setPasteVisible(true)
                         break
@@ -915,7 +910,6 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
 
     function uploadFile({ file, name, onSuccess = () => { } }) {
         let formData = new FormData()
-        console.log('file', file)
         formData.append('file', file)
         formData.append('path', curPath + '/' + (name || file.name))
         formData.append('sourceType', sourceType)
@@ -1312,7 +1306,6 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                         e.stopPropagation();
                         e.preventDefault();
                         const file = e.dataTransfer.files[0]
-                        console.log('file', file)
                         uploadFile({ file })
                         // const reader = new FileReader()
                         // reader.onload = async () => {

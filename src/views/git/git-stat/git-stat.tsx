@@ -169,7 +169,6 @@ export function GitStat({ config, event$, projectPath,  }) {
     // })
 
 
-    console.log('render/list', list)
     const stat = useMemo(() => {
         // {
         //     "hash": "727bfac6ad159647701f1265bc89fdd6c5c33759",

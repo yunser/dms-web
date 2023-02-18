@@ -67,8 +67,6 @@ export function TcpClient({  }) {
         let first = true
         const ws = new WebSocket('ws://localhost:10087/')
         // comData.current.webSocket = ws
-        console.log('initWebSocket')
-        console.log('readyState', ws.readyState)
         
         ws.onclose = async () => {
             console.log('socket/on-close')

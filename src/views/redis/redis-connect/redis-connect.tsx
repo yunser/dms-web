@@ -354,62 +354,64 @@ export function RedisConnect({ config, event$, onConnect, }) {
                         }}
                     />
                 </div>
-                {loading ?
-                    <FullCenterBox
-                        height={320}
-                    >
-                        <Spin />
-                    </FullCenterBox>
-                : filterdConnections.length == 0 ?
-                    <FullCenterBox
-                        height={320}
-                    >
-                        <Empty
-                            description="没有记录"
-                        />
-                    </FullCenterBox>
-                : view == 'list' ?
-                    <div className={styles.list}>
-                        {filterdConnections.map((item, index) => {
-                            return (
-                                <div
-                                    key={item.id}
-                                    className={classNames(styles.item, {
-                                        // [styles.active]: index == activeIndex
-                                    })}
-                                    onClick={(e) => {
-                                        connect(item)
-                                    }}
-                                    // onDoubleClick={() => {
-                                    //     onProject && onProject(item)
-                                    // }}
-                                >
-                                    <Space>
-                                        <div className={styles.name}>{item.name}</div>
-                                        <div className={styles.info}>{item.host}:{item.port}</div>
-                                    </Space>
-                                    <Space
+                <div className={styles.layoutBody}>
+                    {loading ?
+                        <FullCenterBox
+                            height={320}
+                        >
+                            <Spin />
+                        </FullCenterBox>
+                    : filterdConnections.length == 0 ?
+                        <FullCenterBox
+                            height={320}
+                        >
+                            <Empty
+                                description="没有记录"
+                            />
+                        </FullCenterBox>
+                    : view == 'list' ?
+                        <div className={styles.list}>
+                            {filterdConnections.map((item, index) => {
+                                return (
+                                    <div
+                                        key={item.id}
+                                        className={classNames(styles.item, {
+                                            // [styles.active]: index == activeIndex
+                                        })}
                                         onClick={(e) => {
-                                            e.preventDefault()
-                                            e.stopPropagation()
+                                            connect(item)
                                         }}
+                                        // onDoubleClick={() => {
+                                        //     onProject && onProject(item)
+                                        // }}
                                     >
-                                        {more(item)}
-                                    </Space>
-                                </div>
-                            )
-                        })}
-                    </div>
-                :
-                    <Table
-                        dataSource={filterdConnections}
-                        pagination={false}
-                        columns={columns}
-                        bordered
-                        size="small"
-                        rowKey="id"
-                    />
-                }
+                                        <Space>
+                                            <div className={styles.name}>{item.name}</div>
+                                            <div className={styles.info}>{item.host}:{item.port}</div>
+                                        </Space>
+                                        <Space
+                                            onClick={(e) => {
+                                                e.preventDefault()
+                                                e.stopPropagation()
+                                            }}
+                                        >
+                                            {more(item)}
+                                        </Space>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    :
+                        <Table
+                            dataSource={filterdConnections}
+                            pagination={false}
+                            columns={columns}
+                            bordered
+                            size="small"
+                            rowKey="id"
+                        />
+                    }
+                </div>
             </div>
             
             {/* <TextArea className={styles.textarea} value={code} rows={4} 

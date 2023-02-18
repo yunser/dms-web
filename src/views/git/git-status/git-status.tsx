@@ -296,7 +296,6 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
             }
             setUnstagedList(_unstagedList)
             // setUnstagedList(status.modified.filter(file => {
-            //     console.log('file', file)
             //     return !status.staged.includes(file)
             // }))
             
@@ -329,7 +328,6 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
         let res = await request.post(`${config.host}/git/getConfig`, {
             projectPath,
         })
-        console.log('getConfig/res', res.data)
         if (res.success) {
             setConfig(res.data.config)
             // const list = res.data
@@ -441,7 +439,6 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
         if (FileUtil.isImage(path)) {
             console.log('img', path)
             const filePath = projectPath + '/' + path
-            console.log('filePath', filePath)
             setDiffType('image')
             setDiffText(`${config.host}/file/imagePreview?sourceType=local&path=${encodeURIComponent(filePath)}`)
         }
@@ -489,7 +486,6 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
         if (FileUtil.isImage(path)) {
             console.log('img', path)
             const filePath = projectPath + '/' + path
-            console.log('filePath', filePath)
             setDiffType('image')
             setDiffText(`${config.host}/file/imagePreview?sourceType=local&path=${encodeURIComponent(filePath)}`)
         }

@@ -122,8 +122,6 @@ export function WebSocketServer({ }) {
     function initWebSocket(connectionId) {
         let first = true
         const ws = new WebSocket(url)
-        console.log('initWebSocket')
-        console.log('readyState', ws.readyState)
         
         ws.onclose = async (e) => {
             console.log('socket/on-close', e)
@@ -290,8 +288,6 @@ export function WebSocketServer({ }) {
             message.success(t('success'))
         }
     }
-
-    console.log('render/list', messages)
 
     async function closeAllClient(item) {
         let res = await request.post(`${config.host}/websocket/closeClient`, {

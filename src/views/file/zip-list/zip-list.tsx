@@ -244,7 +244,6 @@ export function ZipList({ config, event$, path, tabKey, item, showSide = false }
         const link = document.createElement("a")
         // let temp = res.headers["content-disposition"].split(";")[1].split("filename=")[1];
         // const fileName = decodeURIComponent(temp);  
-        // console.log('fileName_',fileName)
         link.style.display = "none"
         link.href = downloadUrl
         link.setAttribute('download', item.name)

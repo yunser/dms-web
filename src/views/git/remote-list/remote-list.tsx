@@ -165,7 +165,6 @@ export function RemoteList({ config, event$, projectPath }) {
                             gitlabUrl = item.refs.fetch.replace('ssh://git@gitlab.weyatech.cn:10022', 'http://gitlab.weyatech.cn')
                                 .replace(/.git$/, '')
                         }
-                        console.log('gitlabUrl', gitlabUrl)
                         return (
                             <div
                                 className={styles.item}

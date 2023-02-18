@@ -53,7 +53,6 @@ export function FilePathModal({ config, type, path, onSuccess, sourceType, onCan
         if (!inputRef.current) {
             return
         }
-        console.log('inputRef.current', inputRef.current)
         inputRef.current!.focus({
             cursor: 'all',
         })

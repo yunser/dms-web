@@ -203,7 +203,6 @@ function Files({ event$, config, serviceInfo, onClickItem }) {
     }
 
     event$.useSubscription(msg => {
-        // console.log('dbManager/onmessage', msg)
         // console.log(val);
         if (msg.type == 'type_reload_file') {
             loadData()

@@ -46,7 +46,6 @@ antlr4.tree.ParseTreeWalker.DEFAULT.walk(printer, tree);
 // extends antlr4.tree.ParseTreeListener
 class Visitor extends antlr4.tree.ParseTreeVisitor {
     visitChildren(ctx) {
-        console.log('visitChildren',)
         if (!ctx) {
             return;
         }

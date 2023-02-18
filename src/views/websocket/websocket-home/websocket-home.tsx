@@ -75,8 +75,6 @@ export function WebSocketHome({ }) {
     function initWebSocket() {
         let first = true
         const ws = new WebSocket(url)
-        console.log('initWebSocket')
-        console.log('readyState', ws.readyState)
         setConnecting(true)
         ws.onclose = async (e) => {
             console.log('socket/on-close', e)
@@ -216,8 +214,6 @@ export function WebSocketHome({ }) {
         //     message.success('发布成功')
         // }
     }
-
-    console.log('render/list', list)
 
     return (
         <div className={styles.mqttBox}>

@@ -130,7 +130,6 @@ export function GitHome({ event$, onProject }) {
                 if (filterdProjects[activeIndex]) {
                     onProject && onProject(filterdProjects[activeIndex], !!e.metaKey)
                 }
-                // console.log('inputRef', inputRef.current)
                 // if (inputRef.current.inputing) {
                 //     return
                 // }

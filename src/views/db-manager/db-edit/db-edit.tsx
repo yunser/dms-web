@@ -137,7 +137,6 @@ export function DatabaseModal({ config, connectionId, item, onClose, onSuccess, 
                 }
                 characterSetMap[item.CHARACTER_SET_NAME].push(item.COLLATION_NAME)
             }
-            console.log('set', characterSetMap)
             characterSets.sort((a, b) => a.label.localeCompare(b.label))
             setCharacterSets(characterSets)
             setCharacterSetMap(characterSetMap)

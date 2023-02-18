@@ -28,7 +28,6 @@ export const Editor: VFC = ({ lang = 'sql',
     })
     
     event$ && event$.useSubscription(msg => {
-        console.log('dbManager/onmessage', msg)
         // console.log(val);
         if (msg.type == 'type_theme_changed') {
             const { theme } = msg.data

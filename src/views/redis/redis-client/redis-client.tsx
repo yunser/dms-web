@@ -274,8 +274,6 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
     function initWebSocket() {
         let first = true
         const ws = new WebSocket('ws://localhost:10087/')
-        console.log('initWebSocket')
-        console.log('readyState', ws.readyState)
         
         ws.onclose = async () => {
             console.log('socket/on-close')
@@ -339,7 +337,6 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
     }
 
     async function connect() {
-        console.log('重连', _item)
         const item = _item
         const reqData = {
             host: item.host,
@@ -374,7 +371,6 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
     }, [_item])
 
     async function reconnect() {
-        console.log('重连', _item)
         connect()
     }
 
@@ -444,7 +440,6 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
     }
 
     const onEdit = (targetKey: string, action: string) => {
-        console.log('targetKey, action', targetKey, action)
         // this[action](targetKey);
         if (action === 'add') {
             // let tabKey = '' + new Date().getTime()

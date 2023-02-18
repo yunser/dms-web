@@ -266,7 +266,6 @@ export function DataBaseDetail({ databaseType = 'mysql', curConnect, _connection
     })
 
     event$.useSubscription(msg => {
-        console.log('dbManager/onmessage', msg)
         // console.log(val);
         if (msg.type == 'event_show_users_tab') {
             const { connectionId: _connectionId, schemaName } = msg.data
@@ -349,8 +348,6 @@ export function DataBaseDetail({ databaseType = 'mysql', curConnect, _connection
     function initWebSocket() {
         let first = true
         const ws = new WebSocket('ws://localhost:10087/')
-        console.log('initWebSocket')
-        console.log('readyState', ws.readyState)
         
         ws.onclose = async () => {
             console.log('socket/on-close')
@@ -548,7 +545,6 @@ export function DataBaseDetail({ databaseType = 'mysql', curConnect, _connection
     }
 
     const onEdit = (targetKey: string, action: string) => {
-        console.log('targetKey, action', targetKey, action)
         if (action === 'add') {
             let tabKey = '' + new Date().getTime()
             setActiveKey(tabKey)

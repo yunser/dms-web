@@ -112,22 +112,6 @@ export function Viewer() {
     let [searchParams, setSearchParams] = useSearchParams();
 
     const host = searchParams.get('host')
-    console.log('host', host)
-
-    const [config, setConfig] = useState({
-        format: format_default,
-    })
-    const [loading, setLoading] = useState(false)
-    const [status, setStatus] = useState('')
-
-    const [keyword, setKeyword] = useState('')
-
-
-
-
-    // console.log('item', list[0])
-
-    
 
     return (
         <div className={classes.viewer}>

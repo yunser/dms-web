@@ -13,7 +13,6 @@ import filesize from 'file-size';
 import { CodeDebuger } from '../code-debug';
 import moment from 'moment';
 import { dbFunConfigMap } from '../utils/database';
-// console.log('lodash', _)
 const { TabPane } = Tabs
 
 function hasValue(value) {
@@ -51,19 +50,16 @@ const Billing = app.model.define('billing', {
 
 function parseColumns(item) {
     const { sql } = item
-    console.log('parseColumns/sql', sql)
     if (!sql) {
         return []
     }
     const m = sql.match(/\(([\d\D]+)\)/)
-    console.log('parseColumns/m', m)
     if (!m) {
         return []
     }
     const cols = m[1].split(',')
         .map(item => item.replace(/\s/g, ''))
         .map(item => item.substring(1, item.length - 1))
-    console.log('parseColumns/cols', cols)
     return cols
 
 }
@@ -192,14 +188,12 @@ function ColumnSelector({ value: _value, onChange, options }) {
 
 
 function Cell({ value, selectOptions, index, dataIndex, onChange }) {
-    // console.log('Cell/value', value)
     // const inputRef = useRef(null)
     const id = useMemo(() => {
         return uid(32)
     }, [])
 
     if (!value) {
-        // console.log('?', value)
         return <div>?</div>
     }
     const [isEdit, setIsEdit] = useState(false)

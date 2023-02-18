@@ -39,8 +39,6 @@ export function UdpClient({ onClickItem }) {
     function initWebSocket() {
         let first = true
         const ws = new WebSocket('ws://localhost:10087/')
-        console.log('initWebSocket')
-        console.log('readyState', ws.readyState)
         
         ws.onclose = async () => {
             console.log('socket/on-close')

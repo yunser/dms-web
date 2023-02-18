@@ -111,7 +111,6 @@ export function CommitList({ config, event$, projectPath,  }) {
         if (res.success) {
             const { files } = res.data
             const _files = files.map(file => {
-                console.log('file', file)
                 let oldName = file
                 // let oldName = 'app/middleware/{errorHandler.js => errordeal.js}'
                 let m = oldName.match(/{[\d\D]+=> ([\d\D]+)}/)

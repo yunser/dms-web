@@ -151,12 +151,6 @@ export function StashList({ config, event$, projectPath }) {
     }
 
     async function apply(item) {
-        // console.log('apply', item)
-        // const command = `git stash apply stash@{${item.index}}`
-        // copy(command)
-        // message.success(t('copied'))
-        // console.log('', )
-        console.log('projectPath', projectPath)
         let res = await request.post(`${config.host}/git/stash/apply`, {
             projectPath,
             index: item.index,

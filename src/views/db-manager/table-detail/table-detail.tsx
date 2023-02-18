@@ -976,14 +976,12 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
             }
             characterSetMap[item.CHARACTER_SET_NAME].push(item.COLLATION_NAME)
         }
-        console.log('set', characterSetMap)
         characterSets.sort((a, b) => a.label.localeCompare(b.label))
         setCharacterSets(characterSets)
         setCharacterSetMap(characterSetMap)
         // CHARACTER_SET_NAME: "ucs2"
         // COLLATION_NAME: "ucs2_esperanto_ci"
         let tableColl = charData.find(item => item.COLLATION_NAME == tableInfo.TABLE_COLLATION)
-        console.log('tableColl', tableColl)
         let values = {
             characterSet: null,
             collation: null,

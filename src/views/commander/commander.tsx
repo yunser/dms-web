@@ -114,7 +114,6 @@ function ModalContent({ commands, onCommand, onCancel }) {
                 setCurIndex(newIdx)
             }
             else if (e.code == 'Enter') {
-                console.log('inputRef', inputRef.current)
                 if (inputRef.current.inputing) {
                     return
                 }

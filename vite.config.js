@@ -3,14 +3,9 @@ import react from '@vitejs/plugin-react'
 // import legacy from '@vitejs/plugin-legacy'
 import path from 'path'
 
-// import commonjs from "@rollup/plugin-commonjs";
-// import externalGlobals from "rollup-plugin-external-globals";
-// import importToCDN from 'vite-plugin-cdn-import'
 
 const projectRootDir = path.resolve(__dirname);
 
-// console.log('projectRootDir', projectRootDir)
-// console.log('paths', path.resolve(projectRootDir, 'src/views'))
 
 // https://vitejs.dev/config/
 export default defineConfig({

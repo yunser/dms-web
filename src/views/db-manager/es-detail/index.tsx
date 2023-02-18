@@ -303,7 +303,6 @@ export function EsDetail({ dbName, event$, config }) {
     }
 
     const onEdit = (targetKey: string, action: string) => {
-        console.log('targetKey, action', targetKey, action)
         // this[action](targetKey);
         if (action === 'add') {
             let tabKey = '' + new Date().getTime()
