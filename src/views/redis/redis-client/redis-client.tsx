@@ -913,6 +913,10 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
                                                 label: t('hash'),
                                                 key: 'hash',
                                             },
+                                            {
+                                                label: t('redis.stream'),
+                                                key: 'stream',
+                                            },
                                             // {
                                             //     type: 'divider',
                                             // },
@@ -952,6 +956,10 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
                                             else if (key == 'hash') {
                                                 setAddModalVisible(true)
                                                 setAddType('hash')
+                                            }
+                                            else if (key == 'stream') {
+                                                setAddModalVisible(true)
+                                                setAddType('stream')
                                             }
                                             // else if (key == 'command') {
                                             //     addEditorTab()

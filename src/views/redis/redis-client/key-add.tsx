@@ -126,6 +126,17 @@ export function KeyAddModal({ config, type, onCancel, connectionId, item, onClos
                 // dbName,
             })
         }
+        else if (type == 'stream') {
+            res = await request.post(`${config.host}/redis/xadd`, {
+                connectionId: connectionId,
+                key: values.name,
+                // field: '',
+                // fields: ['New Field', 'New Field'],
+                fields: ['Field', 'Value'],
+                // value: 'New Value',
+                // dbName,
+            })
+        }
         console.log('get/res', res.data)
         if (res.success) {
             message.success(t('success'))
