@@ -62,7 +62,7 @@ export function StreamContent({ curDb, connectionId, onSuccess, data, config }) 
             ellipsis: true,
         },
         {
-            title: t('fields'),
+            title: t('redis.fields'),
             dataIndex: 'fields',
             width: 560,
             ellipsis: true,
@@ -161,7 +161,8 @@ export function StreamContent({ curDb, connectionId, onSuccess, data, config }) 
                 }
             </div>
             <div className={styles.footer}>
-                {/* <ListPushHandler
+                <ListPushHandler
+                    type="stream"
                     config={config}
                     connectionId={connectionId}
                     redisKey={data.key}
@@ -172,7 +173,7 @@ export function StreamContent({ curDb, connectionId, onSuccess, data, config }) 
                     >
                         {t('add')}
                     </Button>
-                </ListPushHandler> */}
+                </ListPushHandler>
             </div>
         </>
     )

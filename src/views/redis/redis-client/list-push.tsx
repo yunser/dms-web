@@ -212,6 +212,42 @@ export function DatabaseModal({ config, type, redisKey, connectionId, item, onCl
                         }
                     }
                 }
+                else if (type == 'stream') {
+                    if (editType == 'create') {
+                        const fields = values.content.split('\n')
+                        console.log('fields', fields)
+                        let ret = await request.post(`${config.host}/redis/xadd`, {
+                            key: redisKey,
+                            connectionId,
+                            fields,
+                        })
+                        // console.log('ret', ret)
+                        if (ret.success) {
+                            // message.success('连接成功')
+                            // onConnect && onConnect()
+                            message.success('Success')
+                            onClose && onClose()
+                            onSuccess && onSuccess()
+                        }
+                    }
+                    else {
+                        // let ret = await request.post(`${config.host}/redis/sreplace`, {
+                        //     connectionId,
+                        //     key: redisKey,
+                        //     // index: item.index,
+                        //     value: item.value,
+                        //     newValue: values.value,
+                        // })
+                        // // console.log('ret', ret)
+                        // if (ret.success) {
+                        //     // message.success('连接成功')
+                        //     // onConnect && onConnect()
+                        //     message.success('Success')
+                        //     onClose && onClose()
+                        //     onSuccess && onSuccess()
+                        // }
+                    }
+                }
                 else {
                     if (editType == 'create') {
                         let ret = await request.post(`${config.host}/redis/rpush`, {
@@ -305,15 +341,29 @@ export function DatabaseModal({ config, type, redisKey, connectionId, item, onCl
                         />
                     </Form.Item>
                 }
-                <Form.Item
-                    name="value"
-                    label={t('content')}
-                    rules={[ { required: true, }, ]}
-                >
-                    <Input
-                        // disabled={!(editType == 'create')}
-                    />
-                </Form.Item>
+                {type == 'stream' ?
+                    <Form.Item
+                        name="content"
+                        label={t('content')}
+                        rules={[ { required: true, }, ]}
+                    >
+                        <Input.TextArea
+                            rows={8}
+                            placeholder="field 1&#10;value 1&#10;field 2&#10;value 2"
+                            // disabled={!(editType == 'create')}
+                        />
+                    </Form.Item>
+                :
+                    <Form.Item
+                        name="value"
+                        label={t('content')}
+                        rules={[ { required: true, }, ]}
+                    >
+                        <Input
+                            // disabled={!(editType == 'create')}
+                        />
+                    </Form.Item>
+                }
                 {/* <Form.Item
                     name="characterSet"
                     label="Character Set"
