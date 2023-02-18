@@ -76,8 +76,105 @@ export function KeyAddModal({ config, type, onCancel, connectionId, item, onClos
     // }, [])
    
 
-    
-
+    async function handleOk() {
+        const values = await form.validateFields()
+        setLoading(true)
+        let res
+        if (type == 'string') {
+            res = await request.post(`${config.host}/redis/set`, {
+                connectionId: connectionId,
+                key: values.name,
+                value: 'New Key',
+                // dbName,
+            })
+        }
+        else if (type == 'list') {
+            res = await request.post(`${config.host}/redis/rpush`, {
+                connectionId: connectionId,
+                key: values.name,
+                // field: '',
+                value: 'New Item',
+                // dbName,
+            })
+        }
+        else if (type == 'set') {
+            res = await request.post(`${config.host}/redis/sadd`, {
+                connectionId: connectionId,
+                key: values.name,
+                // field: '',
+                value: 'New Item',
+                // dbName,
+            })
+        }
+        else if (type == 'zset') {
+            res = await request.post(`${config.host}/redis/zadd`, {
+                connectionId: connectionId,
+                key: values.name,
+                // field: '',
+                score: 0,
+                value: 'New Item',
+                // dbName,
+            })
+        }
+        else if (type == 'hash') {
+            res = await request.post(`${config.host}/redis/hset`, {
+                connectionId: connectionId,
+                key: values.name,
+                // field: '',
+                field: 'New Field',
+                value: 'New Value',
+                // dbName,
+            })
+        }
+        console.log('get/res', res.data)
+        if (res.success) {
+            message.success(t('success'))
+            onSuccess && onSuccess({
+                key: values.name,
+            })
+            // setResult({
+            //     key: item,
+            //     ...res.data,
+            // })
+            // setInputValue(res.data.value)
+        }
+        setLoading(false)
+        // if (editType == 'create') {
+        //     let ret = await request.post(`${config.host}/redis/rpush`, {
+        //         position: values.position,
+        //         key: redisKey,
+        //         connectionId,
+        //         value: values.value,
+        //     })
+        //     // console.log('ret', ret)
+        //     if (ret.success) {
+        //         // message.success('连接成功')
+        //         // onConnect && onConnect()
+        //         message.success('Success')
+        //         onClose && onClose()
+        //         onSuccess && onSuccess()
+        //     }
+        // }
+        // else {
+        //     let ret = await request.post(`${config.host}/redis/lset`, {
+        //         connectionId,
+        //         key: redisKey,
+        //         index: item.index,
+        //         value: values.value,
+        //     })
+        //     // console.log('ret', ret)
+        //     if (ret.success) {
+        //         // message.success('连接成功')
+        //         // onConnect && onConnect()
+        //         message.success('Success')
+        //         onClose && onClose()
+        //         onSuccess && onSuccess()
+        //     }
+        // }
+        // else {
+        //     message.error('Fail')
+        // }
+    }
 
     return (
         <Modal
@@ -87,105 +184,7 @@ export function KeyAddModal({ config, type, onCancel, connectionId, item, onClos
             onCancel={onCancel}
             maskClosable={false}
             confirmLoading={loading}
-            onOk={async () => {
-                const values = await form.validateFields()
-                setLoading(true)
-                let res
-                if (type == 'string') {
-                    res = await request.post(`${config.host}/redis/set`, {
-                        connectionId: connectionId,
-                        key: values.name,
-                        value: 'New Key',
-                        // dbName,
-                    })
-                }
-                else if (type == 'list') {
-                    res = await request.post(`${config.host}/redis/rpush`, {
-                        connectionId: connectionId,
-                        key: values.name,
-                        // field: '',
-                        value: 'New Item',
-                        // dbName,
-                    })
-                }
-                else if (type == 'set') {
-                    res = await request.post(`${config.host}/redis/sadd`, {
-                        connectionId: connectionId,
-                        key: values.name,
-                        // field: '',
-                        value: 'New Item',
-                        // dbName,
-                    })
-                }
-                else if (type == 'zset') {
-                    res = await request.post(`${config.host}/redis/zadd`, {
-                        connectionId: connectionId,
-                        key: values.name,
-                        // field: '',
-                        score: 0,
-                        value: 'New Item',
-                        // dbName,
-                    })
-                }
-                else if (type == 'hash') {
-                    res = await request.post(`${config.host}/redis/hset`, {
-                        connectionId: connectionId,
-                        key: values.name,
-                        // field: '',
-                        field: 'New Field',
-                        value: 'New Value',
-                        // dbName,
-                    })
-                }
-                console.log('get/res', res.data)
-                if (res.success) {
-                    message.success(t('success'))
-                    onSuccess && onSuccess({
-                        key: values.name,
-                    })
-                    // setResult({
-                    //     key: item,
-                    //     ...res.data,
-                    // })
-                    // setInputValue(res.data.value)
-                }
-                setLoading(false)
-                // if (editType == 'create') {
-                //     let ret = await request.post(`${config.host}/redis/rpush`, {
-                //         position: values.position,
-                //         key: redisKey,
-                //         connectionId,
-                //         value: values.value,
-                //     })
-                //     // console.log('ret', ret)
-                //     if (ret.success) {
-                //         // message.success('连接成功')
-                //         // onConnect && onConnect()
-                //         message.success('Success')
-                //         onClose && onClose()
-                //         onSuccess && onSuccess()
-                //     }
-                // }
-                // else {
-                //     let ret = await request.post(`${config.host}/redis/lset`, {
-                //         connectionId,
-                //         key: redisKey,
-                //         index: item.index,
-                //         value: values.value,
-                //     })
-                //     // console.log('ret', ret)
-                //     if (ret.success) {
-                //         // message.success('连接成功')
-                //         // onConnect && onConnect()
-                //         message.success('Success')
-                //         onClose && onClose()
-                //         onSuccess && onSuccess()
-                //     }
-                // }
-                // else {
-                //     message.error('Fail')
-                // }
-            }}
+            onOk={handleOk}
         >
             <Form
                 form={form}
@@ -196,6 +195,7 @@ export function KeyAddModal({ config, type, onCancel, connectionId, item, onClos
                     // port: 6379,
                     // db: 0,
                 }}
+                onFinish={handleOk}
                 // layout={{
                 //     labelCol: { span: 0 },
                 //     wrapperCol: { span: 24 },
@@ -207,6 +207,7 @@ export function KeyAddModal({ config, type, onCancel, connectionId, item, onClos
                     rules={[ { required: true, }, ]}
                 >
                     <Input
+                        autoFocus
                         // disabled={!(editType == 'create')}
                     />
                 </Form.Item>

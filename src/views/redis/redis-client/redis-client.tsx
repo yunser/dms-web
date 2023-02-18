@@ -20,6 +20,7 @@ import { RedisDuplicateModal } from '../redis-duplicate';
 import { PubSubModal } from '../redis-pubsub';
 import { FullCenterBox } from '@/views/common/full-center-box';
 import moment from 'moment';
+import { RedisOpenModal } from '../redis-open';
 
 
 function Status({ config, connectionId }) {
@@ -247,6 +248,8 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
     // rename
     const [renameModalVisible, setRenameModalVisible] = useState(false)
     const [renameKey, setRenameKey] = useState('')
+    // open
+    const [openModalVisible, setOpenModalVisible] = useState(false)
     // duplicate
     const [duplicateVisible, setDuplicateVisible] = useState(false)
     const [duplicateKey, setDuplicateKey] = useState('')
@@ -1509,6 +1512,17 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
                             </div>
                         )
                     })}
+                    {tabInfo.items.length == 0 &&
+                        <FullCenterBox>
+                            <Button
+                                onClick={() => {
+                                    setOpenModalVisible(true)
+                                }}
+                            >
+                                {t('redis.key.open')}
+                            </Button>
+                        </FullCenterBox>
+                    }
                 </div>
             </div>
             {addModalVisible &&
@@ -1522,6 +1536,21 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
                     onSuccess={({ key }) => {
                         setAddModalVisible(false)
                         loadKeys()
+                        addKey2Tab(key)
+                    }}
+                />
+            }
+            {openModalVisible &&
+                <RedisOpenModal
+                    config={config}
+                    connectionId={connectionId}
+                    redisKey={renameKey}
+                    onCancel={() => {
+                        setOpenModalVisible(false)
+                    }}
+                    onSuccess={({ key }) => {
+                        setOpenModalVisible(false)
+                        // loadKeys()
                         addKey2Tab(key)
                     }}
                 />
