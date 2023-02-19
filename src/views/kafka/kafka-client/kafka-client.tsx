@@ -26,6 +26,7 @@ export function KafkaClient({ onClickItem }) {
     const [socketType, setSocketType] = useState('udp_server')
     
     const [topics, setTopics] = useState([])
+    const [groups, setGroups] = useState([])
 
     const comData = useRef({
         // cursor: 0,
@@ -36,17 +37,18 @@ export function KafkaClient({ onClickItem }) {
     async function loadTopics() {
         let res = await request.post(`${config.host}/kafka/topics`, {
             // connectionId,
-        }, {
-            // noMessage: true,
-            // timeout: 2000,
         })
         if (res.success) {
-            // setErr('')
             setTopics(res.data.list)
-            // setCurSchema('')
         }
-        else {
-            // setErr('Connect rrror')
+    }
+
+    async function loadGroups() {
+        let res = await request.post(`${config.host}/kafka/groups`, {
+            // connectionId,
+        })
+        if (res.success) {
+            setGroups(res.data.list)
         }
     }
 
@@ -59,6 +61,7 @@ export function KafkaClient({ onClickItem }) {
         })
         if (res.success) {
             loadTopics()
+            loadGroups()
             // setErr('')
             // setCurSchema('')
         }
@@ -68,21 +71,34 @@ export function KafkaClient({ onClickItem }) {
     }
 
     useEffect(() => {
-
         init()
     }, [])
 
     return (
-        <div className={styles.socketApp}>
-            Kafka
-            <div>
-                topics:
+        <div className={styles.kafkaApp}>
+            <div className={styles.appName}>kafka</div>
+            <div className={styles.layoutBody}>
                 <div>
-                    {topics.map(item => {
-                        return (
-                            <div>{item}</div>
-                        )
-                    })}
+                    
+                    <div className={styles.sectionName}>topics:</div>
+                    <div className={styles.topics}>
+                        {topics.map(item => {
+                            return (
+                                <div className={styles.item}>{item}</div>
+                            )
+                        })}
+                    </div>
+                </div>
+                <div>
+                    
+                    <div className={styles.sectionName}>groups:</div>
+                    <div className={styles.groups}>
+                        {groups.map(item => {
+                            return (
+                                <div className={styles.item}>{item.groupId}</div>
+                            )
+                        })}
+                    </div>
                 </div>
             </div>
         </div>
