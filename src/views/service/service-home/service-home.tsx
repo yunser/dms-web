@@ -17,6 +17,17 @@ import { FullCenterBox } from '@/views/common/full-center-box';
 import { getGlobalConfig } from '@/config';
 import { SearchUtil } from '@/utils/search';
 // import { saveAs } from 'file-saver'
+import axios from 'axios'
+
+function getColor(time) {
+    if (time > 1000) {
+        return 'red'
+    }
+    if (time > 500) {
+        return 'orange'
+    }
+    return undefined
+}
 
 export function ServiceHome({ onClickItem }) {
     // const { defaultJson = '' } = data
@@ -104,14 +115,30 @@ export function ServiceHome({ onClickItem }) {
             list[fIdx]._id = new Date().getTime()
             list[fIdx].loading = true
             setList([...list])
-            const res = await request.post(`${config.host}/http/proxy`, {
-                url,
-            }, {
-                noMessage: true,
-            })
+            const startTime = new Date()
+            let res
+            let isTimeout = false
+            try {
+                res = await axios.post(`${config.host}/http/proxy`, {
+                    url,
+                }, {
+                    timeout: 4000,
+                    // noMessage: true,
+                })
+            }
+            catch (err) {
+                console.log('err', err)
+                isTimeout = err.message && err.message.includes('timeout')
+            }
             console.log('res', res)
             // if ()
-            const isSuccess = res.status == 200
+            let isSuccess
+            if (service.field) {
+                isSuccess = res?.status == 200 && (typeof res?.data == 'object') && res.data[service.field] == 'success'
+            }
+            else {
+                isSuccess = res && res.status == 200
+            }
             result.total += 1
             if (isSuccess) {
                 result.success += 1
@@ -119,12 +146,17 @@ export function ServiceHome({ onClickItem }) {
             else {
                 result.fail += 1
             }
+            list[fIdx].hasResult = true
             list[fIdx]._id = new Date().getTime()
+            list[fIdx].time = new Date().getTime() - startTime.getTime()
             list[fIdx].loading = false
             list[fIdx].status = isSuccess ? 'ok' : 'fail'
-            list[fIdx].response = {
-                status: res.status,
-                data: res.data,
+            list[fIdx].isTimeout = isTimeout
+            if (res) {
+                list[fIdx].response = {
+                    status: res.status,
+                    data: res.data,
+                }
             }
             setTotalResult({
                 ...result,
@@ -177,27 +209,38 @@ export function ServiceHome({ onClickItem }) {
             render(value = true, item) {
                 return (
                     <div>
-                        {item.loading &&
+                        {item.loading ?
                             <Spin />
+                        :
+                            <Space>
+                                <div style={{ color: item.status == 'ok' ? 'green' : 'red' }}>{item.status || '--'}</div>
+                                {!!item.hasResult &&
+                                    <>
+                                        {item.isTimeout ?
+                                            <div style={{color: 'red'}}>超时</div>
+                                        :
+                                            <div style={{color: getColor(item.time)}}>{item.time}ms</div>
+                                        }
+                                    </>
+                                }
+                                <Button
+                                    size="small"
+                                    disabled={! item.status}
+                                    onClick={() => {
+                                        setDetailItem(item)
+                                        setDetailVisible(true)
+                                    }}
+                                >
+                                    查看结果
+                                </Button>
+                                {/* <Button
+                                    size="small"
+                                >
+                                    检测
+                                </Button> */}
+                            </Space>
                         }
                         {/* <div style={{ color: value ? 'green' : 'red' }}>{value ? '是' : '否'}</div> */}
-                        <Space>
-                            <div style={{ color: item.status == 'ok' ? 'green' : 'red' }}>{item.status || '--'}</div>
-                            <Button
-                                size="small"
-                                onClick={() => {
-                                    setDetailItem(item)
-                                    setDetailVisible(true)
-                                }}
-                            >
-                                查看结果
-                            </Button>
-                            {/* <Button
-                                size="small"
-                            >
-                                检测
-                            </Button> */}
-                        </Space>
                     </div>
                 )
             }
@@ -212,6 +255,16 @@ export function ServiceHome({ onClickItem }) {
                     <a href={value} target="_blank">{value}</a>
                 )
             }
+        },
+        {
+            title: '字段',
+            dataIndex: 'field',
+            width: 80,
+            // render(value = true) {
+            //     return (
+            //         <div style={{ color: value ? 'green' : 'red' }}>{value ? '是' : '否'}</div>
+            //     )
+            // }
         },
         {
             title: '启用',
@@ -387,6 +440,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
         const saveOrUpdateData = {
             name: values.name || t('unnamed'),
             url: values.url,
+            field: values.field,
             enable: values.enable == false ? false : true,
         }
         if (editType == 'create') {
@@ -494,6 +548,15 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                     name="url"
                     label="URL"
                     rules={[ { required: true, }, ]}
+                >
+                    <Input
+                        // placeholder="localhost"
+                    />
+                </Form.Item>
+                <Form.Item
+                    name="field"
+                    label="字段"
+                    // rules={[ { required: true, }, ]}
                 >
                     <Input
                         // placeholder="localhost"
