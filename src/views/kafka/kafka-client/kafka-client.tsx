@@ -25,8 +25,10 @@ export function KafkaClient({ onClickItem }) {
     const config = getGlobalConfig()
     const [socketType, setSocketType] = useState('udp_server')
     
+    const [offsets, setOffsets] = useState([])
     const [topics, setTopics] = useState([])
     const [groups, setGroups] = useState([])
+    const [groupItem, setGroupItem] = useState(null)
 
     const comData = useRef({
         // cursor: 0,
@@ -70,6 +72,17 @@ export function KafkaClient({ onClickItem }) {
         }
     }
 
+    async function loadGroupDetail(item) {
+        let res = await request.post(`${config.host}/kafka/groupDetail`, {
+            // connectionId,
+            groupId: item.groupId,
+
+        })
+        if (res.success) {
+            setOffsets(res.data.offsets)
+        }
+    }
+
     useEffect(() => {
         init()
     }, [])
@@ -77,6 +90,9 @@ export function KafkaClient({ onClickItem }) {
     return (
         <div className={styles.kafkaApp}>
             <div className={styles.appName}>kafka</div>
+            <Button onClick={() => {
+                init()
+            }}>刷新</Button>
             <div className={styles.layoutBody}>
                 <div>
                     
@@ -95,10 +111,45 @@ export function KafkaClient({ onClickItem }) {
                     <div className={styles.groups}>
                         {groups.map(item => {
                             return (
-                                <div className={styles.item}>{item.groupId}</div>
+                                <div
+                                    className={styles.item}
+                                    onClick={() => {
+                                        setGroupItem(item)
+                                        loadGroupDetail(item)
+                                    }}
+                                    >{item.groupId}</div>
                             )
                         })}
                     </div>
+                </div>
+                <div>
+                    <div className={styles.sectionName}>group detail</div>
+                    {!!groupItem &&
+                        <div>
+                            {groupItem.groupId}:
+                            <div>
+                                {offsets.map(offset => {
+                                    return (
+                                        <div>
+                                            <div>{offset.topic}</div>
+                                            <div className={styles.partitions}>
+                                                {offset.partitions.map(partition => {
+                                                    return (
+                                                        <div className={styles.item}>
+                                                            <Space>
+                                                                <div>{partition.offset}/{partition.topicOffset}</div>
+                                                                <div>leg:{partition.topicOffset - partition.offset}</div>
+                                                            </Space>
+                                                        </div>
+                                                    )
+                                                })}
+                                            </div>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
