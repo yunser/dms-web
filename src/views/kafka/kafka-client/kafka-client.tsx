@@ -18,6 +18,41 @@ import moment from 'moment';
 import { getGlobalConfig } from '@/config';
 // import { saveAs } from 'file-saver'
 
+function KafkaConsumer() {
+    const [topic, setTopic] = useState('mac-topic-text')
+    const config = getGlobalConfig()
+
+    async function subscribe() {
+        // setGroupDetailLoading(true)
+        let res = await request.post(`${config.host}/kafka/subscribe`, {
+            // connectionId,
+            topic,
+        })
+        // setGroupDetailLoading(false)
+        if (res.success) {
+            // message.success('')
+            // setOffsets(res.data.offsets)
+        }
+    }
+
+    return (
+        <div>
+            kafka consumer
+            <div>收到的消息请查看控制台</div>
+            <div>
+                <Input
+                    value={topic}
+                    onChange={e => {
+                        setTopic(e.target.value)
+                    }}
+                />
+            </div>
+            <Button onClick={subscribe}>
+                订阅</Button>
+            
+        </div>
+    )
+}
 
 export function KafkaClient({ onClickItem }) {
     // const { defaultJson = '' } = data
@@ -29,6 +64,9 @@ export function KafkaClient({ onClickItem }) {
     const [topics, setTopics] = useState([])
     const [groups, setGroups] = useState([])
     const [groupItem, setGroupItem] = useState(null)
+    const [groupDetailLoading, setGroupDetailLoading] = useState(false)
+    const [topic, setTopic] = useState('mac-topic-text')
+    const [content, setContent] = useState('这是发送内容')
 
     const comData = useRef({
         // cursor: 0,
@@ -41,7 +79,10 @@ export function KafkaClient({ onClickItem }) {
             // connectionId,
         })
         if (res.success) {
-            setTopics(res.data.list)
+            const sorter = (a, b) => {
+                return a.name.localeCompare(b.name)
+            }
+            setTopics(res.data.list.sort(sorter))
         }
     }
 
@@ -50,7 +91,10 @@ export function KafkaClient({ onClickItem }) {
             // connectionId,
         })
         if (res.success) {
-            setGroups(res.data.list)
+            const sorter = (a, b) => {
+                return a.groupId.localeCompare(b.groupId)
+            }
+            setGroups(res.data.list.sort(sorter))
         }
     }
 
@@ -73,13 +117,29 @@ export function KafkaClient({ onClickItem }) {
     }
 
     async function loadGroupDetail(item) {
+        setGroupDetailLoading(true)
         let res = await request.post(`${config.host}/kafka/groupDetail`, {
             // connectionId,
             groupId: item.groupId,
 
         })
+        setGroupDetailLoading(false)
         if (res.success) {
             setOffsets(res.data.offsets)
+        }
+    }
+
+    async function send() {
+        // setGroupDetailLoading(true)
+        let res = await request.post(`${config.host}/kafka/send`, {
+            // connectionId,
+            topic,
+            content,
+
+        })
+        // setGroupDetailLoading(false)
+        if (res.success) {
+            // setOffsets(res.data.offsets)
         }
     }
 
@@ -100,7 +160,7 @@ export function KafkaClient({ onClickItem }) {
                     <div className={styles.topics}>
                         {topics.map(item => {
                             return (
-                                <div className={styles.item}>{item}</div>
+                                <div className={styles.item}>{item.name}</div>
                             )
                         })}
                     </div>
@@ -124,32 +184,68 @@ export function KafkaClient({ onClickItem }) {
                 </div>
                 <div>
                     <div className={styles.sectionName}>group detail</div>
-                    {!!groupItem &&
+                    {groupDetailLoading ?
+                        <Spin />
+                    :
                         <div>
-                            {groupItem.groupId}:
-                            <div>
-                                {offsets.map(offset => {
-                                    return (
-                                        <div>
-                                            <div>{offset.topic}</div>
-                                            <div className={styles.partitions}>
-                                                {offset.partitions.map(partition => {
-                                                    return (
-                                                        <div className={styles.item}>
-                                                            <Space>
-                                                                <div>{partition.offset}/{partition.topicOffset}</div>
-                                                                <div>leg:{partition.topicOffset - partition.offset}</div>
-                                                            </Space>
-                                                        </div>
-                                                    )
-                                                })}
-                                            </div>
-                                        </div>
-                                    )
-                                })}
-                            </div>
+                            {!!groupItem &&
+                                <div>
+                                    {groupItem.groupId}:
+                                    <div>
+                                        {offsets.map(offset => {
+                                            return (
+                                                <div>
+                                                    <div>{offset.topic}</div>
+                                                    <div className={styles.partitions}>
+                                                        {offset.partitions.map(partition => {
+                                                            return (
+                                                                <div className={styles.item}>
+                                                                    <Space>
+                                                                        <div>{partition.offset}/{partition.topicOffset}</div>
+                                                                        <div>leg:{partition.topicOffset - partition.offset}</div>
+                                                                    </Space>
+                                                                </div>
+                                                            )
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                </div>
+                            }
+
                         </div>
                     }
+                </div>
+                <div>
+                    <div className={styles.sectionName}>发送消息</div>
+                    <div>
+                        <Input
+                            value={topic}
+                            onChange={e => {
+                                setTopic(e.target.value)
+                            }}
+                        />
+                    </div>
+                    <Input.TextArea
+                        value={content}
+                        onChange={e => {
+                            setContent(e.target.value)
+                        }}
+                    />
+                    <Button
+                        onClick={() => {
+                            send()
+                        }}
+                    >
+                        发送
+                    </Button>
+
+                </div>
+                <div>
+                    <div className={styles.sectionName}>接收消息</div>
+                    <KafkaConsumer />
                 </div>
             </div>
         </div>
