@@ -49,3 +49,29 @@
         border: 1px solid #000;
     }
 }
+
+
+
+.contentBox {
+    position: relative;
+    .content {
+        padding: 4px 8px;
+        border-radius: 4px;
+        background-color: #f9f9f9;
+        border: 1px solid var(--border-color);
+        margin-bottom: 0;
+        // border: 1px solid #000;
+        overflow-x: auto;
+        // max-width: 800px;
+        &.sent {
+            // color: #fff;
+            // background-color: #0090fa;
+            background-color: #b5e0ff;
+        }
+    }
+    .tag {
+        position: absolute;
+        top: 0;
+        right: -8px;
+    }
+}
