@@ -1,4 +1,4 @@
-import { Button, Descriptions, Drawer, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Space, Spin, Table, Tabs, Tag, Tree } from 'antd';
+import { Button, Descriptions, Drawer, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Select, Space, Spin, Table, Tabs, Tag, Tree } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './service-home.module.less';
 import _ from 'lodash';
@@ -54,6 +54,32 @@ export function ServiceHome({ onClickItem }) {
         // return projects.filter(p => p.name.toLowerCase().includes(keyword.toLowerCase()))
         // return projects
     }, [list, keyword])
+
+    async function removeItem(item) {
+        Modal.confirm({
+            title: '',
+            // icon: <ExclamationCircleOutlined />,
+            content: `${t('delete')}「${item.name}」?`,
+            async onOk() {
+                let res = await request.post(`${config.host}/service/remove`, {
+                    id: item.id,
+                })
+                console.log('get/res', res.data)
+                if (res.success) {
+                    message.success(t('success'))
+                    // onSuccess && onSuccess()
+                    loadList()
+                    // loadKeys()
+                    // setResult(null)
+                    // setResult({
+                    //     key: item,
+                    //     ...res.data,
+                    // })
+                    // setInputValue(res.data.value)
+                }
+            }
+        })
+    }
 
     async function checkAll() {
         console.log('filteredList', filteredList)
@@ -190,17 +216,41 @@ export function ServiceHome({ onClickItem }) {
         {
             title: '启用',
             dataIndex: 'enable',
-            width: 240,
+            width: 80,
             render(value = true) {
                 return (
                     <div style={{ color: value ? 'green' : 'red' }}>{value ? '是' : '否'}</div>
                 )
             }
         },
-        // {
-        //     title: '操作',
-        //     dataIndex: 'url',
-        // },
+        {
+            title: '操作',
+            dataIndex: 'url',
+            render(value, item) {
+                return (
+                    <Space>
+                        <Button
+                            size="small"
+                            onClick={() => {
+                                setEditItem(item)
+                                setEditVisible(true)
+                            }}
+                        >
+                            编辑
+                        </Button>
+                        <Button
+                            size="small"
+                            danger
+                            onClick={() => {
+                                removeItem(item)
+                            }}
+                        >
+                            删除
+                        </Button>
+                    </Space>
+                )
+            }
+        },
         {
             title: '',
             dataIndex: '__empty__',
@@ -230,6 +280,7 @@ export function ServiceHome({ onClickItem }) {
                     <Button
                         size="small"
                         onClick={() => {
+                            setEditItem(null)
                             setEditVisible(true)
                         }}
                     >
@@ -336,6 +387,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
         const saveOrUpdateData = {
             name: values.name || t('unnamed'),
             url: values.url,
+            enable: values.enable == false ? false : true,
         }
         if (editType == 'create') {
             let res = await request.post(`${config.host}/service/create`, {
@@ -445,6 +497,24 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                 >
                     <Input
                         // placeholder="localhost"
+                    />
+                </Form.Item>
+                <Form.Item
+                    name="enable"
+                    label="启用"
+                    // rules={[ { required: true, }, ]}
+                >
+                    <Select
+                        options={[
+                            {
+                                label: '启用',
+                                value: true,
+                            },
+                            {
+                                label: '不启用',
+                                value: false,
+                            },
+                        ]}
                     />
                 </Form.Item>
             </Form>
