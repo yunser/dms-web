@@ -461,6 +461,9 @@ export function DbManager({ config }) {
         else if (key == 'websocket-server') {
             window.open('/pages/websocket/server', '_blank')
         }
+        else if (key == 'kafka-client') {
+            window.open('/pages/kafka/client', '_blank')
+        }
         else if (key == 'redis') {
             addOrActiveTab({
                 title: 'Redis',
@@ -795,6 +798,11 @@ export function DbManager({ config }) {
         {
             label: t('mqtt'),
             key: 'mqtt',
+            group: 'data',
+        },
+        {
+            label: t('kafka'),
+            key: 'kafka-client',
             group: 'data',
         },
         {

@@ -37,6 +37,7 @@ import { TcpClient } from './views/socket/socket-home/tcp-client'
 import { UdpClient } from './views/socket/socket-home/udp-client'
 import { UdpServer } from './views/socket/socket-home/udp-server'
 import { HttpServer } from './views/socket/socket-home/http-server'
+import { KafkaClient } from './views/kafka/kafka-client'
 
 function GitPage() {
     return (
@@ -193,6 +194,17 @@ function HttpServerPage() {
     )
 }
 
+function KafkaClientPage() {
+    const { t } = useTranslation()
+    useTitle(t('http_server'))
+
+    return (
+        <div className={styles.pageFull}>
+            <KafkaClient
+            />
+        </div>
+    )
+}
 
 function TcpClientPage() {
     const { t } = useTranslation()
@@ -241,6 +253,7 @@ export default function App() {
                     <Route path="/pages/udp/client" element={<FullApp><UdpClientPage /></FullApp>} />
                     <Route path="/pages/udp/server" element={<FullApp><UdpServerPage /></FullApp>} />
                     <Route path="/pages/http/server" element={<FullApp><HttpServerPage /></FullApp>} />
+                    <Route path="/pages/kafka/client" element={<FullApp><KafkaClientPage /></FullApp>} />
                 </Routes>
             </div>
         </Router>

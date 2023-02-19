@@ -205,7 +205,7 @@ export function ServiceHome({ onClickItem }) {
         {
             title: '状态',
             dataIndex: '_id',
-            width: 160,
+            width: 180,
             render(value = true, item) {
                 return (
                     <div>
@@ -241,6 +241,21 @@ export function ServiceHome({ onClickItem }) {
                             </Space>
                         }
                         {/* <div style={{ color: value ? 'green' : 'red' }}>{value ? '是' : '否'}</div> */}
+                    </div>
+                )
+            }
+        },
+        {
+            title: '标签',
+            dataIndex: 'tags',
+            width: 240,
+            // ellipsis: true,
+            render(value = []) {
+                return (
+                    <div>
+                        {value.map(item => {
+                            return <Tag key={item}>{item}</Tag>
+                        })}
                     </div>
                 )
             }

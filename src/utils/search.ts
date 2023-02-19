@@ -19,7 +19,7 @@ function isInclude(text: string, subText: string) {
     // return subIdx == subText.length
     const keywords = subText.trim().split(/\s+/)
     for (let keyword of keywords) {
-        if (!text.includes(keyword)) {
+        if (!text.toLowerCase().includes(keyword.toLowerCase())) {
             return false
         }
     }
