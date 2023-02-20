@@ -444,7 +444,7 @@ export function DbManager({ config }) {
             window.open('/pages/tcp/server', '_blank')
         }
         else if (key == 'monitor') {
-            window.open('/pages/service', '_blank')
+            window.open('/pages/monitor', '_blank')
         }
         else if (key == 'http_server') {
             window.open('/pages/http/server', '_blank')

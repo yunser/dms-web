@@ -237,7 +237,7 @@ export default function App() {
                     <Route path="/pages/git" element={<GitPage />} />
                     <Route path="/pages/file" element={<FilePage />} />
                     <Route path="/pages/ssh" element={<SshPage />} />
-                    <Route path="/pages/service" element={<ServiceHome />} />
+                    <Route path="/pages/monitor" element={<ServiceHome />} />
                     {/* <Route path="/swagger" element={<SwaggerHome />} /> */}
                     <Route path="/pages/swagger" element={<FullApp><SwaggerHome /></FullApp>} />
                     <Route path="/pages/swagger/detail" element={<FullApp><SwaggerDetailPage /></FullApp>} />

@@ -268,6 +268,7 @@ export function MongoDocument({ config, curDb, curCollection, event$, connection
                     current={page}
                     total={total}
                     pageSize={pageSize}
+                    size="small"
                     showSizeChanger={false}
                     onChange={(page) => {
                         setPage(page)

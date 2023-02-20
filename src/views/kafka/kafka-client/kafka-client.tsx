@@ -238,7 +238,7 @@ function KafkaConsumer() {
                 </div>
             }
             kafka consumer
-            <div>收到的消息请查看控制台</div>
+            {/* <div>收到的消息请查看控制台</div> */}
             <div>
                 <Input
                     value={topic}
@@ -311,8 +311,10 @@ export function KafkaClient({ onClickItem }) {
     const [socketType, setSocketType] = useState('udp_server')
     
     const [offsets, setOffsets] = useState([])
+    const [topicLoading, setTopicLoading] = useState(false)
     const [topics, setTopics] = useState([])
     const [groups, setGroups] = useState([])
+    const [groupLoding, setGroupLoading] = useState([])
     const [groupItem, setGroupItem] = useState(null)
     const [groupDetailLoading, setGroupDetailLoading] = useState(false)
     const [topic, setTopic] = useState('dms-topic-test')
@@ -325,9 +327,11 @@ export function KafkaClient({ onClickItem }) {
     })
 
     async function loadTopics() {
+        setTopicLoading(true)
         let res = await request.post(`${config.host}/kafka/topics`, {
             // connectionId,
         })
+        setTopicLoading(false)
         if (res.success) {
             const sorter = (a, b) => {
                 return a.name.localeCompare(b.name)
@@ -337,9 +341,11 @@ export function KafkaClient({ onClickItem }) {
     }
 
     async function loadGroups() {
+        setGroupLoading(true)
         let res = await request.post(`${config.host}/kafka/groups`, {
             // connectionId,
         })
+        setGroupLoading(false)
         if (res.success) {
             const sorter = (a, b) => {
                 return a.groupId.localeCompare(b.groupId)
@@ -389,6 +395,7 @@ export function KafkaClient({ onClickItem }) {
         })
         // setGroupDetailLoading(false)
         if (res.success) {
+            message.success(t('success'))
             // setOffsets(res.data.offsets)
         }
     }
@@ -412,22 +419,82 @@ export function KafkaClient({ onClickItem }) {
         })
     }
 
+    async function removeGroup(item) {
+        Modal.confirm({
+            autoFocusButton: 'cancel',
+            content: `确认删除「${item.groupId}」？`,
+            onOk: async () => {
+                let res = await request.post(`${config.host}/kafka/group/remove`, {
+                    // connectionId,
+                    groupId: item.groupId,
+                })
+                // setGroupDetailLoading(false)
+                if (res.success) {
+                    message.success(t('success'))
+                    loadGroups()
+                    // setOffsets(res.data.offsets)
+                }
+            },
+        })
+    }
+
     useEffect(() => {
         init()
     }, [])
 
     return (
         <div className={styles.kafkaApp}>
-            <div className={styles.appName}>kafka</div>
-            <Button onClick={() => {
+            <div className={styles.layoutHeader}>
+                <div className={styles.appName}>kafka</div>
+            </div>
+            {/* <Button onClick={() => {
                 init()
-            }}>刷新</Button>
+            }}>刷新</Button> */}
             <div className={styles.layoutBody}>
                 <div>
                     
                     <div className={styles.sectionName}>topics:</div>
+                    <Button
+                        onClick={() => {
+                            loadTopics()
+                        }}
+                    >
+                        刷新
+                    </Button>
                     <div className={styles.topics}>
-                        {topics.map(item => {
+                        <Table
+                            loading={topicLoading}
+                            dataSource={topics}
+                            pagination={false}
+                            rowKey="name"
+                            size="small"
+                            columns={[
+                                {
+                                    title: 'name',
+                                    dataIndex: 'name',
+                                },
+                                {
+                                    title: t('actions'),
+                                    dataIndex: '_op',
+                                    render(_value, item) {
+                                        return (
+                                            <div>
+                                                <Button
+                                                size="small"
+                                                danger
+                                                onClick={() => {
+                                                    removeTopic(item)
+                                                }}
+                                            >
+                                                删除
+                                            </Button>
+                                            </div>
+                                        )
+                                    }
+                                },
+                            ]}
+                        />
+                        {/* {topics.map(item => {
                             return (
                                 <div
                                     className={styles.item}
@@ -445,14 +512,21 @@ export function KafkaClient({ onClickItem }) {
                                     </Button>
                                 </div>
                             )
-                        })}
+                        })} */}
                     </div>
                 </div>
                 <div>
                     
                     <div className={styles.sectionName}>groups:</div>
+                        <Button
+                            onClick={() => {
+                                loadGroups()
+                            }}
+                        >
+                            刷新
+                        </Button>
                     <div className={styles.groups}>
-                        {groups.map(item => {
+                        {/* {groups.map(item => {
                             return (
                                 <div
                                     className={styles.item}
@@ -460,9 +534,65 @@ export function KafkaClient({ onClickItem }) {
                                         setGroupItem(item)
                                         loadGroupDetail(item)
                                     }}
-                                    >{item.groupId}</div>
+                                    key={item.groupId}
+                                >
+                                    {item.groupId}
+                                    <Button
+                                        size="small"
+                                        danger
+                                        onClick={() => {
+                                            removeGroup(item)
+                                        }}
+                                    >
+                                        删除
+                                    </Button>
+                                </div>
                             )
-                        })}
+                        })} */}
+                        <Table
+                            loading={groupLoding}
+                            dataSource={groups}
+                            pagination={false}
+                            rowKey="groupId"
+                            size="small"
+                            columns={[
+                                {
+                                    title: 'groupId',
+                                    dataIndex: 'groupId',
+                                },
+                                {
+                                    title: t('actions'),
+                                    dataIndex: '_op',
+                                    render(_value, item) {
+                                        return (
+                                            <div>
+                                                <Space>
+                                                    <Button
+                                                        size="small"
+                                                        // danger
+                                                        onClick={() => {
+                                                            setGroupItem(item)
+                                                            loadGroupDetail(item)
+                                                        }}
+                                                    >
+                                                        查看
+                                                    </Button>
+                                                    <Button
+                                                        size="small"
+                                                        danger
+                                                        onClick={() => {
+                                                            removeGroup(item)
+                                                        }}
+                                                    >
+                                                        删除
+                                                    </Button>
+                                                </Space>
+                                            </div>
+                                        )
+                                    }
+                                },
+                            ]}
+                        />
                     </div>
                 </div>
                 <div>
