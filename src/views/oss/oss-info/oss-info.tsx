@@ -61,6 +61,7 @@ export function OssInfoModal({ config, sourceType, item, onOk, onCancel }) {
             title={t('oss_info')}
             open={true}
             onCancel={onCancel}
+            width={800}
             // onOk={handleOk}
             footer={
                 <Space>
@@ -77,7 +78,25 @@ export function OssInfoModal({ config, sourceType, item, onOk, onCancel }) {
             // maskClosable={false}
         >
             {!!info &&
-                <div>{t('link')}：{info.url}</div>
+                <div>
+                    <div>{t('link')}：{info.url}</div>
+                    <div className={styles.headers}>{t('oss.headers')}</div>
+                    <Table
+                        size="small"
+                        dataSource={info.headers}
+                        pagination={false}
+                        columns={[
+                            {
+                                title: t('key'),
+                                dataIndex: 'key',
+                            },
+                            {
+                                title: t('value'),
+                                dataIndex: 'value',
+                            },
+                        ]}
+                    />
+                </div>
             }
         </Modal>
     )

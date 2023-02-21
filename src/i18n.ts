@@ -476,6 +476,7 @@ i18n
                     'app.group.tool': 'Tool',
                     'app.group.file': 'File',
                     'app.group.other': 'Other',
+                    'oss.headers': 'Headers',
                 }
             },
             zh: {
@@ -944,6 +945,7 @@ i18n
                     'app.group.tool': '工具',
                     'app.group.file': '文件',
                     'app.group.other': '其他',
+                    'oss.headers': '头部',
                 }
             }
         },
