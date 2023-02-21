@@ -671,6 +671,10 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                                                             label: t('copy_path'),
                                                                             key: 'copy_path',
                                                                         },
+                                                                        {
+                                                                            label: t('copy_relative_path'),
+                                                                            key: 'copy_relative_path',
+                                                                        },
                                                                     ]}
                                                                     onClick={({ key }) => {
                                                                         if (key == 'key_checkout_file') {
@@ -691,7 +695,12 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                                                             message.info(t('copied'))
                                                                             // openInVsCode(projectPath + '/' + item.path)
                                                                         }
-                                                                        
+                                                                        else if (key == 'copy_relative_path') {
+                                                                            // console.log('item.path', item.path)
+                                                                            copy(item.path)
+                                                                            message.info(t('copied'))
+                                                                            // openInVsCode(projectPath + '/' + item.path)
+                                                                        }
                                                                     }}
                                                                 />
                                                             }

@@ -478,6 +478,7 @@ i18n
                     'app.group.other': 'Other',
                     'oss.headers': 'Headers',
                     'copy_path': 'Copy Path',
+                    'copy_relative_path': 'Copy Relative Path',
                 }
             },
             zh: {
@@ -948,6 +949,7 @@ i18n
                     'app.group.other': '其他',
                     'oss.headers': '头部',
                     'copy_path': '复制路径',
+                    'copy_relative_path': '复制相对路径',
                 }
             }
         },
