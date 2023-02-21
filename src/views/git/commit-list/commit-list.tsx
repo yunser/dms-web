@@ -1,4 +1,4 @@
-import { Button, Descriptions, Dropdown, Empty, Input, Menu, message, Modal, Popover, Space, Spin, Table, Tabs, Tag } from 'antd';
+import { Button, Descriptions, Drawer, Dropdown, Empty, Input, Menu, message, Modal, Popover, Space, Spin, Table, Tabs, Tag } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './commit-list.module.less';
 import _, { cloneDeep } from 'lodash';
@@ -24,6 +24,11 @@ import { BranchModal } from '../branch-modal';
 import List from 'rc-virtual-list';
 import copy from 'copy-to-clipboard';
 import { CherryPickModal } from '../cherry-pick-modal';
+import { Editor } from '@/views/db-manager/editor/Editor';
+
+export function _if(condition: boolean, obj: object) {
+    return condition ? [obj] : []
+}
 
 function Hash({ hash }) {
     const top6Char = hash.substring(0, 6)
@@ -43,6 +48,9 @@ export function CommitList({ config, event$, projectPath,  }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
 
+    const [fileName, setFileName] = useState('')
+    const [fileContent, setFileContent] = useState('')
+    const [fileContentVisible, setFileContentVisible] = useState(false)
     const [filteredFile, setFilteredFile] = useState('')
     const [cherryPickVisible, setCherryPickVisible] = useState(false)
     const [cherryPickCommit, setCherryPickCommit] = useState(false)
@@ -330,6 +338,20 @@ export function CommitList({ config, event$, projectPath,  }) {
             path,
         })
     }
+
+    async function browserFile(path: string) {
+        let res = await request.post(`${config.host}/git/fileContent`, {
+            projectPath,
+            commit: curCommit.hash,
+            file: path,
+        })
+        if (res.success) {
+            setFileName(path)
+            setFileContent(res.data.content)
+            setFileContentVisible(true)
+        }
+    }
+    
 
     // return (
     //     <div>
@@ -630,6 +652,10 @@ export function CommitList({ config, event$, projectPath,  }) {
                                                                     label: t('filter'),
                                                                     key: 'filter',
                                                                 },
+                                                                {
+                                                                    label: t('browser_file'),
+                                                                    key: 'browser_file',
+                                                                }
                                                             ]}
                                                             onClick={({ key }) => {
                                                                 if (key == 'finder') {
@@ -641,6 +667,9 @@ export function CommitList({ config, event$, projectPath,  }) {
                                                                 }
                                                                 else if (key == 'filter') {
                                                                     setFilteredFile(file)
+                                                                }
+                                                                else if (key == 'browser_file') {
+                                                                    browserFile(file)
                                                                 }
                                                             }}
                                                         />
@@ -754,6 +783,28 @@ export function CommitList({ config, event$, projectPath,  }) {
                         // })
                     }}
                 />
+            }
+            {fileContentVisible &&
+                <Drawer
+                    open={true}
+                    width={1200}
+                    title={fileName}
+                    onClose={() => {
+                        setFileContentVisible(false)
+                    }}
+                >
+                    {/* {fileContent} */}
+                    <Editor
+                        // event$={event$}
+                        // connectionId={connectionId}
+                        value={fileContent}
+                        // onChange={value => setCodeASD(value)}
+                        // onEditor={editor => {
+                        //     // console.warn('ExecDetail/setEditor')
+                        //     setEditor(editor)
+                        // }}
+                    />
+                </Drawer>
             }
         </div>
     )

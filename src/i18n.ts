@@ -479,6 +479,7 @@ i18n
                     'oss.headers': 'Headers',
                     'copy_path': 'Copy Path',
                     'copy_relative_path': 'Copy Relative Path',
+                    'browser_file': 'Browser File',
                 }
             },
             zh: {
@@ -950,6 +951,7 @@ i18n
                     'oss.headers': '头部',
                     'copy_path': '复制路径',
                     'copy_relative_path': '复制相对路径',
+                    'browser_file': '浏览文件',
                 }
             }
         },
