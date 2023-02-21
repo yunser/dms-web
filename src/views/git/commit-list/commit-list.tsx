@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { BranchesOutlined, CopyOutlined, DownloadOutlined, EllipsisOutlined, ExportOutlined, PlusOutlined, TagOutlined } from '@ant-design/icons';
+import { BranchesOutlined, CopyOutlined, DownloadOutlined, EllipsisOutlined, ExportOutlined, FileOutlined, PlusOutlined, TagOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
@@ -43,6 +43,7 @@ export function CommitList({ config, event$, projectPath,  }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
 
+    const [filteredFile, setFilteredFile] = useState('')
     const [cherryPickVisible, setCherryPickVisible] = useState(false)
     const [cherryPickCommit, setCherryPickCommit] = useState(false)
     const [tagModalVisible, setTagModalVisible] = useState(false)
@@ -202,14 +203,13 @@ export function CommitList({ config, event$, projectPath,  }) {
         setListLoading(true)
         loadBranch()
         // loadTags()
-        let res = await request.post(`${config.host}/git/commit/list`, {
+        const reqData = {
             projectPath,
-            // connectionId,
-            // sql: lineCode,
-            // tableName,
-            // dbName,
-            // logger: true,
-        }, {
+        }
+        if (filteredFile) {
+            reqData.file = filteredFile
+        }
+        let res = await request.post(`${config.host}/git/commit/list`, reqData, {
             // noMessage: true,
         })
         // console.log('res', res)
@@ -248,8 +248,9 @@ export function CommitList({ config, event$, projectPath,  }) {
 
     useEffect(() => {
         loadList()
-        gitFetch()
-        
+    }, [filteredFile])
+    useEffect(() => {
+        loadList()
     }, [])
 
     event$.useSubscription(msg => {
@@ -389,6 +390,20 @@ export function CommitList({ config, event$, projectPath,  }) {
                             </div>
                             {/* |
                             导出 */}
+                            {!!filteredFile &&
+                                <Tag
+                                    closable
+                                    onClose={() => {
+                                        setFilteredFile('')
+                                    }}
+                                >
+                                    <Space>
+                                        <FileOutlined />
+                                        {filteredFile}
+                                    </Space>
+                                </Tag>
+                                // <div className={styles.filteredFile}>{filteredFile}</div>
+                            }
                             <IconButton
                                 tooltip={t('export_json')}
                                 // size="small"
@@ -611,6 +626,10 @@ export function CommitList({ config, event$, projectPath,  }) {
                                                                     label: t('file.open_in_vscode'),
                                                                     key: 'open_in_vscode',
                                                                 },
+                                                                {
+                                                                    label: t('filter'),
+                                                                    key: 'filter',
+                                                                },
                                                             ]}
                                                             onClick={({ key }) => {
                                                                 if (key == 'finder') {
@@ -619,6 +638,9 @@ export function CommitList({ config, event$, projectPath,  }) {
                                                                 }
                                                                 else if (key == 'open_in_vscode') {
                                                                     openInVsCode(projectPath + '/' + file)
+                                                                }
+                                                                else if (key == 'filter') {
+                                                                    setFilteredFile(file)
                                                                 }
                                                             }}
                                                         />
