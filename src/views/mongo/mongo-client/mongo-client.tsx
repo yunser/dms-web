@@ -183,6 +183,16 @@ export function MongoClient({ config, event$, connectionId, }) {
                             >
                                 {t('select')}
                             </Button>
+                            {/* <Button
+                                size="small"
+                                danger
+                                onClick={() => {
+                                    // selectCol(item)
+                                    clearCollection(item)
+                                }}
+                            >
+                                {t('clear')}
+                            </Button>
                             <Button
                                 size="small"
                                 danger
@@ -192,7 +202,42 @@ export function MongoClient({ config, event$, connectionId, }) {
                                 }}
                             >
                                 {t('drop')}
-                            </Button>
+                            </Button> */}
+                            <Dropdown
+                                overlay={
+                                    <Menu
+                                        onClick={({ key }) => {
+                                            if (key == 'clear') {
+                                                clearCollection(item)
+                                            }
+                                            else if (key == 'drop') {
+                                                dropCollection(item)
+                                            }
+                                        }}
+                                        items={[
+                                            {
+                                                label: t('clear'),
+                                                danger: true,
+                                                key: 'clear',
+                                            },
+                                            {
+                                                label: t('drop'),
+                                                danger: true,
+                                                key: 'drop',
+                                            },
+                                        ]}
+                                    />
+                                }
+                            >
+                                <IconButton
+                                    onClick={e => e.preventDefault()}
+                                >
+                                    <EllipsisOutlined />
+                                </IconButton>
+                                {/* <a
+                                >
+                                </a> */}
+                            </Dropdown>
                         </Space>
                     </div>
                 )
@@ -240,6 +285,28 @@ export function MongoClient({ config, event$, connectionId, }) {
             }
         },
     ]
+
+    function clearCollection(item) {
+        Modal.confirm({
+            // title: 'Confirm',
+            // icon: <ExclamationCircleOutlined />,
+            content: `${t('clear')}「${item.name}」?`,
+            async onOk() {
+                let res = await request.post(`${config.host}/mongo/collection/clear`, {
+                    connectionId,
+                    database: curDb.name,
+                    collection: item.name,
+                })
+                if (res.success) {
+                    message.success(t('success'))
+                    loadCollections()
+                    if (curCollection && item.name == curCollection.name) {
+                        setCurCollection(null)
+                    }
+                }
+            }
+        })
+    }
 
     function dropCollection(item) {
         Modal.confirm({
