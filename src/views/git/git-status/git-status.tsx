@@ -14,6 +14,7 @@ import { DiffText } from '../git-diff';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/common/full-center-box';
 import { FileUtil } from '@/views/file/utils/utl';
+import copy from 'copy-to-clipboard';
 // import { saveAs } from 'file-saver'
 
 
@@ -648,11 +649,13 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                                                         ...(item.working_dir == '?' ? [
                                                                             {
                                                                                 label: t('git.delete_file'),
+                                                                                danger: true,
                                                                                 key: 'remove_file',
                                                                             },
                                                                         ] : [
                                                                             {
                                                                                 label: t('git.discard_change'),
+                                                                                danger: true,
                                                                                 key: 'key_checkout_file',
                                                                             },
                                                                         ]),
@@ -663,6 +666,10 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                                                         {
                                                                             label: t('file.open_in_vscode'),
                                                                             key: 'open_in_vscode',
+                                                                        },
+                                                                        {
+                                                                            label: t('copy_path'),
+                                                                            key: 'copy_path',
                                                                         },
                                                                     ]}
                                                                     onClick={({ key }) => {
@@ -678,6 +685,13 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                                                         else if (key == 'open_in_vscode') {
                                                                             openInVsCode(projectPath + '/' + item.path)
                                                                         }
+                                                                        else if (key == 'copy_path') {
+                                                                            // console.log('item.path', item.path)
+                                                                            copy(projectPath + '/' + item.path)
+                                                                            message.info(t('copied'))
+                                                                            // openInVsCode(projectPath + '/' + item.path)
+                                                                        }
+                                                                        
                                                                     }}
                                                                 />
                                                             }

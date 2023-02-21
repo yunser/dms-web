@@ -477,6 +477,7 @@ i18n
                     'app.group.file': 'File',
                     'app.group.other': 'Other',
                     'oss.headers': 'Headers',
+                    'copy_path': 'Copy Path',
                 }
             },
             zh: {
@@ -946,6 +947,7 @@ i18n
                     'app.group.file': '文件',
                     'app.group.other': '其他',
                     'oss.headers': '头部',
+                    'copy_path': '复制路径',
                 }
             }
         },
