@@ -11,7 +11,7 @@
     justify-content: center;
     align-items: center;
     .listContent {
-        width: 640px;
+        width: 800px;
         height: 100%;
         // border: 1px solid #f00;
         display: flex;
@@ -58,6 +58,10 @@
     .info {
         color: var(--color-text-3);
         margin-left: 16px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 320px;
     }
 }
 .dataList {
