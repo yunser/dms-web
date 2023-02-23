@@ -93,6 +93,24 @@ export function DockerClient() {
         })
     }
 
+    async function removeImage(item) {
+        Modal.confirm({
+            content: `${t('delete_confirm')} ${item.Id}?`,
+            async onOk() {
+                let res = await request.post(`${config.host}/docker/image/remove`, {
+                    id: item.Id,
+                    // id: item.Id.replace('sha256:', ''),
+                    // id: item.RepoTags[0],
+                })
+                console.log('res', res)
+                if (res.success) {
+                    loadImages()
+                }
+            }
+        })
+    }
+    
+
     function loadAll() {
         loadContainers()
         loadImages()
@@ -296,6 +314,7 @@ export function DockerClient() {
             <Table
                 dataSource={images}
                 size="small"
+                pagination={false}
                 columns={[
                     {
                         title: 'ID',
@@ -323,28 +342,27 @@ export function DockerClient() {
                         title: 'Created',
                         dataIndex: 'Created',
                     },
-                    // {
-                    //     title: 'STATUS',
-                    //     dataIndex: 'Status',
-                    // },
-                    // {
-                    //     title: 'PORTS',
-                    //     dataIndex: 'Ports',
-                    //     render(value) {
-                    //         return (
-                    //             <div>{value.join(', ')}</div>
-                    //         )
-                    //     }
-                    // },
-                    // {
-                    //     title: 'NAMES',
-                    //     dataIndex: 'Names',
-                    //     render(value) {
-                    //         return (
-                    //             <div>{value.join(', ')}</div>
-                    //         )
-                    //     }
-                    // },
+                    {
+                        title: t('actions'),
+                        dataIndex: 'Names',
+                        render(value, item) {
+                            return (
+                                <div>
+                                    <Space>
+                                        <Button
+                                            size="small"
+                                            danger
+                                            onClick={() => {
+                                                removeImage(item)
+                                            }}
+                                        >
+                                            {t('remove')}
+                                        </Button>
+                                    </Space>
+                                </div>
+                            )
+                        }
+                    },
                 ]}
             />
         </div>
