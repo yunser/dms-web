@@ -483,6 +483,7 @@ i18n
                     'docker': 'Docker',
                     'docker.client': 'Docker Client',
                     'docker.container': 'Containers',
+                    'docker.image': 'Images',
                     'docker.stop': 'Stop',
                 }
             },
@@ -959,6 +960,7 @@ i18n
                     'docker': 'Docker',
                     'docker.client': 'Docker 客户端',
                     'docker.container': '容器',
+                    'docker.image': '镜像',
                     'docker.stop': '停止',
                 }
             }

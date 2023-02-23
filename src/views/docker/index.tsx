@@ -78,6 +78,21 @@ export function DockerClient() {
         }
     }
 
+    async function removeItem(item) {
+        Modal.confirm({
+            content: `${t('delete_confirm')} ${item.Id}?`,
+            async onOk() {
+                let res = await request.post(`${config.host}/docker/container/remove`, {
+                    id: item.Id,
+                })
+                console.log('res', res)
+                if (res.success) {
+                    loadContainers()
+                }
+            }
+        })
+    }
+
     function loadAll() {
         loadContainers()
         loadImages()
@@ -246,16 +261,26 @@ export function DockerClient() {
                         render(value, item) {
                             return (
                                 <div>
-                                    <Button
-                                        size="small"
-                                        danger
-                                        onClick={() => {
-                                            stopItem(item)
-                                        }}
-                                    >
-                                        {t('docker.stop')}
-
-                                    </Button>
+                                    <Space>
+                                        <Button
+                                            size="small"
+                                            danger
+                                            onClick={() => {
+                                                stopItem(item)
+                                            }}
+                                        >
+                                            {t('docker.stop')}
+                                        </Button>
+                                        <Button
+                                            size="small"
+                                            danger
+                                            onClick={() => {
+                                                removeItem(item)
+                                            }}
+                                        >
+                                            {t('remove')}
+                                        </Button>
+                                    </Space>
                                 </div>
                             )
                         }
@@ -275,7 +300,7 @@ export function DockerClient() {
                     {
                         title: 'ID',
                         dataIndex: 'Id',
-                        width: 160,
+                        width: 240,
                         ellipsis: true,
                     },
                     {
@@ -294,10 +319,10 @@ export function DockerClient() {
                         title: 'size',
                         dataIndex: 'Size',
                     },
-                    // {
-                    //     title: 'CREATED',
-                    //     dataIndex: 'Created',
-                    // },
+                    {
+                        title: 'Created',
+                        dataIndex: 'Created',
+                    },
                     // {
                     //     title: 'STATUS',
                     //     dataIndex: 'Status',
