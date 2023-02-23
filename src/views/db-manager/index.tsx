@@ -452,6 +452,9 @@ export function DbManager({ config }) {
         else if (key == 'udp_client') {
             window.open('/pages/udp/client', '_blank')
         }
+        else if (key == 'docker') {
+            window.open('/pages/docker', '_blank')
+        }
         else if (key == 'udp_server') {
             window.open('/pages/udp/server', '_blank')
         }
@@ -835,6 +838,11 @@ export function DbManager({ config }) {
         {
             label: t('monitor'),
             key: 'monitor',
+            group: 'tool',
+        },
+        {
+            label: t('docker'),
+            key: 'docker',
             group: 'tool',
         },
     ]

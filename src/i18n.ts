@@ -480,6 +480,10 @@ i18n
                     'copy_path': 'Copy Path',
                     'copy_relative_path': 'Copy Relative Path',
                     'browser_file': 'Browser File',
+                    'docker': 'Docker',
+                    'docker.client': 'Docker Client',
+                    'docker.container': 'Containers',
+                    'docker.stop': 'Stop',
                 }
             },
             zh: {
@@ -952,6 +956,10 @@ i18n
                     'copy_path': '复制路径',
                     'copy_relative_path': '复制相对路径',
                     'browser_file': '浏览文件',
+                    'docker': 'Docker',
+                    'docker.client': 'Docker 客户端',
+                    'docker.container': '容器',
+                    'docker.stop': '停止',
                 }
             }
         },
