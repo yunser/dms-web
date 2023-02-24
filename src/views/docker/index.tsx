@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 
 import styles from './docker.module.less'
 import classNames from 'classnames'
-import { Button, Empty, message, Modal, Space, Table, Tabs } from 'antd'
+import { Button, Empty, message, Modal, Space, Table, Tabs, Tag } from 'antd'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import storage from '../db-manager/storage'
@@ -17,11 +17,21 @@ export function DockerClient() {
     const config = getGlobalConfig()
 
     const [containers, setContainers] = useState([])
-    const [images, setImages] = useState([])
+    const [_images, setImages] = useState([])
     const [services, setServices] = useState([])
     const [networks, setNetworks] = useState([])
     const [volumes, setVolumes] = useState([])
     const [tab, setTab] = useState('container')
+
+    const images = useMemo(() => {
+        return _images.map(image => {
+            const fItem = containers.find(c => c.ImageID == image.Id)
+            return {
+                ...image,
+                isUsed: !!fItem,
+            }
+        })
+    }, [_images, containers])
 
     async function loadContainers() {
         let res = await request.post(`${config.host}/docker/container/list`, {
@@ -70,6 +80,16 @@ export function DockerClient() {
 
     async function stopItem(item) {
         let res = await request.post(`${config.host}/docker/container/stop`, {
+            id: item.Id,
+        })
+        console.log('res', res)
+        if (res.success) {
+            loadContainers()
+        }
+    }
+
+    async function startItem(item) {
+        let res = await request.post(`${config.host}/docker/container/start`, {
             id: item.Id,
         })
         console.log('res', res)
@@ -236,6 +256,15 @@ export function DockerClient() {
                         ellipsis: true,
                     },
                     {
+                        title: 'NAMES',
+                        dataIndex: 'Names',
+                        render(value) {
+                            return (
+                                <div>{value.join(', ')}</div>
+                            )
+                        }
+                    },
+                    {
                         title: 'IMAGE',
                         dataIndex: 'Image',
                     },
@@ -243,6 +272,7 @@ export function DockerClient() {
                         title: 'COMMAND',
                         dataIndex: 'Command',
                         width: 220,
+                        ellipsis: true,
                     },
                     {
                         title: 'CREATED',
@@ -253,6 +283,18 @@ export function DockerClient() {
                         title: 'STATUS',
                         dataIndex: 'Status',
                         width: 220,
+                        render(value) {
+                            let color
+                            if (value?.includes('Up')) {
+                                color = 'green'
+                            }
+                            else if (value?.includes('Exited')) {
+                                color = 'red'
+                            }
+                            return (
+                                <div style={{ color }}>{value}</div>
+                            )
+                        }
                     },
                     {
                         title: 'PORTS',
@@ -260,16 +302,7 @@ export function DockerClient() {
                         width: 220,
                         render(value) {
                             return (
-                                <div className={styles.portsCell}>{value.join(', ')}</div>
-                            )
-                        }
-                    },
-                    {
-                        title: 'NAMES',
-                        dataIndex: 'Names',
-                        render(value) {
-                            return (
-                                <div>{value.join(', ')}</div>
+                                <div className={styles.portsCell}>{value.map(port => `${port.IP}:${port.PublicPort}->${port.PrivatePort}/${port.Type}`).join(', ')}</div>
                             )
                         }
                     },
@@ -280,24 +313,38 @@ export function DockerClient() {
                             return (
                                 <div>
                                     <Space>
-                                        <Button
-                                            size="small"
-                                            danger
-                                            onClick={() => {
-                                                stopItem(item)
-                                            }}
-                                        >
-                                            {t('docker.stop')}
-                                        </Button>
-                                        <Button
-                                            size="small"
-                                            danger
-                                            onClick={() => {
-                                                removeItem(item)
-                                            }}
-                                        >
-                                            {t('remove')}
-                                        </Button>
+                                        {item.Status?.includes('Up') ?
+                                            <Button
+                                                size="small"
+                                                danger
+                                                onClick={() => {
+                                                    stopItem(item)
+                                                }}
+                                            >
+                                                {t('docker.stop')}
+                                            </Button>
+                                        :
+                                            <Button
+                                                size="small"
+                                                type="primary"
+                                                onClick={() => {
+                                                    startItem(item)
+                                                }}
+                                            >
+                                                {t('docker.start')}
+                                            </Button>
+                                        }
+                                        {item.Status?.includes('Exited') &&
+                                            <Button
+                                                size="small"
+                                                danger
+                                                onClick={() => {
+                                                    removeItem(item)
+                                                }}
+                                            >
+                                                {t('remove')}
+                                            </Button>
+                                        }
                                     </Space>
                                 </div>
                             )
@@ -325,22 +372,31 @@ export function DockerClient() {
                     {
                         title: 'RepoTags',
                         dataIndex: 'RepoTags',
-                        render(value) {
+                        render(value, item) {
                             if (!value) {
                                 return <div>--</div>
                             }
                             return (
-                                <div>{value.join(', ')}</div>
+                                <div>
+                                    <Space>
+                                        {value.join(', ')}
+                                        {item.isUsed &&
+                                            <Tag color="green">{t('docker.in_use')}</Tag>
+                                        }
+                                    </Space>
+                                </div>
                             )
                         }
                     },
                     {
                         title: 'size',
                         dataIndex: 'Size',
+                        width: 160,
                     },
                     {
                         title: 'Created',
                         dataIndex: 'Created',
+                        width: 160,
                     },
                     {
                         title: t('actions'),
@@ -393,7 +449,7 @@ export function DockerClient() {
                         },
                         {
                             key: 'image',
-                            label: 'images',
+                            label: t('docker.image'),
                         },
                         {
                             key: 'volume',

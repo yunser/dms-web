@@ -484,7 +484,9 @@ i18n
                     'docker.client': 'Docker Client',
                     'docker.container': 'Containers',
                     'docker.image': 'Images',
+                    'docker.start': 'Start',
                     'docker.stop': 'Stop',
+                    'docker.in_use': 'In Use',
                 }
             },
             zh: {
@@ -961,7 +963,9 @@ i18n
                     'docker.client': 'Docker 客户端',
                     'docker.container': '容器',
                     'docker.image': '镜像',
+                    'docker.start': '开始',
                     'docker.stop': '停止',
+                    'docker.in_use': '在使用',
                 }
             }
         },
