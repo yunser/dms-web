@@ -18,10 +18,11 @@ export function DockerClient() {
 
     const [containers, setContainers] = useState([])
     const [_images, setImages] = useState([])
-    const [services, setServices] = useState([])
+    const [_services, setServices] = useState([])
     const [networks, setNetworks] = useState([])
     const [volumes, setVolumes] = useState([])
-    const [tab, setTab] = useState('container')
+    const [tab, setTab] = useState('service')
+    // const [tab, setTab] = useState('container')
 
     const images = useMemo(() => {
         return _images.map(image => {
@@ -32,6 +33,14 @@ export function DockerClient() {
             }
         })
     }, [_images, containers])
+
+    const services = useMemo(() => {
+        return _services.map(item => {
+            return {
+                ...item,
+            }
+        })
+    }, [_services, networks])
 
     async function loadContainers() {
         let res = await request.post(`${config.host}/docker/container/list`, {
@@ -113,6 +122,21 @@ export function DockerClient() {
         })
     }
 
+    async function removeNetwork(item) {
+        Modal.confirm({
+            content: `${t('delete_confirm')} ${item.Name}?`,
+            async onOk() {
+                let res = await request.post(`${config.host}/docker/network/remove`, {
+                    id: item.Name,
+                })
+                console.log('res', res)
+                if (res.success) {
+                    loadNetworks()
+                }
+            }
+        })
+    }
+
     async function removeImage(item) {
         Modal.confirm({
             content: `${t('delete_confirm')} ${item.Id}?`,
@@ -149,22 +173,31 @@ export function DockerClient() {
             {/* <div>volumes</div> */}
             <Table
                 dataSource={volumes}
+                pagination={false}
                 size="small"
                 columns={[
                     {
                         title: 'Driver',
                         dataIndex: 'Driver',
-                        width: 120,
+                        width: 80,
                         ellipsis: true,
                     },
                     {
                         title: 'Name',
                         dataIndex: 'Name',
-                        // width: 120,
+                        width: 240,
                         ellipsis: true,
                     },
-                    
-                    
+                    {
+                        title: 'CreatedAt',
+                        dataIndex: 'CreatedAt',
+                        width: 200,
+                    },
+                    {
+                        title: 'Mountpoint',
+                        dataIndex: 'Mountpoint',
+                        // width: 120,
+                    },
                     // {
                     //     title: 'Name',
                     //     dataIndex: ['Spec', 'Name'],
@@ -180,31 +213,52 @@ export function DockerClient() {
         <div>
             <Table
                 dataSource={networks}
+                pagination={false}
                 size="small"
                 columns={[
                     {
                         title: 'Id',
                         dataIndex: 'Id',
-                        width: 120,
+                        width: 160,
                         ellipsis: true,
                     },
                     {
                         title: 'Name',
                         dataIndex: 'Name',
-                        width: 160,
+                        width: 240,
                         ellipsis: true,
                     },
                     {
                         title: 'Driver',
                         dataIndex: 'Driver',
-                        width: 120,
+                        width: 80,
                         ellipsis: true,
                     },
                     {
                         title: 'Scope',
                         dataIndex: 'Scope',
-                        // width: 120,
+                        width: 100,
                         ellipsis: true,
+                    },
+                    {
+                        title: t('actions'),
+                        dataIndex: '__actions',
+                        // width: 120,
+                        render(_value, item) {
+                            return (
+                                <div>
+                                    <Button
+                                        size="small"
+                                        danger
+                                        onClick={() => {
+                                            removeNetwork(item)
+                                        }}
+                                    >
+                                        {t('remove')}
+                                    </Button>
+                                </div>
+                            )
+                        }
                     },
                     
                     
@@ -224,6 +278,7 @@ export function DockerClient() {
             <Table
                 dataSource={services}
                 size="small"
+                pagination={false}
                 columns={[
                     {
                         title: 'ID',
@@ -234,8 +289,12 @@ export function DockerClient() {
                     {
                         title: 'Name',
                         dataIndex: ['Spec', 'Name'],
-                        // width: 160,
                         ellipsis: true,
+                    },
+                    {
+                        title: 'CreatedAt',
+                        dataIndex: ['CreatedAt'],
+                        // ellipsis: true,
                     },
                 ]}
             />
@@ -453,15 +512,15 @@ export function DockerClient() {
                         },
                         {
                             key: 'volume',
-                            label: 'volumes',
+                            label: t('docker.volume'),
                         },
                         {
                             key: 'network',
-                            label: 'networks',
+                            label: t('docker.network'),
                         },
                         {
                             key: 'service',
-                            label: 'services',
+                            label: t('docker.service'),
                         },
                     ]}
                 />
