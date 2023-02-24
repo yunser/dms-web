@@ -137,6 +137,21 @@ export function DockerClient() {
         })
     }
 
+    async function removeService(item) {
+        Modal.confirm({
+            content: `${t('delete_confirm')} ${item.Spec.Name}?`,
+            async onOk() {
+                let res = await request.post(`${config.host}/docker/service/remove`, {
+                    id: item.ID,
+                })
+                console.log('res', res)
+                if (res.success) {
+                    loadServices()
+                }
+            }
+        })
+    }
+
     async function removeVolume(item) {
         Modal.confirm({
             content: `${t('delete_confirm')} ${item.Name}?`,
@@ -314,6 +329,25 @@ export function DockerClient() {
                         title: 'CreatedAt',
                         dataIndex: ['CreatedAt'],
                         // ellipsis: true,
+                    },
+                    {
+                        title: t('actions'),
+                        dataIndex: '__actions',
+                        render(_value, item) {
+                            return (
+                                <div>
+                                    <Button
+                                        size="small"
+                                        danger
+                                        onClick={() => {
+                                            removeService(item)
+                                        }}
+                                    >
+                                        {t('remove')}
+                                    </Button>
+                                </div>
+                            )
+                        }
                     },
                 ]}
             />
