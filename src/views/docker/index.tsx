@@ -137,6 +137,21 @@ export function DockerClient() {
         })
     }
 
+    async function removeVolume(item) {
+        Modal.confirm({
+            content: `${t('delete_confirm')} ${item.Name}?`,
+            async onOk() {
+                let res = await request.post(`${config.host}/docker/volume/remove`, {
+                    id: item.Name,
+                })
+                console.log('res', res)
+                if (res.success) {
+                    loadVolumes()
+                }
+            }
+        })
+    }
+    
     async function removeImage(item) {
         Modal.confirm({
             content: `${t('delete_confirm')} ${item.Id}?`,
@@ -198,12 +213,25 @@ export function DockerClient() {
                         dataIndex: 'Mountpoint',
                         // width: 120,
                     },
-                    // {
-                    //     title: 'Name',
-                    //     dataIndex: ['Spec', 'Name'],
-                    //     width: 160,
-                    //     ellipsis: true,
-                    // },
+                    {
+                        title: t('actions'),
+                        dataIndex: '__actions',
+                        render(_value, item) {
+                            return (
+                                <div>
+                                    <Button
+                                        size="small"
+                                        danger
+                                        onClick={() => {
+                                            removeVolume(item)
+                                        }}
+                                    >
+                                        {t('remove')}
+                                    </Button>
+                                </div>
+                            )
+                        }
+                    },
                 ]}
             />
         </div>
@@ -243,7 +271,6 @@ export function DockerClient() {
                     {
                         title: t('actions'),
                         dataIndex: '__actions',
-                        // width: 120,
                         render(_value, item) {
                             return (
                                 <div>
@@ -260,14 +287,6 @@ export function DockerClient() {
                             )
                         }
                     },
-                    
-                    
-                    // {
-                    //     title: 'Name',
-                    //     dataIndex: ['Spec', 'Name'],
-                    //     width: 160,
-                    //     ellipsis: true,
-                    // },
                 ]}
             />
         </div>
@@ -360,8 +379,16 @@ export function DockerClient() {
                         dataIndex: 'Ports',
                         width: 220,
                         render(value) {
+                            if (!value?.length) {
+                                return '--'
+                            }
                             return (
-                                <div className={styles.portsCell}>{value.map(port => `${port.IP}:${port.PublicPort}->${port.PrivatePort}/${port.Type}`).join(', ')}</div>
+                                <div className={styles.portsCell}>{value.map(port => {
+                                    if (!port.PublicPort) {
+                                        return `${port.PrivatePort}/${port.Type}`    
+                                    }
+                                    return `${port.IP}:${port.PublicPort}->${port.PrivatePort}/${port.Type}`
+                                }).join(', ')}</div>
                             )
                         }
                     },
