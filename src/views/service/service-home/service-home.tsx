@@ -486,20 +486,52 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
     async function handleTestConnection() {
         const values = await form.validateFields()
         setLoading(true)
-        const reqData = {
-            host: values.host,
-            port: values.port || 22,
-            username: values.username,
-            password: values.password,
-            test: true,
-            // remember: values.remember,
+
+        // const startTime = new Date()
+        let res
+        let isTimeout = false
+        try {
+            res = await axios.post(`${config.host}/http/proxy`, {
+                url: values.url,
+            }, {
+                timeout: 4000,
+                // noMessage: true,
+            })
         }
-        let ret = await request.post(`${config.host}/ssh/connect`, reqData)
-        // console.log('ret', ret)
-        if (ret.success) {
-            message.success(t('success'))
+        catch (err) {
+            console.log('err', err)
+            isTimeout = err.message && err.message.includes('timeout')
         }
         setLoading(false)
+        console.log('res', res)
+        // if ()
+        let isSuccess
+        if (values.field) {
+            isSuccess = res?.status == 200 && (typeof res?.data == 'object') && res.data[service.field] == 'success'
+        }
+        else {
+            isSuccess = res && res.status == 200
+        }
+        if (isSuccess) {
+            message.success(t('success'))
+        }
+        else {
+            message.error(t('fail'))
+        }
+        // const reqData = {
+        //     host: values.,
+        //     port: values.port || 22,
+        //     username: values.username,
+        //     password: values.password,
+        //     test: true,
+        //     // remember: values.remember,
+        // }
+        // let ret = await request.post(`${config.host}/ssh/connect`, reqData)
+        // // console.log('ret', ret)
+        // if (ret.success) {
+        //     message.success(t('success'))
+        // }
+        
     }
 
     return (
@@ -519,14 +551,14 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                         justifyContent: 'space-between',
                     }}
                 >
-                    <div></div>
-                    {/* <Button key="back"
+                    {/* <div></div> */}
+                    <Button key="back"
                         loading={loading}
                         disabled={loading}
                         onClick={handleTestConnection}
                     >
-                        {t('test_connection')}
-                    </Button> */}
+                        {t('test')}
+                    </Button>
                     <Space>
                         <Button
                             // key="submit"

@@ -490,6 +490,7 @@ i18n
                     'docker.start': 'Start',
                     'docker.stop': 'Stop',
                     'docker.in_use': 'In Use',
+                    'test': 'Test',
                 }
             },
             zh: {
@@ -972,6 +973,7 @@ i18n
                     'docker.start': '开始',
                     'docker.stop': '停止',
                     'docker.in_use': '在使用',
+                    'test': '测试',
                 }
             }
         },

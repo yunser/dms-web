@@ -57,20 +57,24 @@ export function DockerClient() {
                             refresh
                         </Button>
                     </Space>
-                    <div className={styles.connections}>
-                        {connections.map(item => (
-                            <div
-                                className={classNames(styles.item, {
-                                    [styles.active]: currentConnection && item.id == currentConnection.id,
-                                })}
-                                onClick={() => {
-                                    setCurrentConnection(item)
-                                }}
-                            >
-                                {item.name}
-                            </div>
-                        ))}
-                    </div>
+                    {connections.length == 0 ?
+                        <div>没有可用连接</div>
+                    :
+                        <div className={styles.connections}>
+                            {connections.map(item => (
+                                <div
+                                    className={classNames(styles.item, {
+                                        [styles.active]: currentConnection && item.id == currentConnection.id,
+                                    })}
+                                    onClick={() => {
+                                        setCurrentConnection(item)
+                                    }}
+                                >
+                                    {item.name}
+                                </div>
+                            ))}
+                        </div>
+                    }
                 </div>
                 <div className={styles.layoutMain}>
                     {!!currentConnection ?
