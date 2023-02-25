@@ -209,7 +209,7 @@ function KafkaClientPage() {
 
 function DockerPage() {
     const { t } = useTranslation()
-    useTitle(t('http_server'))
+    useTitle(t('docker.client'))
 
     return (
         <div className={styles.pageFull}>

@@ -36,6 +36,10 @@ export function ServiceHome({ onClickItem }) {
     const [connecting, setConnecting] = useState(false)
     const [connected, setConnected] = useState(false)
 
+    useEffect(() => {
+        document.title = t('monitor')
+    }, [])
+
     // total
     const [totalResult, setTotalResult] = useState({
         total: 0,
