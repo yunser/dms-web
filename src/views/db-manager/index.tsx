@@ -50,6 +50,7 @@ import { WebSocketHome } from '../websocket/websocket-home/websocket-home'
 import { RedisConnect } from '../redis/redis-connect'
 import { RedisClient } from '../redis/redis-client'
 import { TextEditor } from '../text/text'
+import { S3Home } from '../s3/s3-home'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -75,6 +76,7 @@ const tagIconLabel = {
     'logger-home': 'LOG',
     'logger-detail': 'LOG',
     'oss-home': 'OSS',
+    's3-home': 'S3',
     'file-home': 'FILE',
     'sftp-detail': 'SFTP',
     'ssh-detail': 'SSH',
@@ -546,6 +548,17 @@ export function DbManager({ config }) {
                 },
             })
         }
+        else if (key == 's3-home') {
+            addOrActiveTab({
+                title: t('s3') + `-${(window._fileCount++) + 1}`,
+                // key: 'redis-' + uid(16),
+                key: `s3-${uid(16)}`,
+                type: 's3-home',
+                data: {
+                    // url,
+                },
+            })
+        }
         else if (key == 'webdav-home') {
             addOrActiveTab({
                 title: t('webdav') + `-${(window._fileCount++) + 1}`,
@@ -722,6 +735,11 @@ export function DbManager({ config }) {
         {
             label: t('oss'),
             key: 'oss-home',
+            group: 'file',
+        },
+        {
+            label: t('s3'),
+            key: 's3-home',
             group: 'file',
         },
         {
@@ -1360,6 +1378,27 @@ export function DbManager({ config }) {
                                     }
                                     {item.type == 'oss-home' &&
                                         <OssHome
+                                            event$={event$}
+                                            onClickItem={item => {
+                                                console.log('item', item)
+                                                // return
+                                                addOrActiveTab({
+                                                    // title: t('oss') + `-${(window._fileCount++) + 1}`,
+                                                    title: item.name,
+                                                    // key: 'redis-' + uid(16),
+                                                    key: `file-${uid(16)}`,
+                                                    type: 'file-home',
+                                                    data: {
+                                                        sourceType: 'oss:' + item.bucket,
+                                                        ossItem: item,
+                                                        // url,
+                                                    },
+                                                })
+                                            }}
+                                        />
+                                    }
+                                    {item.type == 's3-home' &&
+                                        <S3Home
                                             event$={event$}
                                             onClickItem={item => {
                                                 console.log('item', item)
