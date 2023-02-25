@@ -57,7 +57,13 @@ export function ServiceHome({ onClickItem }) {
     const [list, setList] = useState([])
     const [ keyword, setKeyword ] = useState('')
     const config = getGlobalConfig()
-
+    const comData = useRef({
+        result: {
+            total: 0,
+            success: 0,
+            fail: 0,
+        }
+    })
     const filteredList = useMemo(() => {
         return SearchUtil.searchLike(list, keyword, {
             attributes: ['name', 'url'],
@@ -69,6 +75,65 @@ export function ServiceHome({ onClickItem }) {
         // return projects.filter(p => p.name.toLowerCase().includes(keyword.toLowerCase()))
         // return projects
     }, [list, keyword])
+
+    async function _testItem(service) {
+        const fIdx = list.findIndex(item => item.id == service.id)
+        const { url } = service
+        console.log('url', url)
+        list[fIdx]._id = new Date().getTime()
+        list[fIdx].loading = true
+        setList([...list])
+        const startTime = new Date()
+        let res
+        let isTimeout = false
+        try {
+            res = await axios.post(`${config.host}/http/proxy`, {
+                url,
+            }, {
+                timeout: 4000,
+                // noMessage: true,
+            })
+        }
+        catch (err) {
+            console.log('err', err)
+            isTimeout = err.message && err.message.includes('timeout')
+        }
+        console.log('res', res)
+        // if ()
+        let isSuccess
+        if (service.field) {
+            isSuccess = res?.status == 200 && (typeof res?.data == 'object') && res.data[service.field] == 'success'
+        }
+        else {
+            isSuccess = res && res.status == 200
+        }
+        
+        list[fIdx].hasResult = true
+        list[fIdx]._id = new Date().getTime()
+        list[fIdx].time = new Date().getTime() - startTime.getTime()
+        list[fIdx].loading = false
+        list[fIdx].status = isSuccess ? 'ok' : 'fail'
+        list[fIdx].isTimeout = isTimeout
+
+        comData.current.result.success = list.filter(item => item.hasResult && item.status == 'ok').length
+        comData.current.result.fail = list.filter(item => item.hasResult && item.status != 'ok').length
+
+        if (res) {
+            list[fIdx].response = {
+                status: res.status,
+                data: res.data,
+            }
+        }
+        setTotalResult({
+            ...comData.current.result,
+        })
+        setList([...list])
+    }
+
+    async function retryItem(item) {
+        console.log('重试', item)
+        _testItem(item)
+    }
 
     async function removeItem(item) {
         Modal.confirm({
@@ -101,71 +166,19 @@ export function ServiceHome({ onClickItem }) {
         // for (let i = 0; i < filteredList.length; i++) {
         //     const 
         // }
-        const result = {
+        comData.current.result = {
             total: 0,
             success: 0,
             fail: 0,
         }
         setTotalResult({
-            ...result,
+            ...comData.current.result,
         })
         for (let service of filteredList) {
             if (service.enable === false) {
                 continue
             }
-            const fIdx = list.findIndex(item => item.id == service.id)
-            const { url } = service
-            console.log('url', url)
-            list[fIdx]._id = new Date().getTime()
-            list[fIdx].loading = true
-            setList([...list])
-            const startTime = new Date()
-            let res
-            let isTimeout = false
-            try {
-                res = await axios.post(`${config.host}/http/proxy`, {
-                    url,
-                }, {
-                    timeout: 4000,
-                    // noMessage: true,
-                })
-            }
-            catch (err) {
-                console.log('err', err)
-                isTimeout = err.message && err.message.includes('timeout')
-            }
-            console.log('res', res)
-            // if ()
-            let isSuccess
-            if (service.field) {
-                isSuccess = res?.status == 200 && (typeof res?.data == 'object') && res.data[service.field] == 'success'
-            }
-            else {
-                isSuccess = res && res.status == 200
-            }
-            result.total += 1
-            if (isSuccess) {
-                result.success += 1
-            }
-            else {
-                result.fail += 1
-            }
-            list[fIdx].hasResult = true
-            list[fIdx]._id = new Date().getTime()
-            list[fIdx].time = new Date().getTime() - startTime.getTime()
-            list[fIdx].loading = false
-            list[fIdx].status = isSuccess ? 'ok' : 'fail'
-            list[fIdx].isTimeout = isTimeout
-            if (res) {
-                list[fIdx].response = {
-                    status: res.status,
-                    data: res.data,
-                }
-            }
-            setTotalResult({
-                ...result,
-            })
-            setList([...list])
+            await _testItem(service)
         }
     }
 
@@ -209,7 +222,7 @@ export function ServiceHome({ onClickItem }) {
         {
             title: '状态',
             dataIndex: '_id',
-            width: 180,
+            width: 240,
             render(value = true, item) {
                 return (
                     <div>
@@ -217,7 +230,9 @@ export function ServiceHome({ onClickItem }) {
                             <Spin />
                         :
                             <Space>
-                                <div style={{ color: item.status == 'ok' ? 'green' : 'red' }}>{item.status || '--'}</div>
+                                <div
+                                    className={styles.status} 
+                                    style={{ color: item.status == 'ok' ? 'green' : 'red' }}>{item.status || '--'}</div>
                                 {!!item.hasResult &&
                                     <>
                                         {item.isTimeout ?
@@ -229,13 +244,22 @@ export function ServiceHome({ onClickItem }) {
                                 }
                                 <Button
                                     size="small"
-                                    disabled={! item.status}
+                                    // disabled={! item.status}
                                     onClick={() => {
                                         setDetailItem(item)
                                         setDetailVisible(true)
                                     }}
-                                >
+                                    >
                                     查看结果
+                                </Button>
+                                <Button
+                                    size="small"
+                                    // disabled={! item.status}
+                                    onClick={() => {
+                                        retryItem(item)
+                                    }}
+                                >
+                                    重试
                                 </Button>
                                 {/* <Button
                                     size="small"
@@ -368,7 +392,8 @@ export function ServiceHome({ onClickItem }) {
                     onChange={e => setKeyword(e.target.value)}
                 />
             </div>
-            <div>成功：{totalResult.success}；
+            <div className={styles.statBox}>
+                成功：{totalResult.success}；
                         
                 失败：
                 <span style={{ color: 'red' }}>{totalResult.fail}</span>
