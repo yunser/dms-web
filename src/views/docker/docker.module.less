@@ -28,8 +28,13 @@
     overflow: auto;
 }
 .portsCell {
-    max-height: 240px;
+    // max-height: 240px;
     overflow: auto;
+    overflow:hidden; 
+    text-overflow:ellipsis;
+    display:-webkit-box; 
+    -webkit-box-orient:vertical;
+    -webkit-line-clamp: 2; 
 }
 .dockerDetail {
     width: 100%;

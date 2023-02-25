@@ -52,7 +52,7 @@ export function DockerClient() {
                             size="small"
                             onClick={loadAll}
                         >
-                            refresh
+                            {t('refresh')}
                         </Button>
                     </Space>
                     {connections.length == 0 ?

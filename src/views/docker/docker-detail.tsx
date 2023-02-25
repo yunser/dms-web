@@ -16,6 +16,7 @@ import TimeAgo from 'javascript-time-ago'
 // English.
 import en from 'javascript-time-ago/locale/en'
 import { SearchUtil } from '@/utils/search'
+import filesize from 'file-size'
 
 TimeAgo.addDefaultLocale(en)
 const timeAgo = new TimeAgo('en-US')
@@ -48,8 +49,10 @@ export function DockerDetail({ connection }) {
     const [containers, setContainers] = useState([])
     const [containerKeyword, setContainerKeyword] = useState('')
     const [_images, setImages] = useState([])
+    const [imageKeyword, setImageKeyword] = useState('')
     const [_services, setServices] = useState([])
-    const [networks, setNetworks] = useState([])
+    const [serviceKeyword, setServiceKeyword] = useState('')
+    const [_networks, setNetworks] = useState([])
     const [volumeDetailVisible, setVolumeDetailVisible] = useState(false)
     const [volumeDetailItem, setVolumeDetailItem] = useState(null)
     const [volumes, setVolumes] = useState([])
@@ -61,11 +64,28 @@ export function DockerDetail({ connection }) {
         })
     }, [containers, containerKeyword])
 
+    const filteredServices = useMemo(() => {
+        return SearchUtil.search(_services, serviceKeyword, {
+            attributes: ['ID', '_name'],
+            // dataIndex: ['Spec', 'Name'],
+        })
+    }, [_services, serviceKeyword])
+
     const connectionId = connection.id
 
     useEffect(() => {
         loadAll()
     }, [connectionId])
+
+    const networks = useMemo(() => {
+        return _networks.map(network => {
+            const fItem = _services.find(c => c.Endpoint.VirtualIPs.find(it => it.NetworkID == network.Id))
+            return {
+                ...network,
+                isUsed: !!fItem,
+            }
+        })
+    }, [_networks, _services])
 
     const images = useMemo(() => {
         return _images.map(image => {
@@ -76,6 +96,11 @@ export function DockerDetail({ connection }) {
             }
         })
     }, [_images, containers])
+    const filteredImages = useMemo(() => {
+        return SearchUtil.search(images, imageKeyword, {
+            attributes: ['Id', '_repoTags'],
+        })
+    }, [images, imageKeyword])
 
     const services = useMemo(() => {
         return _services.map(item => {
@@ -112,7 +137,16 @@ export function DockerDetail({ connection }) {
         })
         console.log('res', res)
         if (res.success) {
-            setImages(res.data.list)
+            setImages(res.data.list.map(item => {
+                let _repoTags = ''
+                if (item.RepoTags) {
+                    _repoTags = item.RepoTags.join(';')
+                }
+                return {
+                    ...item,
+                    _repoTags,
+                }
+            }))
         }
     }
 
@@ -123,7 +157,19 @@ export function DockerDetail({ connection }) {
         })
         console.log('res', res)
         if (res.success) {
-            setServices(res.data.list.sort((a, b) => a.Spec.Name.localeCompare(b.Spec.Name)))
+            const list = res.data.list
+                .map(item => {
+                    let _name = ''
+                    if (item.Spec?.Name) {
+                        _name = item.Spec.Name
+                    }
+                    return {
+                        _name,
+                        ...item,
+                    }
+                })
+                .sort((a, b) => a.Spec.Name.localeCompare(b.Spec.Name))
+            setServices(list)
         }
     }
 
@@ -274,27 +320,27 @@ export function DockerDetail({ connection }) {
                 size="small"
                 columns={[
                     {
-                        title: 'Driver',
+                        title: t('docker.driver'),
                         dataIndex: 'Driver',
                         width: 80,
                         ellipsis: true,
                     },
                     {
-                        title: 'Name',
+                        title: ('name'),
                         dataIndex: 'Name',
                         width: 240,
                         ellipsis: true,
                     },
                     {
-                        title: 'CreatedAt',
+                        title: t('docker.mountpoint'),
+                        dataIndex: 'Mountpoint',
+                        // width: 120,
+                    },
+                    {
+                        title: t('docker.created'),
                         dataIndex: 'CreatedAt',
                         width: 200,
                         render: TimeAgoCellRender,
-                    },
-                    {
-                        title: 'Mountpoint',
-                        dataIndex: 'Mountpoint',
-                        // width: 120,
                     },
                     {
                         title: t('actions'),
@@ -339,31 +385,42 @@ export function DockerDetail({ connection }) {
                 size="small"
                 columns={[
                     {
-                        title: 'Id',
+                        title: t('id'),
                         dataIndex: 'Id',
                         width: 160,
                         ellipsis: true,
                     },
                     {
-                        title: 'Name',
+                        title: t('name'),
                         dataIndex: 'Name',
-                        width: 240,
+                        width: 200,
                         ellipsis: true,
                     },
                     {
-                        title: 'Driver',
+                        title: t('docker.used'),
+                        dataIndex: 'isUsed',
+                        width: 64,
+                        // ellipsis: true,
+                        render(value) {
+                            return (
+                                <div>{value ? <Tag color="green">{t('docker.in_use')}</Tag> : ''}</div>
+                            )
+                        }
+                    },
+                    {
+                        title: t('docker.driver'),
                         dataIndex: 'Driver',
                         width: 80,
                         ellipsis: true,
                     },
                     {
-                        title: 'Scope',
+                        title: t('docker.scope'),
                         dataIndex: 'Scope',
                         width: 100,
                         ellipsis: true,
                     },
                     {
-                        title: 'Created',
+                        title: t('docker.created'),
                         dataIndex: 'Created',
                         width: 180,
                         render: TimeAgoCellRender,
@@ -394,25 +451,93 @@ export function DockerDetail({ connection }) {
 
     const serviceTab = (
         <div>
+            <div className={styles.filterBox}>
+                <Input
+                    className={styles.keyword}
+                    placeholder={t('filter')}
+                    value={serviceKeyword}
+                    allowClear
+                    onChange={e => {
+                        setServiceKeyword(e.target.value)
+                    }}
+                />
+            </div>
             <Table
-                dataSource={services}
+                dataSource={filteredServices}
                 size="small"
                 pagination={false}
                 columns={[
                     {
-                        title: 'ID',
+                        title: t('id'),
                         dataIndex: 'ID',
                         width: 120,
                         ellipsis: true,
                     },
                     {
-                        title: 'Name',
+                        title: t('name'),
                         dataIndex: ['Spec', 'Name'],
                         ellipsis: true,
-                        width: 320,
+                        width: 280,
                     },
                     {
-                        title: 'CreatedAt',
+                        title: t('docker.mode'),
+                        dataIndex: ['Spec', 'Mode'],
+                        ellipsis: true,
+                        width: 120,
+                        render(value) {
+                            if (!value) {
+                                return <div>--</div>
+                            }
+                            if (value.Global) {
+                                return <div>global</div>
+                            }
+                            if (value.Replicated) {
+                                return (
+                                    <Space>
+                                        replicated
+                                        <Tag>{value.Replicated.Replicas}</Tag>
+                                    </Space>
+                                )
+                            }
+                            return (
+                                <div>--</div>
+                            )
+                        }
+                    },
+                    {
+                        title: t('docker.image'),
+                        dataIndex: ['Spec', 'Labels', 'com.docker.stack.image'],
+                        width: 320,
+                        // width: 180,
+                        // render: TimeAgoCellRender,
+                        render(value) {
+                            if (!value) {
+                                return <div>--</div>
+                            }
+                            return (
+                                <div>{value}</div>
+                            )
+                        }
+                    },
+                    {
+                        title: t('docker.ports'),
+                        dataIndex: ['Endpoint', 'Ports'],
+                        width: 320,
+                        // width: 180,
+                        // render: TimeAgoCellRender,
+                        render(value) {
+                            if (!value) {
+                                return <div>--</div>
+                            }
+                            return (
+                                <div>{value.map(item => {
+                                    return `*:${item.PublishedPort}->${item.TargetPort}/${item.Protocol}`
+                                }).join(', ')}</div>
+                            )
+                        }
+                    },
+                    {
+                        title: t('docker.created'),
                         dataIndex: ['CreatedAt'],
                         // width: 320,
                         width: 180,
@@ -461,13 +586,13 @@ export function DockerDetail({ connection }) {
                 pagination={false}
                 columns={[
                     {
-                        title: 'CONTAINER ID',
+                        title: t('id'),
                         dataIndex: 'Id',
                         width: 160,
                         ellipsis: true,
                     },
                     {
-                        title: 'NAMES',
+                        title: t('docker.names'),
                         dataIndex: 'Names',
                         render(value) {
                             return (
@@ -476,23 +601,17 @@ export function DockerDetail({ connection }) {
                         }
                     },
                     {
-                        title: 'IMAGE',
+                        title: t('docker.image'),
                         dataIndex: 'Image',
                     },
                     {
-                        title: 'COMMAND',
+                        title: t('command'),
                         dataIndex: 'Command',
                         width: 220,
                         ellipsis: true,
                     },
                     {
-                        title: 'CREATED',
-                        dataIndex: 'Created',
-                        width: 180,
-                        render: TimeAgoCellRender,
-                    },
-                    {
-                        title: 'STATUS',
+                        title: t('status'),
                         dataIndex: 'Status',
                         width: 220,
                         render(value) {
@@ -509,7 +628,7 @@ export function DockerDetail({ connection }) {
                         }
                     },
                     {
-                        title: 'PORTS',
+                        title: t('docker.ports'),
                         dataIndex: 'Ports',
                         width: 220,
                         render(value) {
@@ -525,6 +644,12 @@ export function DockerDetail({ connection }) {
                                 }).join(', ')}</div>
                             )
                         }
+                    },
+                    {
+                        title: t('docker.created'),
+                        dataIndex: 'Created',
+                        width: 180,
+                        render: TimeAgoCellRender,
                     },
                     {
                         title: t('actions'),
@@ -578,19 +703,30 @@ export function DockerDetail({ connection }) {
 
     const imageTab = (
         <div>
+            <div className={styles.filterBox}>
+                <Input
+                    className={styles.keyword}
+                    placeholder={t('filter')}
+                    value={imageKeyword}
+                    allowClear
+                    onChange={e => {
+                        setImageKeyword(e.target.value)
+                    }}
+                />
+            </div>
             <Table
-                dataSource={images}
+                dataSource={filteredImages}
                 size="small"
                 pagination={false}
                 columns={[
                     {
-                        title: 'ID',
+                        title: t('id'),
                         dataIndex: 'Id',
                         width: 240,
                         ellipsis: true,
                     },
                     {
-                        title: 'RepoTags',
+                        title: t('docker.repo_tags'),
                         dataIndex: 'RepoTags',
                         render(value, item) {
                             if (!value) {
@@ -600,6 +736,22 @@ export function DockerDetail({ connection }) {
                                 <div>
                                     <Space>
                                         {value.join(', ')}
+                                        {/* {item.isUsed &&
+                                            <Tag color="green">{t('docker.in_use')}</Tag>
+                                        } */}
+                                    </Space>
+                                </div>
+                            )
+                        }
+                    },
+                    {
+                        title: t('docker.used'),
+                        dataIndex: 'isUsed',
+                        width: 80,
+                        render(value, item) {
+                            return (
+                                <div>
+                                    <Space>
                                         {item.isUsed &&
                                             <Tag color="green">{t('docker.in_use')}</Tag>
                                         }
@@ -609,12 +761,15 @@ export function DockerDetail({ connection }) {
                         }
                     },
                     {
-                        title: 'size',
+                        title: t('size'),
                         dataIndex: 'Size',
-                        width: 160,
+                        width: 100,
+                        render(value) {
+                            return filesize(value, { fixed: 1, }).human()
+                        },
                     },
                     {
-                        title: 'Created',
+                        title: t('docker.created'),
                         dataIndex: 'Created',
                         width: 180,
                         render: TimeAgoCellRender,
@@ -652,7 +807,7 @@ export function DockerDetail({ connection }) {
                     size="small"
                     onClick={loadAll}
                 >
-                    refresh
+                    {t('refresh')}
                 </Button>
             </Space>
             <Tabs
@@ -667,19 +822,19 @@ export function DockerDetail({ connection }) {
                     },
                     {
                         key: 'image',
-                        label: t('docker.image'),
+                        label: t('docker.images'),
                     },
                     {
-                        key: 'volume',
-                        label: t('docker.volume'),
+                        key: 'service',
+                        label: t('docker.service'),
                     },
                     {
                         key: 'network',
                         label: t('docker.network'),
                     },
                     {
-                        key: 'service',
-                        label: t('docker.service'),
+                        key: 'volume',
+                        label: t('docker.volume'),
                     },
                 ]}
             />
