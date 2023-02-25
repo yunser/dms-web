@@ -18,8 +18,6 @@ export function DockerClient() {
     const config = getGlobalConfig()
 
     const [connections, setConnections] = useState([])
-    const [_images, setImages] = useState([])
-    const [_services, setServices] = useState([])
     // const [tab, setTab] = useState('container')
     const [currentConnection, setCurrentConnection] = useState(null)
 

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 
 import styles from './docker.module.less'
 import classNames from 'classnames'
-import { Button, Drawer, Empty, message, Modal, Space, Table, Tabs, Tag } from 'antd'
+import { Button, Drawer, Empty, Input, message, Modal, Space, Table, Tabs, Tag } from 'antd'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import storage from '../db-manager/storage'
@@ -15,6 +15,7 @@ import moment from 'moment'
 import TimeAgo from 'javascript-time-ago'
 // English.
 import en from 'javascript-time-ago/locale/en'
+import { SearchUtil } from '@/utils/search'
 
 TimeAgo.addDefaultLocale(en)
 const timeAgo = new TimeAgo('en-US')
@@ -45,6 +46,7 @@ export function DockerDetail({ connection }) {
     const config = getGlobalConfig()
 
     const [containers, setContainers] = useState([])
+    const [containerKeyword, setContainerKeyword] = useState('')
     const [_images, setImages] = useState([])
     const [_services, setServices] = useState([])
     const [networks, setNetworks] = useState([])
@@ -52,6 +54,12 @@ export function DockerDetail({ connection }) {
     const [volumeDetailItem, setVolumeDetailItem] = useState(null)
     const [volumes, setVolumes] = useState([])
     const [tab, setTab] = useState('container')
+
+    const filteredContainers = useMemo(() => {
+        return SearchUtil.search(containers, containerKeyword, {
+            attributes: ['Id', '_names'],
+        })
+    }, [containers, containerKeyword])
 
     const connectionId = connection.id
 
@@ -78,16 +86,27 @@ export function DockerDetail({ connection }) {
     }, [_services, networks])
 
     async function loadContainers() {
+        setContainers([])
         let res = await request.post(`${config.host}/docker/container/list`, {
             connectionId,
         })
         console.log('res', res)
         if (res.success) {
-            setContainers(res.data.list)
+            setContainers(res.data.list.map(item => {
+                let _names = ''
+                if (item.Names) {
+                    _names = item.Names.join(', ')
+                }
+                return {
+                    ...item,
+                    _names,
+                }
+            }))
         }
     }
 
     async function loadImages() {
+        setImages([])
         let res = await request.post(`${config.host}/docker/images`, {
             connectionId,
         })
@@ -98,6 +117,7 @@ export function DockerDetail({ connection }) {
     }
 
     async function loadServices() {
+        setServices([])
         let res = await request.post(`${config.host}/docker/services`, {
             connectionId,
         })
@@ -108,6 +128,7 @@ export function DockerDetail({ connection }) {
     }
 
     async function loadNetworks() {
+        setNetworks([])
         let res = await request.post(`${config.host}/docker/networks`, {
             connectionId,
         })
@@ -118,6 +139,7 @@ export function DockerDetail({ connection }) {
     }
 
     async function loadVolumes() {
+        setVolumes([])
         let res = await request.post(`${config.host}/docker/volumes`, {
             connectionId,
         })
@@ -422,8 +444,19 @@ export function DockerDetail({ connection }) {
 
     const containerTab = (
         <div>
+            <div className={styles.filterBox}>
+                <Input
+                    className={styles.keyword}
+                    placeholder={t('filter')}
+                    value={containerKeyword}
+                    allowClear
+                    onChange={e => {
+                        setContainerKeyword(e.target.value)
+                    }}
+                />
+            </div>
             <Table
-                dataSource={containers}
+                dataSource={filteredContainers}
                 size="small"
                 pagination={false}
                 columns={[

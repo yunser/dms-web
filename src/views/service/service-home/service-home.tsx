@@ -224,6 +224,10 @@ export function ServiceHome({ onClickItem }) {
             dataIndex: '_id',
             width: 240,
             render(value = true, item) {
+                const colorMap = {
+                    ok: 'green',
+                    fail: 'red'
+                }
                 return (
                     <div>
                         {item.loading ?
@@ -232,7 +236,7 @@ export function ServiceHome({ onClickItem }) {
                             <Space>
                                 <div
                                     className={styles.status} 
-                                    style={{ color: item.status == 'ok' ? 'green' : 'red' }}>{item.status || '--'}</div>
+                                    style={{ color: colorMap[item.status] }}>{item.status || '--'}</div>
                                 {!!item.hasResult &&
                                     <>
                                         {item.isTimeout ?
@@ -242,25 +246,29 @@ export function ServiceHome({ onClickItem }) {
                                         }
                                     </>
                                 }
-                                <Button
-                                    size="small"
-                                    // disabled={! item.status}
-                                    onClick={() => {
-                                        setDetailItem(item)
-                                        setDetailVisible(true)
-                                    }}
+                                {item.hasResult &&
+                                    <Button
+                                        size="small"
+                                        // disabled={! item.status}
+                                        onClick={() => {
+                                            setDetailItem(item)
+                                            setDetailVisible(true)
+                                        }}
+                                        >
+                                        查看结果
+                                    </Button>
+                                }
+                                {(item.hasResult && item.status != 'ok') &&
+                                    <Button
+                                        size="small"
+                                        // disabled={! item.status}
+                                        onClick={() => {
+                                            retryItem(item)
+                                        }}
                                     >
-                                    查看结果
-                                </Button>
-                                <Button
-                                    size="small"
-                                    // disabled={! item.status}
-                                    onClick={() => {
-                                        retryItem(item)
-                                    }}
-                                >
-                                    重试
-                                </Button>
+                                        重试
+                                    </Button>
+                                }
                                 {/* <Button
                                     size="small"
                                 >
