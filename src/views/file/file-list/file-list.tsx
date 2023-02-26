@@ -26,6 +26,7 @@ import { FileInfo } from '../file-info';
 import { getIconForFile, getIconForFolder, getIconForOpenFolder } from 'vscode-icons-js';
 import { FilePasteModal } from '../file-paste';
 import { OssInfoModal } from '@/views/oss/oss-info/oss-info';
+import { S3InfoModal } from '@/views/s3/s3-info/s3-info';
 
 function visibleFilter(list) {
     return list.filter(item => item.visible != false)
@@ -209,6 +210,9 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
     const [fileModalPath, setFileModalPath] = useState('')
     const [fileEditModalVisible, setFileEditModalVisible] = useState(false)
     const [pathModalVisible, setPathModalVisible] = useState(false)
+
+    const [s3InfoItem, setS3InfoItem] = useState(true)
+    const [s3InfoVisible, setS3InfoVisible] = useState(false)
 
     const [ossInfoItem, setOssInfoItem] = useState(true)
     const [ossInfoVisible, setOssInfoVisible] = useState(false)
@@ -924,6 +928,11 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         setOssInfoVisible(true)
     }
 
+    async function viewItemS3Info(item) {
+        setS3InfoItem(item)
+        setS3InfoVisible(true)
+    }
+
     async function editItem(item) {
         setFileModalPath(item.path)
         setFileEditModalVisible(true)
@@ -1440,6 +1449,9 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                 else if (key == 'oss_info') {
                                                                     viewItemOssInfo(item)
                                                                 }
+                                                                else if (key == 's3_info') {
+                                                                    viewItemS3Info(item)
+                                                                }
                                                             }}
                                                             items={visibleFilter([
                                                                 {
@@ -1454,6 +1466,11 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                     label: t('oss_info'),
                                                                     key: 'oss_info',
                                                                     visible: sourceType.includes('oss'),
+                                                                },
+                                                                {
+                                                                    label: t('s3_info'),
+                                                                    key: 's3_info',
+                                                                    visible: sourceType.startsWith('s3:'),
                                                                 },
                                                                 // {
                                                                 //     label: t('open_with_nginx'),
@@ -1732,13 +1749,16 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                     onCancel={() => {
                         setOssInfoVisible(false)
                     }}
-                // onOk={({ name }) => {
-                //     setOssInfoVisible(false)
-                //     uploadFile({
-                //         file: pasteFile,
-                //         name,
-                //     })
-                // }}
+                />
+            }
+            {s3InfoVisible &&
+                <S3InfoModal
+                    config={config}
+                    sourceType={sourceType}
+                    item={s3InfoItem}
+                    onCancel={() => {
+                        setS3InfoVisible(false)
+                    }}
                 />
             }
         </div>

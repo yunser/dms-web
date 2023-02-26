@@ -77,6 +77,7 @@ const tagIconLabel = {
     'logger-detail': 'LOG',
     'oss-home': 'OSS',
     's3-home': 'S3',
+    's3-client': 'S3',
     'file-home': 'FILE',
     'sftp-detail': 'SFTP',
     'ssh-detail': 'SSH',
@@ -550,7 +551,8 @@ export function DbManager({ config }) {
         }
         else if (key == 's3-home') {
             addOrActiveTab({
-                title: t('s3') + `-${(window._fileCount++) + 1}`,
+                title: t('s3'),
+                // title: t('s3') + `-${(window._fileCount++) + 1}`,
                 // key: 'redis-' + uid(16),
                 key: `s3-${uid(16)}`,
                 type: 's3-home',
