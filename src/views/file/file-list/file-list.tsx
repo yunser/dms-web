@@ -1502,6 +1502,17 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                     type: 'divider',
                                                                 },
                                                                 {
+                                                                    label: t('copy_name'),
+                                                                    key: 'copy_name',
+                                                                },
+                                                                {
+                                                                    label: t('file.copy_path'),
+                                                                    key: 'copy_path',
+                                                                },
+                                                                {
+                                                                    type: 'divider',
+                                                                },
+                                                                {
                                                                     label: t('delete'),
                                                                     key: 'delete_file',
                                                                     danger: true,
@@ -1511,17 +1522,6 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                     key: 'clear',
                                                                     danger: true,
                                                                     visible: item.type == 'FILE',
-                                                                },
-                                                                {
-                                                                    type: 'divider',
-                                                                },
-                                                                {
-                                                                    label: t('copy_name'),
-                                                                    key: 'copy_name',
-                                                                },
-                                                                {
-                                                                    label: t('file.copy_path'),
-                                                                    key: 'copy_path',
                                                                 },
                                                             ])}
                                                         />

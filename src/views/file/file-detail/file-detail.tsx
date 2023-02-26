@@ -129,7 +129,8 @@ function ImageViewer({ src }) {
 }
 
 function XlsxViewer({ src, content }) {
-
+    const { t } = useTranslation()
+    const [loading, setLoading] = useState(false)
     const [table, setTable] = useState({
         header: [],
         body: [],
@@ -202,6 +203,7 @@ function XlsxViewer({ src, content }) {
         // }
 
     async function readData() {
+        setLoading(true)
         fetch(src)
             .then(async res => {
                 // console.log('res', res)
@@ -217,6 +219,11 @@ function XlsxViewer({ src, content }) {
                 })
                 // console.log('workbook', workbook)
                 dealWorkBook(workbook)
+                setLoading(false)
+            })
+            .catch(err => {
+                setLoading(false)
+                message.error(t('fail'))
             })
     }
 
@@ -229,39 +236,43 @@ function XlsxViewer({ src, content }) {
     // })
     return (
         <div>
-            <div className={styles.tableBox}>
-                <table className={styles.table}>
-                    <thead>
-                        <tr>
-                            {table.header.map((cell, idx) => {
+            {loading ?
+                <Spin />
+            :
+                <div className={styles.tableBox}>
+                    <table className={styles.table}>
+                        <thead>
+                            <tr>
+                                {table.header.map((cell, idx) => {
+                                    return (
+                                        <th key={idx}>{cell}</th>
+                                    )
+                                })}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {table.body.map((row, idx) => {
                                 return (
-                                    <th key={idx}>{cell}</th>
+                                    <tr key={idx}>
+                                        {row.map((cell, idx) => {
+                                            return (
+                                                <td
+                                                    key={idx}
+                                                >{cell}</td>
+                                            )
+                                        })}
+                                        {/* <td>1</td> */}
+                                    </tr>
                                 )
                             })}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {table.body.map((row, idx) => {
-                            return (
-                                <tr key={idx}>
-                                    {row.map((cell, idx) => {
-                                        return (
-                                            <td
-                                                key={idx}
-                                            >{cell}</td>
-                                        )
-                                    })}
-                                    {/* <td>1</td> */}
-                                </tr>
-                            )
-                        })}
-                        {/* <tr>
-                            <td>1</td>
-                            <td>1</td>
-                        </tr> */}
-                    </tbody>
-                </table>
-            </div>
+                            {/* <tr>
+                                <td>1</td>
+                                <td>1</td>
+                            </tr> */}
+                        </tbody>
+                    </table>
+                </div>
+            }
         </div>
     )
 }
