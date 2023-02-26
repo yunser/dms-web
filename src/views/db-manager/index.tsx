@@ -443,6 +443,9 @@ export function DbManager({ config }) {
         else if (key == 'tcp_client') {
             window.open('/pages/tcp/client', '_blank')
         }
+        else if (key == 'http_proxy') {
+            window.open('/pages/http/proxy', '_blank')
+        }
         else if (key == 'tcp_server') {
             window.open('/pages/tcp/server', '_blank')
         }
@@ -816,6 +819,11 @@ export function DbManager({ config }) {
         {
             label: t('http'),
             key: 'http-home',
+            group: 'network',
+        },
+        {
+            label: t('http_proxy'),
+            key: 'http_proxy',
             group: 'network',
         },
         {
