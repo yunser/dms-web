@@ -1509,6 +1509,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                 {
                                                                     label: t('clear'),
                                                                     key: 'clear',
+                                                                    danger: true,
                                                                     visible: item.type == 'FILE',
                                                                 },
                                                                 {

@@ -28,7 +28,7 @@ export function FileEdit({ config, path, sourceType, onSuccess, onCancel }) {
     const { t } = useTranslation()
     const [content, setContent] = useState('')
     const [loading, setLoading] = useState(true)
-
+    const [saveLoading, setSaveLoading] = useState(false)
     const isJson = path.endsWith('.json')
     const isJs = path.endsWith('.js')
     const editorRef = useRef(null)
@@ -53,6 +53,7 @@ export function FileEdit({ config, path, sourceType, onSuccess, onCancel }) {
 
     async function handleOk() {
         const content = editorRef.current.getValue()
+        setSaveLoading(true)
         let res = await request.post(`${config.host}/file/write`, {
             path,
             sourceType,
@@ -60,6 +61,7 @@ export function FileEdit({ config, path, sourceType, onSuccess, onCancel }) {
         }, {
             // noMessage: true,
         })
+        setSaveLoading(false)
         // console.log('res', res)
         if (res.success) {
             message.success(t('success'))
@@ -76,6 +78,7 @@ export function FileEdit({ config, path, sourceType, onSuccess, onCancel }) {
             onCancel={onCancel}
             onOk={handleOk}
             maskClosable={false}
+            confirmLoading={saveLoading}
             // footer={null}
         >
             {/* <Input.TextArea
