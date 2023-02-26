@@ -15,7 +15,9 @@ export function S3Home({ onItem }) {
         })
         // console.log('ret', ret)
         if (ret.success) {
-            setConnections(ret.data.list)
+            setConnections(ret.data.list.sort((a, b) => {
+                return a.name.localeCompare(b.name)
+            }))
             // message.success('连接成功')
             // onConnect && onConnect()
             // message.success('Success')

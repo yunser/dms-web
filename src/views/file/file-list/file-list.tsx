@@ -298,12 +298,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         // return
         console.log('s3Item', s3Item)
         let res = await request.post(`${config.host}/s3/connect`, {
-            // bucket,
-            url: s3Item.url,
-            // accessKeyId: s3Item.accessKeyId,
-            // accessKeySecret: s3Item.accessKeySecret,
-            // path: item.path,
-            // type: item.type,
+            id: s3Item.id,
         })
         console.log('connect/res', res)
         if (res.success) {
