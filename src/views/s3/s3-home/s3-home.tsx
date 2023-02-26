@@ -3,7 +3,7 @@ import { request } from '@/views/db-manager/utils/http'
 import React, { useState, useId, useEffect, ReactNode, useMemo, useRef } from 'react'
 import styles from './s3-home.module.less'
 
-export function S3Home() {
+export function S3Home({ onItem }) {
     const config = getGlobalConfig()
 
     const [connections, setConnections] = useState([])
@@ -36,7 +36,11 @@ export function S3Home() {
             <div className={styles.list}>
                 {connections.map(item => {
                     return (
-                        <div className={styles.item}>
+                        <div className={styles.item}
+                            onClick={() => {
+                                onItem && onItem(item)
+                            }}
+                        >
                             <div className={styles.name}>{item.name}</div>
                         </div>
                     )

@@ -1400,7 +1400,7 @@ export function DbManager({ config }) {
                                     {item.type == 's3-home' &&
                                         <S3Home
                                             event$={event$}
-                                            onClickItem={item => {
+                                            onItem={item => {
                                                 console.log('item', item)
                                                 // return
                                                 addOrActiveTab({
@@ -1408,13 +1408,35 @@ export function DbManager({ config }) {
                                                     title: item.name,
                                                     // key: 'redis-' + uid(16),
                                                     key: `file-${uid(16)}`,
-                                                    type: 'file-home',
+                                                    type: 's3-client',
                                                     data: {
-                                                        sourceType: 'oss:' + item.bucket,
-                                                        ossItem: item,
+                                                        sourceType: 's3:' + item.id,
+                                                        s3Item: item,
                                                         // url,
                                                     },
                                                 })
+                                            }}
+                                        />
+                                    }
+                                    {item.type == 's3-client' &&
+                                        <FileHome
+                                            config={config}
+                                            event$={event$}
+                                            tabKey={item.key}
+                                            sourceType={item.data.sourceType}
+                                            s3Item={item.data.s3Item}
+                                            // defaultPath={item.data.path}
+                                            onClone={({ defaultPath }) => {
+                                                // console.log('local file clone', defaultPath)
+                                                // addOrActiveTab({
+                                                //     title: t('file') + `-${(window._fileCount++) + 1}`,
+                                                //     key: `file-${uid(16)}`,
+                                                //     type: 'file-home',
+                                                //     data: {
+                                                //         ...item.data,
+                                                //         path: defaultPath,
+                                                //     },
+                                                // })
                                             }}
                                         />
                                     }

@@ -178,7 +178,7 @@ function CollectionList({ config, event$, onItemClick }) {
 // oss:undefined（坚果云）
 // 
 export function FileList({ config, sourceType: _sourceType = 'local', event$, tabKey,
-    item, webdavItem, ossItem, defaultPath: _defaultPath, onSshPath, onClone }) {
+    item, webdavItem, ossItem, s3Item, defaultPath: _defaultPath, onSshPath, onClone }) {
     // const showSide = _sourceType == 'local'
     const showSide = true
     // const { defaultJson = '' } = data
@@ -286,6 +286,42 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
 
             comData.current.connectionId = res.data.connectionId
             initWebSocket()
+        }
+        setConnecting(false)
+    }
+
+    async function s3Connect(s3Item) {
+        // console.log('flow/1', )
+        setConnecting(true)
+        console.log('s3Connect', _sourceType)
+        // const bucket = _sourceType.split(':')[1]
+        // return
+        console.log('s3Item', s3Item)
+        let res = await request.post(`${config.host}/s3/connect`, {
+            // bucket,
+            url: s3Item.url,
+            // accessKeyId: s3Item.accessKeyId,
+            // accessKeySecret: s3Item.accessKeySecret,
+            // path: item.path,
+            // type: item.type,
+        })
+        console.log('connect/res', res)
+        if (res.success) {
+            // message.success('连接成功')
+            // onConnect && onConnect()
+            // message.success(t('success'))
+            // onClose && onClose()
+            // onSuccess && onSuccess()
+            setConnected(true)
+            setSourceType(res.data.connectionId)
+            const defaultPath =
+                _sourceType
+                    ? '/'
+                    : item ?
+                        (item.username == 'root' ? '/root' : `/home/${item.username}`)
+                        :
+                        ''
+            setCurPath(defaultPath)
         }
         setConnecting(false)
     }
@@ -436,6 +472,9 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         }
         else if (_sourceType.startsWith('oss')) {
             ossConnect(ossItem)
+        }
+        else if (_sourceType.startsWith('s3')) {
+            s3Connect(s3Item)
         }
         else {
             message.error('unknown source type')
