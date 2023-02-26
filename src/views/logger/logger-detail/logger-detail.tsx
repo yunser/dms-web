@@ -301,7 +301,7 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onConnect
         if (detailItem.type == 'file') {
             _url = detailItem.url + `/log/readline`
         }
-        let res = await request.post(_url, {
+        const reqData = {
             path: curFile,
             
             keyword: searchKeyword,
@@ -312,7 +312,12 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onConnect
             pageSize: detailItem.type == 'grafana' ? (limit || default_limit) : pageSize,
             queryTotal: page == 1,
             type,
-        })
+            _sls: undefined
+        }
+        if (detailItem.sls) {
+            reqData._sls = detailItem.sls
+        }
+        let res = await request.post(_url, reqData)
         if (res.success) {
             const { list, total, query, timeRange } = res.data
             setList(list)
@@ -475,13 +480,15 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onConnect
                                 setTs('' + new Date().getTime())
                             }}
                         />
-                        <InputNumber
-                            placeholder="limit"
-                            value={limit}
-                            onChange={value => {
-                                setLimit(value)
-                            }}
-                        />
+                        {detailItem.type == 'grafana' &&
+                            <InputNumber
+                                placeholder="limit"
+                                value={limit}
+                                onChange={value => {
+                                    setLimit(value)
+                                }}
+                            />
+                        }
                         <Select
                             value={''}
                             placeholder="快速搜索"

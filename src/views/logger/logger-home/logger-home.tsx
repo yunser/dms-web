@@ -18,6 +18,7 @@ import { FullCenterBox } from '@/views/common/full-center-box';
 import { FileList } from '../../file/file-list'
 import storage from '@/utils/storage';
 import { uid } from 'uid';
+import { SearchUtil } from '@/utils/search';
 
 function InputPassword(props) {
     const [visible, setVisible] = useState(false)
@@ -63,10 +64,14 @@ export function LoggerHome({ config, onItem, event$ }) {
     //     },
     // ]
     const filterdProjects = useMemo(() => {
-        if (!keyword) {
-            return projects    
-        }
-        return projects.filter(p => p.name.toLowerCase().includes(keyword.toLowerCase()))
+        // if (!keyword) {
+        //     return projects    
+        // }
+        // return projects.filter(p => p.name.toLowerCase().includes(keyword.toLowerCase()))
+
+        return SearchUtil.searchLike(projects, keyword, {
+            attributes: ['name'],
+        })
         // return projects
     }, [projects, keyword])
 
@@ -220,6 +225,9 @@ export function LoggerHome({ config, onItem, event$ }) {
                                             >
                                                 <Space>
                                                     <div className={styles.name}>{item.name}</div>
+                                                    {!!item.type &&
+                                                        <Tag>{item.type}</Tag>
+                                                    }
                                                     {/* <div className={styles.info}>{item.username}@{item.host}</div> */}
                                                 </Space>
                                                 <Space
