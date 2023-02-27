@@ -1,4 +1,4 @@
-import { Button, Checkbox, Descriptions, Form, Input, message, Modal, Popover, Space, Table, Tabs } from 'antd';
+import { Button, Checkbox, Descriptions, Empty, Form, Input, message, Modal, Popover, Space, Table, Tabs } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './websocket-home.module.less';
 import _ from 'lodash';
@@ -12,8 +12,11 @@ import { uid } from 'uid';
 import { ArrowDownOutlined, ArrowUpOutlined, CheckCircleOutlined, InfoCircleOutlined, UpOutlined } from '@ant-design/icons';
 import copy from 'copy-to-clipboard';
 import { sleep } from '@yunser/sleep'
+import { getGlobalConfig } from '@/config';
+import { FullCenterBox } from '@/views/common/full-center-box';
 
 export function WebSocketHome({ }) {
+    const config = getGlobalConfig()
     const { t } = useTranslation()
 
     const WsStatusLabelMap = {
@@ -21,6 +24,20 @@ export function WebSocketHome({ }) {
         'error': t('connect_error'),
         'connected': t('connected'),
     }
+    const [connections, setConnections] = useState([])
+    const [contents, setContents] = useState([
+        {
+            "id": "1",
+            "name": "订阅用户绑定",
+            "content": "{\"type\":\"subscribe\",\"data\":{\"topic\":\"msg/mpBindSuccess/1617361602228058\"}}"
+        },
+        {
+            "id": "2",
+            "name": "ping",
+            "content": "ping"
+        }
+    ])
+
 
     const comData = useRef({
         connectTime: 0,
@@ -41,6 +58,28 @@ export function WebSocketHome({ }) {
     const [loading, setLoading] = useState(false)
     const [wsStatus, setWsStatus] = useState('notConnected')
     const [wsAction, setWsAction] = useState('')
+
+    async function loadConnections() {
+        let res = await request.post(`${config.host}/websocket/connection/list`, {
+        })
+        if (res.success) {
+            setConnections(res.data.list)
+        }
+    }
+
+    async function loadHistory() {
+        let res = await request.post(`${config.host}/websocket/history/list`, {
+        })
+        if (res.success) {
+            setContents(res.data.list)
+            // setContents([])
+        }
+    }
+
+    useEffect(() => {
+        loadConnections()
+        loadHistory()
+    }, [])
 
     function listAddItem(item) {
         setList(list => {
@@ -217,200 +256,261 @@ export function WebSocketHome({ }) {
 
     return (
         <div className={styles.mqttBox}>
-            {/* <div className={styles.welcome}>
-                {t('welcome')}
-            </div> */}
-            <div className={styles.header}>
-                <div className={styles.searchBox}>
-                    <Input
-                        className={styles.input}
-                        value={url}
-                        onChange={e => {
-                            setUrl(e.target.value)
-                        }}
-                    />
-                    {wsStatus != 'connected' ?
-                        <div>
-                            <Button
-                                type="primary"
-                                loading={connecting}
-                                onClick={connect}>{t('connect')}</Button>
-                        </div>
+            <div className={styles.layoutLeft}>
+                <div className={styles.layoutLeftTop}>
+                    {connections.length == 0 ?
+                        <FullCenterBox height={240}>
+                            <Empty />
+                        </FullCenterBox>
                     :
-                        <div>
-                            <Button
-                                danger
-                                // type="primary"
-                                onClick={disconnect}>{t('disconnect')}</Button>
+                        <div className={styles.connections}>
+                            {connections.map(item => {
+                                return (
+                                    <div
+                                        className={styles.item}
+                                        key={item.id}
+                                        onClick={() => {
+                                            setUrl(item.url)
+                                        }}
+                                    >
+                                        <div className={styles.name}>{item.name}</div>
+                                    </div>
+                                )
+                            })}
                         </div>
                     }
                 </div>
-            </div>
-            <div className={styles.statusBar}>
-                <Space>
-                    <div>{WsStatusLabelMap[wsStatus]}</div>
-                    <div>{wsAction}</div>
-                </Space>
-                <Checkbox
-                    checked={autoConnect}
-                    onChange={e => {
-                        setAutoConnect(e.target.checked)
-                    }}
-                >
-                    {t('auto_connect')}
-                </Checkbox>
-                {/* <Space>
-                </Space> */}
-            </div>
-            <div className={styles.sections}>
-                <div className={classNames(styles.section, styles.sectionLeft)}>
-                    {/* <div className={styles.title}>发布</div> */}
-                    <Form
-                        form={form}
-                        // {...layout}
-                        // name="basic"
-                        // initialValues={{
-                        //     channel: 'msg/dms-test',
-                        //     message: 'dms-msg-content'
-                        // }}
-                        // onFinish={onFinish}
-                        // onFinishFailed={onFinishFailed}
-                    >
-                        <Form.Item
-                            // label="内容"
-                            messageVariables={{ label: t('content') }}
-                            name="message"
-                            rules={[ { required: true, } ]}
-                        >
-                            <Input.TextArea rows={16} />
-                        </Form.Item>
-                    </Form>
-                    <Button
-                        type="primary"
-                        onClick={() => {
-                            send()
-                        }}
-                        disabled={wsStatus != 'connected'}
-                    >
-                        {t('send')}
-                    </Button>
-
+                <div className={styles.layoutLeftBottom}>
+                    {contents.length == 0 ?
+                        <FullCenterBox height={240}>
+                            <Empty />
+                        </FullCenterBox>
+                    :
+                        <div className={styles.contents}>
+                            {contents.map(item => {
+                                return (
+                                    <div
+                                        className={styles.item}
+                                        key={item.id}
+                                        onClick={() => {
+                                            form.setFieldsValue({
+                                                message: item.content,
+                                            })
+                                        }}
+                                    >
+                                        <div className={styles.name}>{item.name}</div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    }
                 </div>
-                <div className={classNames(styles.section, styles.sectionRight)}>
-                    <div className={styles.toolBox}>
-                        <Space>
-                            <Button
-                                size="small"
-                                onClick={() => {
-                                    setList([])
-                                }}
-                            >
-                                {t('clear')}
-                            </Button>
-                        </Space>
-                    </div>
 
-                    {/* <div className={styles.help}>暂不支持在界面显示，消息请在后端控制台查看</div> */}
-                    <div className={styles.table}>
-
-                        <Table
-                            loading={loading}
-                            dataSource={list}
-                            bordered
-                            size="small"
-                            // pagination={false}
-                            pagination={{
-                                // total,
-                                // current: page,
-                                pageSize,
-                                showSizeChanger: false,
-                            }}
-                            rowKey="id"
-                            columns={[
-                                {
-                                    title: t('time'),
-                                    dataIndex: 'time',
-                                    width: 80,
-                                    render(value) {
-                                        return moment(value).format('HH:mm:ss')
-                                    }
-                                },
-                                // {
-                                //     title: t('type'),
-                                //     dataIndex: 'type',
-                                //     width: 200,
-                                //     render(value) {
-                                //         return (
-                                //             <div>
-                                //                 {value}
-                                //                 {value == 'sent' &&
-                                //                     <ArrowUpOutlined className={styles.typeIcon} />
-                                //                 }
-                                //                 {value == 'received' &&
-                                //                     <ArrowDownOutlined className={styles.typeIcon} />
-                                //                 }
-                                //                 {value == 'info' &&
-                                //                     <InfoCircleOutlined className={styles.typeIcon} />
-                                //                 }
-                                //             </div>
-                                //         )
-                                //     }
-                                // },
-                                {
-                                    title: t('message'),
-                                    dataIndex: 'message',
-                                    // width: 240,
-                                    render(value, item) {
-                                        return (
-                                            <div>
-                                                {item.type == 'sent' &&
-                                                    <ArrowUpOutlined className={styles.typeIcon} />
-                                                }
-                                                {item.type == 'received' &&
-                                                    <ArrowDownOutlined className={styles.typeIcon} />
-                                                }
-                                                {item.type == 'info' &&
-                                                    <InfoCircleOutlined className={styles.typeIcon} />
-                                                }
-                                                {item.type == 'connected' &&
-                                                    <CheckCircleOutlined className={styles.typeIcon} />
-                                                }
-                                                
-                                                <span className={styles.message}
-                                                    onClick={() => {
-                                                        copy(value)
-                                                        message.info(t('copied'))
-                                                    }}
-                                                >{value}</span>
-                                            </div>
-                                        )
-                                    }
-                                },
-                                // {
-                                //     title: '',
-                                //     dataIndex: '_empty',
-                                // },
-                            ]}
-                            onChange={({ current }) => {
-                                // setPage(current)
+            </div>
+            <div className={styles.layoutMain}>
+                {/* <div className={styles.welcome}>
+                    {t('welcome')}
+                </div> */}
+                <div className={styles.header}>
+                    <div className={styles.searchBox}>
+                        <Input
+                            className={styles.input}
+                            placeholder="ws://xxx"
+                            value={url}
+                            onChange={e => {
+                                setUrl(e.target.value)
                             }}
                         />
+                        {wsStatus != 'connected' ?
+                            <div>
+                                <Button
+                                    type="primary"
+                                    loading={connecting}
+                                    onClick={connect}>{t('connect')}</Button>
+                            </div>
+                        :
+                            <div>
+                                <Button
+                                    danger
+                                    // type="primary"
+                                    onClick={disconnect}>{t('disconnect')}</Button>
+                            </div>
+                        }
                     </div>
-
-                    {/* <hr /> */}
-
-                    {/* <Button
-                        type="primary"
-                        onClick={() => {
-                            pubsub()
+                </div>
+                <div className={styles.statusBar}>
+                    <Space>
+                        <div>{WsStatusLabelMap[wsStatus]}</div>
+                        <div>{wsAction}</div>
+                    </Space>
+                    <Checkbox
+                        checked={autoConnect}
+                        onChange={e => {
+                            setAutoConnect(e.target.checked)
                         }}
                     >
-                        pubsub
-                    </Button> */}
+                        {t('auto_connect')}
+                    </Checkbox>
+                    {/* <Space>
+                    </Space> */}
+                </div>
+                <div className={styles.sections}>
+                    <div className={classNames(styles.section, styles.sectionLeft)}>
+                        {/* <div className={styles.title}>发布</div> */}
+                        <Form
+                            form={form}
+                            // {...layout}
+                            // name="basic"
+                            // initialValues={{
+                            //     channel: 'msg/dms-test',
+                            //     message: 'dms-msg-content'
+                            // }}
+                            // onFinish={onFinish}
+                            // onFinishFailed={onFinishFailed}
+                        >
+                            <Form.Item
+                                // label="内容"
+                                messageVariables={{ label: t('content') }}
+                                name="message"
+                                rules={[ { required: true, } ]}
+                            >
+                                <Input.TextArea rows={16} />
+                            </Form.Item>
+                        </Form>
+                        <Button
+                            type="primary"
+                            onClick={() => {
+                                send()
+                            }}
+                            disabled={wsStatus != 'connected'}
+                        >
+                            {t('send')}
+                        </Button>
 
+                    </div>
+                    <div className={classNames(styles.section, styles.sectionRight)}>
+                        <div className={styles.toolBox}>
+                            <Space>
+                                <Button
+                                    size="small"
+                                    onClick={() => {
+                                        setList([])
+                                    }}
+                                >
+                                    {t('clear')}
+                                </Button>
+                            </Space>
+                        </div>
+
+                        {/* <div className={styles.help}>暂不支持在界面显示，消息请在后端控制台查看</div> */}
+                        <div className={styles.table}>
+
+                            <Table
+                                loading={loading}
+                                dataSource={list}
+                                bordered
+                                size="small"
+                                // pagination={false}
+                                pagination={{
+                                    // total,
+                                    // current: page,
+                                    pageSize,
+                                    showSizeChanger: false,
+                                }}
+                                rowKey="id"
+                                columns={[
+                                    {
+                                        title: t('time'),
+                                        dataIndex: 'time',
+                                        width: 80,
+                                        render(value) {
+                                            return moment(value).format('HH:mm:ss')
+                                        }
+                                    },
+                                    // {
+                                    //     title: t('type'),
+                                    //     dataIndex: 'type',
+                                    //     width: 200,
+                                    //     render(value) {
+                                    //         return (
+                                    //             <div>
+                                    //                 {value}
+                                    //                 {value == 'sent' &&
+                                    //                     <ArrowUpOutlined className={styles.typeIcon} />
+                                    //                 }
+                                    //                 {value == 'received' &&
+                                    //                     <ArrowDownOutlined className={styles.typeIcon} />
+                                    //                 }
+                                    //                 {value == 'info' &&
+                                    //                     <InfoCircleOutlined className={styles.typeIcon} />
+                                    //                 }
+                                    //             </div>
+                                    //         )
+                                    //     }
+                                    // },
+                                    {
+                                        title: t('message'),
+                                        dataIndex: 'message',
+                                        // width: 240,
+                                        render(value, item) {
+                                            return (
+                                                <Space>
+                                                    {item.type == 'sent' &&
+                                                        <div className={classNames(styles.iconBox, styles.sent)}>
+                                                            <ArrowUpOutlined className={styles.typeIcon} />
+                                                        </div>
+                                                    }
+                                                    {item.type == 'received' &&
+                                                        <div className={classNames(styles.iconBox, styles.received)}>
+                                                            <ArrowDownOutlined className={styles.typeIcon} />
+                                                        </div>
+                                                    }
+                                                    {item.type == 'info' &&
+                                                        <div className={classNames(styles.iconBox, styles.info)}>
+                                                            <InfoCircleOutlined className={styles.typeIcon} />
+                                                        </div>
+                                                    }
+                                                    {item.type == 'connected' &&
+                                                        <div className={classNames(styles.iconBox, styles.connected)}>
+                                                            <CheckCircleOutlined className={styles.typeIcon} />
+                                                        </div>
+                                                    }
+                                                    
+                                                    <span className={styles.message}
+                                                        onClick={() => {
+                                                            copy(value)
+                                                            message.info(t('copied'))
+                                                        }}
+                                                    >{value}</span>
+                                                </Space>
+                                            )
+                                        }
+                                    },
+                                    // {
+                                    //     title: '',
+                                    //     dataIndex: '_empty',
+                                    // },
+                                ]}
+                                onChange={({ current }) => {
+                                    // setPage(current)
+                                }}
+                            />
+                        </div>
+
+                        {/* <hr /> */}
+
+                        {/* <Button
+                            type="primary"
+                            onClick={() => {
+                                pubsub()
+                            }}
+                        >
+                            pubsub
+                        </Button> */}
+
+                    </div>
                 </div>
             </div>
-            
         </div>
     )
 }

@@ -2,7 +2,21 @@
     height: 100%;
     // border: 1px solid #000;
     display: flex;
+}
+.layoutLeft {
+    flex: 0 0 240px;
+    // border: 1px solid #000;
+    border-right: 1px solid var(--border-color);
+    .layoutLeftTop {
+        border-bottom: 1px solid var(--border-color);
+    }
+}
+.layoutMain {
+    flex: 1 0 auto;
+    width: 0;
+    display: flex;
     flex-direction: column;
+    // border: 1px solid #000;
     & > .header {
         padding: 16px;
         border: 1px solid var(--border-color);
@@ -53,9 +67,31 @@
     }
 }
 .table {
+    .iconBox {
+        // display: inline-block;
+        // margin-right: 8px;
+        font-weight: bold;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        &.sent {
+            color: #fff;
+            background-color: #57acbd;
+        }
+        &.received {
+            color: #fff;
+            background-color: #f64d51;
+        }
+        &.connected {
+            color: #fff;
+            background-color: green;
+        }
+    }
     .typeIcon {
         // margin-left: 8px;
-        margin-right: 8px;
+        // margin-right: 8px;
     }
     .message {
         cursor: pointer;
@@ -73,4 +109,18 @@
 }
 .toolBox {
     margin-bottom: 16px;
+}
+.connections {
+    padding: 16px;
+    .item {
+        margin-bottom: 8px;
+        cursor: pointer;
+    }
+}
+.contents {
+    padding: 16px;
+    .item {
+        margin-bottom: 8px;
+        cursor: pointer;
+    }
 }
