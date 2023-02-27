@@ -1,4 +1,4 @@
-import { Button, Checkbox, Col, Descriptions, Drawer, Empty, Form, Input, InputNumber, message, Modal, Pagination, Popover, Row, Select, Space, Table, Tabs, Tag } from 'antd';
+import { Button, Checkbox, Col, Descriptions, Divider, Drawer, Empty, Form, Input, InputNumber, message, Modal, Pagination, Popover, Row, Select, Space, Table, Tabs, Tag } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import styles from './logger-detail.module.less';
 import _ from 'lodash';
@@ -607,6 +607,45 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onConnect
                                                 maxWidth: document.body.clientWidth - 200 - 60 - (detailItem.type == 'file' ? 240 : 0)
                                             }}
                                         >
+                                            <div className={styles.tools}>
+                                                <Space
+                                                    split={<Divider type="vertical" />}
+                                                >
+                                                    {/* <div>1</div>
+                                                    <div>2</div> */}
+                                                    <span
+                                                        className={styles.view}
+                                                        onClick={() => {
+                                                            setDetail(item)
+                                                            setDetailView('text')
+                                                            setDetailVisible(true)
+                                                        }}
+                                                    >查看</span>
+                                                    {/* {' | '} */}
+                                                    <span
+                                                        className={styles.view}
+                                                        onClick={() => {
+                                                            try {
+                                                                JSON.parse(item.content)
+                                                            }
+                                                            catch (err) {
+                                                                message.error('content is not JSON')
+                                                                return
+                                                            }
+                                                            setDetail(item)
+                                                            setDetailView('json')
+                                                            setDetailVisible(true)
+                                                        }}
+                                                    >JSON 查看</span>
+                                                    {/* {' | '} */}
+                                                    <span
+                                                        className={styles.view}
+                                                        onClick={() => {
+                                                            viewContext(item)
+                                                        }}
+                                                    >上下文</span>
+                                                </Space>
+                                            </div>
                                             {!!traceId &&
                                                 <span className={styles.traceId}
                                                     onClick={() => {
@@ -617,38 +656,9 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onConnect
                                                 >{traceId}</span>
                                             }
                                             <span
+                                                className={styles.contentText}
                                             >{_value}</span>
-                                            <span
-                                                className={styles.view}
-                                                onClick={() => {
-                                                    setDetail(item)
-                                                    setDetailView('text')
-                                                    setDetailVisible(true)
-                                                }}
-                                            >查看</span>
-                                            {' | '}
-                                            <span
-                                                className={styles.view}
-                                                onClick={() => {
-                                                    try {
-                                                        JSON.parse(item.content)
-                                                    }
-                                                    catch (err) {
-                                                        message.error('content is not JSON')
-                                                        return
-                                                    }
-                                                    setDetail(item)
-                                                    setDetailView('json')
-                                                    setDetailVisible(true)
-                                                }}
-                                            >JSON 查看</span>
-                                            {' | '}
-                                            <span
-                                                className={styles.view}
-                                                onClick={() => {
-                                                    viewContext(item)
-                                                }}
-                                            >上下文</span>
+                                            
                                         </div>
                                     )
                                 }
