@@ -305,7 +305,7 @@ export function HttpProxy({ onClickItem }) {
 
     async function exit() {
         setConnected(false)
-        let res = await request.post(`${config.host}/http/server/closeServer`, {
+        let res = await request.post(`${config.host}/http/proxy/close`, {
             connectionId: comData.current.connectionId
         })
     }
@@ -343,7 +343,7 @@ export function HttpProxy({ onClickItem }) {
                                         size="small"
                                         onClick={exit}
                                     >
-                                        {t('disconnect')}
+                                        {t('close')}
                                     </Button>
                                 </Space>
                                 <div>

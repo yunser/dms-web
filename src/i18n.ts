@@ -504,6 +504,8 @@ i18n
                     'docker.mountpoint': 'Mountpoint',
                     'test': 'Test',
                     'remove': 'Remove',
+                    'http_proxy': 'HTTP Proxy',
+                    'create_http_proxy': 'Create HTTP Proxy',
                 }
             },
             zh: {
@@ -1000,6 +1002,8 @@ i18n
                     'docker.mountpoint': '挂载点',
                     'test': '测试',
                     'remove': '删除',
+                    'http_proxy': 'HTTP 代理',
+                    'create_http_proxy': '创建 HTTP 代理',
                 }
             }
         },
