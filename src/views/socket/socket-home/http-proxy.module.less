@@ -1,0 +1,96 @@
+
+.udpServerApp {
+    height: 100%;
+    display: flex;
+    // gap: 16px;
+    // border: 1px solid #000;
+    .layoutLeft {
+        flex: 0 0 400px;
+        border-right: 1px solid var(--border-color);
+    }
+    .layoutLeftTop {
+        padding: 16px;
+    }
+    .layoutRight {
+        flex: 1 0 auto;
+        width: 0;
+        padding: 16px;
+        // border: 1px solid #000;
+        overflow: auto;
+    }
+}
+.form {
+    padding-top: 80px;
+    // border: 1px solid #000;
+    width: 320px;
+}
+
+.toolBox {
+    margin-bottom: 16px;
+    // border: 1px solid #000;
+}
+
+
+.contentBox {
+    position: relative;
+    // border: 1px solid #000;
+    .content {
+        padding: 4px 8px;
+        border-radius: 4px;
+        background-color: #f9f9f9;
+        border: 1px solid var(--border-color);
+        margin-bottom: 0;
+        // border: 1px solid #000;
+        overflow-x: auto;
+        // max-width: 800px;
+        &.sent {
+            // color: #fff;
+            // background-color: #0090fa;
+            background-color: #b5e0ff;
+        }
+    }
+    .tag {
+        position: absolute;
+        top: 0;
+        right: -8px;
+    }
+    .info {
+        margin-top: 4px;
+    }
+    .headers {
+        .item {
+            display: flex;
+            flex-direction: row;
+            // align-items: center;
+        }
+        .key {
+            margin-right: 8px;
+            font-weight: bold;
+        }
+        .value {
+
+        }
+    }
+    .pre {
+        // border: 1px solid #000;
+        margin-bottom: 0;
+    }
+}
+
+.rightTopToolBox {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+}
+
+
+.sectionTitle {
+    font-size: 24px;
+    margin-bottom: 12px;
+}
+
+.sendBox {
+    padding: 16px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border-color);
+}

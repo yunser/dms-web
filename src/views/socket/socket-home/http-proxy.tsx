@@ -1,6 +1,6 @@
 import { Button, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Radio, Space, Spin, Table, Tabs, Tag, Tree } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import styles from './udp-server.module.less';
+import styles from './http-proxy.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
 // console.log('lodash', _)
@@ -22,13 +22,47 @@ import { VSplit } from '@/components/v-space';
 function Content({ item, showInfo = false }) {
     return (
         <div className={styles.contentBox}>
-            {item.contentType == 'hex' &&
+            {!!item.request &&
+                <div>
+                    <div>{item.request.method} {item.request.url} HTTP/{item.request.httpVersion}</div>
+                    <div className={styles.headers}>
+                        {item.request.headers.map(header => {
+                            return (
+                                <div className={styles.item}>
+                                    <div className={styles.key}>{header.key}</div>
+                                    <div className={styles.value}>{header.value}</div>
+                                </div>
+                            )
+                        })}
+                    </div>
+                    <div></div>
+                    <pre className={styles.pre}>{item.request.content}</pre>
+                </div>
+            }
+            <div>========{'>'}</div>
+            {!!item.response &&
+                <div className={styles.headers}>
+                    <div>HTTP/{item.response.httpVersion} {item.response.statusCode} {item.response.statusMessage}</div>
+                    <div className={styles.headers}>
+                        {item.response.headers.map(header => {
+                            return (
+                                <div className={styles.item}>
+                                    <div className={styles.key}>{header.key}</div>
+                                    <div className={styles.value}>{header.value}</div>
+                                </div>
+                            )
+                        })}
+                    </div>
+                    <pre className={styles.pre}>{item.response.content}</pre>
+                </div>
+            }
+            {/* {item.contentType == 'hex' &&
                 <Tag className={styles.tag}>Hex</Tag>
             }
             <pre className={styles.content}>{item.content}</pre>
             {showInfo &&
                 <div className={styles.info}>{item.type == 'received' ? '@' : 'to:'}{item.host}:{item.port}</div>
-            }
+            } */}
         </div>
     )
 }
@@ -150,7 +184,7 @@ export function HttpProxy({ onClickItem }) {
                 return
             }
             
-
+            console.log('msg', msg)
             if (msg.type == 'websocketId') {
                 const { webSocketId } = msg.data
                 comData.current.webSocketId = webSocketId
@@ -194,7 +228,7 @@ export function HttpProxy({ onClickItem }) {
             }
             else if (msg.type == 'request') {
                 setConnected(true)
-                const { host, port, content } = msg.data
+                const { request, response, content } = msg.data
                 setLogs(list => {
                     // console.log('list.length', list.length)
                     setLogs([
@@ -202,9 +236,11 @@ export function HttpProxy({ onClickItem }) {
                             id: msg.id,
                             content,
                             time: msg.time,
-                            type: 'received',
-                            host,
-                            port,
+                            type: 'request',
+                            request,
+                            response,
+                            // host,
+                            // port,
                         },
                         ...list,
                     ])
@@ -281,7 +317,7 @@ export function HttpProxy({ onClickItem }) {
                     <div className={styles.sectionTitle}>
                         {t('http_proxy')}
                     </div>
-                    {/* <div>
+                    <div>
                         {wsStatus != 'connected' &&
                             <div>WebSocket 已断开，请刷新页面后使用
                                 <Button
@@ -292,7 +328,7 @@ export function HttpProxy({ onClickItem }) {
                                 >刷新页面</Button>
                             </div>
                         }
-                    </div> */}
+                    </div>
                     {connected ?
                         <div>   
                             <Space direction="vertical">
@@ -336,7 +372,7 @@ export function HttpProxy({ onClickItem }) {
                                 wrapperCol={{ span: 16 }}
                                 initialValues={{
                                     host: '0.0.0.0',
-                                    port: 8080,
+                                    port: 6666,
                                     // port: 3306,
                                 }}
                                 // layout={{
@@ -393,7 +429,6 @@ export function HttpProxy({ onClickItem }) {
                 </div>
             </div>
             <div className={styles.layoutRight}>
-                <div>功能不完善，代理的日志请查看控制台输出</div>
                 {/* <div className={styles.rightTopToolBox}>
                     <Button
                         size="small"
@@ -438,8 +473,10 @@ export function HttpProxy({ onClickItem }) {
                             render(value, item) {
                                 return (
                                     <div>
-                                        {(item.type == 'received' || item.type == 'sent') ?
-                                            <Content item={item} showInfo />
+                                        {(item.type == 'request') ?
+                                            <div>
+                                                <Content item={item} />
+                                            </div>
                                         :
                                             <div>{value}</div>
                                         }
