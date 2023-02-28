@@ -40,6 +40,7 @@ import { HttpServer } from './views/socket/socket-home/http-server'
 import { KafkaClient } from './views/kafka/kafka-client'
 import { DockerClient } from './views/docker'
 import { HttpProxy } from './views/socket/socket-home/http-proxy'
+import { SocketProxy } from './views/socket/socket-home/socket-proxy'
 
 function GitPage() {
     return (
@@ -208,6 +209,18 @@ function HttpProxyPage() {
     )
 }
 
+function SocketProxyPage() {
+    const { t } = useTranslation()
+    useTitle(t('http_proxy'))
+
+    return (
+        <div className={styles.pageFull}>
+            <SocketProxy
+            />
+        </div>
+    )
+}
+
 function KafkaClientPage() {
     const { t } = useTranslation()
     useTitle(t('http_server'))
@@ -280,6 +293,7 @@ export default function App() {
                     <Route path="/pages/udp/server" element={<FullApp><UdpServerPage /></FullApp>} />
                     <Route path="/pages/http/server" element={<FullApp><HttpServerPage /></FullApp>} />
                     <Route path="/pages/http/proxy" element={<FullApp><HttpProxyPage /></FullApp>} />
+                    <Route path="/pages/socket/proxy" element={<FullApp><SocketProxyPage /></FullApp>} />
                     <Route path="/pages/kafka/client" element={<FullApp><KafkaClientPage /></FullApp>} />
                     <Route path="/pages/docker" element={<FullApp><DockerPage /></FullApp>} />
                 </Routes>
