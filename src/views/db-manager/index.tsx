@@ -73,6 +73,7 @@ const tagIconLabel = {
     'git-detail': 'GIT',
     'connect': 'DB',
     'database': 'DB',
+    'mysql-compare': 'DB',
     'logger-home': 'LOG',
     'logger-detail': 'LOG',
     'oss-home': 'OSS',

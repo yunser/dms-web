@@ -417,6 +417,9 @@ export function SshDetail({ config, defaultPath, item, onSftpPath, onClone }) {
                         </Button>
                     }
                 </Space>
+                {!!item &&
+                    <div>{item.username}@{item.host}:{item.port}</div>
+                }
             </div>
             {/* {!local &&
                 <div className={styles.toolBox}>
