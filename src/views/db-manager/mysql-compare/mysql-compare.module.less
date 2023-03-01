@@ -35,6 +35,10 @@
         &.changed {
             color: orange;
         }
+        &.ignore {
+            color: var(--color-text-9);
+            // text-decoration: line-through;
+        }
     }
 }
 .columnBox {
@@ -76,7 +80,29 @@
         color: blue;
         margin-left: 8px;
     }
+    .ignore {
+        color: 333;
+        margin-left: 8px;
+    }
 }
 .formBox {
     margin-bottom: 16px;
+}
+.dbSelect {
+    display: flex;
+    .arrow {
+        padding: 0px 32px;
+    }
+}
+.help {
+    margin-bottom: 8px;
+    color: var(--color-text-9);
+}
+.table {
+    margin-bottom: 16px;
+    th,
+    td {
+        padding: 4px 8px;
+        border: 1px solid #000;
+    }
 }

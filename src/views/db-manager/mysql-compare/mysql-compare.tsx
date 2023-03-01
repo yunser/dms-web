@@ -139,6 +139,30 @@ function ColumnTable({ data }) {
                         width: 240,
                     },
                     {
+                        title: 'db1',
+                        dataIndex: 'db1',
+                        width: 80,
+                        render(_value, item) {
+                            return (
+                                <div>
+                                    {item.type == 'added' ? '✅' : '❌'}
+                                </div>
+                            )
+                        }
+                    },
+                    {
+                        title: 'db2',
+                        dataIndex: 'db2',
+                        width: 80,
+                        render(_value, item) {
+                            return (
+                                <div>
+                                    {item.type == 'added' ? '❌' : '✅'}
+                                </div>
+                            )
+                        }
+                    },
+                    {
                         title: '类型',
                         dataIndex: 'type',
                         render(value) {
@@ -164,6 +188,7 @@ function getStat(results) {
         added: 0,
         same: 0,
         changed: 0,
+        ignore: 0,
     }
     for (let item of results) {
         if (!typeMap[item.type]) {
@@ -319,24 +344,17 @@ async function compareColumn(tableName, table1Columns, table2Columns) {
     return diffColumns
 }
 
-async function compareDatabaseTables(db1Tables = [], db2Tables = [], db1AllColumns = [], db2AllColumns = []) {
+async function compareDatabaseTables(db1Tables = [], db2Tables = [], db1AllColumns = [], db2AllColumns = [], db1Result = {}, db2Result = {}) {
     // const db1Tables = []
     // const db2Tables = []
+    console.log('db1Result', db1Result)
+    const { ignoreTables: db1IgnoreTables } = db1Result
+    const { ignoreTables: db2IgnoreTables } = db2Result
 
     const tableFilter = tableName => !tableName.includes('_bk') 
         && !tableName.includes('_bak')
         && !tableName.includes('QRTZ_')
         && !tableName.includes('qrtz_')
-        && !tableName.includes('base_template')
-        && !tableName.includes('biz_product_model')
-        && !tableName.includes('biz_user_session')
-        && !tableName.includes('device_ctwing')
-        && !tableName.includes('nb_device_sleep')
-        && !tableName.includes('nb_devices_user')
-        && !tableName.includes('nb_user_setting')
-        && !tableName.includes('dhub_device_info')
-        && !tableName.includes('biz_permission_url')
-        && !tableName.includes('sys_dict_index')
         
     const db1TableNames = db1Tables.map(item => item.TABLE_NAME)
         .filter(tableFilter)
@@ -347,8 +365,22 @@ async function compareDatabaseTables(db1Tables = [], db2Tables = [], db1AllColum
     for (let tableName of allTableNames) {
         console.log('--------*--------*--------*--------')
         console.log('TABLE', tableName)
+
         const inDb1 = db1TableNames.includes(tableName)
         const inDb2 = db2TableNames.includes(tableName)
+
+        // ignore
+        if ((inDb1 && db1IgnoreTables.find(item => item.name == tableName)) 
+            || (inDb2 && db2IgnoreTables.find(item => item.name == tableName))) {
+            results.push({
+                tableName,
+                type: 'ignore',
+            })
+            continue
+        }
+
+
+
         if (inDb1 && inDb2) {
             const db1Row = db1Tables.find(item => item.TABLE_NAME == tableName)
             const db2Row = db2Tables.find(item => item.TABLE_NAME == tableName)
@@ -407,6 +439,10 @@ async function compareDatabaseTables(db1Tables = [], db2Tables = [], db1AllColum
             results.push({
                 tableName,
                 type: 'added',
+                detail: {
+                    db1: inDb1,
+                    db2: inDb2,
+                },
             })
         }
     }
@@ -468,15 +504,16 @@ export function MysqlCompare({ config, connectionId, onSql }) {
         })
         if (res.success) {
             const { db1Result, db2Result } = res.data
-            const results = await compareDatabaseTables(db1Result.tables, db2Result.tables, db1Result.columns, db2Result.columns)
+            const results = await compareDatabaseTables(db1Result.tables, db2Result.tables, db1Result.columns, db2Result.columns, db1Result, db2Result)
             console.log('results', results)
             setResults(results.sort((a, b) => {
                 function score(item) {
                     const typeScoreMap = {
-                        same: 0,
                         added: 2,
                         deleted: 2,
                         changed: 1,
+                        same: 0,
+                        ignore: -1,
                     }
                     return typeScoreMap[item.type] || 0
                 }
@@ -496,23 +533,33 @@ export function MysqlCompare({ config, connectionId, onSql }) {
             {/* {results.length == 0 &&
             } */}
             <Space className={styles.formBox} direction="vertical">
-                <div>
-                    数据库1：
-                    <DbSelector
-                        config={config}
-                        onSuccess={data => {
-                            setDb1Data(data)
-                        }}
-                    />
-                </div>
-                <div>
-                    数据库2：
-                    <DbSelector
-                        config={config}
-                        onSuccess={data => {
-                            setDb2Data(data)
-                        }}
-                    />
+                <div className={styles.help}>支持的功能：表的新增/删除检测，字段的新增/删除检测，不支持的功能：字段的类型和空值变化</div>
+                <div className={styles.dbSelect}>
+
+                    <div>
+                        {/* <div>数据库2：</div> */}
+                        <div>已经做了修改的数据库</div>
+                        <DbSelector
+                            config={config}
+                            onSuccess={data => {
+                                setDb2Data(data)
+                            }}
+                        />
+                    </div>
+                    <div className={styles.arrow}>
+                        <div>{'=>'}</div>
+                        <div>同步到</div>
+                    </div>
+                    <div>
+                        <div>需要同步更新的数据库</div>
+                        
+                        <DbSelector
+                            config={config}
+                            onSuccess={data => {
+                                setDb1Data(data)
+                            }}
+                        />
+                    </div>
                 </div>
                 {!!db1Data && !!db2Data &&
                     <div>
@@ -549,6 +596,9 @@ export function MysqlCompare({ config, connectionId, onSql }) {
                             <div className={styles.item}>{stat.changed} 
                                 <div className={styles.changed}>changed</div>
                             </div>
+                            <div className={styles.item}>{stat.ignore} 
+                                <div className={styles.ignore}>ignore</div>
+                            </div>
                         </div>
                     }
                     {results.length > 0 &&
@@ -564,6 +614,34 @@ export function MysqlCompare({ config, connectionId, onSql }) {
                                         </div>
                                         {item.type == 'changed' &&
                                             <ColumnTable data={item.columns} />
+                                        }
+                                        {item.type == 'added' &&
+                                            <div>
+                                                <table className={styles.table}>
+                                                    <tr>
+                                                        <th>db1</th>
+                                                        <th>db2</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>✅</th>
+                                                        <th>❌</th>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        }
+                                        {item.type == 'deleted' &&
+                                            <div>
+                                                <table className={styles.table}>
+                                                    <tr>
+                                                        <th>db1</th>
+                                                        <th>db2</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>❌</th>
+                                                        <th>✅</th>
+                                                    </tr>
+                                                </table>
+                                            </div>
                                         }
                                     </div>
                                 )

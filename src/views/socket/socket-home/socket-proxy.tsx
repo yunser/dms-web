@@ -273,7 +273,7 @@ export function SocketProxy({ onClickItem }) {
     async function createServer() {
         const values = await createForm.validateFields()
         // setConnecting(true)
-        let res = await request.post(`${config.host}/http/proxy/create`, {
+        let res = await request.post(`${config.host}/socket/proxy/create`, {
             // content,
             host: values.host,
             port: values.port,
@@ -359,7 +359,7 @@ export function SocketProxy({ onClickItem }) {
                                 wrapperCol={{ span: 16 }}
                                 initialValues={{
                                     host: '0.0.0.0',
-                                    port: 6666,
+                                    port: 6668,
                                     // port: 3306,
                                 }}
                                 // layout={{
@@ -426,6 +426,7 @@ export function SocketProxy({ onClickItem }) {
                         {t('close_all_udp_server')}
                     </Button>
                 </div> */}
+                <div>日志功能不完善，请查看控制台</div>
 
                 <div className={styles.sectionTitle}>{t('log')}</div>
 

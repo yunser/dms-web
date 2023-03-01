@@ -439,6 +439,7 @@ export function HttpProxy({ onClickItem }) {
                         {t('close_all_udp_server')}
                     </Button>
                 </div> */}
+                
 
                 <div className={styles.sectionTitle}>{t('log')}</div>
 
