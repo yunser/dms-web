@@ -184,8 +184,12 @@ function TreeTitle({ keyword, loading = false, nodeData, onAction, onClick, onDo
                                     key: 'duplicate',
                                 },
                                 {
-                                    label: t('backup'),
+                                    label: t('mysql.backup_table'),
                                     key: 'backup',
+                                },
+                                {
+                                    label: t('mysql.export_structure'),
+                                    key: 'export_structure',
                                 },
                                 {
                                     label: t('copy_name'),
@@ -666,12 +670,12 @@ LIMIT 1000;`
         const checkSql2 = `SELECT COUNT(*) FROM \`${backupTableName}\`;`
         const showSql = [checkSql, createSql, insertSql, checkSql2].join('\n')
         showSqlInNewtab({
-            title: 'Backup Table',
+            title: t('mysql.backup_table'),
             sql: showSql,
         })
     }
 
-    async function duplicate(nodeData) {
+    async function exportStructure(nodeData, { suffix = '', title = t('mysql.export_structure') } = {}) {
         const tableName = nodeData.itemData.$_table_name
         const schemaName = nodeData.itemData.$table_schema
         
@@ -688,7 +692,7 @@ LIMIT 1000;`
         if (!data.length) {
             return
         }
-        const backupTableName = `${tableName}_copy`
+        const backupTableName = `${tableName}${suffix}`
         // const checkSql = `SELECT COUNT(*) FROM \`${tableName}\`;`
         const createSql = (data[0]['Create Table'] + ';').replace(/`[\d\D]+?`/, `\`${backupTableName}\``)
         // console.log('createSql', JSON.stringify(createSql))
@@ -696,8 +700,15 @@ LIMIT 1000;`
         // const checkSql2 = `SELECT COUNT(*) FROM \`${backupTableName}\`;`
         // const showSql = [checkSql, createSql, insertSql, checkSql2].join('\n')
         showSqlInNewtab({
-            title: 'Backup Table',
+            title,
             sql: createSql,
+        })
+    }
+
+    async function duplicate(nodeData) {
+        exportStructure(nodeData, {
+            suffix: '_copy',
+            title: t('duplicate'),
         })
     }
 
@@ -1092,6 +1103,9 @@ LIMIT 1000;`
                                         }
                                         else if (key == 'duplicate') {
                                             duplicate(nodeData)
+                                        }
+                                        else if (key == 'export_structure') {
+                                            exportStructure(nodeData)
                                         }
                                         else if (key == 'copy_name') {
                                             console.log('nodeData', nodeData)

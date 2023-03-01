@@ -402,7 +402,7 @@ i18n
                     'alasql': 'AlaSQL',
                     'alasql.drop_file': 'After dragging and dropping the xlsx, csv or JSON file and uploading it, you can use SQL queries',
                     'to_insert_sql': 'to Insert SQL',
-                    'backup': 'Backup',
+                    'mysql.backup_table': 'Backup Table',
                     'column_edit': 'Edit Column',
                     'move_up': 'Move Up',
                     'move_down': 'Move Down',
@@ -506,6 +506,7 @@ i18n
                     'remove': 'Remove',
                     'http_proxy': 'HTTP Proxy',
                     'create_http_proxy': 'Create HTTP Proxy',
+                    'mysql.export_structure': 'Export Structure',
                 }
             },
             zh: {
@@ -900,7 +901,7 @@ i18n
                     'alasql': 'AlaSQL',
                     'alasql.drop_file': '拖拽表格文件到这里上传后，可以使用 SQL 查询数据。支持 CSV、XLSX 和 JSON 格式的文件。',
                     'to_insert_sql': '转成插入 SQL 语句',
-                    'backup': '备份',
+                    'mysql.backup_table': '备份表',
                     'column_edit': '编辑列',
                     'move_up': '上移',
                     'move_down': '下移',
@@ -1004,6 +1005,7 @@ i18n
                     'remove': '删除',
                     'http_proxy': 'HTTP 代理',
                     'create_http_proxy': '创建 HTTP 代理',
+                    'mysql.export_structure': '导出结构',
                 }
             }
         },
