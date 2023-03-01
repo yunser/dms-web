@@ -543,7 +543,7 @@ export function SqlConnector({ config, event$, onConnect, onJson }) {
             let connections = res.data.list
             setOriginConnections(JSON.parse(JSON.stringify(connections)))
             if (keyword) {
-                connections = SearchUtil.search(connections, keyword, {
+                connections = SearchUtil.searchLike(connections, keyword, {
                     attributes: ['name', 'host'],
                 })
                 // connections = connections.filter(item => item.name.toLowerCase().includes(keyword.toLowerCase()))
