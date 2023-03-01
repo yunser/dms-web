@@ -347,21 +347,24 @@ async function compareColumn(tableName, table1Columns, table2Columns) {
 async function compareDatabaseTables(db1Tables = [], db2Tables = [], db1AllColumns = [], db2AllColumns = [], db1Result = {}, db2Result = {}) {
     // const db1Tables = []
     // const db2Tables = []
-    console.log('db1Result', db1Result)
     const { ignoreTables: db1IgnoreTables } = db1Result
     const { ignoreTables: db2IgnoreTables } = db2Result
-
-    const tableFilter = tableName => !tableName.includes('_bk') 
-        && !tableName.includes('_bak')
-        && !tableName.includes('QRTZ_')
-        && !tableName.includes('qrtz_')
         
     const db1TableNames = db1Tables.map(item => item.TABLE_NAME)
-        .filter(tableFilter)
     const db2TableNames = db2Tables.map(item => item.TABLE_NAME)
-        .filter(tableFilter)
     const allTableNames = _.uniq([...db1TableNames, ...db2TableNames])
     const results: any[] = []
+
+    function isIgnore(db1IgnoreTables: any[], tableName: string) {
+        return db1IgnoreTables.some(item => {
+            if (item.name.startsWith('regex:')) {
+                console.log('regex:', tableName.match(new RegExp(item.name.substring(6))))
+                return tableName.match(new RegExp(item.name.substring(6)))
+            }
+            return item.name == tableName
+        })
+    }
+
     for (let tableName of allTableNames) {
         console.log('--------*--------*--------*--------')
         console.log('TABLE', tableName)
@@ -369,9 +372,11 @@ async function compareDatabaseTables(db1Tables = [], db2Tables = [], db1AllColum
         const inDb1 = db1TableNames.includes(tableName)
         const inDb2 = db2TableNames.includes(tableName)
 
+
         // ignore
-        if ((inDb1 && db1IgnoreTables.find(item => item.name == tableName)) 
-            || (inDb2 && db2IgnoreTables.find(item => item.name == tableName))) {
+        // if ((inDb1 && db1IgnoreTables.find(item => item.name == tableName)) 
+        if ((inDb1 && isIgnore(db1IgnoreTables, tableName)) 
+            || (inDb2 && isIgnore(db2IgnoreTables, tableName))) {
             results.push({
                 tableName,
                 type: 'ignore',
