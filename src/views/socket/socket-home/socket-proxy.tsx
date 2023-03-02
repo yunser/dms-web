@@ -292,7 +292,7 @@ export function SocketProxy({ onClickItem }) {
 
     async function exit() {
         setConnected(false)
-        let res = await request.post(`${config.host}/http/proxy/close`, {
+        let res = await request.post(`${config.host}/socket/proxy/close`, {
             connectionId: comData.current.connectionId
         })
     }

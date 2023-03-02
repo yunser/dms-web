@@ -507,6 +507,8 @@ i18n
                     'http_proxy': 'HTTP Proxy',
                     'create_http_proxy': 'Create HTTP Proxy',
                     'mysql.export_structure': 'Export Structure',
+                    'socket_proxy': 'Socket Proxy',
+                    'create_socket_proxy': 'Create Socket Proxy',
                 }
             },
             zh: {
@@ -1006,6 +1008,8 @@ i18n
                     'http_proxy': 'HTTP 代理',
                     'create_http_proxy': '创建 HTTP 代理',
                     'mysql.export_structure': '导出结构',
+                    'socket_proxy': 'Socket 代理',
+                    'create_socket_proxy': '创建 Socket 代理',
                 }
             }
         },
