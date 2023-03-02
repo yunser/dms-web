@@ -19,9 +19,11 @@ const { TextArea } = Input
 
 function DbSelector({ config, onSuccess }) {
 
+    const [loading, setLoading] = useState(false)
     const [connections, setConnections] = useState([])
     const [connectionId, setConnectionId] = useState('')
     const [schemas, setSchemas] = useState([])
+
     async function loadConnections() {
         let res = await request.post(`${config.host}/mysql/connection/list`, {
         })
@@ -35,9 +37,11 @@ function DbSelector({ config, onSuccess }) {
 
     async function loadDbs(connectionId) {
         const connection = connections.find(item => item.id == connectionId)
+        setLoading(true)
         let res = await request.post(`${config.host}/mysql/connectionTables`, {
             ...connection,
         })
+        setLoading(false)
         // console.log('res', res)
         if (res.success) {
             // setProjects([])
@@ -86,9 +90,11 @@ function DbSelector({ config, onSuccess }) {
         loadDbs(connectionId)
     }, [connectionId])
 
+    
+
     return (
         <div>
-            <Space>
+            <div className={styles.select}>
                 <Select
                     options={connections.sort((a, b) => a.name.localeCompare(b.name)).map(item => {
                         return {
@@ -107,6 +113,10 @@ function DbSelector({ config, onSuccess }) {
                     optionFilterProp="label"
                     // searchValue="label"
                 />
+            </div>
+            {loading ?
+                <Spin />
+            :
                 <Select
                     options={schemas}
                     style={{
@@ -121,7 +131,9 @@ function DbSelector({ config, onSuccess }) {
                     }}
                     showSearch={true}
                 />
-            </Space>
+            }
+            {/* <Space>
+            </Space> */}
         </div>
     )
 }
@@ -464,7 +476,9 @@ export function MysqlCompare({ config, connectionId, onSql }) {
     const [results, setResults] = useState([])
     const [db1Data, setDb1Data] = useState(null)
     const [db2Data, setDb2Data] = useState(null)
-    
+    const [db1Result, setDb1Result] = useState(null)
+    const [db2Result, setDb2Result] = useState(null)
+    console.log('db1Data', db1Data)
 
     const stat = getStat(results)
 
@@ -524,6 +538,8 @@ export function MysqlCompare({ config, connectionId, onSql }) {
                 }
                 return score(b) - score(a)
             }))
+            setDb1Result(db1Result)
+            setDb2Result(db2Result)
         }
         setLoading(false)
     }
@@ -531,6 +547,39 @@ export function MysqlCompare({ config, connectionId, onSql }) {
     useEffect(() => {
         // loadData()
     }, [])
+
+    async function getCreateScript(tableName) {
+        // const tableName = db1Data.schemaName
+        const schemaName = db1Data.schemaName
+
+        // await request.post(`${config.host}/mysql/execSqlSimple`, {
+        //     connectionId: db1Result?._connectionId,
+        //     sql: `use schemaName;`,
+        //     // tableName,
+        //     // dbName,
+        // })
+        
+        const createTableSql = `SHOW CREATE TABLE \`${schemaName}\`.\`${tableName}\`;`
+        const { success, data } = await request.post(`${config.host}/mysql/execSqlSimple`, {
+            connectionId: db2Result?._connectionId,
+            sql: createTableSql,
+            // tableName,
+            // dbName,
+        })
+        if (!success) {
+            return
+        }
+        if (!data.length) {
+            return
+        }
+        const backupTableName = `${tableName}`
+        // const checkSql = `SELECT COUNT(*) FROM \`${tableName}\`;`
+        const createSql = (data[0]['Create Table'] + ';').replace(/`[\d\D]+?`/, `\`${backupTableName}\``)
+        console.log('createSql', createSql)
+        copy(createSql)
+        message.success(t('copied'))
+
+    }
 
     console.log('stat', stat)
     return (
@@ -543,20 +592,21 @@ export function MysqlCompare({ config, connectionId, onSql }) {
 
                     <div>
                         {/* <div>数据库2：</div> */}
-                        <div>已经做了修改的数据库</div>
+                        <div className={styles.label}>已经做了修改的数据库</div>
                         <DbSelector
                             config={config}
                             onSuccess={data => {
                                 setDb2Data(data)
                             }}
                         />
+                        <div>{db1Result?._connectionId}</div>
                     </div>
                     <div className={styles.arrow}>
                         <div>{'=>'}</div>
                         <div>同步到</div>
                     </div>
                     <div>
-                        <div>需要同步更新的数据库</div>
+                        <div className={styles.label}>需要同步更新的数据库</div>
                         
                         <DbSelector
                             config={config}
@@ -564,6 +614,7 @@ export function MysqlCompare({ config, connectionId, onSql }) {
                                 setDb1Data(data)
                             }}
                         />
+                        <div>{db2Result?._connectionId}</div>
                     </div>
                 </div>
                 {!!db1Data && !!db2Data &&
@@ -632,6 +683,17 @@ export function MysqlCompare({ config, connectionId, onSql }) {
                                                         <th>❌</th>
                                                     </tr>
                                                 </table>
+                                                <div className={styles.btn}>
+                                                    <Button
+                                                        size="small"
+                                                        onClick={() => {
+                                                            getCreateScript(item.tableName)
+                                                        }}
+                                                    >
+                                                        get_create_script
+
+                                                    </Button>
+                                                </div>
                                             </div>
                                         }
                                         {item.type == 'deleted' &&
