@@ -226,6 +226,74 @@ export function SocketProxy({ onClickItem }) {
                     return []
                 })
             }
+            else if (msg.type == 'clientConnected') {
+                const { clientId } = msg.data
+                setLogs(list => {
+                    // console.log('list.length', list.length)
+                    setLogs([
+                        {
+                            id: msg.id,
+                            // content: `${t('close')}`,
+                            content: `客户端 ${clientId} 连接`,
+                            // message: msg.message,
+                            time: msg.time,
+                        },
+                        ...list,
+                    ])
+                    return []
+                })
+            }
+            else if (msg.type == 'clientClose') {
+                const { clientId } = msg.data
+                setLogs(list => {
+                    // console.log('list.length', list.length)
+                    setLogs([
+                        {
+                            id: msg.id,
+                            // content: `${t('close')}`,
+                            content: `客户端 ${clientId} 关闭`,
+                            // message: msg.message,
+                            time: msg.time,
+                        },
+                        ...list,
+                    ])
+                    return []
+                })
+            }
+            else if (msg.type == 'clientSent') {
+                const { clientId, content } = msg.data
+                setLogs(list => {
+                    // console.log('list.length', list.length)
+                    setLogs([
+                        {
+                            id: msg.id,
+                            // content: `${t('close')}`,
+                            content: `客户端 ${clientId} 发送：${content}`,
+                            // message: msg.message,
+                            time: msg.time,
+                        },
+                        ...list,
+                    ])
+                    return []
+                })
+            }
+            else if (msg.type == 'clientReceived') {
+                const { clientId, content } = msg.data
+                setLogs(list => {
+                    // console.log('list.length', list.length)
+                    setLogs([
+                        {
+                            id: msg.id,
+                            // content: `${t('close')}`,
+                            content: `客户端 ${clientId} 收到：${content}`,
+                            // message: msg.message,
+                            time: msg.time,
+                        },
+                        ...list,
+                    ])
+                    return []
+                })
+            }
             else if (msg.type == 'request') {
                 setConnected(true)
                 const { request, response, content } = msg.data
@@ -426,8 +494,6 @@ export function SocketProxy({ onClickItem }) {
                         {t('close_all_udp_server')}
                     </Button>
                 </div> */}
-                <div>日志功能不完善，请查看控制台</div>
-
                 <div className={styles.sectionTitle}>{t('log')}</div>
 
                 <VSplit size={16} />
