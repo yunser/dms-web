@@ -218,7 +218,25 @@ export function SocketProxy({ onClickItem }) {
                         {
                             id: msg.id,
                             // content: `${t('close')}`,
-                            content: `客户端 ${clientId} 连接到 ${host}:${port}`,
+                            content: `TCP 客户端 ${clientId} 连接到 ${host}:${port}`,
+                            // message: msg.message,
+                            time: msg.time,
+                        },
+                        ...list,
+                    ])
+                    return []
+                })
+            }
+            else if (msg.type == 'udpClientSent') {
+                const { clientId, content, toAddr, toPort } = msg.data
+                setLogs(list => {
+                    // console.log('list.length', list.length)
+                    setLogs([
+                        {
+                            type: 'udpClientSent',
+                            id: msg.id,
+                            // content: `${t('close')}`,
+                            content: `UDP 客户端 ${clientId} 发送 ${content} 到 ${toAddr}:${toPort}`,
                             // message: msg.message,
                             time: msg.time,
                         },
