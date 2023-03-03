@@ -1,6 +1,6 @@
 import { Button, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Radio, Space, Spin, Table, Tabs, Tag, Tree } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import styles from './http-proxy.module.less';
+import styles from './socket-proxy.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
 // console.log('lodash', _)
@@ -19,43 +19,27 @@ import { getGlobalConfig } from '@/config';
 import { VSplit } from '@/components/v-space';
 // import { saveAs } from 'file-saver'
 
-function Content({ item, showInfo = false }) {
+function ClientReceivedMessage({ item, showInfo = false }) {
     return (
         <div className={styles.contentBox}>
-            {!!item.request &&
-                <div>
-                    <div>{item.request.method} {item.request.url} HTTP/{item.request.httpVersion}</div>
-                    <div className={styles.headers}>
-                        {item.request.headers.map(header => {
-                            return (
-                                <div className={styles.item}>
-                                    <div className={styles.key}>{header.key}</div>
-                                    <div className={styles.value}>{header.value}</div>
-                                </div>
-                            )
-                        })}
-                    </div>
-                    <div></div>
-                    <pre className={styles.pre}>{item.request.content}</pre>
-                </div>
+            <div>客户端 {item.clientId} 收到：</div>
+            <pre className={styles.preContent}>{item.content}</pre>
+            {/* {item.contentType == 'hex' &&
+                <Tag className={styles.tag}>Hex</Tag>
             }
-            <div>========{'>'}</div>
-            {!!item.response &&
-                <div className={styles.headers}>
-                    <div>HTTP/{item.response.httpVersion} {item.response.statusCode} {item.response.statusMessage}</div>
-                    <div className={styles.headers}>
-                        {item.response.headers.map(header => {
-                            return (
-                                <div className={styles.item}>
-                                    <div className={styles.key}>{header.key}</div>
-                                    <div className={styles.value}>{header.value}</div>
-                                </div>
-                            )
-                        })}
-                    </div>
-                    <pre className={styles.pre}>{item.response.content}</pre>
-                </div>
-            }
+            <pre className={styles.content}>{item.content}</pre>
+            {showInfo &&
+                <div className={styles.info}>{item.type == 'received' ? '@' : 'to:'}{item.host}:{item.port}</div>
+            } */}
+        </div>
+    )
+}
+
+function ClientSentMessage({ item, showInfo = false }) {
+    return (
+        <div className={styles.contentBox}>
+            <div>客户端 {item.clientId} 发送：</div>
+            <pre className={styles.preContent}>{item.content}</pre>
             {/* {item.contentType == 'hex' &&
                 <Tag className={styles.tag}>Hex</Tag>
             }
@@ -227,14 +211,14 @@ export function SocketProxy({ onClickItem }) {
                 })
             }
             else if (msg.type == 'clientConnected') {
-                const { clientId } = msg.data
+                const { clientId, host, port } = msg.data
                 setLogs(list => {
                     // console.log('list.length', list.length)
                     setLogs([
                         {
                             id: msg.id,
                             // content: `${t('close')}`,
-                            content: `客户端 ${clientId} 连接`,
+                            content: `客户端 ${clientId} 连接到 ${host}:${port}`,
                             // message: msg.message,
                             time: msg.time,
                         },
@@ -266,9 +250,12 @@ export function SocketProxy({ onClickItem }) {
                     // console.log('list.length', list.length)
                     setLogs([
                         {
+                            type: 'clientSent',
                             id: msg.id,
                             // content: `${t('close')}`,
-                            content: `客户端 ${clientId} 发送：${content}`,
+                            clientId,
+                            content,
+                            // content: `客户端 ${clientId} 发送：${content}`,
                             // message: msg.message,
                             time: msg.time,
                         },
@@ -283,9 +270,12 @@ export function SocketProxy({ onClickItem }) {
                     // console.log('list.length', list.length)
                     setLogs([
                         {
+                            type: 'clientReceived',
                             id: msg.id,
                             // content: `${t('close')}`,
-                            content: `客户端 ${clientId} 收到：${content}`,
+                            // content: `客户端 ${clientId} 收到：${content}`,
+                            clientId,
+                            content,
                             // message: msg.message,
                             time: msg.time,
                         },
@@ -527,9 +517,13 @@ export function SocketProxy({ onClickItem }) {
                             render(value, item) {
                                 return (
                                     <div>
-                                        {(item.type == 'request') ?
+                                        {(item.type == 'clientSent') ?
                                             <div>
-                                                <Content item={item} />
+                                                <ClientSentMessage item={item} />
+                                            </div>
+                                        : (item.type == 'clientReceived') ?
+                                            <div>
+                                                <ClientReceivedMessage item={item} />
                                             </div>
                                         :
                                             <div>{value}</div>

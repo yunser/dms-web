@@ -90,6 +90,7 @@ const tagIconLabel = {
     'websocket-home': 'WS',
     'mongo': 'MG',
     'mongo-client': 'MG',
+    'swagger': 'API',
 }
 
 function AboutModal({ config, ...otherProps }) {
