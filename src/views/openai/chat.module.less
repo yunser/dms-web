@@ -1,0 +1,119 @@
+.app {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    // justify-content: center;
+}
+.h2 {
+    font-size: 32px;
+}
+.list {
+    padding-top: 16px;
+    // padding-top: 80px;
+    .item {
+        padding: 0px 16px;
+        margin-bottom: 8px;
+        // border: 1px solid #000;
+        display: flex;
+        // align-items: center;
+        &.mine {
+            .content {
+                color: #fff;
+                background-color: #f00;
+            }
+        }
+        &:hover {
+            .deleteIcon {
+                display: block;
+            }
+        }
+    }
+    .content {
+        // border: 1px solid #f00;
+        padding: 8px;
+        padding-top: 6px;
+        background-color: #fff;
+        border: 1px solid rgba(0, 0, 0, .06);
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .avatar {
+        width: 32px;
+        height: 32px;
+        flex: 0 0 auto;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        // border: 1px solid #000;
+        margin-right: 8px;
+        &.ai {
+            color: #fff;
+            background-color: #0077fa;
+        }
+        &.mine {
+            color: #fff;
+            background-color: #03b461;
+        }
+    }
+    .deleteIcon {
+        display: none;
+        margin-top: 2px;
+        margin-left: 4px;
+    }
+}
+
+.container {
+    height: 100vh;
+    // border: 1px solid #000;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+}
+.tool {
+    margin-top: 8px;
+    display: flex;
+    justify-content: space-between;
+    
+    margin-top: 24px;
+}
+
+.chatBox {
+    flex: 1 0 auto;
+    height: 0;
+    border: 1px solid rgba(0, 0, 0, .12);
+    // border: 1px solid #000;
+    margin-bottom: 16px;
+    border-radius: 8px;
+    // height: 800px;
+    overflow: auto;
+    background-color: #f9f9f9;
+}
+.sendBox {
+    padding-bottom: 32px;
+    // margin-bottom: 80px;
+    // height: 180px;
+    // border: 1px solid #000;
+}
+
+.templates {
+    max-width: 400px;
+    .item {
+        border: 1px solid #000;
+        cursor: pointer;
+    }
+}
+.errorBox {
+    margin-bottom: 16px;
+    color: red;
+}
+.statBox {
+    margin-top: 4px;
+    text-align: right;
+    color: #999;
+}

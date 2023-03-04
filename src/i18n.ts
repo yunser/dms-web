@@ -509,6 +509,7 @@ i18n
                     'mysql.export_structure': 'Export Structure',
                     'socket_proxy': 'Socket Proxy',
                     'create_socket_proxy': 'Create Socket Proxy',
+                    'openai': 'OpenAI',
                 }
             },
             zh: {
@@ -1010,6 +1011,7 @@ i18n
                     'mysql.export_structure': '导出结构',
                     'socket_proxy': 'Socket 代理',
                     'create_socket_proxy': '创建 Socket 代理',
+                    'openai': 'OpenAI',
                 }
             }
         },

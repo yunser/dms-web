@@ -56,6 +56,9 @@ export function UdpServer({ onClickItem }) {
         initWebSocket()
     }, [])
 
+    function clear() {
+        setLogs([])
+    }
     
     async function ping() {
         const values = await targetForm.validateFields()
@@ -487,6 +490,17 @@ export function UdpServer({ onClickItem }) {
 
                 <div className={styles.sectionTitle}>{t('log')}</div>
 
+                <div>
+                    <Button
+                        danger
+                        size="small"
+                        onClick={() => {
+                            clear()
+                        }}
+                    >
+                        {t('clear')}
+                    </Button>
+                </div>
                 <VSplit size={16} />
                 
                 <Table

@@ -448,6 +448,9 @@ export function DbManager({ config }) {
         else if (key == 'http_proxy') {
             window.open('/pages/http/proxy', '_blank')
         }
+        else if (key == 'openai') {
+            window.open('/pages/openai', '_blank')
+        }
         else if (key == 'socket_proxy') {
             window.open('/pages/socket/proxy', '_blank')
         }
@@ -860,6 +863,11 @@ export function DbManager({ config }) {
         //     label: t('udp'),
         //     key: 'tcp/udp',
         // },
+        {
+            label: t('openai'),
+            key: 'openai',
+            group: 'other',
+        },
         {
             label: t('alasql'),
             key: 'alasql',

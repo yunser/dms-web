@@ -41,6 +41,7 @@ import { KafkaClient } from './views/kafka/kafka-client'
 import { DockerClient } from './views/docker'
 import { HttpProxy } from './views/socket/socket-home/http-proxy'
 import { SocketProxy } from './views/socket/socket-home/socket-proxy'
+import { OpenAiApp } from './views/openai'
 
 function GitPage() {
     return (
@@ -245,6 +246,18 @@ function DockerPage() {
     )
 }
 
+function OpenAiPage() {
+    const { t } = useTranslation()
+    useTitle(t('openai'))
+
+    return (
+        <div className={styles.pageFull}>
+            <OpenAiApp
+            />
+        </div>
+    )
+}
+
 function TcpClientPage() {
     const { t } = useTranslation()
     useTitle(t('tcp_client'))
@@ -296,6 +309,7 @@ export default function App() {
                     <Route path="/pages/socket/proxy" element={<FullApp><SocketProxyPage /></FullApp>} />
                     <Route path="/pages/kafka/client" element={<FullApp><KafkaClientPage /></FullApp>} />
                     <Route path="/pages/docker" element={<FullApp><DockerPage /></FullApp>} />
+                    <Route path="/pages/openai" element={<FullApp><OpenAiPage /></FullApp>} />
                 </Routes>
             </div>
         </Router>
