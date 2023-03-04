@@ -37,6 +37,7 @@ export function HttpServer({ onClickItem }) {
     const config = getGlobalConfig()
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
+    const [type, setType] = useState('https')
     const [loading, setLoading] = useState(false)
     const [logs, setLogs] = useState([])
     const [targetForm] = Form.useForm()
@@ -237,7 +238,7 @@ export function HttpServer({ onClickItem }) {
     async function createServer() {
         const values = await createForm.validateFields()
         // setConnecting(true)
-        let res = await request.post(`${config.host}/http/server/createServer`, {
+        let res = await request.post(`${config.host}/${type}/server/createServer`, {
             // content,
             host: values.host,
             port: values.port,
@@ -293,6 +294,7 @@ export function HttpServer({ onClickItem }) {
                             </div>
                         }
                     </div>
+                    
                     {connected ?
                         <div>   
                             <Space direction="vertical">
@@ -329,65 +331,83 @@ export function HttpServer({ onClickItem }) {
         
                         </div>
                     :
-                        <div className={styles.form}>
-                            <Form
-                                form={createForm}
-                                labelCol={{ span: 8 }}
-                                wrapperCol={{ span: 16 }}
-                                initialValues={{
-                                    host: '0.0.0.0',
-                                    port: 8080,
-                                    // port: 3306,
-                                }}
-                                // layout={{
-                                //     labelCol: { span: 0 },
-                                //     wrapperCol: { span: 24 },
-                                // }}
-                            >
-                                <Form.Item
-                                    name="host"
-                                    label={t('host')}
-                                    rules={[ { required: true, }, ]}
-                                >
-                                    <Input />
-                                </Form.Item>
-                                <Form.Item
-                                    name="port"
-                                    label={t('port')}
-                                    rules={[ { required: true, }, ]}
-                                >
-                                    <InputNumber />
-                                </Form.Item>
-                                <Form.Item
-                                    wrapperCol={{ offset: 8, span: 16 }}
-                                >
-                                    <Space>
-                                        <Button
-                                            loading={connecting}
-                                            type="primary"
-                                            onClick={createServer}
-                                        >
-                                            {t('create_http_server')}
-                                        </Button>
-                                    </Space>
-                                </Form.Item>
-                            </Form>
-                            {/* <Input.TextArea
-                                value={content}
-                                placeholder="发送内容"
-                                onChange={e => {
-                                    setContent(e.target.value)
+                        <div>
+                            <Tabs
+                                activeKey={type}
+                                items={[
+                                    {
+                                        label: 'HTTP',
+                                        key: 'http',
+                                    },
+                                    {
+                                        label: 'HTTPs',
+                                        key: 'https',
+                                    },
+                                ]}
+                                onChange={key => {
+                                    setType(key)
                                 }}
                             />
-                            <div>
-                                <Button
-                                    loading={connecting}
-                                    type="primary"
-                                    onClick={send2}
+                            <div className={styles.form}>
+                                <Form
+                                    form={createForm}
+                                    labelCol={{ span: 8 }}
+                                    wrapperCol={{ span: 16 }}
+                                    initialValues={{
+                                        host: '0.0.0.0',
+                                        port: 8080,
+                                        // port: 3306,
+                                    }}
+                                    // layout={{
+                                    //     labelCol: { span: 0 },
+                                    //     wrapperCol: { span: 24 },
+                                    // }}
                                 >
-                                    {t('connect')}
-                                </Button>
-                            </div> */}
+                                    <Form.Item
+                                        name="host"
+                                        label={t('host')}
+                                        rules={[ { required: true, }, ]}
+                                    >
+                                        <Input />
+                                    </Form.Item>
+                                    <Form.Item
+                                        name="port"
+                                        label={t('port')}
+                                        rules={[ { required: true, }, ]}
+                                    >
+                                        <InputNumber />
+                                    </Form.Item>
+                                    <Form.Item
+                                        wrapperCol={{ offset: 8, span: 16 }}
+                                    >
+                                        <Space>
+                                            <Button
+                                                loading={connecting}
+                                                type="primary"
+                                                onClick={createServer}
+                                            >
+                                                {t('create_http_server')}
+                                            </Button>
+                                        </Space>
+                                    </Form.Item>
+                                </Form>
+                                {/* <Input.TextArea
+                                    value={content}
+                                    placeholder="发送内容"
+                                    onChange={e => {
+                                        setContent(e.target.value)
+                                    }}
+                                />
+                                <div>
+                                    <Button
+                                        loading={connecting}
+                                        type="primary"
+                                        onClick={send2}
+                                    >
+                                        {t('connect')}
+                                    </Button>
+                                </div> */}
+                            </div>
                         </div>
                     }
                 </div>

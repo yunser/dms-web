@@ -240,7 +240,7 @@ export function AiChat({ host }) {
                             title="介绍"
                             content={
                                 <div className={styles.templates}>
-                                    <div>本工具由 ChatGPT 3.5 提供 AI 支持，阿里云函数提供代理服务。</div>
+                                    {/* <div>本工具由 ChatGPT 3.5 提供 AI 支持，阿里云函数提供代理服务。</div> */}
                                     <div>每次发送，历史对话都会提交到服务器，因 API 限制，历史对话加起来总文本数不能超过 4000 tokens。</div>
                                     <div>支持开启新的对话，或者手动删除某几条对话内容。</div>
                                 </div>

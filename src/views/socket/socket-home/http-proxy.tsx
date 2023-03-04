@@ -427,6 +427,9 @@ export function HttpProxy({ onClickItem }) {
                         </div>
                     }
                 </div>
+                {/* <div>
+                    暂不支持 https
+                </div> */}
             </div>
             <div className={styles.layoutRight}>
                 {/* <div className={styles.rightTopToolBox}>
