@@ -19,6 +19,7 @@ import { RowDetailModal } from '../sql-row-detail-modal/sql-row-detail-modal';
 import { RowEditModal } from '../sql-row-edit-modal/sql-row-edit-modal';
 import { utils, writeFile } from 'xlsx'
 
+
 // console.log('XLSX', XLSX)
 
 function getTextLength(text) {

@@ -20,6 +20,14 @@ import { VSpacer, VSplit } from '@/components/v-space';
 import { LeftRightLayout } from '@/components/left-right-layout';
 // import { saveAs } from 'file-saver'
 
+const tpl_http_response_hello = `HTTP/1.1 200 OK
+content-length: 5
+
+hello`
+
+const tpl_http_response_404 = `HTTP/1.1 404 not found
+
+`
 
 function ToUTF8(str) {
     var result = new Array();
@@ -694,6 +702,29 @@ export function TcpServer({  }) {
                                                     },
                                                 ]}
                                             />
+                                            <Popover
+                                                title={t('template')}
+                                                content={
+                                                    <div className={styles.popoverContent}>
+                                                        <Button
+                                                            onClick={() => {
+                                                                setContent(tpl_http_response_hello)
+                                                            }}
+                                                        >HTTP Response hello</Button>
+                                                        {/* <Button
+                                                            onClick={() => {
+                                                                setContent(tpl_http_response_404)
+                                                            }}
+                                                        >HTTP Response 404</Button> */}
+                                                    </div>
+                                                }
+                                            >
+                                                <Button
+                                                    size="small"
+                                                >
+                                                    {t('template')}
+                                                </Button>
+                                            </Popover>
                                         </Space>
                                         <div className={styles.sendText}>{t('send_message_to')} {sendTarget ? sendTarget : t('all_client')}</div>
                                     </LeftRightLayout>
@@ -827,7 +858,12 @@ export function TcpServer({  }) {
                                                 </div>
                                             : item.subType == 'received' ?
                                                 <div>
-                                                    <div>from: {item.clientId}</div>
+                                                    <div>from:  <a
+                                                        onClick={() => {
+                                                            setSendTarget(item.clientId)
+                                                        }}
+                                                    >{item.clientId}</a>
+                                                    </div>
                                                     {/* <pre className={styles.content}>
                                                         {item.content}
                                                     </pre> */}
