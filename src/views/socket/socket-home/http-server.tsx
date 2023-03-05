@@ -270,7 +270,7 @@ export function HttpServer({ onClickItem }) {
 
     async function exit() {
         setConnected(false)
-        let res = await request.post(`${config.host}/http/server/closeServer`, {
+        let res = await request.post(`${config.host}/${type}/server/closeServer`, {
             connectionId: comData.current.connectionId
         })
     }
@@ -308,10 +308,19 @@ export function HttpServer({ onClickItem }) {
                                         danger
                                         size="small"
                                         onClick={exit}
-                                    >
+                                        >
                                         {t('disconnect')}
                                     </Button>
                                 </Space>
+                                {type == 'http' ?
+                                    <div>
+                                        http://{serverConfig.host}:{serverConfig.port}
+                                    </div>
+                                :
+                                    <div>
+                                        https://local.yunser.com:{serverConfig.port}
+                                    </div>
+                                }
                                 <div>
                                     
                                 </div>
@@ -342,6 +351,10 @@ export function HttpServer({ onClickItem }) {
                                     {
                                         label: 'HTTPs',
                                         key: 'https',
+                                    },
+                                    {
+                                        label: 'HTTP2',
+                                        key: 'http2',
                                     },
                                 ]}
                                 onChange={key => {
