@@ -14,9 +14,22 @@
     .layoutRight {
         flex: 1 0 auto;
         width: 0;
-        padding: 16px;
         // border: 1px solid #000;
-        overflow: auto;
+        display: flex;
+        flex-direction: column;
+        .layoutRightTop {
+            padding: 16px;
+            overflow: auto;
+            flex: 1 0 auto;
+            height: 0;
+        }
+        .layoutRightBottom {
+            flex: 0 0 400px;
+            height: 0;
+            overflow: auto;
+            padding: 0 16px 16px 16px;
+            border-top: 1px solid var(--border-color);
+        }
     }
 }
 .form {
@@ -71,9 +84,11 @@
 
         }
     }
-    .pre {
-        // border: 1px solid #000;
+    .contentPre {
+        margin-top: 16px;
         margin-bottom: 0;
+        border: 1px solid var(--border-color);
+        padding: 8px;
     }
 }
 
@@ -93,4 +108,16 @@
     padding: 16px;
     padding-top: 32px;
     border-top: 1px solid var(--border-color);
+}
+.connectBox {
+    position: relative;
+    .connectPre {
+        border: 1px solid var(--border-color);
+        margin-bottom: 8px;
+        border-radius: 4px;
+        padding: 8px;
+    }
+    .tag {
+        position: absolute;
+    }
 }

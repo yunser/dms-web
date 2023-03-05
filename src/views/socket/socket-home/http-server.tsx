@@ -37,7 +37,7 @@ export function HttpServer({ onClickItem }) {
     const config = getGlobalConfig()
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
-    const [type, setType] = useState('https')
+    const [type, setType] = useState('http')
     const [loading, setLoading] = useState(false)
     const [logs, setLogs] = useState([])
     const [targetForm] = Form.useForm()

@@ -17,43 +17,86 @@ import { FullCenterBox } from '@/views/common/full-center-box';
 import moment from 'moment';
 import { getGlobalConfig } from '@/config';
 import { VSplit } from '@/components/v-space';
+import { _if } from '@/views/db-manager/utils/helper';
 // import { saveAs } from 'file-saver'
 
 function Content({ item, showInfo = false }) {
+    const [type, setType] = useState('request')
     return (
         <div className={styles.contentBox}>
-            {!!item.request &&
+            <Tabs
+                activeKey={type}
+                items={[
+                    {
+                        label: 'request',
+                        key: 'request',
+                    },
+                    {
+                        label: 'response',
+                        key: 'response',
+                    },
+                    ..._if(!!item.connect, {
+                        label: 'connect',
+                        key: 'connect',
+                    }),
+                ]}
+                onChange={key => {
+                    setType(key)
+                }}
+            />
+            {type == 'request' &&
                 <div>
-                    <div>{item.request.method} {item.request.url} HTTP/{item.request.httpVersion}</div>
-                    <div className={styles.headers}>
-                        {item.request.headers.map(header => {
-                            return (
-                                <div className={styles.item}>
-                                    <div className={styles.key}>{header.key}</div>
-                                    <div className={styles.value}>{header.value}</div>
-                                </div>
-                            )
-                        })}
-                    </div>
-                    <div></div>
-                    <pre className={styles.pre}>{item.request.content}</pre>
+                    {!!item.request &&
+                        <div>
+                            <div>{item.request.method} {item.request.path} HTTP/{item.request.httpVersion}</div>
+                            <div className={styles.headers}>
+                                {item.request.headers.map(header => {
+                                    return (
+                                        <div className={styles.item}>
+                                            <div className={styles.key}>{header.key}</div>
+                                            <div className={styles.value}>{header.value}</div>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                            <div></div>
+                            <pre className={styles.contentPre}>{item.request.content}</pre>
+                        </div>
+                    }
                 </div>
             }
-            <div>========{'>'}</div>
-            {!!item.response &&
-                <div className={styles.headers}>
-                    <div>HTTP/{item.response.httpVersion} {item.response.statusCode} {item.response.statusMessage}</div>
-                    <div className={styles.headers}>
-                        {item.response.headers.map(header => {
-                            return (
-                                <div className={styles.item}>
-                                    <div className={styles.key}>{header.key}</div>
-                                    <div className={styles.value}>{header.value}</div>
-                                </div>
-                            )
-                        })}
+            {type == 'response' &&
+                <div>
+                    {!!item.response &&
+                        <div className={styles.headers}>
+                            <div>HTTP/{item.response.httpVersion} {item.response.statusCode} {item.response.statusMessage}</div>
+                            <div className={styles.headers}>
+                                {item.response.headers.map(header => {
+                                    return (
+                                        <div className={styles.item}>
+                                            <div className={styles.key}>{header.key}</div>
+                                            <div className={styles.value}>{header.value}</div>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                            <pre className={classNames(styles.contentPre)}>{item.response.content}</pre>
+                        </div>
+                    }
+                </div>
+            }
+            {type == 'connect' &&
+                <div>
+                    <div className={styles.connectBox}>
+                        <pre className={styles.connectPre}>{item.connect}</pre>
+                        <Tag className={styles.tag}>connect</Tag>
                     </div>
-                    <pre className={styles.pre}>{item.response.content}</pre>
+                    {!!item.connectEstablished &&
+                        <div className={styles.connectBox}>
+                            <pre className={styles.connectPre}>{item.connectEstablished}</pre>
+                            <Tag className={styles.tag}>Connection Established</Tag>
+                        </div>
+                    }
                 </div>
             }
             {/* {item.contentType == 'hex' &&
@@ -71,7 +114,9 @@ export function HttpProxy({ onClickItem }) {
     const config = getGlobalConfig()
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
+    const [type, setType] = useState('http')
     const [loading, setLoading] = useState(false)
+    const [detailItem, setDetailItem] = useState(null)
     const [logs, setLogs] = useState([])
     const [targetForm] = Form.useForm()
     const [createForm] = Form.useForm()
@@ -226,19 +271,22 @@ export function HttpProxy({ onClickItem }) {
                     return []
                 })
             }
+            // @request
             else if (msg.type == 'request') {
                 setConnected(true)
-                const { request, response, content } = msg.data
+                const { id, time, request, response, connect, connectEstablished, content } = msg.data
                 setLogs(list => {
                     // console.log('list.length', list.length)
                     setLogs([
                         {
-                            id: msg.id,
+                            id,
                             content,
-                            time: msg.time,
+                            time,
                             type: 'request',
                             request,
                             response,
+                            connect,
+                            connectEstablished,
                             // host,
                             // port,
                         },
@@ -273,7 +321,7 @@ export function HttpProxy({ onClickItem }) {
     async function createServer() {
         const values = await createForm.validateFields()
         // setConnecting(true)
-        let res = await request.post(`${config.host}/http/proxy/create`, {
+        let res = await request.post(`${config.host}/${type}/proxy/create`, {
             // content,
             host: values.host,
             port: values.port,
@@ -305,7 +353,7 @@ export function HttpProxy({ onClickItem }) {
 
     async function exit() {
         setConnected(false)
-        let res = await request.post(`${config.host}/http/proxy/close`, {
+        let res = await request.post(`${config.host}/${type}/proxy/close`, {
             connectionId: comData.current.connectionId
         })
     }
@@ -365,65 +413,86 @@ export function HttpProxy({ onClickItem }) {
         
                         </div>
                     :
-                        <div className={styles.form}>
-                            <Form
-                                form={createForm}
-                                labelCol={{ span: 8 }}
-                                wrapperCol={{ span: 16 }}
-                                initialValues={{
-                                    host: '0.0.0.0',
-                                    port: 6666,
-                                    // port: 3306,
-                                }}
-                                // layout={{
-                                //     labelCol: { span: 0 },
-                                //     wrapperCol: { span: 24 },
-                                // }}
-                            >
-                                <Form.Item
-                                    name="host"
-                                    label={t('host')}
-                                    rules={[ { required: true, }, ]}
-                                >
-                                    <Input />
-                                </Form.Item>
-                                <Form.Item
-                                    name="port"
-                                    label={t('port')}
-                                    rules={[ { required: true, }, ]}
-                                >
-                                    <InputNumber />
-                                </Form.Item>
-                                <Form.Item
-                                    wrapperCol={{ offset: 8, span: 16 }}
-                                >
-                                    <Space>
-                                        <Button
-                                            loading={connecting}
-                                            type="primary"
-                                            onClick={createServer}
-                                        >
-                                            {t('create_http_proxy')}
-                                        </Button>
-                                    </Space>
-                                </Form.Item>
-                            </Form>
-                            {/* <Input.TextArea
-                                value={content}
-                                placeholder="发送内容"
-                                onChange={e => {
-                                    setContent(e.target.value)
+                        <div>
+                            <Tabs
+                                activeKey={type}
+                                items={[
+                                    {
+                                        label: 'HTTP',
+                                        key: 'http',
+                                    },
+                                    {
+                                        label: 'HTTPs',
+                                        key: 'https',
+                                    },
+                                ]}
+                                onChange={key => {
+                                    setType(key)
+                                    createForm.setFieldsValue({
+                                        port: key == 'http' ? 6666 : 6667
+                                    })
                                 }}
                             />
-                            <div>
-                                <Button
-                                    loading={connecting}
-                                    type="primary"
-                                    onClick={send2}
+                            <div className={styles.form}>
+                                <Form
+                                    form={createForm}
+                                    labelCol={{ span: 8 }}
+                                    wrapperCol={{ span: 16 }}
+                                    initialValues={{
+                                        host: '0.0.0.0',
+                                        port: 6666,
+                                        // port: 3306,
+                                    }}
+                                    // layout={{
+                                    //     labelCol: { span: 0 },
+                                    //     wrapperCol: { span: 24 },
+                                    // }}
                                 >
-                                    {t('connect')}
-                                </Button>
-                            </div> */}
+                                    <Form.Item
+                                        name="host"
+                                        label={t('host')}
+                                        rules={[ { required: true, }, ]}
+                                    >
+                                        <Input />
+                                    </Form.Item>
+                                    <Form.Item
+                                        name="port"
+                                        label={t('port')}
+                                        rules={[ { required: true, }, ]}
+                                    >
+                                        <InputNumber />
+                                    </Form.Item>
+                                    <Form.Item
+                                        wrapperCol={{ offset: 8, span: 16 }}
+                                    >
+                                        <Space>
+                                            <Button
+                                                loading={connecting}
+                                                type="primary"
+                                                onClick={createServer}
+                                            >
+                                                {type == 'http' ? t('create_http_proxy') : t('create_https_proxy')}
+                                            </Button>
+                                        </Space>
+                                    </Form.Item>
+                                </Form>
+                                {/* <Input.TextArea
+                                    value={content}
+                                    placeholder="发送内容"
+                                    onChange={e => {
+                                        setContent(e.target.value)
+                                    }}
+                                />
+                                <div>
+                                    <Button
+                                        loading={connecting}
+                                        type="primary"
+                                        onClick={send2}
+                                    >
+                                        {t('connect')}
+                                    </Button>
+                                </div> */}
+                            </div>
                         </div>
                     }
                 </div>
@@ -432,71 +501,157 @@ export function HttpProxy({ onClickItem }) {
                 </div> */}
             </div>
             <div className={styles.layoutRight}>
-                {/* <div className={styles.rightTopToolBox}>
-                    <Button
+                <div className={styles.layoutRightTop}>
+                    {/* <div className={styles.rightTopToolBox}>
+                        <Button
+                            size="small"
+                            onClick={() => {
+                                closeAllServer()
+                            }}
+                        >
+                            {t('close_all_udp_server')}
+                        </Button>
+                    </div> */}
+                    
+
+                    <div className={styles.sectionTitle}>{t('log')}</div>
+
+                    <VSplit size={16} />
+                    
+                    <Table
+                        loading={loading}
+                        dataSource={logs}
+                        bordered
                         size="small"
-                        onClick={() => {
-                            closeAllServer()
+                        // pagination={false}
+                        pagination={{
+                            // total,
+                            // current: page,
+                            pageSize: 20,
+                            // showSizeChanger: false,
                         }}
-                    >
-                        {t('close_all_udp_server')}
-                    </Button>
-                </div> */}
-                
-
-                <div className={styles.sectionTitle}>{t('log')}</div>
-
-                <VSplit size={16} />
-                
-                <Table
-                    loading={loading}
-                    dataSource={logs}
-                    bordered
-                    size="small"
-                    // pagination={false}
-                    pagination={{
-                        // total,
-                        // current: page,
-                        pageSize: 20,
-                        // showSizeChanger: false,
-                    }}
-                    rowKey="id"
-                    columns={[
-                        {
-                            title: t('time'),
-                            dataIndex: 'time',
-                            width: 80,
-                            render(value) {
-                                return moment(value).format('HH:mm:ss')
-                            }
-                        },
-                        {
-                            title: t('content'),
-                            dataIndex: 'content',
-                            // width: 240,
-                            render(value, item) {
-                                return (
-                                    <div>
-                                        {(item.type == 'request') ?
-                                            <div>
-                                                <Content item={item} />
-                                            </div>
-                                        :
-                                            <div>{value}</div>
-                                        }
-                                    </div>
-                                )
-                            }
-                        },
-                        // {
-                        //     title: '',
-                        //     dataIndex: '_empty',
-                        // },
-                    ]}
-                    onChange={({ current }) => {
-                        // setPage(current)
-                    }}
-                />
+                        rowKey="id"
+                        columns={[
+                            {
+                                title: t('select'),
+                                dataIndex: 'select',
+                                width: 80,
+                                render(_value, item) {
+                                    return (
+                                        <div>
+                                            {!!item.request?.method &&
+                                                <Button
+                                                    size="small"
+                                                    type={detailItem?.id == item.id ? 'primary' : 'default'}
+                                                    onClick={() => {
+                                                        setDetailItem(item)
+                                                    }}
+                                                >
+                                                    select
+                                                </Button>
+                                            }
+                                        </div>
+                                    )
+                                }
+                            },
+                            {
+                                title: t('time'),
+                                dataIndex: 'time',
+                                width: 80,
+                                render(value) {
+                                    if (!value) {
+                                        return <div>--</div>
+                                    }
+                                    return moment(value).format('HH:mm:ss')
+                                }
+                            },
+                            // {
+                            //     title: t('id'),
+                            //     dataIndex: 'id',
+                            // },
+                            // {
+                            //     title: t('protocol'),
+                            //     dataIndex: 'pro',
+                            //     width: 80,
+                            //     render(value) {
+                            //         return moment(value).format('HH:mm:ss')
+                            //     }
+                            // },
+                            {
+                                title: t('method'),
+                                dataIndex: ['request', 'method'],
+                                // key: 'method',
+                                width: 80,
+                                render(_value, item) {
+                                    return <div>{_value || '--'}</div>
+                                }
+                            },
+                            {
+                                title: t('host'),
+                                dataIndex: ['request', 'host'],
+                                width: 80,
+                            },
+                            {
+                                title: t('path'),
+                                dataIndex: ['request', 'path'],
+                                width: 80,
+                            },
+                            {
+                                title: t('result'),
+                                dataIndex: 'response',
+                                width: 64,
+                                render(_value, item) {
+                                    const statusCode = item.response?.statusCode
+                                    if (!statusCode) {
+                                        return <div>--</div>
+                                    }
+                                    let color = ('' + statusCode).startsWith('2') ? 'green' : 'red'
+                                    return <div style={{ color }}>{statusCode}</div>
+                                }
+                            },
+                            // {
+                            //     title: t('url'),
+                            //     dataIndex: 'url',
+                            //     width: 80,
+                            //     render(_value, item) {
+                            //         return <div>{item.request?.url || '--'}</div>
+                            //     }
+                            // },
+                            {
+                                title: t('content'),
+                                dataIndex: 'content',
+                                // width: 240,
+                                render(value, item) {
+                                    return (
+                                        <div>
+                                            {(item.type == 'request') ?
+                                                <div>
+                                                    
+                                                </div>
+                                            :
+                                                <div>{value}</div>
+                                            }
+                                        </div>
+                                    )
+                                }
+                            },
+                            // {
+                            //     title: '',
+                            //     dataIndex: '_empty',
+                            // },
+                        ]}
+                        onChange={({ current }) => {
+                            // setPage(current)
+                        }}
+                    />
+                </div>
+                <div className={styles.layoutRightBottom}>
+                    {!!detailItem &&
+                        <div>
+                            <Content item={detailItem} />
+                        </div>
+                    }
+                </div>
             </div>
         </div>
     )
