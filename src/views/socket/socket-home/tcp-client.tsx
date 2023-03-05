@@ -270,7 +270,13 @@ export function TcpClient({  }) {
             message.error('no content')
             return
         }
-        _send((content))
+        // console.log('content?', content.replace(/\n/g, '\r\n'))
+        // return
+        // CRLF是Carriage-Return Line-Feed的缩写，意思是回车换行，
+        // 就是回车(CR, ASCII 13, \r) 换行(LF, ASCII 10, \n)。
+        // 换行在有的ASCII码表也用newline（简nl）来进行表示,这里的lf是line feed的概念，意思是一样的。
+        // _send(content.replace(/\n/g, '\r\n'))
+        _send(content)
     }
 
     async function disconnect() {
