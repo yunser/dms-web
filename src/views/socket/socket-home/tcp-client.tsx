@@ -143,6 +143,7 @@ export function TcpClient({  }) {
                             // message: msg.message,
                             time: data.time,
                             type: data.type,
+                            isTls: !!data.isTls,
                         },
                         ...logs,
                     ]
@@ -205,6 +206,7 @@ export function TcpClient({  }) {
         let res = await request.post(`${config.host}/socket/tcp/connect`, {
             host: values.host,
             port: values.port,
+            isTls: values.tls,
             webSocketId: comData.current.webSocketId,
         })
         if (res.success) {
@@ -382,6 +384,7 @@ export function TcpClient({  }) {
                             initialValues={{
                                 host: '127.0.0.1',
                                 port: 1465,
+                                isTls: true,
                                 // port: 3306,
                             }}
                             // layout={{
@@ -402,6 +405,14 @@ export function TcpClient({  }) {
                                 rules={[ { required: true, }, ]}
                             >
                                 <InputNumber />
+                            </Form.Item>
+                            <Form.Item
+                                name="tls"
+                                label={t('tls')}
+                                // rules={[ { required: true, }, ]}
+                                valuePropName="checked"
+                            >
+                                <Checkbox></Checkbox>
                             </Form.Item>
                             <Form.Item
                                 wrapperCol={{ offset: 8, span: 16 }}

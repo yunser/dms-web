@@ -511,6 +511,7 @@ i18n
                     'socket_proxy': 'Socket Proxy',
                     'create_socket_proxy': 'Create Socket Proxy',
                     'openai': 'OpenAI',
+                    'tls': 'TLS',
                 }
             },
             zh: {
@@ -1014,6 +1015,7 @@ i18n
                     'socket_proxy': 'Socket 代理',
                     'create_socket_proxy': '创建 Socket 代理',
                     'openai': 'OpenAI',
+                    'tls': 'TLS',
                 }
             }
         },
