@@ -22,11 +22,14 @@ import { LeftRightLayout } from '@/components/left-right-layout';
 
 
 function Content({ item }) {
+    
+    const [format] = useState('text')
     return (
         <div className={styles.contentBox}>
             {item.contentType == 'hex' &&
                 <Tag className={styles.tag}>Hex</Tag>
             }
+            {/* <Tag className={styles.tag}>{format}</Tag> */}
             <pre className={classNames(styles.content, styles[item.type])}>{item.content}</pre>
         </div>
     )

@@ -20,13 +20,97 @@ import { VSpacer, VSplit } from '@/components/v-space';
 import { LeftRightLayout } from '@/components/left-right-layout';
 // import { saveAs } from 'file-saver'
 
+
+function ToUTF8(str) {
+    var result = new Array();
+
+    var k = 0;
+    for (var i = 0; i < str.length; i++) {
+        var j = encodeURI(str[i]);
+        if (j.length==1) {
+            // 未转换的字符
+            result[k++] = j.charCodeAt(0);
+        } else {
+            // 转换成%XX形式的字符
+            var bytes = j.split("%");
+            for (var l = 1; l < bytes.length; l++) {
+                result[k++] = parseInt("0x" + bytes[l]);
+            }
+        }
+    }
+
+    return result;
+}
+
+function decodeUtf8(bytes) {
+    var encoded = "";
+    for (var i = 0; i < bytes.length; i++) {
+        encoded += '%' + bytes[i].toString(16);
+    }
+    return decodeURIComponent(encoded);
+}
+
+function utf82Hex(code) {
+    const nums = ToUTF8(code)
+    console.log('nums', nums)
+    const hex = nums.map(num => (num).toString(16)).join('')
+    return hex
+}
+
+function hex2utf8(code) {
+    let arr = []
+    
+    for (let i = 0; i < code.length; i += 2) {
+        var str = code.substr(i, 2) // 16 进制
+        arr.push(parseInt(str, 16))
+        // var n = parseInt(str, 16) // 10 进制
+        // this.result += String.fromCharCode(n)
+    }
+    console.log('arr?', arr.join(' '))
+    return decodeUtf8(arr)
+}
+
+// console.log('hex/utf82Hex', utf82Hex('我'))
+// console.log('hex/hex2utf8', hex2utf8(utf82Hex('我')))
+  
+
 function Content({ item }) {
+
+    const [format, setFormat] = useState('text')
+    const [content, setContent] = useState(item.content)
+
     return (
         <div className={styles.contentBox}>
-            {item.contentType == 'hex' &&
+            {/* {item.contentType == 'hex' &&
                 <Tag className={styles.tag}>Hex</Tag>
-            }
-            <pre className={styles.content}>{item.content}</pre>
+            } */}
+            <Tag
+                className={styles.tag}
+                onClick={() => {
+                    const newFormat = format == 'text' ? 'hex' : 'text'
+                    setFormat(newFormat)
+                    let newContent
+                    if (newFormat == 'text') {
+                        if (item.contentType == 'hex') {
+                            newContent = hex2utf8(item.content)
+                        }
+                        else {
+                            newContent = item.content
+                        }
+                    }
+                    else {
+                        if (item.contentType == 'hex') {
+                            newContent = item.content
+                        }
+                        else {
+                            newContent = utf82Hex(item.content)
+                        }
+                    }
+                    setContent(newContent)
+                }}
+            >
+                {format}</Tag>
+            <pre className={styles.content}>{content}</pre>
         </div>
     )
 }
@@ -738,12 +822,12 @@ export function TcpServer({  }) {
                                         <div>
                                             {item.subType == 'sent' ?
                                                 <div>
-                                                    <div>=> {item.clientId}</div>
+                                                    <div>to: {item.clientId}</div>
                                                     <Content item={item} />
                                                 </div>
                                             : item.subType == 'received' ?
                                                 <div>
-                                                    <div>{item.clientId} =></div>
+                                                    <div>from: {item.clientId}</div>
                                                     {/* <pre className={styles.content}>
                                                         {item.content}
                                                     </pre> */}
