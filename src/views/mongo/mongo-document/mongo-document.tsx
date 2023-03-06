@@ -139,6 +139,36 @@ export function MongoDocument({ config, curDb, curCollection, event$, connection
         })
     }
 
+    function removeAllDocument() {
+        // console.log('documents', documents)
+        // return
+        Modal.confirm({
+            // title: 'Confirm',
+            // icon: <ExclamationCircleOutlined />,
+            content: `${t('delete_current_page')}?`,
+            async onOk() {
+                let res = await request.post(`${config.host}/mongo/document/remove`, {
+                    connectionId,
+                    database: curDb.name,
+                    collection: curCollection.name,
+                    ids: documents.map(item => item._id),
+                })
+                if (res.success) {
+                    message.success(t('success'))
+                    // onSuccess && onSuccess()
+                    loadDocuments()
+                    // loadKeys()
+                    // setResult(null)
+                    // setResult({
+                    //     key: item,
+                    //     ...res.data,
+                    // })
+                    // setInputValue(res.data.value)
+                }
+            }
+        })
+    }
+
     return (
         <div className={styles.documentBox}>
             <div className={styles.header}>
@@ -277,6 +307,13 @@ export function MongoDocument({ config, curDb, curCollection, event$, connection
                         return `${total} ${t('rows')}`
                     }}
                 />
+                <Button
+                    size="small"
+                    danger
+                    onClick={removeAllDocument}
+                >
+                    {t('delete_current_page')}
+                </Button>
             </div>
             
             {/* <TextArea className={styles.textarea} value={code} rows={4} 
