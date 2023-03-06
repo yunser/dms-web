@@ -33,6 +33,17 @@ ${pathItem.method} {{host}}${pathItem.path}`
     return result
 }
 
+function getCurlCode(api: OpenAPIObject, pathItem: PathItemObject) {
+    let result = `curl http://${api.host}${pathItem.path}`
+    const queryParams = (pathItem.parameters || []).filter(item => item.in == 'query')
+    if (queryParams.length) {
+        result += pathItem.parameters.map((item, index) => {
+            return `${index == 0 ? '?' : '&'}${item.name}=${'xx'}`
+        }).join('')
+    }
+    return result
+}
+
 function getMock(schema, api) {
     if (schema.type == 'string') {
         return 'string'
@@ -570,6 +581,11 @@ function PathItemDetail({ pathItem, api }: {
             <div className={styles.httpBox}>
                 <pre className={styles.pre}>{getHttpCode(pathItem)}</pre>
                 <Tag className={styles.tag}>http</Tag>
+            </div>
+
+            <div className={styles.curlBox}>
+                <pre className={styles.pre}>{getCurlCode(api, pathItem)}</pre>
+                <Tag className={styles.tag}>curl</Tag>
             </div>
         </div>
     ))
