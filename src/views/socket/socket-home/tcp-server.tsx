@@ -397,6 +397,7 @@ export function TcpServer({  }) {
             port: values.port,
             webSocketId: comData.current.webSocketId,
             hex: hexFormat,
+            isTls: values.tls,
         })
         if (res.success) {
             // onSuccess && onSuccess()
@@ -406,6 +407,7 @@ export function TcpServer({  }) {
             setServerConfig({
                 host: values.host,
                 port: values.port,
+                isTls: !!values.tls,
             })
             // initWebSocket(res.data.connectionId)
         }
@@ -531,7 +533,7 @@ export function TcpServer({  }) {
                                 
                                 <Space>
                                     <div>
-                                        {t('listening')} {serverConfig.host}:{serverConfig.port}
+                                        {t('listening')} {serverConfig.isTls ? 'local.yunser.com' : serverConfig.host}:{serverConfig.port}
                                     </div>
                                     <div>
                                         <Button
@@ -753,7 +755,7 @@ export function TcpServer({  }) {
                                 initialValues={{
                                     host: '0.0.0.0',
                                     port: 1465,
-                                    // port: 3306,
+                                    isTls: true,
                                 }}
                                 // layout={{
                                 //     labelCol: { span: 0 },
@@ -773,6 +775,14 @@ export function TcpServer({  }) {
                                     rules={[ { required: true, }, ]}
                                 >
                                     <InputNumber />
+                                </Form.Item>
+                                <Form.Item
+                                    name="tls"
+                                    label={t('tls')}
+                                    // rules={[ { required: true, }, ]}
+                                    valuePropName="checked"
+                                >
+                                    <Checkbox></Checkbox>
                                 </Form.Item>
                                 <Form.Item
                                     wrapperCol={{ offset: 8, span: 16 }}

@@ -395,7 +395,6 @@ export function TcpClient({  }) {
                                 host: '127.0.0.1',
                                 port: 1465,
                                 isTls: true,
-                                // port: 3306,
                             }}
                             // layout={{
                             //     labelCol: { span: 0 },
