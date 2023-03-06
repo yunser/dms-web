@@ -20,6 +20,19 @@ import { OpenAPIObject, PathItemObject } from 'openapi3-ts'
 import { marked } from 'marked';
 import { CopyButton } from '@/views/db-manager/copy-button';
 
+function getHttpCode(pathItem: PathItemObject) {
+    let result = `### ${pathItem.summary}
+
+${pathItem.method} {{host}}${pathItem.path}`
+    const queryParams = (pathItem.parameters || []).filter(item => item.in == 'query')
+    if (queryParams.length) {
+        result += '\n' + pathItem.parameters.map((item, index) => {
+            return `    ${index == 0 ? '?' : '&'}${item.name}=${'xx'}`
+        }).join('\n')
+    }
+    return result
+}
+
 function getMock(schema, api) {
     if (schema.type == 'string') {
         return 'string'
@@ -552,6 +565,12 @@ function PathItemDetail({ pathItem, api }: {
                 bordered
                 size="small"
             />
+
+
+            <div className={styles.httpBox}>
+                <pre className={styles.pre}>{getHttpCode(pathItem)}</pre>
+                <Tag className={styles.tag}>http</Tag>
+            </div>
         </div>
     ))
 }

@@ -16,6 +16,7 @@ import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/common/full-center-box';
 import { SwaggerDetail } from '../swagger-detail';
 import { getGlobalConfig } from '@/config';
+import { SearchUtil } from '@/utils/search';
 // import { saveAs } from 'file-saver'
 
 export function SwaggerHome({ event$, onClickItem }) {
@@ -46,25 +47,22 @@ export function SwaggerHome({ event$, onClickItem }) {
 
     const [list, setList] = useState([])
     const filterdList = useMemo(() => {
-        function score(item) {
-            if (item.isFavorite) {
-                return 100
-            }
-            return 0
-        }
+        
+        // function score(item) {
+        //     if (item.isFavorite) {
+        //         return 100
+        //     }
+        //     return 0
+        // }
         const sorter = (a, b) => {
             // return score(b) - score(a)
             return a.name.localeCompare(b.name)
         }
-        
-        if (!keyword) {
-            return list.sort(sorter)
-        }
-        return list
-            .filter(p => p.name.toLowerCase().includes(keyword.toLowerCase())
-                || p.url?.toLowerCase()?.includes(keyword.toLowerCase())
-            )
-            .sort(sorter)
+
+        return SearchUtil.searchLike(list, keyword, {
+            attributes: ['name', 'url'],
+        })
+        .sort(sorter)
     }, [list, keyword])
     
     async function loadList() {
