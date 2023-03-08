@@ -772,6 +772,40 @@ export function ExecDetail(props) {
         writeFile(workbook, `unnamed.xlsx`)
     }
 
+    function exportSql() {
+        const resultList = list.map(row => {
+            // let 
+            const fields = []
+            const values = []
+            const rowObj: any = {}
+            const updatedFields = []
+            for (let rowKey in row) {
+                if (rowKey != '_idx') { // TODO
+                    const cell = row[rowKey]
+                    rowObj[cell.fieldName] = cell.value
+                    fields.push(cell.fieldName)
+                    values.push(cell.value)
+                }
+            }
+            // return rowObj
+            function getValue(value) {
+                if (typeof value == 'number') {
+                    return `${value}`
+                }
+                return `'${value}'`
+            }
+            const fields_sql = fields.map(field => `\`${field}\``).join(', ')
+            const values_sql = values.map(value => getValue(value)).join(', ')
+            const sql = `INSERT INTO \`${dbName}\`.\`${tableName}\` (${fields_sql}) VALUES (${values_sql});`
+            return sql
+        })
+            // .filter(item => item)
+            // .join('\n')
+        console.log('results', resultList)
+        // const content = JSON.stringify(resultList, null, 4)
+        onJson && onJson(resultList.join('\n'))
+    }
+
     function selectionDetail() {
         const rowKey = selectedRowKeys[0]
         console.log('rowKey', rowKey)
@@ -1131,6 +1165,9 @@ export function ExecDetail(props) {
                                                 else if (info.key == 'export_xlsx') {
                                                     exportXlsx()
                                                 }
+                                                else if (info.key == 'export_sql') {
+                                                    exportSql()
+                                                }
                                             }}
                                             items={[
                                                 {
@@ -1144,6 +1181,10 @@ export function ExecDetail(props) {
                                                 {
                                                     label: t('export_xlsx'),
                                                     key: 'export_xlsx',
+                                                },
+                                                {
+                                                    label: t('export_sql'),
+                                                    key: 'export_sql',
                                                 },
                                             ]}
                                         />
