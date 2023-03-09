@@ -35,6 +35,10 @@ export function MongoDocument({ config, curDb, curCollection, event$, connection
     // doc detail
     const [docDetailModalVisible, setDocDetailModalVisible] = useState(false)
     const [docDetailModalItem, setDocDetailModalItem] = useState(null)
+    // update
+    const [updateQuery, setUpdateQuery] = useState({})
+    const [updateModalVisible, setUpdateModalVisible] = useState(false)
+
 
     const pageSize = 10
     const [condition, setCondition] = useState('{}')
@@ -60,6 +64,33 @@ export function MongoDocument({ config, curDb, curCollection, event$, connection
         }
         setPage(1)
         setDocumentCondition(cond)
+    }
+
+    function resetQuery() {
+        setCondition('{}')
+        setDocumentCondition({})
+    }
+
+    function formatQuery() {
+        setCondition(JSON.stringify(JSON.parse(condition), null, 4))
+    }
+
+    function queryAndUpdate() {
+        if (!condition) {
+            // message.error('请输入查询条件')
+            setDocumentCondition({})
+            return
+        }
+        let cond
+        try {
+            cond = JSON.parse(condition)
+        }
+        catch (err) {
+            message.error('查询条件解析失败')
+            return
+        }
+        setUpdateQuery(cond)
+        setUpdateModalVisible(true)
     }
 
     async function loadDocuments() {
@@ -215,6 +246,25 @@ export function MongoDocument({ config, curDb, curCollection, event$, connection
                         >
                             <ExportOutlined />
                         </IconButton>
+                        <Button
+                            // type="primary"
+                            size="small"
+                            onClick={queryAndUpdate}
+                        >
+                            {t('update')}
+                        </Button>
+                        <Button
+                            size="small"
+                            onClick={formatQuery}
+                        >
+                            {t('format')}
+                        </Button>
+                        <Button
+                            size="small"
+                            onClick={resetQuery}
+                        >
+                            {t('reset_query')}
+                        </Button>
                     </Space>
                 </div>
             </div>
@@ -348,6 +398,18 @@ export function MongoDocument({ config, curDb, curCollection, event$, connection
                         <pre>{JSON.stringify(docDetailModalItem, null, 4)}</pre>
                     </div>
                 </Drawer>
+            }
+            {updateModalVisible &&
+                <UpdateModal
+                    config={config}
+                    connectionId={connectionId}
+                    database={curDb}
+                    collection={curCollection}
+                    query={updateQuery}
+                    onClose={() => {
+                        setUpdateModalVisible(false)
+                    }}
+                />
             }
         </div>
     );
@@ -539,4 +601,63 @@ function DatabaseModal({ config, editType, onCancel, item, onSuccess,
             </div>
         </Modal>
     );
+}
+
+function UpdateModal({ config, connectionId, database, collection, query, onClose }) {
+    const { t } = useTranslation()
+    const [updateData, setUpdateData] = useState('{}')
+
+    async function update() {
+        let res = await request.post(`${config.host}/mongo/document/updateByQuery`, {
+            connectionId,
+            database: database.name,
+            collection: collection.name,
+            query,
+            data: JSON.parse(updateData),
+            // ...saveOrUpdateData,
+        })
+        if (res.success) {
+            message.success(t('success'))
+        }
+    }
+
+    return (
+        <Drawer
+            title={t('query_and_update')}
+            open={true}
+            width={800}
+            onClose={onClose}
+        >
+            <div className={styles.sectionBox}>
+                <div className={styles.title}>{t('query')}:</div>
+                <Input.TextArea
+                    value={JSON.stringify(query, null, 4)}
+                    rows={8}
+                    disabled
+                    // onChange={e => {
+                    //     setUpdateData(e.target.value)
+                    // }}
+                />
+            </div>
+            {/* <pre>{JSON.stringify(query, null, 4)}</pre> */}
+            <div className={styles.sectionBox}>
+                <div className={styles.title}>{t('update_data')}:</div>
+                <Input.TextArea
+                    value={updateData}
+                    rows={8}
+                    onChange={e => {
+                        setUpdateData(e.target.value)
+                    }}
+                />
+                <div className={styles.btnBox}>
+                    <Button
+                        type="primary"
+                        onClick={update}
+                    >
+                        {t('update')}
+                    </Button>
+                </div>
+            </div>
+        </Drawer>
+    )
 }

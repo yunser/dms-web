@@ -37,6 +37,7 @@ i18n
                     export_sql: 'Export SQL',
                     db_name: 'Database Name',
                     new_query: 'New Query',
+                    'reset_query': 'Reset Query',
                     refresh: 'Refresh',
                     exec_result: 'Result',
                     history: 'History',
@@ -515,6 +516,8 @@ i18n
                     'openai': 'OpenAI',
                     'tls': 'TLS',
                     'template': 'Template',
+                    'query_and_update': 'Query and Update',
+                    'update_data': 'Update Data',
                 }
             },
             zh: {
@@ -545,6 +548,7 @@ i18n
                     export_sql: '导出 SQL',
                     db_name: '数据库名称',
                     new_query: '新建查询',
+                    'reset_query': '重置查询',
                     refresh: '刷新',
                     exec_result: '执行结果',
                     history: '历史记录',
@@ -1022,6 +1026,8 @@ i18n
                     'openai': 'OpenAI',
                     'tls': 'TLS',
                     'template': '模板',
+                    'query_and_update': '查询并更新',
+                    'update_data': '更新数据',
                 }
             }
         },
