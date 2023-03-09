@@ -65,7 +65,7 @@ function removeObjId(obj) {
     return result
 }
 
-export function MongoClient({ config, event$, connectionId, }) {
+export function MongoClient({ config, event$, connectionId, item: detailItem }) {
     const { t } = useTranslation()
     
     // col
@@ -496,6 +496,7 @@ export function MongoClient({ config, event$, connectionId, }) {
                                     connectionId={connectionId}
                                     curCollection={curCollection}
                                     curDb={curDb}
+                                    detailItem={detailItem}
                                 />
                             }
                             {tab == 'index' &&

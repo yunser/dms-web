@@ -1,4 +1,4 @@
-import { Button, Checkbox, Col, Descriptions, Drawer, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Pagination, Popover, Row, Space, Spin, Table, Tabs } from 'antd';
+import { Button, Checkbox, Col, Descriptions, Drawer, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Pagination, Popover, Row, Select, Space, Spin, Table, Tabs } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './mongo-document.module.less';
 import _ from 'lodash';
@@ -25,7 +25,7 @@ function removeObjId(obj) {
     return result
 }
 
-export function MongoDocument({ config, curDb, curCollection, event$, connectionId, }) {
+export function MongoDocument({ config, curDb, curCollection, event$, connectionId, detailItem, }) {
     const { t } = useTranslation()
     
     // doc
@@ -265,6 +265,25 @@ export function MongoDocument({ config, curDb, curCollection, event$, connection
                         >
                             {t('reset_query')}
                         </Button>
+                        <Select
+                            className={styles.quickSelect}
+                            value={''}
+                            style={{ width: 240 }}
+                            size="small"
+                            options={(detailItem.quickQueries || []).map(item => {
+                                return {
+                                    label: item.title,
+                                    value: item.id,
+                                }
+                            })}
+                            onChange={(value) => {
+                                const fItem = (detailItem.quickQueries || []).find(item => item.id == value)
+                                console.log('fItem', fItem)
+                                if (fItem) {
+                                    setCondition(fItem.content)
+                                }
+                            }}
+                        />
                     </Space>
                 </div>
             </div>

@@ -1691,7 +1691,7 @@ export function DbManager({ config }) {
                                         <MongoHome
                                             config={config}
                                             event$={event$}
-                                            onConnect={({ connectionId, name }) => {
+                                            onConnect={({ connectionId, name, item }) => {
                                                 console.log('onConnect', connectionId)
                                                 addOrActiveTab({
                                                     // title: 'Redis',
@@ -1700,6 +1700,7 @@ export function DbManager({ config }) {
                                                     type: 'mongo-client',
                                                     data: {
                                                         connectionId,
+                                                        item,
                                                     },
                                                 }, {
                                                     // closeCurrentTab: true,
@@ -1712,6 +1713,7 @@ export function DbManager({ config }) {
                                             config={config}
                                             event$={event$}
                                             connectionId={item.data.connectionId}
+                                            item={item.data.item}
                                         />
                                     }
                                     {item.type == 'alasql-home' &&
