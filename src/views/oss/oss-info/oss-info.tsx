@@ -9,7 +9,7 @@ import { request } from '@/views/db-manager/utils/http';
 import copy from 'copy-to-clipboard';
 
 
-export function OssInfoModal({ config, sourceType, item, onOk, onCancel }) {
+export function OssInfoModal({ config, sourceType, item, onOk, onCancel, ossItem }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [loading, setLoading] = useState(false)
@@ -39,6 +39,21 @@ export function OssInfoModal({ config, sourceType, item, onOk, onCancel }) {
         //     onSuccess && onSuccess()
         // }
         // setLoading(false)
+    }
+
+    let domainUrl = ''
+    if (ossItem.domain) {
+        domainUrl = ossItem.domain + encodeURI(item.path)
+        // domainUrl = ossItem.domain + encodeURIComponent(item.path)
+    }
+    function copyDomainUrl() {
+        copy(domainUrl)
+        message.success(t('copied'))
+        onCancel && onCancel()
+    }
+
+    function openDomainUrl() {
+        window.open(domainUrl, '_blank')
     }
 
     async function loadInfo() {
@@ -80,6 +95,28 @@ export function OssInfoModal({ config, sourceType, item, onOk, onCancel }) {
             {!!info &&
                 <div>
                     <div>{t('link')}：{info.url}</div>
+                    {!!ossItem.domain &&
+                        <div className={styles.domainBox}>
+                            {/* <div className={styles.url}>{ossItem.domain}{item.path}</div> */}
+                            <div className={styles.url}>{domainUrl}</div>
+                            <Space>
+                                <Button
+                                    onClick={() => {
+                                        copyDomainUrl()  
+                                    }}
+                                >
+                                    {t('copy')}
+                                </Button>
+                                <Button
+                                    onClick={() => {
+                                        openDomainUrl()  
+                                    }}
+                                >
+                                    {t('open')}
+                                </Button>
+                            </Space>
+                        </div>
+                    }
                     <div className={styles.headers}>{t('oss.headers')}</div>
                     <Table
                         size="small"

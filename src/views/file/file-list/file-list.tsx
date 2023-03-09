@@ -1746,6 +1746,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                     config={config}
                     sourceType={sourceType}
                     item={ossInfoItem}
+                    ossItem={ossItem}
                     onCancel={() => {
                         setOssInfoVisible(false)
                     }}
