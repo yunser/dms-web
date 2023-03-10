@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import styles from './index.module.less'
-import { message, Input, Modal, Button, Table, Popover, Space, Empty, Result, Tabs, Select, Tooltip, Spin } from 'antd'
+import { message, Input, Modal, Button, Table, Popover, Space, Empty, Result, Tabs, Select, Tooltip, Spin, Dropdown, Menu } from 'antd'
 // import http from '@/utils/http'
 import classNames from 'classnames'
 import { Editor } from '../../editor/Editor'
@@ -13,7 +13,7 @@ import { ExecDetail } from '../../exec-detail/exec-detail'
 import { uid } from 'uid'
 import { useTranslation, Trans } from "react-i18next";
 import { HistoryList } from '../../sql-history'
-import { CloseOutlined } from '@ant-design/icons'
+import { CloseOutlined, EllipsisOutlined } from '@ant-design/icons'
 import { IconButton } from '../../icon-button'
 import storage from '@/utils/storage'
 import { CloseCircleOutlined } from '@ant-design/icons'
@@ -462,12 +462,35 @@ function SqlBox({ config, tabViewId, event$, databaseType, connectionId, onJson,
                                 <SaveOutlined />
                             </IconButton> */}
                         </SqlEditHandler>
-                        <Button 
+                        {/* <Button 
                             size="small" 
                             onClick={removeSymbol}
                         >
                             去掉 `
-                        </Button>
+                        </Button> */}
+                        <Dropdown
+                            overlay={
+                                <Menu
+                                    onClick={({ key }) => {
+                                        if (key == 'remove_symbol') {
+                                            removeSymbol()
+                                        }
+                                    }}
+                                    items={[
+                                        {
+                                            label: t('remove') + ' `',
+                                            key: 'remove_symbol',
+                                        },
+                                    ]}
+                                />
+                            }
+                        >
+                            <IconButton
+                                onClick={e => e.preventDefault()}
+                            >
+                                <EllipsisOutlined />
+                            </IconButton>
+                        </Dropdown>
                     </Space>
 
                     
