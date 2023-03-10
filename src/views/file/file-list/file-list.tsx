@@ -236,6 +236,9 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
     const [renameModalVisible, setRenameModalVisible] = useState(false)
     const [renameItem, setRenameItem] = useState(null)
 
+    const [readmePath, setReadmePath] = useState('')
+    const [readmeContent, setReadmeContent] = useState('')
+
     const [pasteVisible, setPasteVisible] = useState(false)
     const [pasteFile, setPasteFile] = useState(null)
 
@@ -266,6 +269,28 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
             return item.name.toLowerCase().includes(keyword.toLowerCase())
         })
     }, [list, keyword])
+
+    async function loadReadme() {
+        // setLoading(true)
+        let res = await request.post(`${config.host}/file/read`, {
+            sourceType,
+            path: readmePath,
+        })
+        if (res.success) {
+            const content = res.data.content
+            setReadmeContent(content)
+        }
+        // setLoading(false)
+    }
+
+    useEffect(() => {
+        if (readmePath) {
+            loadReadme()
+        }
+        else {
+            setReadmeContent('')
+        }
+    }, [readmePath])
 
     async function sftpConnect(refreshPath: boolean) {
         // console.log('flow/1', )
@@ -527,6 +552,15 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                 })
             setList(list)
             // setCurrent(res.data.current)
+            // handle readme
+            const fReadMeFile = list.find(item => item.name.toLowerCase() == 'readme.md')
+            console.log('fReadMeFile', fReadMeFile)
+            if (fReadMeFile) {
+                setReadmePath(fReadMeFile.path)
+            }
+            else {
+                setReadmePath('')
+            }
         }
         else {
             setError(res.data.message)
@@ -1618,6 +1652,9 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                             {t('new_tab')}
                         </Button>
                     </Space>
+                    {!!readmeContent &&
+                        <div className={styles.readme}>{readmeContent}</div>
+                    }
                 </div>
             </div>
             {fileDetailModalVisible &&
