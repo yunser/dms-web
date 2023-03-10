@@ -83,6 +83,9 @@ export function FileRenameModal({ config, type, item, onSuccess, sourceType, onC
                     // port: 6379,
                     // db: 0,
                 }}
+                onFinish={() => {
+                    handleOk()
+                }}
                 // layout={{
                 //     labelCol: { span: 0 },
                 //     wrapperCol: { span: 24 },
@@ -94,6 +97,7 @@ export function FileRenameModal({ config, type, item, onSuccess, sourceType, onC
                     rules={[ { required: true, }, ]}
                 >
                     <Input
+                        autoFocus
                         // disabled={!(editType == 'create')}
                     />
                 </Form.Item>
