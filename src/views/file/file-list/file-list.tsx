@@ -951,7 +951,34 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         }
     }
 
-    function uploadFile({ file, name, onSuccess = () => { } }) {
+    function uploadFiles(files = []) {
+        // const file = e.dataTransfer.files[0]
+        // uploadFile({ file })
+        if (files.length > 1) {
+            for (let file of files) {
+                uploadFile({
+                    file,
+                    onSuccess: () => {
+                        // input.remove()
+                        // message.success(`${}`)
+                    }
+                })
+            }
+        }
+        else {
+            const file = e.target.files[0]
+            if (file) {
+                uploadFile({
+                    file,
+                    onSuccess: () => {
+                        input.remove()
+                    }
+                })
+            }
+        }
+    }
+
+    async function uploadFile({ file, name, onSuccess = () => { } }) {
         let formData = new FormData()
         formData.append('file', file)
         formData.append('path', curPath + '/' + (name || file.name))
@@ -959,7 +986,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
 
         setUploading(true)
         // fetch('http://192.168.31.212:8000/api/file', {
-        fetch(`${config.host}/file/upload`, {
+        await fetch(`${config.host}/file/upload`, {
             method: "POST",
             mode: 'cors',
             // headers: {
@@ -971,14 +998,12 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
             // })
             body: formData,
         })
-            .then(() => {
-                console.log('已上传')
-                loadList()
-                // Toast.info('已上传')
-                // setFileKey('' + new Date().getTime())
-                onSuccess && onSuccess()
-                setUploading(false)
-            })
+        console.log('已上传')
+        loadList()
+        // Toast.info('已上传')
+        // setFileKey('' + new Date().getTime())
+        onSuccess && onSuccess()
+        setUploading(false)
     }
 
     if ((sourceType != 'local' && !_sourceType) && !item) {
@@ -1197,17 +1222,9 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                 onClick={() => {
                                     const input = document.createElement('input')
                                     input.type = 'file'
+                                    input.setAttribute('multiple', 'multiple')
                                     input.addEventListener('change', (e) => {
-                                        const file = e.target.files[0]
-                                        if (file) {
-                                            uploadFile({
-                                                file,
-                                                onSuccess: () => {
-                                                    input.remove()
-                                                }
-                                            })
-                                        }
-
+                                        uploadFiles(e.dataTransfer.files)
                                     })
                                     input.click()
                                 }}
@@ -1346,22 +1363,9 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                         e.preventDefault();
                     }}
                     onDrop={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        const file = e.dataTransfer.files[0]
-                        uploadFile({ file })
-                        // const reader = new FileReader()
-                        // reader.onload = async () => {
-                        //     console.log(reader.result)
-                        //     const root = JSON.parse((reader.result) as any)
-                        //     const nodes_will = await parseRoot(page)
-                        //     console.log('nodes_will', nodes_will)
-
-                        //     editor.current.setNodes(nodes_will.children)
-                        // }
-                        // reader.readAsText(file, 'utf-8')
-                        // var reader = new FileReader();
-                        //读取成功
+                        e.stopPropagation()
+                        e.preventDefault()
+                        uploadFiles(e.dataTransfer.files)
                     }}
                 >
                     <div className={styles.bodyHeader}>
