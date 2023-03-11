@@ -252,6 +252,7 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
             color: values.color,
             description: values.description,
             httpProxyUrl: values.httpProxyUrl,
+            httpProxyToken: values.httpProxyToken,
             defaultDatabase: values.defaultDatabase || '',
             type: values.type,
             databasePath: values.databasePath,
@@ -314,6 +315,7 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
             // db: values.defaultDatabase || 0,
             test: true,
             httpProxyUrl: values.httpProxyUrl,
+            httpProxyToken: values.httpProxyToken,
             databasePath: values.databasePath,
             type: values.type,
             // remember: values.remember,
@@ -450,7 +452,9 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
                         label={t('password')}
                         rules={[{ required: true, },]}
                     >
-                        <Input />
+                        <Input.Password
+                            size="small"
+                        />
                     </Form.Item>
                 }
                 {type == 'sqlite' &&
@@ -492,6 +496,13 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
                 >
                     <Input />
                 </Form.Item>
+                <Form.Item
+                    name="httpProxyToken"
+                    label={t('http_proxy_token')}
+                >
+                    <Input />
+                </Form.Item>
+                
                 
                 
                 {/* <Form.Item name="remember" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>
