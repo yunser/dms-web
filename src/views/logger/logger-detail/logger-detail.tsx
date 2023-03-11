@@ -14,6 +14,7 @@ import { request } from '@/views/db-manager/utils/http';
 import ReactJson from 'react-json-view';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { ExportOutlined } from '@ant-design/icons';
+import { getGlobalConfig } from '@/config';
 
 const unitLabels = {
     'minute': '分钟',
@@ -222,9 +223,7 @@ function TimeSelector({ value, onChange }) {
 
 export function LoggerDetail({ event$, connectionId, item: detailItem, onConnect, }) {
 
-    const config = {
-        host: 'http://localhost:7003',
-    }
+    const config = getGlobalConfig()
 
     const [time, setTime] = useState({
         type: 'relative',
@@ -245,6 +244,9 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onConnect
     })
 
     const { t } = useTranslation()
+
+    const [histories, setHistories] = useState([])
+
     const [contextList, setContextList] = useState([])
     const [curFile, setCurFile] = useState('')
     const [files, setFiles] = useState([])
@@ -328,6 +330,24 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onConnect
             setQueryTime(timeRange)
         }
         setLoading(false)
+        setLog(searchKeyword)
+    }
+
+    async function setLog(searchKeyword) {
+        let res = await request.post(`${config.host}/logger/history/push`, {
+            content: searchKeyword,
+        })
+        if (res.success) {
+            loadHistory()
+        }
+    }
+
+    async function clear() {
+        let res = await request.post(detailItem.config.clear.url, {
+            path: detailItem.path,})
+        if (res.success) {
+            loadList()
+        }
     }
 
     async function loadFiles() {
@@ -348,10 +368,18 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onConnect
         // setLoading(false)
     }
 
+    async function loadHistory() {
+        let res = await request.post(`${config.host}/logger/history`, {})
+        if (res.success) {
+            setHistories(res.data.list)
+        }
+    }
+
     useEffect(() => {
         if (detailItem.type == 'file') {
             loadFiles()
         }
+        loadHistory()
     }, [])
 
     useEffect(() => {
@@ -386,7 +414,7 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onConnect
         //         endTime = time.end
         //     }
         // }
-        let res = await request.post(detailItem.url, {
+        const reqData = {
             keyword: searchKeyword,
             // startTime,
             // endTime,
@@ -399,7 +427,12 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onConnect
             __pack_meta__: item.__pack_meta__,
             __pack_id__: item.__pack_id__,
             contextTime: item.ts,
-        })
+            id: item.id,
+        }
+        if (detailItem.sls) {
+            reqData._sls = detailItem.sls
+        }
+        let res = await request.post(detailItem.url, reqData)
         if (res.success) {
             const { list, total, query } = res.data
             setContextList(list)
@@ -469,7 +502,7 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onConnect
                         <Input.Search
                             className={styles.search}
                             value={keyword}
-                            placeholder="搜索"
+                            placeholder={t('search')}
                             allowClear
                             onChange={(e) => {
                                 setKeyword(e.target.value)  
@@ -490,7 +523,7 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onConnect
                             />
                         }
                         <Select
-                            value={''}
+                            value={null}
                             placeholder="快速搜索"
                             className={styles.quickSelect}
                             options={quickQueries}
@@ -498,6 +531,38 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onConnect
                                 quickSelect(value)
                             }}
                         />
+                        <Select
+                            value={null}
+                            placeholder={t('history')}
+                            className={styles.quickSelect}
+                            options={histories.map(item => {
+                                return {
+                                    label: item.content,
+                                    value: item.id,
+                                }
+                            })}
+                            onChange={value => {
+                                const fItem = histories.find(item => item.id == value)
+                                if (fItem) {
+                                    setKeyword(fItem.content)
+                                    setSearchKeyword(fItem.content)
+                                }
+                            }}
+                            style={{
+                                width: 320,
+                            }}
+                        />
+                        {!!detailItem?.config?.clear &&
+                            <Button
+                                // size="small"
+                                danger
+                                onClick={() => {
+                                    clear()
+                                }}
+                            >
+                                {t('clear')}
+                            </Button>
+                        }
                         {/* <Button
                             size="small"
                             onClick={() => {
@@ -528,9 +593,10 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onConnect
                     <Pagination
                         total={total}
                         current={page}
+                        // size="small"
                         pageSize={(detailItem.type == 'grafana') ? (limit || default_limit) : pageSize}
                         showSizeChanger={false}
-                        showTotal={total => `共 ${total} 条记录`}
+                        showTotal={total => `${total} ${t('rows')}`}
                         onChange={(current) => {
                             setPage(current)
                         }}
@@ -620,8 +686,9 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onConnect
                                                             setDetailView('text')
                                                             setDetailVisible(true)
                                                         }}
-                                                    >查看</span>
-                                                    {/* {' | '} */}
+                                                    >
+                                                        {t('view')}
+                                                    </span>
                                                     <span
                                                         className={styles.view}
                                                         onClick={() => {
@@ -636,14 +703,17 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onConnect
                                                             setDetailView('json')
                                                             setDetailVisible(true)
                                                         }}
-                                                    >JSON 查看</span>
-                                                    {/* {' | '} */}
+                                                    >
+                                                        {t('json_view')}
+                                                    </span>
                                                     <span
                                                         className={styles.view}
                                                         onClick={() => {
                                                             viewContext(item)
                                                         }}
-                                                    >上下文</span>
+                                                    >
+                                                        {t('context')}
+                                                    </span>
                                                 </Space>
                                             </div>
                                             {!!traceId &&
@@ -697,7 +767,7 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onConnect
                 <Drawer
                     width={document.body.clientWidth - 240}
                     open={true}
-                    title="上下文"
+                    title={t('context')}
                     onClose={() => {
                         setContextVisible(false)
                     }}
@@ -722,14 +792,25 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onConnect
                             //     }
                             // },
                             {
-                                title: 'index',
+                                title: t('index'),
                                 dataIndex: '__index_number__',
+                                width: 64,
                                 render(value) {
+                                    let color
+                                    if (value > 0) {
+                                        color = 'green'
+                                    }
+                                    else if (value < 0) {
+                                        color = 'red'
+                                    }
                                     return (
                                         <div 
-                                            className={classNames(styles.indexNum, {
-                                                [styles.current]: value == 0
-                                            })}
+                                            // className={classNames(styles.indexNum, {
+                                            //     [styles.current]: value == 0
+                                            // })}
+                                            style={{
+                                                color,
+                                            }}
                                         >{value}</div>
                                     )
                                 }

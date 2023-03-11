@@ -518,6 +518,8 @@ i18n
                     'template': 'Template',
                     'query_and_update': 'Query and Update',
                     'update_data': 'Update Data',
+                    'context': 'Context',
+                    'json_view': 'JSON View',
                 }
             },
             zh: {
@@ -1028,6 +1030,8 @@ i18n
                     'template': '模板',
                     'query_and_update': '查询并更新',
                     'update_data': '更新数据',
+                    'context': '上下文',
+                    'json_view': 'JSON 查看',
                 }
             }
         },
