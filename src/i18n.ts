@@ -522,6 +522,7 @@ i18n
                     'json_view': 'JSON View',
                     'http.response': 'Response',
                     'http.request': 'Request',
+                    'http.method': 'Method',
                 }
             },
             zh: {
@@ -1036,6 +1037,7 @@ i18n
                     'json_view': 'JSON 查看',
                     'http.response': '响应',
                     'http.request': '请求',
+                    'http.method': '方法',
                 }
             }
         },

@@ -18,6 +18,7 @@ import moment from 'moment';
 import { getGlobalConfig } from '@/config';
 import { VSplit } from '@/components/v-space';
 import { _if } from '@/views/db-manager/utils/helper';
+import { SearchUtil } from '@/utils/search';
 // import { saveAs } from 'file-saver'
 
 function Content({ item, showInfo = false }) {
@@ -132,6 +133,7 @@ export function HttpProxy({ onClickItem }) {
     const [createForm] = Form.useForm()
     const [connecting, setConnecting] = useState(false)
     const [connected, setConnected] = useState(false)
+    const [keyword, setKeyword] = useState('')
     const [content, setContent] = useState('')
     const [wsStatus, setWsStatus] = useState('disconnected')
     const [serverConfig, setServerConfig] = useState({})
@@ -140,6 +142,13 @@ export function HttpProxy({ onClickItem }) {
         connectionId: '',
         webSocketId: '',
     })
+
+    const filteredLogs = useMemo(() => {
+        return SearchUtil.search(logs, keyword, {
+            attributes: ['request.host'],
+            // dataIndex: ['Spec', 'Name'],
+        })
+    }, [logs, keyword])
 
     useEffect(() => {
         initWebSocket()
@@ -416,7 +425,8 @@ export function HttpProxy({ onClickItem }) {
                                 </Space>
                                 {type == 'https' &&
                                     <div className={styles.rooBox}>
-                                        <div className={styles.help}>HTTPs 代理需安装并信任自签名根证书</div>
+                                        <div className={styles.help}>HTTPs 代理需安装并信任自签名根证书。浏览器会提示不安全，需要在
+                                        chrome://flags/#chrome-root-store-enabled 禁用选项才可以在浏览器上正常访问网站。</div>
 
                                         <Button onClick={downloadRoot}>下载证书</Button>
                                     </div>
@@ -542,7 +552,16 @@ export function HttpProxy({ onClickItem }) {
 
                     <VSplit size={16} />
                     
-                    <div>
+                    <Space>
+                        <Input
+                            value={keyword}
+                            onChange={e => {
+                                setKeyword(e.target.value)
+                            }}
+                            size="small"
+                            placeholder={t('filter')}
+                            allowClear
+                        />
                         <Button
                             danger
                             size="small"
@@ -553,11 +572,11 @@ export function HttpProxy({ onClickItem }) {
                         >
                             {t('clear')}
                         </Button>
-                    </div>
+                    </Space>
                     <VSplit size={8} />
                     <Table
                         loading={loading}
-                        dataSource={logs}
+                        dataSource={filteredLogs}
                         bordered
                         size="small"
                         // pagination={false}
@@ -615,7 +634,7 @@ export function HttpProxy({ onClickItem }) {
                             //     }
                             // },
                             {
-                                title: t('method'),
+                                title: t('http.method'),
                                 dataIndex: ['request', 'method'],
                                 // key: 'method',
                                 width: 80,

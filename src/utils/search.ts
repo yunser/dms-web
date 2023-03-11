@@ -1,6 +1,7 @@
 // class SearchHelp {
 
 // }
+import _ from 'lodash'
 
 interface SearchOpts {
     attributes?: string[]
@@ -36,7 +37,7 @@ export const SearchUtil = {
         const lKw = keyword.toLowerCase()
         return list.filter(item => {
             for (let attr of attributes) {
-                if (('' + item[attr]).includes(lKw)) {
+                if (('' + _.get(item, attr)).includes(lKw)) {
                     return true
                 }
             }
