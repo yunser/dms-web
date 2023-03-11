@@ -135,7 +135,16 @@ export function HttpProxy({ onClickItem }) {
         initWebSocket()
     }, [])
 
-    
+    async function downloadRoot() {
+        let res = await request.post(`${config.host}/https/proxy/getRootCert`, {})
+        if (res.success) {
+            // message.success(t('success'))
+            const code = res.data.cert
+            const blob = new Blob([code], {type: 'text/plain'})
+            saveAs(blob, `DMS-root.crt`)
+        }
+    }
+
     async function ping() {
         const values = await targetForm.validateFields()
         let res = await request.post(`${config.host}/socket/udp/serverSend`, {
@@ -240,6 +249,7 @@ export function HttpProxy({ onClickItem }) {
                 setServerConfig({
                     host: host,
                     port: port,
+                    // isTls: 
                 })
                 setLogs(list => {
                     // console.log('list.length', list.length)
@@ -394,9 +404,13 @@ export function HttpProxy({ onClickItem }) {
                                         {t('close')}
                                     </Button>
                                 </Space>
-                                <div>
-                                    
-                                </div>
+                                {type == 'https' &&
+                                    <div className={styles.rooBox}>
+                                        <div className={styles.help}>HTTPs 代理需安装并信任自签名根证书</div>
+
+                                        <Button onClick={downloadRoot}>下载证书</Button>
+                                    </div>
+                                }
         
                                 {/* <Button
                                     // loading={connecting}
@@ -524,6 +538,7 @@ export function HttpProxy({ onClickItem }) {
                             size="small"
                             onClick={() => {
                                 setLogs([])
+                                setDetailItem(null)
                             }}
                         >
                             {t('clear')}
@@ -601,12 +616,14 @@ export function HttpProxy({ onClickItem }) {
                             {
                                 title: t('host'),
                                 dataIndex: ['request', 'host'],
-                                width: 240,
+                                width: 320,
+                                ellipsis: true,
                             },
                             {
                                 title: t('path'),
                                 dataIndex: ['request', 'path'],
-                                width: 80,
+                                width: 400,
+                                ellipsis: true,
                             },
                             {
                                 title: t('result'),

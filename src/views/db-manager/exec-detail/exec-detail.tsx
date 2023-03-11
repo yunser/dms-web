@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { CopyButton } from '../copy-button';
 import { ExecModal } from '../exec-modal/exec-modal';
-import saveAs from 'file-saver';
+import saveAs from 'file-saver'
 import { DownloadOutlined } from '@ant-design/icons';
 import { t } from 'i18next';
 import { RowDetailModal } from '../sql-row-detail-modal/sql-row-detail-modal';
