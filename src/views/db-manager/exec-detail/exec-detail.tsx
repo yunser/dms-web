@@ -7,7 +7,7 @@ import _ from 'lodash';
 import classNames from 'classnames'
 // console.log('lodash', _)
 import copy from 'copy-to-clipboard';
-import { CheckCircleOutlined, CloseCircleOutlined, CopyOutlined, EllipsisOutlined, EyeOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, CloseCircleOutlined, CopyOutlined, EllipsisOutlined, EyeOutlined, FullscreenOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { CopyButton } from '../copy-button';
@@ -397,6 +397,7 @@ export function ExecDetail(props) {
     const [list, setList] = useState([])
     const [filterKeyword, setFilterKeyword] = useState('')
     const [filterColKeyword, setFilterColKeyword] = useState('')
+    const [isFull] = useState(true)
     useEffect(() => {
         const list = results.map((result, rowIdx) => {
             let item = {
@@ -1062,7 +1063,7 @@ export function ExecDetail(props) {
     }, [filterColKeyword, columns])
 
 	return (
-        <div className={styles.resultBox}>
+        <div className={classNames(styles.resultBox, isFull ? styles.full : '')}>
             {/* ExecDetail */}
             {/* <div>
             </div> */}
@@ -1218,6 +1219,15 @@ export function ExecDetail(props) {
                                 >
                                     Export CSV
                                 </Button> */}
+                                {/* <IconButton
+                                    tooltip={t('fullscreen')}
+                                    onClick={() => {
+                                        // setAllList(allList.filter(_item => _item.id != item.id))
+                                        setIsFull(true)
+                                    }}
+                                >
+                                    <FullscreenOutlined />   
+                                </IconButton> */}
                             </Space>
                             <Space>
                                 <Input.Search

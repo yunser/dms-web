@@ -518,6 +518,18 @@ export function HttpProxy({ onClickItem }) {
 
                     <VSplit size={16} />
                     
+                    <div>
+                        <Button
+                            danger
+                            size="small"
+                            onClick={() => {
+                                setLogs([])
+                            }}
+                        >
+                            {t('clear')}
+                        </Button>
+                    </div>
+                    <VSplit size={8} />
                     <Table
                         loading={loading}
                         dataSource={logs}
@@ -589,7 +601,7 @@ export function HttpProxy({ onClickItem }) {
                             {
                                 title: t('host'),
                                 dataIndex: ['request', 'host'],
-                                width: 80,
+                                width: 240,
                             },
                             {
                                 title: t('path'),
