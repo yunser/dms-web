@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { AppstoreOutlined, CodeOutlined, CreditCardOutlined, DatabaseOutlined, DownloadOutlined, EditOutlined, EllipsisOutlined, FileOutlined, FileSearchOutlined, FileWordOutlined, FolderOutlined, HomeOutlined, LeftOutlined, LinkOutlined, PlusOutlined, ReloadOutlined, UploadOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, CodeOutlined, CreditCardOutlined, DatabaseOutlined, DownloadOutlined, EditOutlined, EllipsisOutlined, FileOutlined, FileSearchOutlined, FileWordOutlined, FolderAddOutlined, FolderOutlined, HomeOutlined, LeftOutlined, LinkOutlined, PlusOutlined, ReloadOutlined, UploadOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
@@ -1215,6 +1215,15 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                 <PlusOutlined />
                             </IconButton>
                         </Dropdown>
+                        {/* <IconButton
+                            tooltip={t('folder')}
+                            onClick={() => {
+                                setFolderVisible(true)
+                                setFolderType('FOLDER')
+                            }}
+                        >
+                            <FolderAddOutlined />
+                        </IconButton> */}
                         {sourceType == 'local' &&
                             <IconButton
                                 tooltip={t('terminal.open_in_terminal')}

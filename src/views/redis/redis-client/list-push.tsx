@@ -215,7 +215,6 @@ export function DatabaseModal({ config, type, redisKey, connectionId, item, onCl
                 else if (type == 'stream') {
                     if (editType == 'create') {
                         const fields = values.content.split('\n')
-                        console.log('fields', fields)
                         let ret = await request.post(`${config.host}/redis/xadd`, {
                             key: redisKey,
                             connectionId,

@@ -244,7 +244,8 @@ function SqlBox({ config, tabViewId, event$, databaseType, connectionId, onJson,
             let tableName = null
             let dbName = null
             try {
-                const ast = SqlParser.parse(rawLine.replace(/`/g, '').replace(/'/g, '').replace(/"/g, ''));
+                const _sql = rawLine.replace(/`/g, '').replace(/'/g, '').replace(/"/g, '')
+                const ast = SqlParser.parse(_sql)
                 // console.log('ast', ast)
                 if (ast[0]) {
                     if (!ast[0].joinmap) {

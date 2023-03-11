@@ -421,7 +421,7 @@ export function SqlTree({ databaseType, curConnect, config, event$, connectionId
         else {
             request.post(`${config.host}/mysql/execSql`, {
                 connectionId,
-                sql: `USE ${schemaName}`,
+                sql: `USE \`${schemaName}\``,
             })
         }
         event$.emit({

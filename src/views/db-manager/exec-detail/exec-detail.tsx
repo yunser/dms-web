@@ -576,7 +576,6 @@ export function ExecDetail(props) {
                 if (updatedFields.length) {
                     if (pkColIdx == -1) {
                         message.error('找不到表格主键')
-                        console.log('row', row)
                         throw new Error('找不到表格主键')
                         return
                     }
@@ -791,6 +790,9 @@ export function ExecDetail(props) {
             function getValue(value) {
                 if (typeof value == 'number') {
                     return `${value}`
+                }
+                if (value === null) {
+                    return `NULL`
                 }
                 return `'${value}'`
             }
