@@ -24,7 +24,7 @@
             height: 0;
         }
         .layoutRightBottom {
-            flex: 0 0 400px;
+            flex: 0 0 480px;
             height: 0;
             overflow: auto;
             padding: 0 16px 16px 16px;
@@ -79,13 +79,14 @@
         .key {
             margin-right: 8px;
             font-weight: bold;
+            white-space: nowrap;
         }
         .value {
 
         }
     }
     .contentPre {
-        margin-top: 16px;
+        // margin-top: 16px;
         margin-bottom: 0;
         border: 1px solid var(--border-color);
         padding: 8px;
@@ -125,5 +126,23 @@
     margin-top: 80px;
     .help {
         margin-bottom: 16px;
+    }
+}
+.requestBox {
+    display: flex;
+    // height: 100%;
+    // border: 1px solid #000;
+    & > .left {
+        flex: 1 0 auto;
+        width: 0;
+        // border: 1px solid #000;
+        overflow: auto;
+        border-right: 1px solid var(--border-color);
+    }
+    & > .right {
+        flex: 1 0 auto;
+        width: 0;
+        padding-left: 16px;
+        // border: 1px solid #000;
     }
 }

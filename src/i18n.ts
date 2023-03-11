@@ -520,6 +520,8 @@ i18n
                     'update_data': 'Update Data',
                     'context': 'Context',
                     'json_view': 'JSON View',
+                    'http.response': 'Response',
+                    'http.request': 'Request',
                 }
             },
             zh: {
@@ -1032,6 +1034,8 @@ i18n
                     'update_data': '更新数据',
                     'context': '上下文',
                     'json_view': 'JSON 查看',
+                    'http.response': '响应',
+                    'http.request': '请求',
                 }
             }
         },

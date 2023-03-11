@@ -21,6 +21,7 @@ import { _if } from '@/views/db-manager/utils/helper';
 // import { saveAs } from 'file-saver'
 
 function Content({ item, showInfo = false }) {
+    const { t } = useTranslation()
     const [type, setType] = useState('request')
     return (
         <div className={styles.contentBox}>
@@ -28,11 +29,11 @@ function Content({ item, showInfo = false }) {
                 activeKey={type}
                 items={[
                     {
-                        label: 'request',
+                        label: t('http.request'),
                         key: 'request',
                     },
                     {
-                        label: 'response',
+                        label: t('http.response'),
                         key: 'response',
                     },
                     ..._if(!!item.connect, {
@@ -47,20 +48,23 @@ function Content({ item, showInfo = false }) {
             {type == 'request' &&
                 <div>
                     {!!item.request &&
-                        <div>
-                            <div>{item.request.method} {item.request.path} HTTP/{item.request.httpVersion}</div>
-                            <div className={styles.headers}>
-                                {item.request.headers.map(header => {
-                                    return (
-                                        <div className={styles.item}>
-                                            <div className={styles.key}>{header.key}</div>
-                                            <div className={styles.value}>{header.value}</div>
-                                        </div>
-                                    )
-                                })}
+                        <div className={styles.requestBox}>
+                            <div className={styles.left}>
+                                <div>{item.request.method} {item.request.path} HTTP/{item.request.httpVersion}</div>
+                                <div className={styles.headers}>
+                                    {item.request.headers.map(header => {
+                                        return (
+                                            <div className={styles.item}>
+                                                <div className={styles.key}>{header.key}</div>
+                                                <div className={styles.value}>{header.value}</div>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
                             </div>
-                            <div></div>
-                            <pre className={styles.contentPre}>{item.request.content}</pre>
+                            <div className={styles.right}>
+                                <pre className={styles.contentPre}>{item.request.content}</pre>
+                            </div>
                         </div>
                     }
                 </div>
@@ -68,19 +72,25 @@ function Content({ item, showInfo = false }) {
             {type == 'response' &&
                 <div>
                     {!!item.response &&
-                        <div className={styles.headers}>
-                            <div>HTTP/{item.response.httpVersion} {item.response.statusCode} {item.response.statusMessage}</div>
-                            <div className={styles.headers}>
-                                {item.response.headers.map(header => {
-                                    return (
-                                        <div className={styles.item}>
-                                            <div className={styles.key}>{header.key}</div>
-                                            <div className={styles.value}>{header.value}</div>
-                                        </div>
-                                    )
-                                })}
+                        <div className={styles.requestBox}>
+                            <div className={styles.left}>
+                                <div className={styles.headers}>
+                                    <div>HTTP/{item.response.httpVersion} {item.response.statusCode} {item.response.statusMessage}</div>
+                                    <div className={styles.headers}>
+                                        {item.response.headers.map(header => {
+                                            return (
+                                                <div className={styles.item}>
+                                                    <div className={styles.key}>{header.key}</div>
+                                                    <div className={styles.value}>{header.value}</div>
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                </div>
                             </div>
-                            <pre className={classNames(styles.contentPre)}>{item.response.content}</pre>
+                            <div className={styles.right}>
+                                <pre className={classNames(styles.contentPre)}>{item.response.content}</pre>
+                            </div>
                         </div>
                     }
                 </div>
