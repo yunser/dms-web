@@ -45,10 +45,10 @@ import { getGlobalConfig } from '@/config';
 const { TabPane } = Tabs;
 
 const MethodKey = {
-    Get: 'get',
-    Post: 'post',
-    Put: 'put',
-    Delete: 'delete',
+    Get: 'GET',
+    Post: 'POST',
+    Put: 'PUT',
+    Delete: 'DELETE',
 };
 
 function MyTable({ dataSource = [], columns = [], onChange }) {
@@ -431,7 +431,8 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
             return
         }
         setLoading(true);
-        let _headers = {};
+        let _headers = {}
+        console.log('method', method)
         if (method === MethodKey.Post) {
             _headers = {
                 'Content-Type': 'application/json',
@@ -447,8 +448,8 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
             // }
             _url += `?${qs.stringify(qureies)}`
         }
-        _headers = keyValueList2Obj(headers)
         console.log('_headers', _headers)
+        const headerObj = keyValueList2Obj(headers)
         // const res = await axiosRequest({
         //     url: _url,
         //     method: method,
@@ -467,7 +468,8 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
         let res = await request.post(`${config.host}/http/proxyNew`, {
             url: _url,
             method: method,
-            headers: _headers,
+            headers: headerObj,
+            body,
         })
         console.log('info', res.data)
         console.log('res', res)
@@ -546,23 +548,23 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
                     options={[
                         {
                             label: 'GET',
-                            value: 'get',
+                            value: 'GET',
                         },
                         {
                             label: 'POST',
-                            value: 'post',
+                            value: 'POST',
                         },
                         {
                             label: 'PUT',
-                            value: 'put',
+                            value: 'PUT',
                         },
                         {
                             label: 'DELETE',
-                            value: 'delete',
+                            value: 'DELETE',
                         },
                         {
                             label: 'OPTIONS',
-                            value: 'options',
+                            value: 'OPTIONS',
                         },
                     ]}
                     onChange={(value) => {
