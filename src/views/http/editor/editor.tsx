@@ -54,6 +54,46 @@ const MethodKey = {
     Delete: 'DELETE',
 };
 
+function ResponseBody({ response }) {
+    const [type, setType] = useState('pretty')
+
+    const prettyText = useMemo(() => {
+        let text = response.text
+        console.log('response.text', response.text)
+        try {
+            text = JSON.stringify(JSON.parse(response.text), null, 4)
+        }
+        catch (err) {
+            console.log('err', err)
+            // nothing
+        }
+        return text
+    }, [response.text])
+
+    return (
+        <div className={styles.responseBodyBox}>
+            <div className={styles.type}>
+                <Radio.Group
+                    value={type}
+                    onChange={e => {
+                        setType(e.target.value)
+                    }}
+                    size="small"
+                >
+                    <Radio.Button value="pretty">pretty</Radio.Button>
+                    <Radio.Button value="raw">raw</Radio.Button>
+                </Radio.Group>
+            </div>
+            {type == 'pretty' &&
+                <Input.TextArea value={prettyText} rows={16} />
+            }
+            {type == 'raw' &&
+                <Input.TextArea value={response.text} rows={16} />
+            }
+        </div>
+    )
+}
+
 function MyTable({ dataSource = [], columns = [], onChange }) {
     console.log('MyTable.render')
     return (
@@ -63,7 +103,7 @@ function MyTable({ dataSource = [], columns = [], onChange }) {
                 <thead>
                     <tr>
                         <th>{t('key')}</th>
-                        <th>{t('key')}</th>
+                        <th>{t('value')}</th>
                         <th>{t('description')}</th>
                         <th></th>
                     </tr>
@@ -494,6 +534,9 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
                 text: data.data,
                 time: new Date().getTime() - startTime.getTime(),
                 headers: keyValueObj2List(data.headers)
+                    .sort((h1, h2) => {
+                        return h1.key.localeCompare(h2.key)
+                    })
             });
         }
 
@@ -755,7 +798,9 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
                                 </div>
                                 {/* <div>Size: ?ms</div> */}
                                 {resTab == 'body' &&
-                                    <Input.TextArea value={response.text} rows={16} />
+                                    <ResponseBody
+                                        response={response}
+                                    />
                                 }
                                 {resTab == 'headers' &&
                                     <div>
