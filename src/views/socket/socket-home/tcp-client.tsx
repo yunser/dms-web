@@ -49,6 +49,7 @@ export function TcpClient({  }) {
     const [serverConfig, setServerConfig] = useState({})
     const [sendType, setSendType] = useState('text')
     const [hexFormat, setHexFormat] = useState(false)
+    const [endOfLineType, setEndOfLineType] = useState('lf')
     const comData = useRef({
         connectTime: 0,
         connectionId: '',
@@ -166,7 +167,7 @@ export function TcpClient({  }) {
                             id: data.id,
                             // message: msg.message,
                             time: data.time,
-                            type: data.type,
+                            type: 'connected',
                             content: t('tcp_connected') +  ` ${data.host}:${data.port}`,
                         },
                         ...logs,
@@ -182,7 +183,7 @@ export function TcpClient({  }) {
                             id: data.id,
                             // message: msg.message,
                             time: data.time,
-                            type: data.type,
+                            type: 'disconnected',
                             content: t('tcp_disconnected'),
                         },
                         ...logs,
@@ -276,7 +277,8 @@ export function TcpClient({  }) {
         // 就是回车(CR, ASCII 13, \r) 换行(LF, ASCII 10, \n)。
         // 换行在有的ASCII码表也用newline（简nl）来进行表示,这里的lf是line feed的概念，意思是一样的。
         // _send(content.replace(/\n/g, '\r\n'))
-        _send(content)
+        const _sendContent = endOfLineType == 'lf' ? content : content.replace(/\n/g, '\r\n')
+        _send(_sendContent)
     }
 
     async function disconnect() {
@@ -345,23 +347,63 @@ export function TcpClient({  }) {
                             </div>
                             <VSplit size={8} />
                             <LeftRightLayout>
-                                <Button
-                                    // loading={connecting}
-                                    type="primary"
-                                    size="small"
-                                    onClick={send}
-                                >
-                                    {t('send')}
-                                </Button>
                                 <Space>
                                     <Button
                                         // loading={connecting}
-                                        // type="primary"
+                                        type="primary"
+                                        size="small"
+                                        onClick={send}
+                                    >
+                                        {t('send')}
+                                    </Button>
+                                    <Popover
+                                        title={t('template')}
+                                        content={
+                                            <div className={styles.popoverContent}>
+                                                <Space>
+                                                    <Button
+                                                        onClick={() => {
+                                                            setContent(`GET / HTTP/1.1\nhost: ${serverConfig.host}:${serverConfig.port}\n\n`)
+                                                            setEndOfLineType('crlf')
+                                                        }}
+                                                    >HTTP Request</Button>
+                                                    {/* <Button
+                                                        onClick={() => {
+                                                            setContent(tpl_http_response_404)
+                                                        }}
+                                                    >HTTP Response 404</Button> */}
+                                                    <Button
+                                                        onClick={() => {
+                                                            setContent('ping')
+                                                            // setEndOfLineType('crlf')
+                                                        }}
+                                                    >ping</Button>
+                                                </Space>
+                                            </div>
+                                        }
+                                    >
+                                        <Button
+                                            size="small"
+                                        >
+                                            {t('template')}
+                                        </Button>
+                                    </Popover>
+                                </Space>
+                                <Space>
+                                    <Tag
+                                        className={styles.endOfLineTag}
+                                        onClick={() => {
+                                            if (endOfLineType == 'lf') {
+                                            }
+                                            setEndOfLineType(endOfLineType == 'lf' ? 'crlf' : 'lf')
+                                        }}
+                                    >{endOfLineType.toUpperCase()}</Tag>
+                                    {/* <Button
                                         size="small"
                                         onClick={ping}
                                     >
                                         {t('ping')}
-                                    </Button>
+                                    </Button> */}
                                     <Select
                                         size="small"
                                         className={styles.sendType}
@@ -504,6 +546,10 @@ export function TcpClient({  }) {
                                         {(item.type == 'sent' || item.type == 'message') ?
                                             <Content item={item} />
                                             // <pre className={classNames(styles.content, styles[item.type])}>{value}</pre>
+                                        : item.type == 'disconnected' ?
+                                            <div style={{ color: 'red' }}>{value}</div>
+                                        : item.type == 'connected' ?
+                                            <div style={{ color: 'green' }}>{value}</div>
                                         :
                                             <div>{value}</div>
                                         }
