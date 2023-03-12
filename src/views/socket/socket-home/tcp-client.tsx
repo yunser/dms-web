@@ -18,6 +18,8 @@ import moment from 'moment';
 import { getGlobalConfig } from '@/config';
 import { VSplit } from '@/components/v-space';
 import { LeftRightLayout } from '@/components/left-right-layout';
+import storage from '@/utils/storage';
+import { uid } from 'uid';
 // import { saveAs } from 'file-saver'
 
 
@@ -50,6 +52,24 @@ export function TcpClient({  }) {
     const [sendType, setSendType] = useState('text')
     const [hexFormat, setHexFormat] = useState(false)
     const [endOfLineType, setEndOfLineType] = useState('lf')
+    const [connections, setConnections] = useState([
+        {
+            id: '1',
+            host: 'hello.yunser.com',
+            port: 80,
+        },
+        // {
+        //     id: '2',
+        //     host: '127.0.0.1',
+        //     port: 1465,
+        // },
+    ])
+    useEffect(() => {
+        const list = storage.get('tcp_connections', [])
+        if (list.length) {
+            setConnections(list)
+        }
+    }, [])
     const comData = useRef({
         connectTime: 0,
         connectionId: '',
@@ -172,6 +192,22 @@ export function TcpClient({  }) {
                         },
                         ...logs,
                     ]
+                })
+                // console.log('connections', )
+                // setConnections
+                setConnections(connections => {
+                    console.log('connections', connections)
+                    const newConnections = connections.filter(item => {
+                        return !(item.host == data.host && item.port == data.port)
+                    })
+                    newConnections.unshift({
+                        id: uid(16),
+                        host: data.host,
+                        port: data.port,
+                    })
+                    storage.set('tcp_connections', newConnections)
+                    // setConnections(newConnections)
+                    return newConnections
                 })
             }
             else if (msg.type == 'disconnected') {
@@ -428,61 +464,80 @@ export function TcpClient({  }) {
     
                     </div>
                 :
-                    <div className={styles.form}>
-                        <Form
-                            form={form}
-                            labelCol={{ span: 8 }}
-                            wrapperCol={{ span: 16 }}
-                            initialValues={{
-                                host: '127.0.0.1',
-                                port: 1465,
-                                isTls: true,
-                            }}
-                            // layout={{
-                            //     labelCol: { span: 0 },
-                            //     wrapperCol: { span: 24 },
-                            // }}
-                        >
-                            <Form.Item
-                                name="host"
-                                label={t('host')}
-                                rules={[ { required: true, }, ]}
+                    <div>
+                        <div className={styles.form}>
+                            <Form
+                                form={form}
+                                labelCol={{ span: 8 }}
+                                wrapperCol={{ span: 16 }}
+                                initialValues={{
+                                    host: '127.0.0.1',
+                                    port: 1465,
+                                    isTls: true,
+                                }}
+                                // layout={{
+                                //     labelCol: { span: 0 },
+                                //     wrapperCol: { span: 24 },
+                                // }}
                             >
-                                <Input />
-                            </Form.Item>
-                            <Form.Item
-                                name="port"
-                                label={t('port')}
-                                rules={[ { required: true, }, ]}
-                            >
-                                <InputNumber />
-                            </Form.Item>
-                            <Form.Item
-                                name="tls"
-                                label={t('tls')}
-                                // rules={[ { required: true, }, ]}
-                                valuePropName="checked"
-                            >
-                                <Checkbox></Checkbox>
-                            </Form.Item>
-                            <Form.Item
-                                wrapperCol={{ offset: 8, span: 16 }}
-                                // extra="only support TCP"
-                                // name="passowrd"
-                                // label="Passowrd"
-                                // rules={[{ required: true, },]}
-                            >
-                                <Space>
-                                    <Button
-                                        loading={connecting}
-                                        type="primary"
-                                        onClick={connect}
+                                <Form.Item
+                                    name="host"
+                                    label={t('host')}
+                                    rules={[ { required: true, }, ]}
+                                >
+                                    <Input />
+                                </Form.Item>
+                                <Form.Item
+                                    name="port"
+                                    label={t('port')}
+                                    rules={[ { required: true, }, ]}
+                                >
+                                    <InputNumber />
+                                </Form.Item>
+                                <Form.Item
+                                    name="tls"
+                                    label={t('tls')}
+                                    // rules={[ { required: true, }, ]}
+                                    valuePropName="checked"
+                                >
+                                    <Checkbox></Checkbox>
+                                </Form.Item>
+                                <Form.Item
+                                    wrapperCol={{ offset: 8, span: 16 }}
+                                    // extra="only support TCP"
+                                    // name="passowrd"
+                                    // label="Passowrd"
+                                    // rules={[{ required: true, },]}
+                                >
+                                    <Space>
+                                        <Button
+                                            loading={connecting}
+                                            type="primary"
+                                            onClick={connect}
+                                        >
+                                            {t('connect')}
+                                        </Button>
+                                    </Space>
+                                </Form.Item>
+                            </Form>
+                        </div>
+                        <div className={styles.connections}>
+                            {connections.map(item => {
+                                return (
+                                    <div className={styles.item}
+                                        key={item.id}
+                                        onClick={() => {
+                                            form.setFieldsValue({
+                                                host: item.host,
+                                                port: item.port,
+                                            })
+                                        }}
                                     >
-                                        {t('connect')}
-                                    </Button>
-                                </Space>
-                            </Form.Item>
-                        </Form>
+                                        {item.host}:{item.port}
+                                    </div>
+                                )
+                            })}
+                        </div>
                     </div>
                 }
             </div>
