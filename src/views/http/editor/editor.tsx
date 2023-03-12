@@ -748,11 +748,33 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
                                                 ])
                                             }
                                         }
+                                        if (value == 'raw') {
+                                            const fContentType = headers.find(item => item.key.toLowerCase() == 'content-type')
+                                            console.log('fContentType', fContentType)
+                                            if (!fContentType) {
+                                                setHeaders([
+                                                    ...headers,
+                                                    {
+                                                        key: 'Content-Type',
+                                                        value: 'text/plain',
+                                                        description: '',
+                                                    }
+                                                ])
+                                            }
+                                        }
+                                        if (value == 'none') {
+                                            const fContentType = headers.find(item => item.key.toLowerCase() == 'content-type')
+                                            console.log('fContentType', fContentType)
+                                            if (fContentType) {
+                                                setHeaders(headers.filter(item => item.key.toLowerCase() != 'content-type'))
+                                            }
+                                        }
                                     }}
                                     value={bodyType}
                                 >
                                     <Radio value="none">{t('http.none')}</Radio>
                                     <Radio value="json">{t('json')}</Radio>
+                                    <Radio value="raw">{t('http.raw')}</Radio>
                                 </Radio.Group>
                             </div>
                             {bodyType == 'none' ?
