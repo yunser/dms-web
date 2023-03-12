@@ -45,7 +45,7 @@ import { Filter, Filters } from '@/components/filters'
 import { CommonTable } from '@/components/table/table';
 import fileSize from 'filesize'
 import work from 'webworkify-webpack';
-import { HttpEditor } from '../editor';
+import { HttpClient } from '../editor';
 import {
     BrowserRouter as Router,
     Routes,
@@ -140,7 +140,7 @@ export function Viewer() {
                 
             </div>
 
-            <HttpEditor
+            <HttpClient
                 host={host}
             />
 

@@ -39,6 +39,7 @@ import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { ReloadOutlined } from '@ant-design/icons';
 import { useEventEmitter } from 'ahooks';
+import { getGlobalConfig } from '@/config';
 
 // const Confirm = 
 const { TabPane } = Tabs;
@@ -308,6 +309,7 @@ async function axiosRequest(params) {
 
 function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
     
+    const config = getGlobalConfig()
     const [method, _setMethod] = useState(api.method || MethodKey.Get);
     function setMethod(method) {
         _setMethod(method)
@@ -447,15 +449,38 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
         }
         _headers = keyValueList2Obj(headers)
         console.log('_headers', _headers)
-        const res = await axiosRequest({
+        // const res = await axiosRequest({
+        //     url: _url,
+        //     method: method,
+        //     headers: _headers,
+        //     // method,
+        //     // url,
+        //     // body,
+        //     // headers,
+        // })
+        setResponse({
+            status: '',
+            text: '',
+            time: '',
+            headers: []
+        });
+        let res = await request.post(`${config.host}/http/proxyNew`, {
             url: _url,
             method: method,
             headers: _headers,
-            // method,
-            // url,
-            // body,
-            // headers,
         })
+        console.log('info', res.data)
+        console.log('res', res)
+        if (res.success) {
+            // setServiceInfo(res.data)
+            const data = res.data
+            setResponse({
+                status: data.status,
+                text: data.data,
+                time: new Date().getTime() - startTime.getTime(),
+                headers: keyValueObj2List(data.headers)
+            });
+        }
 
         // fetch(apiDomain + '/http/agent', {
         //     method: 'POST',
@@ -482,13 +507,7 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
         // }
         // apiDomain
         // if (typeof res.data == )
-        console.log('res', res)
-        setResponse({
-            status: res.status,
-            text: res.request.responseText,
-            time: new Date().getTime() - startTime.getTime(),
-            headers: keyValueObj2List(res.headers)
-        });
+        
         // console.log('data.data', `=${data.data}=`)
         setLoading(false);
     }
@@ -692,11 +711,14 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
                                 {resTab == 'headers' &&
                                     <div>
                                         <Table
+                                            size="small"
+                                            bordered
                                             dataSource={response.headers}
                                             columns={[
                                                 {
                                                     title: 'Key',
                                                     dataIndex: 'key',
+                                                    width: 240,
                                                 },
                                                 {
                                                     title: 'Value',
@@ -744,7 +766,7 @@ function ServiceStatus() {
     )
 }
 
-export function HttpEditor({ config, host }) {
+export function HttpClient({ config, host }) {
     const { t, i18n } = useTranslation();
     const lang = useMemo(() => {
         if (i18n.language.includes('zh')) {
@@ -816,7 +838,7 @@ export function HttpEditor({ config, host }) {
         })
         console.log('info', res.data)
         if (res.success) {
-            setServiceInfo(res.data)
+            // setServiceInfo(res.data)
         }
     }
 
@@ -826,6 +848,9 @@ export function HttpEditor({ config, host }) {
 
     console.log('Editor.render')
     console.log('Editor.tabs', tabs.length)
+
+    const editable = false
+
     return (
         <div className={styles.editor}>
             {false &&
@@ -855,7 +880,7 @@ export function HttpEditor({ config, host }) {
             }
             <div className={styles.editorContent}>
                 {/* !!host &&  */}
-                {!!serviceInfo &&
+                {!!serviceInfo && false &&
                     <div className={styles.editorLeft}>
                         <Files
                             config={config}

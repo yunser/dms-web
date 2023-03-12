@@ -28,7 +28,7 @@ import { MarkdownEditor } from './markdown'
 import { OssHome } from '../oss/oss-home'
 import { WebDavHome } from '../webdav/webdav-home'
 import { SocketHome } from '../socket/socket-home'
-import { HttpEditor } from '../http/editor'
+import { HttpClient } from '../http/editor'
 import { JsonTable } from '../json/json-table'
 import { AliyunHome } from '../aliyun/aliyun-home'
 import { IpHome } from '../ip/ip-home'
@@ -585,7 +585,7 @@ export function DbManager({ config }) {
         }
         else if (key == 'http-home') {
             addOrActiveTab({
-                title: t('http'),
+                title: t('http_client'),
                 // title: t('http') + `-${(window._fileCount++) + 1}`,
                 // key: 'redis-' + uid(16),
                 key: `http-0`,
@@ -805,6 +805,11 @@ export function DbManager({ config }) {
             group: 'network',
         },
         {
+            label: t('http_client'),
+            key: 'http-home',
+            group: 'network',
+        },
+        {
             label: t('http_server'),
             key: 'http_server',
             group: 'network',
@@ -822,11 +827,6 @@ export function DbManager({ config }) {
         {
             label: t('ip'),
             key: 'ip',
-            group: 'network',
-        },
-        {
-            label: t('http'),
-            key: 'http-home',
             group: 'network',
         },
         {
@@ -1614,7 +1614,7 @@ export function DbManager({ config }) {
                                         />
                                     }
                                     {item.type == 'http-home' &&
-                                        <HttpEditor
+                                        <HttpClient
                                             config={config}
                                             // local={true}
                                             // defaultPath={item.data.path}
