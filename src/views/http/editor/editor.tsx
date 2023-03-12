@@ -406,6 +406,7 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
     // const [ method, setMethod ] = useState('get')
     // const [ url, setUrl ] = useState('https://nodeapi.yunser.com/version')
     // const [ body, setBody ] = useState('')
+    const [responseError, setResponseError] = useState('')
     const [response, setResponse] = useState(null);
     const [loading, setLoading] = useState(false);
     const [params, _setParams] = useState(api.params || [
@@ -474,7 +475,7 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
             message.error(t('pls_input_url'))
             return
         }
-        setLoading(true);
+        
         let _headers = {}
         console.log('method', method)
         if (method === MethodKey.Post) {
@@ -508,8 +509,9 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
             status: '',
             text: '',
             time: '',
-            headers: []
+            headers: [],
         })
+        setResponseError('')
         let _body
         if (bodyType == 'none') {
             _body = ''
@@ -517,14 +519,18 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
         else {
             _body = body
         }
+        setLoading(true)
         let res = await request.post(`${config.host}/http/proxyNew`, {
             url: _url,
             method: method,
             headers: headerObj,
             body: _body,
+        }, {
+            noMessage: true
         })
         console.log('info', res.data)
         console.log('res', res)
+        setLoading(false)
         if (res.success) {
             // setServiceInfo(res.data)
             const data = res.data
@@ -538,6 +544,9 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
                         return h1.key.localeCompare(h2.key)
                     })
             });
+        }
+        else {
+            setResponseError(res.data?.message || 'unknown error')
         }
 
         // fetch(apiDomain + '/http/agent', {
@@ -567,7 +576,7 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
         // if (typeof res.data == )
         
         // console.log('data.data', `=${data.data}=`)
-        setLoading(false);
+        
     }
 
     async function save() {
@@ -764,7 +773,13 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
                 }
             </div>
             <div className={styles.responseBox}>
-                {!!response ?
+                {!!responseError ?
+                    <FullCenterBox>
+                        <div className={styles.errorBox}>
+                            <div>{responseError}</div>
+                        </div>
+                    </FullCenterBox>
+                : !!response ?
                     <div>
                         {loading ? (
                             <FullCenterBox height={320}>
