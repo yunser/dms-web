@@ -314,7 +314,7 @@ export function HttpServer({ onClickItem }) {
                                 </Space>
                                 {type == 'http' ?
                                     <div>
-                                        http://{serverConfig.host}:{serverConfig.port}
+                                        <a href={`http://${serverConfig.host}:${serverConfig.port}`} target="_blank">http://{serverConfig.host}:{serverConfig.port}</a>
                                     </div>
                                 :
                                     <div>

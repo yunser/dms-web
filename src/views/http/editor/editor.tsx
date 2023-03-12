@@ -464,6 +464,7 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
         //     // headers,
         // })
         setResponse({
+            statusText: '',
             status: '',
             text: '',
             time: '',
@@ -489,6 +490,7 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
             const data = res.data
             setResponse({
                 status: data.status,
+                statusText: data.statusText,
                 text: data.data,
                 time: new Date().getTime() - startTime.getTime(),
                 headers: keyValueObj2List(data.headers)
@@ -739,12 +741,12 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
                                     </Tabs>
                                     <Space>
                                         <div>
-                                            Status: 
+                                            Status:{' '}
                                             <span
                                                 style={{
-                                                    color: response.status == 200 ? 'green' : 'red',
+                                                    color: `${response.status}`.startsWith('2') ? 'green' : 'red',
                                                 }}
-                                            >{response.status}</span>
+                                            >{response.status} {response.statusText}</span>
                                             
                                             
                                         </div>
