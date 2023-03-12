@@ -529,6 +529,7 @@ i18n
                     'http.query': 'Query',
                     'http.headers': 'Headers',
                     'http.body': 'Body',
+                    'http.pretty': 'Pretty',
                 }
             },
             zh: {
@@ -1046,10 +1047,11 @@ i18n
                     'http.request': '请求',
                     'http.method': '方法',
                     'http.none': '无',
-                    'http.raw': '原始',
+                    'http.raw': '原始文本',
                     'http.query': '请求参数',
                     'http.headers': '头部',
                     'http.body': '内容',
+                    'http.pretty': '美化',
                 }
             }
         },

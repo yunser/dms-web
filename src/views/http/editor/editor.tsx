@@ -83,16 +83,24 @@ function ResponseBody({ response }) {
                     }}
                     size="small"
                 >
-                    <Radio.Button value="pretty">pretty</Radio.Button>
-                    <Radio.Button value="raw">raw</Radio.Button>
+                    <Radio.Button value="pretty">{t('http.pretty')}</Radio.Button>
+                    <Radio.Button value="raw">{t('http.raw')}</Radio.Button>
                 </Radio.Group>
             </div>
-            {type == 'pretty' &&
-                <Input.TextArea value={prettyText} rows={16} />
-            }
-            {type == 'raw' &&
-                <Input.TextArea value={response.text} rows={16} />
-            }
+            <div className={styles.viewer}>
+                {type == 'pretty' &&
+                    <Input.TextArea 
+                        className={styles.textarea}
+                        value={prettyText}
+                    />
+                }
+                {type == 'raw' &&
+                    <Input.TextArea 
+                        className={styles.textarea}
+                        value={response.text}
+                    />
+                }
+            </div>
         </div>
     )
 }
@@ -928,14 +936,14 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
                         </div>
                     </FullCenterBox>
                 : !!response ?
-                    <div>
+                    <div className={styles.content}>
                         {loading ? (
                             <FullCenterBox height={320}>
                                 <Spin />
                             </FullCenterBox>
                         ) : (
-                            <div>
-                                <div className={styles.header}>
+                            <>
+                                <div className={styles.contentHeader}>
                                     <Tabs
                                         activeKey={resTab}
                                         onChange={key => {
@@ -960,33 +968,35 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
                                     </Space>
                                 </div>
                                 {/* <div>Size: ?ms</div> */}
-                                {resTab == 'body' &&
-                                    <ResponseBody
-                                        response={response}
-                                    />
-                                }
-                                {resTab == 'headers' &&
-                                    <div>
-                                        <Table
-                                            size="small"
-                                            bordered
-                                            dataSource={response.headers}
-                                            columns={[
-                                                {
-                                                    title: 'Key',
-                                                    dataIndex: 'key',
-                                                    width: 240,
-                                                },
-                                                {
-                                                    title: 'Value',
-                                                    dataIndex: 'value',
-                                                },
-                                            ]}
-                                            pagination={false}
+                                <div className={styles.contentBody}>
+                                    {resTab == 'body' &&
+                                        <ResponseBody
+                                            response={response}
                                         />
-                                    </div>
-                                }
-                            </div>
+                                    }
+                                    {resTab == 'headers' &&
+                                        <div className={styles.contentBodyHeader}>
+                                            <Table
+                                                size="small"
+                                                bordered
+                                                dataSource={response.headers}
+                                                columns={[
+                                                    {
+                                                        title: 'Key',
+                                                        dataIndex: 'key',
+                                                        width: 240,
+                                                    },
+                                                    {
+                                                        title: 'Value',
+                                                        dataIndex: 'value',
+                                                    },
+                                                ]}
+                                                pagination={false}
+                                            />
+                                        </div>
+                                    }
+                                </div>
+                            </>
                         )}
                         
                     </div>
