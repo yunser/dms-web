@@ -60,6 +60,13 @@ const MethodKey = {
 function ResponseBody({ response }) {
     const [type, setType] = useState('pretty')
 
+    let contentType = ''
+    const fItem = response.headers.find(item => item.key.toLowerCase() == 'content-type')
+    if (fItem) {
+        contentType = fItem.value
+    }
+    
+    console.log('response?', response)
     const prettyText = useMemo(() => {
         let text = response.text
         console.log('response.text', response.text)
@@ -72,6 +79,14 @@ function ResponseBody({ response }) {
         }
         return text
     }, [response.text])
+
+    if (contentType.startsWith('image')) {
+        return (
+            <div className={styles.responseImgBox}>
+                <img className={styles.img} src={response.__url} />
+            </div>
+        )
+    }
 
     return (
         <div className={styles.responseBodyBox}>
@@ -597,6 +612,7 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
             // setServiceInfo(res.data)
             const data = res.data
             setResponse({
+                __url: _url,
                 status: data.status,
                 statusText: data.statusText,
                 text: data.data,
@@ -971,6 +987,7 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
                                 <div className={styles.contentBody}>
                                     {resTab == 'body' &&
                                         <ResponseBody
+                                            // request={{url}}
                                             response={response}
                                         />
                                     }
