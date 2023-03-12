@@ -19,6 +19,7 @@ import {
     Tree,
     Radio,
     Spin,
+    Tag,
 } from 'antd';
 // import { LikeOutlined, UserOutlined } from '@ant-design/icons';
 // import type { ProSettings } from '@ant-design/pro-layout';
@@ -431,6 +432,21 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
         })
     }
     const [headers, _setHeaders] = useState(api.headers || [
+        {
+            key: 'User-Agent',
+            value: 'DMS/1.0',
+            description: '',
+        },
+        {
+            key: 'Accept',
+            value: '*/*',
+            description: '',
+        },
+        {
+            key: 'Connection',
+            value: 'close',
+            description: '',
+        },
         // {
         //     key: 'Content-Type',
         //     value: 'application/json',
@@ -643,10 +659,49 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
                     value={url}
                     placeholder="URL"
                     onChange={(e) => {
-                        setUrl(e.target.value);
+                        // console.log('url-change', )
+                        const url = e.target.value
+                        setUrl(url)
+                        let urlObj = new URL(url)
+                        if (urlObj.search.length > 1) {
+                            const sp = new URLSearchParams(urlObj.search)
+                            // for (let header of headers) {
+                            //     if (header.key) {
+                            //         sp.set(header.key, header.value)
+                            //     }
+                            // }
+                            const keyMap: any = {}
+                            const newParams: any = []
+                            for (var pair of sp.entries()) {
+                                const [key, value] = pair
+                                // console.log('keyvalue', key, value)
+                                if (key) {
+                                    keyMap[key] = value
+                                    newParams.push({
+                                        key,
+                                        value,
+                                        description: '',
+                                    })
+                                }
+                            }
+                            // console.log('keyMap', keyMap)
+                            // const newParams = [...params]
+                            // for (let header of newParams) {
+                            //     console.log('compare', header, keyMap[header.key])
+                            //     if (keyMap[header.key] && keyMap[header.key] != header.value) {
+                            //         header.value = keyMap[header.key]
+                            //         console.log('change', header.key)
+                            //     }
+                            // }
+                            setParams(newParams)
+                        }
+                        else {
+                            setParams([])
+                        }
                     }}
                     style={{ width: 560 }}
                 />
+                {/* <Tag>HTTP/1.1</Tag> */}
                 <Button
                     className={styles.send}
                     type="primary"
@@ -671,9 +726,9 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
                         setReqTab(key)
                     }}
                 >
-                    <TabPane tab="Params" key="params" />
-                    <TabPane tab="Headers" key="headers" />
-                    <TabPane tab="Body" key="body" />
+                    <TabPane tab={t('http.query')} key="params" />
+                    <TabPane tab={t('http.headers')} key="headers" />
+                    <TabPane tab={t('http.body')} key="body" />
                 </Tabs>
                 {reqTab == 'params' &&
                     <div>
@@ -693,8 +748,28 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
                                     dataIndex: 'description',
                                 },
                             ]}
-                            onChange={data => {
-                                setParams(data)
+                            onChange={newParams => {
+                                // console.log('newParams', newParams)
+                                setParams(newParams)
+                                const urlObj = new URL(url)
+                                // console.log('urlObj', urlObj)
+                                // setUrl
+                                let _newParams = newParams.filter(item => item.key)
+                                // console.log('_newParams', _newParams)
+                                let _search = ''
+                                const sp = new URLSearchParams()
+                                if (_newParams.length) {
+                                    for (let header of _newParams) {
+                                        sp.set(header.key, header.value)
+                                        // if (header.key) {
+                                        // }
+                                    }
+                                    _search = '?' + sp.toString()
+                                }
+                                // console.log('_search', _search)
+                                const newUrl = `${urlObj.origin}${urlObj.pathname}${_search}${urlObj.hash}`
+                                // console.log('newUrl', newUrl)
+                                setUrl(newUrl)
                             }}
                         />
                     </div>

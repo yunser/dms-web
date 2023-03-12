@@ -526,6 +526,9 @@ i18n
                     'http.method': 'Method',
                     'http.none': 'None',
                     'http.raw': 'Raw',
+                    'http.query': 'Query',
+                    'http.headers': 'Headers',
+                    'http.body': 'Body',
                 }
             },
             zh: {
@@ -1044,6 +1047,9 @@ i18n
                     'http.method': '方法',
                     'http.none': '无',
                     'http.raw': '原始',
+                    'http.query': '请求参数',
+                    'http.headers': '头部',
+                    'http.body': '内容',
                 }
             }
         },
