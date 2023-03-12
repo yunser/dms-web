@@ -98,10 +98,51 @@
 }
 .table {
     border-collapse: collapse;
-    td,
-    th {
-        padding: 8px 24px;
-        border: 1px solid rgba(0, 0, 0, .08);
+    .header {
+        text-align: left;
+        td,
+        th {
+            height: 32px;
+            padding: 0 12px;
+            border: 1px solid rgba(0, 0, 0, .08);
+            overflow: hidden;
+        }
+    }
+    .body {
+        td,
+        th {
+            padding: 0;
+            border: 1px solid rgba(0, 0, 0, .08);
+        }
+    }
+    .input {
+        width: 100%;
+        height: 32px;
+        // border: 1px solid #000;
+        border: none;
+        padding: 0 12px;
+        outline: 1px solid #fff;
+        &:focus {
+            outline: 1px solid #000;
+
+        }
+    }
+    .cell {
+        width: 100%;
+        overflow: hidden;
+        // border: 1px solid #000;
+    }
+    .row {
+        &:hover {
+            .removeBtn {
+                width: 64px;
+                visibility: visible;
+            }
+        }
+    }
+    .removeBtn {
+        width: 64px;
+        visibility: hidden;
     }
 }
 .add {

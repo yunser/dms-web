@@ -40,7 +40,7 @@ import styles from './editor.module.less'
 import { t } from 'i18next';
 import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
-import { ReloadOutlined } from '@ant-design/icons';
+import { DeleteOutlined, ReloadOutlined } from '@ant-design/icons';
 import { useEventEmitter } from 'ahooks';
 import { getGlobalConfig } from '@/config';
 import { FullCenterBox } from '@/views/common/full-center-box';
@@ -102,65 +102,82 @@ function MyTable({ dataSource = [], columns = [], onChange }) {
 
             <table className={styles.table}>
                 <thead>
-                    <tr>
-                        <th>{t('key')}</th>
-                        <th>{t('value')}</th>
-                        <th>{t('description')}</th>
+                    <tr className={styles.header}>
+                        <th style={{ width: 240 }}>{t('key')}</th>
+                        <th style={{ width: 240 }}>{t('value')}</th>
+                        <th style={{ width: 320 }}>{t('description')}</th>
                         <th></th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody className={styles.body}>
                     {dataSource.map((item, idx) => {
                         return (
-                            <tr>
+                            <tr className={styles.row}>
                                 <td>
-                                    <Input
-                                        value={item.key}
-                                        onChange={e => {
-                                            dataSource[idx].key = e.target.value
-                                            onChange && onChange([
-                                                ...dataSource,
-                                            ])
-                                        }}
-                                    />
+                                    <div className={styles.cell}>
+                                        <input
+                                            className={styles.input}
+                                            value={item.key}
+                                            onChange={e => {
+                                                dataSource[idx].key = e.target.value
+                                                onChange && onChange([
+                                                    ...dataSource,
+                                                ])
+                                            }}
+                                        />
+                                    </div>
                                 </td>
                                 <td>
-                                    <Input
-                                        value={item.value}
-                                        onChange={e => {
-                                            dataSource[idx].value = e.target.value
-                                            onChange && onChange([
-                                                ...dataSource,
-                                            ])
-                                        }}
-                                    />
+                                    <div className={styles.cell}>
+                                        <input
+                                            className={styles.input}
+                                            value={item.value}
+                                            onChange={e => {
+                                                dataSource[idx].value = e.target.value
+                                                onChange && onChange([
+                                                    ...dataSource,
+                                                ])
+                                            }}
+                                        />
+                                    </div>
                                 </td>
                                 <td>
-                                    <Input
-                                        value={item.description}
-                                        onChange={e => {
-                                            dataSource[idx].description = e.target.value
-                                            onChange && onChange([
-                                                ...dataSource,
-                                            ])
-                                        }}
-                                    />
+                                    <div className={styles.cell}>
+                                        <input
+                                            className={styles.input}
+                                            value={item.description}
+                                            onChange={e => {
+                                                dataSource[idx].description = e.target.value
+                                                onChange && onChange([
+                                                    ...dataSource,
+                                                ])
+                                            }}
+                                        />
+                                    </div>
                                     {/* {item.description} */}
                                 </td>
                                 <td>
-                                    <Button
-                                        onClick={() => {
-                                            dataSource.splice(idx, 1)
-                                            onChange && onChange([
-                                                ...dataSource,
-                                                // {
-                                                //     key: '',
-                                                //     value: '',
-                                                //     description: '',
-                                                // }
-                                            ])
-                                        }}
-                                    >x</Button>
+                                    <div className={styles.cell}>
+                                        <div className={styles.removeBtn}>
+                                            <IconButton
+                                                onClick={() => {
+                                                    dataSource.splice(idx, 1)
+                                                    onChange && onChange([
+                                                        ...dataSource,
+                                                        // {
+                                                        //     key: '',
+                                                        //     value: '',
+                                                        //     description: '',
+                                                        // }
+                                                    ])
+                                                }}
+                                            >
+                                                <DeleteOutlined />
+                                            </IconButton>
+                                        </div>
+                                        {/* <Button
+                                        >x</Button> */}
+                                    </div>
                                 </td>
                             </tr>
                         )
