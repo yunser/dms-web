@@ -17,6 +17,8 @@ import {
     Empty,
     Modal,
     Tree,
+    Radio,
+    Spin,
 } from 'antd';
 // import { LikeOutlined, UserOutlined } from '@ant-design/icons';
 // import type { ProSettings } from '@ant-design/pro-layout';
@@ -40,6 +42,7 @@ import { IconButton } from '@/views/db-manager/icon-button';
 import { ReloadOutlined } from '@ant-design/icons';
 import { useEventEmitter } from 'ahooks';
 import { getGlobalConfig } from '@/config';
+import { FullCenterBox } from '@/views/common/full-center-box';
 
 // const Confirm = 
 const { TabPane } = Tabs;
@@ -357,6 +360,7 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
             }
         })
     }
+    const [bodyType, setBodyType] = useState('none')
     const [reqTab, setReqTab] = useState(api.method == 'GET' ? 'params' : 'body')
     const [resTab, setResTab] = useState('body')
     // const [ method, setMethod ] = useState('get')
@@ -464,12 +468,19 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
             text: '',
             time: '',
             headers: []
-        });
+        })
+        let _body
+        if (bodyType == 'none') {
+            _body = ''
+        }
+        else {
+            _body = body
+        }
         let res = await request.post(`${config.host}/http/proxyNew`, {
             url: _url,
             method: method,
             headers: headerObj,
-            body,
+            body: _body,
         })
         console.log('info', res.data)
         console.log('res', res)
@@ -663,14 +674,46 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
                         {/* {(method === MethodKey.Post || method === MethodKey.Put) && (
                         )} */}
                         <div>
-                            <div className={styles.typeBox}>请求内容（application/json）：</div>
-                            <Input.TextArea
-                                value={body}
-                                rows={8}
-                                onChange={(e) => {
-                                    setBody(e.target.value);
-                                }}
-                            />
+                            {/* <div className={styles.typeBox}>请求内容（application/json）：</div> */}
+                            <div className={styles.typeBox}>
+                                <Radio.Group
+                                    onChange={e => {
+                                        const { value } = e.target
+                                        setBodyType(value)
+                                        if (value == 'json') {
+                                            const fContentType = headers.find(item => item.key.toLowerCase() == 'content-type')
+                                            console.log('fContentType', fContentType)
+                                            if (!fContentType) {
+                                                setHeaders([
+                                                    ...headers,
+                                                    {
+                                                        key: 'Content-Type',
+                                                        value: 'application/json',
+                                                        description: '',
+                                                    }
+                                                ])
+                                            }
+                                        }
+                                    }}
+                                    value={bodyType}
+                                >
+                                    <Radio value="none">{t('http.none')}</Radio>
+                                    <Radio value="json">{t('json')}</Radio>
+                                </Radio.Group>
+                            </div>
+                            {bodyType == 'none' ?
+                                <FullCenterBox height={200}>
+                                    <Empty description="this request dose not hava a body" />
+                                </FullCenterBox>
+                            :
+                                <Input.TextArea
+                                    value={body}
+                                    rows={8}
+                                    onChange={(e) => {
+                                        setBody(e.target.value);
+                                    }}
+                                />
+                            }
                         </div>
                     </div>
                 }
@@ -679,7 +722,9 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
                 {!!response ?
                     <div>
                         {loading ? (
-                            <div>请求中</div>
+                            <FullCenterBox height={320}>
+                                <Spin />
+                            </FullCenterBox>
                         ) : (
                             <div>
                                 <div className={styles.header}>

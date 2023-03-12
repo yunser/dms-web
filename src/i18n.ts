@@ -524,6 +524,7 @@ i18n
                     'http.response': 'Response',
                     'http.request': 'Request',
                     'http.method': 'Method',
+                    'http.none': 'None',
                 }
             },
             zh: {
@@ -1040,6 +1041,7 @@ i18n
                     'http.response': '响应',
                     'http.request': '请求',
                     'http.method': '方法',
+                    'http.none': '无',
                 }
             }
         },
