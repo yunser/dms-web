@@ -583,17 +583,18 @@ export function DbManager({ config }) {
                 },
             })
         }
-        else if (key == 'http-home') {
-            addOrActiveTab({
-                title: t('http_client'),
-                // title: t('http') + `-${(window._fileCount++) + 1}`,
-                // key: 'redis-' + uid(16),
-                key: `http-0`,
-                type: 'http-home',
-                data: {
-                    // url,
-                },
-            })
+        else if (key == 'http-client') {
+            // addOrActiveTab({
+            //     title: t('http_client'),
+            //     // title: t('http') + `-${(window._fileCount++) + 1}`,
+            //     // key: 'redis-' + uid(16),
+            //     key: `http-0`,
+            //     type: 'http-client',
+            //     data: {
+            //         // url,
+            //     },
+            // })
+            window.open('/pages/http/client', '_blank')
         }
         else if (key == 'tcp/udp') {
             addOrActiveTab({
@@ -806,7 +807,7 @@ export function DbManager({ config }) {
         },
         {
             label: t('http_client'),
-            key: 'http-home',
+            key: 'http-client',
             group: 'network',
         },
         {
@@ -1613,9 +1614,9 @@ export function DbManager({ config }) {
                                             // defaultPath={item.data.path}
                                         />
                                     }
-                                    {item.type == 'http-home' &&
+                                    {item.type == 'http-client' &&
                                         <HttpClient
-                                            config={config}
+                                            // config={config}
                                             // local={true}
                                             // defaultPath={item.data.path}
                                         />

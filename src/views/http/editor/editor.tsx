@@ -860,7 +860,8 @@ function ServiceStatus() {
     )
 }
 
-export function HttpClient({ config, host }) {
+export function HttpClient({ host }) {
+    const config = getGlobalConfig()
     const { t, i18n } = useTranslation();
     const lang = useMemo(() => {
         if (i18n.language.includes('zh')) {

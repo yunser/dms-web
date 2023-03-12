@@ -42,6 +42,7 @@ import { DockerClient } from './views/docker'
 import { HttpProxy } from './views/socket/socket-home/http-proxy'
 import { SocketProxy } from './views/socket/socket-home/socket-proxy'
 import { OpenAiApp } from './views/openai'
+import { HttpClient } from './views/http/editor'
 
 function GitPage() {
     return (
@@ -198,6 +199,18 @@ function HttpServerPage() {
     )
 }
 
+function HttpClientPage() {
+    const { t } = useTranslation()
+    useTitle(t('http_client'))
+
+    return (
+        <div className={styles.pageFull}>
+            <HttpClient
+            />
+        </div>
+    )
+}
+
 function HttpProxyPage() {
     const { t } = useTranslation()
     useTitle(t('http_proxy'))
@@ -304,6 +317,7 @@ export default function App() {
                     <Route path="/pages/tcp/server" element={<FullApp><TcpServerPage /></FullApp>} />
                     <Route path="/pages/udp/client" element={<FullApp><UdpClientPage /></FullApp>} />
                     <Route path="/pages/udp/server" element={<FullApp><UdpServerPage /></FullApp>} />
+                    <Route path="/pages/http/client" element={<FullApp><HttpClientPage /></FullApp>} />
                     <Route path="/pages/http/server" element={<FullApp><HttpServerPage /></FullApp>} />
                     <Route path="/pages/http/proxy" element={<FullApp><HttpProxyPage /></FullApp>} />
                     <Route path="/pages/socket/proxy" element={<FullApp><SocketProxyPage /></FullApp>} />
