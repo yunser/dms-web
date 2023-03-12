@@ -132,6 +132,11 @@
         overflow: hidden;
         // border: 1px solid #000;
     }
+    .checkCell {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
     .row {
         &:hover {
             .removeBtn {
@@ -183,4 +188,44 @@
 }
 .errorBox {
     color: red;
+}
+
+.searchBox {
+    display: flex;
+    // border: 1px solid var(--border-color);
+    // margin-bottom: 16px;
+    .search {
+        // width: 240px;
+    }
+    :global{
+        .ant-btn-icon-only.ant-btn-sm{
+            // width: 32px !important;
+        }
+        //.ant-select-arrow{
+        //    top: 17px !important;
+        //}
+        .ant-select{
+            // border: none;
+            // border-right: 1px solid #d9d9d9;
+        }
+        button{
+            // border-right: none;
+            // border-top: none;
+            // border-bottom: none;
+        }
+        .ant-select-selector{
+            border-right: none !important;
+            border-radius: 0 !important;
+            //border-top-right-radius: 0 !important;
+            //border-bottom-right-radius: 0 !important;
+            //border-radius: 2px 0 0 2px;
+            //border-right: none !important;
+        }
+        .ant-select-selection-search-input{
+            // height: 28px !important;
+        }
+        .ant-input-affix-wrapper{
+            // border: none !important;
+        }
+    }
 }

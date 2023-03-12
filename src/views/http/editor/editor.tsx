@@ -20,6 +20,7 @@ import {
     Radio,
     Spin,
     Tag,
+    Checkbox,
 } from 'antd';
 // import { LikeOutlined, UserOutlined } from '@ant-design/icons';
 // import type { ProSettings } from '@ant-design/pro-layout';
@@ -44,6 +45,7 @@ import { DeleteOutlined, ReloadOutlined } from '@ant-design/icons';
 import { useEventEmitter } from 'ahooks';
 import { getGlobalConfig } from '@/config';
 import { FullCenterBox } from '@/views/common/full-center-box';
+import classNames from 'classnames';
 
 // const Confirm = 
 const { TabPane } = Tabs;
@@ -96,13 +98,14 @@ function ResponseBody({ response }) {
 }
 
 function MyTable({ dataSource = [], columns = [], onChange }) {
-    console.log('MyTable.render')
+    console.log('MyTable.render', dataSource)
     return (
         <div>
 
             <table className={styles.table}>
                 <thead>
                     <tr className={styles.header}>
+                        <th style={{ width: 32 }}></th>
                         <th style={{ width: 240 }}>{t('key')}</th>
                         <th style={{ width: 240 }}>{t('value')}</th>
                         <th style={{ width: 320 }}>{t('description')}</th>
@@ -113,6 +116,20 @@ function MyTable({ dataSource = [], columns = [], onChange }) {
                     {dataSource.map((item, idx) => {
                         return (
                             <tr className={styles.row}>
+                                <td>
+                                    <div className={classNames(styles.cell, styles.checkCell)}>
+                                        <Checkbox
+                                            checked={item.enable}
+                                            onChange={e => {
+                                                dataSource[idx].enable = e.target.checked
+                                                onChange && onChange([
+                                                    ...dataSource,
+                                                ])
+
+                                            }}
+                                        />
+                                    </div>
+                                </td>
                                 <td>
                                     <div className={styles.cell}>
                                         <input
@@ -190,6 +207,7 @@ function MyTable({ dataSource = [], columns = [], onChange }) {
                     onChange && onChange([
                         ...dataSource,
                         {
+                            enable: true,
                             key: '',
                             value: '',
                             description: '',
@@ -450,16 +468,19 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
     }
     const [headers, _setHeaders] = useState(api.headers || [
         {
+            enable: true,
             key: 'User-Agent',
             value: 'DMS/1.0',
             description: '',
         },
         {
+            enable: true,
             key: 'Accept',
             value: '*/*',
             description: '',
         },
         {
+            enable: true,
             key: 'Connection',
             value: 'close',
             description: '',
@@ -524,10 +545,10 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
             // for (let item of params) {
             //     qureies[item.key] = item.value
             // }
-            _url += `?${qs.stringify(qureies)}`
+            // _url += `?${qs.stringify(qureies)}`
         }
         console.log('_headers', _headers)
-        const headerObj = keyValueList2Obj(headers)
+        const headerObj = keyValueList2Obj(headers.filter(item => item.enable))
         // const res = await axiosRequest({
         //     url: _url,
         //     method: method,
@@ -641,83 +662,94 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
             {/* <Space>
             </Space> */}
             <div className={styles.headerBox}>
-                <Select
-                    value={method}
-                    options={[
-                        {
-                            label: 'GET',
-                            value: 'GET',
-                        },
-                        {
-                            label: 'POST',
-                            value: 'POST',
-                        },
-                        {
-                            label: 'PUT',
-                            value: 'PUT',
-                        },
-                        {
-                            label: 'DELETE',
-                            value: 'DELETE',
-                        },
-                        {
-                            label: 'OPTIONS',
-                            value: 'OPTIONS',
-                        },
-                    ]}
-                    onChange={(value) => {
-                        setMethod(value)
-                        // if ()
-                    }}
-                    style={{ width: 120 }}
-                />
-                <Input
-                    // width={800}
-                    value={url}
-                    placeholder="URL"
-                    onChange={(e) => {
-                        // console.log('url-change', )
-                        const url = e.target.value
-                        setUrl(url)
-                        let urlObj = new URL(url)
-                        if (urlObj.search.length > 1) {
-                            const sp = new URLSearchParams(urlObj.search)
-                            // for (let header of headers) {
-                            //     if (header.key) {
-                            //         sp.set(header.key, header.value)
-                            //     }
-                            // }
-                            const keyMap: any = {}
-                            const newParams: any = []
-                            for (var pair of sp.entries()) {
-                                const [key, value] = pair
-                                // console.log('keyvalue', key, value)
-                                if (key) {
-                                    keyMap[key] = value
-                                    newParams.push({
-                                        key,
-                                        value,
-                                        description: '',
-                                    })
+                <div className={styles.searchBox}>
+                    <Select
+                        value={method}
+                        options={[
+                            {
+                                label: 'GET',
+                                value: 'GET',
+                            },
+                            {
+                                label: 'POST',
+                                value: 'POST',
+                            },
+                            {
+                                label: 'PUT',
+                                value: 'PUT',
+                            },
+                            {
+                                label: 'DELETE',
+                                value: 'DELETE',
+                            },
+                            {
+                                label: 'OPTIONS',
+                                value: 'OPTIONS',
+                            },
+                            {
+                                label: 'HEAD',
+                                value: 'HEAD',
+                            },
+                            {
+                                label: 'CONNECT',
+                                value: 'CONNECT',
+                            },
+                        ]}
+                        onChange={(value) => {
+                            setMethod(value)
+                            // if ()
+                        }}
+                        style={{ width: 120 }}
+                    />
+                    <Input
+                        // width={800}
+                        value={url}
+                        placeholder="URL"
+                        onChange={(e) => {
+                            const url = e.target.value
+                            console.log('url-change', url)
+                            setUrl(url)
+                            let urlObj = new URL(url)
+                            if (urlObj.search.length > 1) {
+                                const sp = new URLSearchParams(urlObj.search)
+                                // for (let header of headers) {
+                                //     if (header.key) {
+                                //         sp.set(header.key, header.value)
+                                //     }
+                                // }
+                                const keyMap: any = {}
+                                const newParams: any = []
+                                for (var pair of sp.entries()) {
+                                    const [key, value] = pair
+                                    // console.log('keyvalue', key, value)
+                                    if (key) {
+                                        keyMap[key] = value
+                                        newParams.push({
+                                            enable: true,
+                                            key,
+                                            value,
+                                            description: '',
+                                        })
+                                    }
                                 }
+                                // console.log('keyMap', keyMap)
+                                // const newParams = [...params]
+                                // for (let header of newParams) {
+                                //     console.log('compare', header, keyMap[header.key])
+                                //     if (keyMap[header.key] && keyMap[header.key] != header.value) {
+                                //         header.value = keyMap[header.key]
+                                //         console.log('change', header.key)
+                                //     }
+                                // }
+                                setParams(newParams)
                             }
-                            // console.log('keyMap', keyMap)
-                            // const newParams = [...params]
-                            // for (let header of newParams) {
-                            //     console.log('compare', header, keyMap[header.key])
-                            //     if (keyMap[header.key] && keyMap[header.key] != header.value) {
-                            //         header.value = keyMap[header.key]
-                            //         console.log('change', header.key)
-                            //     }
-                            // }
-                            setParams(newParams)
-                        }
-                        else {
-                            setParams([])
-                        }
-                    }}
-                    style={{ width: 560 }}
-                />
+                            else {
+                                setParams([])
+                            }
+                        }}
+                        style={{ width: 560 }}
+                    />
+                </div>
                 {/* <Tag>HTTP/1.1</Tag> */}
                 <Button
                     className={styles.send}
@@ -771,7 +803,7 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
                                 const urlObj = new URL(url)
                                 // console.log('urlObj', urlObj)
                                 // setUrl
-                                let _newParams = newParams.filter(item => item.key)
+                                let _newParams = newParams.filter(item => item.key && item.enable)
                                 // console.log('_newParams', _newParams)
                                 let _search = ''
                                 const sp = new URLSearchParams()
@@ -833,6 +865,7 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
                                                 setHeaders([
                                                     ...headers,
                                                     {
+                                                        enable: true,
                                                         key: 'Content-Type',
                                                         value: 'application/json',
                                                         description: '',
@@ -847,6 +880,7 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
                                                 setHeaders([
                                                     ...headers,
                                                     {
+                                                        enable: true,
                                                         key: 'Content-Type',
                                                         value: 'text/plain',
                                                         description: '',
