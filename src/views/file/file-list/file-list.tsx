@@ -1000,12 +1000,12 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
             }
         }
         else {
-            const file = e.target.files[0]
+            const file = files[0]
             if (file) {
                 uploadFile({
                     file,
                     onSuccess: () => {
-                        input.remove()
+                        // input.remove()
                     }
                 })
             }
@@ -1267,7 +1267,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                     input.type = 'file'
                                     input.setAttribute('multiple', 'multiple')
                                     input.addEventListener('change', (e) => {
-                                        uploadFiles(e.dataTransfer.files)
+                                        uploadFiles(e.target.files)
                                     })
                                     input.click()
                                 }}
