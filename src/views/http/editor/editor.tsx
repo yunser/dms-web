@@ -46,6 +46,9 @@ import { useEventEmitter } from 'ahooks';
 import { getGlobalConfig } from '@/config';
 import { FullCenterBox } from '@/views/common/full-center-box';
 import classNames from 'classnames';
+import { uid } from 'uid';
+
+const boundary = `********${uid(16)}********`
 
 // const Confirm = 
 const { TabPane } = Tabs;
@@ -460,6 +463,7 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
         })
     }
     const [bodyType, setBodyType] = useState('none')
+    // const [bodyType, setBodyType] = useState('form-data')
     const [reqTab, setReqTab] = useState(api.method == 'GET' ? 'params' : 'body')
     const [resTab, setResTab] = useState('body')
     // const [ method, setMethod ] = useState('get')
@@ -519,6 +523,34 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
         //     description: 'BB',
         // },
     ])
+    const [urlencodeds, _setUrlencodeds] = useState([
+        // {
+        //     enable: true,
+        //     key: 'a',
+        //     value: 'aa',
+        //     description: '',
+        // },
+        // {
+        //     enable: true,
+        //     key: 'b',
+        //     value: 'bb',
+        //     description: '',
+        // },
+    ])
+    const [formDatas, _setFormDatas] = useState([
+        // {
+        //     enable: true,
+        //     key: 'a',
+        //     value: 'aa',
+        //     description: '',
+        // },
+        // {
+        //     enable: true,
+        //     key: 'b',
+        //     value: 'bb',
+        //     description: '',
+        // },
+    ])
     function setHeaders(headers) {
         _setHeaders(headers)
         onChange && onChange({
@@ -553,13 +585,13 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
             return
         }
         
-        let _headers = {}
-        console.log('method', method)
-        if (method === MethodKey.Post) {
-            _headers = {
-                'Content-Type': 'application/json',
-            };
-        }
+        // let _headers = {}
+        // console.log('method', method)
+        // if (method === MethodKey.Post) {
+        //     _headers = {
+        //         'Content-Type': 'application/json',
+        //     };
+        // }
 
         const startTime = new Date()
         let _url = url
@@ -570,7 +602,7 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
             // }
             // _url += `?${qs.stringify(qureies)}`
         }
-        console.log('_headers', _headers)
+        // console.log('_headers', _headers)
         const headerObj = keyValueList2Obj(headers.filter(item => item.enable))
         // const res = await axiosRequest({
         //     url: _url,
@@ -592,6 +624,24 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
         let _body
         if (bodyType == 'none') {
             _body = ''
+        }
+        else if (bodyType == 'x-www-form-urlencoded') {
+            // const params = new URLSearchParams()
+            // urlencodeds.forEach(item => {
+            //     params.append(item.key, item.value)
+            // })
+            // _body = params.toString()
+            _body = urlencodeds.map(item => {
+                return `${encodeURIComponent(item.key)}=${encodeURIComponent(item.value)}`
+            }).join('&')
+        }
+        else if (bodyType == 'form-data') {
+            _body = `--${boundary}\n` + formDatas.map(item => {
+                return `Content-Disposition: form-data; name="${item.key}"
+
+${item.value}
+`
+            }).join(`--${boundary}\n`) + `--${boundary}--`
         }
         else {
             _body = body
@@ -882,37 +932,43 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
                                     onChange={e => {
                                         const { value } = e.target
                                         setBodyType(value)
+
+                                        function setContentType(contentType) {
+                                            const fContentTypeIdx = headers.findIndex(item => item.key.toLowerCase() == 'content-type')
+                                            console.log('fContentTypeIdx', fContentTypeIdx)
+                                            if (fContentTypeIdx == -1) {
+                                                setHeaders([
+                                                    ...headers,
+                                                    {
+                                                        enable: true,
+                                                        key: 'Content-Type',
+                                                        value: contentType,
+                                                        description: '',
+                                                    }
+                                                ])
+                                            }
+                                            else {
+                                                const newHeaders = [
+                                                    ...headers,
+                                                ]
+                                                newHeaders[fContentTypeIdx].value = contentType
+                                                setHeaders(newHeaders)
+                                            }
+                                        }
+
                                         if (value == 'json') {
-                                            const fContentType = headers.find(item => item.key.toLowerCase() == 'content-type')
-                                            console.log('fContentType', fContentType)
-                                            if (!fContentType) {
-                                                setHeaders([
-                                                    ...headers,
-                                                    {
-                                                        enable: true,
-                                                        key: 'Content-Type',
-                                                        value: 'application/json',
-                                                        description: '',
-                                                    }
-                                                ])
-                                            }
+                                            setContentType('application/json')
                                         }
-                                        if (value == 'raw') {
-                                            const fContentType = headers.find(item => item.key.toLowerCase() == 'content-type')
-                                            console.log('fContentType', fContentType)
-                                            if (!fContentType) {
-                                                setHeaders([
-                                                    ...headers,
-                                                    {
-                                                        enable: true,
-                                                        key: 'Content-Type',
-                                                        value: 'text/plain',
-                                                        description: '',
-                                                    }
-                                                ])
-                                            }
+                                        else if (value == 'x-www-form-urlencoded') {
+                                            setContentType('application/x-www-form-urlencoded')
                                         }
-                                        if (value == 'none') {
+                                        else if (value == 'form-data') {
+                                            setContentType(`multipart/form-data; boundary=${boundary}`)
+                                        }
+                                        else if (value == 'raw') {
+                                            setContentType('text/plain')
+                                        }
+                                        else if (value == 'none') {
                                             const fContentType = headers.find(item => item.key.toLowerCase() == 'content-type')
                                             console.log('fContentType', fContentType)
                                             if (fContentType) {
@@ -925,12 +981,60 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
                                     <Radio value="none">{t('http.none')}</Radio>
                                     <Radio value="json">{t('json')}</Radio>
                                     <Radio value="raw">{t('http.raw')}</Radio>
+                                    <Radio value="x-www-form-urlencoded">x-www-form-urlencoded</Radio>
+                                    <Radio value="form-data">form-data</Radio>
                                 </Radio.Group>
                             </div>
                             {bodyType == 'none' ?
                                 <FullCenterBox height={200}>
                                     <Empty description="this request dose not hava a body" />
                                 </FullCenterBox>
+                            : bodyType == 'x-www-form-urlencoded' ?
+                                <div>
+                                    <MyTable
+                                        dataSource={urlencodeds}
+                                        columns={[
+                                            {
+                                                title: 'Key',
+                                                dataIndex: 'key',
+                                            },
+                                            {
+                                                title: 'Value',
+                                                dataIndex: 'value',
+                                            },
+                                            {
+                                                title: t('description'),
+                                                dataIndex: 'description',
+                                            },
+                                        ]}
+                                        onChange={value => {
+                                            _setUrlencodeds(value)
+                                        }}
+                                    />
+                                </div>
+                            : bodyType == 'form-data' ?
+                                <div>
+                                    <MyTable
+                                        dataSource={formDatas}
+                                        columns={[
+                                            {
+                                                title: 'Key',
+                                                dataIndex: 'key',
+                                            },
+                                            {
+                                                title: 'Value',
+                                                dataIndex: 'value',
+                                            },
+                                            {
+                                                title: t('description'),
+                                                dataIndex: 'description',
+                                            },
+                                        ]}
+                                        onChange={value => {
+                                            _setFormDatas(value)
+                                        }}
+                                    />
+                                </div>
                             :
                                 <Input.TextArea
                                     value={body}
