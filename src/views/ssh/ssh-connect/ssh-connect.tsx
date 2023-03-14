@@ -276,8 +276,8 @@ export function SshConnect({ config, tabKey, onSSh, onSftp, event$ }) {
     //     },
     // ]
     const filteredProjects = useMemo(() => {
-        return SearchUtil.search(projects, keyword, {
-            attributes: ['name', 'host'],
+        return SearchUtil.searchLike(projects, keyword, {
+            attributes: ['name', 'host', 'username'],
         })
         
         // if (!keyword) {
