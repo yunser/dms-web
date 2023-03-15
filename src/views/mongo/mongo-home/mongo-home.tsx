@@ -55,7 +55,7 @@ export function MongoHome({ config, event$, onConnect, }) {
     ])
     
     const filteredConnections = useMemo(() => {
-        return SearchUtil.search(connections, keyword, {
+        return SearchUtil.searchLike(connections, keyword, {
             attributes: ['name', 'host', 'username'],
         })
         
