@@ -255,7 +255,7 @@ export function HttpServer({ onClickItem }) {
     }
 
     async function closeAllServer() {
-        let res = await request.post(`${config.host}/socket/udp/closeAllServer`, {
+        let res = await request.post(`${config.host}/http/closeAllServer`, {
             // content,
         })
         if (res.success) {
@@ -426,16 +426,16 @@ export function HttpServer({ onClickItem }) {
                 </div>
             </div>
             <div className={styles.layoutRight}>
-                {/* <div className={styles.rightTopToolBox}>
+                <div className={styles.rightTopToolBox}>
                     <Button
                         size="small"
                         onClick={() => {
                             closeAllServer()
                         }}
                     >
-                        {t('close_all_udp_server')}
+                        {t('close_all_http_server')}
                     </Button>
-                </div> */}
+                </div>
 
                 <div className={styles.sectionTitle}>{t('log')}</div>
 
