@@ -415,6 +415,7 @@ async function axiosRequest(params) {
 function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
     
     const config = getGlobalConfig()
+    const [httpVersion, setHttpVersion] = useState('1.1')
     const [method, _setMethod] = useState(api.method || MethodKey.Get);
     function setMethod(method) {
         _setMethod(method)
@@ -563,7 +564,9 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
     function keyValueList2Obj(params) {
         const qureies = {}
         for (let item of params) {
-            qureies[item.key] = item.value
+            if (item.key) {
+                qureies[item.key] = item.value
+            }
         }
         return qureies
     }
@@ -647,9 +650,10 @@ ${item.value}
             _body = body
         }
         setLoading(true)
-        let res = await request.post(`${config.host}/http/proxyNew`, {
-            url: _url,
+        let res = await request.post(`${config.host}/http/client/request`, {
             method: method,
+            url: _url,
+            httpVersion,
             headers: headerObj,
             body: _body,
         }, {
@@ -824,7 +828,23 @@ ${item.value}
                         style={{ width: 560 }}
                     />
                 </div>
-                {/* <Tag>HTTP/1.1</Tag> */}
+                <Select
+                    className={styles.protocol}
+                    value={httpVersion}
+                    onChange={value => {
+                        setHttpVersion(value)
+                    }}
+                    options={[
+                        {
+                            label: 'HTTP/1.1',
+                            value: '1.1',
+                        },
+                        {
+                            label: 'HTTP/1.0',
+                            value: '1.0',
+                        },
+                    ]}
+                />
                 <Button
                     className={styles.send}
                     type="primary"
