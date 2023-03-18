@@ -513,6 +513,12 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
             value: 'close',
             description: '',
         },
+        {
+            enable: true,
+            key: 'Accept-Encoding',
+            value: 'gzip, deflate, br',
+            description: '',
+        },
         // {
         //     key: 'Content-Type',
         //     value: 'application/json',
