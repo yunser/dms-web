@@ -78,7 +78,7 @@ function ResponseBody({ response }) {
             text = JSON.stringify(JSON.parse(response.text), null, 4)
         }
         catch (err) {
-            console.log('err', err)
+            // console.log('err', err)
             // nothing
         }
         return text
@@ -733,7 +733,20 @@ ${item.value}
         onRemove && onRemove()
     }
 
-    console.log('SingleEditor.api', api)
+    // console.log('SingleEditor.api', api)
+
+    // useEffect(() => {
+    //     const handleKeyDown = e => {
+    //         // console.log('e', e.code, e)
+    //         if (e.code == 'Enter') {
+    //             doRequest()
+    //         }
+    //     }
+    //     window.addEventListener('keydown', handleKeyDown)
+    //     return () => {
+    //         window.removeEventListener('keydown', handleKeyDown)
+    //     }
+    // }, [])
 
     return (
         <div className={styles.singleEditor}>
@@ -840,6 +853,12 @@ ${item.value}
                             }
                         }}
                         style={{ width: 560 }}
+                        onKeyDown={(e) => {
+                            console.log('e', e.code)
+                            if (e.code == 'Enter') {
+                                doRequest()
+                            }
+                        }}
                     />
                 </div>
                 <Select
@@ -862,6 +881,7 @@ ${item.value}
                 <Button
                     className={styles.send}
                     type="primary"
+                    loading={loading}
                     onClick={doRequest}>{t('send')}</Button>
                 {!!serviceInfo &&
                     <Button
