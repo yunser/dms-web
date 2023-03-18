@@ -685,10 +685,11 @@ ${item.value}
                 responseRaw: data.responseRaw,
                 text: data.data,
                 time: new Date().getTime() - startTime.getTime(),
-                headers: keyValueObj2List(data.headers)
-                    .sort((h1, h2) => {
-                        return h1.key.localeCompare(h2.key)
-                    })
+                headers: data.headers,
+                // headers: keyValueObj2List(data.headers)
+                //     .sort((h1, h2) => {
+                //         return h1.key.localeCompare(h2.key)
+                //     })
             });
         }
         else {
@@ -1126,6 +1127,7 @@ ${item.value}
                                     >
                                         <TabPane tab={t('http.body')} key="body" />
                                         <TabPane tab={t('http.headers')} key="headers" />
+                                        {/* <TabPane tab={t('http.cookies')} key="cookies" /> */}
                                         <TabPane tab={t('http.request.raw')} key="raw-request" />
                                         <TabPane tab={t('http.response.raw')} key="raw-response" />
                                     </Tabs>
@@ -1187,6 +1189,11 @@ ${item.value}
                                                 className={styles.code}
                                                 value={response.requestRaw}
                                             />
+                                        </div>
+                                    }
+                                    {resTab == 'cookies' &&
+                                        <div className={styles.rawBox}>
+                                            999
                                         </div>
                                     }
                                 </div>
