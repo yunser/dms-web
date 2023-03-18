@@ -605,6 +605,9 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
 
         const startTime = new Date()
         let _url = url
+        if (!_url.startsWith('http://') && !_url.startsWith('https://')) {
+            _url = 'http://' + _url
+        }
         if (params.length) {
             const qureies = keyValueList2Obj(params)
             // for (let item of params) {
