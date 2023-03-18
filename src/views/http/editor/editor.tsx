@@ -47,6 +47,7 @@ import { getGlobalConfig } from '@/config';
 import { FullCenterBox } from '@/views/common/full-center-box';
 import classNames from 'classnames';
 import { uid } from 'uid';
+import filesize from 'file-size';
 
 const boundary = `********${uid(16)}********`
 
@@ -1107,7 +1108,7 @@ ${item.value}
                                     </Tabs>
                                     <Space>
                                         <div>
-                                            Status:{' '}
+                                            {t('status')}:{' '}
                                             <span
                                                 style={{
                                                     color: `${response.status}`.startsWith('2') ? 'green' : 'red',
@@ -1116,7 +1117,8 @@ ${item.value}
                                             
                                             
                                         </div>
-                                        <div>Time: {response.time}ms</div>
+                                        <div>{t('time')}: {response.time}ms</div>
+                                        <div>{t('size')}: {filesize(response.responseRaw.length, { fixed: 1, }).human()}</div>
                                     </Space>
                                 </div>
                                 {/* <div>Size: ?ms</div> */}
