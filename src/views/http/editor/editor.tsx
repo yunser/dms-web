@@ -622,6 +622,8 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
             text: '',
             time: '',
             headers: [],
+            requestRaw: '',
+            responseRaw: '',
         })
         setResponseError('')
         let _body
@@ -669,6 +671,8 @@ ${item.value}
                 __url: _url,
                 status: data.status,
                 statusText: data.statusText,
+                requestRaw: data.requestRaw,
+                responseRaw: data.responseRaw,
                 text: data.data,
                 time: new Date().getTime() - startTime.getTime(),
                 headers: keyValueObj2List(data.headers)
@@ -1090,8 +1094,10 @@ ${item.value}
                                             setResTab(key)
                                         }}
                                     >
-                                        <TabPane tab="Body" key="body" />
-                                        <TabPane tab="Headers" key="headers" />
+                                        <TabPane tab={t('http.body')} key="body" />
+                                        <TabPane tab={t('http.headers')} key="headers" />
+                                        <TabPane tab={t('http.request.raw')} key="raw-request" />
+                                        <TabPane tab={t('http.response.raw')} key="raw-response" />
                                     </Tabs>
                                     <Space>
                                         <div>
@@ -1133,6 +1139,22 @@ ${item.value}
                                                     },
                                                 ]}
                                                 pagination={false}
+                                            />
+                                        </div>
+                                    }
+                                    {resTab == 'raw-response' &&
+                                        <div className={styles.rawBox}>
+                                            <Input.TextArea
+                                                className={styles.code}
+                                                value={response.responseRaw}
+                                            />
+                                        </div>
+                                    }
+                                    {resTab == 'raw-request' &&
+                                        <div className={styles.rawBox}>
+                                            <Input.TextArea
+                                                className={styles.code}
+                                                value={response.requestRaw}
                                             />
                                         </div>
                                     }

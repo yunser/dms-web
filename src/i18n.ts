@@ -530,6 +530,8 @@ i18n
                     'http.headers': 'Headers',
                     'http.body': 'Body',
                     'http.pretty': 'Pretty',
+                    'http.request.raw': 'Raw Request',
+                    'http.response.raw': 'Raw Response',
                 }
             },
             zh: {
@@ -1052,6 +1054,8 @@ i18n
                     'http.headers': '头部',
                     'http.body': '内容',
                     'http.pretty': '美化',
+                    'http.request.raw': '原始请求',
+                    'http.response.raw': '原始响应',
                 }
             }
         },
