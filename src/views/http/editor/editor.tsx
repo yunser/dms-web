@@ -275,8 +275,24 @@ function AuthConfig({ onAuth }) {
     )
 }
 
-function MyTable({ dataSource = [], columns = [], onChange }) {
+function MyTable({ dataSource: _dataSource = [], columns = [], onChange: _onChange }) {
     // console.log('MyTable.render', dataSource)
+
+    const dataSource = [
+        ..._dataSource,
+        {
+            enable: true,
+            key: '',
+            value: '',
+            description: '',
+        }
+    ]
+
+    function onChange(value) {
+        console.log('onChange', value)
+        _onChange && _onChange(value.filter(item => item.key))
+    }
+
     return (
         <div>
 
@@ -284,8 +300,8 @@ function MyTable({ dataSource = [], columns = [], onChange }) {
                 <thead>
                     <tr className={styles.header}>
                         <th style={{ width: 32 }}></th>
-                        <th style={{ width: 240 }}>{t('key')}</th>
-                        <th style={{ width: 240 }}>{t('value')}</th>
+                        <th style={{ width: 320 }}>{t('key')}</th>
+                        <th style={{ width: 320 }}>{t('value')}</th>
                         <th style={{ width: 320 }}>{t('description')}</th>
                         <th></th>
                     </tr>
@@ -379,7 +395,7 @@ function MyTable({ dataSource = [], columns = [], onChange }) {
                     })}
                 </tbody>
             </table>
-            <Button
+            {/* <Button
                 className={styles.add}
                 onClick={() => {
                     onChange && onChange([
@@ -392,7 +408,7 @@ function MyTable({ dataSource = [], columns = [], onChange }) {
                         }
                     ])
                 }}
-            >+</Button>
+            >+</Button> */}
         </div>
     )
 }
