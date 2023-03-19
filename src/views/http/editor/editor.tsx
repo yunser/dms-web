@@ -61,6 +61,64 @@ const MethodKey = {
     Delete: 'DELETE',
 };
 
+interface Header {
+    key: string
+    value: string
+}
+
+function parseCookie(header: Header) {
+    const { key, value } = header
+    const arr = value.split(';')
+    const cookie = {
+        id: uid(16),
+        name: '',
+        value: '',
+        domain: '',
+        expires: '',
+        path: '',
+        httpOnly: false,
+        secure: false,
+        sameSite: '',
+        partitionKey: '',
+        size: value.length,
+    }
+    console.log('arr', arr)
+    arr.forEach((kv, index) => {
+        const _arr = kv.split('=')
+        if (_arr.length > 0) {
+            const [ key, value ] = _arr
+            if (index == 0) {
+                cookie.name = key
+                cookie.value = value
+            }
+            else {
+                const normalKey = key.trim().toLowerCase()
+                if (normalKey == 'secure') {
+                    cookie.secure = true
+                }
+                else if (normalKey == 'httponly') {
+                    cookie.httpOnly = true
+                }
+                else if (normalKey == 'sameSite') {
+                    cookie.sameSite = value
+                }
+                else if (normalKey == 'partitionkey') {
+                    cookie.partitionKey = value
+                }
+                else {
+                    cookie[normalKey] = value
+                }
+            }
+        }
+    })
+    console.log('cookie', cookie)
+    return cookie
+}
+
+function parseCookies(headers = []) {
+    return headers.map(header => parseCookie(header))
+}
+
 function ResponseBody({ response }) {
     const [type, setType] = useState('pretty')
 
@@ -125,7 +183,7 @@ function ResponseBody({ response }) {
 }
 
 function MyTable({ dataSource = [], columns = [], onChange }) {
-    console.log('MyTable.render', dataSource)
+    // console.log('MyTable.render', dataSource)
     return (
         <div>
 
@@ -631,6 +689,7 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
             status: '',
             text: '',
             time: '',
+            cookies: [],
             headers: [],
             requestRaw: '',
             responseRaw: '',
@@ -677,15 +736,23 @@ ${item.value}
         if (res.success) {
             // setServiceInfo(res.data)
             const data = res.data
+            const uri = new URL(_url)
+            // console.log('uri', uri)
             setResponse({
                 __url: _url,
+                hostname: uri.hostname,
                 status: data.status,
                 statusText: data.statusText,
                 requestRaw: data.requestRaw,
                 responseRaw: data.responseRaw,
                 text: data.data,
                 time: new Date().getTime() - startTime.getTime(),
-                headers: data.headers,
+                headers: data.headers.map(item => {
+                    return Object.assign(item, {
+                        id: uid(16),
+                    })
+                }),
+                cookies: parseCookies(data.headers.filter(item => item.key.toLowerCase() == 'set-cookie')),
                 // headers: keyValueObj2List(data.headers)
                 //     .sort((h1, h2) => {
                 //         return h1.key.localeCompare(h2.key)
@@ -1126,8 +1193,8 @@ ${item.value}
                                         }}
                                     >
                                         <TabPane tab={t('http.body')} key="body" />
-                                        <TabPane tab={t('http.headers')} key="headers" />
-                                        {/* <TabPane tab={t('http.cookies')} key="cookies" /> */}
+                                        <TabPane tab={`${t('http.headers')} (${response.headers.length})`} key="headers" />
+                                        <TabPane tab={`${t('http.cookies')} (${response.cookies.length})`} key="cookies" />
                                         <TabPane tab={t('http.request.raw')} key="raw-request" />
                                         <TabPane tab={t('http.response.raw')} key="raw-response" />
                                     </Tabs>
@@ -1162,16 +1229,17 @@ ${item.value}
                                                 dataSource={response.headers}
                                                 columns={[
                                                     {
-                                                        title: 'Key',
+                                                        title: t('http.key'),
                                                         dataIndex: 'key',
                                                         width: 240,
                                                     },
                                                     {
-                                                        title: 'Value',
+                                                        title: t('value'),
                                                         dataIndex: 'value',
                                                     },
                                                 ]}
                                                 pagination={false}
+                                                rowKey="id"
                                             />
                                         </div>
                                     }
@@ -1193,7 +1261,114 @@ ${item.value}
                                     }
                                     {resTab == 'cookies' &&
                                         <div className={styles.rawBox}>
-                                            999
+                                            <Table
+                                                size="small"
+                                                bordered
+                                                dataSource={response.cookies}
+                                                columns={[
+                                                    {
+                                                        title: t('name'),
+                                                        dataIndex: 'name',
+                                                        width: 240,
+                                                    },
+                                                    {
+                                                        title: t('value'),
+                                                        dataIndex: 'value',
+                                                        width: 240,
+                                                    },
+                                                    {
+                                                        title: t('http.cookie.domain'),
+                                                        dataIndex: 'domain',
+                                                        width: 240,
+                                                        render(value) {
+                                                            if (!value) {
+                                                                return <div className={styles.defaultValue}>{response.hostname}</div>
+                                                            }
+                                                            return (
+                                                                <div>{value}</div>
+                                                            )
+                                                        }
+                                                    },
+                                                    {
+                                                        title: t('http.cookie.path'),
+                                                        dataIndex: 'path',
+                                                        width: 240,
+                                                        render(value) {
+                                                            if (!value) {
+                                                                return <div className={styles.defaultValue}>/</div>
+                                                            }
+                                                            return (
+                                                                <div>{value}</div>
+                                                            )
+                                                        }
+                                                    },
+                                                    {
+                                                        title: t('http.cookie.expires'),
+                                                        dataIndex: 'expires',
+                                                        width: 240,
+                                                        render(value) {
+                                                            if (!value) {
+                                                                return <div className={styles.defaultValue}>Session</div>
+                                                            }
+                                                            return (
+                                                                <div>{value}</div>
+                                                            )
+                                                        }
+                                                    },
+                                                    {
+                                                        title: t('http.cookie.http_only'),
+                                                        dataIndex: 'httpOnly',
+                                                        width: 100,
+                                                        render(value) {
+                                                            return (
+                                                                <div>{value ? '✅' : '❌'}</div>
+                                                            )
+                                                        }
+                                                    },
+                                                    {
+                                                        title: t('http.cookie.secure'),
+                                                        dataIndex: 'secure',
+                                                        width: 80,
+                                                        render(value) {
+                                                            return (
+                                                                <div>{value ? '✅' : '❌'}</div>
+                                                            )
+                                                        }
+                                                    },
+                                                    {
+                                                        title: t('http.cookie.same_site'),
+                                                        dataIndex: 'sameSite',
+                                                        width: 120,
+                                                        render(value) {
+                                                            if (!value) {
+                                                                return <div className={styles.defaultValue}>Lax</div>
+                                                            }
+                                                            return (
+                                                                <div>{value}</div>
+                                                            )
+                                                        }
+                                                    },
+                                                    {
+                                                        title: t('http.cookie.partition_key'),
+                                                        dataIndex: 'partitionKey',
+                                                        width: 120,
+                                                    },
+                                                    {
+                                                        title: t('size'),
+                                                        dataIndex: 'size',
+                                                        width: 120,
+                                                        render(value) {
+                                                            return <div>{value} B</div>
+                                                        }
+                                                    },
+                                                    {
+                                                        title: '',
+                                                        dataIndex: '__empty',
+                                                    },
+                                                ]}
+                                                pagination={false}
+                                                rowKey="id"
+                                            />
                                         </div>
                                     }
                                 </div>
@@ -1315,8 +1490,8 @@ export function HttpClient({ host }) {
         loadInfo()
     }, [])
 
-    console.log('Editor.render')
-    console.log('Editor.tabs', tabs.length)
+    // console.log('Editor.render')
+    // console.log('Editor.tabs', tabs.length)
 
     const editable = false
 

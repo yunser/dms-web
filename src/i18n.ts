@@ -533,6 +533,15 @@ i18n
                     'http.pretty': 'Pretty',
                     'http.request.raw': 'Raw Request',
                     'http.response.raw': 'Raw Response',
+                    'http.cookies': 'Cookies',
+                    'http.cookie.secure': 'Secure',
+                    'http.cookie.http_only': 'HTTP Only',
+                    'http.cookie.domain': 'Domain',
+                    'http.cookie.path': 'Path',
+                    'http.cookie.expires': 'Expires',
+                    'http.cookie.same_site': 'Same Site',
+                    'http.cookie.partition_key': 'Partition Key',
+                    'http.key': 'Key',
                 }
             },
             zh: {
@@ -1058,6 +1067,15 @@ i18n
                     'http.pretty': '美化',
                     'http.request.raw': '原始请求',
                     'http.response.raw': '原始响应',
+                    'http.cookies': 'Cookies',
+                    'http.cookie.secure': '安全标识',
+                    'http.cookie.http_only': '仅限 HTTP',
+                    'http.cookie.domain': '域',
+                    'http.cookie.path': '路径',
+                    'http.cookie.expires': '过期时间',
+                    'http.cookie.same_site': '同站策略',
+                    'http.cookie.partition_key': 'Partition Key',
+                    'http.key': '名称',
                 }
             }
         },
