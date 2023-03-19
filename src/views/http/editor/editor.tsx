@@ -1052,23 +1052,6 @@ ${item.value}
                         }}
                     />
                 </div>
-                <Select
-                    className={styles.protocol}
-                    value={httpVersion}
-                    onChange={value => {
-                        setHttpVersion(value)
-                    }}
-                    options={[
-                        {
-                            label: 'HTTP/1.1',
-                            value: '1.1',
-                        },
-                        {
-                            label: 'HTTP/1.0',
-                            value: '1.0',
-                        },
-                    ]}
-                />
                 <Button
                     className={styles.send}
                     type="primary"
@@ -1101,6 +1084,7 @@ ${item.value}
                         <TabPane tab={t('http.body')} key="body" />
                         <TabPane tab={`${t('http.cookies')} (${cookies.length})`} key="cookies" />
                         <TabPane tab={t('http.auth')} key="auth" />
+                        <TabPane tab={t('settings')} key="settings" />
                     </Tabs>
                 </div>
                 <div className={styles.body}>
@@ -1399,6 +1383,27 @@ ${item.value}
                                 setReqTab('headers')
                             }}
                         />
+                    }
+                    {reqTab == 'settings' &&
+                        <div>
+                            <Select
+                                className={styles.protocol}
+                                value={httpVersion}
+                                onChange={value => {
+                                    setHttpVersion(value)
+                                }}
+                                options={[
+                                    {
+                                        label: 'HTTP/1.1',
+                                        value: '1.1',
+                                    },
+                                    {
+                                        label: 'HTTP/1.0',
+                                        value: '1.0',
+                                    },
+                                ]}
+                            />
+                        </div>
                     }
                 </div>
             </div>
