@@ -618,6 +618,11 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
     const [cookies, setCookies] = useState([
         // {
         //     enable: true,
+        //     key: '',
+        //     value: '',
+        // }
+        // {
+        //     enable: true,
         //     key: 'IBASE4JSESSIONID',
         //     value: 'd85a5263-1761-42d5-b0f1-36873102d56d',
         // }
@@ -990,219 +995,224 @@ ${item.value}
             </div>
             <div className={styles.requestBox}>
                 {/* <div>Params</div> */}
-                <Tabs
-                    activeKey={reqTab}
-                    onChange={key => {
-                        setReqTab(key)
-                    }}
-                >
-                    <TabPane tab={t('http.query')} key="params" />
-                    <TabPane tab={`${t('http.headers')} (${headers.length})`} key="headers" />
-                    <TabPane tab={t('http.body')} key="body" />
-                    <TabPane tab={`${t('http.cookies')} (${cookies.length})`} key="cookies" />
-                </Tabs>
-                {reqTab == 'params' &&
-                    <div>
-                        <MyTable
-                            dataSource={params}
-                            columns={[
-                                {
-                                    title: t('http.key'),
-                                    dataIndex: 'key',
-                                },
-                                {
-                                    title: t('value'),
-                                    dataIndex: 'value',
-                                },
-                                {
-                                    title: t('description'),
-                                    dataIndex: 'description',
-                                },
-                            ]}
-                            onChange={newParams => {
-                                // console.log('newParams', newParams)
-                                setParams(newParams)
-                                const urlObj = new URL(url)
-                                // console.log('urlObj', urlObj)
-                                // setUrl
-                                let _newParams = newParams.filter(item => item.key && item.enable)
-                                // console.log('_newParams', _newParams)
-                                let _search = ''
-                                const sp = new URLSearchParams()
-                                if (_newParams.length) {
-                                    for (let header of _newParams) {
-                                        sp.set(header.key, header.value)
-                                        // if (header.key) {
-                                        // }
-                                    }
-                                    _search = '?' + sp.toString()
-                                }
-                                // console.log('_search', _search)
-                                const newUrl = `${urlObj.origin}${urlObj.pathname}${_search}${urlObj.hash}`
-                                // console.log('newUrl', newUrl)
-                                setUrl(newUrl)
-                            }}
-                        />
-                    </div>
-                }
-                {reqTab == 'headers' &&
-                    <div>
-                        <MyTable
-                            dataSource={headers}
-                            columns={[
-                                {
-                                    title: 'Key',
-                                    dataIndex: 'key',
-                                },
-                                {
-                                    title: 'Value',
-                                    dataIndex: 'value',
-                                },
-                                // {
-                                //     title: 'Description',
-                                //     dataIndex: 'description',
-                                // },
-                            ]}
-                            onChange={data => {
-                                setHeaders(data)
-                            }}
-                        />
-                    </div>
-                }
-                {reqTab == 'body' &&
-                    <div>
-                        {/* {(method === MethodKey.Post || method === MethodKey.Put) && (
-                        )} */}
+                <div className={styles.header}>
+                    <Tabs
+                        activeKey={reqTab}
+                        size="small"
+                        onChange={key => {
+                            setReqTab(key)
+                        }}
+                    >
+                        <TabPane tab={t('http.query')} key="params" />
+                        <TabPane tab={`${t('http.headers')} (${headers.length})`} key="headers" />
+                        <TabPane tab={t('http.body')} key="body" />
+                        <TabPane tab={`${t('http.cookies')} (${cookies.length})`} key="cookies" />
+                    </Tabs>
+                </div>
+                <div className={styles.body}>
+                    {reqTab == 'params' &&
                         <div>
-                            {/* <div className={styles.typeBox}>请求内容（application/json）：</div> */}
-                            <div className={styles.typeBox}>
-                                <Radio.Group
-                                    onChange={e => {
-                                        const { value } = e.target
-                                        setBodyType(value)
-
-                                        function setContentType(contentType) {
-                                            upsertHeader('content-type', contentType)
+                            <MyTable
+                                dataSource={params}
+                                columns={[
+                                    {
+                                        title: t('http.key'),
+                                        dataIndex: 'key',
+                                    },
+                                    {
+                                        title: t('value'),
+                                        dataIndex: 'value',
+                                    },
+                                    {
+                                        title: t('description'),
+                                        dataIndex: 'description',
+                                    },
+                                ]}
+                                onChange={newParams => {
+                                    // console.log('newParams', newParams)
+                                    setParams(newParams)
+                                    const urlObj = new URL(url)
+                                    // console.log('urlObj', urlObj)
+                                    // setUrl
+                                    let _newParams = newParams.filter(item => item.key && item.enable)
+                                    // console.log('_newParams', _newParams)
+                                    let _search = ''
+                                    const sp = new URLSearchParams()
+                                    if (_newParams.length) {
+                                        for (let header of _newParams) {
+                                            sp.set(header.key, header.value)
+                                            // if (header.key) {
+                                            // }
                                         }
-
-                                        if (value == 'json') {
-                                            setContentType('application/json')
-                                        }
-                                        else if (value == 'x-www-form-urlencoded') {
-                                            setContentType('application/x-www-form-urlencoded')
-                                        }
-                                        else if (value == 'form-data') {
-                                            setContentType(`multipart/form-data; boundary=${boundary}`)
-                                        }
-                                        else if (value == 'raw') {
-                                            setContentType('text/plain')
-                                        }
-                                        else if (value == 'none') {
-                                            const fContentType = headers.find(item => item.key.toLowerCase() == 'content-type')
-                                            console.log('fContentType', fContentType)
-                                            if (fContentType) {
-                                                setHeaders(headers.filter(item => item.key.toLowerCase() != 'content-type'))
-                                            }
-                                        }
-                                    }}
-                                    value={bodyType}
-                                >
-                                    <Radio value="none">{t('http.none')}</Radio>
-                                    <Radio value="json">{t('json')}</Radio>
-                                    <Radio value="raw">{t('http.raw')}</Radio>
-                                    <Radio value="x-www-form-urlencoded">x-www-form-urlencoded</Radio>
-                                    <Radio value="form-data">form-data</Radio>
-                                </Radio.Group>
-                            </div>
-                            {bodyType == 'none' ?
-                                <FullCenterBox height={200}>
-                                    <Empty description={t('http.request.body.none')} />
-                                </FullCenterBox>
-                            : bodyType == 'x-www-form-urlencoded' ?
-                                <div>
-                                    <MyTable
-                                        dataSource={urlencodeds}
-                                        columns={[
-                                            {
-                                                title: t('http.key'),
-                                                dataIndex: 'key',
-                                            },
-                                            {
-                                                title: t('value'),
-                                                dataIndex: 'value',
-                                            },
-                                            {
-                                                title: t('description'),
-                                                dataIndex: 'description',
-                                            },
-                                        ]}
-                                        onChange={value => {
-                                            _setUrlencodeds(value)
-                                        }}
-                                    />
-                                </div>
-                            : bodyType == 'form-data' ?
-                                <div>
-                                    <MyTable
-                                        dataSource={formDatas}
-                                        columns={[
-                                            {
-                                                title: t('http.key'),
-                                                dataIndex: 'key',
-                                            },
-                                            {
-                                                title: t('value'),
-                                                dataIndex: 'value',
-                                            },
-                                            {
-                                                title: t('description'),
-                                                dataIndex: 'description',
-                                            },
-                                        ]}
-                                        onChange={value => {
-                                            _setFormDatas(value)
-                                        }}
-                                    />
-                                </div>
-                            :
-                                <Input.TextArea
-                                    value={body}
-                                    rows={8}
-                                    onChange={(e) => {
-                                        setBody(e.target.value);
-                                    }}
-                                />
-                            }
+                                        _search = '?' + sp.toString()
+                                    }
+                                    // console.log('_search', _search)
+                                    const newUrl = `${urlObj.origin}${urlObj.pathname}${_search}${urlObj.hash}`
+                                    // console.log('newUrl', newUrl)
+                                    setUrl(newUrl)
+                                }}
+                            />
                         </div>
-                    </div>
-                }
-                {reqTab == 'cookies' &&
-                    <div>
-                        <MyTable
-                            dataSource={cookies}
-                            columns={[
-                                {
-                                    title: t('http.key'),
-                                    dataIndex: 'key',
-                                },
-                                {
-                                    title: t('value'),
-                                    dataIndex: 'value',
-                                },
-                                {
-                                    title: t('description'),
-                                    dataIndex: 'description',
-                                },
-                            ]}
-                            onChange={newParams => {
-                                // console.log('newParams', newParams)
-                                setCookies(newParams)
-                                const cookie = newParams.map(item => `${item.key}=${item.value}`).join(';')
-                                upsertHeader('cookie', cookie)
-                            }}
-                        />
-                    </div>
-                }
+                    }
+                    {reqTab == 'headers' &&
+                        <div>
+                            <MyTable
+                                dataSource={headers}
+                                columns={[
+                                    {
+                                        title: 'Key',
+                                        dataIndex: 'key',
+                                    },
+                                    {
+                                        title: 'Value',
+                                        dataIndex: 'value',
+                                    },
+                                    // {
+                                    //     title: 'Description',
+                                    //     dataIndex: 'description',
+                                    // },
+                                ]}
+                                onChange={data => {
+                                    setHeaders(data)
+                                }}
+                            />
+                        </div>
+                    }
+                    {reqTab == 'body' &&
+                        <div>
+                            {/* {(method === MethodKey.Post || method === MethodKey.Put) && (
+                            )} */}
+                            <div>
+                                {/* <div className={styles.typeBox}>请求内容（application/json）：</div> */}
+                                <div className={styles.typeBox}>
+                                    <Radio.Group
+                                        onChange={e => {
+                                            const { value } = e.target
+                                            setBodyType(value)
+
+                                            function setContentType(contentType) {
+                                                upsertHeader('content-type', contentType)
+                                            }
+
+                                            if (value == 'json') {
+                                                setContentType('application/json')
+                                            }
+                                            else if (value == 'x-www-form-urlencoded') {
+                                                setContentType('application/x-www-form-urlencoded')
+                                            }
+                                            else if (value == 'form-data') {
+                                                setContentType(`multipart/form-data; boundary=${boundary}`)
+                                            }
+                                            else if (value == 'raw') {
+                                                setContentType('text/plain')
+                                            }
+                                            else if (value == 'none') {
+                                                const fContentType = headers.find(item => item.key.toLowerCase() == 'content-type')
+                                                console.log('fContentType', fContentType)
+                                                if (fContentType) {
+                                                    setHeaders(headers.filter(item => item.key.toLowerCase() != 'content-type'))
+                                                }
+                                            }
+                                        }}
+                                        value={bodyType}
+                                    >
+                                        <Radio value="none">{t('http.none')}</Radio>
+                                        <Radio value="json">{t('json')}</Radio>
+                                        <Radio value="raw">{t('http.raw')}</Radio>
+                                        <Radio value="x-www-form-urlencoded">x-www-form-urlencoded</Radio>
+                                        <Radio value="form-data">form-data</Radio>
+                                    </Radio.Group>
+                                </div>
+                                {bodyType == 'none' ?
+                                    <FullCenterBox height={200}>
+                                        <Empty description={t('http.request.body.none')} />
+                                    </FullCenterBox>
+                                : bodyType == 'x-www-form-urlencoded' ?
+                                    <div>
+                                        <MyTable
+                                            dataSource={urlencodeds}
+                                            columns={[
+                                                {
+                                                    title: t('http.key'),
+                                                    dataIndex: 'key',
+                                                },
+                                                {
+                                                    title: t('value'),
+                                                    dataIndex: 'value',
+                                                },
+                                                {
+                                                    title: t('description'),
+                                                    dataIndex: 'description',
+                                                },
+                                            ]}
+                                            onChange={value => {
+                                                _setUrlencodeds(value)
+                                            }}
+                                        />
+                                    </div>
+                                : bodyType == 'form-data' ?
+                                    <div>
+                                        <MyTable
+                                            dataSource={formDatas}
+                                            columns={[
+                                                {
+                                                    title: t('http.key'),
+                                                    dataIndex: 'key',
+                                                },
+                                                {
+                                                    title: t('value'),
+                                                    dataIndex: 'value',
+                                                },
+                                                {
+                                                    title: t('description'),
+                                                    dataIndex: 'description',
+                                                },
+                                            ]}
+                                            onChange={value => {
+                                                _setFormDatas(value)
+                                            }}
+                                        />
+                                    </div>
+                                :
+                                    <Input.TextArea
+                                        value={body}
+                                        rows={8}
+                                        onChange={(e) => {
+                                            setBody(e.target.value);
+                                        }}
+                                    />
+                                }
+                            </div>
+                        </div>
+                    }
+                    {reqTab == 'cookies' &&
+                        <div>
+                            <MyTable
+                                dataSource={cookies}
+                                columns={[
+                                    {
+                                        title: t('http.key'),
+                                        dataIndex: 'key',
+                                    },
+                                    {
+                                        title: t('value'),
+                                        dataIndex: 'value',
+                                    },
+                                    {
+                                        title: t('description'),
+                                        dataIndex: 'description',
+                                    },
+                                ]}
+                                onChange={newParams => {
+                                    // console.log('newParams', newParams)
+                                    setCookies(newParams)
+                                    const cookie = newParams.map(item => `${item.key}=${item.value}`).join(';')
+                                    upsertHeader('cookie', cookie)
+                                }}
+                            />
+                        </div>
+                    }
+                </div>
             </div>
             <div className={styles.responseBox}>
                 {!!responseError ?
