@@ -108,8 +108,25 @@
         padding-top: 8px;
         // border: 1px solid #000;
     }
+}
+.requestBodyBox {
+    height: 100%;
+    // border: 1px solid #000;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 16px;
     .typeBox {
+        flex: 0 0 auto;
         margin-bottom: 8px;
+        // border: 1px solid #000;
+    }
+    .editorBox {
+        flex: 1 0 auto;
+        height: 0;
+        // border: 1px solid #000;
+    }
+    .textarea {
+        height: 100%;
     }
 }
 .responseBox {
@@ -229,6 +246,7 @@
         // padding-left: 16px;
     }
 }
+
 .contentBox {
     padding: 16px;
 }

@@ -51,8 +51,13 @@ import { uid } from 'uid';
 import filesize from 'file-size';
 import copy from 'copy-to-clipboard';
 import { Base64 } from 'js-base64';
+import { Editor } from '@/views/db-manager/editor/Editor';
+// import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
+// import Editor, { loader } from "@monaco-editor/react";
 const boundary = `********${uid(16)}********`
+
+// loader.config({ monaco })
 
 // const Confirm = 
 const { TabPane } = Tabs;
@@ -1161,110 +1166,133 @@ ${item.value}
                         </div>
                     }
                     {reqTab == 'body' &&
-                        <div>
-                            {/* {(method === MethodKey.Post || method === MethodKey.Put) && (
-                            )} */}
-                            <div>
-                                {/* <div className={styles.typeBox}>请求内容（application/json）：</div> */}
-                                <div className={styles.typeBox}>
-                                    <Radio.Group
-                                        onChange={e => {
-                                            const { value } = e.target
-                                            setBodyType(value)
+                        <div className={styles.requestBodyBox}>
+                            <div className={styles.typeBox}>
+                                <Radio.Group
+                                    onChange={e => {
+                                        const { value } = e.target
+                                        setBodyType(value)
 
-                                            function setContentType(contentType) {
-                                                upsertHeader('content-type', contentType)
-                                            }
+                                        function setContentType(contentType) {
+                                            upsertHeader('content-type', contentType)
+                                        }
 
-                                            if (value == 'json') {
-                                                setContentType('application/json')
+                                        if (value == 'json') {
+                                            setContentType('application/json')
+                                        }
+                                        else if (value == 'x-www-form-urlencoded') {
+                                            setContentType('application/x-www-form-urlencoded')
+                                        }
+                                        else if (value == 'form-data') {
+                                            setContentType(`multipart/form-data; boundary=${boundary}`)
+                                        }
+                                        else if (value == 'raw') {
+                                            setContentType('text/plain')
+                                        }
+                                        else if (value == 'none') {
+                                            const fContentType = headers.find(item => item.key.toLowerCase() == 'content-type')
+                                            console.log('fContentType', fContentType)
+                                            if (fContentType) {
+                                                setHeaders(headers.filter(item => item.key.toLowerCase() != 'content-type'))
                                             }
-                                            else if (value == 'x-www-form-urlencoded') {
-                                                setContentType('application/x-www-form-urlencoded')
-                                            }
-                                            else if (value == 'form-data') {
-                                                setContentType(`multipart/form-data; boundary=${boundary}`)
-                                            }
-                                            else if (value == 'raw') {
-                                                setContentType('text/plain')
-                                            }
-                                            else if (value == 'none') {
-                                                const fContentType = headers.find(item => item.key.toLowerCase() == 'content-type')
-                                                console.log('fContentType', fContentType)
-                                                if (fContentType) {
-                                                    setHeaders(headers.filter(item => item.key.toLowerCase() != 'content-type'))
-                                                }
-                                            }
+                                        }
+                                    }}
+                                    value={bodyType}
+                                >
+                                    <Radio value="none">{t('http.none')}</Radio>
+                                    <Radio value="json">{t('json')}</Radio>
+                                    <Radio value="raw">{t('http.raw')}</Radio>
+                                    <Radio value="x-www-form-urlencoded">x-www-form-urlencoded</Radio>
+                                    <Radio value="form-data">form-data</Radio>
+                                </Radio.Group>
+                            </div>
+                            {bodyType == 'none' ?
+                                <FullCenterBox height={200}>
+                                    <Empty description={t('http.request.body.none')} />
+                                </FullCenterBox>
+                            : bodyType == 'x-www-form-urlencoded' ?
+                                <div>
+                                    <MyTable
+                                        dataSource={urlencodeds}
+                                        columns={[
+                                            {
+                                                title: t('http.key'),
+                                                dataIndex: 'key',
+                                            },
+                                            {
+                                                title: t('value'),
+                                                dataIndex: 'value',
+                                            },
+                                            {
+                                                title: t('description'),
+                                                dataIndex: 'description',
+                                            },
+                                        ]}
+                                        onChange={value => {
+                                            _setUrlencodeds(value)
                                         }}
-                                        value={bodyType}
-                                    >
-                                        <Radio value="none">{t('http.none')}</Radio>
-                                        <Radio value="json">{t('json')}</Radio>
-                                        <Radio value="raw">{t('http.raw')}</Radio>
-                                        <Radio value="x-www-form-urlencoded">x-www-form-urlencoded</Radio>
-                                        <Radio value="form-data">form-data</Radio>
-                                    </Radio.Group>
+                                    />
                                 </div>
-                                {bodyType == 'none' ?
-                                    <FullCenterBox height={200}>
-                                        <Empty description={t('http.request.body.none')} />
-                                    </FullCenterBox>
-                                : bodyType == 'x-www-form-urlencoded' ?
-                                    <div>
-                                        <MyTable
-                                            dataSource={urlencodeds}
-                                            columns={[
-                                                {
-                                                    title: t('http.key'),
-                                                    dataIndex: 'key',
-                                                },
-                                                {
-                                                    title: t('value'),
-                                                    dataIndex: 'value',
-                                                },
-                                                {
-                                                    title: t('description'),
-                                                    dataIndex: 'description',
-                                                },
-                                            ]}
-                                            onChange={value => {
-                                                _setUrlencodeds(value)
-                                            }}
-                                        />
-                                    </div>
-                                : bodyType == 'form-data' ?
-                                    <div>
-                                        <MyTable
-                                            dataSource={formDatas}
-                                            columns={[
-                                                {
-                                                    title: t('http.key'),
-                                                    dataIndex: 'key',
-                                                },
-                                                {
-                                                    title: t('value'),
-                                                    dataIndex: 'value',
-                                                },
-                                                {
-                                                    title: t('description'),
-                                                    dataIndex: 'description',
-                                                },
-                                            ]}
-                                            onChange={value => {
-                                                _setFormDatas(value)
-                                            }}
-                                        />
-                                    </div>
-                                :
-                                    <Input.TextArea
+                            : bodyType == 'form-data' ?
+                                <div>
+                                    <MyTable
+                                        dataSource={formDatas}
+                                        columns={[
+                                            {
+                                                title: t('http.key'),
+                                                dataIndex: 'key',
+                                            },
+                                            {
+                                                title: t('value'),
+                                                dataIndex: 'value',
+                                            },
+                                            {
+                                                title: t('description'),
+                                                dataIndex: 'description',
+                                            },
+                                        ]}
+                                        onChange={value => {
+                                            _setFormDatas(value)
+                                        }}
+                                    />
+                                </div>
+                            : bodyType == 'raw' ?
+                                <Input.TextArea
+                                    value={body}
+                                    rows={8}
+                                    onChange={(e) => {
+                                        setBody(e.target.value);
+                                    }}
+                                />
+                            : bodyType == 'json' ?
+                                <div className={styles.editorBox}>
+                                    {/* <Input.TextArea
+                                        className={styles.textarea}
                                         value={body}
-                                        rows={8}
+                                        // rows={8}
                                         onChange={(e) => {
                                             setBody(e.target.value);
                                         }}
+                                    /> */}
+                                    <Editor
+                                        lang="json"
+                                        value={body}
+                                        // event$={event$}
+                                        onChange={value => setBody(value)}
+                                        // onChange={value => setCode2(value)}
+                                        // onEditor={editor => {
+                                        //     setEditor(editor)
+                                        // }}
                                     />
-                                }
-                            </div>
+                                    {/* <Editor
+                                        height="100%"
+                                        defaultLanguage="javascript"
+                                        defaultValue="// some comment"
+                                    /> */}
+                                </div>
+                            :
+                                <div>unknown type</div>
+                            }
                         </div>
                     }
                     {reqTab == 'cookies' &&
