@@ -22,6 +22,7 @@ import {
     Tag,
     Checkbox,
     Form,
+    Popover,
 } from 'antd';
 // import { LikeOutlined, UserOutlined } from '@ant-design/icons';
 // import type { ProSettings } from '@ant-design/pro-layout';
@@ -42,7 +43,7 @@ import styles from './editor.module.less'
 import { t } from 'i18next';
 import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
-import { DeleteOutlined, ReloadOutlined } from '@ant-design/icons';
+import { DeleteOutlined, GlobalOutlined, ReloadOutlined } from '@ant-design/icons';
 import { useEventEmitter } from 'ahooks';
 import { getGlobalConfig } from '@/config';
 import { FullCenterBox } from '@/views/common/full-center-box';
@@ -73,6 +74,8 @@ interface Header {
     key: string
     value: string
 }
+
+const g_cookieStore = {}
 
 function CopyableValueRender(value) {
     return (
@@ -878,6 +881,7 @@ ${item.value}
                 statusText: data.statusText,
                 requestRaw: data.requestRaw,
                 responseRaw: data.responseRaw,
+                socket: data.socket,
                 text: data.data,
                 time: new Date().getTime() - startTime.getTime(),
                 headers: data.headers.map(item => {
@@ -1451,7 +1455,22 @@ ${item.value}
                                         <TabPane tab={t('http.request.raw')} key="raw-request" />
                                         <TabPane tab={t('http.response.raw')} key="raw-response" />
                                     </Tabs>
-                                    <Space>
+                                    <Space className={styles.responseInfoBox} size="large">
+                                        <Popover
+                                            title={t('network')}
+                                            content={
+                                                <div>
+                                                    {!!response.socket &&
+                                                        <div>
+                                                            <div>local address: {response.socket.local.address}</div>
+                                                            <div>remote address: {response.socket.remote.address}</div>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
+                                        >
+                                            <GlobalOutlined />
+                                        </Popover>
                                         <div>
                                             {t('status')}:{' '}
                                             <span

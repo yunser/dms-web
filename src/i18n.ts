@@ -546,6 +546,7 @@ i18n
                     'http.request.body.none': 'This request dose not hava a body',
                     'http.auth': 'Authorization',
                     'binary': 'Binary',
+                    'network': 'Network',
                 }
             },
             zh: {
@@ -1084,6 +1085,7 @@ i18n
                     'http.request.body.none': 'This request dose not hava a body',
                     'http.auth': '认证',
                     'binary': '二进制',
+                    'network': '网络',
                 }
             }
         },
