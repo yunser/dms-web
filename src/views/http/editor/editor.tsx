@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 // import { Link, history } from 'umi';
 import {
     Button,
@@ -616,6 +616,10 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
             }
         })
     }
+    const comData = useRef({
+        uploadData: '',
+    })
+    const [uploaded, setUploaded] = useState('')
     const [bodyType, _setBodyType] = useState(api.bodyType || 'none')
     function setBodyType(params) {
         _setBodyType(params)
@@ -808,6 +812,9 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
         let _body
         if (bodyType == 'none') {
             _body = ''
+        }
+        else if (bodyType == 'binary') {
+            _body = comData.current.uploadData
         }
         else if (bodyType == 'x-www-form-urlencoded') {
             // const params = new URLSearchParams()
@@ -1183,6 +1190,9 @@ ${item.value}
                                         else if (value == 'x-www-form-urlencoded') {
                                             setContentType('application/x-www-form-urlencoded')
                                         }
+                                        else if (value == 'binary') {
+                                            setContentType('application/octet-stream')
+                                        }
                                         else if (value == 'form-data') {
                                             setContentType(`multipart/form-data; boundary=${boundary}`)
                                         }
@@ -1204,6 +1214,7 @@ ${item.value}
                                     <Radio value="raw">{t('http.raw')}</Radio>
                                     <Radio value="x-www-form-urlencoded">x-www-form-urlencoded</Radio>
                                     <Radio value="form-data">form-data</Radio>
+                                    <Radio value="binary">{t('binary')}</Radio>
                                 </Radio.Group>
                             </div>
                             {bodyType == 'none' ?
@@ -1301,6 +1312,53 @@ ${item.value}
                                         defaultLanguage="javascript"
                                         defaultValue="// some comment"
                                     /> */}
+                                </div>
+                            : bodyType == 'binary' ?
+                                <div className={styles.binaryBox}>
+                                    {!!uploaded ?
+                                        <div className={styles.previewBox}>
+                                            <Space>
+                                                <div>{uploaded}</div>
+                                                <Button
+                                                    size="small"
+                                                    danger
+                                                    onClick={() => {
+                                                        setUploaded('')
+                                                    }}
+                                                >
+                                                    {t('delete')}
+                                                </Button>
+                                            </Space>
+                                        </div>
+                                    :
+                                        <div className={styles.select}
+                                            onClick={() => {
+                                                const input = document.createElement('input')
+                                                input.type = 'file'
+                                                input.setAttribute('multiple', 'multiple')
+                                                input.addEventListener('change', (e) => {
+                                                    const file = e.target.files[0]
+                                                    if (file) {
+                                                        console.log('file', file)
+                                                        setUploaded(file.name)
+                                                        const reader = new FileReader()
+                                                        reader.onload = async () => {
+                                                            if (!reader.result) {
+                                                                message.error('no_content')
+                                                                return
+                                                            }
+                                                            comData.current.uploadData = reader.result
+                                                        }
+                                                        reader.readAsText(file, 'utf-8')
+                                                    }
+                                                    // uploadFiles(e.target.files)
+                                                })
+                                                input.click()
+                                            }}
+                                        >
+                                            <div>点击选择文件</div>
+                                        </div>
+                                    }
                                 </div>
                             :
                                 <div>unknown type</div>

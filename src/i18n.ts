@@ -544,6 +544,7 @@ i18n
                     'http.key': 'Key',
                     'http.request.body.none': 'This request dose not hava a body',
                     'http.auth': 'Authorization',
+                    'binary': 'Binary',
                 }
             },
             zh: {
@@ -1080,6 +1081,7 @@ i18n
                     'http.key': '名称',
                     'http.request.body.none': 'This request dose not hava a body',
                     'http.auth': '认证',
+                    'binary': '二进制',
                 }
             }
         },
