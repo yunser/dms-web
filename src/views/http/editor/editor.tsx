@@ -1257,15 +1257,27 @@ ${item.value}
                                     />
                                 </div>
                             : bodyType == 'raw' ?
-                                <Input.TextArea
-                                    value={body}
-                                    rows={8}
-                                    onChange={(e) => {
-                                        setBody(e.target.value);
-                                    }}
-                                />
+                                <div className={styles.editorBox} key="raw">
+                                    {/* <Input.TextArea
+                                        value={body}
+                                        rows={8}
+                                        onChange={(e) => {
+                                            setBody(e.target.value);
+                                        }}
+                                    /> */}
+                                    <Editor
+                                        lang="plain"
+                                        value={body}
+                                        // event$={event$}
+                                        onChange={value => setBody(value)}
+                                        // onChange={value => setCode2(value)}
+                                        // onEditor={editor => {
+                                        //     setEditor(editor)
+                                        // }}
+                                    />
+                                </div>
                             : bodyType == 'json' ?
-                                <div className={styles.editorBox}>
+                                <div className={styles.editorBox} key="json">
                                     {/* <Input.TextArea
                                         className={styles.textarea}
                                         value={body}
