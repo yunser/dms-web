@@ -39,18 +39,32 @@
     display: flex;
     flex: 1 0;
     flex-direction: column;
-
-}
-.editorTabs {
-    height: 40px;
-    // border: 1px solid #f00;
-    font-style: 0;
-    flex-grow: 0;
+    // border: 1px solid #000;
+    display: flex;
+    flex-direction: column;
+    .editorTabs {
+        height: 40px;
+        // border: 1px solid #f00;
+        font-style: 0;
+        flex-grow: 0;
+        overflow: hidden;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .rightContentContent {
+        flex: 1 0 auto;
+        height: 0;
+        // border: 1px solid #000;
+    }
+    .tabContainer {
+        width: 100%;
+        height: 100%;
+        // border: 1px solid #000;
+    }
 }
 .singleEditor {
-    flex-grow: 1;
+    // flex-grow: 1;
     // flex-basis: 0;
-    height: 0;
+    height: 100%;
     display: flex;
     flex-direction: column;
 }
@@ -90,21 +104,26 @@
     overflow: auto;
     display: flex;
     flex-direction: column;
-    .contentHeader {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-    .contentBody {
-        flex: 1 0 auto;
-        height: 0;
-        // border: 1px solid #000;
-    }
     & > .content {
         height: 100%;
         // border: 1px solid #000;
         display: flex;
         flex-direction: column;
+        // border: 1px solid #000;
+        display: flex;
+        flex-direction: column;
+        .contentHeader {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .contentBody {
+            flex: 1 0 auto;
+            height: 0;
+            overflow: auto;
+            // border: 1px solid #000;
+        }
     }
     .empty {
         height: 100%;

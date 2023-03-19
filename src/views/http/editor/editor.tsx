@@ -504,6 +504,7 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
 
     const [url, _setUrl] = useState(api.url || '');
     function setUrl(url) {
+        console.log('setUrl', )
         _setUrl(url)
         onChange && onChange({
             api: {
@@ -522,7 +523,18 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
             }
         })
     }
-    const [bodyType, setBodyType] = useState('none')
+    const [bodyType, _setBodyType] = useState(api.bodyType || 'none')
+    function setBodyType(params) {
+        _setBodyType(params)
+        console.log('bodyTypebodyTypebodyType', )
+        onChange && onChange({
+            api: {
+                ...api,
+                bodyType,
+            }
+        })
+    }
+
     // const [bodyType, setBodyType] = useState('form-data')
     const [reqTab, setReqTab] = useState(api.method == 'GET' ? 'params' : 'body')
     const [resTab, setResTab] = useState('body')
@@ -880,10 +892,16 @@ ${item.value}
                         placeholder="URL"
                         onChange={(e) => {
                             const url = e.target.value
-                            console.log('url-change', url)
+                            // console.log('url-change', url)
                             setUrl(url)
-                            let urlObj = new URL(url)
-                            if (urlObj.search.length > 1) {
+                            let urlObj
+                            try {
+                                urlObj = new URL(url)
+                            }
+                            catch (err) {
+                                // nothing
+                            }
+                            if (urlObj && urlObj.search.length > 1) {
                                 const sp = new URLSearchParams(urlObj.search)
                                 // for (let header of headers) {
                                 //     if (header.key) {
@@ -922,7 +940,7 @@ ${item.value}
                         }}
                         style={{ width: 560 }}
                         onKeyDown={(e) => {
-                            console.log('e', e.code)
+                            // console.log('e', e.code)
                             if (e.code == 'Enter') {
                                 doRequest()
                             }
@@ -1109,7 +1127,7 @@ ${item.value}
                             </div>
                             {bodyType == 'none' ?
                                 <FullCenterBox height={200}>
-                                    <Empty description="this request dose not hava a body" />
+                                    <Empty description={t('http.request.body.none')} />
                                 </FullCenterBox>
                             : bodyType == 'x-www-form-urlencoded' ?
                                 <div>
@@ -1236,6 +1254,7 @@ ${item.value}
                                                     {
                                                         title: t('value'),
                                                         dataIndex: 'value',
+                                                        ellipsis: true,
                                                     },
                                                 ]}
                                                 pagination={false}
@@ -1275,6 +1294,7 @@ ${item.value}
                                                         title: t('value'),
                                                         dataIndex: 'value',
                                                         width: 240,
+                                                        ellipsis: true,
                                                     },
                                                     {
                                                         title: t('http.cookie.domain'),
@@ -1450,7 +1470,7 @@ export function HttpClient({ host }) {
     ])
     const [curTabIdx, setCurTabIdx] = useState(0)
     const [serviceInfo, setServiceInfo] = useState(null)
-    const activeTab = tabs[curTabIdx]
+    const activeTab_will = tabs[curTabIdx]
 
     const event$ = useEventEmitter()
     
@@ -1466,14 +1486,19 @@ export function HttpClient({ host }) {
             ])
             setCurTabIdx(tabs.length)
         } else {
-            const newTabs = tabs.filter((item, idx) => (idx + '') != targetKey)
-            if (newTabs.length == 0) {
-                newTabs.push(getNewItem())
-            }
-            setTabs(newTabs)
-            // remove(targetKey);
-            // TODO setCurTabIdx(parseInt(key))
-            setCurTabIdx(0)
+            Modal.confirm({
+                content: `确认关闭？`,
+                async onOk() {
+                    const newTabs = tabs.filter((item, idx) => (idx + '') != targetKey)
+                    if (newTabs.length == 0) {
+                        newTabs.push(getNewItem())
+                    }
+                    setTabs(newTabs)
+                    // remove(targetKey);
+                    // TODO setCurTabIdx(parseInt(key))
+                    setCurTabIdx(0)
+                }
+            })
         }
     };
 
@@ -1582,9 +1607,9 @@ export function HttpClient({ host }) {
                 <div className={styles.editorRight}>
                     <div className={styles.editorTabs}>
                         <Tabs
-                            
                             type="editable-card"
                             // activeKey={tab}
+                            tabBarGutter={-1}
                             activeKey={'' + curTabIdx}
                             onEdit={onEdit}
                             onChange={key => {
@@ -1603,76 +1628,91 @@ export function HttpClient({ host }) {
                             <TabPane tab="Body" key="body" /> */}
                         </Tabs>
                     </div>
-                    {/* 1212 */}
-                    {activeTab.type == 'PROJECT' &&
-                        <div>项目</div>
-                    }
-                    {activeTab.type == 'API' &&
-                        // <div></div>
-                        <SingleEditor
-                            host={host}
-                            serviceInfo={serviceInfo}
-                            api={activeTab.api}
-                            key={activeTab.id}
-                            onChange={({ api }) => {
-                                tabs[curTabIdx].api = api
-                                setTabs([...tabs])
-                            }}
-                            onSave={async () => {
-                                console.log('保存', activeTab)
-                                // const 
-                                if (!activeTab.api.name) {
-                                    message.error('名称不能为空')
-                                    return
-                                }
-                                if (!activeTab.api.url) {
-                                    message.error('URL 不能为空')
-                                    return
-                                }
-                                let _path
-                                if (activeTab.path) {
-                                    _path = activeTab.path
-                                }
-                                else {
-                                    _path = `${serviceInfo.rootPath}/${activeTab.api.name}.api.json`
-                                }
-                                let res = await request.post(`${config.host}/file/write`, {
-                                    path: _path,
-                                    content: JSON.stringify(activeTab.api, null, 4)
-                                })
-                                if (res.success) {
-                                    event$.emit({
-                                        type: 'type_reload_file',
-                                        data: {
-                                            // theme: getTheme(),
-                                        }
-                                    })
-                                }
-                            }}
-                            onRemove={async () => {
-                                // if (activeTab.path) {}
-                                Modal.confirm({
-                                    // icon: <ExclamationCircleOutlined />,
-                                    content: '确认删除？',
-                                    async onOk() {
-                                        console.log('OK');
-                                        await axios.post(`${host}/api/remove`, {
-                                            path: activeTab.path,
-                                            // content: JSON.stringify(activeTab.api, null, 4)
-                                        })
-                                    },
-                                    onCancel() {
-                                        console.log('Cancel');
-                                    },
-                                });
-                            }}
-                        />
-                    }
-                    {activeTab.type == 'TEXT' &&
-                        <div className={styles.contentBox}>
-                            <pre>{activeTab.content}</pre>
-                        </div>
-                    }
+                    <div className={styles.rightContentContent}>
+                        {tabs.map(item => {
+                            return (
+                                <div 
+                                    className={styles.tabContainer}
+                                    style={{
+                                        // visibility: item.key == activeKey ? 'visible' : 'hidden',
+                                        display: item.id == activeTab_will.id ? undefined : 'none',
+                                    }}
+                                >
+                                    {/* id: {item.id} */}
+
+                                    {item.type == 'PROJECT' &&
+                                        <div>项目</div>
+                                    }
+                                    {item.type == 'API' &&
+                                        // <div></div>
+                                        <SingleEditor
+                                            host={host}
+                                            serviceInfo={serviceInfo}
+                                            api={item.api}
+                                            key={item.id}
+                                            onChange={({ api }) => {
+                                                tabs[curTabIdx].api = api
+                                                setTabs([...tabs])
+                                            }}
+                                            onSave={async () => {
+                                                console.log('保存', activeTab_will)
+                                                // const 
+                                                if (!activeTab_will.api.name) {
+                                                    message.error('名称不能为空')
+                                                    return
+                                                }
+                                                if (!activeTab_will.api.url) {
+                                                    message.error('URL 不能为空')
+                                                    return
+                                                }
+                                                let _path
+                                                if (activeTab_will.path) {
+                                                    _path = activeTab_will.path
+                                                }
+                                                else {
+                                                    _path = `${serviceInfo.rootPath}/${activeTab_will.api.name}.api.json`
+                                                }
+                                                let res = await request.post(`${config.host}/file/write`, {
+                                                    path: _path,
+                                                    content: JSON.stringify(activeTab_will.api, null, 4)
+                                                })
+                                                if (res.success) {
+                                                    event$.emit({
+                                                        type: 'type_reload_file',
+                                                        data: {
+                                                            // theme: getTheme(),
+                                                        }
+                                                    })
+                                                }
+                                            }}
+                                            onRemove={async () => {
+                                                // if (activeTab.path) {}
+                                                Modal.confirm({
+                                                    // icon: <ExclamationCircleOutlined />,
+                                                    content: '确认删除？',
+                                                    async onOk() {
+                                                        console.log('OK');
+                                                        await axios.post(`${host}/api/remove`, {
+                                                            path: activeTab_will.path,
+                                                            // content: JSON.stringify(activeTab.api, null, 4)
+                                                        })
+                                                    },
+                                                    onCancel() {
+                                                        console.log('Cancel');
+                                                    },
+                                                });
+                                            }}
+                                        />
+                                    }
+                                    {item.type == 'TEXT' &&
+                                        <div className={styles.contentBox}>
+                                            <pre>{item.content}</pre>
+                                        </div>
+                                    }
+                                </div>
+                            )
+                        })}
+                    </div>
                 </div>
             </div>
         </div>

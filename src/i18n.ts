@@ -542,6 +542,7 @@ i18n
                     'http.cookie.same_site': 'Same Site',
                     'http.cookie.partition_key': 'Partition Key',
                     'http.key': 'Key',
+                    'http.request.body.none': 'This request dose not hava a body',
                 }
             },
             zh: {
@@ -1076,6 +1077,7 @@ i18n
                     'http.cookie.same_site': '同站策略',
                     'http.cookie.partition_key': 'Partition Key',
                     'http.key': '名称',
+                    'http.request.body.none': 'This request dose not hava a body',
                 }
             }
         },
