@@ -48,6 +48,7 @@ import { FullCenterBox } from '@/views/common/full-center-box';
 import classNames from 'classnames';
 import { uid } from 'uid';
 import filesize from 'file-size';
+import copy from 'copy-to-clipboard';
 
 const boundary = `********${uid(16)}********`
 
@@ -64,6 +65,18 @@ const MethodKey = {
 interface Header {
     key: string
     value: string
+}
+
+function CopyableValueRender(value) {
+    return (
+        <div
+            className={styles.copyableValue}
+            onClick={() => {
+                copy(value)
+                message.success('已复制')
+            }}
+        >{value}</div>
+    )
 }
 
 function parseCookie(header: Header) {
@@ -601,6 +614,14 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
         //     description: 'BB',
         // },
     ])
+
+    const [cookies, setCookies] = useState([
+        // {
+        //     enable: true,
+        //     key: 'IBASE4JSESSIONID',
+        //     value: 'd85a5263-1761-42d5-b0f1-36873102d56d',
+        // }
+    ])
     const [urlencodeds, _setUrlencodeds] = useState([
         // {
         //     enable: true,
@@ -665,14 +686,6 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
             return
         }
         
-        // let _headers = {}
-        // console.log('method', method)
-        // if (method === MethodKey.Post) {
-        //     _headers = {
-        //         'Content-Type': 'application/json',
-        //     };
-        // }
-
         const startTime = new Date()
         let _url = url
         if (!_url.startsWith('http://') && !_url.startsWith('https://')) {
@@ -774,35 +787,6 @@ ${item.value}
         else {
             setResponseError(res.data?.message || 'unknown error')
         }
-
-        // fetch(apiDomain + '/http/agent', {
-        //     method: 'POST',
-        //     body: JSON.stringify({
-        //         method,
-        //         url,
-        //         body
-        //     }),
-        //     headers: {
-        // 　　　　'Content-Type': 'application/json'
-        // 　　},
-        // })
-        //     .then(response => {
-        //         console.log('response', response)
-        //         // return response.json()
-        //         return response.text()
-        //     })
-        //     .then(text => {
-        //         console.log('text', text)
-        //     })
-        // if (typeof data.data === 'string') {
-        //     setResult(data.data)
-        // } else {
-        // }
-        // apiDomain
-        // if (typeof res.data == )
-        
-        // console.log('data.data', `=${data.data}=`)
-        
     }
 
     async function save() {
@@ -827,6 +811,29 @@ ${item.value}
     //         window.removeEventListener('keydown', handleKeyDown)
     //     }
     // }, [])
+
+    function upsertHeader(key, value) {
+        const fContentTypeIdx = headers.findIndex(item => item.key.toLowerCase() == key)
+        console.log('fContentTypeIdx', fContentTypeIdx)
+        if (fContentTypeIdx == -1) {
+            setHeaders([
+                ...headers,
+                {
+                    enable: true,
+                    key,
+                    value,
+                    description: '',
+                }
+            ])
+        }
+        else {
+            const newHeaders = [
+                ...headers,
+            ]
+            newHeaders[fContentTypeIdx].value = value
+            setHeaders(newHeaders)
+        }
+    }
 
     return (
         <div className={styles.singleEditor}>
@@ -990,8 +997,9 @@ ${item.value}
                     }}
                 >
                     <TabPane tab={t('http.query')} key="params" />
-                    <TabPane tab={t('http.headers')} key="headers" />
+                    <TabPane tab={`${t('http.headers')} (${headers.length})`} key="headers" />
                     <TabPane tab={t('http.body')} key="body" />
+                    <TabPane tab={`${t('http.cookies')} (${cookies.length})`} key="cookies" />
                 </Tabs>
                 {reqTab == 'params' &&
                     <div>
@@ -999,11 +1007,11 @@ ${item.value}
                             dataSource={params}
                             columns={[
                                 {
-                                    title: 'Key',
+                                    title: t('http.key'),
                                     dataIndex: 'key',
                                 },
                                 {
-                                    title: 'Value',
+                                    title: t('value'),
                                     dataIndex: 'value',
                                 },
                                 {
@@ -1074,26 +1082,7 @@ ${item.value}
                                         setBodyType(value)
 
                                         function setContentType(contentType) {
-                                            const fContentTypeIdx = headers.findIndex(item => item.key.toLowerCase() == 'content-type')
-                                            console.log('fContentTypeIdx', fContentTypeIdx)
-                                            if (fContentTypeIdx == -1) {
-                                                setHeaders([
-                                                    ...headers,
-                                                    {
-                                                        enable: true,
-                                                        key: 'Content-Type',
-                                                        value: contentType,
-                                                        description: '',
-                                                    }
-                                                ])
-                                            }
-                                            else {
-                                                const newHeaders = [
-                                                    ...headers,
-                                                ]
-                                                newHeaders[fContentTypeIdx].value = contentType
-                                                setHeaders(newHeaders)
-                                            }
+                                            upsertHeader('content-type', contentType)
                                         }
 
                                         if (value == 'json') {
@@ -1135,11 +1124,11 @@ ${item.value}
                                         dataSource={urlencodeds}
                                         columns={[
                                             {
-                                                title: 'Key',
+                                                title: t('http.key'),
                                                 dataIndex: 'key',
                                             },
                                             {
-                                                title: 'Value',
+                                                title: t('value'),
                                                 dataIndex: 'value',
                                             },
                                             {
@@ -1158,11 +1147,11 @@ ${item.value}
                                         dataSource={formDatas}
                                         columns={[
                                             {
-                                                title: 'Key',
+                                                title: t('http.key'),
                                                 dataIndex: 'key',
                                             },
                                             {
-                                                title: 'Value',
+                                                title: t('value'),
                                                 dataIndex: 'value',
                                             },
                                             {
@@ -1185,6 +1174,33 @@ ${item.value}
                                 />
                             }
                         </div>
+                    </div>
+                }
+                {reqTab == 'cookies' &&
+                    <div>
+                        <MyTable
+                            dataSource={cookies}
+                            columns={[
+                                {
+                                    title: t('http.key'),
+                                    dataIndex: 'key',
+                                },
+                                {
+                                    title: t('value'),
+                                    dataIndex: 'value',
+                                },
+                                {
+                                    title: t('description'),
+                                    dataIndex: 'description',
+                                },
+                            ]}
+                            onChange={newParams => {
+                                // console.log('newParams', newParams)
+                                setCookies(newParams)
+                                const cookie = newParams.map(item => `${item.key}=${item.value}`).join(';')
+                                upsertHeader('cookie', cookie)
+                            }}
+                        />
                     </div>
                 }
             </div>
@@ -1250,11 +1266,13 @@ ${item.value}
                                                         title: t('http.key'),
                                                         dataIndex: 'key',
                                                         width: 240,
+                                                        render: CopyableValueRender,
                                                     },
                                                     {
                                                         title: t('value'),
                                                         dataIndex: 'value',
                                                         ellipsis: true,
+                                                        render: CopyableValueRender,
                                                     },
                                                 ]}
                                                 pagination={false}
@@ -1289,12 +1307,14 @@ ${item.value}
                                                         title: t('name'),
                                                         dataIndex: 'name',
                                                         width: 240,
+                                                        render: CopyableValueRender,
                                                     },
                                                     {
                                                         title: t('value'),
                                                         dataIndex: 'value',
                                                         width: 240,
                                                         ellipsis: true,
+                                                        render: CopyableValueRender,
                                                     },
                                                     {
                                                         title: t('http.cookie.domain'),
