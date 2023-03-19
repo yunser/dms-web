@@ -21,6 +21,7 @@ import {
     Spin,
     Tag,
     Checkbox,
+    Form,
 } from 'antd';
 // import { LikeOutlined, UserOutlined } from '@ant-design/icons';
 // import type { ProSettings } from '@ant-design/pro-layout';
@@ -49,6 +50,7 @@ import classNames from 'classnames';
 import { uid } from 'uid';
 import filesize from 'file-size';
 import copy from 'copy-to-clipboard';
+import { Base64 } from 'js-base64';
 
 const boundary = `********${uid(16)}********`
 
@@ -191,6 +193,79 @@ function ResponseBody({ response }) {
                     />
                 }
             </div>
+        </div>
+    )
+}
+
+function AuthConfig({ onAuth }) {
+    const [type, setType] = useState('none')
+    const [form] = Form.useForm()
+
+    async function handleOk() {
+        const values = await form.validateFields()
+        console.log('values', values)
+        // Base64
+        const b64 = Base64.encode(`${values.username}:${values.password}`)
+        const auth = `Basic ${b64}`
+        console.log('auth', auth)
+        onAuth && onAuth(auth)
+    }
+
+    return (
+        <div className={styles.authBox}>
+            <Select
+                className={styles.type}
+                value={type}
+                options={[
+                    {
+                        label: 'No Auth',
+                        value: 'none',
+                    },
+                    {
+                        label: 'Basic Auth',
+                        value: 'basic',
+                    },
+                ]}
+                onChange={value => {
+                    setType(value)
+                }}
+            />
+            {type == 'basic' &&
+                <div className={styles.form}>
+                    <Form
+                        form={form}
+                        labelCol={{ span: 8 }}
+                        wrapperCol={{ span: 16 }}
+                        initialValues={{
+                            port: 3306,
+                        }}
+                    >
+                        <Form.Item
+                            name="username"
+                            label="username"
+                            rules={[ { required: true, }, ]}
+                        >
+                            <Input />
+                        </Form.Item>
+                        <Form.Item
+                            name="password"
+                            label="password"
+                            rules={[ { required: true, }, ]}
+                        >
+                            <Input />
+                        </Form.Item>
+                        <Form.Item
+                        >
+                            <Button 
+                                type="primary"
+                                onClick={() => {
+                                    handleOk()
+                                }}
+                            >ok</Button>
+                        </Form.Item>
+                    </Form>
+                </div>
+            }
         </div>
     )
 }
@@ -1007,6 +1082,7 @@ ${item.value}
                         <TabPane tab={`${t('http.headers')} (${headers.length})`} key="headers" />
                         <TabPane tab={t('http.body')} key="body" />
                         <TabPane tab={`${t('http.cookies')} (${cookies.length})`} key="cookies" />
+                        <TabPane tab={t('http.auth')} key="auth" />
                     </Tabs>
                 </div>
                 <div className={styles.body}>
@@ -1211,6 +1287,14 @@ ${item.value}
                                 }}
                             />
                         </div>
+                    }
+                    {reqTab == 'auth' &&
+                        <AuthConfig
+                            onAuth={auth => {
+                                upsertHeader('Authorization', auth)
+                                setReqTab('headers')
+                            }}
+                        />
                     }
                 </div>
             </div>

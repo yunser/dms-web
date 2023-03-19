@@ -36,6 +36,7 @@
     "i18next-browser-languagedetector": "^6.1.4",
     "iterare": "^1.2.1",
     "javascript-time-ago": "^2.5.9",
+    "js-base64": "^3.7.5",
     "json5": "^2.2.1",
     "lodash": "^4.17.21",
     "marked": "^4.1.1",

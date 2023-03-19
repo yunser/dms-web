@@ -543,6 +543,7 @@ i18n
                     'http.cookie.partition_key': 'Partition Key',
                     'http.key': 'Key',
                     'http.request.body.none': 'This request dose not hava a body',
+                    'http.auth': 'Authorization',
                 }
             },
             zh: {
@@ -1078,6 +1079,7 @@ i18n
                     'http.cookie.partition_key': 'Partition Key',
                     'http.key': '名称',
                     'http.request.body.none': 'This request dose not hava a body',
+                    'http.auth': '认证',
                 }
             }
         },
