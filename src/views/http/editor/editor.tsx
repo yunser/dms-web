@@ -969,7 +969,13 @@ ${item.value}
                         ]}
                         onChange={(value) => {
                             setMethod(value)
-                            // if ()
+                            if (value == MethodKey.Get) {
+                                setReqTab('params')
+                            }
+                            else if (value == MethodKey.Post) {
+                                setReqTab('body')
+                                setBodyType('json')
+                            }
                         }}
                         style={{ width: 120 }}
                     />
