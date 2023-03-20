@@ -26,13 +26,20 @@
 }
 .editorLeft {
     // width: 240px;
-    flex: 0 0 240px;
+    flex: 0 0 320px;
     width: 0;
     padding-top: 16px;
     border-right: 1px solid rgba(0, 0, 0, .08);
-    background-color: #f9f9f9;
+    // background-color: #f9f9f9;
+    background-color: #fff;
+    // border: 1px solid #000;
     .header {
         padding: 0 16px;
+        // border: 1px solid #000;
+        background-color: #fff;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 16px;
     }
 }
 .editorRight {
@@ -282,10 +289,15 @@
 
 .searchBox {
     display: flex;
+    flex: 1 0 auto;
+    // border: 1px solid #000;
     // border: 1px solid var(--border-color);
     // margin-bottom: 16px;
     .search {
         // width: 240px;
+    }
+    .input {
+        flex: 1 0 auto;
     }
     :global{
         .ant-btn-icon-only.ant-btn-sm{

@@ -43,7 +43,7 @@ import styles from './editor.module.less'
 import { t } from 'i18next';
 import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
-import { DeleteOutlined, GlobalOutlined, ReloadOutlined } from '@ant-design/icons';
+import { DeleteOutlined, GlobalOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import { useEventEmitter } from 'ahooks';
 import { getGlobalConfig } from '@/config';
 import { FullCenterBox } from '@/views/common/full-center-box';
@@ -426,6 +426,7 @@ function MyTable({ dataSource: _dataSource = [], columns = [], onChange: _onChan
 
 function Files({ event$, config, serviceInfo, onClickItem }) {
 
+    const [loading, setLoading] = useState(false)
     const [files, setFiles] = useState([
         {
             type: 'FILE',
@@ -454,10 +455,12 @@ function Files({ event$, config, serviceInfo, onClickItem }) {
         // if (!host) {
         //     return
         // }
+        setLoading(true)
         let res = await request.post(`${config.host}/file/list`, {
             path: serviceInfo.rootPath,
             r: true,
         })
+        setLoading(false)
         // console.log('res', res)
         if (res.success) {
             // setList(res.data.list)
@@ -510,29 +513,46 @@ function Files({ event$, config, serviceInfo, onClickItem }) {
         return (
             <div>
                 <div className={styles.header}>
-                    <IconButton
-                        tooltip={t('refresh')}
-                        // size="small"
-                        className={styles.refresh}
-                        onClick={() => {
-                            // loadKey()
-                            loadData()
-                        }}
-                    >
-                        <ReloadOutlined />
-                    </IconButton>
+                    <Space>
+                        <IconButton
+                            tooltip={t('refresh')}
+                            // size="small"
+                            className={styles.refresh}
+                            onClick={() => {
+                                // loadKey()
+                                loadData()
+                            }}
+                        >
+                            <ReloadOutlined />
+                        </IconButton>
+                        <IconButton
+                            tooltip={t('new')}
+                            // size="small"
+                            className={styles.refresh}
+                            onClick={() => {
+                                // loadKey()
+                                loadData()
+                            }}
+                        >
+                            <PlusOutlined />
+                        </IconButton>
+                    </Space>
                 </div>
-                <Tree
-                    treeData={treeData}
-                    expandedKeys={expandedKeys}
-                    onExpand={(expandedKeys) => {
-                        setExpandedKeys(expandedKeys)
-                    }}
-                    onSelect={(selectedKeys, info) => {
-                        console.log('info', info.node.itemData)
-                        onClickItem && onClickItem(info.node.itemData)
-                    }}
-                />
+                {loading ?
+                    <Spin />
+                :
+                    <Tree
+                        treeData={treeData}
+                        expandedKeys={expandedKeys}
+                        onExpand={(expandedKeys) => {
+                            setExpandedKeys(expandedKeys)
+                        }}
+                        onSelect={(selectedKeys, info) => {
+                            console.log('info', info.node.itemData)
+                            onClickItem && onClickItem(info.node.itemData)
+                        }}
+                    />
+                }
             </div>
             // <div className={classes.fileList}
             // >
@@ -1047,6 +1067,7 @@ ${item.value}
                         style={{ width: 120 }}
                     />
                     <Input
+                        className={styles.input}
                         // width={800}
                         value={url}
                         placeholder="URL"
@@ -1115,7 +1136,10 @@ ${item.value}
                 {!!serviceInfo &&
                     <Button
                         className={styles.send}
-                        onClick={save}>保存</Button>
+                        onClick={save}
+                    >
+                        {t('save')}
+                    </Button>
                 }
                 {!!host &&
                     <Button
@@ -1811,7 +1835,7 @@ export function HttpClient({ host }) {
         })
         console.log('info', res.data)
         if (res.success) {
-            // setServiceInfo(res.data)
+            setServiceInfo(res.data)
         }
     }
 
@@ -1853,7 +1877,7 @@ export function HttpClient({ host }) {
             }
             <div className={styles.editorContent}>
                 {/* !!host &&  */}
-                {!!serviceInfo && false &&
+                {!!serviceInfo &&
                     <div className={styles.editorLeft}>
                         <Files
                             config={config}
@@ -1916,6 +1940,7 @@ export function HttpClient({ host }) {
                             tabBarGutter={-1}
                             activeKey={'' + curTabIdx}
                             onEdit={onEdit}
+                            hideAdd={true}
                             onChange={key => {
                                 // setTab(key)
                                 setCurTabIdx(parseInt(key))
