@@ -300,7 +300,7 @@ function MyTable({ dataSource: _dataSource = [], columns = [], onChange: _onChan
     ]
 
     function onChange(value) {
-        console.log('onChange', value)
+        // console.log('onChange', value)
         _onChange && _onChange(value.filter(item => item.key))
     }
 
@@ -611,20 +611,37 @@ async function axiosRequest(params) {
     }
 }
 
-function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
+function SingleEditor({ host, serviceInfo, api = {}, onChange, onSave, onRemove }) {
     
     const config = getGlobalConfig()
+
     const [httpVersion, setHttpVersion] = useState('1.1')
     const [method, _setMethod] = useState(api.method || MethodKey.Get);
+
     function setMethod(method) {
         _setMethod(method)
+        comData.current.api.method = method
+        emitChange()
+    }
+    
+    const comData = useRef({
+        uploadData: '',
+        api: {
+            method: 'GET',
+            url: '',
+            // TODO 引用问题，clone
+            ...api,
+        }
+    })
+
+    function emitChange() {
         onChange && onChange({
             api: {
-                ...api,
-                method,
+                ...comData.current.api,
             }
         })
     }
+    
     // useEffect(() => {
     //     if (api.method == 'GET') {
     //         setReqTab('params')
@@ -634,57 +651,34 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
     //     }
     // }, [api])
     function setName(name) {
-        onChange && onChange({
-            api: {
-                ...api,
-                name,
-            }
-        })
+        comData.current.api.name = name
+        emitChange()
     }
 
     const [url, _setUrl] = useState(api.url || '');
     function setUrl(url) {
-        console.log('setUrl', )
+        comData.current.api.url = url
         _setUrl(url)
-        onChange && onChange({
-            api: {
-                ...api,
-                url,
-            }
-        })
+        emitChange()
     }
     const [body, _setBody] = useState(api.body ? api.body : '')
     function setBody(body) {
         _setBody(body)
-        onChange && onChange({
-            api: {
-                ...api,
-                body,
-            }
-        })
+        comData.current.api.body = body
+        emitChange()
     }
-    const comData = useRef({
-        uploadData: '',
-    })
+    
     const [uploaded, setUploaded] = useState('')
     const [bodyType, _setBodyType] = useState(api.bodyType || 'none')
     function setBodyType(params) {
         _setBodyType(params)
-        console.log('bodyTypebodyTypebodyType', )
-        onChange && onChange({
-            api: {
-                ...api,
-                bodyType,
-            }
-        })
+        comData.current.api.bodyType = bodyType
+        emitChange()
     }
 
     // const [bodyType, setBodyType] = useState('form-data')
     const [reqTab, setReqTab] = useState(api.method == 'GET' ? 'params' : 'body')
     const [resTab, setResTab] = useState('body')
-    // const [ method, setMethod ] = useState('get')
-    // const [ url, setUrl ] = useState('https://nodeapi.yunser.com/version')
-    // const [ body, setBody ] = useState('')
     const [responseError, setResponseError] = useState('')
     const [response, setResponse] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -701,13 +695,9 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
         // },
     ])
     function setParams(params) {
+        comData.current.api.params = params
         _setParams(params)
-        onChange && onChange({
-            api: {
-                ...api,
-                params,
-            }
-        })
+        emitChange()
     }
     const [headers, _setHeaders] = useState(api.headers || [
         {
@@ -788,12 +778,8 @@ function SingleEditor({ host, serviceInfo, api, onChange, onSave, onRemove }) {
     ])
     function setHeaders(headers) {
         _setHeaders(headers)
-        onChange && onChange({
-            api: {
-                ...api,
-                headers,
-            }
-        })
+        comData.current.api.headers = headers
+        emitChange()
     }
     function keyValueList2Obj(params) {
         const qureies = {}
@@ -1738,7 +1724,7 @@ ${item.value}
 function getNewItem() {
     return {
         type: 'API',
-        id: '' + new Date().getTime(),
+        id: uid(32),
         title: t('new_api'),
         api: {
             method: 'GET',
@@ -1768,8 +1754,11 @@ export function HttpClient({ host }) {
             return 'en'
         }
     }, [i18n.language])
-    const [tab, setTab] = useState('2')
-    const [tabs, setTabs] = useState([
+    const comData = useRef({
+        tabs: [],
+    })
+    
+    const [tabs, _setTabs] = useState([
         getNewItem(),
         // {
         //     type: 'API',
@@ -1796,9 +1785,21 @@ export function HttpClient({ host }) {
         // },
         
     ])
-    const [curTabIdx, setCurTabIdx] = useState(0)
+
+    function setTabs(list) {
+        comData.current.tabs = list
+        _setTabs(list)
+    }
+    
+    function addTabItem(item) {
+        setTabs([
+            ...tabs,
+            item,
+        ])
+    }
+
+    const [curTabId, setCurTabId] = useState(tabs[0].id)
     const [serviceInfo, setServiceInfo] = useState(null)
-    const activeTab_will = tabs[curTabIdx]
 
     const event$ = useEventEmitter()
     
@@ -1807,24 +1808,22 @@ export function HttpClient({ host }) {
         console.log('onEdit.tabs', tabs)
         
         if (action === 'add') {
-            // add();
-            setTabs([
-                ...tabs,
-                getNewItem(),
-            ])
-            setCurTabIdx(tabs.length)
+            const item = getNewItem()
+            addTabItem(item)
+            setCurTabId(item.id)
         } else {
             Modal.confirm({
                 content: `确认关闭？`,
                 async onOk() {
-                    const newTabs = tabs.filter((item, idx) => (idx + '') != targetKey)
+                    const newTabs = tabs.filter((item, idx) => item.id != targetKey)
                     if (newTabs.length == 0) {
                         newTabs.push(getNewItem())
                     }
                     setTabs(newTabs)
                     // remove(targetKey);
-                    // TODO setCurTabIdx(parseInt(key))
-                    setCurTabIdx(0)
+                    if (newTabs.length) {
+                        setCurTabId(newTabs[0].id)
+                    }
                 }
             })
         }
@@ -1887,9 +1886,9 @@ export function HttpClient({ host }) {
                             onClickItem={async item => {
                                 console.log('item', item)
                                 if (item.type == 'FILE') {
-                                    const fTabIdx = tabs.findIndex(_item => _item.path == item.path)
-                                    if (fTabIdx != -1) {
-                                        setCurTabIdx(fTabIdx)
+                                    const fTab = tabs.find(_item => _item.path == item.path)
+                                    if (fTab) {
+                                        setCurTabId(fTab.id)
                                     }
                                     else {
                                         let res = await request.post(`${config.host}/file/read`, {
@@ -1920,11 +1919,8 @@ export function HttpClient({ host }) {
                                                     path: item.path,
                                                 }
                                             }
-                                            setTabs([
-                                                ...tabs,
-                                                newItem
-                                            ])
-                                            setCurTabIdx(tabs.length)
+                                            addTabItem(newItem)
+                                            setCurTabId(newItem.id)
                                         }
                                     }
                                 }
@@ -1938,18 +1934,18 @@ export function HttpClient({ host }) {
                             type="editable-card"
                             // activeKey={tab}
                             tabBarGutter={-1}
-                            activeKey={'' + curTabIdx}
+                            activeKey={curTabId}
                             onEdit={onEdit}
                             hideAdd={true}
                             onChange={key => {
                                 // setTab(key)
-                                setCurTabIdx(parseInt(key))
+                                setCurTabId(key)
                             }}
                         >
                             {tabs.map((item, idx) => {
                                 return (
                                     <TabPane tab={item.title} 
-                                        key={'' + idx}
+                                        key={item.id}
                                     />
                                 )
                             })}
@@ -1964,7 +1960,7 @@ export function HttpClient({ host }) {
                                     className={styles.tabContainer}
                                     style={{
                                         // visibility: item.key == activeKey ? 'visible' : 'hidden',
-                                        display: item.id == activeTab_will.id ? undefined : 'none',
+                                        display: item.id == curTabId ? undefined : 'none',
                                     }}
                                 >
                                     {/* id: {item.id} */}
@@ -1980,12 +1976,20 @@ export function HttpClient({ host }) {
                                             api={item.api}
                                             key={item.id}
                                             onChange={({ api }) => {
-                                                tabs[curTabIdx].api = api
-                                                setTabs([...tabs])
+                                                console.log('onChange?', api)
+                                                const fTabIdx = tabs.findIndex(_item => _item.id == item.id)
+                                                if (fTabIdx == -1) {
+                                                    return
+                                                }
+                                                comData.current.tabs[fTabIdx].api = api
                                             }}
                                             onSave={async () => {
+                                                const fTabIdx = comData.current.tabs.findIndex(_item => _item.id == item.id)
+                                                if (fTabIdx == -1) {
+                                                    return
+                                                }
+                                                const activeTab_will = comData.current.tabs[fTabIdx]
                                                 console.log('保存', activeTab_will)
-                                                // const 
                                                 if (!activeTab_will.api.name) {
                                                     message.error('名称不能为空')
                                                     return
@@ -2016,6 +2020,11 @@ export function HttpClient({ host }) {
                                             }}
                                             onRemove={async () => {
                                                 // if (activeTab.path) {}
+                                                const fTabIdx = comData.current.tabs.findIndex(_item => _item.id == item.id)
+                                                if (fTabIdx == -1) {
+                                                    return
+                                                }
+                                                const activeTab_will = comData.current.tabs[fTabIdx]
                                                 Modal.confirm({
                                                     // icon: <ExclamationCircleOutlined />,
                                                     content: '确认删除？',
