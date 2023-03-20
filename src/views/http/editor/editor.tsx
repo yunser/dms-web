@@ -75,6 +75,14 @@ interface Header {
     value: string
 }
 
+function parseUrl(url: string) {
+    try {
+        return new URL(url)
+    }
+    catch (err) {
+        return null
+    }
+}
 const g_cookieStore = {}
 
 function CopyableValueRender(value) {
@@ -856,6 +864,24 @@ ${item.value}
         else {
             _body = body
         }
+
+        const urlObj = parseUrl(url)
+        if (urlObj) {
+            console.log('urlObj', urlObj)
+            const _cookies = g_cookieStore[urlObj.hostname]
+            if (_cookies) {
+                // const newCookies = []
+                const cookieNames = Object.keys(_cookies)
+                if (cookieNames.length) {
+                    headerObj['cookie'] = cookieNames.map(name => `${name}=${_cookies[name]}`).join(';')
+                }
+            }
+            // for (let cookieName of _cookies) {
+    
+            // }
+        }
+
+
         setLoading(true)
         let res = await request.post(`${config.host}/http/client/request`, {
             method: method,
@@ -874,6 +900,14 @@ ${item.value}
             const data = res.data
             const uri = new URL(_url)
             // console.log('uri', uri)
+            const cookies = parseCookies(data.headers.filter(item => item.key.toLowerCase() == 'set-cookie'))
+            if (!g_cookieStore[uri.hostname]) {
+                g_cookieStore[uri.hostname] = {}
+            }
+            for (let cookie of cookies) {
+                g_cookieStore[uri.hostname][cookie.name] = cookie.value
+            }
+            console.log('g_cookieStore', g_cookieStore)
             setResponse({
                 __url: _url,
                 hostname: uri.hostname,
@@ -882,6 +916,7 @@ ${item.value}
                 requestRaw: data.requestRaw,
                 responseRaw: data.responseRaw,
                 socket: data.socket,
+                isHttps: _url.startsWith('https'),
                 text: data.data,
                 time: new Date().getTime() - startTime.getTime(),
                 headers: data.headers.map(item => {
@@ -889,7 +924,7 @@ ${item.value}
                         id: uid(16),
                     })
                 }),
-                cookies: parseCookies(data.headers.filter(item => item.key.toLowerCase() == 'set-cookie')),
+                cookies,
                 // headers: keyValueObj2List(data.headers)
                 //     .sort((h1, h2) => {
                 //         return h1.key.localeCompare(h2.key)
@@ -1097,12 +1132,15 @@ ${item.value}
                         size="small"
                         onChange={key => {
                             setReqTab(key)
+                            // if (key == 'cookies') {
+                                
+                            // }
                         }}
                     >
                         <TabPane tab={t('http.query')} key="params" />
                         <TabPane tab={`${t('http.headers')} (${headers.length})`} key="headers" />
                         <TabPane tab={t('http.body')} key="body" />
-                        <TabPane tab={`${t('http.cookies')} (${cookies.length})`} key="cookies" />
+                        {/* <TabPane tab={`${t('http.cookies')} (${cookies.length})`} key="cookies" /> */}
                         <TabPane tab={t('http.auth')} key="auth" />
                         <TabPane tab={t('settings')} key="settings" />
                     </Tabs>
@@ -1129,7 +1167,10 @@ ${item.value}
                                 onChange={newParams => {
                                     // console.log('newParams', newParams)
                                     setParams(newParams)
-                                    const urlObj = new URL(url)
+                                    const urlObj = parseUrl(url)
+                                    if (!urlObj) {
+                                        return
+                                    }
                                     // console.log('urlObj', urlObj)
                                     // setUrl
                                     let _newParams = newParams.filter(item => item.key && item.enable)
@@ -1462,6 +1503,7 @@ ${item.value}
                                                 <div>
                                                     {!!response.socket &&
                                                         <div>
+                                                            <div>{response.isHttps ? 'HTTPs' : 'HTTP'}</div>
                                                             <div>local address: {response.socket.local.address}</div>
                                                             <div>remote address: {response.socket.remote.address}</div>
                                                         </div>
@@ -1469,7 +1511,11 @@ ${item.value}
                                                 </div>
                                             }
                                         >
-                                            <GlobalOutlined />
+                                            <GlobalOutlined
+                                                style={{
+                                                    color: response.isHttps ? 'green' : undefined,
+                                                }}
+                                            />
                                         </Popover>
                                         <div>
                                             {t('status')}:{' '}
