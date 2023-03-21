@@ -248,32 +248,44 @@ function AuthConfig({ onAuth }) {
         const values = await form.validateFields()
         console.log('values', values)
         // Base64
-        const b64 = Base64.encode(`${values.username}:${values.password}`)
-        const auth = `Basic ${b64}`
+        let auth
+        if (type == 'basic') {
+            const b64 = Base64.encode(`${values.username}:${values.password}`)
+            auth = `Basic ${b64}`
+        }
+        else if (type == 'bearer') {
+            auth = `Bearer ${values.token}`
+        }
         console.log('auth', auth)
         onAuth && onAuth(auth)
     }
 
     return (
         <div className={styles.authBox}>
-            <Select
-                className={styles.type}
-                value={type}
-                options={[
-                    {
-                        label: 'No Auth',
-                        value: 'none',
-                    },
-                    {
-                        label: 'Basic Auth',
-                        value: 'basic',
-                    },
-                ]}
-                onChange={value => {
-                    setType(value)
-                }}
-            />
-            {type == 'basic' &&
+            <div className={styles.left}>
+                <Select
+                    className={styles.type}
+                    value={type}
+                    options={[
+                        {
+                            label: 'No Auth',
+                            value: 'none',
+                        },
+                        {
+                            label: 'Basic Auth',
+                            value: 'basic',
+                        },
+                        {
+                            label: 'Bearer Token',
+                            value: 'bearer',
+                        },
+                    ]}
+                    onChange={value => {
+                        setType(value)
+                    }}
+                />
+            </div>
+            {type != 'none' &&
                 <div className={styles.form}>
                     <Form
                         form={form}
@@ -283,28 +295,46 @@ function AuthConfig({ onAuth }) {
                             port: 3306,
                         }}
                     >
+                        {type == 'basic' &&
+                            <>
+                                <Form.Item
+                                    name="username"
+                                    label="username"
+                                    rules={[ { required: true, }, ]}
+                                >
+                                    <Input />
+                                </Form.Item>
+                                <Form.Item
+                                    name="password"
+                                    label="password"
+                                    rules={[ { required: true, }, ]}
+                                >
+                                    <Input />
+                                </Form.Item>
+                            </>
+                        }
+                        {type == 'bearer' &&
+                            <>
+                                <Form.Item
+                                    name="token"
+                                    label="token"
+                                    rules={[ { required: true, }, ]}
+                                >
+                                    <Input />
+                                </Form.Item>
+                            </>
+                        }
                         <Form.Item
-                            name="username"
-                            label="username"
-                            rules={[ { required: true, }, ]}
-                        >
-                            <Input />
-                        </Form.Item>
-                        <Form.Item
-                            name="password"
-                            label="password"
-                            rules={[ { required: true, }, ]}
-                        >
-                            <Input />
-                        </Form.Item>
-                        <Form.Item
+                            wrapperCol={{ offset: 8, span: 16 }}
                         >
                             <Button 
                                 type="primary"
                                 onClick={() => {
                                     handleOk()
                                 }}
-                            >ok</Button>
+                            >
+                                {t('ok')}
+                            </Button>
                         </Form.Item>
                     </Form>
                 </div>
@@ -323,6 +353,7 @@ function MyTable({ dataSource: _dataSource = [], columns = [], onChange: _onChan
             key: '',
             value: '',
             description: '',
+            _init: false,
         }
     ]
 
@@ -347,19 +378,23 @@ function MyTable({ dataSource: _dataSource = [], columns = [], onChange: _onChan
                 <tbody className={styles.body}>
                     {dataSource.map((item, idx) => {
                         return (
-                            <tr className={styles.row}>
+                            <tr className={styles.row}
+                                key={idx}
+                            >
                                 <td>
                                     <div className={classNames(styles.cell, styles.checkCell)}>
-                                        <Checkbox
-                                            checked={item.enable}
-                                            onChange={e => {
-                                                dataSource[idx].enable = e.target.checked
-                                                onChange && onChange([
-                                                    ...dataSource,
-                                                ])
+                                        {item._init !== false &&
+                                            <Checkbox
+                                                checked={item.enable}
+                                                onChange={e => {
+                                                    dataSource[idx].enable = e.target.checked
+                                                    onChange && onChange([
+                                                        ...dataSource,
+                                                    ])
 
-                                            }}
-                                        />
+                                                }}
+                                            />
+                                        }
                                     </div>
                                 </td>
                                 <td>
@@ -369,6 +404,7 @@ function MyTable({ dataSource: _dataSource = [], columns = [], onChange: _onChan
                                             value={item.key}
                                             onChange={e => {
                                                 dataSource[idx].key = e.target.value
+                                                dataSource[idx]._init = true
                                                 onChange && onChange([
                                                     ...dataSource,
                                                 ])
@@ -382,7 +418,9 @@ function MyTable({ dataSource: _dataSource = [], columns = [], onChange: _onChan
                                             className={styles.input}
                                             value={item.value}
                                             onChange={e => {
+                                                console.log('value', e.target.value)
                                                 dataSource[idx].value = e.target.value
+                                                dataSource[idx]._init = true
                                                 onChange && onChange([
                                                     ...dataSource,
                                                 ])
@@ -397,6 +435,7 @@ function MyTable({ dataSource: _dataSource = [], columns = [], onChange: _onChan
                                             value={item.description}
                                             onChange={e => {
                                                 dataSource[idx].description = e.target.value
+                                                dataSource[idx]._init = true
                                                 onChange && onChange([
                                                     ...dataSource,
                                                 ])
@@ -407,23 +446,25 @@ function MyTable({ dataSource: _dataSource = [], columns = [], onChange: _onChan
                                 </td>
                                 <td>
                                     <div className={styles.cell}>
-                                        <div className={styles.removeBtn}>
-                                            <IconButton
-                                                onClick={() => {
-                                                    dataSource.splice(idx, 1)
-                                                    onChange && onChange([
-                                                        ...dataSource,
-                                                        // {
-                                                        //     key: '',
-                                                        //     value: '',
-                                                        //     description: '',
-                                                        // }
-                                                    ])
-                                                }}
-                                            >
-                                                <DeleteOutlined />
-                                            </IconButton>
-                                        </div>
+                                        {item._init !== false &&
+                                            <div className={styles.removeBtn}>
+                                                <IconButton
+                                                    onClick={() => {
+                                                        dataSource.splice(idx, 1)
+                                                        onChange && onChange([
+                                                            ...dataSource,
+                                                            // {
+                                                            //     key: '',
+                                                            //     value: '',
+                                                            //     description: '',
+                                                            // }
+                                                        ])
+                                                    }}
+                                                >
+                                                    <DeleteOutlined />
+                                                </IconButton>
+                                            </div>
+                                        }
                                         {/* <Button
                                         >x</Button> */}
                                     </div>
@@ -1211,7 +1252,7 @@ ${item.value}
                                     }
                                     // console.log('urlObj', urlObj)
                                     // setUrl
-                                    let _newParams = newParams.filter(item => item.key && item.enable)
+                                    let _newParams = newParams.filter(item => (item.key) && item.enable)
                                     // console.log('_newParams', _newParams)
                                     let _search = ''
                                     const sp = new URLSearchParams()

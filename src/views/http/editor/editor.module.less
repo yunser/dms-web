@@ -350,10 +350,20 @@
     text-overflow: ellipsis;
 }
 .authBox {
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    // align-items: center;
+    .left {
+        padding-right: 32px;
+        border-right: 1px solid var(--border-color);
+    }
     .type {
         width: 160px;
     }   
     .form {
+        margin-left: 80px;
+        padding-top: 48px;
         width: 320px;
     }
 }
