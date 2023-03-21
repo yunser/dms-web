@@ -85,6 +85,14 @@ function parseUrl(url: string) {
 }
 const g_cookieStore = {}
 
+function headerList2Object(headers = []) {
+    const obj = {}
+    for (let header of headers) {
+        obj[header.key.toLowerCase()] = header.value
+    }
+    return obj
+}
+
 function CopyableValueRender(value) {
     return (
         <div
@@ -160,9 +168,18 @@ function ResponseBody({ response }) {
     }
     
     console.log('response?', response)
-    const prettyText = useMemo(() => {
+    const [prettyText, prettyType] = useMemo(() => {
         let text = response.text
+        let type = 'plain'
         console.log('response.text', response.text)
+        if (response.headerObj && response.headerObj['content-type']) {
+            if (response.headerObj['content-type'].includes('application/json')) {
+                type = 'json'
+            }
+            else if (response.headerObj['content-type'].includes('application/xml')) {
+                type = 'xml'
+            }
+        }
         try {
             text = JSON.stringify(JSON.parse(response.text), null, 4)
         }
@@ -170,8 +187,8 @@ function ResponseBody({ response }) {
             // console.log('err', err)
             // nothing
         }
-        return text
-    }, [response.text])
+        return [text, type]
+    }, [response.text, response.headerObj])
 
     if (contentType.startsWith('image')) {
         return (
@@ -197,9 +214,19 @@ function ResponseBody({ response }) {
             </div>
             <div className={styles.viewer}>
                 {type == 'pretty' &&
-                    <Input.TextArea 
-                        className={styles.textarea}
+                    // <Input.TextArea 
+                    //     className={styles.textarea}
+                    //     value={prettyText}
+                    // />
+                    <Editor
+                        lang={prettyType}
                         value={prettyText}
+                        // event$={event$}
+                        // onChange={value => setBody(value)}
+                        // onChange={value => setCode2(value)}
+                        // onEditor={editor => {
+                        //     setEditor(editor)
+                        // }}
                     />
                 }
                 {type == 'raw' &&
@@ -525,7 +552,7 @@ function Files({ event$, config, serviceInfo, onClickItem }) {
                         >
                             <ReloadOutlined />
                         </IconButton>
-                        <IconButton
+                        {/* <IconButton
                             tooltip={t('new')}
                             // size="small"
                             className={styles.refresh}
@@ -535,7 +562,7 @@ function Files({ event$, config, serviceInfo, onClickItem }) {
                             }}
                         >
                             <PlusOutlined />
-                        </IconButton>
+                        </IconButton> */}
                     </Space>
                 </div>
                 {loading ?
@@ -930,6 +957,7 @@ ${item.value}
                         id: uid(16),
                     })
                 }),
+                headerObj: headerList2Object(data.headers),
                 cookies,
                 // headers: keyValueObj2List(data.headers)
                 //     .sort((h1, h2) => {
@@ -1936,7 +1964,7 @@ export function HttpClient({ host }) {
                             tabBarGutter={-1}
                             activeKey={curTabId}
                             onEdit={onEdit}
-                            hideAdd={true}
+                            // hideAdd={true}
                             onChange={key => {
                                 // setTab(key)
                                 setCurTabId(key)
