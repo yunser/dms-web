@@ -82,8 +82,10 @@ export function MongoClient({ config, event$, connectionId, item: detailItem }) 
     const [collections, setCollections] = useState([])
     const [loading, setLoading] = useState(false)
     const [curDb, setCurDb] = useState(null)
-    const [curCollection, setCurCollection] = useState(null)
+    // const [curCollection_will, setCurCollection] = useState(null)
 
+    const [activeTabId, setActiveTabId] = useState('')
+    const [tabs, setTabs] = useState([])
     const [tab, setTab] = useState('document')
     // const [tab, setTab] = useState('index')
     
@@ -114,7 +116,7 @@ export function MongoClient({ config, event$, connectionId, item: detailItem }) 
 
     async function selectDb(item) {
         setCurDb(item)
-        setCurCollection(null)
+        // setCurCollection(null)
     }
     
     function dropDb(item) {
@@ -132,7 +134,7 @@ export function MongoClient({ config, event$, connectionId, item: detailItem }) 
                     loadDatabases()
                     if (curDb && item.name == curDb.name) {
                         setCurDb(null)
-                        setCurCollection(null)
+                        // setCurCollection(null)
                     }
                 }
             }
@@ -178,7 +180,18 @@ export function MongoClient({ config, event$, connectionId, item: detailItem }) 
                                 size="small"
                                 onClick={() => {
                                     // selectCol(item)
-                                    setCurCollection(item)
+                                    // setCurCollection(item)
+                                    // console.log('item', item)
+                                    const id = uid(32)
+                                    setTabs([
+                                        ...tabs,
+                                        {
+                                            id,
+                                            title: item.name,
+                                            collection: item
+                                        }
+                                    ])
+                                    setActiveTabId(id)
                                 }}
                             >
                                 {t('select')}
@@ -300,9 +313,9 @@ export function MongoClient({ config, event$, connectionId, item: detailItem }) 
                 if (res.success) {
                     message.success(t('success'))
                     loadCollections()
-                    if (curCollection && item.name == curCollection.name) {
-                        setCurCollection(null)
-                    }
+                    // if (curCollection_will && item.name == curCollection_will.name) {
+                    //     setCurCollection(null)
+                    // }
                 }
             }
         })
@@ -322,12 +335,55 @@ export function MongoClient({ config, event$, connectionId, item: detailItem }) 
                 if (res.success) {
                     message.success(t('success'))
                     loadCollections()
-                    if (curCollection && item.name == curCollection.name) {
-                        setCurCollection(null)
-                    }
+                    // if (curCollection_will && item.name == curCollection_will.name) {
+                    //     setCurCollection(null)
+                    // }
                 }
             }
         })
+    }
+
+    function closeTabByKey(targetKey) {
+        // console.log('closeTabByKey', key)
+        // setTabs(tabs.filter(item => item.key != key))
+        for (let i = 0; i < tabs.length; i++) {
+            if (tabs[i].id === targetKey) {
+                tabs.splice(i, 1)
+                break
+            }
+        }
+        // if (tabs.length == 0) {
+        //     tabs.push(tab_workbench)
+        // }
+        setTabs([
+            ...tabs,
+        ])
+        setActiveTabId(tabs[tabs.length - 1].id)
+    }
+
+    const onEdit = (targetKey: string, action: string) => {
+        // this[action](targetKey);
+        if (action === 'add') {
+            // let tabKey = '' + new Date().getTime()
+            // setActiveKey(tabKey)
+            // setTabs([
+            //     ...tabs,
+            //     {
+            //         title: 'SQL',
+            //         key: tabKey,
+            //         defaultSql: '',
+            //     }
+            // ])
+            // _this.setState({
+            //     activeKey: tabKey,
+            //     tabs: tabs.concat([{
+
+            //     }]),
+            // })
+        }
+        else if (action === 'remove') {
+            closeTabByKey(targetKey)
+        }
     }
 
     return (
@@ -470,57 +526,96 @@ export function MongoClient({ config, event$, connectionId, item: detailItem }) 
                 }
             </div>
             <div className={styles.layoutRight}>
-                {!!curCollection &&
-                    <>
-                        <div className={styles.header}>
-                            <div>
-                                {curCollection.name} 
-                                {/* {t('mongo.documents')} */}
-                            </div>
-                            <Radio.Group
-                                value={tab}
-                                onChange={e => {
-                                    setTab(e.target.value)
+                <div className={styles.header}>
+                    <Tabs
+                        onEdit={onEdit}
+                        activeKey={activeTabId}
+                        hideAdd={true}
+                        onChange={key => {
+                            setActiveTabId(key)
+                        }}
+                        size="small"
+                        type="editable-card"
+                        style={{
+                            height: '100%',
+                        }}
+                        items={tabs.map(item => {
+                            return {
+                                label: (
+                                    <div>
+                                        {/* {item.data.error ?
+                                            <CloseCircleOutlined className={styles.failIcon} />
+                                        :
+                                            <CheckCircleOutlined className={styles.successIcon} />
+                                        } */}
+                                        {item.title}
+                                    </div>
+                                ),
+                                key: item.id,
+                                // closable: item.closable !== false,
+                            }
+                        })}
+                    />
+                </div>
+                <div className={styles.body}>
+                    {tabs.map(item => {
+                        return (
+                            <div className={styles.documentBox}
+                                style={{
+                                    display: item.id == activeTabId ? undefined : 'none',
                                 }}
-                                    // buttonStyle="solid"
                             >
-                                <Radio.Button value="document">{t('mongo.documents')}</Radio.Button>
-                                <Radio.Button value="index">{t('mongo.indexes')}</Radio.Button>
-                            </Radio.Group>
-                        </div>
-                        <div className={styles.body}>
-                            {tab == 'document' &&
-                                <MongoDocument
-                                    config={config}
-                                    event$={event$}
-                                    connectionId={connectionId}
-                                    curCollection={curCollection}
-                                    curDb={curDb}
-                                    detailItem={detailItem}
-                                />
-                            }
-                            {tab == 'index' &&
-                                <MongoIndex
-                                    config={config}
-                                    event$={event$}
-                                    connectionId={connectionId}
-                                    curCollection={curCollection}
-                                    curDb={curDb}
-                                />
-                            }
-                            {/* <Button
-                                onClick={async () => {
-                                    let res = await request.post(`${config.host}/mongo/mock`, {
-                                        connectionId,
-                                        // database: curDb.name,
-                                    }, {
-                                        // noMessage: true,
-                                    })
-                                }}
-                            >mock 数据</Button> */}
-                        </div>
-                    </>
-                }
+                                <div className={styles.header}>
+                                    <div>
+                                        {item.collection.name} 
+                                        {/* {t('mongo.documents')} */}
+                                    </div>
+                                    <Radio.Group
+                                        value={tab}
+                                        onChange={e => {
+                                            setTab(e.target.value)
+                                        }}
+                                            // buttonStyle="solid"
+                                    >
+                                        <Radio.Button value="document">{t('mongo.documents')}</Radio.Button>
+                                        <Radio.Button value="index">{t('mongo.indexes')}</Radio.Button>
+                                    </Radio.Group>
+                                </div>
+                                <div className={styles.body}>
+                                    {tab == 'document' &&
+                                        <MongoDocument
+                                            config={config}
+                                            event$={event$}
+                                            connectionId={connectionId}
+                                            curCollection={item.collection}
+                                            curDb={curDb}
+                                            detailItem={detailItem}
+                                        />
+                                    }
+                                    {tab == 'index' &&
+                                        <MongoIndex
+                                            config={config}
+                                            event$={event$}
+                                            connectionId={connectionId}
+                                            curCollection={item.collection}
+                                            curDb={curDb}
+                                        />
+                                    }
+                                    {/* <Button
+                                        onClick={async () => {
+                                            let res = await request.post(`${config.host}/mongo/mock`, {
+                                                connectionId,
+                                                // database: curDb.name,
+                                            }, {
+                                                // noMessage: true,
+                                            })
+                                        }}
+                                    >mock 数据</Button> */}
+                                </div>
+                            </div>
+                        )
+                    })}
+                </div>
             </div>
             
             {/* <TextArea className={styles.textarea} value={code} rows={4} 
