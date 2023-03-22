@@ -153,6 +153,10 @@ function TreeTitle({ keyword, loading = false, nodeData, onAction, onClick, onDo
                                     key: 'table_create',
                                 },
                                 {
+                                    label: t('function_list'),
+                                    key: 'function_list',
+                                },
+                                {
                                     label: t('copy_name'),
                                     key: 'copy_name',
                                 },
@@ -1120,6 +1124,15 @@ LIMIT 1000;`
                                         else if (key == 'table_list') {
                                             event$.emit({
                                                 type: 'event_view_tables',
+                                                data: {
+                                                    connectionId,
+                                                    schemaName: nodeData.itemData.$_name,
+                                                }
+                                            })
+                                        }
+                                        else if (key == 'function_list') {
+                                            event$.emit({
+                                                type: 'event_view_functions',
                                                 data: {
                                                     connectionId,
                                                     schemaName: nodeData.itemData.$_name,

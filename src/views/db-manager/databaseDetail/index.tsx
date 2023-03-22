@@ -43,6 +43,7 @@ import { MySqlInfo } from '../mysql-info'
 import { SqlQuickPanel } from '../sql-quick/sql-quick'
 import { TableViewer } from '../table-view/table-view'
 import storage from '@/utils/storage'
+import { FunctionList } from '../function-list'
 
 // console.log('ddd.0')
 // _.debounce(() => {
@@ -330,6 +331,22 @@ export function DataBaseDetail({ databaseType = 'mysql', curConnect, _connection
                     title: `${t('tables')} - ${schemaName}`,
                     key: tabKey,
                     type: 'table_list',
+                    // defaultSql: `SELECT * FROM \`${dbName}\`.\`${tableName}\` LIMIT 20;`,
+                    data: {
+                        dbName: schemaName,
+                        // tableName,
+                    },
+                })
+            }
+        }
+        else if (msg.type == 'event_view_functions') {
+            const { connectionId: _connectionId, schemaName } = msg.data
+            if (_connectionId == connectionId) {
+                let tabKey = '' + new Date().getTime()
+                addOrActiveTab({
+                    title: `${t('functions')} - ${schemaName}`,
+                    key: tabKey,
+                    type: 'function_list',
                     // defaultSql: `SELECT * FROM \`${dbName}\`.\`${tableName}\` LIMIT 20;`,
                     data: {
                         dbName: schemaName,
@@ -771,6 +788,21 @@ export function DataBaseDetail({ databaseType = 'mysql', curConnect, _connection
                                 }
                                 {item.type == 'table_list' &&
                                     <TableList
+                                        config={config}
+                                        connectionId={connectionId}
+                                        dbName={item.data.dbName}
+                                        onJson={onJson}
+                                        onTab={tab => {
+                                            setActiveKey(tab.key)
+                                            setTabs([
+                                                ...tabs,
+                                                tab,
+                                            ])
+                                        }}
+                                    />
+                                }
+                                {item.type == 'function_list' &&
+                                    <FunctionList
                                         config={config}
                                         connectionId={connectionId}
                                         dbName={item.data.dbName}
