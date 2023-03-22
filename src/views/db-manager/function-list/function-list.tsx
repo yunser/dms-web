@@ -351,13 +351,13 @@ export function FunctionList({ config, onJson, connectionId, onTab, dbName, data
         })
     }
 
-    async function dropTable(items) {
+    async function dropFunction(items) {
         
         const sql = items.map(item => {
-            return `DROP TABLE \`${item.TABLE_SCHEMA}\`.\`${item.TABLE_NAME}\`;`
+            return `DROP FUNCTION \`${item.db}\`.\`${item.name}\`;`
         }).join('\n')
         showSqlInNewtab({
-            title: 'DROP TABLE',
+            title: 'DROP FUNCTION',
             sql,
         })
     }
@@ -478,18 +478,18 @@ LIMIT 20`,
                         >
                             {t('query')}
                         </Button> */}
-                        {/* <Dropdown
+                        <Dropdown
                             overlay={
                                 <Menu
                                     items={[
-                                        {
-                                            key: 'partInfo',
-                                            label: t('partition_info'),
-                                        },
-                                        {
-                                            key: 'truncate',
-                                            label: t('table_truncate'),
-                                        },
+                                        // {
+                                        //     key: 'partInfo',
+                                        //     label: t('partition_info'),
+                                        // },
+                                        // {
+                                        //     key: 'truncate',
+                                        //     label: t('table_truncate'),
+                                        // },
                                         {
                                             key: 'drop',
                                             danger: true,
@@ -498,13 +498,13 @@ LIMIT 20`,
                                     ]}
                                     onClick={({ _item, key, keyPath, domEvent }) => {
                                         if (key == 'drop') {
-                                            dropTable([item])
+                                            dropFunction([item])
                                         }
                                         else if (key == 'truncate') {
-                                            truncateTable([item])
+                                            // truncateTable([item])
                                         }
                                         else if (key == 'partInfo') {
-                                            partInfo(item)
+                                            // partInfo(item)
                                         }
                                     }}
                                 />
@@ -517,7 +517,7 @@ LIMIT 20`,
                                 {t('more')}
                                 <DownOutlined />
                             </Button>
-                        </Dropdown> */}
+                        </Dropdown>
                     </Space>
                 )
             }
@@ -582,7 +582,7 @@ LIMIT 20`,
                                 const items = tableNames.map(tableName => {
                                     return list.find(item => item.TABLE_NAME == tableName)
                                 })
-                                dropTable(items)
+                                dropFunction(items)
                             }}
                         >{t('delete')}</Button>
                         <Button
