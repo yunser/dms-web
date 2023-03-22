@@ -256,7 +256,7 @@ export function FunctionList({ config, onJson, connectionId, onTab, dbName, data
             return list
         }
         return list.filter(item => {
-            return item.Name.toLowerCase().includes(keyword.toLowerCase())
+            return item.name.toLowerCase().includes(keyword.toLowerCase())
         })
     }, [list, keyword])
     // const treeData: any[] = [
@@ -276,7 +276,7 @@ export function FunctionList({ config, onJson, connectionId, onTab, dbName, data
         setSelectedRowKeys([])
         let res = await request.post(`${config.host}/mysql/execSqlSimple`, {
             connectionId,
-            sql: `SHOW FUNCTION status WHERE Db = '${dbName}'`,
+            sql: `select * from mysql.proc where db = '${dbName}' and \`type\` = 'FUNCTION';`,
         })
         if (res.success) {
             // message.info('连接成功')
@@ -372,6 +372,25 @@ ORDER BY TABLE_ROWS DESC`
         })
     }
 
+    async function queryDetail(item) {
+        let res = await request.post(`${config.host}/mysql/execSqlSimple`, {
+            connectionId,
+            sql: `show create function ${item.name}`,
+        })
+        if (res.success) {
+            // message.info('连接成功')
+            // const list = res.data
+            console.log('res', res)
+            // setList(list)
+            const sql = res.data[0]['Create Function']
+            console.log('sql', sql)
+            showSqlInNewtab({
+            title: item.name,
+            sql,
+        })
+        }
+    }
+
     function queryTableStruct(tableName: string) {
         let tabKey = '' + new Date().getTime()
         onTab && onTab({
@@ -411,8 +430,8 @@ ORDER BY TABLE_ROWS DESC`
     const columns = [
         {
             title: t('name'),
-            dataIndex: 'Name',
-            key: 'Name',
+            dataIndex: 'name',
+            key: 'name',
             // sorter: (a, b) => a.TABLE_NAME.localeCompare(b.TABLE_ROWS),
             // sortOrder: sortedInfo.columnKey === 'TABLE_NAME' ? sortedInfo.order : null,
             // // sortDirections: ['descend', 'ascend'],
@@ -437,15 +456,15 @@ ORDER BY TABLE_ROWS DESC`
             render(_value, item) {
                 return (
                     <Space>
-                        {/* <Button
+                        <Button
                             type="link"
                             size="small"
                             onClick={() => {
-                                queryTableStruct(item.TABLE_NAME)
+                                queryDetail(item)
                             }}
                         >
-                            {t('edit')}
-                        </Button> */}
+                            {t('view')}
+                        </Button>
                         {/* <Button
                             type="link"
                             size="small"
