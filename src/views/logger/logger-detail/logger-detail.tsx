@@ -382,7 +382,9 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onConnect
     }
 
     async function loadHistory() {
-        let res = await request.post(`${config.host}/logger/history`, {})
+        let res = await request.post(`${config.host}/logger/history`, {
+            pageSize: 200,
+        })
         if (res.success) {
             setHistories(res.data.list)
         }
