@@ -21,6 +21,22 @@ const unitLabels = {
     'hour': '小时'
 }
 
+function LogCell({ value }) {
+    let text
+    if (typeof value == 'number') {
+        text = `${value}`
+    }
+    else if (typeof value == 'string') {
+        text = value
+    }
+    else {
+        text = JSON.stringify(value, null, 4)
+    }
+    return (
+        <div><pre className={styles.pre}>{text}</pre></div>
+    )
+}
+
 function TimeSelector({ value, onChange }) {
     
     const [open, setOpen] = useState(false)
@@ -753,7 +769,19 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onConnect
                 >
                     {detailView == 'text' ?
                         <div>
-                            {detail.content}
+                            {!!detail._content?.length ?
+                                <div className={styles.logSubList}>
+                                    {detail._content.map(item => {
+                                        return (
+                                            <div className={styles.item}>
+                                                <LogCell value={item} />
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            :
+                                <div>{detail.content}</div>
+                            }
                         </div>
                     :
                         <ReactJson 
