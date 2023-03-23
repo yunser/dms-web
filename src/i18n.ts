@@ -190,6 +190,8 @@ i18n
                     day: 'Days',
                     month: 'Months',
                     year: 'Years',
+                    today: 'Today',
+                    yesterday: 'Yesterday',
                     favorite_key: 'Favorite key',
                     favorite_keys: 'Favorite Keys',
                     view: 'View',
@@ -548,6 +550,9 @@ i18n
                     'http.auth': 'Authorization',
                     'binary': 'Binary',
                     'network': 'Network',
+                    'quick_search': 'Quick Search',
+                    'customize': 'Customize',
+                    'relative': 'Relative',
                 }
             },
             zh: {
@@ -731,6 +736,8 @@ i18n
                     day: '天',
                     month: '月',
                     year: '年',
+                    today: '今天',
+                    yesterday: '昨天',
                     favorite_key: '收藏键',
                     favorite_keys: '我的收藏',
                     view: '查看',
@@ -1088,6 +1095,9 @@ i18n
                     'http.auth': '认证',
                     'binary': '二进制',
                     'network': '网络',
+                    'quick_search': '快速搜索',
+                    'customize': '自定义',
+                    'relative': '相对',
                 }
             }
         },

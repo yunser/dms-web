@@ -16,10 +16,7 @@ import { IconButton } from '@/views/db-manager/icon-button';
 import { ExportOutlined } from '@ant-design/icons';
 import { getGlobalConfig } from '@/config';
 
-const unitLabels = {
-    'minute': '分钟',
-    'hour': '小时'
-}
+
 
 function LogCell({ value }) {
     let text
@@ -28,6 +25,12 @@ function LogCell({ value }) {
     }
     else if (typeof value == 'string') {
         text = value
+    }
+    else if (value === null) {
+        return '<NULL>'
+    }
+    else if (value === undefined) {
+        return '<undefined>'
     }
     else {
         text = JSON.stringify(value, null, 4)
@@ -38,9 +41,14 @@ function LogCell({ value }) {
 }
 
 function TimeSelector({ value, onChange }) {
-    
+    const { t } = useTranslation()
     const [open, setOpen] = useState(false)
     const [tab, setTab] = useState('relative')
+
+    const unitLabels = {
+        'minute': t('minute'),
+        'hour': t('hour')
+    }
 
     const [startTime,setStartTime] = useState(moment().add(-1, 'hours').format('YYYY-MM-DD HH:mm:ss'))
     const [endTime,setEndTime] = useState(moment().format('YYYY-MM-DD HH:mm:ss'))
@@ -96,10 +104,10 @@ function TimeSelector({ value, onChange }) {
     let showTimeText
     
     if (value.type == 'today') {
-        showTimeText = '今天'
+        showTimeText = t('today')
     }
     else if (value.type == 'yesterday') {
-        showTimeText = '昨天'
+        showTimeText = t('yesterday')
     }
     else if (value.type == 'relative') {
         showTimeText = `${value.number} ${unitLabels[value.unit]}`
@@ -120,27 +128,13 @@ function TimeSelector({ value, onChange }) {
                 }}
                 content={
                     <div className={styles.timeBox}>
-                        {/* <Tabs
-                            activeKey={tab}
-                            defaultActiveKey="1"
-                            onChange={key => {
-                                setTab(key)
-                            }}
-                            items={[
-                                {
-                                    label: `相对`,
-                                    key: 'relative',
-                                },
-                                {
-                                    label: `自定义`,
-                                    key: 'custom',
-                                },
-                            ]}
-                        /> */}
                         <div>
                             {/* {tab == 'relative' &&
                             } */}
-                            <div className={styles.sectionTitle}>相对</div>
+                            <div className={styles.sectionTitle}>{t('relative')}</div>
+                            <div className={styles.p}>
+                                <div className={styles.c}></div>
+                            </div>
                             <div className={styles.times}>
                                 {quickTimes.map(item => {
                                     return (
@@ -168,7 +162,7 @@ function TimeSelector({ value, onChange }) {
                                         setOpen(false)
                                     }}
                                 >
-                                    今天
+                                    {t('today')}
                                 </Button>
                                 <Button
                                     onClick={() => {
@@ -178,12 +172,12 @@ function TimeSelector({ value, onChange }) {
                                         setOpen(false)
                                     }}
                                 >
-                                    昨天
+                                    {t('yesterday')}
                                 </Button>
                             </div>
                             {/* {tab == 'custom' &&
                             } */}
-                            <div className={styles.sectionTitle}>自定义</div>
+                            <div className={styles.sectionTitle}>{t('customize')}</div>
                             <div>
                                 <Space>
                                     <Input
@@ -211,7 +205,9 @@ function TimeSelector({ value, onChange }) {
                                             setOpen(false)
                                         }}
                                         
-                                    >确定</Button>
+                                    >
+                                        {t('ok')}
+                                    </Button>
                                 </Space>
                             </div>
                         </div>
@@ -540,7 +536,7 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onConnect
                         }
                         <Select
                             value={null}
-                            placeholder="快速搜索"
+                            placeholder={t('quick_search')}
                             className={styles.quickSelect}
                             options={quickQueries}
                             onChange={value => {
@@ -762,7 +758,7 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onConnect
                 <Drawer
                     open={true}
                     width={800}
-                    title="详情"
+                    title={t('detail')}
                     onClose={() => {
                         setDetailVisible(false)
                     }}
