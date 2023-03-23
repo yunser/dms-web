@@ -39,8 +39,7 @@ export function MongoDocument({ config, curDb, curCollection, event$, connection
     const [updateQuery, setUpdateQuery] = useState({})
     const [updateModalVisible, setUpdateModalVisible] = useState(false)
 
-
-    const pageSize = 10
+    const [pageSize, setPageSize] = useState(10)
     const [condition, setCondition] = useState('{}')
     const [documentCondition, setDocumentCondition] = useState({})
     const [documentLoading, setDocumentLoading] = useState(false)
@@ -115,7 +114,7 @@ export function MongoDocument({ config, curDb, curCollection, event$, connection
         if (curDb) {
             loadDocuments()
         }
-    }, [curDb, curCollection, page, documentCondition])
+    }, [curDb, curCollection, page, pageSize, documentCondition])
 
 
     // useEffect(() => {
@@ -368,9 +367,10 @@ export function MongoDocument({ config, curDb, curCollection, event$, connection
                     total={total}
                     pageSize={pageSize}
                     size="small"
-                    showSizeChanger={false}
-                    onChange={(page) => {
+                    // showSizeChanger={false}
+                    onChange={(page, pageSize) => {
                         setPage(page)
+                        setPageSize(pageSize)
                     }}
                     showTotal={(total) => {
                         return `${total} ${t('rows')}`
