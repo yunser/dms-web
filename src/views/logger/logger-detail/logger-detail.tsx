@@ -263,7 +263,8 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onConnect
     const [curFile, setCurFile] = useState('')
     const [files, setFiles] = useState([])
     const [list, setList] = useState([])
-    const pageSize = detailItem.type == 'grafana' ? 101 : 20
+    // const pageSize = detailItem.type == 'grafana' ? 101 : 20
+    const [pageSize, setPageSize] = useState(detailItem.type == 'grafana' ? 101 : 20)
     const [type, setType] = useState('')
     const [total, setTotal] = useState(0)
     const [page, setPage] = useState(1)
@@ -396,7 +397,7 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onConnect
 
     useEffect(() => {
         loadList()
-    }, [curFile, page, time, type, searchKeyword, ts])
+    }, [curFile, page, pageSize, time, type, searchKeyword, ts])
 
     function quickSelect(value) {
         const fItem = quickQueries.find(item => item.id == value)
@@ -607,10 +608,13 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onConnect
                         current={page}
                         // size="small"
                         pageSize={(detailItem.type == 'grafana') ? (limit || default_limit) : pageSize}
-                        showSizeChanger={false}
+                        // showSizeChanger={false}
                         showTotal={total => `${total} ${t('rows')}`}
-                        onChange={(current) => {
+                        onChange={(current, _pageSize) => {
                             setPage(current)
+                            if (_pageSize != pageSize) {
+                                setPageSize(_pageSize)
+                            }
                         }}
                         // size="small"
                     />
