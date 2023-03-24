@@ -88,14 +88,14 @@ function list2Tree(list) {
         function getNode(name, props) {
             return {
                 title: (
-                    <Space>
+                    <div className={styles.treeNode}>
                         <DatabaseOutlined
                             style={{
                                 color: colorMap[item.color],
                             }}
                         />
                         <div className={styles.treeTitle}>{name}</div>
-                    </Space>
+                    </div>
                 ),
                 key: `dbkey-${item.id}`,
                 icon() {
@@ -1004,3 +1004,4 @@ ${t('password')}: ${data.password}`
         </div>
     )
 }
+// ?
