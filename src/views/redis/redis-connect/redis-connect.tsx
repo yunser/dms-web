@@ -59,7 +59,7 @@ export function RedisConnect({ config, event$, onConnect, }) {
     const [keyword, setKeyword] = useState('')
 
     const filterdConnections = useMemo(() => {
-        return SearchUtil.search(connections, keyword, {
+        return SearchUtil.searchLike(connections, keyword, {
             attributes: ['name', 'host'],
         })
         // return projects
