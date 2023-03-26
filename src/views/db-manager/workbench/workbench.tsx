@@ -21,6 +21,9 @@ const prodLogos = {
     'logger': 'logger.svg',
     'file': 'logger.svg',
     'oss-home': 'oss.svg',
+    'mongo': 'mongo.svg',
+    'http-client': 'http.svg',
+    'http_server': 'http.svg',
 }
 
 export function Workbench({ config, onCommand }) {
@@ -76,6 +79,7 @@ export function Workbench({ config, onCommand }) {
                                     }}
                                 >
                                     <div className={styles.name}>{item.name}</div>
+                                    {/* {item.command} */}
                                     {!!prodLogos[item.command] &&
                                         <img className={styles.logo} src={`/prod-logo/${prodLogos[item.command]}`} />
                                     }
