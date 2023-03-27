@@ -13,6 +13,51 @@ import { useTranslation } from 'react-i18next';
 const { TabPane } = Tabs
 const { TextArea } = Input
 
+function MyInput({ value, onChange, ...otherProps }) {
+    return (
+        <Space>
+            <Input
+                value={value}
+                placeholder={value === null ? 'NULL' : ''}
+                onChange={e => {
+                    onChange && onChange(e.target.value)
+                }}
+                {...otherProps}
+                onKeyDown={e => {
+                    console.log('e', e.code)
+                    if (e.code == 'Backspace') {
+                        if (value === null) {
+                            onChange && onChange('')
+                        }
+                        else if (value === '') {
+                            onChange && onChange(null)
+                        }
+                    }
+                }}
+            />
+            <Space>
+                <Button
+                    size="small"
+                    tabIndex={-1}
+                    onClick={() => {
+                        onChange && onChange(null)
+                    }}
+                >
+                    NULL
+                </Button>
+                <Button
+                    size="small"
+                    tabIndex={-1}
+                    onClick={() => {
+                        onChange && onChange('')
+                    }}
+                >
+                    BL
+                </Button>
+            </Space>
+        </Space>
+    )
+}
 
 export function RowEditModal({ config, onOk, item, onCancel, onSuccess, tableName, dbName }) {
     const { t } = useTranslation()
@@ -41,9 +86,10 @@ export function RowEditModal({ config, onOk, item, onCancel, onSuccess, tableNam
         }
         // console.log('list', list)
         setFormItems(list)
-        form.setFieldsValue(values)
+        // form.setFieldsValue(values)
     }, [item])
 
+    
 	return (
         <Modal
             title={t('edit')}
@@ -57,14 +103,19 @@ export function RowEditModal({ config, onOk, item, onCancel, onSuccess, tableNam
             // }}
             onCancel={onCancel}
             onOk={async () => {
-                const values = await form.validateFields()
+                // const values = await form.validateFields()
+                const values = {}
+                console.log('formItems', formItems)
+                for (let formItem of formItems) {
+                    values[formItem.field] = formItem.value
+                }
                 console.log('values', values)
                 // doSubmit()
                 onOk && onOk(values)
             }}
             // footer={null}
         >
-            <Form
+            <div
                 form={form}
                 size="small"
                 labelCol={{ span: 6 }}
@@ -77,17 +128,29 @@ export function RowEditModal({ config, onOk, item, onCancel, onSuccess, tableNam
                 //     wrapperCol: { span: 24 },
                 // }}
             >
-                {formItems.map(item => {
+                {formItems.map((item, index) => {
                     return (
-                        <Form.Item
-                            name={item.field}
-                            label={item.field}
-                        >
-                            <Input />
-                        </Form.Item>
+                        <div className={styles.formItem}>
+                            <div className={styles.label}>{item.field}</div>
+                            <MyInput
+                                className={styles.input}
+                                size="small"
+                                value={item.value}
+                                onChange={value => {
+                                    formItems[index].value = value
+                                    setFormItems([...formItems])
+                                }}
+                            />
+                            {/* ({item.value === null ? '<null>' : item.value}) */}
+                        </div>
+                        // <Form.Item
+                        //     name={item.field}
+                        //     label={item.field}
+                        // >
+                        // </Form.Item>
                     )
                 })}
-            </Form>
+            </div>
             {/* <Table
                 dataSource={list}
                 columns={columns}

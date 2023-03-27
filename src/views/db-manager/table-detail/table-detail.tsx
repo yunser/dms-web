@@ -18,7 +18,7 @@ import { _if } from '../utils/helper';
 // console.log('lodash', _)
 const { TabPane } = Tabs
 
-const ItemHelper = {
+export const ItemHelper = {
     mixValue(item, key) {
         // console.log('mixValue', item, key)
         const value = item[key]
@@ -42,6 +42,12 @@ const ItemHelper = {
         return (value.newValue !== undefined && value.newValue !== value.value)
             || value.__new
     },
+    calcValue(item) {
+        return item.newValue === undefined ? item.value : item.newValue
+    },
+    hasNewValue(item) {
+        return item.newValue === undefined
+    }
 }
 
 function hasValue(value) {
@@ -1755,7 +1761,9 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
                                 ])
                             }
                         }}
-                    >删除</a>
+                    >
+                        {t('delete')}
+                    </a>
                 )
             }
         },
@@ -2269,7 +2277,7 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
                                                             {t('move_down')}
                                                         </Button>
                                                     </Space>
-                                                    {/* <Input
+                                                    <Input
                                                         value={columnKeyword}
                                                         onChange={e => {
                                                             setColumnKeyword(e.target.value)
@@ -2278,7 +2286,7 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
                                                         className={styles.filter}
                                                         placeholder={t('filter')}
                                                         size="small"
-                                                    /> */}
+                                                    />
                                                 </div>
                                                 <div className={styles.panelBody}>
                                                     <Table

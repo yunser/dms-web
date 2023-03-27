@@ -18,7 +18,14 @@ import { t } from 'i18next';
 import { RowDetailModal } from '../sql-row-detail-modal/sql-row-detail-modal';
 import { RowEditModal } from '../sql-row-edit-modal/sql-row-edit-modal';
 import { utils, writeFile } from 'xlsx'
+import { ItemHelper } from '../table-detail/table-detail';
 
+function mysqlValue(value) {
+    if (value === null) {
+        return 'NULL'
+    }
+    return `'${value}'`
+}
 
 // console.log('XLSX', XLSX)
 
@@ -216,7 +223,7 @@ function Cell({ item, editing, onChange }) {
         return null
     }
     const [isEdit, setIsEdit] = useState(false)
-    const text = item.newValue || item.value
+    const text = ItemHelper.calcValue(item)
     const [value, setValue] = useState(text)
     const inputRef = useRef(null)
     const [isHover, setIsHover] = useState(false)
@@ -239,7 +246,7 @@ function Cell({ item, editing, onChange }) {
     return (
         <div
             className={classNames(styles.cell, {
-                [styles.edited]: !!item.newValue
+                [styles.edited]: ItemHelper.isValueChanged(item),
             })}
             onMouseEnter={() => {
                 timer_ref.current = setTimeout(() => {
@@ -457,10 +464,6 @@ export function ExecDetail(props) {
         }
     }
 
-    function resetSubmit() {
-
-    }
-
     async function updateRows({ schemaName, tableName, pkField, ids }) {
         console.log('updateRows', schemaName, tableName, ids)
         // const sql = `SELECT * FROM \`${schemaName}\`.\`${tableName}\` WHERE \`${pkField}\` IN (${ids.join(', ')})`
@@ -533,7 +536,7 @@ export function ExecDetail(props) {
                         if (rowKey != '_idx') { // TODO
                             const cell = row[rowKey]
                             if (cell.fieldName == fieldName) {
-                                if (cell.newValue) {
+                                if (ItemHelper.hasNewValue(cell)) {
                                     fieldNames.push(fieldName)
                                     // value = cell.newValue || cell.value
                                     value = cell.newValue
@@ -546,8 +549,6 @@ export function ExecDetail(props) {
                     // for (let cell of row) {
                     // }
                     // values.push(value)
-                    // if (fieldName.newValue) {
-                    // }
                 }
                 const fieldNamesText = fieldNames.map(fieldName => {
                     return wrapName(fieldName)
@@ -565,8 +566,8 @@ export function ExecDetail(props) {
                 for (let rowKey in row) {
                     if (rowKey != '_idx') { // TODO
                         const cell = row[rowKey]
-                        if (cell.newValue) {
-                            updatedFields.push(`\`${cell.fieldName}\` = '${cell.newValue}'`)
+                        if (ItemHelper.isValueChanged(cell)) {
+                            updatedFields.push(`\`${cell.fieldName}\` = ${mysqlValue(cell.newValue)}`)
                         }
                     }
                     
