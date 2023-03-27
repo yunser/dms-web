@@ -252,12 +252,17 @@ function AuthConfig({ onAuth }) {
         if (type == 'basic') {
             const b64 = Base64.encode(`${values.username}:${values.password}`)
             auth = `Basic ${b64}`
+            onAuth && onAuth('Authorization', auth)
         }
         else if (type == 'bearer') {
             auth = `Bearer ${values.token}`
+            onAuth && onAuth('Authorization', auth)
+        }
+        else if (type == 'apiKey') {
+            // auth = `Bearer ${values.token}`
+            onAuth && onAuth(values.key, values.value)
         }
         console.log('auth', auth)
-        onAuth && onAuth(auth)
     }
 
     return (
@@ -278,6 +283,10 @@ function AuthConfig({ onAuth }) {
                         {
                             label: 'Bearer Token',
                             value: 'bearer',
+                        },
+                        {
+                            label: 'API Key',
+                            value: 'apiKey',
                         },
                     ]}
                     onChange={value => {
@@ -318,6 +327,24 @@ function AuthConfig({ onAuth }) {
                                 <Form.Item
                                     name="token"
                                     label="token"
+                                    rules={[ { required: true, }, ]}
+                                >
+                                    <Input />
+                                </Form.Item>
+                            </>
+                        }
+                        {type == 'apiKey' &&
+                            <>
+                                <Form.Item
+                                    name="key"
+                                    label="key"
+                                    rules={[ { required: true, }, ]}
+                                >
+                                    <Input />
+                                </Form.Item>
+                                <Form.Item
+                                    name="value"
+                                    label="value"
                                     rules={[ { required: true, }, ]}
                                 >
                                     <Input />
@@ -1518,8 +1545,9 @@ ${item.value}
                     }
                     {reqTab == 'auth' &&
                         <AuthConfig
-                            onAuth={auth => {
-                                upsertHeader('Authorization', auth)
+                            onAuth={(key, auth) => {
+                                console.log('key, auth', key, auth)
+                                upsertHeader(key, auth)
                                 setReqTab('headers')
                             }}
                         />

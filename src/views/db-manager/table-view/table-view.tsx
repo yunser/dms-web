@@ -1026,7 +1026,7 @@ export function TableViewer({ config, databaseType = 'mysql', connectionId, even
         loadTableInfo()
     }, [tableName])
     
-    console.log('render/indexes', indexes)
+    // console.log('render/indexes', indexes)
 
     const tabs = [
         {
@@ -1047,7 +1047,7 @@ export function TableViewer({ config, databaseType = 'mysql', connectionId, even
         //     label: t('indexes'),
         //     key: 'index',
         // })
-        console.log('databaseType', databaseType, dbFunConfigMap[databaseType])
+        // console.log('databaseType', databaseType, dbFunConfigMap[databaseType])
         // if (functionMap[databaseType].partition) {
         //     tabs.push({
         //         label: t('partition'),

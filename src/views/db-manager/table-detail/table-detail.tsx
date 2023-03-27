@@ -20,7 +20,7 @@ const { TabPane } = Tabs
 
 const ItemHelper = {
     mixValue(item, key) {
-        console.log('mixValue', item, key)
+        // console.log('mixValue', item, key)
         const value = item[key]
         let _value = value.value
         if (value.newValue !== undefined) {
@@ -907,7 +907,7 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
         })
     }, [tableColumns, columnKeyword])
 
-    console.log('filteredTableColumns', filteredTableColumns)
+    // console.log('filteredTableColumns', filteredTableColumns)
     
     const [loading, setLoading] = useState(false)
     const [indexes, setIndexes] = useState([])
@@ -1488,7 +1488,7 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
 
     const columnColumns = [
         {
-            title: t(''),
+            title: '',
             dataIndex: '__oldIndex',
             width: 48,
             render(value, _item, index) {
@@ -1896,7 +1896,7 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
         loadTableInfo()
     }, [tableName])
     
-    console.log('render/indexes', indexes)
+    // console.log('render/indexes', indexes)
 
     function addColumn(index) {
         const newItem = {
@@ -1980,7 +1980,7 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
         //     label: t('indexes'),
         //     key: 'index',
         // })
-        console.log('databaseType', databaseType, dbFunConfigMap[databaseType])
+        // console.log('databaseType', databaseType, dbFunConfigMap[databaseType])
         if (dbFunConfigMap[databaseType].partition) {
             tabs.push({
                 label: t('partition'),
@@ -2186,8 +2186,8 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
                                             </div>
                                         }
                                         {item.key == 'columns' &&
-                                            <div>
-                                                <div className={styles.columnHeader}>
+                                            <div className={styles.panelBox}>
+                                                <div className={styles.panelHeader}>
                                                     {/* <input
                                                         onBlur={() => {
                                                             console.log('Bour OK')
@@ -2279,92 +2279,93 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
                                                         size="small"
                                                     /> */}
                                                 </div>
-                                                <Table
-                                                    columns={columnColumns}
-                                                    rowSelection={{
-                                                        type: 'radio',
-                                                        selectedRowKeys: colSelectedRowKeys,
-                                                        hideSelectAll: true,
-                                                        fixed: true,
-                                                        // renderCell(_value, _item, rowIdx) {
-                                                        //     // return (
-                                                        //     //     <div>
-                                                        //     //         <Button>1</Button>
-                                                        //     //     </div>
-                                                        //     // )
-                                                        //     return (
-                                                        //         <SimpleCell
-                                                        //             onClick={(e) => {
-                                                        //                 // console.log('_value', _value)
-                                                        //                 // console.log('e', e)
-                                                                        
-                                                        //                 const itemKey = _item._idx
-                                                        //                 // console.log('itemKey', itemKey)
-                                                        //                 // 多选
-                    
-                                                        //                 if (e.metaKey) {
-                                                        //                     console.log('metaKey')
-                                                        //                     if (selectedRowKeys.includes(itemKey)) {
-                                                        //                         console.log('又了')
-                                                        //                         setSelectedRowKeys(selectedRowKeys.filter(it => it != itemKey))
-                                                        //                     }
-                                                        //                     else {
-                                                        //                         console.log('没有')
-                                                        //                         setSelectedRowKeys([...selectedRowKeys, itemKey])
-                                                        //                     }
-                                                        //                 }
-                                                        //                 else if (e.shiftKey) {
-                                                        //                     if (selectedRowKeys.length) {
-                                                        //                         const fromIdx = selectedRowKeys[0]
-                                                        //                         const min = Math.min(fromIdx, itemKey)
-                                                        //                         const max = Math.max(fromIdx, itemKey)
-                                                        //                         const newKeys = []
-                                                        //                         for (let i = min; i <= max; i++) {
-                                                        //                             newKeys.push(i)
-                                                        //                         }
-                                                        //                         setSelectedRowKeys(newKeys)
-                                                        //                     }
-                                                        //                     else {
-                                                        //                         setSelectedRowKeys([itemKey])
-                                                        //                     }
-                                                        //                 }
-                                                        //                 else {
-                                                        //                     console.log('单选')
-                                                        //                     // 单选
-                                                        //                     if (selectedRowKeys.includes(itemKey)) {
-                                                        //                         setSelectedRowKeys([])
-                                                        //                     }
-                                                        //                     else {
-                                                        //                         setSelectedRowKeys([itemKey])
-                                                        //                     }
-                                                        //                 }
-                                                        //             }}
-                                                        //             text={rowIdx + 1} color="#999" />
-                                                        //     )
-                                                        // },
-                                                        columnWidth: 0,
-                                                        onChange(selectedRowKeys, selectedRows) {
-                                                            setColSelectedRowKeys(selectedRowKeys)
-                                                        }
-                                                    }}
-                                                    className={styles.noPaddingTable}
-                                                    dataSource={filteredTableColumns}
-                                                    bordered
-                                                    pagination={false}
-                                                    size="small"
-                                                    rowKey="__id"
-                                                    key={JSON.parse(JSON.stringify(filteredTableColumns))}
-                                                />
+                                                <div className={styles.panelBody}>
+                                                    <Table
+                                                        columns={columnColumns}
+                                                        rowSelection={{
+                                                            type: 'radio',
+                                                            selectedRowKeys: colSelectedRowKeys,
+                                                            hideSelectAll: true,
+                                                            fixed: true,
+                                                            // renderCell(_value, _item, rowIdx) {
+                                                            //     // return (
+                                                            //     //     <div>
+                                                            //     //         <Button>1</Button>
+                                                            //     //     </div>
+                                                            //     // )
+                                                            //     return (
+                                                            //         <SimpleCell
+                                                            //             onClick={(e) => {
+                                                            //                 // console.log('_value', _value)
+                                                            //                 // console.log('e', e)
+                                                                            
+                                                            //                 const itemKey = _item._idx
+                                                            //                 // console.log('itemKey', itemKey)
+                                                            //                 // 多选
+                        
+                                                            //                 if (e.metaKey) {
+                                                            //                     console.log('metaKey')
+                                                            //                     if (selectedRowKeys.includes(itemKey)) {
+                                                            //                         console.log('又了')
+                                                            //                         setSelectedRowKeys(selectedRowKeys.filter(it => it != itemKey))
+                                                            //                     }
+                                                            //                     else {
+                                                            //                         console.log('没有')
+                                                            //                         setSelectedRowKeys([...selectedRowKeys, itemKey])
+                                                            //                     }
+                                                            //                 }
+                                                            //                 else if (e.shiftKey) {
+                                                            //                     if (selectedRowKeys.length) {
+                                                            //                         const fromIdx = selectedRowKeys[0]
+                                                            //                         const min = Math.min(fromIdx, itemKey)
+                                                            //                         const max = Math.max(fromIdx, itemKey)
+                                                            //                         const newKeys = []
+                                                            //                         for (let i = min; i <= max; i++) {
+                                                            //                             newKeys.push(i)
+                                                            //                         }
+                                                            //                         setSelectedRowKeys(newKeys)
+                                                            //                     }
+                                                            //                     else {
+                                                            //                         setSelectedRowKeys([itemKey])
+                                                            //                     }
+                                                            //                 }
+                                                            //                 else {
+                                                            //                     console.log('单选')
+                                                            //                     // 单选
+                                                            //                     if (selectedRowKeys.includes(itemKey)) {
+                                                            //                         setSelectedRowKeys([])
+                                                            //                     }
+                                                            //                     else {
+                                                            //                         setSelectedRowKeys([itemKey])
+                                                            //                     }
+                                                            //                 }
+                                                            //             }}
+                                                            //             text={rowIdx + 1} color="#999" />
+                                                            //     )
+                                                            // },
+                                                            columnWidth: 0,
+                                                            onChange(selectedRowKeys, selectedRows) {
+                                                                setColSelectedRowKeys(selectedRowKeys)
+                                                            }
+                                                        }}
+                                                        className={styles.noPaddingTable}
+                                                        dataSource={filteredTableColumns}
+                                                        bordered
+                                                        pagination={false}
+                                                        size="small"
+                                                        rowKey="__id"
+                                                        key={JSON.parse(JSON.stringify(filteredTableColumns))}
+                                                    />
+                                                </div>
                                             </div>
                                         }
                                         {item.key == 'index' &&
-                                            <div>
-                                                <div style={{
-                                                    marginBottom: 8,
-                                                }}>
+                                            <div className={styles.panelBox}>
+                                                <div className={styles.panelHeader}>
                                                     <Space>
                                                         <Button
                                                             size="small"
+                                                            icon={<PlusOutlined />}
                                                             onClick={() => {
                                                                 indexes.push({
                                                                     __id: uid(32),
@@ -2391,14 +2392,16 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
                                                         </Button>
                                                     </Space>
                                                 </div>
-                                                <Table
-                                                    columns={indexColumns}
-                                                    dataSource={indexes}
-                                                    bordered
-                                                    pagination={false}
-                                                    size="small"
-                                                    rowKey="__id"
-                                                />
+                                                <div className={styles.panelBody}>
+                                                    <Table
+                                                        columns={indexColumns}
+                                                        dataSource={indexes}
+                                                        bordered
+                                                        pagination={false}
+                                                        size="small"
+                                                        rowKey="__id"
+                                                    />
+                                                </div>
                                             </div>
                                         }
                                         {item.key == 'partition' &&
