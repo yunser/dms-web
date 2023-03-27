@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { BranchesOutlined, CopyOutlined, DownloadOutlined, EllipsisOutlined, ExportOutlined, FileOutlined, PlusOutlined, TagOutlined } from '@ant-design/icons';
+import { BranchesOutlined, CopyOutlined, DownloadOutlined, EllipsisOutlined, ExportOutlined, FileOutlined, PlusOutlined, TagOutlined, UserOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
@@ -52,6 +52,10 @@ export function CommitList({ config, event$, projectPath,  }) {
     const [fileContent, setFileContent] = useState('')
     const [fileContentVisible, setFileContentVisible] = useState(false)
     const [filteredFile, setFilteredFile] = useState('')
+    // const [filteredAuthor, setFilteredAuthor] = useState({
+    //     name: '497',
+    // })
+    const [filteredAuthor, setFilteredAuthor] = useState(null)
     const [cherryPickVisible, setCherryPickVisible] = useState(false)
     const [cherryPickCommit, setCherryPickCommit] = useState(false)
     const [tagModalVisible, setTagModalVisible] = useState(false)
@@ -217,12 +221,19 @@ export function CommitList({ config, event$, projectPath,  }) {
         if (filteredFile) {
             reqData.file = filteredFile
         }
+        if (filteredAuthor) {
+            // reqData.author = filteredAuthor
+        }
         let res = await request.post(`${config.host}/git/commit/list`, reqData, {
             // noMessage: true,
         })
         // console.log('res', res)
         if (res.success) {
-            const list = res.data
+            let list = res.data
+            console.log('list', list)
+            if (filteredAuthor) {
+                list = list.filter(item => item.author_name == filteredAuthor.name)
+            }
             setList(list)
             if (list.length > 0) {
                 show(list[0])
@@ -256,7 +267,7 @@ export function CommitList({ config, event$, projectPath,  }) {
 
     useEffect(() => {
         loadList()
-    }, [filteredFile])
+    }, [filteredFile, filteredAuthor])
     useEffect(() => {
         loadList()
     }, [])
@@ -412,6 +423,19 @@ export function CommitList({ config, event$, projectPath,  }) {
                             </div>
                             {/* |
                             导出 */}
+                            {!!filteredAuthor &&
+                                <Tag
+                                    closable
+                                    onClose={() => {
+                                        setFilteredAuthor(null)
+                                    }}
+                                >
+                                    <Space>
+                                        <UserOutlined />
+                                        {filteredAuthor.name}
+                                    </Space>
+                                </Tag>
+                            }
                             {!!filteredFile &&
                                 <Tag
                                     closable
@@ -465,7 +489,22 @@ export function CommitList({ config, event$, projectPath,  }) {
                                         >
                                             <div className={styles.left}>
                                                 <div className={styles.time}>{time}</div>
-                                                <div className={styles.author}>{item.author_name}</div>
+                                                <div 
+                                                    className={styles.author}
+                                                    onClick={(e) => {
+                                                        if (!filteredAuthor || filteredAuthor.name != item.author_name) {
+                                                            e.stopPropagation()
+                                                            e.nativeEvent.stopPropagation()
+                                                            // console.log('item', item)
+                                                            setFilteredAuthor({
+                                                                name: item.author_name,
+                                                                email: item.author_email,
+                                                            })
+                                                        }
+                                                    }}
+                                                >
+                                                    {item.author_name}
+                                                </div>
                                                 <div className={styles.hash}>{item.hash.substring(0, 7)}</div>
                                                 <div className={styles.tagAll}>
                                                     {item.branches?.length > 0 &&
