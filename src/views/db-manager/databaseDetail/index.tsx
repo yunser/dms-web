@@ -642,6 +642,7 @@ export function DataBaseDetail({ databaseType = 'mysql', curConnect, _connection
                         onChange={key => {
                             setActiveKey(key)
                         }}
+                        tabBarGutter={-1}
                         type="editable-card"
                         style={{
                             height: '100%',

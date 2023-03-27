@@ -1493,7 +1493,7 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
             width: 48,
             render(value, _item, index) {
                 return (
-                    <div className={styles.cellWrap}>{index + 1}</div>
+                    <div className={classNames(styles.cellWrap, styles.cellIndex)}>{index + 1}</div>
                 )
             }
             // render: EditableCellRender({
@@ -1637,6 +1637,7 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
             dataIndex: '__empty',
         },
     ]
+
     const indexColumns = [
         {
             title: t('index_name'),

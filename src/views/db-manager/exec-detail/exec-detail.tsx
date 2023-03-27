@@ -1052,13 +1052,18 @@ export function ExecDetail(props) {
         if (!filterColKeyword) {
             return columns
         }
-        const _keyword = filterColKeyword.toLowerCase()
+        const _keywords = filterColKeyword.toLowerCase().split(/\s+/).filter(item => item)
         return columns.filter(col => {
             // console.log('col.__rawTitle', )
             if (col.alwaysShow) {
                 return true
             }
-            return col.__rawTitle.toLowerCase().includes(_keyword)
+            for (let _keyword of _keywords) {
+                if (col.__rawTitle.toLowerCase().includes(_keyword)) {
+                    return true
+                }
+            }
+            return false
         })
     }, [filterColKeyword, columns])
 
@@ -1231,6 +1236,7 @@ export function ExecDetail(props) {
                             </Space>
                             <Space>
                                 <Input.Search
+                                    className={styles.filterSearch}
                                     placeholder={t('filter_column')}
                                     size="small"
                                     allowClear
