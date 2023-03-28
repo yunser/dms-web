@@ -7,25 +7,67 @@ import _ from 'lodash';
 import classNames from 'classnames'
 // console.log('lodash', _)
 import copy from 'copy-to-clipboard';
-import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, CloseCircleOutlined, FileTextOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
+import { LeftRightLayout } from '@/components/left-right-layout';
 
-const { TabPane } = Tabs
-const { TextArea } = Input
-
-
-export function RowDetailModal({ config, connectionId, item, onCancel, onSuccess, tableName, dbName }) {
+export function RowDetailModal({ originColumns, item, onCancel, onSuccess, tableName, dbName }) {
     const { t } = useTranslation()
 
     // const [columns, setColumns] = useState([])
     const [list, setList] = useState([])
     const [keyword, setKeyword] = useState('')
-    console.log('item', item)
+    console.log('RowDetailModal/originColumns', originColumns)
+    console.log('RowDetailModal/item', item)
+
+    const columnMap = useMemo(() => {
+        const result = {}
+        for (let col of originColumns) {
+            result[col.COLUMN_NAME] = col
+        }
+        return result
+    }, [originColumns])
+    console.log('RowDetailModal/columnMap', columnMap)
+
     const columns = [
+        // {
+        //     title: t('type'),
+        //     dataIndex: 'type',
+        //     width: 160,
+        //     render(value, item) {
+        //         return (
+        //             <Space>
+        //                 {/* <FileTextOutlined className={styles.icon} /> */}
+        //                 {/* {value} */}
+        //                 {columnMap[item.field].COLUMN_TYPE}
+        //             </Space>
+        //         )
+        //     }
+        // },
         {
             title: t('field'),
             dataIndex: 'field',
+            align: 'right',
             width: 240,
+            render(value) {
+                return (
+                    <LeftRightLayout>
+                        {/* <FileTextOutlined className={styles.icon} /> */}
+                        <Popover
+                            content={
+                                <div>
+                                    <div>{columnMap[value]?.COLUMN_TYPE}</div>
+                                    <div>{columnMap[value]?.COLUMN_COMMENT}</div>
+                                </div>
+                            }
+                            >
+                            <InfoCircleOutlined style={{ opacity: columnMap[value]?.COLUMN_COMMENT ? 1 : 0.4}} />
+                        </Popover>
+                        {value}
+
+                    </LeftRightLayout>
+                )
+            }
         },
         {
             title: t('value'),
@@ -86,7 +128,7 @@ export function RowDetailModal({ config, connectionId, item, onCancel, onSuccess
                 marginBottom: 8,
             }}>
                 <Input
-                    placeholder={t(('search'))}
+                    placeholder={t(('filter'))}
                     value={keyword}
                     onChange={e => {
                         setKeyword(e.target.value)

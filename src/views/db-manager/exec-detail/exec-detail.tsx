@@ -1543,6 +1543,7 @@ export function ExecDetail(props) {
             {!!rowModalItem &&
                 <RowDetailModal
                     item={rowModalItem}
+                    originColumns={_originColumns}
                     onCancel={() => {
                         setRowModalItem(null)
                     }}
