@@ -329,6 +329,26 @@
     width: 320px;
 }
 .cellDetail {
-    word-break: break-all;
+    // word-break: break-all;
     // border: 1px solid #000;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+    .header {
+        // border: 1px solid #000;
+        margin-bottom: 16px;
+    }
+    .body {
+        flex: 1 0 auto;
+        height: 0;
+        overflow: auto;
+    }
+    .pretty {
+        white-space: pre;
+    }
+    .raw {
+        word-break: break-all;
+        // border: 1px solid #000;
+    }
 }

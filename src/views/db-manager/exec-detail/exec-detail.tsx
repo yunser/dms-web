@@ -1,4 +1,4 @@
-import { Button, Descriptions, Drawer, Dropdown, Empty, Input, Menu, message, Modal, Popover, Space, Table, Tabs } from 'antd';
+import { Button, Descriptions, Drawer, Dropdown, Empty, Input, Menu, message, Modal, Popover, Radio, Space, Table, Tabs } from 'antd';
 import React, { useMemo } from 'react';
 import { VFC, useRef, useState, useEffect } from 'react';
 import { request } from '@/views/db-manager/utils/http';;
@@ -113,6 +113,62 @@ function SimpleCell({ onClick, text, color }) {
         // }}
         >
             <span className={styles.text}>{text}</span>
+        </div>
+    )
+}
+
+interface PrettyContentProps {
+    // not equal null
+    text: string
+}
+
+function PrettyContent({ text }: PrettyContentProps) {
+
+    const [type, setType] = useState('pretty')
+
+    const [prettyText] = useMemo(() => {
+        let prettyText = text
+        // let type = 'plain'
+        // console.log('response.text', response.text)
+        // if (response.headerObj && response.headerObj['content-type']) {
+        //     if (response.headerObj['content-type'].includes('application/json')) {
+        //         type = 'json'
+        //     }
+        //     else if (response.headerObj['content-type'].includes('application/xml')) {
+        //         type = 'xml'
+        //     }
+        // }
+        try {
+            prettyText = JSON.stringify(JSON.parse(text), null, 4)
+        }
+        catch (err) {
+            console.log('err', err)
+            // nothing
+        }
+        return [prettyText]
+    }, [text])
+
+    return (
+        <div className={styles.cellDetail}>
+            <div className={styles.header}>
+                <Radio.Group
+                    value={type}
+                    onChange={e => {
+                        setType(e.target.value)
+                    }}
+                    size="small"
+                >
+                    <Radio.Button value="pretty">{t('http.pretty')}</Radio.Button>
+                    <Radio.Button value="raw">{t('http.raw')}</Radio.Button>
+                </Radio.Group>
+            </div>
+            <div className={styles.body}>
+                {type == 'pretty' ?
+                    <div className={styles.pretty}>{prettyText}</div>
+                :
+                    <div className={styles.raw}>{text}</div>
+                }
+            </div>
         </div>
     )
 }
@@ -348,7 +404,11 @@ function Cell({ item, editing, onChange }) {
                         setDetailVisible(false)
                     }}
                 >
-                    <div className={styles.cellDetail}>{text == null ? 'NULL' : text}</div>
+                    {text == null ? 
+                        'NULL' 
+                    :
+                        <PrettyContent text={text} />
+                    }
                 </Drawer>
             }
         </div>
