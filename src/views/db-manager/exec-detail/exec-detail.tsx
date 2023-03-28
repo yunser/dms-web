@@ -1552,6 +1552,7 @@ export function ExecDetail(props) {
             {!!rowEditItem &&
                 <RowEditModal
                     item={rowEditItem}
+                    originColumns={_originColumns}
                     onCancel={() => {
                         setRowEditItem(null)
                     }}

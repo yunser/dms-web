@@ -17,8 +17,6 @@ export function RowDetailModal({ originColumns, item, onCancel, onSuccess, table
     // const [columns, setColumns] = useState([])
     const [list, setList] = useState([])
     const [keyword, setKeyword] = useState('')
-    console.log('RowDetailModal/originColumns', originColumns)
-    console.log('RowDetailModal/item', item)
 
     const columnMap = useMemo(() => {
         const result = {}
@@ -27,7 +25,6 @@ export function RowDetailModal({ originColumns, item, onCancel, onSuccess, table
         }
         return result
     }, [originColumns])
-    console.log('RowDetailModal/columnMap', columnMap)
 
     const columns = [
         // {

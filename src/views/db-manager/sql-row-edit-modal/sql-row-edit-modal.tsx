@@ -7,13 +7,14 @@ import _ from 'lodash';
 import classNames from 'classnames'
 // console.log('lodash', _)
 import copy from 'copy-to-clipboard';
-import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, CloseCircleOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
 const { TabPane } = Tabs
 const { TextArea } = Input
 
 function MyInput({ value, onChange, ...otherProps }) {
+    const { t } = useTranslation()
     return (
         <Space>
             <Input
@@ -43,7 +44,7 @@ function MyInput({ value, onChange, ...otherProps }) {
                         onChange && onChange(null)
                     }}
                 >
-                    NULL
+                    {t('sql.null')}
                 </Button>
                 <Button
                     size="small"
@@ -52,14 +53,14 @@ function MyInput({ value, onChange, ...otherProps }) {
                         onChange && onChange('')
                     }}
                 >
-                    BL
+                    {t('sql.empty')}
                 </Button>
             </Space>
         </Space>
     )
 }
 
-export function RowEditModal({ config, onOk, item, onCancel, onSuccess, tableName, dbName }) {
+export function RowEditModal({ originColumns, onOk, item, onCancel, onSuccess, tableName, dbName }) {
     const { t } = useTranslation()
 
     const [formItems, setFormItems] = useState([])
@@ -67,6 +68,14 @@ export function RowEditModal({ config, onOk, item, onCancel, onSuccess, tableNam
 
     // console.log('RowEditModal/item', item)
     // console.log('RowEditModal/formItems', formItems)
+
+    const columnMap = useMemo(() => {
+        const result = {}
+        for (let col of originColumns) {
+            result[col.COLUMN_NAME] = col
+        }
+        return result
+    }, [originColumns])
 
     useEffect(() => {
         const list = [] 
@@ -141,6 +150,17 @@ export function RowEditModal({ config, onOk, item, onCancel, onSuccess, tableNam
                                     setFormItems([...formItems])
                                 }}
                             />
+                            <Popover
+                            content={
+                                <div>
+                                    <div>{columnMap[item.field]?.COLUMN_TYPE}</div>
+                                    <div>{columnMap[item.field]?.COLUMN_COMMENT}</div>
+                                </div>
+                            }
+                            >
+                            <InfoCircleOutlined className={styles.info} style={{ opacity: columnMap[item.field]?.COLUMN_COMMENT ? 1 : 0.4}} />
+                        </Popover>
+
                             {/* ({item.value === null ? '<null>' : item.value}) */}
                         </div>
                         // <Form.Item
