@@ -1,4 +1,4 @@
-import { Button, Descriptions, Dropdown, Empty, Input, Menu, message, Modal, Popover, Space, Table, Tabs } from 'antd';
+import { Button, Descriptions, Drawer, Dropdown, Empty, Input, Menu, message, Modal, Popover, Space, Table, Tabs } from 'antd';
 import React, { useMemo } from 'react';
 import { VFC, useRef, useState, useEffect } from 'react';
 import { request } from '@/views/db-manager/utils/http';;
@@ -219,9 +219,11 @@ function HeaderCell({ name, onCopyValue }) {
 function Cell({ item, editing, onChange }) {
     // console.log('Cell.item', item)
     // TODO 先 run 再 explain item 就会为空，不清楚原因
+    const { t } = useTranslation()
     if (!item) {
         return null
     }
+    const [detailVisible, setDetailVisible] = useState(false)
     const [isEdit, setIsEdit] = useState(false)
     const text = ItemHelper.calcValue(item)
     const [value, setValue] = useState(text)
@@ -312,9 +314,9 @@ function Cell({ item, editing, onChange }) {
             {!isEdit && isHover &&
                 <div className={styles.tool}>
                     <CopyButton
-                        text={text == null ? 'null' : text}
+                        text={text == null ? 'NULL' : text}
                     >
-                        <IconButton title="复制">
+                        <IconButton title={t('copy')}>
                             <CopyOutlined />
                         </IconButton>
                     </CopyButton>
@@ -326,11 +328,28 @@ function Cell({ item, editing, onChange }) {
                             </div>
                         }
                     >
-                        <IconButton title="查看">
+                        <IconButton
+                            title={t('view')}
+                            onClick={() => {
+                                setDetailVisible(true)
+                            }}
+                        >
                             <EyeOutlined />
                         </IconButton>
                     </Popover>
                 </div>
+            }
+            {detailVisible &&
+                <Drawer
+                    title={t('detail')}
+                    open={true}
+                    width={640}
+                    onClose={() => {
+                        setDetailVisible(false)
+                    }}
+                >
+                    <div className={styles.cellDetail}>{text == null ? 'NULL' : text}</div>
+                </Drawer>
             }
         </div>
     )

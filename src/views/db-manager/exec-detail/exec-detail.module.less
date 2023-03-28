@@ -156,8 +156,6 @@
 .cell {
     position: relative;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
     min-width: 64px;
     max-width: 320px;
     outline: 1px solid transparent;
@@ -205,6 +203,8 @@
         height: 100%;
         padding: 0 8px;
         line-height: var(--cell-height);
+        overflow: hidden;
+        text-overflow: ellipsis;
         // border: 1px solid #f00;
         &.null {
             color: var(--color-text-9);
@@ -318,8 +318,17 @@
 }
 
 .popoverContent {
-    // max-width: 420px;
+    max-width: 640px;
+    white-space: break-spaces;
+    pre {
+        white-space: normal;
+        margin-bottom: 0;
+    }
 }
 .filterSearch {
     width: 320px;
+}
+.cellDetail {
+    word-break: break-all;
+    // border: 1px solid #000;
 }
