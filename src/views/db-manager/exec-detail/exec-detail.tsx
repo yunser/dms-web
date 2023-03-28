@@ -265,44 +265,48 @@ function Cell({ item, editing, onChange }) {
         // }}
         >
             {isEdit ?
-                <div>
-                    <Input
-                        ref={inputRef}
-                        value={value}
-                        onChange={e => {
-                            setValue(e.target.value)
-                        }}
-                        onBlur={() => {
-                            setIsEdit(false)
-                            if (value != item.value) {
-                                onChange && onChange({
-                                    ...item,
-                                    newValue: value,
-                                })
+                <Input
+                    className={styles.input}
+                    ref={inputRef}
+                    value={value}
+                    placeholder={value == null ? 'NULL' : ''}
+                    onChange={e => {
+                        setValue(e.target.value)
+                    }}
+                    onKeyDown={e => {
+                        if (e.code == 'Backspace') {
+                            if (value == '') {
+                                setValue(null)
                             }
-                            if (value == item.value && item.newValue) {
-                                onChange && onChange({
-                                    ...item,
-                                    newValue: undefined,
-                                })
+                            else if (value == null) {
+                                setValue('')
                             }
-                        }}
-                    />
-                </div>
-                : text == null ?
-                    <span className={styles.null}
-                        onClick={() => {
-                            setIsEdit(true)
-                        }}
-                    >NULL</span>
-                    :
-                    <span className={classNames(styles.text, {
-
-                    })}
-                        onClick={() => {
-                            setIsEdit(true)
-                        }}
-                    >{text}</span>
+                        }
+                    }}
+                    onBlur={() => {
+                        setIsEdit(false)
+                        if (value != item.value) {
+                            onChange && onChange({
+                                ...item,
+                                newValue: value,
+                            })
+                        }
+                        if (value == item.value && item.newValue) {
+                            onChange && onChange({
+                                ...item,
+                                newValue: undefined,
+                            })
+                        }
+                    }}
+                />
+            : 
+                <div className={classNames(styles.text, {
+                    [styles.null]: text == null,
+                })}
+                    onClick={() => {
+                        setIsEdit(true)
+                    }}
+                >{text == null ? 'NULL' : text}</div>
             }
             {/* {!isEdit && !editing && */}
             {!isEdit && isHover &&
@@ -393,7 +397,6 @@ export function ExecDetail(props) {
     // console.log('ExecDetail/results.length', results.length)
 
     const tableInfoList = useRef([])
-    // console.log('tableInfo_will', tableInfoList)
 
     const g_dataRef = useRef({})
     const [modelCode, setModalCode] = useState('')

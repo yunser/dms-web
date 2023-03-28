@@ -160,6 +160,7 @@
     text-overflow: ellipsis;
     min-width: 64px;
     max-width: 320px;
+    outline: 1px solid transparent;
     // border: 1px solid #f00;
     // padding: 8px;
     padding: 0;
@@ -169,6 +170,7 @@
     font-size: 12px;
 
     &:hover {
+        outline: 1px solid #09c;
         .tool {
             display: flex;
         }
@@ -195,22 +197,36 @@
         border: 1px solid #000;
     }
 
-    .null {
-        color: #999;
-        padding: 8px;
-        height: 100%;
-        line-height: var(--cell-height);
-    }
-
+    
     .text {
         // min-width: 40px;
+        display: inline-block;
+        width: 100%;
         height: 100%;
-        padding: 8px;
+        padding: 0 8px;
         line-height: var(--cell-height);
+        // border: 1px solid #f00;
+        &.null {
+            color: var(--color-text-9);
+            // padding: 8px;
+            // height: 100%;
+            // line-height: var(--cell-height);
+        }
     }
 
     &.edited {
-        border: 1px solid #09c;
+        // border: 1px solid #09c;
+        outline: 1px solid #09c;
+        // outline: none;
+    }
+    .input {
+        // background-color: #f00;
+        height: var(--cell-height);
+        line-height: var(--cell-height);
+        width: 100%;
+        padding: 0 8px;
+        font-size: 12px;
+        padding: 0 8px;
     }
 }
 .titleCell {
