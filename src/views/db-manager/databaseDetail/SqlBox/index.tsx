@@ -288,7 +288,7 @@ function SqlBox({ config, tabViewId, event$, databaseType, connectionId, onJson,
                 // return
                 window._startTime = new Date()
                 // console.log(res)
-                const { results, fields } = res.data
+                const { results, fields, columns } = res.data
 
                 const tabKey = uid(16)
                 newTabs[lineIdx] = {
@@ -300,6 +300,7 @@ function SqlBox({ config, tabViewId, event$, databaseType, connectionId, onJson,
                         sql: lineCode,
                         loading: false,
                         fields,
+                        columns,
                         result: res.data,
                         error: '',
                         hasReq: true,

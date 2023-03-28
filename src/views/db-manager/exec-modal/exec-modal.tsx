@@ -226,7 +226,11 @@ export function ExecModal({ config, connectionId, sql, onClose, onSuccess, table
                                             <div>
                                                 <div>Info:</div>
                                                 <div className={styles.info}>
-                                                    {!!item.data.resData.result?.info ? item.data.resData.result?.info : `影响行数：${item.data.resData?.result?.affectedRows}`}</div>
+                                                    {/* MySQL 删除时只有 affectedRows  */}
+                                                    {!!item.data.resData.result?.info ? 
+                                                        item.data.resData.result?.info 
+                                                    : 
+                                                        `${t('sql.affected_rows')}：${item.data.resData?.result?.affectedRows}`}</div>
                                             </div>
                                         }
                                     </div>

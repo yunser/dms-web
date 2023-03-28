@@ -7,7 +7,7 @@ import _ from 'lodash';
 import classNames from 'classnames'
 // console.log('lodash', _)
 import copy from 'copy-to-clipboard';
-import { CheckCircleOutlined, CloseCircleOutlined, CopyOutlined, EllipsisOutlined, EyeOutlined, FullscreenOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, CloseCircleOutlined, CopyOutlined, EllipsisOutlined, EyeOutlined, FileTextOutlined, FullscreenOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { CopyButton } from '../copy-button';
@@ -173,7 +173,7 @@ function PrettyContent({ text }: PrettyContentProps) {
     )
 }
 
-function HeaderCell({ name, onCopyValue }) {
+function HeaderCell({ name, columnWithType, onCopyValue }) {
     const [isHover, setIsHover] = useState(false)
 
     const timer_ref = useRef(0)
@@ -202,7 +202,25 @@ function HeaderCell({ name, onCopyValue }) {
                 }
             }}
         >
-            <div className={styles.title}>{name}</div>
+            <Popover
+                title={t('column')}
+                content={
+                    <div>
+                        <Space>
+                            <FileTextOutlined className={styles.icon} />
+                            <div>{columnWithType?.COLUMN_TYPE || '--'}</div>
+                        </Space>
+                        {columnWithType?.COLUMN_COMMENT &&
+                            <div className={styles.comment}>{columnWithType.COLUMN_COMMENT}</div>
+                        }
+                    </div>
+                }
+            >
+                <div className={styles.title}>
+                    {name}
+                    {/* ({columnWithType?.DATA_TYPE}) */}
+                </div>
+            </Popover>
             {isHover &&
                 <div className={styles.tool}>
                     {/* <CopyButton
@@ -437,6 +455,7 @@ export function ExecDetail(props) {
     const { 
         sql,
         // loading, 
+        columns: _originColumns,
         results: _results = [],
         fields = [],
         result, 
@@ -1006,7 +1025,9 @@ export function ExecDetail(props) {
         let totalWidth = 0
         const topList = list.slice(0, 1000) // 取前 20 条用于计算，避免行太多导致性能问题
         // console.log('topList', topList)
+        // fields.forEach((field) => {})
         for (let field of fields) {
+            // console.log('fieldfield', field)
             let width = 280 // UUID 刚好完整显示的宽度 280
             const cellTexts = [field.name] // 这一列头部和内容的数据
             const key = '' + colIdx
@@ -1036,6 +1057,9 @@ export function ExecDetail(props) {
                 width = 320
             }
             totalWidth += width
+
+            const columnWithType = _originColumns[colIdx]
+            // console.log('columnWithType', columnWithType)
             columns.push({
                 // title: <div>{field.name}</div>,
                 // title: '' + field.name,
@@ -1043,6 +1067,7 @@ export function ExecDetail(props) {
                 title: (
                     <HeaderCell
                         name={field.name}
+                        columnWithType={columnWithType}
                         onCopyValue={(type) => {
                             const values = []
                             for (let item of list) {
