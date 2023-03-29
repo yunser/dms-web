@@ -2012,7 +2012,7 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
             :
                 <>
                     <div className={styles.header}>
-                        {/* {tableName}@{dbName} */}
+                        
                             
                             <Button
                                 // loading={loading}
@@ -2022,6 +2022,9 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
                                 >
                                 {t('save')}
                             </Button>
+                            <div>
+                                {tableName}@{dbName}
+                            </div>
                             {/* <Button
                                 size="small"
                                 onClick={debug}
