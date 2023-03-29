@@ -56,6 +56,7 @@
     "react-loading": "^2.0.3",
     "react-pdf": "^5.7.2",
     "react-router-dom": "^6.2.1",
+    "react-textarea-autosize": "^8.4.1",
     "roughjs": "^4.5.2",
     "slate": "^0.82.0",
     "slate-react": "^0.82.0",

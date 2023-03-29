@@ -9,33 +9,56 @@ import classNames from 'classnames'
 import copy from 'copy-to-clipboard';
 import { CheckCircleOutlined, CloseCircleOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
+import moment from 'moment';
+import TextareaAutosize from 'react-textarea-autosize'
 
 const { TabPane } = Tabs
 const { TextArea } = Input
 
-function MyInput({ value, onChange, ...otherProps }) {
+function MyInput({ value, onChange, column, ...otherProps }) {
     const { t } = useTranslation()
+
+    let type = 'text'
+    console.log('column', column)
+    // if (column?.DATA_TYPE == 'varchar') {
+    if (column?.DATA_TYPE == 'int' || column?.DATA_TYPE == 'tinyint') {
+        type = 'number'
+    }
+
+    const commomProps = {
+        value,
+        placeholder: value === null ? 'NULL' : '',
+        onChange: e => {
+            onChange && onChange(e.target.value)
+        },
+        onKeyDown: e => {
+            console.log('e', e.code)
+            if (e.code == 'Backspace') {
+                if (value === null) {
+                    onChange && onChange('')
+                }
+                else if (value === '') {
+                    onChange && onChange(null)
+                }
+            }
+        }
+    }
+
     return (
         <Space>
-            <Input
-                value={value}
-                placeholder={value === null ? 'NULL' : ''}
-                onChange={e => {
-                    onChange && onChange(e.target.value)
-                }}
-                {...otherProps}
-                onKeyDown={e => {
-                    console.log('e', e.code)
-                    if (e.code == 'Backspace') {
-                        if (value === null) {
-                            onChange && onChange('')
-                        }
-                        else if (value === '') {
-                            onChange && onChange(null)
-                        }
-                    }
-                }}
-            />
+            {column?.DATA_TYPE == 'varchar' ?
+                <TextareaAutosize
+                    className={styles.textarea}
+                    maxRows={8}
+                    {...commomProps}
+                />
+            :
+                <Input
+                    type={type}
+                    {...otherProps}
+                    {...commomProps}
+                />
+            }
             <Space>
                 <Button
                     size="small"
@@ -54,6 +77,17 @@ function MyInput({ value, onChange, ...otherProps }) {
                     }}
                 >
                     {t('sql.empty')}
+                </Button>
+                <Button
+                    size="small"
+                    tabIndex={-1}
+                    disabled={!(column?.DATA_TYPE == 'datetime')}
+                    onClick={() => {
+                        const time = moment().format('YYYY-MM-DD HH:mm:ss')
+                        onChange && onChange(time)
+                    }}
+                >
+                    {t('sql.now')}
                 </Button>
             </Space>
         </Space>
@@ -137,6 +171,7 @@ export function RowEditModal({ originColumns, onOk, item, onCancel, onSuccess, t
                 //     wrapperCol: { span: 24 },
                 // }}
             >
+                
                 {formItems.map((item, index) => {
                     return (
                         <div className={styles.formItem}>
@@ -145,6 +180,7 @@ export function RowEditModal({ originColumns, onOk, item, onCancel, onSuccess, t
                                 className={styles.input}
                                 size="small"
                                 value={item.value}
+                                column={columnMap[item.field]}
                                 onChange={value => {
                                     formItems[index].value = value
                                     setFormItems([...formItems])

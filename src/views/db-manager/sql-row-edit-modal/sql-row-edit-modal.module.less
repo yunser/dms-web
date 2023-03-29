@@ -167,7 +167,7 @@
 .formItem {
     display: flex;
     flex-direction: row;
-    align-items: center;
+    // align-items: center;
     margin-bottom: 12px;
     .label {
         width: 160px;
@@ -184,6 +184,22 @@
         width: 320px;
     }
     .info {
+        margin-top: 4px;
         margin-left: 12px;
+    }
+}
+.textarea {
+    // width: 100%;
+    width: 320px;
+    height: 24px;
+    border: 1px solid var(--border-color);
+    outline: none;
+    padding: 0 8px;
+    resize: none;
+    &:hover {
+        border-color: #40a9ff;
+    }
+    &:active {
+        outline: none;
     }
 }
