@@ -557,6 +557,7 @@ i18n
                     'quick_search': 'Quick Search',
                     'customize': 'Customize',
                     'relative': 'Relative',
+                    'copy_uri': 'Copy URI',
                 }
             },
             zh: {
@@ -1106,6 +1107,7 @@ i18n
                     'quick_search': '快速搜索',
                     'customize': '自定义',
                     'relative': '相对',
+                    'copy_uri': '复制链接',
                 }
             }
         },

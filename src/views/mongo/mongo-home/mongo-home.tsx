@@ -13,6 +13,7 @@ import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/common/full-center-box';
 import { SearchUtil } from '@/utils/search';
+import copy from 'copy-to-clipboard';
 
 
 
@@ -132,6 +133,13 @@ export function MongoHome({ config, event$, onConnect, }) {
         // }
     }
 
+    function copyItem(item) {
+        console.log('copyItem', item)
+        const url = `mongodb://${item.username}:${item.password}@${item.host}:${item.port}`
+        copy(url)
+        message.success(t('copied'))
+    }
+
     function deleteItem(item) {
         Modal.confirm({
             content: `${t('delete_confirm')} ${item.name}?`,
@@ -206,6 +214,10 @@ export function MongoHome({ config, event$, onConnect, }) {
                                                 key: 'edit',
                                             },
                                             {
+                                                label: t('copy_uri'),
+                                                key: 'copy_uri',
+                                            },
+                                            {
                                                 label: t('delete'),
                                                 key: 'delete',
                                                 danger: true,
@@ -215,6 +227,9 @@ export function MongoHome({ config, event$, onConnect, }) {
                                             domEvent.stopPropagation()
                                             if (key == 'delete') {
                                                 deleteItem(item)
+                                            }
+                                            if (key == 'copy_uri') {
+                                                copyItem(item)
                                             }
                                             else if (key == 'edit') {
                                                 setModalItem((item))
