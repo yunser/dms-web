@@ -50,7 +50,9 @@ export function CommitList({ config, event$, projectPath,  }) {
 
     const [fileName, setFileName] = useState('')
     const [fileContent, setFileContent] = useState('')
+    const [keyword, setKeyword] = useState('')
     const [fileContentVisible, setFileContentVisible] = useState(false)
+    const [filteredKeyword, setFilteredKeyword] = useState('')
     const [filteredFile, setFilteredFile] = useState('')
     // const [filteredAuthor, setFilteredAuthor] = useState({
     //     name: '497',
@@ -234,6 +236,10 @@ export function CommitList({ config, event$, projectPath,  }) {
             if (filteredAuthor) {
                 list = list.filter(item => item.author_name == filteredAuthor.name)
             }
+            if (filteredKeyword) {
+                const _kw = filteredKeyword.toLowerCase()
+                list = list.filter(item => item.message.toLowerCase().includes(_kw) || item.hash.includes(_kw))
+            }
             setList(list)
             if (list.length > 0) {
                 show(list[0])
@@ -267,10 +273,10 @@ export function CommitList({ config, event$, projectPath,  }) {
 
     useEffect(() => {
         loadList()
-    }, [filteredFile, filteredAuthor])
-    useEffect(() => {
-        loadList()
-    }, [])
+    }, [filteredFile, filteredAuthor, filteredKeyword])
+    // useEffect(() => {
+    //     loadList()
+    // }, [])
 
     event$.useSubscription(msg => {
         // console.log('CommitList/onmessage', msg)
@@ -450,23 +456,37 @@ export function CommitList({ config, event$, projectPath,  }) {
                                 </Tag>
                                 // <div className={styles.filteredFile}>{filteredFile}</div>
                             }
-                            <IconButton
-                                tooltip={t('export_json')}
-                                // size="small"
-                                className={styles.refresh}
-                                onClick={() => {
-                                    event$.emit({
-                                        type: 'event_show_json',
-                                        data: {
-                                            json: JSON.stringify(list, null, 4)
-                                            // connectionId,
-                                        },
-                                    })
-                                    // exportAllKeys()
-                                }}
-                            >
-                                <ExportOutlined />
-                            </IconButton>
+                            <Space>
+                                <Input.Search
+                                    size="small"
+                                    placeholder={t('filter')}
+                                    value={keyword}
+                                    onChange={e => {
+                                        setKeyword(e.target.value)
+                                    }}
+                                    onSearch={value => {
+                                        // console.log('onSearch', value)
+                                        setFilteredKeyword(value)
+                                    }}
+                                />
+                                <IconButton
+                                    tooltip={t('export_json')}
+                                    // size="small"
+                                    className={styles.refresh}
+                                    onClick={() => {
+                                        event$.emit({
+                                            type: 'event_show_json',
+                                            data: {
+                                                json: JSON.stringify(list, null, 4)
+                                                // connectionId,
+                                            },
+                                        })
+                                        // exportAllKeys()
+                                    }}
+                                >
+                                    <ExportOutlined />
+                                </IconButton>
+                            </Space>
                         </div>
                         <div className={styles.list}>
                             <List 
