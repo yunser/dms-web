@@ -38,6 +38,9 @@ export function MongoDocument({ config, curDb, curCollection, event$, connection
     // update
     const [updateQuery, setUpdateQuery] = useState({})
     const [updateModalVisible, setUpdateModalVisible] = useState(false)
+    // remove by query
+    const [removeQuery, setRemoveQuery] = useState({})
+    const [removeModalVisible, setRemoveModalVisible] = useState(false)
 
     const [pageSize, setPageSize] = useState(10)
     const [condition, setCondition] = useState('{}')
@@ -90,6 +93,24 @@ export function MongoDocument({ config, curDb, curCollection, event$, connection
         }
         setUpdateQuery(cond)
         setUpdateModalVisible(true)
+    }
+
+    function queryAndRemove() {
+        if (!condition) {
+            // message.error('请输入查询条件')
+            setDocumentCondition({})
+            return
+        }
+        let cond
+        try {
+            cond = JSON.parse(condition)
+        }
+        catch (err) {
+            message.error('查询条件解析失败')
+            return
+        }
+        setRemoveQuery(cond)
+        setRemoveModalVisible(true)
     }
 
     async function loadDocuments() {
@@ -246,13 +267,6 @@ export function MongoDocument({ config, curDb, curCollection, event$, connection
                             <ExportOutlined />
                         </IconButton>
                         <Button
-                            // type="primary"
-                            size="small"
-                            onClick={queryAndUpdate}
-                        >
-                            {t('update')}
-                        </Button>
-                        <Button
                             size="small"
                             onClick={formatQuery}
                         >
@@ -283,6 +297,25 @@ export function MongoDocument({ config, curDb, curCollection, event$, connection
                                 }
                             }}
                         />
+                    </Space>
+                    <Space>
+                        <Button
+                            // type="primary"
+                            size="small"
+                            onClick={queryAndUpdate}
+                        >
+                            {t('update')}
+                        </Button>
+                        <Button
+                            size="small"
+                            danger
+                            onClick={() => {
+                                queryAndRemove()
+                            }}
+                        >
+                            {t('delete')}
+                        </Button>
+
                     </Space>
                 </div>
             </div>
@@ -427,6 +460,18 @@ export function MongoDocument({ config, curDb, curCollection, event$, connection
                     query={updateQuery}
                     onClose={() => {
                         setUpdateModalVisible(false)
+                    }}
+                />
+            }
+            {removeModalVisible &&
+                <RemoveModal
+                    config={config}
+                    connectionId={connectionId}
+                    database={curDb}
+                    collection={curCollection}
+                    query={removeQuery}
+                    onClose={() => {
+                        setRemoveModalVisible(false)
                     }}
                 />
             }
@@ -674,6 +719,58 @@ function UpdateModal({ config, connectionId, database, collection, query, onClos
                         onClick={update}
                     >
                         {t('update')}
+                    </Button>
+                </div>
+            </div>
+        </Drawer>
+    )
+}
+
+function RemoveModal({ config, connectionId, database, collection, query, onClose }) {
+    const { t } = useTranslation()
+    // const [updateData, setUpdateData] = useState('{}')
+
+    async function update() { 
+        let res = await request.post(`${config.host}/mongo/document/removeByQuery`, {
+            connectionId,
+            database: database.name,
+            collection: collection.name,
+            query,
+            // data: JSON.parse(updateData),
+            // ...saveOrUpdateData,
+        })
+        if (res.success) {
+            message.success(t('success'))
+        }
+    }
+
+    return (
+        <Drawer
+            title={t('query_and_delete')}
+            open={true}
+            width={800}
+            onClose={onClose}
+        >
+            <div className={styles.sectionBox}>
+                <div className={styles.title}>{t('query')}:</div>
+                <Input.TextArea
+                    value={JSON.stringify(query, null, 4)}
+                    rows={8}
+                    disabled
+                    // onChange={e => {
+                    //     setUpdateData(e.target.value)
+                    // }}
+                />
+            </div>
+            {/* <pre>{JSON.stringify(query, null, 4)}</pre> */}
+            <div className={styles.sectionBox}>
+                <div className={styles.btnBox}>
+                    <Button
+                        type="primary"
+                        onClick={update}
+                        danger
+                    >
+                        {t('delete')}
                     </Button>
                 </div>
             </div>
