@@ -43,7 +43,15 @@ export function MongoDocument({ config, curDb, curCollection, event$, connection
     const [removeModalVisible, setRemoveModalVisible] = useState(false)
 
     const [pageSize, setPageSize] = useState(10)
-    const [condition, setCondition] = useState('{}')
+    // const [condition, _setCondition] = useState('{}')
+    const comData = useRef({
+        condition: '{}',
+        editor: null
+    })
+    function setCondition(value) {
+        comData.current?.editor?.setValue(value)
+    }
+    
     const [documentCondition, setDocumentCondition] = useState({})
     const [documentLoading, setDocumentLoading] = useState(false)
     const [documents, setDocuments] = useState([])
@@ -51,6 +59,7 @@ export function MongoDocument({ config, curDb, curCollection, event$, connection
     const [total, setTotal] = useState(0)
 
     function query() {
+        const { condition } = comData.current 
         if (!condition) {
             // message.error('请输入查询条件')
             setDocumentCondition({})
@@ -74,10 +83,12 @@ export function MongoDocument({ config, curDb, curCollection, event$, connection
     }
 
     function formatQuery() {
+        const { condition } = comData.current
         setCondition(JSON.stringify(JSON.parse(condition), null, 4))
     }
 
     function queryAndUpdate() {
+        const { condition } = comData.current
         if (!condition) {
             // message.error('请输入查询条件')
             setDocumentCondition({})
@@ -96,6 +107,7 @@ export function MongoDocument({ config, curDb, curCollection, event$, connection
     }
 
     function queryAndRemove() {
+        const { condition } = comData.current
         if (!condition) {
             // message.error('请输入查询条件')
             setDocumentCondition({})
@@ -223,14 +235,29 @@ export function MongoDocument({ config, curDb, curCollection, event$, connection
     return (
         <div className={styles.documentBox}>
             <div className={styles.header}>
-                <Input.TextArea
-                    placeholder="请输入查询条件"
-                    value={condition}
-                    rows={8}
-                    onChange={e => {
-                        setCondition(e.target.value)
-                    }}
-                />
+                <div className={styles.editor}>
+                    {/* <Input.TextArea
+                        placeholder="请输入查询条件"
+                        value={condition}
+                        rows={8}
+                        onChange={e => {
+                            setCondition(e.target.value)
+                        }}
+                    /> */}
+                    <Editor
+                        lang="json"
+                        // value={condition}
+                        value="{}"
+                        // event$={event$}
+                        onChange={value => {
+                            comData.current.condition = value
+                        }}
+                        onEditor={editor => {
+                            // setEditor(editor)
+                            comData.current.editor = editor
+                        }}
+                    />
+                </div>
                 <div className={styles.btns}>
                     <Space>
                         <Button
