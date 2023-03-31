@@ -1,4 +1,4 @@
-import { Button, Descriptions, Dropdown, Empty, Input, Menu, message, Modal, Popover, Space, Spin, Table, Tabs, Tag } from 'antd';
+import { Button, Col, Descriptions, Dropdown, Empty, Input, Menu, message, Modal, Popover, Row, Space, Spin, Table, Tabs, Tag } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './git-stat.module.less';
 import _, { cloneDeep } from 'lodash';
@@ -23,49 +23,85 @@ import { BranchModal } from '../branch-modal';
 import ReactEcharts from 'echarts-for-react';
 // import echarts from 'echarts'
 
+interface ChartProps {
+    list: GitCommit[],
+}
 
-function CalenderChart({ list }) {
+interface GitCommit {
+    hash: string;
+    date: string;
+    message: string;
+    refs: string;
+    body: string;
+    author_name: string;
+    author_email: string;
+}
 
+function AuthorStat({ list }: ChartProps) {
+
+    console.log('AuthorStat', JSON.stringify(list[0]), list)
     const chartOption = useMemo(() => {
 
-        let dateMap = {}
+        let authorMap = {}
         for (let commit of list) {
             const m = moment(commit.date)
-            const date = m.format('YYYY-MM-DD')
-            if (!dateMap[date]) {
-                dateMap[date] = 0
+            // const date = m.format('YYYY-MM-DD')
+            if (!authorMap[commit.author_name]) {
+                authorMap[commit.author_name] = 0
             }
-            dateMap[date]++
+            authorMap[commit.author_name]++
         }
-        const data = []
+        const data = Object.keys(authorMap).map(authorName => {
+            return {
+                name: authorName,
+                value: authorMap[authorName],
+                // { value: 1048, : 'Search Engine' },
+            }
+        })
         const times = []
         for (let i = 0; i < 360; i++) {
             const m = moment().add(-i, 'days')
             const date = m.format('YYYY-MM-DD')
             times.push(date)
-            data.push(dateMap[date] || 0)
+            // data.push(authorMap[date] || 0)
         }
+        console.log('AuthorStat/data', data)
         return {
+            // title: {
+            //     text: '贡献者分布',
+            //     // subtext: 'Fake Data',
+            //     // left: 'center'
+            // },
             tooltip: {
-                // show: true,
-                trigger: 'axis',
+                trigger: 'item'
             },
-            xAxis: {
-              type: 'category',
-              data: times.reverse(),
-              boundaryGap: true,
-            },
-            yAxis: {
-              type: 'value'
-            },
+            // legend: {
+            //     orient: 'vertical',
+            //     left: 'left'
+            // },
             series: [
-              {
-                data: data.reverse(),
-                type: 'line',
-                name: '提交数量',
-              }
+                {
+                    name: '提交数',
+                    type: 'pie',
+                    radius: '60%',
+                    // data: [
+                    //     { value: 1048, name: 'Search Engine' },
+                    //     { value: 735, name: 'Direct' },
+                    //     { value: 580, name: 'Email' },
+                    //     { value: 484, name: 'Union Ads' },
+                    //     { value: 300, name: 'Video Ads' }
+                    // ],
+                    data,
+                    // emphasis: {
+                    //     itemStyle: {
+                    //         shadowBlur: 10,
+                    //         shadowOffsetX: 0,
+                    //         shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    //     }
+                    // }
+                }
             ]
-          }
+        }
     }, [list])
 
     function getVirtulData(year) {
@@ -89,25 +125,113 @@ function CalenderChart({ list }) {
             ])
         }
         return data
-      }
+    }
 
 
     return (
         <ReactEcharts
-            style={{ height: '400px'}}
+            style={{ height: '400px' }}
             option={chartOption}
             lazyUpdate={true}
-            // onEvents={{
-            //     'click': (e) => {
-            //         console.log(e)
-            //         setItem(e.data)
-            //     }
-            // }}
+        // onEvents={{
+        //     'click': (e) => {
+        //         console.log(e)
+        //         setItem(e.data)
+        //     }
+        // }}
         />
     )
 }
 
-export function GitStat({ config, event$, projectPath,  }) {
+function CalenderChart({ list }) {
+
+    const chartOption = useMemo(() => {
+
+        let dateMap = {}
+        for (let commit of list) {
+            const m = moment(commit.date)
+            const date = m.format('YYYY-MM-DD')
+            if (!dateMap[date]) {
+                dateMap[date] = 0
+            }
+            dateMap[date]++
+        }
+        const data = []
+        const times = []
+        for (let i = 0; i < 360; i++) {
+            const m = moment().add(-i, 'days')
+            const date = m.format('YYYY-MM-DD')
+            times.push(date)
+            data.push(dateMap[date] || 0)
+        }
+        return {
+            // title: {
+            //     text: '最近一年每天提交数',
+            //     // subtext: 'Fake Data',
+            //     // left: 'center'
+            // },
+            tooltip: {
+                // show: true,
+                trigger: 'axis',
+            },
+            xAxis: {
+                type: 'category',
+                data: times.reverse(),
+                boundaryGap: true,
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [
+                {
+                    data: data.reverse(),
+                    type: 'bar',
+                    name: '提交数量',
+                }
+            ]
+        }
+    }, [list])
+
+    function getVirtulData(year) {
+        // year = year || '2017';
+        // var date = +echarts.number.parseDate(year + '-01-01');
+        // var end = +echarts.number.parseDate(+year + 1 + '-01-01');
+        // var dayTime = 3600 * 24 * 1000;
+        const data = [];
+        // for (var time = date; time < end; time += dayTime) {
+        //   data.push([
+        //     echarts.format.formatTime('yyyy-MM-dd', time),
+        //     Math.floor(Math.random() * 10000)
+        //   ]);
+        // }
+        // return data;
+        for (let i = 0; i < 90; i++) {
+            const m = moment().add(- i, 'days')
+            data.push([
+                m.format('YYYY-MM-DD'),
+                Math.floor(Math.random() * 10000),
+            ])
+        }
+        return data
+    }
+
+
+    return (
+        <ReactEcharts
+            style={{ height: '400px' }}
+            option={chartOption}
+            lazyUpdate={true}
+        // onEvents={{
+        //     'click': (e) => {
+        //         console.log(e)
+        //         setItem(e.data)
+        //     }
+        // }}
+        />
+    )
+}
+
+export function GitStat({ config, event$, projectPath, }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
 
@@ -115,9 +239,9 @@ export function GitStat({ config, event$, projectPath,  }) {
     const [list, setList] = useState([])
 
 
-    
 
-    
+
+
 
     async function loadList() {
         setListLoading(true)
@@ -140,7 +264,7 @@ export function GitStat({ config, event$, projectPath,  }) {
         setListLoading(false)
     }
 
-    
+
 
 
     useEffect(() => {
@@ -165,7 +289,7 @@ export function GitStat({ config, event$, projectPath,  }) {
     // event$.useSubscription(msg => {
     //     console.log('CommitList/onmessage', msg)
     //     // console.log(val);
-        
+
     // })
 
 
@@ -270,7 +394,7 @@ export function GitStat({ config, event$, projectPath,  }) {
         //     }
         // }
         return newList
-            // .splice(0, 100)
+        // .splice(0, 100)
     }, [list])
 
     const containerRef = useRef(null);
@@ -307,7 +431,7 @@ export function GitStat({ config, event$, projectPath,  }) {
     // )
     // console.log('curCommit.message', curCommit?.message.replace(/\\n/, '\n'))
 
-    
+
     return (
         <div className={styles.commitBox}>
             {/* <Button
@@ -321,36 +445,53 @@ export function GitStat({ config, event$, projectPath,  }) {
                 <FullCenterBox>
                     <Spin />
                 </FullCenterBox>
-            : showList.length == 0 ?
-                <FullCenterBox
+                : showList.length == 0 ?
+                    <FullCenterBox
                     // height={160}
-                >
-                    <Empty />
-                </FullCenterBox>
-            :
-                <div>
-                    {!!stat &&
-                        <div>
-                            <div className={styles.exportBox}>
-                                
+                    >
+                        <Empty />
+                    </FullCenterBox>
+                    :
+                    <div>
+                        {!!stat &&
+                            <div>
+                                <Row>
+                                    <Col span={12}>
+                                        <div className={classNames(styles.section, styles.leftSection)}>
+                                            <div className={styles.title}>{t('git.stat')}</div>
+                                            <div className={styles.statBox}>
+                                                <div className={styles.stats}>
+                                                    <div className={styles.item}>过去 1 月提交数：{stat.monthCommit}</div>
+                                                    <div className={styles.item}>过去 3 月提交数：{stat.quarterCommit}</div>
+                                                    <div className={styles.item}>过去 1 年提交数：{stat.yearCommit}</div>
+                                                    <div className={styles.item}>总提交数：{stat.totalCommit}</div>
+                                                    <div className={styles.item}>过去 1 月维护人员数量：{stat.monthUserNum}</div>
+                                                    <div className={styles.item}>过去 3 月维护人员数量：{stat.quarterUserNum}</div>
+                                                    <div className={styles.item}>过去 1 年维护人员数量：{stat.yearUserNum}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </Col>
+                                    <Col span={12}>
+                                        <div className={styles.section}>
+                                            <div className={styles.title}>{t('git.contributors')}</div>
+                                            <AuthorStat
+                                                list={list}
+                                            />
+                                        </div>
+                                    </Col>
+                                </Row>
+                                {/* <div className={styles.sections}>
+                                </div> */}
+                                <div className={styles.section}>
+                                    <div className={styles.title}>{t('git.daily_submissions')}</div>
+                                    <CalenderChart
+                                        list={list}
+                                    />
+                                </div>
                             </div>
-                            <div className={styles.stats}>
-                                <div className={styles.item}>过去 1 月提交数：{stat.monthCommit}</div>
-                                <div className={styles.item}>过去 3 月提交数：{stat.quarterCommit}</div>
-                                <div className={styles.item}>过去 1 年提交数：{stat.yearCommit}</div>
-                                <div className={styles.item}>总提交数：{stat.totalCommit}</div>
-                                <div className={styles.item}>过去 1 月维护人员数量：{stat.monthUserNum}</div>
-                                <div className={styles.item}>过去 3 月维护人员数量：{stat.quarterUserNum}</div>
-                                <div className={styles.item}>过去 1 年维护人员数量：{stat.yearUserNum}</div>
-                            </div>
-
-                            <CalenderChart
-                                list={list}
-                            />
-                            
-                        </div>
-                    }
-                </div>
+                        }
+                    </div>
             }
             {/* <div className={styles.layoutTop}>
             </div>

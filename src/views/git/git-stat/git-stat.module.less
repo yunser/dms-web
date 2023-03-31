@@ -5,17 +5,39 @@
     overflow: auto;
     display: flex;
     flex-direction: column;
-    .exportBox {
-        position: absolute;
-        top: 8px;
-        right: 16px;
-    }
 }
 
-
-.stats {
-    padding: 16px;
-    .item {
-        margin-bottom: 8px;
+.statBox {
+    height: 100%;
+    // border: 1px solid #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .stats {
+        padding: 16px;
+        // border: 1px solid #000;
+        .item {
+            margin-bottom: 8px;
+        }
     }
+}
+.sections {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.section {
+    // flex: 1 0 auto;
+    // width: 0;
+    // border: 1px solid #000;
+    padding: 16px;
+    height: 420px;
+    border-top: 1px solid var(--border-color);
+    .title {
+        font-size: 16px;
+        font-weight: 600;
+    }
+}
+.leftSection {
+    border-right: 1px solid var(--border-color);
 }
