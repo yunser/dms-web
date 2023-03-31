@@ -143,7 +143,7 @@ export function RowDetailModal({ originColumns, item, onCancel, onSuccess, table
                 pagination={false}
                 rowKey="field"
                 scroll={{
-                    y: 480,
+                    y: window.document.body.clientHeight - 320,
                 }}
             />
         </Modal>

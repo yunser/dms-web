@@ -159,6 +159,7 @@ export function RowEditModal({ originColumns, onOk, item, onCancel, onSuccess, t
             // footer={null}
         >
             <div
+                className={styles.form}
                 form={form}
                 size="small"
                 labelCol={{ span: 6 }}
