@@ -91,6 +91,24 @@ export function GitProject({ config, event$, project, onList }) {
         if (ret.success) {
         }
     }
+
+    async function gitFetch() {
+        // loadBranch()
+        let res = await request.post(`${config.host}/git/fetch`, {
+            projectPath,
+            // TODO 写死
+            remoteName: 'origin',
+        }, {
+            noMessage: true,
+        })
+        console.log('fres', res)
+        if (res.success) {
+            event$.emit({
+                type: 'event_refresh_commit_list',
+                data: {},
+            })
+        }
+    }
     
     return (
         <div className={styles.gitApp}
@@ -234,6 +252,9 @@ export function GitProject({ config, event$, project, onList }) {
                         >
                             {t('git.merge')}
                         </Button>
+
+                        <div style={{ width: 32 }}></div>
+
                         <Button
                             size="small"
                             icon={<ArrowDownOutlined />}
@@ -252,6 +273,17 @@ export function GitProject({ config, event$, project, onList }) {
                         >
                             {t('git.push')}
                         </Button>
+                        <Button
+                            size="small"
+                            type="dashed"
+                            icon={<ArrowDownOutlined />}
+                            onClick={gitFetch}
+                        >
+                            {t('git.fetch')}
+                        </Button>
+
+                        <div style={{ width: 32 }}></div>
+
                         <IconButton
                             tooltip={t('setting')}
                             onClick={() => {

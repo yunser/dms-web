@@ -173,25 +173,6 @@ export function CommitList({ config, event$, projectPath,  }) {
         })
     }
 
-    async function gitFetch() {
-        loadBranch()
-        let res = await request.post(`${config.host}/git/fetch`, {
-            projectPath,
-            remoteName: 'origin',
-            // connectionId,
-            // sql: lineCode,
-            // tableName,
-            // dbName,
-            // logger: true,
-        }, {
-            noMessage: true,
-        })
-        console.log('fres', res)
-        if (res.success) {
-        }
-
-    }
-
     // const [tags, setTags] = useState([])
     // const [current, setCurrent] = useState('')
 

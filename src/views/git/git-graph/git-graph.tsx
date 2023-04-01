@@ -36,7 +36,7 @@ export function GitGraph({ config, event$, projectPath, }) {
         })
         if (res.success) {
             const { result } = res.data
-            setResult(result.substring(0, 20000) + '\n...')
+            setResult(result)
         }
         setListLoading(false)
     }
@@ -45,20 +45,20 @@ export function GitGraph({ config, event$, projectPath, }) {
         loadGraph()
     }, [])
 
-    // event$.useSubscription(msg => {
-    //     // console.log('CommitList/onmessage', msg)
-    //     // console.log(val);
-    //     if (msg.type == 'event_refresh_commit_list') {
-    //         // const { json } = msg.data
-    //         // addJsonTab(json)
-    //         loadList()
-    //     }
-    //     else if (msg.type == 'event_refresh_branch') {
-    //         // const { json } = msg.data
-    //         // addJsonTab(json)
-    //         loadList()
-    //     }
-    // })
+    event$.useSubscription(msg => {
+        // console.log('CommitList/onmessage', msg)
+        // console.log(val);
+        if (msg.type == 'event_refresh_commit_list') {
+            // const { json } = msg.data
+            // addJsonTab(json)
+            loadGraph()
+        }
+        // else if (msg.type == 'event_refresh_branch') {
+        //     // const { json } = msg.data
+        //     // addJsonTab(json)
+        //     loadList()
+        // }
+    })
 
     return (
         <div className={styles.graphBox}>
