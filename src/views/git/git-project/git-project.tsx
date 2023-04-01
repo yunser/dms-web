@@ -25,6 +25,7 @@ import { UserSetting } from '../user-setting';
 import { request } from '@/views/db-manager/utils/http';
 import { GitStat } from '../git-stat';
 import { StashList } from '../stash-list';
+import { GitGraph } from '../git-graph';
 // import { saveAs } from 'file-saver'
 
 export function GitProject({ config, event$, project, onList }) {
@@ -49,6 +50,10 @@ export function GitProject({ config, event$, project, onList }) {
         {
             label: t('git.commits'),
             key: 'commit-list',
+        },
+        {
+            label: t('git.graph'),
+            key: 'git-graph',
         },
         {
             label: t('git.stat'),
@@ -292,6 +297,14 @@ export function GitProject({ config, event$, project, onList }) {
                                         event$={event$}
                                         projectPath={projectPath}
                                         branchs={branchs}
+                                    />
+                                }
+                                {item.key == 'git-graph' &&
+                                    <GitGraph
+                                        config={config}
+                                        event$={event$}
+                                        projectPath={projectPath}
+                                        // branchs={branchs}
                                     />
                                 }
                                 {item.key == 'git-more' &&
