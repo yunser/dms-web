@@ -3,14 +3,103 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './merge-modal.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
-// console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { DownloadOutlined } from '@ant-design/icons';
-import saveAs from 'file-saver';
-import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
-// import { saveAs } from 'file-saver'
+
+function getRemoveName(str: string) {
+    // by ChatGPT
+    const m = str.match(/^remotes\/(.*)\/.*$/)
+    if (!m) {
+        return null
+    }
+    const remoteName = m[1]
+    return remoteName
+}
+
+function BranchSelector({ config, projectPath, ...otherProps }) {
+    const [branches, setBranches] = useState([])
+
+    const remotes = useMemo(() => {
+        const remoteNameMap = {}
+        // console.log('BranchSelector/branches', branches)
+        for (let branch of branches) {
+            const remoteName = getRemoveName(branch.name)
+            if (remoteName) {
+                remoteNameMap[remoteName] = 1
+            }
+        }
+        // console.log('BranchSelector/remoteNameMap', remoteNameMap)
+        return Object.keys(remoteNameMap).concat('LOCAL').map(name => {
+            return {
+                name,
+            }
+        })
+    }, [branches])
+    // console.log('BranchSelector/remotes', remotes)
+
+    async function loadBranches() {
+        const reqData = {
+            projectPath,
+        }
+        let res = await request.post(`${config.host}/git/branch`, reqData)
+        if (res.success) {
+            // const branchs = []
+            // onBranch && onBranch(res.data.list)
+            const curBranch = res.data.current
+            // console.log('curBranch', curBranch)
+
+            // setCurrent(curBranch)
+            setBranches(res.data.list.filter(item => {
+                // 不显示远程的分支
+                // if (item.name.startsWith(('remotes/'))) {
+                //     return false
+                // }
+                if (curBranch && item.name == curBranch) {
+                    return false
+                }
+                // 不显示当前分支
+                return true
+            }))
+            // if (curBranch) {
+            //     form.setFieldsValue({
+            //         branchName: curBranch,
+            //     })
+            // }
+            // setCurrent(res.data.current)
+        }
+    }
+
+    
+    useEffect(() => {
+        // loadRemotes()
+        loadBranches()
+    }, [])
+
+    return (
+        <div>
+            {/* <Select
+                options={remotes.map(r => {
+                    return {
+                        label: r.name,
+                        value: r.name,
+                    }
+                })}
+            /> */}
+            <Select
+                options={branches.map(r => {
+                    return {
+                        label: r.name,
+                        value: r.name,
+                    }
+                })}
+                {...otherProps}
+                showSearch={true}
+                optionFilterProp="label"
+            />
+
+        </div>
+    )
+}
 
 export function MergeModal({ config, event$, projectPath, onSuccess, onCancel }) {
     // const { defaultJson = '' } = data
@@ -72,6 +161,8 @@ export function MergeModal({ config, event$, projectPath, onSuccess, onCancel })
             const reqData = {
                 projectPath,
                 fromBranch: values.branch,
+                // fromBranch: 'origin/04-01-test-graph',
+                // fromBranch: 'remotes/origin/04-01-test-graph',
                 toBranch: current,
             }
             if (tab == 'mergeFrom' && pushRemote) {
@@ -195,14 +286,19 @@ export function MergeModal({ config, event$, projectPath, onSuccess, onCancel })
                                 label={t('git.branch')}
                                 rules={[ { required: true, }, ]}
                             >
-                                <Select
+                                <BranchSelector
+                                    config={config}
+                                    projectPath={projectPath}
+                                    // branches={branches}
+                                />
+                                {/* <Select
                                     options={branches.map(r => {
                                         return {
                                             label: r.name,
                                             value: r.name,
                                         }
                                     })}
-                                />
+                                /> */}
                             </Form.Item>
                             <Form.Item
                                 label={t('git.merge.toBranch')}

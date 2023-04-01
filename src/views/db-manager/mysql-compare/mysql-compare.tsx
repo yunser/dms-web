@@ -524,7 +524,6 @@ export function MysqlCompare({ config, connectionId, onSql }) {
         if (res.success) {
             const { db1Result, db2Result } = res.data
             const results = await compareDatabaseTables(db1Result.tables, db2Result.tables, db1Result.columns, db2Result.columns, db1Result, db2Result)
-            console.log('results', results)
             setResults(results.sort((a, b) => {
                 function score(item) {
                     const typeScoreMap = {

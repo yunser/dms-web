@@ -746,7 +746,6 @@ export function ExecDetail(props) {
         })
             // .filter(item => item)
             // .join('\n')
-        console.log('results', resultList)
         const content = JSON.stringify(resultList, null, 4)
         onJson && onJson(content)
         // copy(content)
@@ -775,7 +774,6 @@ export function ExecDetail(props) {
         })
             // .filter(item => item)
             // .join('\n')
-        // console.log('results', results)
         const table = [
             headers,
             ...bodyRows,
@@ -812,7 +810,6 @@ export function ExecDetail(props) {
         })
             // .filter(item => item)
             // .join('\n')
-        // console.log('results', results)
         const table = [
             headers,
             ...bodyRows,
@@ -906,7 +903,6 @@ export function ExecDetail(props) {
         })
             // .filter(item => item)
             // .join('\n')
-        console.log('results', resultList)
         // const content = JSON.stringify(resultList, null, 4)
         onJson && onJson(resultList.join('\n'))
     }

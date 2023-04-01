@@ -24,7 +24,6 @@ function SizeDiv({ className, render }: SizeDivProps) {
 
     const root = useRef<HTMLDivElement>(null)
     useEffect(() => {
-        console.log('SizeDiv', !!root.current)
         if (root.current) {
             const { width, height } = root.current.getBoundingClientRect()
             setSize({
@@ -111,7 +110,6 @@ export function DiffText({ text }) {
             }
             else {
                 if (isCode) {
-                    console.log('content', content)
                     if (isDiff) {
                         content = content.substring(1)
                     }
@@ -133,7 +131,6 @@ export function DiffText({ text }) {
                 })
             }
         }
-        console.log('results', results)
         return results
     }, [text])
 
