@@ -2,7 +2,7 @@
 
 DMS 前端界面代码。
 
-后端代码见 [@yunser/dms-cli](https://github.com/yunser/dms-node)
+后端代码见 [@yunser/dms-node](https://github.com/yunser/dms-node)
 
 
 # 项目简介

@@ -1,6 +1,6 @@
 {
-  "name": "vite-react-app",
-  "version": "0.0.0",
+  "name": "dms-web",
+  "version": "0.18.0",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
