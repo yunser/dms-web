@@ -867,8 +867,6 @@ export function DataBaseDetail({ databaseType = 'mysql', curConnect, _connection
                                         connectionId={connectionId}
                                         event$={event$}
                                         config={config}
-                                        connectionId={connectionId}
-                                        // className={item.key == activeKey ? styles.visibleTab : styles.hiddenTab}
                                         key={item.key}
                                         defaultSql={item.defaultSql}
                                         style={{

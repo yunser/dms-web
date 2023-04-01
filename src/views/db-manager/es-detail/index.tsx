@@ -576,7 +576,6 @@ export function EsDetail({ dbName, event$, config }) {
                                         esType={item.data.type}
                                         dbName={dbName}
                                         tableName={item.data?.tableName}
-                                        // className={item.key == activeKey ? styles.visibleTab : styles.hiddenTab}
                                         key={item.key}
                                         defaultSql={item.defaultSql}
                                         style={{
