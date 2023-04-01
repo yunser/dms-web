@@ -21,7 +21,7 @@ import { ResetModal } from '../reset-modal';
 // import { useVirtualList } from 'ahooks'
 import { TagEditor } from '../tag-edit';
 import { BranchModal } from '../branch-modal';
-import List from 'rc-virtual-list';
+import VList from 'rc-virtual-list';
 import copy from 'copy-to-clipboard';
 import { CherryPickModal } from '../cherry-pick-modal';
 import { Editor } from '@/views/db-manager/editor/Editor';
@@ -489,7 +489,7 @@ export function CommitList({ config, event$, projectPath,  }) {
                             </Space>
                         </div>
                         <div className={styles.list}>
-                            <List 
+                            <VList 
                                 data={showList} 
                                 height={320 - 32} 
                                 itemHeight={32} 
@@ -639,7 +639,7 @@ export function CommitList({ config, event$, projectPath,  }) {
                                         </div>
                                     )
                                 }}
-                            </List>
+                            </VList>
                         </div>
                     </div>
                 }

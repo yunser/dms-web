@@ -1,18 +1,53 @@
 import { Button, Checkbox, Descriptions, Empty, Form, Input, message, Modal, Popover, Space, Table, Tabs } from 'antd';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import styles from './git-diff.module.less';
 import _, { add } from 'lodash';
 import classNames from 'classnames'
 // console.log('lodash', _)
-import { useTranslation } from 'react-i18next';
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { DownloadOutlined } from '@ant-design/icons';
-import saveAs from 'file-saver';
-import { useEventEmitter } from 'ahooks';
-import { request } from '@/views/db-manager/utils/http';
+import { useEventEmitter, useSize } from 'ahooks';
 import { FullCenterBox } from '@/views/common/full-center-box';
-// import { saveAs } from 'file-saver'
+import VList from 'rc-virtual-list';
 
+interface Size {
+    width: number
+    height: number
+}
+
+interface SizeDivProps {
+    className: string
+    render: (size: Size) => ReactNode
+}
+
+function SizeDiv({ className, render }: SizeDivProps) {
+
+    const [size, setSize] = useState<Size | null>(null)
+
+    const root = useRef<HTMLDivElement>(null)
+    useEffect(() => {
+        console.log('SizeDiv', !!root.current)
+        if (root.current) {
+            const { width, height } = root.current.getBoundingClientRect()
+            setSize({
+                width,
+                height,
+            })
+            // setSize()
+        }
+    }, [])
+
+    return (
+        <div
+            className={className}
+            // className={styles.test}
+            ref={root}
+            style={{ height: '100%' }}
+        >
+            {size ? render(size) : '--'}
+        </div>
+    )
+}
+
+// by ChatGTP
 function parseHunkLine(line: string) {
     const matches = line.match(/^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@/);
     if (!matches || matches.length !== 5) {
@@ -33,9 +68,11 @@ function parseHunkLine(line: string) {
 }
 
 export function DiffText({ text }) {
-    console.log('DiffText/text', text)
+    // console.log('DiffText/text', text)
     // const arr_will = text.split('\n')
-
+    const lineBoxRef = useRef(null)
+    const size = useSize(lineBoxRef)
+    console.log('DiffText/size', size)
     const isDiff = text.includes('@@')
     const lines = useMemo(() => {
         const arr = text.split('\n')
@@ -86,6 +123,7 @@ export function DiffText({ text }) {
             }
             if (isCode || type == 'desc') {
                 results.push({
+                    reactKey: i,
                     // index: i,
                     index: newLineCurrent,
                     type,
@@ -108,47 +146,54 @@ export function DiffText({ text }) {
     }
     return (
         <div className={styles.diffBox}>
-            <div className={styles.lines}>
-                {lines.map((line, index) => {
-                    // let type = ''
-                    // if (line.content.startsWith('@@')) {
-                    //     type = 'desc'
-                    // }
-                    // else if (line.content.startsWith('+') && !line.content.startsWith('+++')) {
-                    //     type = 'added'
-                    // }
-                    // else if (line.content.startsWith('-') && !line.content.startsWith('---')) {
-                    //     type = 'deleted'
-                    // }
-                    return (
-                        <div className={styles.lineItem}
-                            key={index}
-                        >
-                            <div className={styles.noBox}>
-                                {(line.type == 'desc' || line.type == 'deleted') ? '' : line.index}
-                            </div>
-                            <div 
-                                className={classNames(styles.lineWrap, {
-                                    [styles[line.type]]: true,
-                                })}
-                            >
-                                <div className={styles.symbol}>{line.symbol}</div>
-                                <div
-                                    className={styles.line}
-                                    // style={{
-                                    //     color,
-                                    //     backgroundColor
-                                    // }}
-                                >
-                                    <pre>{line.type == 'desc' ? line.blockInfo : line.content}</pre>
-                                </div>
-                            </div>
-                        </div>
-                    )
-                })}       
-            </div>
-            <div className={styles.border}></div>
+            <div className={styles.vLine}></div>
             {/* <pre>{text}</pre> */}
+            <SizeDiv
+                className={styles.lineBox}
+                render={size => (
+                    // <div className={styles.lineBox}>
+                    //     <div className={styles.lines}>
+                    //         {lines.map((line, index) => {
+                    //         })}       
+                    //     </div>
+                    // </div>
+                    <VList 
+                        data={lines} 
+                        height={size.height} 
+                        itemHeight={20} 
+                        itemKey="reactKey"
+                    >
+                        {(line, index) => {
+                            return (
+                                <div
+                                    className={styles.lineItem}
+                                    key={index}
+                                >
+                                    <div className={styles.noBox}>
+                                        {(line.type == 'desc' || line.type == 'deleted') ? '' : line.index}
+                                    </div>
+                                    <div 
+                                        className={classNames(styles.lineWrap, {
+                                            [styles[line.type]]: true,
+                                        })}
+                                    >
+                                        <div className={styles.symbol}>{line.symbol}</div>
+                                        <div
+                                            className={styles.line}
+                                            // style={{
+                                            //     color,
+                                            //     backgroundColor
+                                            // }}
+                                        >
+                                            <pre>{line.type == 'desc' ? line.blockInfo : line.content}</pre>
+                                        </div>
+                                    </div>
+                                </div>
+                            )
+                        }}
+                    </VList>
+                )}
+            />
         </div>
     )
 }
