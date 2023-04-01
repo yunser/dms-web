@@ -105,54 +105,43 @@ export function ResetModal({ config, projectPath, curBranch, resetCommit, onSucc
         <div>
             <Modal
                 open={true}
-                title="重置"
+                title={t('git.reset')}
                 onCancel={onCancel}
                 onOk={handleOk}
+                okButtonProps={{
+                    danger: true,
+                }}
+                width={560}
                 confirmLoading={loading}
             >
                 <Form
                     form={form}
-                    labelCol={{ span: 8 }}
-                    wrapperCol={{ span: 16 }}
+                    labelCol={{ span: 6 }}
+                    wrapperCol={{ span: 18 }}
                     initialValues={{
                         mode: 'hard',
                     }}
-                    // layout={{
-                    //     labelCol: { span: 0 },
-                    //     wrapperCol: { span: 24 },
-                    // }}
                 >
                     <Form.Item
                         name="branchName1"
-                        label="重置分支"
-                        // rules={[ { required: true, }, ]}
+                        label={t('git.reset.branch')}
                     >
                         {curBranch}
-                        {/* <Input
-                            value={curBranch}
-                            disabled
-                        /> */}
                     </Form.Item>
                     <Form.Item
                         name="remoteName2"
-                        label="重置到"
-                        // rules={[ { required: true, }, ]}
+                        label={t('git.reset.to')}
                     >
                         {resetCommit.message}
-                        {/* <Input
-                            value={resetCommit.message}
-                            disabled
-                        /> */}
                     </Form.Item>
                     <Form.Item
                         name="mode"
-                        label="模式"
-                        // rules={[ { required: true, }, ]}
+                        label={t('git.mode')}
                     >
                         <Select
                             options={[
                                 {
-                                    label: '强行合并 - 丢弃所有工作副本改动',
+                                    label: t('git.reset.hard'),
                                     value: 'hard',
                                 }
                             ]}

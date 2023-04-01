@@ -100,6 +100,9 @@ export function TagDeleteModal({ config, event$, projectPath, tag, commit, onSuc
                 title={t('git.tag.delete')}
                 onCancel={onCancel}
                 onOk={handleOk}
+                okButtonProps={{
+                    danger: true,
+                }}
                 confirmLoading={loading}
                 maskClosable={false}
                 okText={t('delete')}
@@ -113,8 +116,7 @@ export function TagDeleteModal({ config, event$, projectPath, tag, commit, onSuc
                             setDeleteRemote(e.target.checked)
                         }}
                     >
-                        删除所有远程标签？（暂时仅支持 origin）
-                        {/* {t('git.delete.force')} */}
+                        {t('git.delete_remote_tag')}
                     </Checkbox>
                 </div>
                 {/* {!isRemote &&

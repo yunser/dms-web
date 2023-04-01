@@ -60,6 +60,9 @@ export function StashList({ config, event$, projectPath }) {
             title: t('git.stash.delete'),
             // icon: <ExclamationCircleOutlined />,
             content: `${t('git.stash.delete.confirm')} ${t('all')}？`,
+            okButtonProps: {
+                danger: true,
+            },
             async onOk() {
                 
                 let res = await request.post(`${config.host}/git/stash/clear`, {

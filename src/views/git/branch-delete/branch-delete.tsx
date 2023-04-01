@@ -102,6 +102,9 @@ export function BranchDeleteModal({ config, event$, projectPath, branch, commit,
                 onOk={handleOk}
                 confirmLoading={loading}
                 maskClosable={false}
+                okButtonProps={{
+                    danger: true,
+                }}
                 okText={t('delete')}
                 // footer={null}
             >
@@ -126,8 +129,7 @@ export function BranchDeleteModal({ config, event$, projectPath, branch, commit,
                                 setDeleteRemote(e.target.checked)
                             }}
                         >
-                            删除远程分支（暂时仅支持 origin）
-                            {/* {t('git.delete.force')} */}
+                            {t('git.delete_remote_branch')}
                         </Checkbox>
                     </div>
                 }

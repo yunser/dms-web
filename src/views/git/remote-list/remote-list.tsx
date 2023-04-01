@@ -45,6 +45,9 @@ export function RemoteList({ config, event$, projectPath }) {
             title: t('git.remote.delete'),
             // icon: <ExclamationCircleOutlined />,
             content: `${t('git.remote.delete.confirm')}「${item.name}」？`,
+            okButtonProps: {
+                danger: true,
+            },
             async onOk() {
                 
                 let res = await request.post(`${config.host}/git/command`, {

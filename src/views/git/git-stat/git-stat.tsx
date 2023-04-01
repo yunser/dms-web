@@ -461,13 +461,13 @@ export function GitStat({ config, event$, projectPath, }) {
                                             <div className={styles.title}>{t('git.stat')}</div>
                                             <div className={styles.statBox}>
                                                 <div className={styles.stats}>
-                                                    <div className={styles.item}>过去 1 月提交数：{stat.monthCommit}</div>
-                                                    <div className={styles.item}>过去 3 月提交数：{stat.quarterCommit}</div>
-                                                    <div className={styles.item}>过去 1 年提交数：{stat.yearCommit}</div>
-                                                    <div className={styles.item}>总提交数：{stat.totalCommit}</div>
-                                                    <div className={styles.item}>过去 1 月维护人员数量：{stat.monthUserNum}</div>
-                                                    <div className={styles.item}>过去 3 月维护人员数量：{stat.quarterUserNum}</div>
-                                                    <div className={styles.item}>过去 1 年维护人员数量：{stat.yearUserNum}</div>
+                                                    <div className={styles.item}>{t('git.stat.monthCommit')}：{stat.monthCommit}</div>
+                                                    <div className={styles.item}>{t('git.stat.quarterCommit')}：{stat.quarterCommit}</div>
+                                                    <div className={styles.item}>{t('git.stat.yearCommit')}：{stat.yearCommit}</div>
+                                                    <div className={styles.item}>{t('git.stat.totalCommit')}：{stat.totalCommit}</div>
+                                                    <div className={styles.item}>{t('git.stat.monthUserNum')}：{stat.monthUserNum}</div>
+                                                    <div className={styles.item}>{t('git.stat.quarterUserNum')}：{stat.quarterUserNum}</div>
+                                                    <div className={styles.item}>{t('git.stat.yearUserNum')}：{stat.yearUserNum}</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -481,9 +481,7 @@ export function GitStat({ config, event$, projectPath, }) {
                                         </div>
                                     </Col>
                                 </Row>
-                                {/* <div className={styles.sections}>
-                                </div> */}
-                                <div className={styles.section}>
+                                <div className={classNames(styles.section, styles.sectionDaily)}>
                                     <div className={styles.title}>{t('git.daily_submissions')}</div>
                                     <CalenderChart
                                         list={list}
