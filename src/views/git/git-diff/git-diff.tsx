@@ -46,24 +46,47 @@ function SizeDiv({ className, render }: SizeDivProps) {
     )
 }
 
-// by ChatGTP
+// TODO
 function parseHunkLine(line: string) {
-    const matches = line.match(/^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@/);
+    if (line.startsWith('@@@')) {
+        // @@@ -1,1 -1,3 +1,6 @@@
+        const arr = line.replace(/@@@/g, '')
+            .trim()
+            .split(/\s+/)
+            .map(item => item.split(',').map(num => {
+                return parseInt(num)
+            }))
+        if (arr.length > 4) {
+            return {
+                oldLineStart: arr[0],
+                oldLineCount: arr[1],
+                newLineStart: arr[2],
+                newLineCount: arr[3],
+            }
+        }
+        return {
+            raw: line,
+        }
+    }
+    // by ChatGPT
+    const matches = line.match(/^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@/)
     if (!matches || matches.length !== 5) {
-      return null;
+        return {
+            raw: line,
+        }
     }
   
-    const oldLineStart = parseInt(matches[1], 10);
-    const oldLineCount = parseInt(matches[2] || "1", 10);
-    const newLineStart = parseInt(matches[3], 10);
-    const newLineCount = parseInt(matches[4] || "1", 10);
+    const oldLineStart = parseInt(matches[1], 10)
+    const oldLineCount = parseInt(matches[2] || "1", 10)
+    const newLineStart = parseInt(matches[3], 10)
+    const newLineCount = parseInt(matches[4] || "1", 10)
   
     return {
-      oldLineStart,
-      oldLineCount,
-      newLineStart,
-      newLineCount,
-    };
+        oldLineStart,
+        oldLineCount,
+        newLineStart,
+        newLineCount,
+    }
 }
 
 export function DiffText({ text }) {
@@ -92,9 +115,10 @@ export function DiffText({ text }) {
                 isCode = true
                 newLineIndex = i
                 const hunk = parseHunkLine(line)
-                newLineStart = hunk.newLineStart
+                // TODO
+                newLineStart = hunk?.newLineStart || 0
                 newLineCurrent = i - newLineIndex + newLineStart - 1
-                blockInfo = `block ${blockIndex + 1}: line ${hunk.newLineStart} start`
+                blockInfo = `block ${blockIndex + 1}: line ${hunk?.newLineStart} start`
                 blockIndex++
             }
             else if (line.startsWith('+') && !line.startsWith('+++')) {
