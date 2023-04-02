@@ -753,7 +753,7 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                         </div>
                                     </div>
                                 </>
-                            : !!diffText ?
+                            :
                                 <>
                                     <div className={styles.header}>
                                         {curFile}
@@ -764,9 +764,6 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                         />
                                     </div>
                                 </>
-                                // <pre>{diffText}</pre>
-                            :
-                                <div></div>
                             }
                         </div>
 

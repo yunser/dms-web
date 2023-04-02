@@ -7,6 +7,7 @@ import classNames from 'classnames'
 import { useEventEmitter, useSize } from 'ahooks';
 import { FullCenterBox } from '@/views/common/full-center-box';
 import VList from 'rc-virtual-list';
+import { useTranslation } from 'react-i18next';
 
 interface Size {
     width: number
@@ -90,11 +91,7 @@ function parseHunkLine(line: string) {
 }
 
 export function DiffText({ text }) {
-    // console.log('DiffText/text', text)
-    // const arr_will = text.split('\n')
-    const lineBoxRef = useRef(null)
-    const size = useSize(lineBoxRef)
-    console.log('DiffText/size', size)
+    const { t } = useTranslation()
     const isDiff = text.includes('@@')
     const lines = useMemo(() => {
         const arr = text.split('\n')
@@ -104,7 +101,9 @@ export function DiffText({ text }) {
         let newLineCurrent = 0
         let newLineIndex = 0
         let blockIndex = 0
-        let blockInfo = ''
+        let blockInfo = {
+            index: 0,
+        }
         for (let i = 0; i < arr.length; i++) {
             const line = arr[i] as string
             let type = ''
@@ -118,7 +117,11 @@ export function DiffText({ text }) {
                 // TODO
                 newLineStart = hunk?.newLineStart || 0
                 newLineCurrent = i - newLineIndex + newLineStart - 1
-                blockInfo = `block ${blockIndex + 1}: line ${hunk?.newLineStart} start`
+                // blockInfo = `${t('git.block')} ${blockIndex + 1}: line ${hunk?.newLineStart}`
+                blockInfo = {
+                    index: blockIndex,
+                    lineStart: hunk?.newLineStart || 0,
+                }
                 blockIndex++
             }
             else if (line.startsWith('+') && !line.startsWith('+++')) {
@@ -158,10 +161,10 @@ export function DiffText({ text }) {
         return results
     }, [text])
 
-    if (text === '') {
+    if (!text) {
         return (
             <FullCenterBox>
-                <Empty />
+                <Empty description={t('git.file.empty')} />
             </FullCenterBox>
         )
     }
@@ -206,7 +209,7 @@ export function DiffText({ text }) {
                                             //     backgroundColor
                                             // }}
                                         >
-                                            <pre>{line.type == 'desc' ? line.blockInfo : line.content}</pre>
+                                            <pre>{line.type == 'desc' ? `${t('git.block')} ${line.blockInfo.index + 1}: ${t('git.line')} ${line.blockInfo.lineStart}` : line.content}</pre>
                                         </div>
                                     </div>
                                 </div>
