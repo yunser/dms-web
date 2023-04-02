@@ -90,9 +90,12 @@ function parseHunkLine(line: string) {
     }
 }
 
-export function DiffText({ text }) {
+export function DiffText({ text, editable = false, onDiscard }) {
     const { t } = useTranslation()
     const isDiff = text.includes('@@')
+    
+    const [selectedLine, setSelectedLine] = useState(null)
+
     const lines = useMemo(() => {
         const arr = text.split('\n')
         const results = []
@@ -148,8 +151,7 @@ export function DiffText({ text }) {
             }
             if (isCode || type == 'desc') {
                 results.push({
-                    reactKey: i,
-                    // index: i,
+                    id: i,
                     index: newLineCurrent,
                     type,
                     symbol,
@@ -185,13 +187,26 @@ export function DiffText({ text }) {
                         data={lines} 
                         height={size.height} 
                         itemHeight={20} 
-                        itemKey="reactKey"
+                        itemKey="id"
                     >
                         {(line, index) => {
                             return (
                                 <div
-                                    className={styles.lineItem}
+                                    className={classNames(styles.lineItem, {
+                                        [styles.active]: selectedLine && selectedLine.id == line.id,
+                                    })}
                                     key={index}
+                                    onClick={() => {
+                                        if (!editable) {
+                                            return
+                                        }
+                                        if (line.type == 'added' || line.type == 'deleted') {
+                                            setSelectedLine(line)
+                                        }
+                                        else {
+                                            setSelectedLine(null)
+                                        }
+                                    }}
                                 >
                                     <div className={styles.noBox}>
                                         {(line.type == 'desc' || line.type == 'deleted') ? '' : line.index}
@@ -209,9 +224,35 @@ export function DiffText({ text }) {
                                             //     backgroundColor
                                             // }}
                                         >
-                                            <pre>{line.type == 'desc' ? `${t('git.block')} ${line.blockInfo.index + 1}: ${t('git.line')} ${line.blockInfo.lineStart}` : line.content}</pre>
+                                            {line.type == 'desc' ? 
+                                                <div>
+                                                    {`${t('git.block')} ${line.blockInfo.index + 1}: ${t('git.line')} ${line.blockInfo.lineStart}`}
+                                                    {/* <a className={styles.discard}
+                                                        onClick={() => {
+                                                            // fileDiscard
+                                                        }}
+                                                    >丢弃区块</a> */}
+                                                </div>
+                                            :
+                                                <pre>{line.content}</pre>
+                                            }
                                         </div>
                                     </div>
+                                    {selectedLine && selectedLine.id == line.id &&
+                                        <div className={styles.action}>
+                                            <a className={styles.discard}
+                                                onClick={() => {
+                                                    onDiscard && onDiscard({
+                                                        type: line.type,
+                                                        line: line.index,
+                                                        content: line.content,
+                                                    })
+                                                }}
+                                            >
+                                                {t('git.discard')}
+                                            </a>
+                                        </div>
+                                    }
                                 </div>
                             )
                         }}

@@ -373,6 +373,19 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
         }
     }
 
+    async function discardFile(filePath, line) {
+        let res = await request.post(`${config.host}/git/fileDiscard`, {
+            projectPath,
+            filePath,
+            line: line.line - 1,
+            type: line.type,
+            lineContent: line.content,
+        })
+        if (res.success) {
+            diff(filePath)
+        }
+    }
+
     async function removeFile(path) {
         Modal.confirm({
             // title: 'Confirm',
@@ -762,6 +775,10 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                     <div className={styles.body}>
                                         <DiffText
                                             text={diffText}
+                                            editable={true}
+                                            onDiscard={(line) => {
+                                                discardFile(curFile, line)
+                                            }}
                                         />
                                     </div>
                                 </>
