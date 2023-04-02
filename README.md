@@ -40,5 +40,5 @@ dms web
 git clone https://github.com/yunser/dms-web.git
 cd dms-web
 npm i
-npm ruu dev
+npm run dev
 ```
