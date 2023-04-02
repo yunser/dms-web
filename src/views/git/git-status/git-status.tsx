@@ -255,7 +255,7 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
         getConfig()
     }, [])
 
-    async function loadStatuses(lastFile) {
+    async function loadStatuses(lastFile?) {
         setCurFile('')
         setDiffText('')
         let res = await request.post(`${config.host}/git/status`, {
@@ -377,8 +377,11 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
         Modal.confirm({
             // title: 'Confirm',
             // icon: <ExclamationCircleOutlined />,
-            title: `确认删除文件「${path}」?`,
-            content: '这个文件不在版本控制内，若被删除，将无法找回',
+            title: `${t('git.file.delete_confirm')}「${path}」?`,
+            content: t('git.file.delete_help'),
+            okButtonProps: {
+                danger: true,
+            },
             async onOk() {
                 let res = await request.post(`${config.host}/git/deleteFile`, {
                     projectPath,
@@ -407,9 +410,7 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
 
     async function checkoutFile(path) {
         Modal.confirm({
-            // title: 'Confirm',
-            // icon: <ExclamationCircleOutlined />,
-            content: `确认丢弃文件「${path}」的所有更改?`,
+            content: `${t('git.file.discard_confirm')}「${path}」?`,
             async onOk() {
                 let res = await request.post(`${config.host}/git/checkoutFile`, {
                     projectPath,
