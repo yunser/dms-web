@@ -51,3 +51,8 @@ cd dms-web
 npm i
 npm run dev
 ```
+
+
+## 协议
+
+禁止商用。
