@@ -16,6 +16,7 @@ import { BranchDeleteModal } from '../branch-delete';
 import { BranchModal } from '../branch-modal';
 import moment from 'moment';
 import copy from 'copy-to-clipboard';
+import { BranchRenameModal } from '../branch-rename';
 // import { saveAs } from 'file-saver'
 
 export function BranchList({ config, event$, projectPath, onBranch }) {
@@ -23,6 +24,7 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
     const { t } = useTranslation()
 
     const [branchDeleteModalVisible, setBranchDeleteModalVisible] = useState(false)
+    const [branchRenameModalVisible, setBranchRenameModalVisible] = useState(false)
     const [editBranch, setEditBranch] = useState(null)
     const [current, setCurrent] = useState('')
     const [allBranches, setAllBranches] = useState([])
@@ -76,8 +78,13 @@ const [detailVisible, setDetailVisible] = useState(true)
     })
 
     async function deleteItem(item) {
-        setBranchDeleteModalVisible(true)
         setEditBranch(item)
+        setBranchDeleteModalVisible(true)
+    }
+
+    async function renameItem(item) {
+        setEditBranch(item)
+        setBranchRenameModalVisible(true)
     }
 
     async function switchItem(item) {
@@ -279,6 +286,10 @@ const [detailVisible, setDetailVisible] = useState(true)
                                                                 disabled: item.name == current,
                                                             },
                                                             {
+                                                                label: t('rename'),
+                                                                key: 'rename',
+                                                            },
+                                                            {
                                                                 label: t('git.branch.delete'),
                                                                 key: 'delete',
                                                                 danger: true,
@@ -295,6 +306,9 @@ const [detailVisible, setDetailVisible] = useState(true)
                                                             }
                                                             else if (key == 'switch') {
                                                                 switchItem(item)
+                                                            }
+                                                            else if (key == 'rename') {
+                                                                renameItem(item)
                                                             }
                                                             else if (key == 'copy_name') {
                                                                 copy(item.name)
@@ -353,6 +367,21 @@ const [detailVisible, setDetailVisible] = useState(true)
                     }}
                 />
             }
+            {branchRenameModalVisible &&
+                <BranchRenameModal
+                    config={config}
+                    projectPath={projectPath}
+                    item={editBranch}
+                    onCancel={() => {
+                        setBranchRenameModalVisible(false)
+                    }}
+                    onSuccess={() => {
+                        setBranchRenameModalVisible(false)
+                        loadBranches()
+                    }}
+                />
+            }
+
             {manageVisible &&
                 <Modal
                     open={true}
