@@ -424,6 +424,9 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
     async function checkoutFile(path) {
         Modal.confirm({
             content: `${t('git.file.discard_confirm')}「${path}」?`,
+            okButtonProps: {
+                danger: true,
+            },
             async onOk() {
                 let res = await request.post(`${config.host}/git/checkoutFile`, {
                     projectPath,
