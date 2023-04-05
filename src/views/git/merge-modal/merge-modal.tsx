@@ -326,6 +326,8 @@ export function MergeModal({ config, event$, projectPath, onSuccess, onCancel })
                                             value: r.name,
                                         }
                                     })}
+                                    showSearch={true}
+                                    optionFilterProp="label"
                                 />
                             </Form.Item>
                             

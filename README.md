@@ -1,32 +1,44 @@
 # DMS Web
 
-DMS 前端界面代码。
-
-后端代码见 [@yunser/dms-node](https://github.com/yunser/dms-node)
+English | [简体中文](./README-zh_CN.md)
 
 
-# 项目简介
+DMS Front-end Interface Code.
 
-DMS 是一个基于 Node.js 和 Web 技术栈的开发辅助工具，致力于用技术去解决开发工作中遇到的工具问题。
+See [@yunser/dms-node](https://github.com/yunser/dms-node) for the backend code.
 
-目前已实现的功能包括但不限于：
 
-* Git 项目管理
-* MySQL 管理
-* Redis 管理
+# Project Introduction
+
+DMS is a development assistance tool based on Node.js and Web technology stack, dedicated to using technology to solve tool problems encountered in development work.
+
+Currently implemented features include but are not limited to:
+
+* Git project management
+* MySQL management
+* Redis management
 * SSH
 * SFTP
-* Swagger 管理
-* OSS/S3 客户端
-* Mongo 管理
-* TCP 调试
-* HTTP 调试
-* MQTT 调试
-* WebSocket 调试
-* 日志管理
+* Swagger management
+* OSS/S3 client
+* Mongo management
+* TCP debugging
+* HTTP debugging
+* MQTT debugging
+* WebSocket debugging
+* Log management
 
 
-# 快速安装使用
+## Related Screenshots
+
+![Git](./screenshot/git.png)
+
+![MySQL](./screenshot/mysql.png)
+
+![Redis](./screenshot/redis.png)
+
+
+# Quick installation and use
 
 ```shell
 npm i @yunser/dms-cli -g
@@ -34,11 +46,16 @@ dms web
 ```
 
 
-# 开发
+# Development
 
 ```shell
 git clone https://github.com/yunser/dms-web.git
 cd dms-web
 npm i
-npm ruu dev
+npm run dev
 ```
+
+
+## License
+
+Commercial use is prohibited.

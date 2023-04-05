@@ -26,6 +26,7 @@ import { request } from '@/views/db-manager/utils/http';
 import { GitStat } from '../git-stat';
 import { StashList } from '../stash-list';
 import { GitGraph } from '../git-graph';
+import { FetchModal } from '../fetch-modal';
 // import { saveAs } from 'file-saver'
 
 export function GitProject({ config, event$, project, onList }) {
@@ -37,7 +38,8 @@ export function GitProject({ config, event$, project, onList }) {
     const [branchs, setBranchs] = useState([])
     const [mergeModalVisible, setMergeModalVisible] = useState(false)
     const [branchModalVisible, setBranchModalVisible] = useState(false)
-    const [pullModalVisible, setPullhModalVisible] = useState(false)
+    const [pullModalVisible, setPullModalVisible] = useState(false)
+    const [fetchModalVisible, setFetchModalVisible] = useState(false)
     const [pushModalVisible, setPushModalVisible] = useState(false)
     const [userSettingModalVisible, setUserSettingModalVisible] = useState(false)
     const [allKey, setAllKey] = useState('0')
@@ -93,21 +95,7 @@ export function GitProject({ config, event$, project, onList }) {
     }
 
     async function gitFetch() {
-        // loadBranch()
-        let res = await request.post(`${config.host}/git/fetch`, {
-            projectPath,
-            // TODO 写死
-            remoteName: 'origin',
-        }, {
-            noMessage: true,
-        })
-        console.log('fres', res)
-        if (res.success) {
-            event$.emit({
-                type: 'event_refresh_commit_list',
-                data: {},
-            })
-        }
+        setFetchModalVisible(true)
     }
     
     return (
@@ -259,7 +247,7 @@ export function GitProject({ config, event$, project, onList }) {
                             size="small"
                             icon={<ArrowDownOutlined />}
                             onClick={() => {
-                                setPullhModalVisible(true)
+                                setPullModalVisible(true)
                             }}
                         >
                             {t('git.pull')}
@@ -273,6 +261,9 @@ export function GitProject({ config, event$, project, onList }) {
                         >
                             {t('git.push')}
                         </Button>
+
+                        <div style={{ width: 32 }}></div>
+
                         <Button
                             size="small"
                             type="dashed"
@@ -374,10 +365,27 @@ export function GitProject({ config, event$, project, onList }) {
                     config={config}
                     projectPath={projectPath}
                     onCancel={() => {
-                        setPullhModalVisible(false)
+                        setPullModalVisible(false)
                     }}
                     onSuccess={() => {
-                        setPullhModalVisible(false)
+                        setPullModalVisible(false)
+                        event$.emit({
+                            type: 'event_refresh_commit_list',
+                            data: {},
+                        })
+                    }}
+                />
+            }
+            {fetchModalVisible &&
+                <FetchModal
+                    event$={event$}
+                    config={config}
+                    projectPath={projectPath}
+                    onCancel={() => {
+                        setFetchModalVisible(false)
+                    }}
+                    onSuccess={() => {
+                        setFetchModalVisible(false)
                         event$.emit({
                             type: 'event_refresh_commit_list',
                             data: {},

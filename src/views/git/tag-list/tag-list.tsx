@@ -96,7 +96,7 @@ function RemoveTagList({ config, projectPath }) {
     return (
         <div>
             <Space className={styles.tool}>
-                <div>remote:</div>
+                <div>{t('git.remote')}:</div>
                 <Select
                     value={curRemote}
                     style={{ width: 160 }}
@@ -158,6 +158,7 @@ function RemoveTagList({ config, projectPath }) {
                                 <div>
                                     <Button
                                         size="small"
+                                        danger
                                         onClick={() => {
                                             // setBranchDeleteModalVisible(true)
                                             // setEditBranch(item)

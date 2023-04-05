@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 // import storage from '../../db-manager/storage'
 // import { CodeDebuger } from '../code-debug';
 import { uid } from 'uid';
-import { EllipsisOutlined, ExportOutlined, EyeInvisibleOutlined, EyeOutlined, EyeTwoTone, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { DownloadOutlined, EllipsisOutlined, ExportOutlined, EyeInvisibleOutlined, EyeOutlined, EyeTwoTone, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/common/full-center-box';
@@ -279,20 +279,53 @@ export function MongoDocument({ config, curDb, curCollection, event$, connection
                         >
                             <PlusOutlined />
                         </IconButton>
-                        <IconButton
-                            // size="small"
-                            tooltip={t('export_json')}
-                            onClick={() => {
-                                event$.emit({
-                                    type: 'event_show_json',
-                                    data: {
-                                        json: JSON.stringify(documents, null, 4)
-                                    },
-                                })
-                            }}
+                        <Dropdown
+                            overlay={
+                                <Menu
+                                    onClick={info => {
+                                        if (info.key == 'export_json') {
+                                            event$.emit({
+                                                type: 'event_show_json',
+                                                data: {
+                                                    json: JSON.stringify(documents, null, 4)
+                                                },
+                                            })
+                                        }
+                                        else if (info.key == 'export_json_lines') {
+                                            const content = documents.map(item => JSON.stringify(item)).join('\n')
+                                            event$.emit({
+                                                type: 'event_show_text',
+                                                data: {
+                                                    text: content,
+                                                },
+                                            })
+                                        }
+                                    }}
+                                    items={[
+                                        {
+                                            label: t('export_json'),
+                                            key: 'export_json',
+                                        },
+                                        {
+                                            label: t('export_json_lines'),
+                                            key: 'export_json_lines',
+                                        },
+                                    ]}
+                                />
+                            }
                         >
-                            <ExportOutlined />
-                        </IconButton>
+                            {/* <Button>
+                                <Space>
+                                Button
+                                <DownOutlined />
+                                </Space>
+                            </Button> */}
+                            <IconButton
+                                size="small"
+                            >
+                                <DownloadOutlined />   
+                            </IconButton>
+                        </Dropdown>
                         <Button
                             size="small"
                             onClick={formatQuery}
