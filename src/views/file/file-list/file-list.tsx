@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { AppstoreOutlined, CodeOutlined, CreditCardOutlined, DatabaseOutlined, DownloadOutlined, EditOutlined, EllipsisOutlined, FileOutlined, FileSearchOutlined, FileWordOutlined, FolderAddOutlined, FolderOutlined, HomeOutlined, LeftOutlined, LinkOutlined, PlusOutlined, ReloadOutlined, UploadOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, CodeOutlined, CreditCardOutlined, DatabaseOutlined, DownloadOutlined, EditOutlined, EllipsisOutlined, FileOutlined, FileSearchOutlined, FileWordOutlined, FolderAddOutlined, FolderOutlined, HomeOutlined, LeftOutlined, LinkOutlined, PlusOutlined, ReloadOutlined, SaveOutlined, UploadOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
@@ -1182,6 +1182,25 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                             <HomeOutlined className={styles.icon} />
                                             {t('file.home')}
                                         </div>
+                                    </>
+                                }
+                                {!!info.disks.length &&
+                                    <>
+                                        <Divider />
+                                        {info.disks.map(disk => {
+                                            return (
+                                                <div 
+                                                    className={styles.item}
+                                                    key={disk.name}
+                                                    onClick={() => {
+                                                        setCurPath(disk.path)
+                                                    }}
+                                                >
+                                                    <SaveOutlined className={styles.icon} />
+                                                    {disk.name}
+                                                </div>
+                                            )
+                                        })}
                                     </>
                                 }
                                 <Divider />
