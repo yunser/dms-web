@@ -681,7 +681,7 @@ export function CommitList({ config, event$, projectPath,  }) {
                                                         <Menu
                                                             items={[
                                                                 {
-                                                                    label: t('file.open_in_finder'),
+                                                                    label: t('file.open_in_file_manager'),
                                                                     key: 'finder',
                                                                 },
                                                                 {

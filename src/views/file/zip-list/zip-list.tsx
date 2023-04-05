@@ -704,7 +704,7 @@ export function ZipList({ config, event$, path, tabKey, item, showSide = false }
                                                             key: 'info',
                                                         },
                                                         {
-                                                            label: t('file.open_in_finder'),
+                                                            label: t('file.open_in_file_manager'),
                                                             key: 'finder',
                                                         },
                                                         ...(sourceType != 'local' ? [

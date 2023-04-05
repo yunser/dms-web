@@ -527,7 +527,7 @@ export function GitHome({ event$, onProject }) {
                                                                         key: 'export_json',
                                                                     },
                                                                     {
-                                                                        label: t('file.open_in_finder'),
+                                                                        label: t('file.open_in_file_manager'),
                                                                         key: 'open_in_finder',
                                                                     },
                                                                     {

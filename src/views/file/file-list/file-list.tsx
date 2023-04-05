@@ -1332,7 +1332,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                         }
                         {sourceType == 'local' &&
                             <IconButton
-                                tooltip={t('file.open_in_finder')}
+                                tooltip={t('file.open_in_file_manager')}
                                 onClick={() => {
                                     openInFinder(curPath)
                                 }}
@@ -1619,7 +1619,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                     key: 'info',
                                                                 },
                                                                 {
-                                                                    label: t('file.open_in_finder'),
+                                                                    label: t('file.open_in_file_manager'),
                                                                     key: 'finder',
                                                                     visible: sourceType == 'local',
                                                                 },

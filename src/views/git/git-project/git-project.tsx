@@ -129,7 +129,7 @@ export function GitProject({ config, event$, project, onList }) {
                                 }}
                                 items={[
                                     {
-                                        label: t('file.open_in_finder'),
+                                        label: t('file.open_in_file_manager'),
                                         key: 'open_in_finder',
                                     },
                                     {
