@@ -1,5 +1,5 @@
 import { Button, Descriptions, Divider, Dropdown, Input, Menu, message, Modal, Popover, Space, Table, Tabs } from 'antd';
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './git-project.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
@@ -28,9 +28,10 @@ import { StashList } from '../stash-list';
 import { GitGraph } from '../git-graph';
 import { FetchModal } from '../fetch-modal';
 import copy from 'copy-to-clipboard';
+import { getGlobalConfig } from '@/config';
 // import { saveAs } from 'file-saver'
 
-export function GitProject({ config, event$, project, onList }) {
+export function GitProject({ event$, project, onList }) {
     const projectPath = project.path
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
@@ -45,6 +46,10 @@ export function GitProject({ config, event$, project, onList }) {
     const [userSettingModalVisible, setUserSettingModalVisible] = useState(false)
     const [allKey, setAllKey] = useState('0')
 
+    const [config, setConfig] = useState(() => {
+        return getGlobalConfig()
+    })
+    
     const tabs = [
         {
             label: t('git.changes'),
@@ -77,6 +82,25 @@ export function GitProject({ config, event$, project, onList }) {
             setAllKey('' + new Date().getTime())
         }
     })
+    
+    async function getConfig() {
+        // loadBranch()
+        let res = await request.post(`${config.host}/git/info`, {
+            // projectPath,
+        })
+        if (res.success) {
+            setConfig({
+                ...res.data,
+                ...getGlobalConfig(),
+            })
+            // const list = res.data
+            // setList(list)
+        }
+    }
+
+    useEffect(() => {
+        getConfig()
+    }, [])
     
     async function openInTerminal(path: string) {
         let ret = await request.post(`${config.host}/openInTerminal`, {

@@ -695,21 +695,30 @@ export function CommitList({ config, event$, projectPath,  }) {
                                                                 {
                                                                     label: t('browser_file'),
                                                                     key: 'browser_file',
-                                                                }
+                                                                },
+                                                                {
+                                                                    label: t('copy_path'),
+                                                                    key: 'copy_path',
+                                                                },
                                                             ]}
                                                             onClick={({ key }) => {
+                                                                const fullPath = projectPath + config.pathSeparator + file.replace(/\//g, config.pathSeparator)
                                                                 if (key == 'finder') {
                                                                     console.log('item', file)
-                                                                    openInFinder(projectPath + '/' + file)
+                                                                    openInFinder(fullPath)
                                                                 }
                                                                 else if (key == 'open_in_vscode') {
-                                                                    openInVsCode(projectPath + '/' + file)
+                                                                    openInVsCode(fullPath)
                                                                 }
                                                                 else if (key == 'filter') {
                                                                     setFilteredFile(file)
                                                                 }
                                                                 else if (key == 'browser_file') {
                                                                     browserFile(file)
+                                                                }
+                                                                else if (key == 'copy_path') {
+                                                                    copy(fullPath)
+                                                                    message.info(t('copied'))
                                                                 }
                                                             }}
                                                         />

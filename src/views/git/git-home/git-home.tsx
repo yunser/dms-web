@@ -56,7 +56,6 @@ export function GitHome({ event$, onProject }) {
     const [keyword, setKeyword] = useState('')
     const searchInputRef = useRef<InputRef>(null)
     // const [curTab, setCurTab] = useState('commit-list')
-    const config = getGlobalConfig()
     const [projects, setProjects] = useState([])
     // const projects = [
     //     {
@@ -91,7 +90,10 @@ export function GitHome({ event$, onProject }) {
         return storage.get('alertVisible', true)
     })
     const inputingRef = useRef(false)
-    
+    const [config, setConfig] = useState(() => {
+        return getGlobalConfig()
+    })
+
     useEffect(() => {
         const handleKeyDown = e => {
             // if (document.activeElement?.nodeName == 'INPUT' || document.activeElement?.nodeName == 'TEXTAREA') {
@@ -144,6 +146,25 @@ export function GitHome({ event$, onProject }) {
             window.removeEventListener('keydown', handleKeyDown)
         }
     }, [activeIndex, filterdProjects, inputingRef.current])
+
+    async function getConfig() {
+        // loadBranch()
+        let res = await request.post(`${config.host}/git/info`, {
+            // projectPath,
+        })
+        if (res.success) {
+            setConfig({
+                ...res.data,
+                ...getGlobalConfig(),
+            })
+            // const list = res.data
+            // setList(list)
+        }
+    }
+
+    useEffect(() => {
+        getConfig()
+    }, [])
 
     useEffect(() => {
         const handleCompositionStart = e => {

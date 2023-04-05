@@ -456,7 +456,7 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
         setDiffError('')
         if (FileUtil.isImage(path)) {
             console.log('img', path)
-            const filePath = projectPath + '/' + path
+            const filePath = projectPath + config.pathSeparator + path
             setDiffType('image')
             setDiffText(`${config.host}/file/imagePreview?sourceType=local&path=${encodeURIComponent(filePath)}`)
         }
@@ -503,7 +503,7 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
         // console.log('res', res)
         if (FileUtil.isImage(path)) {
             console.log('img', path)
-            const filePath = projectPath + '/' + path
+            const filePath = projectPath + config.pathSeparator + path.replace(/\//g, config.pathSeparator)
             setDiffType('image')
             setDiffText(`${config.host}/file/imagePreview?sourceType=local&path=${encodeURIComponent(filePath)}`)
         }
@@ -580,7 +580,7 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                                                     onClick={({ key }) => {
                                                                         if (key == 'finder') {
                                                                             console.log('item', item)
-                                                                            openInFinder(projectPath + '/' + item)
+                                                                            openInFinder(projectPath + config.pathSeparator + item.replace(/\//g, config.pathSeparator))
                                                                         }
                                                                     }}
                                                                 />
@@ -694,6 +694,7 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                                                         },
                                                                     ]}
                                                                     onClick={({ key }) => {
+                                                                        const fullPath = projectPath + config.pathSeparator + item.path.replace(/\//g, config.pathSeparator)
                                                                         if (key == 'key_checkout_file') {
                                                                             checkoutFile(item.path)
                                                                         }
@@ -701,22 +702,18 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                                                             removeFile(item.path)
                                                                         }
                                                                         else if (key == 'finder') {
-                                                                            openInFinder(projectPath + '/' + item.path)
+                                                                            openInFinder(fullPath)
                                                                         }
                                                                         else if (key == 'open_in_vscode') {
-                                                                            openInVsCode(projectPath + '/' + item.path)
+                                                                            openInVsCode(fullPath)
                                                                         }
                                                                         else if (key == 'copy_path') {
-                                                                            // console.log('item.path', item.path)
-                                                                            copy(projectPath + '/' + item.path)
+                                                                            copy(fullPath)
                                                                             message.info(t('copied'))
-                                                                            // openInVsCode(projectPath + '/' + item.path)
                                                                         }
                                                                         else if (key == 'copy_relative_path') {
-                                                                            // console.log('item.path', item.path)
                                                                             copy(item.path)
                                                                             message.info(t('copied'))
-                                                                            // openInVsCode(projectPath + '/' + item.path)
                                                                         }
                                                                     }}
                                                                 />

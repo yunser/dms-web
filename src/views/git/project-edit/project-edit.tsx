@@ -147,7 +147,7 @@ export function ProjectEditor({ config, item, createType, sourceType = 'exist', 
         // }
         if (!name && path) {
             // const folder = userConfig.defaultClonePath || userConfig.userHome
-            const arr = lastSplit(path, '/')
+            const arr = lastSplit(path, config.pathSeparator)
             const _name = arr[1]
             if (_name) {
                 form.setFieldsValue({

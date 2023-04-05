@@ -233,7 +233,7 @@ export function Commander({ commands, onCommand, onRef }) {
     useEffect(() => {
         const handleKeyDown = e => {
             // console.log('e', e.code, e)
-            if ((e.code == 'KeyK' || e.code == 'KeyP') && e.metaKey) {
+            if ((e.code == 'KeyK' || e.code == 'KeyP') && (e.metaKey || e.ctrlKey)) {
                 // console.log('ok')
                 e.preventDefault()
                 setModalVisible(!modalVisible)

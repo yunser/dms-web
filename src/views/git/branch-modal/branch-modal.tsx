@@ -70,7 +70,7 @@ export function BranchModal({ config, event$, remoteName, current, projectPath, 
     useEffect(() => {
         if (remoteName) {
             const after = remoteName.substring(8)
-            const idx = after.indexOf('/')
+            const idx = after.indexOf(config.pathSeparator)
             form.setFieldsValue({
                 name: after.substring(idx + 1),
             })

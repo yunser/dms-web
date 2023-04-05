@@ -87,20 +87,29 @@ function getParentPath(curPath: string) {
     return newPath || '/'
 }
 
-function PathRender({ path, onPath }) {
-    const arr: string[] = path.split('/').filter(item => item)
+function PathRender({ info, path, onPath }) {
+
+    if (!info) {
+        return <div>--</div>
+    }
+    
+    const arr: string[] = path.split(info.pathSeparator).filter(item => item)
     return (
         // <div>{path}</div>
         <div className={styles.pathList}>
-            <IconButton
-                onClick={() => {
-                    onPath && onPath('/')
-                }}
-            >
-                <HomeOutlined />
-            </IconButton>
-            {arr.length == 0 &&
-                <div>/</div>
+            {info.os != 'win32' &&
+                <>
+                    <IconButton
+                        onClick={() => {
+                            onPath && onPath('/')
+                        }}
+                    >
+                        <HomeOutlined />
+                    </IconButton>
+                    {arr.length == 0 &&
+                        <div>{info.pathSeparator}</div>
+                    }
+                </>
             }
             {arr.map((item, index) => {
                 return (
@@ -108,8 +117,12 @@ function PathRender({ path, onPath }) {
                         className={styles.item}
                         onClick={() => {
                             console.log('index', index)
-                            const path = '/' + arr.slice(0, index + 1).join('/')
+                            let path = (info.os == 'win32' ? '' : '/') + arr.slice(0, index + 1).join(info.pathSeparator)
                             console.log('path', path)
+                            // for windows, like C:
+                            if (path.match(/^[a-zA-Z]:$/)) {
+                                path = path + '\\'
+                            }
                             onPath && onPath(path)
                         }}
                     >
@@ -573,7 +586,10 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         })
         if (res.success) {
             // setProjects([])
-            setInfo(res.data)
+            setInfo({
+                pathSeparator: '/',
+                ...res.data,
+            })
             setCurPath(res.data.homePath)
         }
         else {
@@ -1443,6 +1459,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                             >
                             {/* {curPath} */}
                             <PathRender
+                                info={info}
                                 path={curPath}
                                 onPath={path => {
                                     setCurPath(path)
