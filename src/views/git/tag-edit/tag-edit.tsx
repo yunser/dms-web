@@ -1,28 +1,14 @@
-import { Button, Checkbox, Descriptions, Form, Input, message, Modal, Popover, Space, Table, Tabs } from 'antd';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Checkbox, Form, Input, Modal } from 'antd';
+import React, { useEffect, useState } from 'react';
 import styles from './tag-edit.module.less';
 import _ from 'lodash';
-import classNames from 'classnames'
-// console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { DownloadOutlined } from '@ant-design/icons';
-import saveAs from 'file-saver';
-import { useEventEmitter } from 'ahooks';
-import { CommitList } from '../commit-list';
-import { BranchList } from '../branch-list';
-import { GitStatus } from '../git-status';
-import { RemoteList } from '../remote-list';
-import { TagList } from '../tag-list';
 import { request } from '@/views/db-manager/utils/http';
 import { CommitItem } from '../commit-item';
-// import { saveAs } from 'file-saver'
 
 export function TagEditor({ config, commit, event$, projectPath, onSuccess, onCancel, onList }) {
-    // const { defaultJson = '' } = data
     const { t } = useTranslation()
-    const [curTab, setCurTab] = useState('status')
-    // const [curTab, setCurTab] = useState('commit-list')
+    const [loading, setLoading] = useState(false)
     const [curCommit, setCurCommit] = useState(null)
     const [pushRemote, setPushRemote] = useState(false)
     const [form] = Form.useForm()
@@ -32,26 +18,18 @@ export function TagEditor({ config, commit, event$, projectPath, onSuccess, onCa
     }, [])
 
     async function loadList() {
-        // setListLoading(true)
-        // loadBranch()
-        // loadTags()
         let res = await request.post(`${config.host}/git/commit/list`, {
             projectPath,
             limit: 1,
-        }, {
-            // noMessage: true,
         })
-        // console.log('res', res)
         if (res.success) {
             const list = res.data
             if (list.length > 0) {
                 setCurCommit(list[0])
             }
         }
-        // setListLoading(false)
     }
 
-    console.log('commitHash', commit)
     async function handleOk() {
         const values = await form.validateFields()
         const reqData = {
@@ -62,8 +40,9 @@ export function TagEditor({ config, commit, event$, projectPath, onSuccess, onCa
         if (commit) {
             reqData.commit = commit.hash
         }
+        setLoading(true)
         let res = await request.post(`${config.host}/git/tag/create`, reqData)
-        // console.log('res', res)
+        setLoading(false)
         if (res.success) {
             onSuccess && onSuccess()
             event$.emit({
@@ -77,12 +56,13 @@ export function TagEditor({ config, commit, event$, projectPath, onSuccess, onCa
 
     return (
         <Modal
-            visible={true}
+            open={true}
             title={t('git.tag.create')}
             onCancel={onCancel}
             onOk={handleOk}
             width={560}
             maskClosable={false}
+            confirmLoading={loading}
         >
             <Form
                 form={form}
@@ -94,10 +74,6 @@ export function TagEditor({ config, commit, event$, projectPath, onSuccess, onCa
                 onFinish={() => {
                     handleOk()
                 }}
-                // layout={{
-                //     labelCol: { span: 0 },
-                //     wrapperCol: { span: 24 },
-                // }}
             >
                 <Form.Item
                     name="name"
@@ -108,47 +84,33 @@ export function TagEditor({ config, commit, event$, projectPath, onSuccess, onCa
                 </Form.Item>
                 {!!commit ?
                     <Form.Item
-                        // name="name"
                         label={t('git.commit')}
-                        // rules={[ { required: true, }, ]}
                     >
                         <CommitItem
                             commit={commit}
                         />
-                        {/* {commit.hash} */}
                     </Form.Item>
                 :
                     <Form.Item
-                    // name="name"
-                    label={t('git.commit')}
-                    // rules={[ { required: true, }, ]}
-                >
-                    {curCommit &&
-                        <CommitItem
-                            commit={curCommit}
-                        />
-                    }
-                </Form.Item>
+                        label={t('git.commit')}
+                    >
+                        {curCommit &&
+                            <CommitItem
+                                commit={curCommit}
+                            />
+                        }
+                    </Form.Item>
                 }
-                <div className={styles.form}>
+                <Form.Item wrapperCol={{ offset: 4, span: 20 }}>
                     <Checkbox
                         checked={pushRemote}
                         onChange={e => {
                             setPushRemote(e.target.checked)
                         }}
                     >
-                        推送到远程分支（暂时仅支持 origin）
-                        {/* {t('git.delete.force')} */}
+                        {t('git.tag.create.push_to_remote')}
                     </Checkbox>
-                </div>
-                
-                {/* <Form.Item
-                    name="url"
-                    label="URL"
-                    rules={[ { required: true, }, ]}
-                >
-                    <Input />
-                </Form.Item> */}
+                </Form.Item>
             </Form>
         </Modal>
     )
