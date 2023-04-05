@@ -1072,46 +1072,118 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                         }
                         {!!info &&
                             <div className={styles.sideList}>
-                                <div className={styles.item}
-                                    onClick={() => {
-                                        setCurPath(info.homePath + '/' + 'Desktop')
-                                    }}
-                                >
-                                    <CreditCardOutlined className={styles.icon} />
-                                    {t('file.desktop')}
-                                </div>
-                                <div className={styles.item}
-                                    onClick={() => {
-                                        setCurPath(info.homePath + '/' + 'Downloads')
-                                    }}
-                                >
-                                    <DownloadOutlined className={styles.icon} />
-                                    {t('file.download')}
-                                </div>
-                                <div className={styles.item}
-                                    onClick={() => {
-                                        setCurPath(info.homePath + '/' + 'Documents')
-                                    }}
-                                >
-                                    <FileWordOutlined className={styles.icon} />
-                                    {t('file.document')}
-                                </div>
-                                <div className={styles.item}
-                                    onClick={() => {
-                                        setCurPath('/Applications')
-                                    }}
-                                >
-                                    <AppstoreOutlined className={styles.icon} />
-                                    {t('file.app')}
-                                </div>
-                                <div className={styles.item}
-                                    onClick={() => {
-                                        setCurPath(info.homePath)
-                                    }}
-                                >
-                                    <HomeOutlined className={styles.icon} />
-                                    {t('file.home')}
-                                </div>
+                                 {info.os == 'win32' &&
+                                    <>
+                                        <div className={styles.item}
+                                            onClick={() => {
+                                                setCurPath(info.homePath + '\\' + 'Desktop')
+                                            }}
+                                        >
+                                            <CreditCardOutlined className={styles.icon} />
+                                            {t('file.desktop')}
+                                        </div>
+                                        <div className={styles.item}
+                                            onClick={() => {
+                                                setCurPath(info.homePath + '\\' + 'Downloads')
+                                            }}
+                                        >
+                                            <DownloadOutlined className={styles.icon} />
+                                            {t('file.download')}
+                                        </div>
+                                        <div className={styles.item}
+                                            onClick={() => {
+                                                setCurPath(info.homePath + '\\' + 'Documents')
+                                            }}
+                                        >
+                                            <FileWordOutlined className={styles.icon} />
+                                            {t('file.document')}
+                                        </div>
+                                        <div className={styles.item}
+                                            onClick={() => {
+                                                setCurPath(info.homePath + '\\' + 'Pictures')
+                                            }}
+                                        >
+                                            <FileWordOutlined className={styles.icon} />
+                                            {t('file.picture')}
+                                        </div>
+                                        <div className={styles.item}
+                                            onClick={() => {
+                                                setCurPath(info.homePath + '\\' + 'Videos')
+                                            }}
+                                        >
+                                            <FileWordOutlined className={styles.icon} />
+                                            {t('file.video')}
+                                        </div>
+                                        <div className={styles.item}
+                                            onClick={() => {
+                                                setCurPath(info.homePath + '\\' + 'Music')
+                                            }}
+                                        >
+                                            <FileWordOutlined className={styles.icon} />
+                                            {t('file.music')}
+                                        </div>
+                                        <div className={styles.item}
+                                            onClick={() => {
+                                                setCurPath(info.homePath + '\\' + '3D Objects')
+                                            }}
+                                        >
+                                            <FileWordOutlined className={styles.icon} />
+                                            {t('file.3d_object')}
+                                        </div>
+                                        <div className={styles.item}
+                                            onClick={() => {
+                                                setCurPath(info.homePath)
+                                            }}
+                                        >
+                                            <HomeOutlined className={styles.icon} />
+                                            {t('file.home')}
+                                        </div>
+                                    </>
+                                }
+                                {info.os == 'darwin' &&
+                                    <>
+                                        <div className={styles.item}
+                                            onClick={() => {
+                                                setCurPath(info.homePath + '/' + 'Desktop')
+                                            }}
+                                        >
+                                            <CreditCardOutlined className={styles.icon} />
+                                            {t('file.desktop')}
+                                        </div>
+                                        <div className={styles.item}
+                                            onClick={() => {
+                                                setCurPath(info.homePath + '/' + 'Downloads')
+                                            }}
+                                        >
+                                            <DownloadOutlined className={styles.icon} />
+                                            {t('file.download')}
+                                        </div>
+                                        <div className={styles.item}
+                                            onClick={() => {
+                                                setCurPath(info.homePath + '/' + 'Documents')
+                                            }}
+                                        >
+                                            <FileWordOutlined className={styles.icon} />
+                                            {t('file.document')}
+                                        </div>
+                                        <div className={styles.item}
+                                            onClick={() => {
+                                                setCurPath('/Applications')
+                                            }}
+                                        >
+                                            <AppstoreOutlined className={styles.icon} />
+                                            {t('file.app')}
+                                        </div>
+                                        <div className={styles.item}
+                                            onClick={() => {
+                                                setCurPath(info.homePath)
+                                            }}
+                                        >
+                                            <HomeOutlined className={styles.icon} />
+                                            {t('file.home')}
+                                        </div>
+                                    </>
+                                }
                                 <Divider />
                                 <div className={styles.item}
                                     onClick={() => {
