@@ -24,7 +24,7 @@ import { ServiceHome } from './views/service/service-home'
 import { SwaggerHome } from './views/swagger/swagger-home'
 import { SwaggerDetail } from './views/swagger/swagger-detail'
 import { ProductionHome } from './views/production/production-home'
-import { SqlLab } from './views/db-manager/sql-lab'
+// import { SqlLab } from './views/db-manager/sql-lab'
 import { LoggerDetail } from './views/logger/logger-detail'
 import { AlasqlHome } from './views/slasql/ip-home'
 import { WebSocketHome } from './views/websocket/websocket-home/websocket-home'
@@ -307,7 +307,7 @@ export default function App() {
                     <Route path="/pages/swagger" element={<FullApp><SwaggerHome /></FullApp>} />
                     <Route path="/pages/swagger/detail" element={<FullApp><SwaggerDetailPage /></FullApp>} />
                     <Route path="/pages/weapp" element={<FullApp><WeappPage /></FullApp>} />
-                    <Route path="/pages/sql" element={<FullApp><SqlLab /></FullApp>} />
+                    {/* <Route path="/pages/sql" element={<FullApp><SqlLab /></FullApp>} /> */}
                     <Route path="/pages/logger" element={<FullApp><LoggerDetail /></FullApp>} />
                     <Route path="/pages/lab" element={<FullApp><Lab /></FullApp>} />
                     <Route path="/pages/alasql" element={<FullApp><AlasqlHome /></FullApp>} />
