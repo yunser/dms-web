@@ -27,6 +27,7 @@ import { GitStat } from '../git-stat';
 import { StashList } from '../stash-list';
 import { GitGraph } from '../git-graph';
 import { FetchModal } from '../fetch-modal';
+import copy from 'copy-to-clipboard';
 // import { saveAs } from 'file-saver'
 
 export function GitProject({ config, event$, project, onList }) {
@@ -126,6 +127,10 @@ export function GitProject({ config, event$, project, onList }) {
                                     else if (key == 'open_in_terminal') {
                                         openInTerminal(projectPath)
                                     }
+                                    else if (key == 'copy_path') {
+                                        copy(projectPath)
+                                        message.success(t('copied'))
+                                    }
                                 }}
                                 items={[
                                     {
@@ -135,6 +140,10 @@ export function GitProject({ config, event$, project, onList }) {
                                     {
                                         label: t('open_in_terminal'),
                                         key: 'open_in_terminal',
+                                    },
+                                    {
+                                        label: t('copy_path'),
+                                        key: 'copy_path',
                                     },
                                 ]}
                             />
