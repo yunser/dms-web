@@ -118,9 +118,16 @@
         flex: 1 0 auto;
         height: 0;
         // overflow: auto;
-        display: flex;
-        flex-direction: column;
         // border: 1px solid #f00;
+        overflow-y: hidden;
+        overflow-x: auto;
+        .bodyContainer {
+            min-width: 1200px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            // border: 1px solid #000;
+        }
         .bodyHeader {
             height: 32px;
             display: flex;
@@ -143,7 +150,14 @@
             align-items: center;
         }
         .updateTime {
-            width: 240px;   
+            width: 160px;   
+            &.content {
+                // color: var(--color-text-9);
+            }
+        }
+        .type {
+            width: 64px;   
+            // border: 1px solid #000;
         }
         .label {
             max-width: 320px;

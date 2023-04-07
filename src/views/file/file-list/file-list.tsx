@@ -558,9 +558,12 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                     return a.name.localeCompare(b.name)
                 })
                 .map(item => {
+                    const [_name, contentType] = lastSplit(item.name, '.')
+
                     return {
                         ...item,
                         icon: item.type == 'FILE' ? myGetIconForFile(item.name) : 'default_folder.svg',
+                        contentType,
                     }
                 })
             setList(list)
@@ -1518,240 +1521,262 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                         uploadFiles(e.dataTransfer.files)
                     }}
                 >
-                    <div className={styles.bodyHeader}>
-                        <div className={classNames(styles.cell, styles.name)}>{t('name')}</div>
-                        <div className={classNames(styles.cell, styles.updateTime)}>
-                            {t('update_time')}
+                    <div className={styles.bodyContainer}>
+                        <div className={styles.bodyHeader}>
+                            <div className={classNames(styles.cell, styles.name)}>
+                                {t('name')}
+                            </div>
+                            <div className={classNames(styles.cell, styles.updateTime)}>
+                                {t('update_time')}
+                            </div>
+                            <div className={classNames(styles.cell, styles.updateTime)}>
+                                {t('create_time')}
+                            </div>
+                            <div className={classNames(styles.cell, styles.updateTime)}>
+                                {t('access_time')}
+                            </div>
+                            <div className={classNames(styles.cell, styles.type)}>
+                                {t('type')}
+                            </div>
+                            <div className={classNames(styles.cell, styles.size)}>{t('size')}</div>
                         </div>
-                        <div className={classNames(styles.cell, styles.size)}>{t('size')}</div>
-                    </div>
-                    <div className={styles.bodyBody}>
-                        {loading ?
-                            <FullCenterBox
-                                height={240}
-                            >
-                                <Spin />
-                            </FullCenterBox>
-                            : !!error ?
+                        <div className={styles.bodyBody}>
+                            {loading ?
                                 <FullCenterBox
-                                    height={320}
+                                    height={240}
                                 >
-                                    <div className={styles.error}>{error}</div>
+                                    <Spin />
                                 </FullCenterBox>
-                                : filteredList.length == 0 ?
-                                    <FullCenterBox>
-                                        <Empty />
+                                : !!error ?
+                                    <FullCenterBox
+                                        height={320}
+                                    >
+                                        <div className={styles.error}>{error}</div>
                                     </FullCenterBox>
-                                    :
-                                    <div className={styles.list}>
-                                        {filteredList.map(item => {
-                                            const isImage = FileUtil.isImage(item.path)
-                                            const isMarkdown = item.path.endsWith('.md')
-                                            
-                                            return (
-                                                <Dropdown
-                                                    key={item.name}
-                                                    trigger={['contextMenu']}
-                                                    overlay={
-                                                        <Menu
-                                                            onClick={({ key }) => {
-                                                                if (key == 'delete_file') {
-                                                                    deleteItem(item)
-                                                                }
-                                                                else if (key == 'edit') {
-                                                                    editItem(item)
-                                                                }
-                                                                else if (key == 'copy_name') {
-                                                                    copy(item.name)
-                                                                    message.info(t('copied'))
-                                                                }
-                                                                else if (key == 'copy_path') {
-                                                                    copy(item.path)
-                                                                    message.info(t('copied'))
-                                                                }
-                                                                else if (key == 'rename') {
-                                                                    setRenameModalVisible(true)
-                                                                    setRenameItem(item)
-                                                                }
-                                                                else if (key == 'download') {
-                                                                    downloadItem(item)
-                                                                }
-                                                                else if (key == 'open') {
-                                                                    viewItem(item)
-                                                                }
-                                                                else if (key == 'copy') {
-                                                                    copyItem(item)
-                                                                }
-                                                                else if (key == 'cut') {
-                                                                    cutItem(item)
-                                                                }
-                                                                else if (key == 'info') {
-                                                                    showItemDetail(item)
-                                                                }
-                                                                else if (key == 'finder') {
-                                                                    openInFinder(item.path)
-                                                                }
-                                                                else if (key == 'open_in_os') {
-                                                                    openInOs(item.path)
-                                                                }
-                                                                else if (key == 'clear') {
-                                                                    clearItem(item)
-                                                                }
-                                                                else if (key == 'open_with_nginx') {
-                                                                    openWithLog(item)
-                                                                }
-                                                                else if (key == 'oss_info') {
-                                                                    viewItemOssInfo(item)
-                                                                }
-                                                                else if (key == 's3_info') {
-                                                                    viewItemS3Info(item)
-                                                                }
-                                                            }}
-                                                            items={visibleFilter([
-                                                                {
-                                                                    label: t('open'),
-                                                                    key: 'open',
-                                                                },
-                                                                {
-                                                                    label: t('open_with_text_editor'),
-                                                                    key: 'edit',
-                                                                },
-                                                                {
-                                                                    label: t('oss_info'),
-                                                                    key: 'oss_info',
-                                                                    visible: sourceType.includes('oss'),
-                                                                },
-                                                                {
-                                                                    label: t('s3_info'),
-                                                                    key: 's3_info',
-                                                                    visible: sourceType.startsWith('s3:'),
-                                                                },
-                                                                // {
-                                                                //     label: t('open_with_nginx'),
-                                                                //     key: 'open_with_nginx',
-                                                                // },
-                                                                {
-                                                                    label: t('info'),
-                                                                    key: 'info',
-                                                                },
-                                                                {
-                                                                    label: t('file.open_in_file_manager'),
-                                                                    key: 'finder',
-                                                                    visible: sourceType == 'local',
-                                                                },
-                                                                {
-                                                                    label: t('file.open_in_os'),
-                                                                    key: 'open_in_os',
-                                                                    visible: sourceType == 'local',
-                                                                },
-                                                                {
-                                                                    label: t('download'),
-                                                                    key: 'download',
-                                                                    visible: sourceType != 'local',
-                                                                },
-                                                                {
-                                                                    type: 'divider',
-                                                                },
-                                                                {
-                                                                    label: t('copy'),
-                                                                    key: 'copy',
-                                                                },
-                                                                {
-                                                                    label: t('cut'),
-                                                                    key: 'cut',
-                                                                },
-                                                                {
-                                                                    label: t('rename'),
-                                                                    key: 'rename',
-                                                                },
-                                                                {
-                                                                    type: 'divider',
-                                                                },
-                                                                {
-                                                                    label: t('copy_name'),
-                                                                    key: 'copy_name',
-                                                                },
-                                                                {
-                                                                    label: t('file.copy_path'),
-                                                                    key: 'copy_path',
-                                                                },
-                                                                {
-                                                                    type: 'divider',
-                                                                },
-                                                                {
-                                                                    label: t('delete'),
-                                                                    key: 'delete_file',
-                                                                    danger: true,
-                                                                },
-                                                                {
-                                                                    label: t('clear'),
-                                                                    key: 'clear',
-                                                                    danger: true,
-                                                                    visible: item.type == 'FILE',
-                                                                },
-                                                            ])}
-                                                        />
-                                                    }
-                                                >
-                                                    <div className={classNames(styles.item, {
-                                                        [styles.active]: activeItem && activeItem.name == item.name
-                                                    })}
-                                                        onClick={() => {
-                                                            setActiveItem(item)
-                                                        }}
-                                                        onContextMenu={() => {
-                                                            setActiveItem(item)
-                                                        }}
-                                                        onDoubleClick={() => {
-                                                            viewItem(item)
-                                                        }}
-                                                    >
-                                                        <div className={classNames(styles.cell, styles.name)}>
-                                                            <div className={styles.iconBox}>
-                                                                <img className={styles.vscIcon} src={`/vscode-icons/icons/${item.icon}`} />
-                                                                {/* {item.type != 'FILE' ?
-                                                        :
-                                                            <img className={styles.vscIcon} src={`/vscode-icons/icons/${item.icon}`} />
-                                                        } */}
-                                                            </div>
-                                                            {/* <div className={styles.icon}>
-                                                        {item.type != 'FILE' ?
-                                                            <div className={classNames('iconfont', 'icon-folder', styles.iconFolder)}></div>
-                                                        : isImage ?
-                                                            <div className={classNames('iconfont', 'icon-image', styles.iconMarkdown)}></div>
-                                                        : isMarkdown ?
-                                                            <div className={classNames('iconfont', 'icon-markdown', styles.iconImage)}></div>
-                                                        :
-                                                            <FileOutlined />
-                                                            // <FolderOutlined />
+                                    : filteredList.length == 0 ?
+                                        <FullCenterBox>
+                                            <Empty />
+                                        </FullCenterBox>
+                                        :
+                                        <div className={styles.list}>
+                                            {filteredList.map(item => {
+                                                const isImage = FileUtil.isImage(item.path)
+                                                const isMarkdown = item.path.endsWith('.md')
+                                                
+                                                return (
+                                                    <Dropdown
+                                                        key={item.name}
+                                                        trigger={['contextMenu']}
+                                                        overlay={
+                                                            <Menu
+                                                                onClick={({ key }) => {
+                                                                    if (key == 'delete_file') {
+                                                                        deleteItem(item)
+                                                                    }
+                                                                    else if (key == 'edit') {
+                                                                        editItem(item)
+                                                                    }
+                                                                    else if (key == 'copy_name') {
+                                                                        copy(item.name)
+                                                                        message.info(t('copied'))
+                                                                    }
+                                                                    else if (key == 'copy_path') {
+                                                                        copy(item.path)
+                                                                        message.info(t('copied'))
+                                                                    }
+                                                                    else if (key == 'rename') {
+                                                                        setRenameModalVisible(true)
+                                                                        setRenameItem(item)
+                                                                    }
+                                                                    else if (key == 'download') {
+                                                                        downloadItem(item)
+                                                                    }
+                                                                    else if (key == 'open') {
+                                                                        viewItem(item)
+                                                                    }
+                                                                    else if (key == 'copy') {
+                                                                        copyItem(item)
+                                                                    }
+                                                                    else if (key == 'cut') {
+                                                                        cutItem(item)
+                                                                    }
+                                                                    else if (key == 'info') {
+                                                                        showItemDetail(item)
+                                                                    }
+                                                                    else if (key == 'finder') {
+                                                                        openInFinder(item.path)
+                                                                    }
+                                                                    else if (key == 'open_in_os') {
+                                                                        openInOs(item.path)
+                                                                    }
+                                                                    else if (key == 'clear') {
+                                                                        clearItem(item)
+                                                                    }
+                                                                    else if (key == 'open_with_nginx') {
+                                                                        openWithLog(item)
+                                                                    }
+                                                                    else if (key == 'oss_info') {
+                                                                        viewItemOssInfo(item)
+                                                                    }
+                                                                    else if (key == 's3_info') {
+                                                                        viewItemS3Info(item)
+                                                                    }
+                                                                }}
+                                                                items={visibleFilter([
+                                                                    {
+                                                                        label: t('open'),
+                                                                        key: 'open',
+                                                                    },
+                                                                    {
+                                                                        label: t('open_with_text_editor'),
+                                                                        key: 'edit',
+                                                                    },
+                                                                    {
+                                                                        label: t('oss_info'),
+                                                                        key: 'oss_info',
+                                                                        visible: sourceType.includes('oss'),
+                                                                    },
+                                                                    {
+                                                                        label: t('s3_info'),
+                                                                        key: 's3_info',
+                                                                        visible: sourceType.startsWith('s3:'),
+                                                                    },
+                                                                    // {
+                                                                    //     label: t('open_with_nginx'),
+                                                                    //     key: 'open_with_nginx',
+                                                                    // },
+                                                                    {
+                                                                        label: t('info'),
+                                                                        key: 'info',
+                                                                    },
+                                                                    {
+                                                                        label: t('file.open_in_file_manager'),
+                                                                        key: 'finder',
+                                                                        visible: sourceType == 'local',
+                                                                    },
+                                                                    {
+                                                                        label: t('file.open_in_os'),
+                                                                        key: 'open_in_os',
+                                                                        visible: sourceType == 'local',
+                                                                    },
+                                                                    {
+                                                                        label: t('download'),
+                                                                        key: 'download',
+                                                                        visible: sourceType != 'local',
+                                                                    },
+                                                                    {
+                                                                        type: 'divider',
+                                                                    },
+                                                                    {
+                                                                        label: t('copy'),
+                                                                        key: 'copy',
+                                                                    },
+                                                                    {
+                                                                        label: t('cut'),
+                                                                        key: 'cut',
+                                                                    },
+                                                                    {
+                                                                        label: t('rename'),
+                                                                        key: 'rename',
+                                                                    },
+                                                                    {
+                                                                        type: 'divider',
+                                                                    },
+                                                                    {
+                                                                        label: t('copy_name'),
+                                                                        key: 'copy_name',
+                                                                    },
+                                                                    {
+                                                                        label: t('file.copy_path'),
+                                                                        key: 'copy_path',
+                                                                    },
+                                                                    {
+                                                                        type: 'divider',
+                                                                    },
+                                                                    {
+                                                                        label: t('delete'),
+                                                                        key: 'delete_file',
+                                                                        danger: true,
+                                                                    },
+                                                                    {
+                                                                        label: t('clear'),
+                                                                        key: 'clear',
+                                                                        danger: true,
+                                                                        visible: item.type == 'FILE',
+                                                                    },
+                                                                ])}
+                                                            />
                                                         }
-                                                    </div> */}
-                                                            <div className={styles.label}>
-                                                                {item.name}
-                                                                {/* (?{item.icon}) */}
-                                                                {!!item.isSymbolicLink &&
-                                                                    <Tag color="blue" style={{ marginLeft: 8 }}>link</Tag>
+                                                    >
+                                                        <div className={classNames(styles.item, {
+                                                            [styles.active]: activeItem && activeItem.name == item.name
+                                                        })}
+                                                            onClick={() => {
+                                                                setActiveItem(item)
+                                                            }}
+                                                            onContextMenu={() => {
+                                                                setActiveItem(item)
+                                                            }}
+                                                            onDoubleClick={() => {
+                                                                viewItem(item)
+                                                            }}
+                                                        >
+                                                            <div className={classNames(styles.cell, styles.name)}>
+                                                                <div className={styles.iconBox}>
+                                                                    <img className={styles.vscIcon} src={`/vscode-icons/icons/${item.icon}`} />
+                                                                    {/* {item.type != 'FILE' ?
+                                                            :
+                                                                <img className={styles.vscIcon} src={`/vscode-icons/icons/${item.icon}`} />
+                                                            } */}
+                                                                </div>
+                                                                {/* <div className={styles.icon}>
+                                                            {item.type != 'FILE' ?
+                                                                <div className={classNames('iconfont', 'icon-folder', styles.iconFolder)}></div>
+                                                            : isImage ?
+                                                                <div className={classNames('iconfont', 'icon-image', styles.iconMarkdown)}></div>
+                                                            : isMarkdown ?
+                                                                <div className={classNames('iconfont', 'icon-markdown', styles.iconImage)}></div>
+                                                            :
+                                                                <FileOutlined />
+                                                                // <FolderOutlined />
+                                                            }
+                                                        </div> */}
+                                                                <div className={styles.label}>
+                                                                    {item.name}
+                                                                    {/* (?{item.icon}) */}
+                                                                    {!!item.isSymbolicLink &&
+                                                                        <Tag color="blue" style={{ marginLeft: 8 }}>link</Tag>
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                            <div className={classNames(styles.cell, styles.updateTime, styles.content)}>
+                                                                {moment(item.updateTime).format('YYYY-MM-DD HH:mm')}
+                                                            </div>
+                                                            <div className={classNames(styles.cell, styles.updateTime, styles.content)}>
+                                                                {moment(item.createTime).format('YYYY-MM-DD HH:mm')}
+                                                            </div>
+                                                            <div className={classNames(styles.cell, styles.updateTime, styles.content)}>
+                                                                {moment(item.accessTime).format('YYYY-MM-DD HH:mm')}
+                                                            </div>
+                                                            <div className={classNames(styles.cell, styles.type)}>
+                                                                {item.contentType || '--'}
+                                                            </div>
+                                                            <div className={classNames(styles.cell, styles.size)}>
+                                                                {/* {item.size} */}
+                                                                {item.type == 'FILE' ?
+                                                                    filesize(item.size, { fixed: 1, }).human()
+                                                                    :
+                                                                    '--'
                                                                 }
+                                                                {/* {} */}
                                                             </div>
                                                         </div>
-                                                        <div className={classNames(styles.cell, styles.updateTime)}>
-                                                            {moment(item.updateTime).format('YYYY-MM-DD HH:mm')}
-                                                        </div>
-                                                        <div className={classNames(styles.cell, styles.size)}>
-                                                            {/* {item.size} */}
-                                                            {item.type == 'FILE' ?
-                                                                filesize(item.size, { fixed: 1, }).human()
-                                                                :
-                                                                '--'
-                                                            }
-                                                            {/* {} */}
-                                                        </div>
-                                                    </div>
-                                                </Dropdown>
-                                            )
-                                        })}
-                                    </div>
-                        }
+                                                    </Dropdown>
+                                                )
+                                            })}
+                                        </div>
+                            }
+                        </div>
                     </div>
                 </div>
                 <div className={styles.footer}>
