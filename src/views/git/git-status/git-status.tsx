@@ -162,7 +162,7 @@ function Commit({ config, event$, stagedLength, gitConfig, projectPath, onSucces
                 }}
                 onKeyDown={e => {
                     // console.log('e', e.code)
-                    if (e.code == 'Enter' && e.metaKey) {
+                    if (e.code == 'Enter' && (e.metaKey || e.ctrlKey)) {
                         submit()
                     }
                 }}

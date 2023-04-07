@@ -218,7 +218,7 @@ export function SwaggerHome({ event$, onClickItem }) {
                                                 key={item.id}
                                                 className={styles.item}
                                                 onClick={(e) => {
-                                                    if (e.metaKey) {
+                                                    if (e.metaKey || e.ctrlKey) {
                                                         if (item.url) {
                                                             window.open(`/swagger/detail?url=${item.url}`, '_blank')
                                                         }

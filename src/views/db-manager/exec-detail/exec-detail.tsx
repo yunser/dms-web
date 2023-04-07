@@ -1417,7 +1417,7 @@ export function ExecDetail(props) {
                                                     // console.log('itemKey', itemKey)
                                                     // 多选
 
-                                                    if (e.metaKey) {
+                                                    if (e.metaKey || e.ctrlKey) {
                                                         console.log('metaKey')
                                                         if (selectedRowKeys.includes(itemKey)) {
                                                             console.log('又了')

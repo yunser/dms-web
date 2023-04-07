@@ -244,7 +244,7 @@ export function DbManager({ config }) {
             }
 
             if (e.code == 'KeyW') {
-                if (e.metaKey) {
+                if (e.metaKey || e.ctrlKey) {
                     // if (activeItem) {
                     //     copyItem(activeItem)
                     // }

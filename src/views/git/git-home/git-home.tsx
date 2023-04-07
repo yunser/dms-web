@@ -130,7 +130,7 @@ export function GitHome({ event$, onProject }) {
                     return
                 }
                 if (filterdProjects[activeIndex]) {
-                    onProject && onProject(filterdProjects[activeIndex], !!e.metaKey)
+                    onProject && onProject(filterdProjects[activeIndex], !!(e.metaKey || e.ctrlKey))
                 }
                 // if (inputRef.current.inputing) {
                 //     return
@@ -467,8 +467,8 @@ export function GitHome({ event$, onProject }) {
                                                 onClick={(e) => {
                                                     // setView('detail')
                                                     // setCurProject(item)
-                                                    if (e.metaKey) {
-                                                        onProject && onProject(item, !!e.metaKey)
+                                                    if (e.metaKey || e.ctrlKey) {
+                                                        onProject && onProject(item, !!(e.metaKey || e.ctrlKey))
                                                     }
                                                     else {
                                                         setActiveIndex(index)

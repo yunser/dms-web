@@ -743,7 +743,6 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         function handleKeyDown(e: KeyboardEvent) {
             // console.log('e', e.code, e)
             // console.log('e/e.keyCode', e.keyCode)
-            // console.log('e.metaKey', e.metaKey)
             // console.log('tabKey', tabKey, window.__activeKey)
             if (tabKey && window.__activeKey && tabKey != window.__activeKey) {
                 return
@@ -775,7 +774,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
 
 
             if (e.code == 'KeyC') {
-                if (e.metaKey) {
+                if (e.metaKey || e.ctrlKey) {
                     if (activeItem) {
                         copyItem(activeItem)
                     }
@@ -783,7 +782,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                 }
             }
             else if (e.code == 'KeyE') {
-                if (e.metaKey) {
+                if (e.metaKey || e.ctrlKey) {
                     if (activeItem) {
                         editItem(activeItem)
                     }
@@ -791,7 +790,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                 }
             }
             else if (e.code == 'KeyX') {
-                if (e.metaKey) {
+                if (e.metaKey || e.ctrlKey) {
                     if (activeItem) {
                         cutItem(activeItem)
                     }
@@ -799,13 +798,13 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                 }
             }
             else if (e.code == 'KeyV') {
-                if (e.metaKey) {
+                if (e.metaKey || e.ctrlKey) {
                     doPaste()
                     return
                 }
             }
             else if (e.code == 'KeyI') {
-                if (e.metaKey && !e.altKey) {
+                if ((e.metaKey || e.ctrlKey) && !e.altKey) {
                     if (activeItem) {
                         showItemDetail(activeItem)
                     }
@@ -813,7 +812,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                 }
             }
             else if (e.code == 'Backspace') {
-                if (e.metaKey) {
+                if (e.metaKey || e.ctrlKey) {
                     deleteItem(activeItem)
                 }
             }
@@ -825,7 +824,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
             //     e.preventDefault()
             // }
             else if (e.code == 'ArrowDown') {
-                if (e.metaKey) {
+                if (e.metaKey || e.ctrlKey) {
                     if (activeItem.type != 'FILE') {
                         viewItem(activeItem)
                     }
@@ -844,7 +843,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                 e.preventDefault()
             }
             else if (e.code == 'ArrowUp') {
-                if (e.metaKey) {
+                if (e.metaKey || e.ctrlKey) {
                     back()
                 }
                 else {
