@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { AppstoreOutlined, CodeOutlined, CreditCardOutlined, DatabaseOutlined, DownloadOutlined, EditOutlined, EllipsisOutlined, FileOutlined, FileSearchOutlined, FileWordOutlined, FolderAddOutlined, FolderOutlined, HomeOutlined, LeftOutlined, LinkOutlined, PlusOutlined, ReloadOutlined, SaveOutlined, UploadOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, CodeOutlined, CreditCardOutlined, DatabaseOutlined, DownloadOutlined, DownOutlined, EditOutlined, EllipsisOutlined, FileOutlined, FileSearchOutlined, FileWordOutlined, FolderAddOutlined, FolderOutlined, HomeOutlined, LeftOutlined, LinkOutlined, PlusOutlined, ReloadOutlined, SaveOutlined, UploadOutlined, UpOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
@@ -197,8 +197,11 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
     const showSide = true
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
+    
     const [list, setList] = useState<File[]>([])
     const [error, setError] = useState('')
+    const [sortBy, setSortBy] = useState('name')
+    const [sortType, setSortType] = useState('asc')
 
     const [sourceType, setSourceType] = useState(_sourceType ? '' : (item ? '' : 'local'))
 
@@ -272,6 +275,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         // cursor: 0,
         connectTime: 0,
         connectionId: '',
+        originList: [],
     })
 
     const filteredList = useMemo(() => {
@@ -282,6 +286,33 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
             return item.name.toLowerCase().includes(keyword.toLowerCase())
         })
     }, [list, keyword])
+
+    function sortList(col) {
+        const field: string = col.dataIndex
+        
+        let _sortType
+        if (sortBy == field) {
+            _sortType = sortType == 'asc' ? 'desc' : 'asc'
+        }
+        else {
+            _sortType = col.sortDirections[0] || 'asc'
+        }
+        const sortTypeValue = _sortType == 'asc' ? 1 : -1
+        function getSize(item) {
+            if (item.type == 'DIRECTORY') {
+                return -1
+            }
+            return item.size || 0
+        }
+        setSortBy(field)
+        setSortType(_sortType)
+        setList(comData.current.originList.sort((a, b) => {
+            if (field == 'size') {
+                return (getSize(a) - getSize(b)) * sortTypeValue
+            }
+            return (a[field] || '').localeCompare(b[field] || '') * sortTypeValue
+        }))
+    }
 
     async function loadReadme() {
         // setLoading(true)
@@ -566,6 +597,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                         contentType,
                     }
                 })
+            comData.current.originList = _.clone(list)
             setList(list)
             // setCurrent(res.data.current)
             // handle readme
@@ -1067,6 +1099,40 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
     //         path: ''
     //     }
     // ]
+
+    const columns = [
+        {
+            label: t('name'),
+            dataIndex: 'name',
+            sortDirections: ['asc', 'desc'],
+        },
+        {
+            label: t('update_time'),
+            dataIndex: 'updateTime',
+            sortDirections: ['desc', 'asc'],
+        },
+        {
+            label: t('create_time'),
+            dataIndex: 'createTime',
+            sortDirections: ['desc', 'asc'],
+        },
+        {
+            label: t('access_time'),
+            dataIndex: 'accessTime',
+            sortDirections: ['desc', 'asc'],
+        },
+        {
+            label: t('type'),
+            dataIndex: 'contentType',
+            sortDirections: ['asc', 'desc'],
+        },
+        {
+            label: t('size'),
+            dataIndex: 'size',
+            sortDirections: ['desc', 'asc'],
+        },
+    ]
+
     return (
         <div ref={rootRef} className={styles.fileBox}>
             {showSide &&
@@ -1523,22 +1589,28 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                 >
                     <div className={styles.bodyContainer}>
                         <div className={styles.bodyHeader}>
-                            <div className={classNames(styles.cell, styles.name)}>
-                                {t('name')}
-                            </div>
-                            <div className={classNames(styles.cell, styles.updateTime)}>
-                                {t('update_time')}
-                            </div>
-                            <div className={classNames(styles.cell, styles.updateTime)}>
-                                {t('create_time')}
-                            </div>
-                            <div className={classNames(styles.cell, styles.updateTime)}>
-                                {t('access_time')}
-                            </div>
-                            <div className={classNames(styles.cell, styles.type)}>
-                                {t('type')}
-                            </div>
-                            <div className={classNames(styles.cell, styles.size)}>{t('size')}</div>
+                            {columns.map(col => {
+                                return (
+                                    <div 
+                                        className={classNames(styles.cell, styles[col.dataIndex])}
+                                        key={col.dataIndex}
+                                        onClick={() => {
+                                            sortList(col)
+                                        }}
+                                    >
+                                        {col.label}
+                                        {col.dataIndex == sortBy &&
+                                            <div className={styles.sortIcon}>
+                                                {sortType == 'asc' ?
+                                                    <UpOutlined />
+                                                :
+                                                    <DownOutlined />
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                )
+                            })}
                         </div>
                         <div className={styles.bodyBody}>
                             {loading ?
@@ -1752,13 +1824,13 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                             <div className={classNames(styles.cell, styles.updateTime, styles.content)}>
                                                                 {moment(item.updateTime).format('YYYY-MM-DD HH:mm')}
                                                             </div>
-                                                            <div className={classNames(styles.cell, styles.updateTime, styles.content)}>
+                                                            <div className={classNames(styles.cell, styles.createTime, styles.content)}>
                                                                 {moment(item.createTime).format('YYYY-MM-DD HH:mm')}
                                                             </div>
-                                                            <div className={classNames(styles.cell, styles.updateTime, styles.content)}>
+                                                            <div className={classNames(styles.cell, styles.accessTime, styles.content)}>
                                                                 {moment(item.accessTime).format('YYYY-MM-DD HH:mm')}
                                                             </div>
-                                                            <div className={classNames(styles.cell, styles.type)}>
+                                                            <div className={classNames(styles.cell, styles.contentType)}>
                                                                 {item.contentType || '--'}
                                                             </div>
                                                             <div className={classNames(styles.cell, styles.size)}>
