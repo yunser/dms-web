@@ -28,6 +28,7 @@ import { FilePasteModal } from '../file-paste';
 import { OssInfoModal } from '@/views/oss/oss-info/oss-info';
 import { S3InfoModal } from '@/views/s3/s3-info/s3-info';
 
+
 function visibleFilter(list) {
     return list.filter(item => item.visible != false)
 }
@@ -197,7 +198,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
     const showSide = true
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
-    
+    const listElem = useRef(null)
     const [list, setList] = useState<File[]>([])
     const [error, setError] = useState('')
     const [sortBy, setSortBy] = useState('name')
@@ -276,7 +277,22 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         connectTime: 0,
         connectionId: '',
         originList: [],
+        historyInput: '',
+        lastInputTime: new Date(),
     })
+
+    function getInputWithHistoryInput(newChar: string) {
+        const now = new Date()
+        if (now.getTime() - comData.current.lastInputTime.getTime() > 600) {
+            comData.current.historyInput = newChar
+        }
+        else {
+            comData.current.historyInput += newChar
+        }
+        // console.log('g_history_input', comData.current.historyInput)
+        comData.current.lastInputTime = now
+        return comData.current.historyInput
+    }
 
     const filteredList = useMemo(() => {
         if (!keyword) {
@@ -602,7 +618,6 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
             // setCurrent(res.data.current)
             // handle readme
             const fReadMeFile = list.find(item => item.name.toLowerCase() == 'readme.md')
-            console.log('fReadMeFile', fReadMeFile)
             if (fReadMeFile) {
                 setReadmePath(fReadMeFile.path)
             }
@@ -804,7 +819,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                 if (keyCode >= 65 && keyCode <= 90) {
                     return 'abcdefghijklmnopqrstuvwxyz'.charAt(keyCode - 65)
                 }
-                return '?'
+                return 'a'
             }
 
 
@@ -908,10 +923,17 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                 e.preventDefault()
             }
 
+            const historyInput = getInputWithHistoryInput(keyCode2Text(e.keyCode))
             if ((e.keyCode >= 48 && e.keyCode <= 57) || (e.keyCode >= 65 && e.keyCode <= 90)) {
-                const idx = list.findIndex(item => item.name.toLowerCase().startsWith(keyCode2Text(e.keyCode)))
+                const idx = list.findIndex(item => item.name.toLowerCase().startsWith(historyInput))
                 if (idx != -1) {
                     setActiveItem(list[idx])
+                    const elem = listElem.current
+                    const item_height = 40
+                    elem.scrollTop = idx * item_height
+                    // elem.scrollTop = (idx / list.length) * elem.scrollHeight
+                    // console.log('elem.scrollTop', elem.scrollTop)
+                    // console.log('elem.scrollTop?', idx, list.length)
                 }
             }
         }
@@ -1612,7 +1634,9 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                 )
                             })}
                         </div>
-                        <div className={styles.bodyBody}>
+                        <div className={styles.bodyBody}
+                            ref={listElem}
+                        >
                             {loading ?
                                 <FullCenterBox
                                     height={240}
@@ -1630,7 +1654,9 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                             <Empty />
                                         </FullCenterBox>
                                         :
-                                        <div className={styles.list}>
+                                        <div 
+                                            className={styles.list}
+                                        >
                                             {filteredList.map(item => {
                                                 const isImage = FileUtil.isImage(item.path)
                                                 const isMarkdown = item.path.endsWith('.md')
