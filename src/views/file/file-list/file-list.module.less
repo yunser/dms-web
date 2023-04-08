@@ -216,12 +216,19 @@
         margin-right: 8px;
     }
 }
+.listBox {
+    height: 100%;
+    // border: 1px solid #000;
+}
 .list {
+    height: 100%;
+    // border: 1px solid #000;
     // padding: 16px;
     // border: 1px solid var(--border-color);
     // border: 1px solid #f00;
-    border-radius: 4px;
+    // border-radius: 4px;
     .item {
+        position: relative;
         height: 40px;
         padding: 0 16px;
         // cursor: pointer;
@@ -242,6 +249,15 @@
             color: #fff;
             background-color: #2466d8;
         }
+        // &::after {
+        //     content: ' ';
+        //     position: absolute;
+        //     bottom: 0;
+        //     left: 0;
+        //     right: 0;
+        //     height: 1px;
+        //     background-color: var(--border-color);
+        // }
     }
     .icon {
         // height: 48px;

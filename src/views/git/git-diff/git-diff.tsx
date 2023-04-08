@@ -8,44 +8,7 @@ import { useEventEmitter, useSize } from 'ahooks';
 import { FullCenterBox } from '@/views/common/full-center-box';
 import VList from 'rc-virtual-list';
 import { useTranslation } from 'react-i18next';
-
-interface Size {
-    width: number
-    height: number
-}
-
-interface SizeDivProps {
-    className: string
-    render: (size: Size) => ReactNode
-}
-
-function SizeDiv({ className, render }: SizeDivProps) {
-
-    const [size, setSize] = useState<Size | null>(null)
-
-    const root = useRef<HTMLDivElement>(null)
-    useEffect(() => {
-        if (root.current) {
-            const { width, height } = root.current.getBoundingClientRect()
-            setSize({
-                width,
-                height,
-            })
-            // setSize()
-        }
-    }, [])
-
-    return (
-        <div
-            className={className}
-            // className={styles.test}
-            ref={root}
-            style={{ height: '100%' }}
-        >
-            {size ? render(size) : '--'}
-        </div>
-    )
-}
+import { SizeDiv } from '@/views/common/size-dev';
 
 // TODO
 function parseHunkLine(line: string) {
