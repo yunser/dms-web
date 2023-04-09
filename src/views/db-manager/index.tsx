@@ -962,6 +962,8 @@ export function DbManager({ config }) {
         }
     }
 
+    const isMac = navigator.userAgent.indexOf('Macintosh') !== -1
+    
     const tabRight = (
         <div className={styles.langBox}>
             <Space>
@@ -979,7 +981,7 @@ export function DbManager({ config }) {
                 >
                     <SearchOutlined className={styles.icon} />
                     <div className={styles.placeholder}>{t('search')}</div>
-                    <div className={styles.keyboardKey}>{'⌘K'}</div>
+                    <div className={styles.keyboardKey}>{`${isMac ? '⌘' : 'Ctrl'} K`}</div>
                 </div>
                 {/* <Input
                     placeholder={t('search')}
