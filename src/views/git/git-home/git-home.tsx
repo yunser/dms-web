@@ -1,12 +1,10 @@
-import { Alert, Button, Descriptions, Dropdown, Empty, Input, InputRef, Menu, message, Modal, Popover, Space, Table, Tabs, Tag } from 'antd';
+import { Alert, Dropdown, Empty, Input, InputRef, Menu, message, Modal, Space, Tag } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './git-home.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
-// console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { DownloadOutlined, EllipsisOutlined, ExportOutlined, PlusOutlined, QuestionOutlined, ReloadOutlined, StarFilled } from '@ant-design/icons';
+import { EllipsisOutlined, ExportOutlined, PlusOutlined, QuestionOutlined, ReloadOutlined, SettingOutlined, StarFilled } from '@ant-design/icons';
 import { GitProject } from '../git-project';
 import { request } from '@/views/db-manager/utils/http';
 import { ProjectEditor } from '../project-edit';
@@ -14,9 +12,8 @@ import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/common/full-center-box';
 import moment from 'moment';
 import { getGlobalConfig } from '@/config';
-import { SearchUtil } from '@/utils/search';
 import storage from '@/utils/storage';
-// import { saveAs } from 'file-saver'
+import { GlobalInfoModal } from '../global-info-modal';
 
 function isInclude(text: string, subText: string) {
     // console.log('isInclude', text, subText)
@@ -49,37 +46,21 @@ function search(projects, keyword) {
 }
 
 export function GitHome({ event$, onProject }) {
-    // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [curProject, setCurProject] = useState(null)
     const [view, setView] = useState('list')
     const [keyword, setKeyword] = useState('')
     const searchInputRef = useRef<InputRef>(null)
-    // const [curTab, setCurTab] = useState('commit-list')
     const [projects, setProjects] = useState([])
-    // const projects = [
-    //     {
-    //         name: 'dms-new',
-    //         path: '/Users/yunser/app/dms-new',
-    //     },
-    //     {
-    //         name: 'git-auto',
-    //         path: '/Users/yunser/app/git-auto',
-    //     },
-    // ]
-    const filterdProjects = useMemo(() => {
-        // return SearchUtil.search(projects, keyword, {
-        //     attributes: ['name', 'host'],
-        // })
+    
+    const filteredProjects = useMemo(() => {
         if (!keyword) {
             return projects    
         }
         return search(projects, keyword)
-        // return projects
     }, [projects, keyword])
 
-    // const event$ = useEventEmitter()
-
+    const [infoVisible, setInfoVisible] = useState(false)
     const [version, setVersion] = useState('21212')
     const [cloneModalVisible, setCloneModalVisible] = useState(false)
     const [projectItem, setProjectItem] = useState(null)
@@ -89,7 +70,7 @@ export function GitHome({ event$, onProject }) {
     const [alertVisible] = useState(() => {
         return storage.get('alertVisible', true)
     })
-    const inputingRef = useRef(false)
+    const inputIngRef = useRef(false)
     const [config, setConfig] = useState(() => {
         return getGlobalConfig()
     })
@@ -107,7 +88,7 @@ export function GitHome({ event$, onProject }) {
             }
             else if (e.code == 'ArrowDown') {
                 let newIdx = activeIndex + 1
-                if (newIdx > filterdProjects.length - 1) {
+                if (newIdx > filteredProjects.length - 1) {
                     newIdx = 0
                 }
                 setActiveIndex(newIdx)
@@ -118,7 +99,7 @@ export function GitHome({ event$, onProject }) {
             else if (e.code == 'ArrowUp') {
                 let newIdx = activeIndex - 1
                 if (newIdx < 0) {
-                    newIdx = filterdProjects.length - 1
+                    newIdx = filteredProjects.length - 1
                 }
                 setActiveIndex(newIdx)
 
@@ -126,11 +107,11 @@ export function GitHome({ event$, onProject }) {
                 e.preventDefault()
             }
             else if (e.code == 'Enter') {
-                if (inputingRef.current) {
+                if (inputIngRef.current) {
                     return
                 }
-                if (filterdProjects[activeIndex]) {
-                    onProject && onProject(filterdProjects[activeIndex], !!(e.metaKey || e.ctrlKey))
+                if (filteredProjects[activeIndex]) {
+                    onProject && onProject(filteredProjects[activeIndex], !!(e.metaKey || e.ctrlKey))
                 }
                 // if (inputRef.current.inputing) {
                 //     return
@@ -145,7 +126,7 @@ export function GitHome({ event$, onProject }) {
         return () => {
             window.removeEventListener('keydown', handleKeyDown)
         }
-    }, [activeIndex, filterdProjects, inputingRef.current])
+    }, [activeIndex, filteredProjects, inputIngRef.current])
 
     async function getConfig() {
         // loadBranch()
@@ -169,11 +150,11 @@ export function GitHome({ event$, onProject }) {
     useEffect(() => {
         const handleCompositionStart = e => {
             console.log('compositionstart')
-            inputingRef.current = true
+            inputIngRef.current = true
         }
         const handleCompositionEnd = e => {
             console.log('compositionend')
-            inputingRef.current = false
+            inputIngRef.current = false
         }
         window.addEventListener('compositionstart', handleCompositionStart)
         window.addEventListener('compositionend', handleCompositionEnd)
@@ -181,7 +162,7 @@ export function GitHome({ event$, onProject }) {
             window.removeEventListener('compositionstart', handleCompositionStart)
             window.removeEventListener('compositionend', handleCompositionEnd)
         }
-    }, [activeIndex, filterdProjects])
+    }, [activeIndex, filteredProjects])
 
     
     // onCompositionStart={() => {
@@ -205,19 +186,8 @@ export function GitHome({ event$, onProject }) {
     }
 
     async function loadList() {
-        let res = await request.post(`${config.host}/git/project/list`, {
-            // projectPath,
-            // connectionId,
-            // sql: lineCode,
-            // tableName,
-            // dbName,
-            // logger: true,
-        }, {
-            // noMessage: true,
-        })
-        // console.log('res', res)
+        let res = await request.post(`${config.host}/git/project/list`, {})
         if (res.success) {
-            // setProjects([])
             function score(item) {
                 if (item.isFavorite) {
                     if (item.favoriteTime) {
@@ -228,13 +198,11 @@ export function GitHome({ event$, onProject }) {
                 return 0
             }
             setProjects(res.data.list.sort((a, b) => {
-                // if (a)
                 if ((a.isFavorite || b.isFavorite)) {
                     return score(b) - score(a)
                 }
                 return a.name.localeCompare(b.name)
             }))
-            // setCurrent(res.data.current)
         }
     }
 
@@ -256,9 +224,11 @@ export function GitHome({ event$, onProject }) {
 
     async function deleteProject(item) {
         Modal.confirm({
-            title: '',
-            // icon: <ExclamationCircleOutlined />,
-            content: `${t('delete')}「${item.name}」?（不会删除项目文件）`,
+            title: `${t('delete')}「${item.name}」?`,
+            content: t('git.repository.delete.help'),
+            okButtonProps: {
+                danger: true,
+            },
             async onOk() {
                 let res = await request.post(`${config.host}/git/project/delete`, {
                     id: item.id,
@@ -266,35 +236,23 @@ export function GitHome({ event$, onProject }) {
                 console.log('get/res', res.data)
                 if (res.success) {
                     message.success(t('success'))
-                    // onSuccess && onSuccess()
                     loadList()
-                    // loadKeys()
-                    // setResult(null)
-                    // setResult({
-                    //     key: item,
-                    //     ...res.data,
-                    // })
-                    // setInputValue(res.data.value)
                 }
             }
         })
     }
 
     async function openInTerminal(path: string) {
-        let ret = await request.post(`${config.host}/openInTerminal`, {
+        await request.post(`${config.host}/openInTerminal`, {
             path,
         })
-        // if (ret.success) {
-        // }
     }
 
     async function openInFinder(path: string) {
-        let ret = await request.post(`${config.host}/file/openInFinder`, {
+        await request.post(`${config.host}/file/openInFinder`, {
             sourceType: 'local',
             path,
         })
-        // if (ret.success) {
-        // }
     }
 
     async function addToFavorite(item, isFavorite) {
@@ -308,23 +266,8 @@ export function GitHome({ event$, onProject }) {
         console.log('get/res', res.data)
         if (res.success) {
             message.success(t('success'))
-            // onSuccess && onSuccess()
             loadList()
-            // loadKeys()
-            // setResult(null)
-            // setResult({
-            //     key: item,
-            //     ...res.data,
-            // })
-            // setInputValue(res.data.value)
         }
-        // Modal.confirm({
-        //     title: '',
-        //     // icon: <ExclamationCircleOutlined />,
-        //     content: `${t('delete')}「${item.name}」?（不会删除项目文件）`,
-        //     async onOk() {
-        //     }
-        // })
     }
 
     return (
@@ -407,6 +350,14 @@ export function GitHome({ event$, onProject }) {
                                     <ExportOutlined />
                                 </IconButton>
                                 <IconButton
+                                    tooltip={t('config')}
+                                    onClick={() => {
+                                        setInfoVisible(true)
+                                    }}
+                                >
+                                    <SettingOutlined />
+                                </IconButton>
+                                <IconButton
                                     tooltip={t('help')}
                                     onClick={() => {
                                         event$.emit({
@@ -447,8 +398,7 @@ export function GitHome({ event$, onProject }) {
                                 />
                             </div>
                         }
-                        {/* <div>{keyword}</div> */}
-                        {filterdProjects.length == 0 ?
+                        {filteredProjects.length == 0 ?
                             <FullCenterBox
                                 height={320}
                             >
@@ -457,7 +407,7 @@ export function GitHome({ event$, onProject }) {
                         :
                             <div className={styles.listWrap}>
                                 <div className={styles.list}>
-                                    {filterdProjects.map((item, index) => {
+                                    {filteredProjects.map((item, index) => {
                                         return (
                                             <div
                                                 key={item.id}
@@ -650,6 +600,19 @@ export function GitHome({ event$, onProject }) {
                     }}
                     onSuccess={() => {
                         setCloneModalVisible(false)
+                        loadList()
+                    }}
+                />
+            }
+            {infoVisible &&
+                <GlobalInfoModal
+                    config={config}
+                    sourceType="clone"
+                    onCancel={() => {
+                        setInfoVisible(false)
+                    }}
+                    onSuccess={() => {
+                        setInfoVisible(false)
                         loadList()
                     }}
                 />

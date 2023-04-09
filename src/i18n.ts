@@ -317,6 +317,7 @@ i18n
                     'git.discard_change': 'Discard Changes',
                     'git.repository.create': 'Create Repository',
                     'git.repository.update': 'Update Repository',
+                    'git.repository.delete.help': 'Files will not be deleted',
                     'git.refs': 'Refs',
                     'git.after': 'After',
                     'git.stat': 'Statistics',
@@ -593,6 +594,7 @@ i18n
                     'relative': 'Relative',
                     'copy_uri': 'Copy URI',
                     'email': 'Email',
+                    'config': 'Config',
                 }
             },
             zh: {
@@ -902,6 +904,7 @@ i18n
                     'git.discard_change': '丢弃文件',
                     'git.repository.create': '新建仓库',
                     'git.repository.update': '编辑仓库',
+                    'git.repository.delete.help': '不会删除文件',
                     'git.refs': '引用',
                     'git.after': '修改后',
                     'git.stat': '统计',
@@ -1178,6 +1181,7 @@ i18n
                     'relative': '相对',
                     'copy_uri': '复制链接',
                     'email': '邮箱',
+                    'config': '配置',
                 }
             }
         },
