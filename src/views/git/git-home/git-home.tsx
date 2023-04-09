@@ -14,6 +14,7 @@ import moment from 'moment';
 import { getGlobalConfig } from '@/config';
 import storage from '@/utils/storage';
 import { GlobalInfoModal } from '../global-info-modal';
+import { SshKeyModal } from '../ssh-key-modal';
 
 function isInclude(text: string, subText: string) {
     // console.log('isInclude', text, subText)
@@ -60,6 +61,7 @@ export function GitHome({ event$, onProject }) {
         return search(projects, keyword)
     }, [projects, keyword])
 
+    const [sshKeyVisible, setSshKeyVisible] = useState(false)
     const [infoVisible, setInfoVisible] = useState(false)
     const [version, setVersion] = useState('21212')
     const [cloneModalVisible, setCloneModalVisible] = useState(false)
@@ -370,6 +372,36 @@ export function GitHome({ event$, onProject }) {
                                 >
                                     <QuestionOutlined />
                                 </IconButton>
+                                <Dropdown
+                                    trigger={['click']}
+                                    overlay={
+                                        <Menu
+                                            items={visibleFilter([
+                                                {
+                                                    label: t('git.ssh_public_key'),
+                                                    key: 'get_ssh_public_key',
+                                                },
+                                            ])}
+                                            onClick={({ key, domEvent }) => {
+                                                // domEvent.preventDefault()
+                                                domEvent.stopPropagation()
+                                                if (key == 'get_ssh_public_key') {
+                                                    setSshKeyVisible(true)
+                                                }
+                                            }}
+                                        />
+                                    }
+                                >
+                                    <IconButton
+                                        // tooltip={t('add')}
+                                        className={styles.refresh}
+                                        // onClick={() => {
+                                        //     setProjectModalVisible(true)
+                                        // }}
+                                    >
+                                        <EllipsisOutlined />
+                                    </IconButton>
+                                </Dropdown>
                             </Space>
                         </div>
                         <div>
@@ -614,6 +646,14 @@ export function GitHome({ event$, onProject }) {
                     onSuccess={() => {
                         setInfoVisible(false)
                         loadList()
+                    }}
+                />
+            }
+            {sshKeyVisible &&
+                <SshKeyModal
+                    config={config}
+                    onCancel={() => {
+                        setSshKeyVisible(false)
                     }}
                 />
             }
