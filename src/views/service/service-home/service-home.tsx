@@ -274,6 +274,17 @@ export function ServiceHome({ onClickItem }) {
                                 >
                                     检测
                                 </Button> */}
+                                {!item.hasResult &&
+                                    <Button
+                                        size="small"
+                                        // disabled={! item.status}
+                                        onClick={() => {
+                                            retryItem(item)
+                                        }}
+                                    >
+                                        检测
+                                    </Button>
+                                }
                             </Space>
                         }
                         {/* <div style={{ color: value ? 'green' : 'red' }}>{value ? '是' : '否'}</div> */}
@@ -394,6 +405,7 @@ export function ServiceHome({ onClickItem }) {
             </div>
             <div>
                 <Input
+                    placeholder={t('filter')}
                     className={styles.keywordInput}
                     value={keyword}
                     allowClear
@@ -540,7 +552,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
         // if ()
         let isSuccess
         if (values.field) {
-            isSuccess = res?.status == 200 && (typeof res?.data == 'object') && res.data[service.field] == 'success'
+            isSuccess = res?.status == 200 && (typeof res?.data == 'object') && res.data[values.field] == 'success'
         }
         else {
             isSuccess = res && res.status == 200

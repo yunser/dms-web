@@ -370,11 +370,6 @@ export function TagList({ config, event$, projectPath }) {
                                         key={item.name}
                                     >
                                         <div className={styles.left}>
-                                            <div className={styles.status}>
-                                                {/* {item.name == current &&
-                                                    <div className={styles.current}></div>
-                                                } */}
-                                            </div>
                                             <div className={styles.name}>{item.name}</div>
                                         </div>
                                         <Space>
