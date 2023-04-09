@@ -15,15 +15,16 @@ import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/common/full-center-box';
 import { FileUtil } from '@/views/file/utils/utl';
 import copy from 'copy-to-clipboard';
+import { UserEditModal } from '@/views/db-manager/user-list/user-edit';
+import { GitAuthorEditModal } from '../user-edit-modal';
 // import { saveAs } from 'file-saver'
 
 
 
-function Commit({ config, event$, stagedLength, gitConfig, projectPath, onSuccess }) {
-    // const [form] = Form.useForm()
+function Commit({ config, event$, stagedLength, gitConfig, onUpdateGitConfig, projectPath, onSuccess }) {
     const { t } = useTranslation()
     const [infoVisible, setInfoVisible] = useState(false)
-    // const [infoVisible, setInfoVisible] = useState(true)
+    const [userEditVisible, setUserEditVisible] = useState(false)
     const [pushRemote, setPushRemote] = useState(false)
     const [commitLoading, setCommitLoading] = useState(false)
     const [commitOptions, setCommitOptions] = useState('')
@@ -119,7 +120,12 @@ function Commit({ config, event$, stagedLength, gitConfig, projectPath, onSucces
         <div className={styles.commitBox}>
             {!!gitConfig && infoVisible &&
                 <div className={styles.header}>
-                    <div className={styles.user}>
+                    <div 
+                        className={styles.user}
+                        onClick={() => {
+                            setUserEditVisible(true)
+                        }}
+                    >
                         <UserOutlined />
                         {' '}
                         {gitConfig.user.name}
@@ -201,6 +207,23 @@ function Commit({ config, event$, stagedLength, gitConfig, projectPath, onSucces
                         >{t('git.submit')}</Button>
                     </Space>
                 </div>
+            }
+            {userEditVisible &&
+                <GitAuthorEditModal
+                    config={config}
+                    projectPath={projectPath}
+                    item={{
+                        name: gitConfig?.user?.name || '',
+                        email: gitConfig?.user?.email || '',
+                    }}
+                    onSuccess={() => {
+                        setUserEditVisible(false)
+                        onUpdateGitConfig && onUpdateGitConfig()
+                    }}
+                    onCancel={() => {
+                        setUserEditVisible(false)
+                    }}
+                />
             }
             {/* <Form
                 form={form}
@@ -791,6 +814,9 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                             {/* <hr /> */}
                             <Commit
                                 gitConfig={gitConfig}
+                                onUpdateGitConfig={() => {
+                                    getConfig()
+                                }}
                                 config={config}
                                 event$={event$}
                                 projectPath={projectPath}

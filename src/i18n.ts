@@ -343,6 +343,7 @@ i18n
                     'git.file.discard_confirm': 'Confirm to discard all changes to the file',
                     'git.block': 'Block',
                     'git.line': 'Line',
+                    'git.update_local_author': 'Update Local Author',
                     'user_setting': 'User Setting',
                     'default_clone_path': 'Default Clone Path',
                     'file': 'File',
@@ -591,6 +592,7 @@ i18n
                     'customize': 'Customize',
                     'relative': 'Relative',
                     'copy_uri': 'Copy URI',
+                    'email': 'Email',
                 }
             },
             zh: {
@@ -926,6 +928,7 @@ i18n
                     'git.file.discard_confirm': '确认丢弃文件的所有更改',
                     'git.block': '块',
                     'git.line': '行',
+                    'git.update_local_author': '修改本地作者信息',
                     'user_setting': '偏好设置',
                     'default_clone_path': '默认克隆路径',
                     'file': '文件',
@@ -1174,6 +1177,7 @@ i18n
                     'customize': '自定义',
                     'relative': '相对',
                     'copy_uri': '复制链接',
+                    'email': '邮箱',
                 }
             }
         },
