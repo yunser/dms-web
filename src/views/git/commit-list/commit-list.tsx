@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { BranchesOutlined, CopyOutlined, DownloadOutlined, EllipsisOutlined, ExportOutlined, FileOutlined, PlusOutlined, TagOutlined, UserOutlined } from '@ant-design/icons';
+import { BranchesOutlined, CopyOutlined, DownloadOutlined, EllipsisOutlined, ExportOutlined, FileOutlined, MinusOutlined, PlusOutlined, TagOutlined, UserOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
@@ -28,6 +28,11 @@ import { Editor } from '@/views/db-manager/editor/Editor';
 
 export function _if(condition: boolean, obj: object) {
     return condition ? [obj] : []
+}
+
+interface CommitFile {
+    name: string
+    status: string
 }
 
 function Hash({ hash }) {
@@ -69,7 +74,7 @@ export function CommitList({ config, event$, projectPath,  }) {
     // const [branchs, setBranchs] = useState([])
     const [curBranch, setCurBranch] = useState('')
     const [fileLoading, setFileLoading] = useState(false)
-    const [files, setFiles] = useState([])
+    const [files, setFiles] = useState<CommitFile[]>([])
     const [curFile, setCurFile] = useState('')
     const [diffLoading, setDiffLoading] = useState(false)
     const [fileDiff, setFileDiff] = useState('')
@@ -122,24 +127,30 @@ export function CommitList({ config, event$, projectPath,  }) {
         }, {
             // noMessage: true,
         })
-        console.log('fres', res)
+        // console.log('fres', res)
+        // console.log('???', res.data.res)
         if (res.success) {
-            const { files } = res.data
-            const _files = files.map(file => {
-                let oldName = file
+            const files: CommitFile[] = res.data.files
+            const _files: CommitFile[] = files.map(file => {
+                let oldName = file.name
                 // let oldName = 'app/middleware/{errorHandler.js => errordeal.js}'
+                let name = file.name
                 let m = oldName.match(/{[\d\D]+=> ([\d\D]+)}/)
                 if (m) {
-                    return oldName.substring(0, m.index) + m[1]
+                    name = oldName.substring(0, m.index) + m[1]
                 }
-                return oldName
+                // name = oldName
+                return {
+                    name,
+                    status: file.status,
+                }
             })
             setFiles(_files)
             // setFileDiff(res.data.res)
             // setCurFile('')
             if (_files.length > 0) {
                 setTimeout(() => {
-                    loadFile(_files[0], item)
+                    loadFile(_files[0].name, item)
                 }, 0)
             }
             event$.emit({
@@ -664,72 +675,93 @@ export function CommitList({ config, event$, projectPath,  }) {
                             :
                                 <div className={styles.files}>
                                     {files.map(file => {
+                                        const fileName = file.name
                                         return (
                                             <div
-                                                key={file}
+                                                key={fileName}
                                                 className={classNames(styles.item, {
-                                                    [styles.active]: file == curFile
+                                                    [styles.active]: fileName == curFile
                                                 })}
                                                 onClick={() => {
-                                                    loadFile(file)
+                                                    loadFile(fileName)
                                                 }}
                                             >
-                                                <div className={styles.name}>{file}</div>
-                                                <Dropdown
-                                                    trigger={['click']}
-                                                    overlay={
-                                                        <Menu
-                                                            items={[
-                                                                {
-                                                                    label: t('file.open_in_file_manager'),
-                                                                    key: 'finder',
-                                                                },
-                                                                {
-                                                                    label: t('file.open_in_vscode'),
-                                                                    key: 'open_in_vscode',
-                                                                },
-                                                                {
-                                                                    label: t('filter'),
-                                                                    key: 'filter',
-                                                                },
-                                                                {
-                                                                    label: t('browser_file'),
-                                                                    key: 'browser_file',
-                                                                },
-                                                                {
-                                                                    label: t('copy_path'),
-                                                                    key: 'copy_path',
-                                                                },
-                                                            ]}
-                                                            onClick={({ key }) => {
-                                                                const fullPath = projectPath + config.pathSeparator + file.replace(/\//g, config.pathSeparator)
-                                                                if (key == 'finder') {
-                                                                    console.log('item', file)
-                                                                    openInFinder(fullPath)
-                                                                }
-                                                                else if (key == 'open_in_vscode') {
-                                                                    openInVsCode(fullPath)
-                                                                }
-                                                                else if (key == 'filter') {
-                                                                    setFilteredFile(file)
-                                                                }
-                                                                else if (key == 'browser_file') {
-                                                                    browserFile(file)
-                                                                }
-                                                                else if (key == 'copy_path') {
-                                                                    copy(fullPath)
-                                                                    message.info(t('copied'))
-                                                                }
-                                                            }}
-                                                        />
-                                                    }
-                                                >
-                                                    <IconButton
-                                                        onClick={e => e.preventDefault()}
-                                                    >
+                                                {file.status == 'D' ?
+                                                    <div className={classNames(styles.icon, styles.deleted)}>
+                                                        <MinusOutlined />
+                                                    </div>
+                                                : file.status == 'M' ?
+                                                    <div className={classNames(styles.icon, styles.modified)}>
                                                         <EllipsisOutlined />
-                                                    </IconButton>
-                                                </Dropdown>
+                                                    </div>
+                                                : file.status == 'A' ?
+                                                    <div className={classNames(styles.icon, styles.added)}>
+                                                        <PlusOutlined />
+                                                    </div>
+                                                :
+                                                    <div className={styles.icon}>
+                                                        {/* {file.status} */}
+                                                        ?
+                                                    </div>
+                                                }
+                                                <div className={styles.name}>{fileName}</div>
+                                                <div className={styles.action}>
+                                                    <Dropdown
+                                                        trigger={['click']}
+                                                        overlay={
+                                                            <Menu
+                                                                items={[
+                                                                    {
+                                                                        label: t('file.open_in_file_manager'),
+                                                                        key: 'finder',
+                                                                    },
+                                                                    {
+                                                                        label: t('file.open_in_vscode'),
+                                                                        key: 'open_in_vscode',
+                                                                    },
+                                                                    {
+                                                                        label: t('filter'),
+                                                                        key: 'filter',
+                                                                    },
+                                                                    {
+                                                                        label: t('browser_file'),
+                                                                        key: 'browser_file',
+                                                                    },
+                                                                    {
+                                                                        label: t('copy_path'),
+                                                                        key: 'copy_path',
+                                                                    },
+                                                                ]}
+                                                                onClick={({ key }) => {
+                                                                    const fullPath = projectPath + config.pathSeparator + fileName.replace(/\//g, config.pathSeparator)
+                                                                    if (key == 'finder') {
+                                                                        console.log('item', fileName)
+                                                                        openInFinder(fullPath)
+                                                                    }
+                                                                    else if (key == 'open_in_vscode') {
+                                                                        openInVsCode(fullPath)
+                                                                    }
+                                                                    else if (key == 'filter') {
+                                                                        setFilteredFile(fileName)
+                                                                    }
+                                                                    else if (key == 'browser_file') {
+                                                                        browserFile(fileName)
+                                                                    }
+                                                                    else if (key == 'copy_path') {
+                                                                        copy(fullPath)
+                                                                        message.info(t('copied'))
+                                                                    }
+                                                                }}
+                                                            />
+                                                        }
+                                                    >
+                                                        <IconButton
+                                                            onClick={e => e.preventDefault()}
+                                                        >
+                                                            <EllipsisOutlined />
+                                                        </IconButton>
+                                                    </Dropdown>
+                                                </div>
                                             </div>
                                             
                                         )

@@ -183,8 +183,40 @@
             color: #fff;   
         }
     }
+    .icon {
+        flex: 0 0 auto;
+        margin-left: 8px;
+        margin-right: 8px;
+        // border: 1px solid #000;
+        font-size: 12px;
+        width: 16px;
+        height: 16px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        line-height: 1;
+        border-radius: 2px;
+        color: #fff;
+        border: 1px solid #fff;
+        &.added {
+            background-color: #008934;
+        }
+        &.modified {
+            background-color: #efc35b;
+        }
+        &.deleted {
+            background-color: #c14e3f;
+        }
+    }
     .name {
         flex: 1 0 auto;
+        width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .action {
+        flex: 0 0 32px;
     }
 }
 
