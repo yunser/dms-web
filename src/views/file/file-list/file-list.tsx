@@ -29,6 +29,7 @@ import { OssInfoModal } from '@/views/oss/oss-info/oss-info';
 import { S3InfoModal } from '@/views/s3/s3-info/s3-info';
 import VList from 'rc-virtual-list'
 import { SizeDiv } from '@/views/common/size-dev';
+import { FileDownloadModal } from '../file-download';
 
 function visibleFilter(list) {
     return list.filter(item => item.visible != false)
@@ -254,6 +255,8 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
 
     const [renameModalVisible, setRenameModalVisible] = useState(false)
     const [renameItem, setRenameItem] = useState(null)
+
+    const [downloadModalVisible, setDownloadModalVisible] = useState(false)
 
     const [readmePath, setReadmePath] = useState('')
     const [readmeContent, setReadmeContent] = useState('')
@@ -715,9 +718,10 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
 
     async function deleteItem(item: File) {
         Modal.confirm({
-            // title: 'Confirm',
-            // icon: <ExclamationCircleOutlined />,
             content: `${t('delete')}「${item.name}」?`,
+            okButtonProps: {
+                danger: true,
+            },
             async onOk() {
 
                 let ret = await request.post(`${config.host}/file/delete`, {
@@ -1520,6 +1524,9 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                 },
                                             })
                                         }
+                                        else if (key == 'download_from_url') {
+                                            setDownloadModalVisible(true)
+                                        }
                                     }}
                                     items={[
                                         {
@@ -1529,6 +1536,13 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                         {
                                             label: t('add_to_favorite'),
                                             key: 'add_to_favorite',
+                                        },
+                                        {
+                                            type: 'divider',
+                                        },
+                                        {
+                                            label: t('file.download_from_url'),
+                                            key: 'download_from_url',
                                         },
                                         {
                                             type: 'divider',
@@ -2063,6 +2077,23 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                     item={s3InfoItem}
                     onCancel={() => {
                         setS3InfoVisible(false)
+                    }}
+                />
+            }
+            {downloadModalVisible &&
+                <FileDownloadModal
+                    config={config}
+                    info={info}
+                    item={renameItem}
+                    type={folderType}
+                    curPath={curPath}
+                    sourceType={sourceType}
+                    onCancel={() => {
+                        setDownloadModalVisible(false)
+                    }}
+                    onSuccess={() => {
+                        setDownloadModalVisible(false)
+                        loadList()
                     }}
                 />
             }
