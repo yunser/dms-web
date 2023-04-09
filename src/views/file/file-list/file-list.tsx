@@ -697,23 +697,22 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
     }
 
     async function openInOs(path: string) {
-        let ret = await request.post(`${config.host}/file/openInOs`, {
+        await request.post(`${config.host}/file/openInOs`, {
             sourceType,
             path,
         })
-        if (ret.success) {
-            // message.success('连接成功')
-        }
+    }
+    async function openInVsCode(path: string) {
+        await request.post(`${config.host}/file/openInVsCode`, {
+            path,
+        })
     }
 
     async function openInFinder(path: string) {
-        let ret = await request.post(`${config.host}/file/openInFinder`, {
+        await request.post(`${config.host}/file/openInFinder`, {
             sourceType,
             path,
         })
-        if (ret.success) {
-            // message.success('连接成功')
-        }
     }
 
     async function deleteItem(item: File) {
@@ -1737,6 +1736,9 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                         else if (key == 'open_in_os') {
                                                                             openInOs(item.path)
                                                                         }
+                                                                        else if (key == 'open_in_vscode') {
+                                                                            openInVsCode(item.path)
+                                                                        }
                                                                         else if (key == 'clear') {
                                                                             clearItem(item)
                                                                         }
@@ -1785,6 +1787,11 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                         {
                                                                             label: t('file.open_in_os'),
                                                                             key: 'open_in_os',
+                                                                            visible: sourceType == 'local',
+                                                                        },
+                                                                        {
+                                                                            label: t('file.open_in_vscode'),
+                                                                            key: 'open_in_vscode',
                                                                             visible: sourceType == 'local',
                                                                         },
                                                                         {
