@@ -45,8 +45,19 @@ npm i @yunser/dms-cli -g
 dms web
 ```
 
+国内推荐使用 cnpm，更加快速：
+
+```shell
+npm config set registry https://registry.npmmirror.com
+npm i cnpm -g
+cnpm i @yunser/dms-cli -g
+dms web
+```
+
 
 # 开发
+
+这个项目是前端项目，开发之前，先把后端项目跑起来 [@yunser/dms-node](https://github.com/yunser/dms-node)。
 
 ```shell
 git clone https://github.com/yunser/dms-web.git

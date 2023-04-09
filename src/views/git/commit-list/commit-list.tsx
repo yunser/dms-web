@@ -82,6 +82,9 @@ export function CommitList({ config, event$, projectPath,  }) {
     const [resetCommit, setResetCommit] = useState('')
 
     async function loadFile(file, item) {
+        if (curFile == file) {
+            return
+        }
         setDiffLoading(true)
         setCurFile(file)
         let res = await request.post(`${config.host}/git/commitFileChanged`, {
@@ -111,6 +114,9 @@ export function CommitList({ config, event$, projectPath,  }) {
     }
 
     async function show(item) {
+        if (curCommit && curCommit.hash == item.hash) {
+            return
+        }
         setFileLoading(true)
         setCurCommit(item)
         setFileDiff('')
