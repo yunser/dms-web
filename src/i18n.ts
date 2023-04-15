@@ -598,6 +598,9 @@ i18n
                     'copy_uri': 'Copy URI',
                     'email': 'Email',
                     'config': 'Config',
+                    'hex_editor': 'Hex Editor',
+                    'hex.drop': 'Drop file hear',
+                    'hex.offset': 'Offset',
                 }
             },
             zh: {
@@ -1188,6 +1191,9 @@ i18n
                     'copy_uri': '复制链接',
                     'email': '邮箱',
                     'config': '配置',
+                    'hex_editor': '十六进制编辑器',
+                    'hex.drop': '拖拽文件到这里',
+                    'hex.offset': '偏移',
                 }
             }
         },

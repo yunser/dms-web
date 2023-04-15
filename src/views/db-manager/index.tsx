@@ -51,6 +51,7 @@ import { RedisConnect } from '../redis/redis-connect'
 import { RedisClient } from '../redis/redis-client'
 import { TextEditor } from '../text/text'
 import { S3Home } from '../s3/s3-home'
+import { HexEditor } from '../hex/hex-editor'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -631,6 +632,16 @@ export function DbManager({ config }) {
         else if (key == 'ip') {
             showIpTab()
         }
+        else if (key == 'hex_editor') {
+            addOrActiveTab({
+                title: t('hex_editor'),
+                key: uid(16),
+                type: 'hex_editor',
+                data: {
+                    // url,
+                },
+            })
+        }
         else if (key == 'command') {
             commanderRef.current?.show()
         }
@@ -858,6 +869,11 @@ export function DbManager({ config }) {
         {
             label: t('text'),
             key: 'text',
+            group: 'tool',
+        },
+        {
+            label: t('hex_editor'),
+            key: 'hex_editor',
             group: 'tool',
         },
         // {
@@ -1643,6 +1659,12 @@ export function DbManager({ config }) {
                                             tabKey={item.key}
                                             // local={true}
                                             // defaultPath={item.data.path}
+                                        />
+                                    }
+                                    {item.type == 'hex_editor' &&
+                                        <HexEditor
+                                            config={config}
+                                            tabKey={item.key}
                                         />
                                     }
                                     {item.type == 'swagger' &&

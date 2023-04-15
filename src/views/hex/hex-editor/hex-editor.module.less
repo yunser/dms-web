@@ -1,0 +1,80 @@
+.app {
+    height: 100%;
+    display: flex;
+}
+.layoutLeft {
+    flex: 1 0 auto;
+    width: 0;
+    padding: 16px;
+    // width: 32px;
+    border-right: 1px solid var(--border-color);
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    .toolBox {
+        flex: 0 0 48px;
+        // border: 1px solid #000;
+    }
+}
+.layoutRight {
+    width: 320px;
+}
+.rowContent {
+    // height: 100%;
+    flex: 1 0 auto;
+    height: 320px;
+    // border: 1px solid #000;
+}
+.rows {
+    flex: 1 0 auto;
+    // border: 1px solid #000;
+    display: flex;
+    flex-direction: column;
+    .header {
+        flex: 0 0 auto;
+        .cell {
+            color: var(--color-text-9);   
+        }
+    }
+    .ascCell {
+        color: var(--color-text-9);
+        line-height: 32px;
+    }
+    .row {
+        display: flex;
+    }
+    .offset {
+        flex: 0 0 80px;
+        height: 32px;
+        line-height: 32px;
+        // border: 1px solid #f00;
+        color: var(--color-text-9);
+    }
+    .cells {
+        display: flex;
+        margin-right: 32px;
+        .cell {
+            width: 32px;
+            height: 32px;
+            // border: 1px solid #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .value {
+            // border: 1px solid #000;
+        }
+    }
+    .ascList {
+        display: flex;
+        .cell {
+            font-size: 14px;
+            width: 16px;
+            height: 32px;
+            // border: 1px solid #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    }
+}
