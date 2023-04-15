@@ -13,7 +13,6 @@ interface SizeDivProps {
 export function SizeDiv({ className, render }: SizeDivProps) {
 
     const [size, setSize] = useState<Size | null>(null)
-    console.log('SizeDiv/size', size)
     const root = useRef<HTMLDivElement>(null)
     useEffect(() => {
         if (root.current) {

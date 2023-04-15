@@ -601,6 +601,11 @@ i18n
                     'hex_editor': 'Hex Editor',
                     'hex.drop': 'Drop file hear',
                     'hex.offset': 'Offset',
+                    'hex.binary': 'Binary',
+                    'hex.bit': 'Bit',
+                    'hex.ascii': 'ASCII',
+                    'hex.hex': 'Hex',
+                    'hex.integer': 'Integer',
                 }
             },
             zh: {
@@ -1194,6 +1199,11 @@ i18n
                     'hex_editor': '十六进制编辑器',
                     'hex.drop': '拖拽文件到这里',
                     'hex.offset': '偏移',
+                    'hex.binary': '二进制',
+                    'hex.bit': '位',
+                    'hex.ascii': 'ASCII',
+                    'hex.hex': '十六进制',
+                    'hex.integer': '整数',
                 }
             }
         },
