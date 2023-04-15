@@ -22,18 +22,26 @@ function LogCell({ value }) {
     let text
     if (typeof value == 'number') {
         text = `${value}`
+        return <div className={styles.num}>{text}</div>
+    }
+    else if (value == '') {
+        return <div className={styles.weak}>empty</div>
+    }
+    else if (value === '<undefined>') {
+        return <div className={styles.weak}>undefined</div>
     }
     else if (typeof value == 'string') {
         text = value
     }
     else if (value === null) {
-        return '<NULL>'
+        return <div className={styles.weak}>NULL</div>
     }
     else if (value === undefined) {
-        return '<undefined>'
+        return <div className={styles.weak}>undefined</div>
     }
     else {
         text = JSON.stringify(value, null, 4)
+        console.log('texttext', text)
     }
     return (
         <div><pre className={styles.pre}>{text}</pre></div>
