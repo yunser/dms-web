@@ -606,6 +606,7 @@ i18n
                     'hex.ascii': 'ASCII',
                     'hex.hex': 'Hex',
                     'hex.integer': 'Integer',
+                    'error': 'Error',
                 }
             },
             zh: {
@@ -1204,6 +1205,7 @@ i18n
                     'hex.ascii': 'ASCII',
                     'hex.hex': '十六进制',
                     'hex.integer': '整数',
+                    'error': '错误',
                 }
             }
         },

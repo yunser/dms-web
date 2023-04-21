@@ -19,7 +19,13 @@ import { UserEditModal } from '@/views/db-manager/user-list/user-edit';
 import { GitAuthorEditModal } from '../user-edit-modal';
 // import { saveAs } from 'file-saver'
 
-
+function CommonErrorMessageBox({ message }) {
+    return (
+        <div className={styles.commonErrorBox}>
+            <pre>{message}</pre>
+        </div>
+    )
+}
 
 function Commit({ config, event$, stagedLength, gitConfig, onUpdateGitConfig, projectPath, onSuccess }) {
     const { t } = useTranslation()
@@ -28,6 +34,7 @@ function Commit({ config, event$, stagedLength, gitConfig, onUpdateGitConfig, pr
     const [pushRemote, setPushRemote] = useState(false)
     const [commitLoading, setCommitLoading] = useState(false)
     const [commitOptions, setCommitOptions] = useState('')
+    const [error, setError] = useState('')
     const [formData, setFormData] = useState({
         message: '',
     })
@@ -76,9 +83,10 @@ function Commit({ config, event$, stagedLength, gitConfig, onUpdateGitConfig, pr
             pushRemote,
             remoteName: 'origin',
             branchName: current,
+        }, {
+            noMessage: true
         })
         setCommitLoading(false)
-        // console.log('res', res)
         if (res.success) {
             // message.success('success')
             onSuccess && onSuccess()
@@ -113,6 +121,9 @@ function Commit({ config, event$, stagedLength, gitConfig, onUpdateGitConfig, pr
             //         })
             //     }
             // }
+        }
+        else {
+            setError(res.data.message)
         }
     }
 
@@ -225,6 +236,35 @@ function Commit({ config, event$, stagedLength, gitConfig, onUpdateGitConfig, pr
                     }}
                 />
             }
+            {!!error &&
+                <Modal
+                    title={t('error')}
+                    open={true}
+                    onCancel={() => {
+                        setError('')
+                    }}
+                    // onOk={() => {
+                    //     setError('')
+                    // }}
+                    width={800}
+                    maskClosable={false}
+                    footer={(
+                        <div>
+                            <Button
+                                onClick={() => {
+                                    setError('')  
+                                }}
+                            >
+                                {t('close')}
+                            </Button>
+                        </div>
+                    )}
+                >
+                    <CommonErrorMessageBox
+                        message={error}
+                    />
+                </Modal>
+            }
             {/* <Form
                 form={form}
                 // labelCol={{ span: 8 }}
@@ -288,8 +328,6 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
             // tableName,
             // dbName,
             // logger: true,
-        }, {
-            // noMessage: true,
         })
         // console.log('res', res)
         if (res.success) {
