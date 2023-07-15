@@ -340,6 +340,9 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onConnect
         if (detailItem.sls) {
             reqData._sls = detailItem.sls
         }
+        if (detailItem.grafana) {
+            reqData.grafana = detailItem.grafana
+        }
         let res = await request.post(_url, reqData)
         if (res.success) {
             const { list, total, query, timeRange } = res.data
