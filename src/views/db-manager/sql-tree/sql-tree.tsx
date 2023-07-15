@@ -160,6 +160,10 @@ function TreeTitle({ keyword, loading = false, nodeData, onAction, onClick, onDo
                                     label: t('copy_name'),
                                     key: 'copy_name',
                                 },
+                                {
+                                    label: t('export_doc'),
+                                    key: 'export_doc',
+                                },
                             ]
                         :
                             [
@@ -1133,6 +1137,15 @@ LIMIT 1000;`
                                         else if (key == 'function_list') {
                                             event$.emit({
                                                 type: 'event_view_functions',
+                                                data: {
+                                                    connectionId,
+                                                    schemaName: nodeData.itemData.$_name,
+                                                }
+                                            })
+                                        }
+                                        else if (key == 'export_doc') {
+                                            event$.emit({
+                                                type: 'export_doc',
                                                 data: {
                                                     connectionId,
                                                     schemaName: nodeData.itemData.$_name,
