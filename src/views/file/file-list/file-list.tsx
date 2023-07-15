@@ -1518,7 +1518,10 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                             event$.emit({
                                                 type: 'event_show_json',
                                                 data: {
-                                                    json: list.map(item => `* ${item.name}`).join('\n')
+                                                    json: list
+                                                        // .map(item => `* ${item.name}`)
+                                                        .map(item => `${item.name}`)
+                                                        .join('\n')
                                                     // connectionId,
                                                 },
                                             })
