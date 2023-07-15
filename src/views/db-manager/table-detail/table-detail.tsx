@@ -46,7 +46,7 @@ export const ItemHelper = {
         return item.newValue === undefined ? item.value : item.newValue
     },
     hasNewValue(item) {
-        return item.newValue === undefined
+        return item.newValue !== undefined
     }
 }
 
