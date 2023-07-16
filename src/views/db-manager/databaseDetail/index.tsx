@@ -45,6 +45,7 @@ import { TableViewer } from '../table-view/table-view'
 import storage from '@/utils/storage'
 import { FunctionList } from '../function-list'
 import { ExportDoc } from '../export-doc'
+import { TableDataExporter } from '../table-data-exporter/table-data-exporter'
 
 // console.log('ddd.0')
 // _.debounce(() => {
@@ -884,6 +885,16 @@ export function DataBaseDetail({ databaseType = 'mysql', curConnect, _connection
                                 }
                                 {item.type == 'tableView' &&
                                     <TableViewer
+                                        databaseType={databaseType}
+                                        config={config}
+                                        connectionId={connectionId}
+                                        event$={event$}
+                                        dbName={item.data?.dbName}
+                                        tableName={item.data?.tableName}
+                                    />
+                                }
+                                {item.type == 'table-data-export' &&
+                                    <TableDataExporter
                                         databaseType={databaseType}
                                         config={config}
                                         connectionId={connectionId}

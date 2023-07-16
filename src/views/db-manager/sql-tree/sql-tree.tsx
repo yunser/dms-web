@@ -203,6 +203,10 @@ function TreeTitle({ keyword, loading = false, nodeData, onAction, onClick, onDo
                                     label: t('copy_name'),
                                     key: 'copy_name',
                                 },
+                                {
+                                    label: t('mysql.export_data'),
+                                    key: 'export_data',
+                                },
                                 // --------
                                 {
                                     type: 'divider',
@@ -713,6 +717,22 @@ LIMIT 1000;`
         })
     }
 
+    async function exportData(nodeData) {
+        const tableName = nodeData.itemData.$_table_name
+        const schemaName = nodeData.itemData.$table_schema
+        const dbName = schemaName
+        let tabKey = '' + new Date().getTime()
+        onTab && onTab({
+            title: `${t('export')} - ${tableName}@${dbName}`,
+            key: tabKey,
+            type: 'table-data-export',
+            data: {
+                dbName,
+                tableName,
+            },
+        })
+    }
+
     async function duplicate(nodeData) {
         exportStructure(nodeData, {
             suffix: '_copy',
@@ -1114,6 +1134,9 @@ LIMIT 1000;`
                                         }
                                         else if (key == 'export_structure') {
                                             exportStructure(nodeData)
+                                        }
+                                        else if (key == 'export_data') {
+                                            exportData(nodeData)
                                         }
                                         else if (key == 'copy_name') {
                                             console.log('nodeData', nodeData)

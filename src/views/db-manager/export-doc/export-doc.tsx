@@ -79,7 +79,7 @@ export function ExportDoc({ config, connectionId, dbName }: any) {
         if (res.success) {
             // message.info('连接成功')
             const tables = res.data
-            console.log('tables', tables)
+            // console.log('tables', tables)
             // setList(list)
             let colRes = await request.post(`${config.host}/mysql/execSqlSimple`, {
                 connectionId,
@@ -87,7 +87,7 @@ export function ExportDoc({ config, connectionId, dbName }: any) {
             })
             if (colRes.success) {
                 const columns = colRes.data
-                console.log('columns', columns)
+                // console.log('columns', columns)
                 handleData(tables, columns)
             }
         } else {
