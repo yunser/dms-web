@@ -164,6 +164,10 @@ function TreeTitle({ keyword, loading = false, nodeData, onAction, onClick, onDo
                                     label: t('export_doc'),
                                     key: 'export_doc',
                                 },
+                                {
+                                    label: t('table_diff'),
+                                    key: 'table_diff',
+                                },
                             ]
                         :
                             [
@@ -1169,6 +1173,15 @@ LIMIT 1000;`
                                         else if (key == 'export_doc') {
                                             event$.emit({
                                                 type: 'export_doc',
+                                                data: {
+                                                    connectionId,
+                                                    schemaName: nodeData.itemData.$_name,
+                                                }
+                                            })
+                                        }
+                                        else if (key == 'table_diff') {
+                                            event$.emit({
+                                                type: 'table_diff',
                                                 data: {
                                                     connectionId,
                                                     schemaName: nodeData.itemData.$_name,

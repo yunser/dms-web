@@ -1,0 +1,57 @@
+.docBox {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    // border: 1px solid #000;
+    .header {
+        flex: 0 0 auto;
+        padding: 16px;
+        border-bottom: 1px solid rgba(0, 0, 0, .12);
+    }
+    .body {
+        flex: 1 0 auto;
+        height: 0;
+        overflow: auto;
+        padding: 16px;
+    }
+}
+.toolBox {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 16px;
+    gap: 16px;
+    .select {
+        width: 240px;
+    }
+    .exchange {
+        text-align: center;
+    }
+}
+.resultBox {
+    margin-top: 32px;
+    .codeBox {
+        margin-bottom: 16px;
+    }
+    .code {
+        border: 1px solid #000;
+        background-color: #eee;
+    }
+    .table {
+        margin-bottom: 16px;
+        th,
+        td {
+            padding: 4px 8px;
+            border: 1px solid #000;
+        }
+    }
+}
+.diffBox {
+    display: flex;
+    gap: 32px;
+}
+.changedFields {
+    .item {
+        // border: 1px solid #000;
+    }
+}

@@ -46,6 +46,7 @@ import storage from '@/utils/storage'
 import { FunctionList } from '../function-list'
 import { ExportDoc } from '../export-doc'
 import { TableDataExporter } from '../table-data-exporter/table-data-exporter'
+import { TableDiff } from '../table-diff'
 
 // console.log('ddd.0')
 // _.debounce(() => {
@@ -365,6 +366,22 @@ export function DataBaseDetail({ databaseType = 'mysql', curConnect, _connection
                     title: `${t('export_doc')} - ${schemaName}`,
                     key: tabKey,
                     type: 'export_doc',
+                    // defaultSql: `SELECT * FROM \`${dbName}\`.\`${tableName}\` LIMIT 20;`,
+                    data: {
+                        dbName: schemaName,
+                        // tableName,
+                    },
+                })
+            }
+        }
+        else if (msg.type == 'table_diff') {
+            const { connectionId: _connectionId, schemaName } = msg.data
+            if (_connectionId == connectionId) {
+                let tabKey = '' + new Date().getTime()
+                addOrActiveTab({
+                    title: `${t('table_diff')} - ${schemaName}`,
+                    key: tabKey,
+                    type: 'table_diff',
                     // defaultSql: `SELECT * FROM \`${dbName}\`.\`${tableName}\` LIMIT 20;`,
                     data: {
                         dbName: schemaName,
@@ -837,6 +854,21 @@ export function DataBaseDetail({ databaseType = 'mysql', curConnect, _connection
                                 }
                                 {item.type == 'export_doc' &&
                                     <ExportDoc
+                                        config={config}
+                                        connectionId={connectionId}
+                                        dbName={item.data.dbName}
+                                        onJson={onJson}
+                                        onTab={tab => {
+                                            setActiveKey(tab.key)
+                                            setTabs([
+                                                ...tabs,
+                                                tab,
+                                            ])
+                                        }}
+                                    />
+                                }
+                                {item.type == 'table_diff' &&
+                                    <TableDiff
                                         config={config}
                                         connectionId={connectionId}
                                         dbName={item.data.dbName}
