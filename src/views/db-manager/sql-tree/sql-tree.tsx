@@ -767,7 +767,7 @@ LIMIT 1000;`
     function schemaUse(nodeData) {
         console.log('nodeData', nodeData)
         // return
-        const sql = `USE \`${nodeData.itemData.$_schema_name}\`;`
+        const sql = `USE \`${nodeData.itemData.$_name}\`;`
         showSqlInNewtab({
             title: 'Use Database',
             sql,
