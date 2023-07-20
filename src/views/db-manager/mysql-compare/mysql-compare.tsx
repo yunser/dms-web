@@ -13,6 +13,7 @@ import moment from 'moment'
 import { IconButton } from '@/views/db-manager/icon-button';
 import { ReloadOutlined } from '@ant-design/icons';
 import { FullCenterBox } from '@/views/common/full-center-box'
+import { DiffResult } from '../table-diff';
 
 const { TabPane } = Tabs
 const { TextArea } = Input
@@ -441,6 +442,10 @@ async function compareDatabaseTables(db1Tables = [], db2Tables = [], db1AllColum
                     tableName,
                     type: 'changed',
                     columns,
+                    allColumns: [
+                        table1Columns,
+                        table2Columns,
+                    ],
                 })
             }
         }
@@ -479,6 +484,8 @@ export function MysqlCompare({ config, connectionId, onSql }) {
     const [db1Result, setDb1Result] = useState(null)
     const [db2Result, setDb2Result] = useState(null)
     console.log('db1Data', db1Data)
+    const [diffData, setDiffData] = useState([])
+    const [compareModalVisible, setCompareModalVisible] = useState(false)
 
     const stat = getStat(results)
 
@@ -547,7 +554,39 @@ export function MysqlCompare({ config, connectionId, onSql }) {
         // loadData()
     }, [])
 
-    async function getCreateScript(tableName) {
+    async function getChangedScript(item) {
+        console.log('item', item)
+        const { tableName } = item
+        
+        let res = await request.post(`${config.host}/mysql/tableDetail`, {
+            connectionId: db1Result?._connectionId,
+            dbName: db1Data.schemaName,
+            tableName,
+        })
+        if (res.success) {
+            let res2 = await request.post(`${config.host}/mysql/tableDetail`, {
+                connectionId: db2Result?._connectionId,
+                dbName: db2Data.schemaName,
+                tableName,
+            })
+            if (res2.success) {
+                const diffData = [res.data, res2.data]
+                console.log('diffData', diffData)
+                setDiffData(diffData)
+                setCompareModalVisible(true)
+            }
+        }
+    }
+
+    function getDeleteScript(item) {
+        console.log('item', item)
+        // const sql = `DROP TABLE \`linxot\`.\`${item.tableName}\`;`
+        const sql = `DROP TABLE \`${item.tableName}\`;`
+        copy(sql)
+        message.success(t('copied'))
+    }
+
+    async function getCreateScriptDb1(tableName) {
         // const tableName = db1Data.schemaName
         const schemaName = db1Data.schemaName
 
@@ -577,7 +616,38 @@ export function MysqlCompare({ config, connectionId, onSql }) {
         console.log('createSql', createSql)
         copy(createSql)
         message.success(t('copied'))
+    }
 
+    async function getCreateScriptDb2(tableName) {
+        // const tableName = db1Data.schemaName
+        const schemaName = db2Data.schemaName
+
+        // await request.post(`${config.host}/mysql/execSqlSimple`, {
+        //     connectionId: db1Result?._connectionId,
+        //     sql: `use schemaName;`,
+        //     // tableName,
+        //     // dbName,
+        // })
+        
+        const createTableSql = `SHOW CREATE TABLE \`${schemaName}\`.\`${tableName}\`;`
+        const { success, data } = await request.post(`${config.host}/mysql/execSqlSimple`, {
+            connectionId: db1Result?._connectionId,
+            sql: createTableSql,
+            // tableName,
+            // dbName,
+        })
+        if (!success) {
+            return
+        }
+        if (!data.length) {
+            return
+        }
+        const backupTableName = `${tableName}`
+        // const checkSql = `SELECT COUNT(*) FROM \`${tableName}\`;`
+        const createSql = (data[0]['Create Table'] + ';').replace(/`[\d\D]+?`/, `\`${backupTableName}\``)
+        console.log('createSql', createSql)
+        copy(createSql)
+        message.success(t('copied'))
     }
 
     console.log('stat', stat)
@@ -586,7 +656,7 @@ export function MysqlCompare({ config, connectionId, onSql }) {
             {/* {results.length == 0 &&
             } */}
             <Space className={styles.formBox} direction="vertical">
-                <div className={styles.help}>支持的功能：表的新增/删除检测，字段的新增/删除检测，不支持的功能：字段的类型和空值变化</div>
+                <div className={styles.help}>支持的功能：表的新增/删除检测，字段的新增/删除检测；不支持的功能：字段的类型和空值变化</div>
                 <div className={styles.dbSelect}>
 
                     <div>
@@ -668,7 +738,19 @@ export function MysqlCompare({ config, connectionId, onSql }) {
                                             <div className={classNames(styles.type, styles[item.type])}>{item.type}</div>
                                         </div>
                                         {item.type == 'changed' &&
-                                            <ColumnTable data={item.columns} />
+                                            <div>
+                                                <ColumnTable data={item.columns} />
+                                                <div className={styles.btn}>
+                                                    <Button
+                                                        size="small"
+                                                        onClick={() => {
+                                                            getChangedScript(item)
+                                                        }}
+                                                    >
+                                                        get_changed_script
+                                                    </Button>
+                                                </div>
+                                            </div>
                                         }
                                         {item.type == 'added' &&
                                             <div>
@@ -686,10 +768,19 @@ export function MysqlCompare({ config, connectionId, onSql }) {
                                                     <Button
                                                         size="small"
                                                         onClick={() => {
-                                                            getCreateScript(item.tableName)
+                                                            getCreateScriptDb1(item.tableName)
                                                         }}
                                                     >
                                                         get_create_script
+
+                                                    </Button>
+                                                    <Button
+                                                        size="small"
+                                                        onClick={() => {
+                                                            getDeleteScript(item)
+                                                        }}
+                                                    >
+                                                        get_delete_script
 
                                                     </Button>
                                                 </div>
@@ -707,6 +798,27 @@ export function MysqlCompare({ config, connectionId, onSql }) {
                                                         <th>✅</th>
                                                     </tr>
                                                 </table>
+                                                <div className={styles.btn}>
+                                                    <Button
+                                                        size="small"
+                                                        onClick={() => {
+                                                            getDeleteScript(item)
+                                                        }}
+                                                    >
+                                                        get_delete_script
+
+                                                    </Button>
+                                                    <Button
+                                                        size="small"
+                                                        onClick={() => {
+                                                            console.log('item', item)
+                                                            getCreateScriptDb2(item.tableName)
+                                                        }}
+                                                    >
+                                                        get_create_script
+
+                                                    </Button>
+                                                </div>
                                             </div>
                                         }
                                     </div>
@@ -717,6 +829,18 @@ export function MysqlCompare({ config, connectionId, onSql }) {
                 </div>
             :
                 <div></div>
+            }
+            {compareModalVisible &&
+                <Modal
+                    title="对比"
+                    open={true}
+                    width={1000}
+                    onCancel={() => {
+                        setCompareModalVisible(false)
+                    }}
+                >
+                    <DiffResult diffData={diffData} />
+                </Modal>
             }
         </div>
     )
