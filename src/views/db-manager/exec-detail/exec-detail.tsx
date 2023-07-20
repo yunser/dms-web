@@ -1085,7 +1085,7 @@ export function ExecDetail(props) {
                                     if (value == null) {
                                         return 'null'
                                     }
-                                    return `'${value}'`
+                                    return `"${value}"`
                                 }).join(', ')
                             }
                             copy(copyText)
