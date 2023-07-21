@@ -290,7 +290,7 @@ function HeaderCell({ name, columnWithType, onCopyValue }) {
     )
 }
 
-function Cell({ item, editing, onChange }) {
+function Cell({ item, editing, onChange, columnWithType }) {
     // console.log('Cell.item', item)
     // TODO 先 run 再 explain item 就会为空，不清楚原因
     const { t } = useTranslation()
@@ -310,6 +310,8 @@ function Cell({ item, editing, onChange }) {
             inputRef.current!.focus();
         }
     }, [isEdit]);
+
+    const isBlob = columnWithType?.DATA_TYPE?.toLowerCase().includes('blob')
 
     useEffect(() => {
         return () => {
@@ -377,12 +379,15 @@ function Cell({ item, editing, onChange }) {
                 />
             : 
                 <div className={classNames(styles.text, {
-                    [styles.null]: text == null,
+                    [styles.null]: text == null || isBlob,
                 })}
                     onClick={() => {
+                        if (isBlob) {
+                            return
+                        }
                         setIsEdit(true)
                     }}
-                >{text == null ? 'NULL' : text}</div>
+                >{text == null ? 'NULL' : isBlob ? 'BLOB' : text}</div>
             }
             {/* {!isEdit && !editing && */}
             {!isEdit && isHover &&
@@ -1097,7 +1102,7 @@ export function ExecDetail(props) {
                 key,
                 width,
                 render(value: any, item) {
-                    // console.log('Cell.value?', value)
+                    // console.log('Cell.value?', item)
                     // return (
                     //     <div>{value.value}</div>
                     // )
@@ -1105,6 +1110,7 @@ export function ExecDetail(props) {
                         <Cell
                             editing={editing}
                             item={value}
+                            columnWithType={columnWithType}
                             onChange={newItem => {
                                 // console.log('change', item)
                                 // console.log('change.newItem', newItem)
