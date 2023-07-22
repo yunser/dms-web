@@ -103,10 +103,15 @@ export function suggestionInit() {
             '=',
             '<>',
             '>',
+            '>=',
             '<',
+            '<=',
             'IN',
+            'NOT IN',
             'LIKE',
-            'LIKE \'%%\'',
+            `LIKE '%%'`,
+            'IS NULL',
+            'IS NOT NULL',
         ]
         return fields
             .map((key) => {
