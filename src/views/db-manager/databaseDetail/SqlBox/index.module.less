@@ -72,25 +72,44 @@
 }
 
 .sqlBuilder {
-    .item {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        gap: 16px;
+    .sectionTitle {
+        font-weight: bold;
         margin-bottom: 16px;
     }
-    .columnName {
-        width: 160px;
+    .conditions {
+        .item {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .columnName {
+            width: 160px;
+        }
+        .value {
+            width: 160px;
+        }
+        .op {
+            width: 130px;
+        }
+        .checkboxBox {
+            padding-top: 4px;
+            height: 32px;
+            overflow: hidden;
+        }
     }
-    .value {
-        width: 160px;
-    }
-    .op {
-        width: 130px;
-    }
-    .checkboxBox {
-        padding-top: 4px;
-        height: 32px;
-        overflow: hidden;
+    .orders {
+        margin-bottom: 12px;
+        .item {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .columnName {
+            width: 160px;
+        }
     }
 }

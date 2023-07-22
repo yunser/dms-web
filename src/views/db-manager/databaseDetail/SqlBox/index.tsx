@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import styles from './index.module.less'
-import { message, Input, Modal, Button, Table, Popover, Space, Empty, Result, Tabs, Select, Tooltip, Spin, Dropdown, Menu, Checkbox } from 'antd'
+import { message, Input, Modal, Button, Table, Popover, Space, Empty, Result, Tabs, Select, Tooltip, Spin, Dropdown, Menu, Checkbox, Divider } from 'antd'
 // import http from '@/utils/http'
 import classNames from 'classnames'
 import { Editor } from '../../editor/Editor'
@@ -22,6 +22,21 @@ import { SaveOutlined } from '@ant-design/icons'
 import { SqlEditHandler } from '../../sql-edit'
 import { FullCenterBox } from '@/views/common/full-center-box'
 import { getGlobalConfig } from '@/config'
+// import splitSqlQuery from '@databases/split-sql-query';
+// import {
+//   splitQuery,
+//   mysqlSplitterOptions,
+//   mssqlSplitterOptions,
+//   postgreSplitterOptions,
+// } from "dbgate-query-splitter";
+
+// const output = splitQuery(
+//   "SELECT * FROM `table1`;SELECT * FROM `table2`;",
+//   mysqlSplitterOptions
+// );
+// console.log('split', output)
+// console.log('split/new', splitSqlQuery)
+
 
 // var parse = require('sql-parse').parse;
 // console.log('asd')
@@ -117,6 +132,13 @@ function SqlBuilder({ connectionId, dbName, tableName, onSql }) {
         //     value: '1',
         // }
     ])
+    const [orders, setOrders] = useState([
+        // {
+        //     columnName: 'create_time',
+        //     orderType: 'desc',
+        // },
+    ])
+
     async function loadData() {
         let colRes = await request.post(`${config.host}/mysql/execSqlSimple`, {
             connectionId,
@@ -144,26 +166,38 @@ function SqlBuilder({ connectionId, dbName, tableName, onSql }) {
     }, [dbName, tableName])
 
     function genSql() {
-        const whereSql = items
-            .filter(item => {
-                const fType = OpTypes.find(_item => _item.value == item.type)
-                return item.enable && item.columnName && fType && ((fType.hasValue && item.value) || !fType.hasValue)
-            })
-            .map(item => {
-                const fColumn = columns.find(col => col.COLUMN_NAME == item.columnName)
-                function formatValue(value) {
-                    const isNumber = fColumn.DATA_TYPE.includes('int')
-                    if (isNumber) {
-                        return `${value}`
+        let whereSql = ''
+        const filteredConditions = items.filter(item => {
+            const fType = OpTypes.find(_item => _item.value == item.type)
+            return item.enable && item.columnName && fType && ((fType.hasValue && item.value) || !fType.hasValue)
+        })
+        if (filteredConditions.length) {
+            whereSql = 'WHERE ' + filteredConditions.map(item => {
+                    const fColumn = columns.find(col => col.COLUMN_NAME == item.columnName)
+                    function formatValue(value) {
+                        const isNumber = fColumn.DATA_TYPE.includes('int')
+                        if (isNumber) {
+                            return `${value}`
+                        }
+                        return `'${value}'`
                     }
-                    return `'${value}'`
-                }
-                return `\`${item.columnName}\` ${item.type} ${formatValue(item.value)}`
-            })
-        .join(' AND ')
-        const sql = `SELECT *
-FROM \`${dbName}\`.\`${tableName}\`
-WHERE ${whereSql}{LIMIT_SQL};`
+                    return `\`${item.columnName}\` ${item.type} ${formatValue(item.value)}`
+                })
+            .join(' AND ')
+        }
+        let orderSql = ''
+        if (orders.length) {
+            orderSql = `ORDER BY ` + orders.map(item => {
+                return `\`${item.columnName}\` ${item.orderType == 'asc' ? 'ASC' : 'DESC'}`
+            }).join(', ')
+        }
+        const sql = [
+            'SELECT *',
+            `FROM \`${dbName}\`.\`${tableName}\``,
+            whereSql,
+            orderSql,
+            '{LIMIT_SQL}'
+        ].filter(item => item).join('\n') + ';'
         setModalVisible(false)
         // setItems([
         //     {
@@ -203,7 +237,10 @@ WHERE ${whereSql}{LIMIT_SQL};`
                     onOk={genSql}
                 >
                     <div className={styles.sqlBuilder}>
-                        <div className={styles.items}>
+                        <div className={styles.sectionTitle}>
+                            {t('sql.condition')}
+                        </div>
+                        <div className={styles.conditions}>
                             {items.map((item, index) => {
                                 const fItem = OpTypes.find(_item => _item.value == item.type)
                                 return (
@@ -294,6 +331,76 @@ WHERE ${whereSql}{LIMIT_SQL};`
                                 +
                             </Button>
                         </div>
+                        <Divider />
+                        <div className={styles.sectionTitle}>
+                            {t('sql.order')}
+                        </div>
+                        <div className={styles.orders}>
+                            {orders.map((item, index) => {
+                                return (
+                                    <div className={styles.item}>
+                                        <Select
+                                            className={styles.columnName}
+                                            value={item.columnName}
+                                            options={columns.map(item => {
+                                                return {
+                                                    label: item.COLUMN_NAME,
+                                                    value: item.COLUMN_NAME,
+                                                }
+                                            })}
+                                            onChange={value => {
+                                                orders[index].columnName = value
+                                                setOrders([...orders])
+                                            }}
+                                            showSearch={true}
+                                            optionFilterProp="label"
+                                        />
+                                        <Select
+                                            value={item.orderType}
+                                            options={[
+                                                {
+                                                    label: 'ASC',
+                                                    value: 'asc',
+                                                },
+                                                {
+                                                    label: 'DESC',
+                                                    value: 'desc',
+                                                },
+                                            ]}
+                                            onChange={value => {
+                                                orders[index].orderType = value
+                                                setOrders([...orders])
+                                            }}
+                                        />
+                                        <Button
+                                            size="small"
+                                            onClick={() => {
+                                                orders.splice(index, 1)
+                                                setOrders([
+                                                    ...orders,
+                                                ])
+                                            }}
+                                        >
+                                            -
+                                        </Button>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                        <Button
+                            size="small"
+                            onClick={() => {
+                                setOrders([
+                                    ...orders,
+                                    {
+                                        columnName: '',
+                                        orderType: 'asc',
+                                    }
+                                ])
+                            }}
+                        >
+                            +
+                        </Button>
                     </div>
                 </Modal>
             }
@@ -454,6 +561,10 @@ function SqlBox({ config, tabViewId, event$, databaseType, connectionId, onJson,
         setCodeLoading(true)
         // console.log('ExecDetail/setExecResults1')
         const removedCommentCode = removeComment(execCode)
+        // console.log('split2', splitQuery(removedCommentCode, {
+        //     // allowSemicolon: false,
+        // }))
+        // return
         const lines = removedCommentCode.split(';').filter(item => item.trim())
         let lineIdx = 0
         // const successKeys = []
@@ -767,7 +878,7 @@ function SqlBox({ config, tabViewId, event$, databaseType, connectionId, onJson,
                                 dbName={defaultDbName}
                                 tableName={defaultTableName}
                                 onSql={sql => {
-                                    const limitedSql = sql.replace('{LIMIT_SQL}', limit == -1 ? '' : `\nLIMIT ${limit}`)
+                                    const limitedSql = sql.replace('{LIMIT_SQL}', limit == -1 ? '' : `LIMIT ${limit}`)
                                     editor?.setValue(limitedSql)
                                 }}
                             />
