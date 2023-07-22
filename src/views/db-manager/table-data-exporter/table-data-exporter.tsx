@@ -6,7 +6,7 @@ import styles from './table-data-exporter.module.less';
 import _ from 'lodash';
 import { useTranslation } from 'react-i18next';
 
-function TaskDetail({ config, id }) {
+export function TaskDetail({ config, id }) {
     const { t } = useTranslation()
     const [task, setTask] = useState(null)
     const [loading, setLoading] = useState(false)
@@ -44,10 +44,11 @@ function TaskDetail({ config, id }) {
         window.open(downloadUrl, '_blank')
     }
 
-    const statusMap = {
-        'ing': t('export.status.ing'),
-        'success': t('export.status.success'),
-    }
+    // const statusMap = {
+    //     'ing': t('export.status.ing'),
+    //     'success': t('export.status.success'),
+    //     'fail': t('export.status.fail'),
+    // }
     return (
         <div>
             <div className={styles.taskDetail}>
@@ -56,15 +57,15 @@ function TaskDetail({ config, id }) {
                 }
                 {!!task &&
                     <div>
-                        <div>{statusMap[task.status]}</div>
-                        <div className={styles.num}>{task.current}/{task.total}</div>
+                        {/* <div>{statusMap[task.status]}</div> */}
+                        <div className={styles.num}>{task.current + 1}/{task.total}</div>
                         <div>
                             <Progress
-                                percent={task.current / task.total * 100}
+                                percent={(task.current + 1) / task.total * 100}
                                 showInfo={false}
                             />
                         </div>
-                        {task.status == 'success' &&
+                        {task.status == 'success' && !!task.hasFile &&
                             <div className={styles.tool}>
                                 <Button
                                     size="small"
@@ -74,6 +75,21 @@ function TaskDetail({ config, id }) {
                                 >
                                     {t('download')}
                                 </Button>
+                            </div>
+                        }
+                        {task.status == 'fail' &&
+                            <div>
+                                <div>{t('row')}: {task.current + 1}</div>
+                                <div className={styles.error}>
+                                    {task.error}
+                                </div>
+                                {!!task.sql &&
+                                    <div className={styles.code}>
+                                        <code>
+                                            <pre>{task.sql}</pre>
+                                        </code>
+                                    </div>
+                                }
                             </div>
                         }
                     </div>

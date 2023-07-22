@@ -92,7 +92,6 @@ export default function DatabaseList({ connectionId, config, event$, onJson, onS
                         <DatabaseEditHandler
                             connectionId={connectionId}
                             config={config}
-                            connectionId={connectionId}
                             item={item}
                             onSuccess={() => {
                                 loadDbList()

@@ -47,6 +47,7 @@ import { FunctionList } from '../function-list'
 import { ExportDoc } from '../export-doc'
 import { TableDataExporter } from '../table-data-exporter/table-data-exporter'
 import { TableDiff } from '../table-diff'
+import { SqlDataImport } from '../data-import'
 
 // console.log('ddd.0')
 // _.debounce(() => {
@@ -382,6 +383,22 @@ export function DataBaseDetail({ databaseType = 'mysql', curConnect, _connection
                     title: `${t('table_diff')} - ${schemaName}`,
                     key: tabKey,
                     type: 'table_diff',
+                    // defaultSql: `SELECT * FROM \`${dbName}\`.\`${tableName}\` LIMIT 20;`,
+                    data: {
+                        dbName: schemaName,
+                        // tableName,
+                    },
+                })
+            }
+        }
+        else if (msg.type == 'data_import') {
+            const { connectionId: _connectionId, schemaName } = msg.data
+            if (_connectionId == connectionId) {
+                let tabKey = '' + new Date().getTime()
+                addOrActiveTab({
+                    title: `${t('data_import')} - ${schemaName}`,
+                    key: tabKey,
+                    type: 'data_import',
                     // defaultSql: `SELECT * FROM \`${dbName}\`.\`${tableName}\` LIMIT 20;`,
                     data: {
                         dbName: schemaName,
@@ -869,6 +886,21 @@ export function DataBaseDetail({ databaseType = 'mysql', curConnect, _connection
                                 }
                                 {item.type == 'table_diff' &&
                                     <TableDiff
+                                        config={config}
+                                        connectionId={connectionId}
+                                        dbName={item.data.dbName}
+                                        onJson={onJson}
+                                        onTab={tab => {
+                                            setActiveKey(tab.key)
+                                            setTabs([
+                                                ...tabs,
+                                                tab,
+                                            ])
+                                        }}
+                                    />
+                                }
+                                {item.type == 'data_import' &&
+                                    <SqlDataImport
                                         config={config}
                                         connectionId={connectionId}
                                         dbName={item.data.dbName}
