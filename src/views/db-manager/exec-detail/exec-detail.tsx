@@ -883,12 +883,19 @@ export function ExecDetail(props) {
             const values = []
             const rowObj: any = {}
             const updatedFields = []
+            
+            function formatValue(value) {
+                if (typeof value == 'string') {
+                    return value.replace(/\n/g, '\\n').replace(/'/g, '\\\'')
+                }
+                return value
+            }
             for (let rowKey in row) {
                 if (rowKey != '_idx') { // TODO
                     const cell = row[rowKey]
                     rowObj[cell.fieldName] = cell.value
                     fields.push(cell.fieldName)
-                    values.push(cell.value)
+                    values.push(formatValue(cell.value))
                 }
             }
             // return rowObj
@@ -909,7 +916,7 @@ export function ExecDetail(props) {
             // .filter(item => item)
             // .join('\n')
         // const content = JSON.stringify(resultList, null, 4)
-        onJson && onJson(resultList.join('\n'))
+        onJson && onJson(resultList.join('\n') + '\n')
     }
 
     function selectionDetail() {
