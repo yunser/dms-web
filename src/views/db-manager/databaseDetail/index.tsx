@@ -944,6 +944,7 @@ export function DataBaseDetail({ databaseType = 'mysql', curConnect, _connection
                                         config={config}
                                         key={item.key}
                                         defaultSql={item.defaultSql}
+                                        data={item.data}
                                         style={{
                                             // visibility: item.key == activeKey ? 'visible' : 'hidden',
                                             display: item.key == activeKey ? undefined : 'none',

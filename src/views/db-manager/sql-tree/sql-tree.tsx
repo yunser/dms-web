@@ -606,7 +606,7 @@ LIMIT 1000;`
         setAllFields(name, res.data.results.map(item => item[0]))
     }
 
-    function showSqlInNewtab({ title = 'New Query', sql }) {
+    function showSqlInNewtab({ title = 'New Query', sql, dbName = null, tableName = null }) {
         let tabKey = '' + new Date().getTime()
         onTab && onTab({
             type: 'sql-query',
@@ -614,8 +614,8 @@ LIMIT 1000;`
             key: tabKey,
             defaultSql: sql,
             data: {
-                dbName: null,
-                tableName: null,
+                defaultDbName: dbName,
+                defaultTableName: tableName,
             },
         })
     }
@@ -935,6 +935,8 @@ LIMIT 1000;`
         showSqlInNewtab({
             title: tableName,
             sql,
+            dbName: schemaName,
+            tableName,
         })
         if (databaseType != 'sqlite' && databaseType != 'mssql' && databaseType != 'alasql') {
             loadTableFields({schemaName, tableName})

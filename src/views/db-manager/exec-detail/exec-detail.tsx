@@ -1060,7 +1060,6 @@ export function ExecDetail(props) {
             totalWidth += width
 
             const columnWithType = _originColumns[colIdx]
-            // console.log('columnWithType', columnWithType)
             columns.push({
                 // title: <div>{field.name}</div>,
                 // title: '' + field.name,
@@ -1102,7 +1101,6 @@ export function ExecDetail(props) {
                 key,
                 width,
                 render(value: any, item) {
-                    // console.log('Cell.value?', item)
                     // return (
                     //     <div>{value.value}</div>
                     // )

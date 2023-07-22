@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import styles from './index.module.less'
-import { message, Input, Modal, Button, Table, Popover, Space, Empty, Result, Tabs, Select, Tooltip, Spin, Dropdown, Menu } from 'antd'
+import { message, Input, Modal, Button, Table, Popover, Space, Empty, Result, Tabs, Select, Tooltip, Spin, Dropdown, Menu, Checkbox } from 'antd'
 // import http from '@/utils/http'
 import classNames from 'classnames'
 import { Editor } from '../../editor/Editor'
@@ -21,6 +21,7 @@ import { CheckCircleOutlined } from '@ant-design/icons'
 import { SaveOutlined } from '@ant-design/icons'
 import { SqlEditHandler } from '../../sql-edit'
 import { FullCenterBox } from '@/views/common/full-center-box'
+import { getGlobalConfig } from '@/config'
 
 // var parse = require('sql-parse').parse;
 // console.log('asd')
@@ -56,9 +57,253 @@ const history_tab = {
     closable: false,
 }
 
+const OpTypes = [
+    {
+        label: '=',
+        value: '=',
+        hasValue: true,
+    },
+    {
+        label: '<>',
+        value: '<>',
+        hasValue: true,
+    },
+    {
+        label: '>',
+        value: '>',
+        hasValue: true,
+    },
+    {
+        label: '>=',
+        value: '>=',
+        hasValue: true,
+    },
+    {
+        label: '<',
+        value: '<',
+        hasValue: true,
+    },
+    {
+        label: '<=',
+        value: '<=',
+        hasValue: true,
+    },
+    {
+        label: 'LIKE',
+        value: 'LIKE',
+        hasValue: true,
+    },
+    {
+        label: 'iS NULL',
+        value: 'iS NULL',
+        hasValue: false,
+    },
+    {
+        label: 'iS NOT NULL',
+        value: 'iS NOT NULL',
+        hasValue: false,
+    },
+]
+
+function SqlBuilder({ connectionId, dbName, tableName, onSql }) {
+    const { t } = useTranslation()
+    const config = getGlobalConfig()
+    const [modalVisible, setModalVisible] = useState(false)
+    const [columns, setColumns] = useState([])
+    const [items, setItems] = useState([
+        // {
+        //     columnName: 'asd',
+        //     type: '=',
+        //     value: '1',
+        // }
+    ])
+    async function loadData() {
+        let colRes = await request.post(`${config.host}/mysql/execSqlSimple`, {
+            connectionId,
+            sql: `select * from \`information_schema\`.\`COLUMNS\` where TABLE_SCHEMA = '${dbName}' and TABLE_NAME = '${tableName}';`,
+        })
+        if (colRes.success) {
+            const columns = colRes.data
+            setColumns(columns)
+
+            if (columns.length) {
+                setItems([
+                    {
+                        enable: true,
+                        columnName: columns[0].COLUMN_NAME,
+                        type: '=',
+                        value: '',
+                    }
+                ])
+            }
+        }
+    }
+
+    useEffect(() => {
+        loadData()
+    }, [dbName, tableName])
+
+    function genSql() {
+        const whereSql = items
+            .filter(item => {
+                const fType = OpTypes.find(_item => _item.value == item.type)
+                return item.enable && item.columnName && fType && ((fType.hasValue && item.value) || !fType.hasValue)
+            })
+            .map(item => {
+                const fColumn = columns.find(col => col.COLUMN_NAME == item.columnName)
+                function formatValue(value) {
+                    const isNumber = fColumn.DATA_TYPE.includes('int')
+                    if (isNumber) {
+                        return `${value}`
+                    }
+                    return `'${value}'`
+                }
+                return `\`${item.columnName}\` ${item.type} ${formatValue(item.value)}`
+            })
+        .join(' AND ')
+        const sql = `SELECT *
+FROM \`${dbName}\`.\`${tableName}\`
+WHERE ${whereSql}{LIMIT_SQL};`
+        setModalVisible(false)
+        // setItems([
+        //     {
+        //         columnName: columns[0].COLUMN_NAME,
+        //         type: '=',
+        //         value: '',
+        //     }
+        // ])
+        onSql && onSql(sql)
+    }
+
+    return (
+        <div>
+            <Button
+                size="small"
+                onClick={() => {
+                    setModalVisible(true)
+                }}
+            >
+                SQL
+            </Button>
+            {modalVisible &&
+                <Modal
+                    title={t('sql.builder')}
+                    open={true}
+                    width={640}
+                    onCancel={() => {
+                        setModalVisible(false)
+                        // setItems([
+                        //     {
+                        //         columnName: columns[0].COLUMN_NAME,
+                        //         type: '=',
+                        //         value: '',
+                        //     }
+                        // ])
+                    }}
+                    onOk={genSql}
+                >
+                    <div className={styles.sqlBuilder}>
+                        <div className={styles.items}>
+                            {items.map((item, index) => {
+                                const fItem = OpTypes.find(_item => _item.value == item.type)
+                                return (
+                                    <div className={styles.item}>
+                                        <div className={styles.checkboxBox}>
+                                            <Checkbox
+                                                checked={item.enable}
+                                                onChange={e => {
+                                                    items[index].enable = e.target.checked
+                                                    setItems([...items])
+                                                }}
+                                            ></Checkbox>
+                                        </div>
+                                        <Select
+                                            className={styles.columnName}
+                                            value={item.columnName}
+                                            options={columns.map(item => {
+                                                return {
+                                                    label: item.COLUMN_NAME,
+                                                    value: item.COLUMN_NAME,
+                                                }
+                                            })}
+                                            onChange={value => {
+                                                items[index].columnName = value
+                                                setItems([...items])
+                                            }}
+                                            showSearch={true}
+                                            optionFilterProp="label"
+                                        />
+                                        <Select
+                                            className={styles.op}
+                                            value={item.type}
+                                            options={OpTypes}
+                                            onChange={value => {
+                                                items[index].type = value
+                                                setItems([...items])
+                                            }}
+                                            showSearch={true}
+                                            optionFilterProp="label"
+                                            // showSearch={true}
+                                            // optionFilterProp="label"
+                                        />
+                                        {/* <div>{item.columnName}</div> */}
+                                        {/* <div>{item.type}</div> */}
+                                        {fItem && fItem.hasValue &&
+                                            <div>
+                                                {/* {item.value} */}
+                                                <Input
+                                                    className={styles.value}
+                                                    value={item.value}
+                                                    onChange={e => {
+                                                        items[index].value = e.target.value
+                                                        setItems([...items])
+                                                    }}
+                                                />
+                                            </div>
+                                        }
+                                        <Button
+                                            size="small"
+                                            onClick={() => {
+                                                items.splice(index, 1)
+                                                setItems([
+                                                    ...items,
+                                                ])
+                                            }}
+                                        >
+                                            -
+                                        </Button>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                        <div>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    setItems([
+                                        ...items,
+                                        {
+                                            enable: true,
+                                            columnName: '',
+                                            type: '=',
+                                            value: '',
+                                        }
+                                    ])
+                                }}
+                            >
+                                +
+                            </Button>
+                        </div>
+                    </div>
+                </Modal>
+            }
+        </div>
+    )
+}
 
 
-function SqlBox({ config, tabViewId, event$, databaseType, connectionId, onJson, className, defaultSql = '', style }: Props) {
+function SqlBox({ config, tabViewId, event$, databaseType, connectionId, onJson, className, defaultSql = '', style, data = {} }: Props) {
+    const { defaultDbName, defaultTableName } = data
     console.warn('SqlBox/render')
     
     const { t, i18n } = useTranslation()
@@ -175,6 +420,22 @@ function SqlBox({ config, tabViewId, event$, databaseType, connectionId, onJson,
             return text.replace(/`/g, '')
         }
         editor?.setValue(_removeSymbol(getCode()))
+    }
+
+    function queryTableStruct(nodeData) {
+        const tableName = nodeData.itemData.$_table_name
+        const schemaName = nodeData.itemData.$table_schema
+        const dbName = schemaName
+        let tabKey = '' + new Date().getTime()
+        onTab && onTab({
+            title: `${tableName}@${dbName} - Table`,
+            key: tabKey,
+            type: 'tableDetail',
+            data: {
+                dbName,
+                tableName,
+            },
+        })
     }
 
     async function run() {
@@ -477,11 +738,18 @@ function SqlBox({ config, tabViewId, event$, databaseType, connectionId, onJson,
                                         if (key == 'remove_symbol') {
                                             removeSymbol()
                                         }
+                                        if (key == 'view_struct') {
+                                            queryTableStruct()
+                                        }
                                     }}
                                     items={[
                                         {
                                             label: t('remove') + ' `',
                                             key: 'remove_symbol',
+                                        },
+                                        {
+                                            label: t('view_struct'),
+                                            key: 'view_struct',
                                         },
                                     ]}
                                 />
@@ -493,6 +761,17 @@ function SqlBox({ config, tabViewId, event$, databaseType, connectionId, onJson,
                                 <EllipsisOutlined />
                             </IconButton>
                         </Dropdown>
+                        <div>
+                            <SqlBuilder
+                                connectionId={connectionId}
+                                dbName={defaultDbName}
+                                tableName={defaultTableName}
+                                onSql={sql => {
+                                    const limitedSql = sql.replace('{LIMIT_SQL}', limit == -1 ? '' : `\nLIMIT ${limit}`)
+                                    editor?.setValue(limitedSql)
+                                }}
+                            />
+                        </div>
                     </Space>
 
                     
