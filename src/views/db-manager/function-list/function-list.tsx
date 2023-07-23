@@ -7,7 +7,7 @@ import classNames from 'classnames'
 import { useTranslation } from 'react-i18next';
 import { Editor } from '@/views/db-manager/editor/Editor';
 import { IconButton } from '@/views/db-manager/icon-button';
-import { DatabaseOutlined, DownOutlined, ExportOutlined, FormatPainterOutlined, ReloadOutlined, TableOutlined, UnorderedListOutlined } from '@ant-design/icons';
+import { DatabaseOutlined, DownOutlined, ExportOutlined, FormatPainterOutlined, PlusOutlined, ReloadOutlined, TableOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import { suggestionAdd } from '../suggestion';
 import { SorterResult } from 'antd/lib/table/interface';
 import { useEventEmitter } from 'ahooks';
@@ -220,37 +220,38 @@ function DebounceInput(props: InputProps) {
 
 
 export function FunctionList({ config, onJson, connectionId, onTab, dbName, data = {} }: any) {
-    // console.warn('SqlTree/render')
-    
-    const { defaultJson = '' } = data
     const { t } = useTranslation()
-    const event$ = useEventEmitter()
     
-    const [sortedInfo, setSortedInfo] = useState({});
+    const [createModalVisible, setCreateModalVisible] = useState(false)
+    const [sortedInfo, setSortedInfo] = useState({})
     const [loading, setLoading] = useState(false)
     const [keyword, setKeyword] = useState('')
-    // const [filterKeyword] = useState('')
-    // const refreshByKeyword = 
     const [selectedRowKeys, setSelectedRowKeys] = useState([])
     
     const [list, setList] = useState([])
-    
-    const [treeData, setTreeData] = useState([
-        {
-            title: dbName,
-            key: 'root',
-            children: [
-                // {
-                //     title: 'parent 1-0',
-                //     key: '0-0-0',
-                // },
-                // {
-                //     title: 'parent 1-1',
-                //     key: '0-0-1',
-                // },
-            ],
-        },
-    ])
+    const [code, setCode] = useState(`CREATE DEFINER=\`linxot\`@\`%\` FUNCTION \`get_number3\`(param varchar(50)) RETURNS varchar(30) CHARSET utf8
+BEGIN
+DECLARE length INT DEFAULT 0;
+
+DECLARE temp_str varchar(50) default '';
+
+set length=CHAR_LENGTH(param);
+
+WHILE length > 0 DO
+
+IF (ASCII(mid(param,length,1))>47 and ASCII(mid(param,length,1))<58 )THEN
+
+set temp_str = concat(temp_str,mid(param,length,1));
+
+END IF;
+
+SET length = length - 1;
+
+END WHILE;
+
+RETURN REVERSE(temp_str);
+
+END`)
     const filterList = useMemo(() => {
         if (!keyword) {
             return list
@@ -259,18 +260,8 @@ export function FunctionList({ config, onJson, connectionId, onTab, dbName, data
             return item.name.toLowerCase().includes(keyword.toLowerCase())
         })
     }, [list, keyword])
-    // const treeData: any[] = [
-        
-    // ]
 
     async function loadData() {
-        // console.log('props', this.props.match.params.name)
-        // let dbName = this.props.match.params.name
-        // this.dbName = dbName
-        // const { dispatch } = this.props;
-        // dispatch({
-        //   type: 'user/fetchUserList',
-        // });
         setLoading(true)
         setSortedInfo({})
         setSelectedRowKeys([])
@@ -279,33 +270,9 @@ export function FunctionList({ config, onJson, connectionId, onTab, dbName, data
             sql: `select * from mysql.proc where db = '${dbName}' and \`type\` = 'FUNCTION';`,
         })
         if (res.success) {
-            // message.info('连接成功')
             const list = res.data
             console.log('res', list)
             setList(list)
-
-            // const children = list
-            //     .map(item => {
-            //         const tableName = item.TABLE_NAME
-            //         return {
-            //             title: tableName,
-            //             key: tableName,
-            //         }
-            //     })
-            //     .sort((a, b) => {
-            //         return a.title.localeCompare(b.title)
-            //     })
-            // setTreeData([
-            //     {
-            //         title: dbName,
-            //         key: 'root',
-            //         children,
-            //         // itemData: item,
-            //     },
-            // ])
-            // adbs: ,
-            // suggestionAdd('adbs', ['dim_realtime_recharge_paycfg_range', 'dim_realtime_recharge_range'])
-            // suggestionAdd(dbName, list.map(item => item.TABLE_NAME))
         } else {
             message.error('连接失败')
         }
@@ -330,15 +297,6 @@ export function FunctionList({ config, onJson, connectionId, onTab, dbName, data
         })
     }
 
-    async function showCreateTable(nodeData) {
-        const tableName = nodeData.key // TODO @p2
-        const sql = `show create table \`${tableName}\`;`
-        // setSql(sql)
-        showSqlInNewtab({
-            title: 'Show create table',
-            sql,
-        })
-    }
 
     async function truncateTable(items) {
         const sql = items.map(item => {
@@ -362,28 +320,13 @@ export function FunctionList({ config, onJson, connectionId, onTab, dbName, data
         })
     }
 
-    async function partInfo(item) {
-        showSqlInNewtab({
-            title: item.TABLE_NAME,
-            sql: `SELECT PARTITION_NAME,TABLE_ROWS,PARTITION_EXPRESSION,PARTITION_DESCRIPTION 
-FROM INFORMATION_SCHEMA.PARTITIONS 
-WHERE TABLE_SCHEMA='${item.TABLE_SCHEMA}' AND TABLE_NAME = '${item.TABLE_NAME}'
-ORDER BY TABLE_ROWS DESC`
-        })
-    }
-
     async function queryDetail(item) {
         let res = await request.post(`${config.host}/mysql/execSqlSimple`, {
             connectionId,
             sql: `show create function ${item.name}`,
         })
         if (res.success) {
-            // message.info('连接成功')
-            // const list = res.data
-            console.log('res', res)
-            // setList(list)
             const sql = res.data[0]['Create Function']
-            console.log('sql', sql)
             showSqlInNewtab({
             title: item.name,
             sql,
@@ -391,58 +334,11 @@ ORDER BY TABLE_ROWS DESC`
         }
     }
 
-    function queryTableStruct(tableName: string) {
-        let tabKey = '' + new Date().getTime()
-        onTab && onTab({
-            title: tableName + ' - Table',
-            key: tabKey,
-            type: 'tableDetail',
-            // defaultSql: `SELECT * FROM \`${dbName}\`.\`${tableName}\` LIMIT 20;`,
-            data: {
-                dbName,
-                tableName,
-            },
-        })
-    }
-    
-
-    function queryTable(tableName: string) {
-        // let tabKey = '' + new Date().getTime()
-        // setActiveKey(tabKey)
-        // setTabs([
-        //     ...tabs,
-        //     {
-        //         title: tableName,
-        //         key: tabKey,
-        //         defaultSql: `SELECT *\nFROM \`${dbName}\`.\`${tableName}\`\nLIMIT 20;`,
-        //         data: {
-        //             dbName,
-        //             tableName,
-        //         },
-        //     }
-        // ])
-        showSqlInNewtab({
-            title: tableName,
-            sql: `SELECT *\nFROM \`${dbName}\`.\`${tableName}\`\nLIMIT 20;`,
-        })
-    }
-    
     const columns = [
         {
             title: t('name'),
             dataIndex: 'name',
             key: 'name',
-            // sorter: (a, b) => a.TABLE_NAME.localeCompare(b.TABLE_ROWS),
-            // sortOrder: sortedInfo.columnKey === 'TABLE_NAME' ? sortedInfo.order : null,
-            // // sortDirections: ['descend', 'ascend'],
-            // width: 240,
-            // ellipsis: true,
-            // fixed: 'left',
-            // render(value) {
-            //     return (
-            //         <div className={styles.cell}>{value}</div>
-            //     )
-            // }
         },
         {
             title: '',
@@ -465,31 +361,10 @@ ORDER BY TABLE_ROWS DESC`
                         >
                             {t('view')}
                         </Button>
-                        {/* <Button
-                            type="link"
-                            size="small"
-                            onClick={() => {
-                                showSqlInNewtab({
-                                    title: item.TABLE_NAME,
-                                    sql: `SELECT * FROM \`${item.TABLE_SCHEMA}\`.\`${item.TABLE_NAME}\`
-LIMIT 20`,
-                                })
-                            }}
-                        >
-                            {t('query')}
-                        </Button> */}
                         <Dropdown
                             overlay={
                                 <Menu
                                     items={[
-                                        // {
-                                        //     key: 'partInfo',
-                                        //     label: t('partition_info'),
-                                        // },
-                                        // {
-                                        //     key: 'truncate',
-                                        //     label: t('table_truncate'),
-                                        // },
                                         {
                                             key: 'drop',
                                             danger: true,
@@ -524,10 +399,17 @@ LIMIT 20`,
         },
     ]
 
-    event$.useSubscription(val => {
-        console.log('onmessage2', val)
-        // console.log(val);
-    })
+    async function createFunction() {
+        let res = await request.post(`${config.host}/mysql/execSqlSimple`, {
+            connectionId,
+            sql: code,
+        })
+        if (res.success) {
+            setCode('')
+            setCreateModalVisible(false)
+            loadData()
+        }
+    }
 
     return (
         <div className={styles.tablesBox}>
@@ -542,13 +424,16 @@ LIMIT 20`,
                         <ReloadOutlined />
                     </IconButton>
                     <IconButton
+                        tooltip={t('add')}
+                        onClick={() => {
+                            setCreateModalVisible(true)
+                        }}
+                    >
+                        <PlusOutlined />
+                    </IconButton>
+                    <IconButton
                         tooltip={t('export_json')}
                         onClick={() => {
-                            // event$.emit('hello')
-                            // event$.emit({
-                            //     type: 'open_json',
-                            //     data: '123',
-                            // })
                             onJson && onJson(JSON.stringify(list, null, 4))
                         }}
                     >
@@ -562,15 +447,6 @@ LIMIT 20`,
                         allowClear
                         placeholder={t('search') + '...'}
                     />
-                    {/* <Button
-                        // type="link"
-                        size="small"
-                        onClick={() => {
-                            onJson && onJson(JSON.stringify(list, null, 4))
-                        }}
-                    >
-                        导出 JSON
-                    </Button> */}
                 </Space>
                 {selectedRowKeys.length > 0 &&
                     <Space>
@@ -600,95 +476,6 @@ LIMIT 20`,
                     </Space>
                 }
             </div>
-            {/* <div className={styles.header}>
-                <DebounceInput
-                    value={keyword}
-                    onChange={value => {
-                        setKeyword(value)
-                    }}
-                    allowClear
-                    placeholder={t('search') + '...'}
-                />
-
-                <IconButton
-                    className={styles.refresh}
-                    tooltip={t('refresh')}
-                    onClick={() => {
-                        loadData()
-                    }}
-                >
-                    <ReloadOutlined />
-                </IconButton>
-                <IconButton
-                    className={styles.refresh}
-                    tooltip={t('list_view')}
-                    onClick={() => {
-                        let tabKey = '' + new Date().getTime()
-                        onTab && onTab({
-                            title: 'Tables',
-                            key: tabKey,
-                            type: 'table_list',
-                            // defaultSql: `SELECT * FROM \`${dbName}\`.\`${tableName}\` LIMIT 20;`,
-                            data: {
-                                dbName,
-                                // tableName,
-                            },
-                        })
-                    }}
-                >
-                    <UnorderedListOutlined />
-                </IconButton>
-            </div> */}
-            {/* <div className={styles.body}>
-                {loading ?
-                    <div className={styles.loading}>Loading...</div>
-                :
-                    <Tree
-                        // checkable
-                        defaultExpandedKeys={['root']}
-                        selectedKeys={[]}
-                        // defaultSelectedKeys={['0-0-0', '0-0-1']}
-                        // defaultCheckedKeys={['0-0-0', '0-0-1']}
-                        titleRender={nodeData => {
-                            // console.log('nodeData', nodeData)
-                            return (
-                                <TreeTitle
-                                    nodeData={nodeData}
-                                    keyword={keyword}
-                                    onClick={() => {
-                                        queryTable(nodeData.key)
-                                    }}
-                                    onDoubleClick={() => {
-                                        queryTableStruct(nodeData.key)
-                                    }}
-                                    onAction={(key) => {
-                                        if (key == 'view_struct') {
-                                            queryTableStruct(nodeData.key)
-                                        }
-                                        else if (key == 'export_struct') {
-                                            showCreateTable(nodeData)
-                                        }
-                                        else if (key == 'truncate') {
-                                            truncate(nodeData)
-                                        }
-                                        else if (key == 'drop') {
-                                            drop(nodeData)
-                                        }
-                                    }}
-                                />
-                            )
-                        }}
-                        onSelect={(selectedKeys, info) => {
-                            // console.log('selected', selectedKeys, info);
-                            // const tableName = selectedKeys[0]
-                            // queryTable(tableName)
-
-                        }}
-                        // onCheck={onCheck}
-                        treeData={filterTreeData}
-                    />
-                }
-            </div> */}
             <Table
                 loading={loading}
                 dataSource={filterList}
@@ -697,28 +484,37 @@ LIMIT 20`,
                 rowKey="TABLE_NAME"
                 columns={columns}
                 bordered
-                // rowSelection={{
-                //     selectedRowKeys,
-                //     onChange(selectedRowKeys, selectedRows, info) {
-                //         setSelectedRowKeys(selectedRowKeys)
-                //     },
-                // }}
                 onChange={(pagination, filters, sorter) => {
                     console.log('Various parameters', pagination, filters, sorter);
-                    // setFilteredInfo(filters);
                     console.log('sorter', sorter)
                     setSortedInfo(sorter)
                 }}
                 scroll={{
-                    // x: true,
                     x: 1500,
                     y: document.body.clientHeight - 40 - 40 -16 - 32 - 40 - 16 - 12,
                 }}
             />
-            {/* <Card bordered={false}>
-                <div className={styles.tableList}>
-                </div>
-            </Card> */}
+            {createModalVisible &&
+                <Modal
+                    open={true}
+                    title={t('sql.function.create')}
+                    width={800}
+                    onCancel={() => {
+                        setCreateModalVisible(false)
+                    }}
+                    onOk={createFunction}
+                >
+                    <Input.TextArea
+                        value={code}
+                        rows={12}
+                        placeholder={t('sql.function.create_sql')}
+                        onChange={e => {
+                            setCode(e.target.value)
+                        }}
+                    >
+                    </Input.TextArea>
+                </Modal>
+            }
         </div>
     )
 }
