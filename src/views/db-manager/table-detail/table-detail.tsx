@@ -734,7 +734,6 @@ function Cell({ value, selectOptions, item, index, dataIndex, onChange }) {
                             <Checkbox
                                 checked={inputValue == 'YES'}
                                 onChange={(e) => {
-                                    console.log('check', e.target.checked)
                                     const newValue = e.target.checked ? 'YES' : 'NO'
                                     setInputValue(newValue)
                                     onChange && onChange({
@@ -750,7 +749,6 @@ function Cell({ value, selectOptions, item, index, dataIndex, onChange }) {
                             <Checkbox
                                 checked={inputValue == 'auto_increment'}
                                 onChange={(e) => {
-                                    console.log('check', e.target.checked)
                                     const newValue = e.target.checked ? 'auto_increment' : ''
                                     setInputValue(newValue)
                                     onChange && onChange({
@@ -770,20 +768,29 @@ function Cell({ value, selectOptions, item, index, dataIndex, onChange }) {
                             }
                         </div>
                     : dataIndex == 'COLUMN_KEY' ?
-                        <div className={styles.cellCheckboxWrap}>
+                        <div className={styles.cellPrimaryKey}>
                             <Checkbox
                                 checked={inputValue == 'PRI'}
                                 onChange={(e) => {
-                                    console.log('check', e.target.checked)
-                                    const newValue = e.target.checked ? 'PRI' : ''
+                                    const { checked } = e.target
+                                    const newValue = checked ? 'PRI' : ''
                                     setInputValue(newValue)
                                     onChange && onChange({
                                         ...value,
                                         newValue,
+                                    }, {
+                                        primaryKeyChanged: {
+                                            isAdd: checked,
+                                        },
                                     })
 
                                 }}
                             />
+                            {inputValue == 'PRI' &&
+                                <div className={styles.index}>
+                                    {item['COLUMN_KEY']['primaryKeyIndex'] + 1}
+                                </div>
+                            }
                         </div>
                         // TODO type2 是什么？
                     : dataIndex == 'type2' ?
@@ -889,12 +896,12 @@ function EditableCellRender({ dataIndex, onChange } = {}) {
                 item={_item}
                 dataIndex={dataIndex}
                 index={index}
-                onChange={value => {
+                onChange={(value, opts) => {
                     onChange && onChange({
                         index,
                         dataIndex,
                         value,
-                    })
+                    }, opts)
                 }}
             />
         )
@@ -927,7 +934,6 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
             return (ItemHelper.mixValue(item, 'COLUMN_NAME') || '').toLowerCase().includes(columnKeyword.toLowerCase())
         })
     }, [tableColumns, columnKeyword])
-
     
     const [loading, setLoading] = useState(false)
     const [indexes, setIndexes] = useState([])
@@ -1053,7 +1059,6 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
     FROM \`information_schema\`.\`ENGINES\``,
         })
         if (res.success) {
-            console.log('res.data', res.data)
             const nginxs = res.data
                 .filter(item => item.SUPPORT != 'NO')
                 .map(item => {
@@ -1250,22 +1255,28 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
             }
         }
         // 主键逻辑
+        function primaryKeySorter(a, b) {
+            const aIdx = a['COLUMN_KEY'].primaryKeyIndex || 0
+            const bIdx = b['COLUMN_KEY'].primaryKeyIndex || 0
+            return aIdx - bIdx
+        }
+        function primaryKeySorterOld(a, b) {
+            const aIdx = a['COLUMN_KEY'].primaryKeyIndexOld || 0
+            const bIdx = b['COLUMN_KEY'].primaryKeyIndexOld || 0
+            return aIdx - bIdx
+        }
         const oldKeyColumns = tableColumns.filter(item => item.COLUMN_KEY.value == 'PRI' && !item.__new)
         const newKeyColumns = tableColumns.filter(item => ItemHelper.mixValue(item, 'COLUMN_KEY') == 'PRI')
-        const oldKeys = oldKeyColumns.map(item => item.COLUMN_NAME.value).join(',')
-        const newKeys = newKeyColumns.map(item => ItemHelper.mixValue(item, 'COLUMN_NAME')).join(',')
+        const oldKeys = oldKeyColumns.sort(primaryKeySorterOld).map(item => item.COLUMN_NAME.value).join(',')
+        const newKeys = newKeyColumns.sort(primaryKeySorter).map(item => ItemHelper.mixValue(item, 'COLUMN_NAME')).join(',')
 
         const isKeyChanged = oldKeys != newKeys
-        console.log('oldKeyColumns', oldKeyColumns)
-        console.log('newKeyColumns', newKeyColumns)
-        console.log('oldKeys', oldKeys)
-        console.log('newKeys', newKeys)
 
         if (isKeyChanged && oldKeyColumns.length) {
             rowSqls.push(`DROP PRIMARY KEY`)
         }
         if (isKeyChanged && newKeyColumns.length) {
-            let keySql = newKeyColumns.map(item => ItemHelper.mixValue(item, 'COLUMN_NAME'))
+            let keySql = newKeyColumns.sort(primaryKeySorter).map(item => ItemHelper.mixValue(item, 'COLUMN_NAME'))
                 .map(item => `\`${item}\``)
                 .join(',')
             rowSqls.push(`${editType == 'create' ? '' : 'ADD '}PRIMARY KEY(${keySql})`)
@@ -1278,7 +1289,6 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
                 idxSqls.push(`DROP INDEX \`${removedIndex.name.value}\``)
             }
         }
-        console.log('indexes', indexes)
         
         // 新增索引逻辑
         indexes.forEach((idxRow) => {
@@ -1497,10 +1507,36 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
         },
     ]
 
-    function onColumnCellChange({ index, dataIndex, value,}) {
+    function onColumnCellChange({ index, dataIndex, value,}, primaryKeyChanged) {
         console.log('onColumnCellChange', index, dataIndex, value)
         // onColumnCellChange 8 COLUMN_COMMENT {value: '节点名字', newValue: '节点名字3'}
         tableColumns[index][dataIndex] = value
+        if (primaryKeyChanged) {
+            if (primaryKeyChanged.isAdd) {
+                let primaryCount = 0
+                for (let column of tableColumns) {
+                    const key = ItemHelper.mixValue(column, 'COLUMN_KEY')
+                    if (key == 'PRI') {
+                        primaryCount++
+                    }
+                }
+                value.primaryKeyIndex = primaryCount - 1
+            }
+            else {
+                // remove
+                const removedPrimaryKeyIndex = tableColumns[index]['COLUMN_KEY'].primaryKeyIndex
+                // 删除主键索引，后面的索引全部减 1
+                for (let column of tableColumns) {
+                    const key = ItemHelper.mixValue(column, 'COLUMN_KEY')
+                    if (key == 'PRI') {
+                        const { primaryKeyIndex } = column['COLUMN_KEY']
+                        if (primaryKeyIndex > removedPrimaryKeyIndex) {
+                            column['COLUMN_KEY'].primaryKeyIndex -= 1
+                        }
+                    }
+                }
+            }
+        }
         setTableColumns([...tableColumns])
     }
 
@@ -1572,23 +1608,8 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
             // }
             render: EditableCellRender({
                 dataIndex: 'COLUMN_KEY',
-                onChange(values) {
-                    console.log('values', values)
-                    onColumnCellChange(values)
-                    // console.log('filteredTableColumns2', filteredTableColumns)
-                    // if (ItemHelper.mixValue(values.value) == 'PRI') {
-                    //     // onColumnCellChange({
-                    //     //     dataIndex
-                    //     //     : 
-                    //     //     "COLUMN_KEY"
-                    //     //     index
-                    //     //     : 
-                    //     //     1
-                    //     //     value
-                    //     //     : 
-                    //     //     {value: '', newValue: 'PRI'}
-                    //     // })
-                    // }
+                onChange(values, { primaryKeyChanged } = {}) {
+                    onColumnCellChange(values, primaryKeyChanged)
                 },
             }),
         },
@@ -1828,8 +1849,8 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
             }, {
                 noMessage: true,
             })
-            // console.log('loadTableInfo', res)
             if (res.success) {
+                const rawIndexes = res.data.indexes
                 setTableColumns(res.data.columns.map((col, idx) => {
                     const newCol = {}
                     newCol.__id = uid(32)
@@ -1838,6 +1859,11 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
                         newCol[key] = {
                             value: col[key],
                             newValue: undefined,
+                        }
+                        if (key == 'COLUMN_KEY' && col[key] == 'PRI') {
+                            const fIndex = rawIndexes.find(item => item.INDEX_NAME == 'PRIMARY' && item.COLUMN_NAME == col['COLUMN_NAME'])
+                            newCol[key].primaryKeyIndex = parseInt(fIndex['SEQ_IN_INDEX']) - 1
+                            newCol[key].primaryKeyIndexOld = parseInt(fIndex['SEQ_IN_INDEX']) - 1
                         }
                     }
                     return newCol
@@ -1973,6 +1999,7 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
             COLUMN_KEY: {
                 value: tableColumns.length == 0 ? 'PRI' : '',
                 __new: true,
+                primaryKeyIndex: tableColumns.length == 0 ? 0 : undefined,
             },
             EXTRA: {
                 value: '',
