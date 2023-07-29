@@ -11,6 +11,8 @@ import { CheckCircleOutlined, CloseCircleOutlined, InfoCircleOutlined } from '@a
 import { useTranslation } from 'react-i18next';
 import moment from 'moment';
 import TextareaAutosize from 'react-textarea-autosize'
+import { SearchUtil } from '@/utils/search';
+import { uid } from 'uid';
 
 const { TabPane } = Tabs
 const { TextArea } = Input
@@ -97,11 +99,19 @@ function MyInput({ value, onChange, column, ...otherProps }) {
 export function RowEditModal({ originColumns, onOk, item, onCancel, onSuccess, tableName, dbName }) {
     const { t } = useTranslation()
 
+    const [formKey, setFormKey] = useState(() => {
+        return uid(16)
+    })
     const [formItems, setFormItems] = useState([])
     const [form] = Form.useForm()
-
+    const [keyword, setKeyword] = useState('')
     // console.log('RowEditModal/item', item)
     // console.log('RowEditModal/formItems', formItems)
+    const filterdFormItems = useMemo(() => {
+        return SearchUtil.searchLike(formItems, keyword, {
+            attributes: ['field'],
+        })
+    }, [formItems, keyword])
 
     const columnMap = useMemo(() => {
         const result = {}
@@ -115,6 +125,7 @@ export function RowEditModal({ originColumns, onOk, item, onCancel, onSuccess, t
         const list = [] 
         const values = {}
 
+        let idx = 0
         for (let key in item) {
             console.log('key', key)
             if (item[key] && item[key].fieldName) {
@@ -122,6 +133,7 @@ export function RowEditModal({ originColumns, onOk, item, onCancel, onSuccess, t
                 list.push({
                     field: fieldName,
                     value,
+                    index: idx++,
                 })
 
                 values[fieldName] = value
@@ -158,22 +170,25 @@ export function RowEditModal({ originColumns, onOk, item, onCancel, onSuccess, t
             }}
             // footer={null}
         >
+            <div className={styles.filterBox}>
+                <Input
+                    className={styles.input}
+                    placeholder={t('filter')}
+                    value={keyword}
+                    size="small"
+                    // allowClear 会导致输入框高度不对
+                    // allowClear
+                    onChange={e => {
+                        setKeyword(e.target.value)
+                    }}
+                />
+            </div>
             <div
                 className={styles.form}
-                form={form}
-                size="small"
-                labelCol={{ span: 6 }}
-                wrapperCol={{ span: 18 }}
-                initialValues={{
-                    port: 3306,
-                }}
-                // layout={{
-                //     labelCol: { span: 0 },
-                //     wrapperCol: { span: 24 },
-                // }}
+                key={formKey}
             >
                 
-                {formItems.map((item, index) => {
+                {filterdFormItems.map((item, index) => {
                     return (
                         <div className={styles.formItem}>
                             <div className={styles.label}>{item.field}</div>
@@ -183,8 +198,11 @@ export function RowEditModal({ originColumns, onOk, item, onCancel, onSuccess, t
                                 value={item.value}
                                 column={columnMap[item.field]}
                                 onChange={value => {
-                                    formItems[index].value = value
+                                    formItems[item.index].value = value
                                     setFormItems([...formItems])
+                                    if (value === null) {
+                                        setFormKey(uid(16))
+                                    }
                                 }}
                             />
                             <Popover
