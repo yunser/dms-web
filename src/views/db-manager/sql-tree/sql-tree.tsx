@@ -67,7 +67,7 @@ function TreeTitle({ keyword, loading = false, nodeData, onAction, onClick, onDo
                 // console.log('双击')
                 onDoubleClick && onDoubleClick()
             }}
-            onClick={() => {
+            onClick={(e) => {
                 // console.log('onClick')
                 //先清除一次
                 if (timerRef.current) {
@@ -75,7 +75,7 @@ function TreeTitle({ keyword, loading = false, nodeData, onAction, onClick, onDo
                 }
                 timerRef.current = window.setTimeout(() => {
                     // console.log('单机')
-                    onClick && onClick()
+                    onClick && onClick(e)
                 }, 250)
             }}
         >
@@ -1091,7 +1091,10 @@ LIMIT 1000;`
                                     loading={nodeData.loading}
                                     nodeData={nodeData}
                                     keyword={keyword}
-                                    onClick={() => {
+                                    onClick={(e) => {
+                                        if (e.shiftKey && nodeData.type == 'table') {
+                                            queryTableStruct(nodeData)
+                                        }
                                     }}
                                     onDoubleClick={() => {
                                         console.log('onDoubleClick', nodeData)
