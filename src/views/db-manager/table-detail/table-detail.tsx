@@ -1,4 +1,4 @@
-import { Button, Checkbox, Descriptions, Divider, Form, Input, message, Modal, Popover, Select, Space, Table, Tabs, Tag, Tooltip } from 'antd';
+import { Button, Checkbox, Descriptions, Divider, Form, Input, InputNumber, message, Modal, Popover, Select, Space, Table, Tabs, Tag, Tooltip } from 'antd';
 import React, { useMemo } from 'react';
 import { VFC, useRef, useState, useEffect } from 'react';
 import { request } from '@/views/db-manager/utils/http';;
@@ -647,8 +647,11 @@ function Cell({ value, selectOptions, item, index, dataIndex, onChange }) {
     }, [])
 
     if (!value) {
-        // console.log('?', value)
-        return <div>?</div>
+        // Collation 可能为空
+        if (dataIndex == 'COLLATION_NAME') {
+            return <div></div>
+        }
+        return <div data-empty-cell="1">?</div>
     }
     const [isEdit, setIsEdit] = useState(false)
     const [inputValue, setInputValue] = useState(value.value)
@@ -1099,6 +1102,9 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
         }
         if (values.ENGINE != tableInfo.ENGINE) {
             attrSqls.push(`ENGINE=${values.ENGINE}`)
+        }
+        if (values.AUTO_INCREMENT != tableInfo.AUTO_INCREMENT) {
+            attrSqls.push(`AUTO_INCREMENT=${values.AUTO_INCREMENT}`)
         }
         if (values.collation != tableInfo.TABLE_COLLATION) {
             if (values.characterSet != _old_characterSet_ref.current) {
@@ -2169,6 +2175,12 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
                                                                 options={nginxs}
                                                             />
                                                         </Form.Item>
+                                                        <Form.Item
+                                                            name="AUTO_INCREMENT"
+                                                            label={t('auto_increment')}
+                                                        >
+                                                            <InputNumber />
+                                                        </Form.Item>
                                                         {/* <Form.Item
                                                                 wrapperCol={{ offset: 8, span: 16 }}
                                                                 // name="passowrd"
@@ -2187,9 +2199,9 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
                                                                 <Form.Item label={t('avg_row_length')}>
                                                                     {tableInfo.AVG_ROW_LENGTH}
                                                                 </Form.Item>
-                                                                <Form.Item label={t('auto_increment')}>
+                                                                {/* <Form.Item label={t('auto_increment')}>
                                                                     {tableInfo.AUTO_INCREMENT}
-                                                                </Form.Item>
+                                                                </Form.Item> */}
                                                                 <Form.Item label={t('row_format')}>
                                                                     {tableInfo.ROW_FORMAT}
                                                                 </Form.Item>
