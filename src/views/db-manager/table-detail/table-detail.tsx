@@ -1,4 +1,4 @@
-import { Button, Checkbox, Descriptions, Divider, Form, Input, message, Modal, Popover, Select, Space, Table, Tabs, Tooltip } from 'antd';
+import { Button, Checkbox, Descriptions, Divider, Form, Input, message, Modal, Popover, Select, Space, Table, Tabs, Tag, Tooltip } from 'antd';
 import React, { useMemo } from 'react';
 import { VFC, useRef, useState, useEffect } from 'react';
 import { request } from '@/views/db-manager/utils/http';;
@@ -639,7 +639,7 @@ function ColumnSelector({ value: _value, onChange, options }) {
 }
 
 
-function Cell({ value, selectOptions, index, dataIndex, onChange }) {
+function Cell({ value, selectOptions, item, index, dataIndex, onChange }) {
     // console.log('Cell/value', value)
     // const inputRef = useRef(null)
     const id = useMemo(() => {
@@ -754,6 +754,14 @@ function Cell({ value, selectOptions, index, dataIndex, onChange }) {
 
                                 }}
                             />
+                        </div>
+                    : dataIndex == 'COLLATION_NAME' ?
+                        <div className={styles.cellCheckboxWrap}>
+                            {!!ItemHelper.mixValue(item, 'CHARACTER_SET_NAME') &&
+                                <div>
+                                    <Tag>{ItemHelper.mixValue(item, 'COLLATION_NAME') || ItemHelper.mixValue(item, 'CHARACTER_SET_NAME')}</Tag>
+                                </div>
+                            }
                         </div>
                     : dataIndex == 'COLUMN_KEY' ?
                         <div className={styles.cellCheckboxWrap}>
@@ -872,6 +880,7 @@ function EditableCellRender({ dataIndex, onChange } = {}) {
         return (
             <Cell
                 value={value}
+                item={_item}
                 dataIndex={dataIndex}
                 index={index}
                 onChange={value => {
@@ -913,7 +922,6 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
         })
     }, [tableColumns, columnKeyword])
 
-    // console.log('filteredTableColumns', filteredTableColumns)
     
     const [loading, setLoading] = useState(false)
     const [indexes, setIndexes] = useState([])
@@ -1161,7 +1169,9 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
             }
 
             let codeSql = ``
-            if (['varchar'].includes(ItemHelper.mixValue(row, 'COLUMN_TYPE')) && (ItemHelper.isKeyValueChanged(row, 'CHARACTER_SET_NAME') || ItemHelper.isKeyValueChanged(row, 'COLLATION_NAME'))) {
+            if (ItemHelper.mixValue(row, 'COLUMN_TYPE').includes('varchar') 
+                && (ItemHelper.isKeyValueChanged(row, 'CHARACTER_SET_NAME') || ItemHelper.isKeyValueChanged(row, 'COLLATION_NAME'))) {
+
                 codeSql = `CHARACTER SET ${ItemHelper.mixValue(row, 'CHARACTER_SET_NAME')}`
                 const collation = ItemHelper.mixValue(row, 'COLLATION_NAME')
                 if (collation) {
@@ -1607,6 +1617,22 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
             //     )
             // }
         },
+        // {
+        //     title: t('character_set'),
+        //     dataIndex: 'CHARACTER_SET_NAME',
+        //     render: EditableCellRender({
+        //         dataIndex: 'COLLATION_NAME',
+        //         onChange: onColumnCellChange,
+        //     }),
+        // },
+        {
+            title: t('collation'),
+            dataIndex: 'COLLATION_NAME',
+            render: EditableCellRender({
+                dataIndex: 'COLLATION_NAME',
+                onChange: onColumnCellChange,
+            }),
+        },
         {
             title: t('actions'),
             dataIndex: 'op',
@@ -1653,6 +1679,7 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
                 return (
                     <Cell
                         value={value}
+                        item={_item}
                         dataIndex="name"
                         index={index}
                         onChange={value => {
@@ -1678,6 +1705,7 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
                 return (
                     <Cell
                         value={value}
+                        item={_item}
                         dataIndex="type2"
                         index={index}
                         onChange={value2 => {
@@ -1708,6 +1736,7 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
                 return (
                     <Cell
                         value={value}
+                        item={_item}
                         dataIndex="columns"
                         selectOptions={tableColumns.map(item => {
                             const value = ItemHelper.mixValue(item, 'COLUMN_NAME')
