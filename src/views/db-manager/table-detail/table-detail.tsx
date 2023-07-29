@@ -35,6 +35,9 @@ export const ItemHelper = {
         return item[key].value
     },
     isKeyValueChanged(item, key) {
+        if (item[key] === undefined) {
+            return false
+        }
         return item[key].newValue !== undefined && item[key].newValue !== item[key].value
             || item[key].__new
     },
