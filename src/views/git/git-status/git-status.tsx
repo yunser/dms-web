@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { DownloadOutlined, EllipsisOutlined, MinusOutlined, QuestionOutlined, UserOutlined } from '@ant-design/icons';
+import { DownloadOutlined, EllipsisOutlined, MinusOutlined, QuestionOutlined, ReloadOutlined, UserOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
@@ -831,7 +831,18 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                             :
                                 <>
                                     <div className={styles.header}>
-                                        {curFile}
+                                        <div className={styles.path}>{curFile}</div>
+                                        <div>
+                                            <IconButton
+                                                size="small"
+                                                className={styles.refresh}
+                                                onClick={() => {
+                                                    handleClickItem(diffItem)
+                                                }}
+                                            >
+                                                <ReloadOutlined />
+                                            </IconButton>
+                                        </div>
                                     </div>
                                     <div className={styles.body}>
                                         <DiffText
