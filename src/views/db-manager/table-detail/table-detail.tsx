@@ -936,6 +936,7 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
     const [execSql, setExecSql] = useState('')
     const [curTab, setCurTab] = useState('basic')
     const [form] = Form.useForm()
+    
     const [nginxs, setNginxs] = useState([])
     const [colSelectedRowKeys, setColSelectedRowKeys] = useState([])
     const [partionSelectedRowKeys, setPartitionSelectedRowKeys] = useState([])
@@ -2217,6 +2218,22 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
                                                             </>
                                                         }
                                                     </Form>
+                                                    <div className={styles.apply}>
+                                                        <Button
+                                                            size="small"
+                                                            onClick={async () => {
+                                                                const values = await form.validateFields()
+                                                                let collateSql = ''
+                                                                if (values.collation) {
+                                                                    collateSql = ` COLLATE ${values.collation}`
+                                                                }
+                                                                let sql = `ALTER TABLE \`${dbName}\`.\`${tableInfo.TABLE_NAME}\` CONVERT TO CHARACTER SET ${values.characterSet}${collateSql};`
+                                                                setExecSql(sql)
+                                                            }}
+                                                        >
+                                                            {t('sql.edit.apply_collation')}
+                                                        </Button>
+                                                    </div>
                                                 </div>
                                                 {editType == 'update' &&
                                                     <Descriptions column={1}>
