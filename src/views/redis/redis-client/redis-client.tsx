@@ -241,6 +241,7 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
     const [treeData, setTreeData] = useState([])
     const [expandedKeys, setExpandedKeys ] = useState([])
     // add
+    const [addPrefix, setAddPrefix] = useState('')
     const [addType, setAddType] = useState('')
     const [addModalVisible, setAddModalVisible] = useState(false)
     // rename
@@ -890,27 +891,27 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
                                         items={[
                                             {
                                                 label: t('string'),
-                                                key: 'string',
+                                                key: 'add_string',
                                             },
                                             {
                                                 label: t('list'),
-                                                key: 'list',
+                                                key: 'add_list',
                                             },
                                             {
                                                 label: t('set'),
-                                                key: 'set',
+                                                key: 'add_set',
                                             },
                                             {
                                                 label: t('zset'),
-                                                key: 'zset',
+                                                key: 'add_zset',
                                             },
                                             {
                                                 label: t('hash'),
-                                                key: 'hash',
+                                                key: 'add_hash',
                                             },
                                             {
                                                 label: t('redis.stream'),
-                                                key: 'stream',
+                                                key: 'add_stream',
                                             },
                                             // {
                                             //     type: 'divider',
@@ -932,33 +933,12 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
                                             // },
                                         ]}
                                         onClick={({ key }) => {
-                                            if (key == 'string') {
+                                            if (key.startsWith('add_')) {
+                                                const type = key.split('_')[1]
+                                                setAddType(type)
+                                                setAddPrefix('')
                                                 setAddModalVisible(true)
-                                                setAddType('string')
                                             }
-                                            else if (key == 'list') {
-                                                setAddModalVisible(true)
-                                                setAddType('list')
-                                            }
-                                            else if (key == 'set') {
-                                                setAddModalVisible(true)
-                                                setAddType('set')
-                                            }
-                                            else if (key == 'zset') {
-                                                setAddModalVisible(true)
-                                                setAddType('zset')
-                                            }
-                                            else if (key == 'hash') {
-                                                setAddModalVisible(true)
-                                                setAddType('hash')
-                                            }
-                                            else if (key == 'stream') {
-                                                setAddModalVisible(true)
-                                                setAddType('stream')
-                                            }
-                                            // else if (key == 'command') {
-                                            //     addEditorTab()
-                                            // }
                                         }}
                                     />
                                 }
@@ -1278,6 +1258,36 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
                                                                 //     key: 'key_export_keys',
                                                                 // },
                                                                 {
+                                                                    label: t('add'),
+                                                                    key: 'add_key_in_folder',
+                                                                    children: [
+                                                                        {
+                                                                            label: t('string'),
+                                                                            key: 'add_string',
+                                                                        },
+                                                                        {
+                                                                            label: t('list'),
+                                                                            key: 'add_list',
+                                                                        },
+                                                                        {
+                                                                            label: t('set'),
+                                                                            key: 'add_set',
+                                                                        },
+                                                                        {
+                                                                            label: t('zset'),
+                                                                            key: 'add_zset',
+                                                                        },
+                                                                        {
+                                                                            label: t('hash'),
+                                                                            key: 'add_hash',
+                                                                        },
+                                                                        {
+                                                                            label: t('redis.stream'),
+                                                                            key: 'add_stream',
+                                                                        },
+                                                                    ]
+                                                                },
+                                                                {
                                                                     label: t('export'),
                                                                     key: 'key_export_keys',
                                                                     children: [
@@ -1305,7 +1315,10 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
                                                                     danger: true,
                                                                 },
                                                             ]}
-                                                            onClick={async ({ _item, key, keyPath, domEvent }) => {
+                                                            onClick={async (e) => {
+                                                                const { _item, key, keyPath, domEvent } = e
+                                                                e.domEvent.stopPropagation()
+
                                                                 // onAction && onAction(key)
                                                                 if (key == 'key_delete') {
                                                                     console.log('removeKeys', nodeData)
@@ -1325,6 +1338,12 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
                                                                     // removeKey(item.key)
                                                                     copy(nodeData.itemData.prefix + '*')
                                                                     message.info(t('copied'))
+                                                                }
+                                                                else if (key.startsWith('add_')) {
+                                                                    const type = key.split('_')[1]
+                                                                    setAddType(type)
+                                                                    setAddPrefix(nodeData.itemData.prefix)
+                                                                    setAddModalVisible(true)
                                                                 }
                                                             }}
                                                         >
@@ -1564,6 +1583,7 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
                     config={config}
                     connectionId={connectionId}
                     type={addType}
+                    prefix={addPrefix}
                     onCancel={() => {
                         setAddModalVisible(false)
                     }}

@@ -55,7 +55,7 @@ import { request } from '@/views/db-manager/utils/http';
 // }
 
 
-export function KeyAddModal({ config, type, onCancel, connectionId, item, onClose, onSuccess, onConnect, }) {
+export function KeyAddModal({ config, prefix = '', type, onCancel, connectionId, item, onClose, onSuccess, onConnect, }) {
     const { t } = useTranslation()
 
     const [loading, setLoading] = useState(false)
@@ -204,6 +204,7 @@ export function KeyAddModal({ config, type, onCancel, connectionId, item, onClos
                 initialValues={{
                     position: 'last',
                     // port: 6379,
+                    name: prefix,
                     // db: 0,
                 }}
                 onFinish={handleOk}
