@@ -122,11 +122,15 @@ interface PrettyContentProps {
     text: string
 }
 
-function PrettyContent({ text }: PrettyContentProps) {
+function PrettyContent({ text, isBlob = false }: PrettyContentProps) {
 
+    const { t } = useTranslation()
     const [type, setType] = useState('pretty')
 
     const [prettyText] = useMemo(() => {
+        if (isBlob) {
+            const json = JSON.parse(text)
+        }
         let prettyText = text
         // let type = 'plain'
         // console.log('response.text', response.text)
@@ -146,7 +150,15 @@ function PrettyContent({ text }: PrettyContentProps) {
             // nothing
         }
         return [prettyText]
-    }, [text])
+    }, [text, isBlob])
+
+    if (isBlob) {
+        return (
+            <div>
+                {t('sql.blob.not_support')}
+            </div>
+        )
+    }
 
     return (
         <div className={styles.cellDetail}>
@@ -430,7 +442,10 @@ function Cell({ item, editing, onChange, columnWithType }) {
                     {text == null ? 
                         'NULL' 
                     :
-                        <PrettyContent text={text} />
+                        <PrettyContent
+                            text={text}
+                            isBlob={isBlob}
+                        />
                     }
                 </Drawer>
             }
