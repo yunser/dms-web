@@ -543,6 +543,56 @@ function ColumnModal({ item, onCancel, onOk, characterSets, characterSetMap }) {
     )
 }
 
+function PartitionModal({ onCancel, onOk }) {
+    const { t } = useTranslation()
+    const [form] = Form.useForm()
+
+    return (
+        <Modal
+            open={true}
+            title={t('sql.partition.create')}
+            onCancel={onCancel}
+            onOk={async () => {
+                const values = await form.validateFields()
+                onOk && onOk(values)
+            }}
+        >
+            <Form
+                form={form}
+                labelCol={{ span: 6 }}
+                wrapperCol={{ span: 18 }}
+            >
+                <Form.Item
+                    name="name"
+                    label={t('name')}
+                    rules={[ { required: true, }, ]}
+                >
+                    <Input />
+                </Form.Item>
+                <Form.Item
+                    name="value"
+                    label={t('value')}
+                    rules={[ { required: true, }, ]}
+                >
+                    <Input />
+                </Form.Item>
+            </Form>
+            <Button
+                size="small"
+                onClick={() => {
+                    const now = moment()
+                    form.setFieldsValue({
+                        name: `p${now.format('YYYYMM')}`,
+                        value: `TO_DAYS('${now.clone().startOf('month').add(1, 'months').format('YYYY-MM-DD')}')`,
+                    })
+                }}
+            >
+                pyyyymm
+            </Button>
+        </Modal>
+    )
+}
+
 function ColumnSelector({ value: _value, onChange, options }) {
     const { t } = useTranslation()
     const [modalVisible, setModalVisible] = useState(false)
@@ -940,6 +990,7 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
     const [removedRows, setRemovedRows] = useState([])
     const [removedIndexes, setRemovedIndexes] = useState([])
     const [partitions, setPartitions] = useState([])
+    const [partitionModalVisible, setPartitionModalVisible] = useState(false)
     const [triggers, setTriggers] = useState([])
     const [tableInfo, setTableInfo] = useState({})
     const [execSql, setExecSql] = useState('')
@@ -1332,6 +1383,21 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
         // for (let idxRow of indexes) {
         // }
 
+        // 分区逻辑
+        const partSqls = []
+        for (let item of partitions) {
+            const newItems = []
+            if (item.__p_item_new) {
+                newItems.push(item)
+            }
+            if (newItems.length) {
+                const partListSql = newItems.map(item => {
+                    return `partition ${item.PARTITION_NAME} values less than (${item.PARTITION_DESCRIPTION})`
+                }).join(',\n')
+                let partSql = `add partition (${partListSql})`
+                partSqls.push(partSql)
+            }
+        }
 
         // must before 「No changed」check
         if (editType == 'create' && !rowSqls.length) {
@@ -1342,6 +1408,7 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
             ...attrSqls,
             ...rowSqls,
             ...idxSqls,
+            ...partSqls,
         ]
         
         if (!allSqls.length) {
@@ -1368,7 +1435,7 @@ ${[...rowSqls, ...idxSqls].join(' ,\n')}
         }
         else {
             sqlList.push(`ALTER TABLE \`${dbName}\`.\`${tableInfo.TABLE_NAME}\`
-${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
+${[...attrSqls, ...rowSqls, ...idxSqls, ...partSqls].join(' ,\n')};`)
         }
         
         console.log('sql', sqlList)
@@ -1390,6 +1457,10 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
         })
     }
 
+    function createPartition() {
+        setPartitionModalVisible(true)
+    }
+
     function dropPartition(items) {
         console.log('items', items)
         const sql = items.map(item => {
@@ -1402,6 +1473,13 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
                 sql,
             }
         })
+    }
+
+    function removePartition(index) {
+        partitions.splice(index, 1)
+        setPartitions([
+            ...partitions,
+        ])
     }
 
     // async function submitChange() {
@@ -1446,6 +1524,12 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
             ellipsis: true,
         },
         {
+            title: t('description'),
+            dataIndex: 'PARTITION_DESCRIPTION',
+            width: 240,
+            ellipsis: true,
+        },
+        {
             title: t('expression'),
             dataIndex: 'PARTITION_EXPRESSION',
             width: 200,
@@ -1470,33 +1554,42 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
             },
         },
         {
-            title: t('description'),
-            dataIndex: 'PARTITION_DESCRIPTION',
-            width: 240,
-            ellipsis: true,
-        },
-        {
             title: t('actions'),
             dataIndex: 'actions',
             // fixed: 'right',
             width: 320,
-            render(value, item) {
+            render(value, item, index) {
                 return (
                     <Space>
-                        <Button
-                            type="link"
-                            size="small"
-                            onClick={() => {
-                                truncatePartition([item])
-                            }}
-                        >{t('truncate')}</Button>
-                        <Button
-                            type="link"
-                            size="small"
-                            onClick={() => {
-                                dropPartition([item])
-                            }}
-                        >{t('drop')}</Button>
+                        {item.__p_item_new ?
+                            <Button
+                                type="link"
+                                size="small"
+                                danger
+                                onClick={() => {
+                                    removePartition(index)
+                                }}
+                            >{t('delete')}</Button>
+                        :
+                        <>
+                            <Button
+                                type="link"
+                                size="small"
+                                danger
+                                onClick={() => {
+                                    truncatePartition([item])
+                                }}
+                            >{t('truncate')}</Button>
+                            <Button
+                                type="link"
+                                size="small"
+                                danger
+                                onClick={() => {
+                                    dropPartition([item])
+                                }}
+                            >{t('drop')}</Button>
+                        </>
+                        }
                     </Space>
                 )
             }
@@ -1680,6 +1773,7 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
                                 }}
                             >{t('edit')}</a>
                             <a
+                                className={styles.danger}
                                 onClick={() => {
                                     setTableColumns(tableColumns.filter(_item => _item.__id != item.__id))
                                     if (!item.__new) {
@@ -2506,30 +2600,57 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
                                         }
                                         {item.key == 'partition' &&
                                             <div>
-                                                {partionSelectedRowKeys.length > 0 &&
-                                                    <div className={styles.tool}>
-                                                        <Space>
+                                                <div className={styles.tool}>
+                                                    <Space>
+                                                        {editType == 'update' && partitions.length > 0 &&
                                                             <Button
                                                                 size="small"
+                                                                icon={<PlusOutlined />}
                                                                 onClick={() => {
-                                                                    truncatePartition(partionSelectedRowKeys.map(name => {
-                                                                        return partitions.find(item => item.PARTITION_NAME == name)
-                                                                    }))
+                                                                    createPartition()
                                                                 }}
                                                             >
-                                                                {t('truncate')}
+                                                                {t('add')}
                                                             </Button>
-                                                            <Button
-                                                                size="small"
-                                                                onClick={() => {
-                                                                    dropPartition(partionSelectedRowKeys.map(name => {
-                                                                        return partitions.find(item => item.PARTITION_NAME == name)
-                                                                    }))
-                                                                }}
-                                                            >
-                                                                {t('drop')}
-                                                            </Button>
-                                                        </Space>
+                                                        }
+                                                        {partionSelectedRowKeys.length > 0 &&
+                                                            <>
+                                                                <Button
+                                                                    size="small"
+                                                                    danger
+                                                                    onClick={() => {
+                                                                        truncatePartition(partionSelectedRowKeys.map(name => {
+                                                                            return partitions.find(item => item.PARTITION_NAME == name)
+                                                                        }))
+                                                                    }}
+                                                                >
+                                                                    {t('truncate')}
+                                                                </Button>
+                                                                <Button
+                                                                    size="small"
+                                                                    danger
+                                                                    onClick={() => {
+                                                                        dropPartition(partionSelectedRowKeys.map(name => {
+                                                                            return partitions.find(item => item.PARTITION_NAME == name)
+                                                                        }))
+                                                                    }}
+                                                                >
+                                                                    {t('drop')}
+                                                                </Button>
+                                                            </>
+                                                        }
+                                                    </Space>
+                                                </div>
+                                                {partitions.length > 0 && editType == 'update' &&
+                                                    <div className={styles.partitionInfo}>
+                                                        {t('sql.partition.split_by')}
+                                                        <Tag className={styles.tag}>
+                                                            {partitions[0].PARTITION_METHOD}
+                                                        </Tag>
+                                                        <Tag className={styles.tag}>
+                                                            {partitions[0].PARTITION_EXPRESSION}
+                                                        </Tag>
+
                                                     </div>
                                                 }
                                                 <Table
@@ -2629,6 +2750,24 @@ ${[...attrSqls, ...rowSqls, ...idxSqls].join(' ,\n')};`)
                         setTableColumns([...tableColumns])
                         setColumnModalItem(null)
                         setColumnModalVisible(false)
+                    }}
+                />
+            }
+            {partitionModalVisible &&
+                <PartitionModal
+                    onCancel={() => {
+                        setPartitionModalVisible(false)
+                    }}
+                    onOk={(item) => {
+                        setPartitionModalVisible(false)
+                        setPartitions([
+                            ...partitions,
+                            {
+                                __p_item_new: true,
+                                PARTITION_NAME: item.name,
+                                PARTITION_DESCRIPTION: item.value,
+                            },
+                        ])
                     }}
                 />
             }
