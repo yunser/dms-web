@@ -215,6 +215,10 @@ function TreeTitle({ keyword, loading = false, nodeData, onAction, onClick, onDo
                                     label: t('mysql.export_data'),
                                     key: 'export_data',
                                 },
+                                {
+                                    label: t('sql.optimize_table'),
+                                    key: 'optimize_table',
+                                },
                                 // --------
                                 {
                                     type: 'divider',
@@ -748,6 +752,16 @@ LIMIT 1000;`
         })
     }
 
+    function optimizeTable(nodeData) {
+        const tableName = nodeData.itemData.$_table_name
+        const schemaName = nodeData.itemData.$table_schema
+        const sql = `OPTIMIZE TABLE \`${schemaName}\`.\`${tableName}\`;`
+        showSqlInNewtab({
+            title: `${sql.optimize_table} - ${tableName}`,
+            sql,
+        })
+    }
+
     async function countAll(nodeData) {
         const tableName = nodeData.itemData.$_table_name
         const schemaName = nodeData.itemData.$table_schema
@@ -1150,6 +1164,9 @@ LIMIT 1000;`
                                         }
                                         else if (key == 'export_data') {
                                             exportData(nodeData)
+                                        }
+                                        else if (key == 'optimize_table') {
+                                            optimizeTable(nodeData)
                                         }
                                         else if (key == 'copy_name') {
                                             console.log('nodeData', nodeData)
