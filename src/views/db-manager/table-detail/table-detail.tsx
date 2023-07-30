@@ -334,6 +334,7 @@ function TypeInput({ value, onChange }) {
 function ColumnModal({ item, onCancel, onOk, characterSets, characterSetMap }) {
     const { t } = useTranslation()
     const [form] = Form.useForm()
+    const generationType = Form.useWatch('generationType', form)
     console.log('ColumnModal/item', item)
     const columnDefault = Form.useWatch('COLUMN_DEFAULT', form)
 
@@ -358,6 +359,7 @@ function ColumnModal({ item, onCancel, onOk, characterSets, characterSetMap }) {
         for (let key in item) {
             const value = ItemHelper.mixValue(item, key)
 
+            // @p1
             if (key == 'EXTRA') {
                 values[key] = value == 'auto_increment' ? 'auto_increment' : ''
             }
@@ -371,7 +373,7 @@ function ColumnModal({ item, onCancel, onOk, characterSets, characterSetMap }) {
 
     return (
         <Modal
-            width={800}
+            width={720}
             open={true}
             title={t('column_edit')}
             onCancel={onCancel}
@@ -383,6 +385,7 @@ function ColumnModal({ item, onCancel, onOk, characterSets, characterSetMap }) {
         >
             <Form
                 form={form}
+                size="small"
                 labelCol={{ span: 6 }}
                 wrapperCol={{ span: 18 }}
                 initialValues={{
@@ -546,11 +549,34 @@ function ColumnModal({ item, onCancel, onOk, characterSets, characterSetMap }) {
                     />
                 </Form.Item>
                 <Form.Item
-                    name="GENERATION_EXPRESSION"
-                    label={t('sql.expression')}
+                    name="generationType"
+                    label={t('sql.generation_type')}
                 >
-                    <Input disabled />
+                    <Select
+                        options={[
+                            {
+                                label: 'None',
+                                value: '',
+                            },
+                            {
+                                label: 'STORED',
+                                value: 'STORED',
+                            },
+                            {
+                                label: 'VIRTUAL',
+                                value: 'VIRTUAL',
+                            },
+                        ]}
+                    />
                 </Form.Item>
+                {generationType != '' &&
+                    <Form.Item
+                        name="GENERATION_EXPRESSION"
+                        label={t('sql.expression')}
+                    >
+                        <Input />
+                    </Form.Item>
+                }
             </Form>
         </Modal>
     )
@@ -1220,6 +1246,8 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
                     'COLUMN_COMMENT',
                     'CHARACTER_SET_NAME',
                     'COLLATION_NAME',
+                    'GENERATION_EXPRESSION',
+                    'generationType',
                 ]
                 if (dbFunConfigMap[databaseType].autoIncrement) {
                     checkFields.push('EXTRA')
@@ -1309,12 +1337,21 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
                     positionSql = `AFTER \`${prevItemName}\``
                 }
             }
+
+            let genSql = '**'
+            const genType = ItemHelper.mixValue(row, 'generationType')
+            const genExp = ItemHelper.mixValue(row, 'GENERATION_EXPRESSION')
+            if (genType) {
+                genSql = `AS (${genExp}) ${genType}`
+            }
+
             // const rowSql = `${changeType} ${nameSql} ${typeSql} ${codeSql} ${nullSql} ${autoIncrementSql} ${defaultSql} ${commentSql} ${positionSql}`
             const rowSql = [
                 changeType,
                 nameSql,
                 typeSql,
                 codeSql,
+                genSql,
                 nullSql,
                 autoIncrementSql,
                 defaultSql,
@@ -1805,6 +1842,22 @@ ${[...attrSqls, ...rowSqls, ...idxSqls, ...partSqls].join(' ,\n')};`)
                 onChange: onColumnCellChange,
             }),
         },
+        // {
+        //     title: t('generationType'),
+        //     dataIndex: 'generationType',
+        //     render: EditableCellRender({
+        //         dataIndex: 'generationType',
+        //         onChange: onColumnCellChange,
+        //     }),
+        // },
+        // {
+        //     title: t('GENERATION_EXPRESSION'),
+        //     dataIndex: 'GENERATION_EXPRESSION',
+        //     render: EditableCellRender({
+        //         dataIndex: 'GENERATION_EXPRESSION',
+        //         onChange: onColumnCellChange,
+        //     }),
+        // },
         {
             title: t('actions'),
             dataIndex: 'op',
@@ -2008,6 +2061,17 @@ ${[...attrSqls, ...rowSqls, ...idxSqls, ...partSqls].join(' ,\n')};`)
                             newCol[key].primaryKeyIndexOld = parseInt(fIndex['SEQ_IN_INDEX']) - 1
                         }
                     }
+                    let generationType = ''
+                    if (col['EXTRA'] == 'STORED GENERATED') {
+                        generationType = 'STORED'
+                    }
+                    else if (col['EXTRA'] == 'VIRTUAL GENERATED') {
+                        generationType = 'VIRTUAL'
+                    }
+                    newCol['generationType'] = {
+                        value: generationType,
+                        newValue: undefined,
+                    }
                     return newCol
                 }))
                 setTriggers(res.data.triggers)
@@ -2144,6 +2208,22 @@ ${[...attrSqls, ...rowSqls, ...idxSqls, ...partSqls].join(' ,\n')};`)
                 primaryKeyIndex: tableColumns.length == 0 ? 0 : undefined,
             },
             EXTRA: {
+                value: '',
+                __new: true,
+            },
+            generationType: {
+                value: '',
+                __new: true,
+            },
+            GENERATION_EXPRESSION: {
+                value: '',
+                __new: true,
+            },
+            CHARACTER_SET_NAME: {
+                value: '',
+                __new: true,
+            },
+            COLLATION_NAME: {
                 value: '',
                 __new: true,
             },
@@ -2795,12 +2875,14 @@ ${[...attrSqls, ...rowSqls, ...idxSqls, ...partSqls].join(' ,\n')};`)
                         // console.log('columnModalItem', columnModalItem)
                         // console.log('tableColumns', tableColumns)
                         const idx = tableColumns.findIndex(item => item.__id == columnModalItem.__id)
-                        // console.log('idx', idx)
                         if (idx == -1) {
                             message.error('index error')
                             return
                         }
                         for (let key in values) {
+                            if (!tableColumns[idx][key]) {
+                                console.warn(`key ${key} not in row ${idx}`)
+                            }
                             tableColumns[idx][key] = {
                                 ...tableColumns[idx][key],
                                 newValue: values[key]
