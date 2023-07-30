@@ -543,9 +543,19 @@ function ColumnModal({ item, onCancel, onOk, characterSets, characterSetMap }) {
     )
 }
 
-function PartitionModal({ onCancel, onOk }) {
+function PartitionModal({ item, onCancel, onOk }) {
     const { t } = useTranslation()
     const [form] = Form.useForm()
+
+    useEffect(() => {
+        form.setFieldsValue(item ? {
+            name: item.PARTITION_NAME,
+            value: item.PARTITION_DESCRIPTION,
+        } : {
+            name: '',
+            value: '',
+        })
+    }, [item])
 
     return (
         <Modal
@@ -990,6 +1000,8 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
     const [removedRows, setRemovedRows] = useState([])
     const [removedIndexes, setRemovedIndexes] = useState([])
     const [partitions, setPartitions] = useState([])
+    const [partitionModalItem, setPartitionModalItem] = useState(null)
+    const [partitionModalIndex, setPartitionModalIndex] = useState(-1)
     const [partitionModalVisible, setPartitionModalVisible] = useState(false)
     const [triggers, setTriggers] = useState([])
     const [tableInfo, setTableInfo] = useState({})
@@ -1458,6 +1470,7 @@ ${[...attrSqls, ...rowSqls, ...idxSqls, ...partSqls].join(' ,\n')};`)
     }
 
     function createPartition() {
+        setPartitionModalItem(null)
         setPartitionModalVisible(true)
     }
 
@@ -1561,6 +1574,17 @@ ${[...attrSqls, ...rowSqls, ...idxSqls, ...partSqls].join(' ,\n')};`)
             render(value, item, index) {
                 return (
                     <Space>
+                        {item.__p_item_new &&
+                            <Button
+                                type="link"
+                                size="small"
+                                onClick={() => {
+                                    setPartitionModalItem(item)
+                                    setPartitionModalIndex(index)
+                                    setPartitionModalVisible(true)
+                                }}
+                            >{t('edit')}</Button>
+                        }
                         {item.__p_item_new ?
                             <Button
                                 type="link"
@@ -1760,7 +1784,7 @@ ${[...attrSqls, ...rowSqls, ...idxSqls, ...partSqls].join(' ,\n')};`)
         {
             title: t('actions'),
             dataIndex: 'op',
-            render(_value, item) {
+            render(_value, item, index) {
                 return (
                     <div className={styles.cellWrap}>
                         <Space 
@@ -1768,8 +1792,8 @@ ${[...attrSqls, ...rowSqls, ...idxSqls, ...partSqls].join(' ,\n')};`)
                         >
                             <a
                                 onClick={() => {
-                                    setColumnModalVisible(true)
                                     setColumnModalItem(item)
+                                    setColumnModalVisible(true)
                                 }}
                             >{t('edit')}</a>
                             <a
@@ -2755,19 +2779,29 @@ ${[...attrSqls, ...rowSqls, ...idxSqls, ...partSqls].join(' ,\n')};`)
             }
             {partitionModalVisible &&
                 <PartitionModal
+                    item={partitionModalItem}
                     onCancel={() => {
                         setPartitionModalVisible(false)
                     }}
                     onOk={(item) => {
                         setPartitionModalVisible(false)
-                        setPartitions([
-                            ...partitions,
-                            {
-                                __p_item_new: true,
-                                PARTITION_NAME: item.name,
-                                PARTITION_DESCRIPTION: item.value,
-                            },
-                        ])
+                        if (partitionModalItem) {
+                            partitions[partitionModalIndex].PARTITION_NAME = item.name
+                            partitions[partitionModalIndex].PARTITION_DESCRIPTION = item.value
+                            setPartitions([
+                                ...partitions,
+                            ])
+                        }
+                        else {
+                            setPartitions([
+                                ...partitions,
+                                {
+                                    __p_item_new: true,
+                                    PARTITION_NAME: item.name,
+                                    PARTITION_DESCRIPTION: item.value,
+                                },
+                            ])
+                        }
                     }}
                 />
             }
