@@ -48,6 +48,7 @@ import { ExportDoc } from '../export-doc'
 import { TableDataExporter } from '../table-data-exporter/table-data-exporter'
 import { TableDiff } from '../table-diff'
 import { SqlDataImport } from '../data-import'
+import { SqlRealPanel } from '../sql-real/sql-real'
 
 // console.log('ddd.0')
 // _.debounce(() => {
@@ -922,6 +923,13 @@ export function DataBaseDetail({ databaseType = 'mysql', curConnect, _connection
                                 }
                                 {item.type == 'quick_sql' &&
                                     <SqlQuickPanel
+                                        config={config}
+                                        connectionId={connectionId}
+                                        event$={event$}
+                                    />
+                                }
+                                {item.type == 'real_process' &&
+                                    <SqlRealPanel
                                         config={config}
                                         connectionId={connectionId}
                                         event$={event$}

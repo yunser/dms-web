@@ -6,7 +6,7 @@ import classNames from 'classnames'
 import { useTranslation } from 'react-i18next';
 import { Editor } from '@/views/db-manager/editor/Editor';
 import { IconButton } from '@/views/db-manager/icon-button';
-import { AimOutlined, CodeOutlined, ConsoleSqlOutlined, DatabaseOutlined, DeploymentUnitOutlined, FormatPainterOutlined, HistoryOutlined, InfoCircleOutlined, PlusOutlined, QuestionCircleOutlined, ReloadOutlined, SyncOutlined, TableOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
+import { AimOutlined, CodeOutlined, ConsoleSqlOutlined, DatabaseOutlined, DeploymentUnitOutlined, EllipsisOutlined, FormatPainterOutlined, HistoryOutlined, InfoCircleOutlined, PlusOutlined, QuestionCircleOutlined, ReloadOutlined, SyncOutlined, TableOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
 import { getTableFieldMap, setAllFields, setTabbleAllFields, suggestionAdd, suggestionAddSchemas } from '../suggestion';
 import { request } from '@/views/db-manager/utils/http';;
 import { i18n } from '@/i18n';
@@ -1060,6 +1060,37 @@ LIMIT 1000;`
                     >
                         <AimOutlined />
                     </IconButton>
+                    <Dropdown
+                        trigger={['click']}
+                        overlay={
+                            <Menu
+                                items={[
+                                    {
+                                        label: t('sql.real_process'),
+                                        key: 'real_process',
+                                    },
+                                ]}
+                                onClick={({ key }) => {
+                                    if (key == 'real_process') {
+                                        onTab && onTab({
+                                            title: '$i18n.sql.real_process',
+                                            key: 'real_process-0',
+                                            type: 'real_process',
+                                            data: {
+                                                connectionId,
+                                            },
+                                        })
+                                    }
+                                }}
+                            />
+                        }
+                    >
+                        <IconButton
+                            onClick={e => e.preventDefault()}
+                        >
+                            <EllipsisOutlined />
+                        </IconButton>
+                    </Dropdown>
                 </div>
                 {/* Header */}
                 <DebounceInput
