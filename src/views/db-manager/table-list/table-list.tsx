@@ -340,6 +340,14 @@ export function TableList({ config, onJson, connectionId, onTab, dbName, data = 
         })
     }
 
+    function optimizeTable(item) {
+        const sql = `OPTIMIZE TABLE \`${item.TABLE_SCHEMA}\`.\`${item.TABLE_NAME}\`;`
+        showSqlInNewtab({
+            title: 'TRUNCATE TABLE',
+            sql,
+        })
+    }
+
     async function truncateTable(items) {
         const sql = items.map(item => {
             return `TRUNCATE TABLE \`${item.TABLE_SCHEMA}\`.\`${item.TABLE_NAME}\`;`
@@ -538,11 +546,19 @@ LIMIT 20`,
                                 <Menu
                                     items={[
                                         {
+                                            label: t('sql.optimize_table'),
+                                            key: 'optimize_table',
+                                        },
+                                        {
                                             key: 'partInfo',
                                             label: t('partition_info'),
                                         },
                                         {
+                                            type: 'divider',
+                                        },
+                                        {
                                             key: 'truncate',
+                                            danger: true,
                                             label: t('table_truncate'),
                                         },
                                         {
@@ -560,6 +576,9 @@ LIMIT 20`,
                                         }
                                         else if (key == 'partInfo') {
                                             partInfo(item)
+                                        }
+                                        else if (key == 'optimize_table') {
+                                            optimizeTable(item)
                                         }
                                     }}
                                 />
