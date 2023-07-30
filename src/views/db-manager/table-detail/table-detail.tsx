@@ -2879,6 +2879,9 @@ ${[...attrSqls, ...rowSqls, ...idxSqls, ...partSqls].join(' ,\n')};`)
                             message.error('index error')
                             return
                         }
+                        
+                        const isPkOld = ItemHelper.mixValue(tableColumns[idx], 'COLUMN_KEY') == 'PRI'
+
                         for (let key in values) {
                             if (!tableColumns[idx][key]) {
                                 console.warn(`key ${key} not in row ${idx}`)
@@ -2888,6 +2891,34 @@ ${[...attrSqls, ...rowSqls, ...idxSqls, ...partSqls].join(' ,\n')};`)
                                 newValue: values[key]
                             }
                         }
+
+                        const isPkNew = values['COLUMN_KEY'] == 'PRI'
+                        if (!isPkOld && isPkNew) {
+                            // add primary key
+                            let primaryCount = 0
+                            for (let column of tableColumns) {
+                                const key = ItemHelper.mixValue(column, 'COLUMN_KEY')
+                                if (key == 'PRI') {
+                                    primaryCount++
+                                }
+                            }
+                            tableColumns[idx]['COLUMN_KEY'].primaryKeyIndex = primaryCount - 1
+                        }
+                        if (isPkOld && !isPkNew) {
+                            // remove primary key
+                            const removedPrimaryKeyIndex = tableColumns[idx]['COLUMN_KEY'].primaryKeyIndex
+                            // 删除主键索引，后面的索引全部减 1
+                            for (let column of tableColumns) {
+                                const key = ItemHelper.mixValue(column, 'COLUMN_KEY')
+                                if (key == 'PRI') {
+                                    const { primaryKeyIndex } = column['COLUMN_KEY']
+                                    if (primaryKeyIndex > removedPrimaryKeyIndex) {
+                                        column['COLUMN_KEY'].primaryKeyIndex -= 1
+                                    }
+                                }
+                            }
+                        }
+
                         setTableColumns([...tableColumns])
                         setColumnModalItem(null)
                         setColumnModalVisible(false)
