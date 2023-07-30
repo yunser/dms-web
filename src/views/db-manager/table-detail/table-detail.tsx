@@ -358,14 +358,7 @@ function ColumnModal({ item, onCancel, onOk, characterSets, characterSetMap }) {
         const values = {}
         for (let key in item) {
             const value = ItemHelper.mixValue(item, key)
-
-            // @p1
-            if (key == 'EXTRA') {
-                values[key] = value == 'auto_increment' ? 'auto_increment' : ''
-            }
-            else {
-                values[key] = value
-            }
+            values[key] = value
         }
         // console.log('values', values)
         form.setFieldsValue(values)
@@ -448,18 +441,18 @@ function ColumnModal({ item, onCancel, onOk, characterSets, characterSetMap }) {
                     />
                 </Form.Item>
                 <Form.Item
-                    name="EXTRA"
+                    name="isAuto"
                     label={t('auto_increment')}
                 >
                     <Select
                         options={[
                             {
                                 label: 'no',
-                                value: '',
+                                value: false,
                             },
                             {
                                 label: 'yes',
-                                value: 'auto_increment',
+                                value: true,
                             },
                         ]}
                     />
@@ -843,12 +836,13 @@ function Cell({ value, selectOptions, item, index, dataIndex, onChange }) {
                                 }}
                             />
                         </div>
-                    : dataIndex == 'EXTRA' ?
+                    : dataIndex == 'isAuto' ?
                         <div className={styles.cellCheckboxWrap}>
                             <Checkbox
-                                checked={inputValue == 'auto_increment'}
+                                checked={inputValue === true}
                                 onChange={(e) => {
-                                    const newValue = e.target.checked ? 'auto_increment' : ''
+                                    // const newValue = e.target.checked ? 'auto_increment' : ''
+                                    const newValue = e.target.checked
                                     setInputValue(newValue)
                                     onChange && onChange({
                                         ...value,
@@ -1250,7 +1244,7 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
                     'generationType',
                 ]
                 if (dbFunConfigMap[databaseType].autoIncrement) {
-                    checkFields.push('EXTRA')
+                    checkFields.push('isAuto')
                 }
                 // if (checkFields.includes(field) && hasValue(row[field].newValue)) {
                 if (checkFields.includes(field) && ItemHelper.isValueChanged(row[field])) {
@@ -1283,7 +1277,8 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
                 else {
                     // TODO
                     let _nameSql = hasValue(ItemHelper.newValue(row, 'COLUMN_NAME')) ? `\`${ItemHelper.newValue(row, 'COLUMN_NAME')}\`` : ''
-                    nameSql = `\`${row.COLUMN_NAME.value}\` ${_nameSql}`
+                    // 修改列名时有两个名（新旧）
+                    nameSql = `\`${row.COLUMN_NAME.value}\`${_nameSql ? ` ${_nameSql}` : ''}`
                 }
             }
 
@@ -1304,7 +1299,7 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
             let isAI = false
             let autoIncrementSql = ''
             if (dbFunConfigMap[databaseType].autoIncrement) {
-                isAI = ItemHelper.mixValue(row, 'EXTRA') == 'auto_increment'
+                isAI = !!ItemHelper.mixValue(row, 'isAuto')
                 autoIncrementSql = isAI ? 'AUTO_INCREMENT' : ''
             }
 
@@ -1338,14 +1333,13 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
                 }
             }
 
-            let genSql = '**'
+            let genSql = ''
             const genType = ItemHelper.mixValue(row, 'generationType')
             const genExp = ItemHelper.mixValue(row, 'GENERATION_EXPRESSION')
             if (genType) {
                 genSql = `AS (${genExp}) ${genType}`
             }
 
-            // const rowSql = `${changeType} ${nameSql} ${typeSql} ${codeSql} ${nullSql} ${autoIncrementSql} ${defaultSql} ${commentSql} ${positionSql}`
             const rowSql = [
                 changeType,
                 nameSql,
@@ -1798,9 +1792,9 @@ ${[...attrSqls, ...rowSqls, ...idxSqls, ...partSqls].join(' ,\n')};`)
                     <div>AI</div>
                 </Tooltip>
             ),
-            dataIndex: 'EXTRA',
+            dataIndex: 'isAuto',
             render: EditableCellRender({
-                dataIndex: 'EXTRA',
+                dataIndex: 'isAuto',
                 onChange: onColumnCellChange,
             }),
         }),
@@ -2072,6 +2066,13 @@ ${[...attrSqls, ...rowSqls, ...idxSqls, ...partSqls].join(' ,\n')};`)
                         value: generationType,
                         newValue: undefined,
                     }
+
+                    let isAuto = col['EXTRA'] == 'auto_increment'
+                    newCol['isAuto'] = {
+                        value: isAuto,
+                        newValue: undefined,
+                    }
+
                     return newCol
                 }))
                 setTriggers(res.data.triggers)
@@ -2207,12 +2208,12 @@ ${[...attrSqls, ...rowSqls, ...idxSqls, ...partSqls].join(' ,\n')};`)
                 __new: true,
                 primaryKeyIndex: tableColumns.length == 0 ? 0 : undefined,
             },
-            EXTRA: {
+            generationType: {
                 value: '',
                 __new: true,
             },
-            generationType: {
-                value: '',
+            isAuto: {
+                value: false,
                 __new: true,
             },
             GENERATION_EXPRESSION: {
@@ -2234,7 +2235,6 @@ ${[...attrSqls, ...rowSqls, ...idxSqls, ...partSqls].join(' ,\n')};`)
             // COLUMN_KEY: ""
             // DATA_TYPE: "varchar"
             // DATETIME_PRECISION: null
-            // EXTRA: ""
             // GENERATION_EXPRESSION: ""
             // NUMERIC_PRECISION: null
             // NUMERIC_SCALE: null
