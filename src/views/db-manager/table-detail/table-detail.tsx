@@ -356,7 +356,14 @@ function ColumnModal({ item, onCancel, onOk, characterSets, characterSetMap }) {
     useEffect(() => {
         const values = {}
         for (let key in item) {
-            values[key] = ItemHelper.mixValue(item, key)
+            const value = ItemHelper.mixValue(item, key)
+
+            if (key == 'EXTRA') {
+                values[key] = value == 'auto_increment' ? 'auto_increment' : ''
+            }
+            else {
+                values[key] = value
+            }
         }
         // console.log('values', values)
         form.setFieldsValue(values)
@@ -537,6 +544,12 @@ function ColumnModal({ item, onCancel, onOk, characterSets, characterSetMap }) {
                     <Select
                         options={collations}
                     />
+                </Form.Item>
+                <Form.Item
+                    name="GENERATION_EXPRESSION"
+                    label={t('sql.expression')}
+                >
+                    <Input disabled />
                 </Form.Item>
             </Form>
         </Modal>
