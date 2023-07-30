@@ -1136,6 +1136,9 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
     // tableInfo
 
     useEffect(() => {
+        if (!tableInfo) {
+            return
+        }
         if (editType == 'update' && !tableInfo.TABLE_NAME) {
             return
         }
@@ -2039,6 +2042,11 @@ ${[...attrSqls, ...rowSqls, ...idxSqls, ...partSqls].join(' ,\n')};`)
                 noMessage: true,
             })
             if (res.success) {
+                if (!res.data.table) {
+                    setTableInfo(null)
+                    setLoading(false)
+                    return
+                }
                 const rawIndexes = res.data.indexes
                 setTableColumns(res.data.columns.map((col, idx) => {
                     const newCol = {}
@@ -2297,6 +2305,10 @@ ${[...attrSqls, ...rowSqls, ...idxSqls, ...partSqls].join(' ,\n')};`)
         <div className={styles.detailBox}>
             {loading ?
                 <div>{t('loading')}</div>
+            : !tableInfo ?
+                <div>
+                    {t('sql.table.not_exists')} ({tableName})
+                </div>
             :
                 <>
                     <div className={styles.header}>
