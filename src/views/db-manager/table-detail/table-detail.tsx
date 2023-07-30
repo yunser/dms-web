@@ -1488,7 +1488,18 @@ ${[...attrSqls, ...rowSqls, ...idxSqls, ...partSqls].join(' ,\n')};`)
         })
     }
 
-    function removePartition(index) {
+    function removePartition() {
+        const sql = `ALTER TABLE \`${dbName}\`.\`${tableName}\` REMOVE PARTITIONING;`
+        event$.emit({
+            type: 'event_open_sql',
+            data: {
+                connectionId,
+                sql,
+            }
+        })
+    }
+
+    function removePartitionItem(index) {
         partitions.splice(index, 1)
         setPartitions([
             ...partitions,
@@ -1591,7 +1602,7 @@ ${[...attrSqls, ...rowSqls, ...idxSqls, ...partSqls].join(' ,\n')};`)
                                 size="small"
                                 danger
                                 onClick={() => {
-                                    removePartition(index)
+                                    removePartitionItem(index)
                                 }}
                             >{t('delete')}</Button>
                         :
@@ -2662,6 +2673,17 @@ ${[...attrSqls, ...rowSqls, ...idxSqls, ...partSqls].join(' ,\n')};`)
                                                                     {t('drop')}
                                                                 </Button>
                                                             </>
+                                                        }
+                                                        {partitions.length > 0 &&
+                                                            <Button
+                                                                size="small"
+                                                                danger
+                                                                onClick={() => {
+                                                                    removePartition()
+                                                                }}
+                                                            >
+                                                                {t('sql.partition.remove')}
+                                                            </Button>
                                                         }
                                                     </Space>
                                                 </div>
