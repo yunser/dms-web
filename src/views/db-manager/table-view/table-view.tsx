@@ -633,7 +633,7 @@ export function TableViewer({ config, databaseType = 'mysql', connectionId, even
             width: 120,
             ellipsis: true,
             render(value) {
-                return filesize(value, { fixed: 1, }).human()
+                return filesize(parseFloat(value), { fixed: 1, }).human()
                 // return (
                 //     <div>{filesize(value, { fixed: 1, }).human()}</div>
                 // )

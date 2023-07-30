@@ -1571,7 +1571,7 @@ ${[...attrSqls, ...rowSqls, ...idxSqls, ...partSqls].join(' ,\n')};`)
             width: 120,
             ellipsis: true,
             render(value) {
-                return filesize(value, { fixed: 1, }).human()
+                return filesize(parseFloat(value), { fixed: 1, }).human()
                 // return (
                 //     <div>{filesize(value, { fixed: 1, }).human()}</div>
                 // )
@@ -2354,7 +2354,7 @@ ${[...attrSqls, ...rowSqls, ...idxSqls, ...partSqls].join(' ,\n')};`)
                                                         {editType == 'update' &&
                                                             <>
                                                                 <Form.Item label={t('data_length')}>
-                                                                    {tableInfo.DATA_LENGTH ? filesize(tableInfo.DATA_LENGTH, { fixed: 1, }).human() : '--'}
+                                                                    {tableInfo.DATA_LENGTH ? filesize(parseFloat(tableInfo.DATA_LENGTH), { fixed: 1, }).human() : '--'}
                                                                 </Form.Item>
                                                                 <Form.Item label={t('avg_row_length')}>
                                                                     {tableInfo.AVG_ROW_LENGTH}

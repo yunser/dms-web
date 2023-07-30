@@ -451,7 +451,7 @@ ORDER BY TABLE_ROWS DESC`
             sortOrder: sortedInfo.columnKey === 'DATA_LENGTH' ? sortedInfo.order : null,
             sortDirections: ['descend', 'ascend'],
             render(value) {
-                return filesize(value, { fixed: 1, }).human()
+                return filesize(parseFloat(value), { fixed: 1, }).human()
                 // return (
                 //     <div>{filesize(value, { fixed: 1, }).human()}</div>
                 // )
@@ -468,7 +468,7 @@ ORDER BY TABLE_ROWS DESC`
             sortDirections: ['descend', 'ascend'],
             render(value) {
                 return (
-                    <div>{filesize(value, { fixed: 1, }).human()}</div>
+                    <div>{filesize(parseFloat(value), { fixed: 1, }).human()}</div>
                 )
             },
         },
@@ -483,7 +483,7 @@ ORDER BY TABLE_ROWS DESC`
             sortDirections: ['descend', 'ascend'],
             render(value) {
                 return (
-                    <div>{filesize(value, { fixed: 1, }).human()}</div>
+                    <div>{filesize(parseFloat(value), { fixed: 1, }).human()}</div>
                 )
             },
         },
