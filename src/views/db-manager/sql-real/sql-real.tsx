@@ -1,5 +1,5 @@
-import { Button, Space, Table, Tag } from 'antd';
-import React from 'react';
+import { Button, Space, Switch, Table, Tag } from 'antd';
+import React, { useRef } from 'react';
 import { useState, useEffect } from 'react';
 import { request } from '@/views/db-manager/utils/http';;
 import styles from './sql-real.module.less';
@@ -12,6 +12,8 @@ export function SqlRealPanel({ config, connectionId, event$ }) {
     const { t } = useTranslation()
     const [loading, setLoading] = useState(false)
     const [list, setList] = useState([])
+    const [autoRefresh, setAutoRefresh] = useState(false)
+    const timerRef = useRef(null)
 
     async function loadData() {
         const sql = `SELECT *
@@ -45,6 +47,13 @@ export function SqlRealPanel({ config, connectionId, event$ }) {
 
     useEffect(() => {
         loadData()
+
+        return () => {
+            if (timerRef.current) {
+                clearInterval(timerRef.current)
+                timerRef.current = null
+            }
+        }
     }, [])
 
     return (
@@ -59,6 +68,24 @@ export function SqlRealPanel({ config, connectionId, event$ }) {
                     >
                         <ReloadOutlined />
                     </IconButton>
+                    <Switch
+                        checked={autoRefresh}
+                        onChange={checked => {
+                            setAutoRefresh(checked)
+                            if (checked) {
+                                timerRef.current = setInterval(() => {
+                                    loadData()
+                                }, 10 * 1000)
+                            }
+                            else {
+                                if (timerRef.current) {
+                                    clearInterval(timerRef.current)
+                                    timerRef.current = null
+                                }
+                            }
+                        }}
+                        checkedChildren={t('sql.auto_refresh')}
+                    />
                 </Space>
             </div>
             <Table
