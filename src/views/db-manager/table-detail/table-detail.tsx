@@ -160,6 +160,17 @@ function parseColumnType(value: string) {
     }
 }
 
+function CheckboxInput({ value, onChange }) {
+    return (
+        <Checkbox
+            checked={value === true}
+            onChange={e => {
+                onChange && onChange(e.target.checked)
+            }}
+        />
+    )
+}
+
 function TypeInput({ value, onChange }) {
     const { t } = useTranslation()
     // console.log('TypeInput/value', value)
@@ -444,6 +455,7 @@ function ColumnModal({ item, onCancel, onOk, characterSets, characterSetMap }) {
                     name="isAuto"
                     label={t('auto_increment')}
                 >
+                    {/* <CheckboxInput /> */}
                     <Select
                         options={[
                             {
@@ -639,6 +651,10 @@ function ColumnSelector({ value: _value, onChange, options }) {
     const { t } = useTranslation()
     const [modalVisible, setModalVisible] = useState(false)
     const [value, setValue] = useState([])
+
+    const [keyword, setKeyword] = useState('')
+    
+
     // const [columns] = useState
     const columns = [
         {
@@ -678,11 +694,19 @@ function ColumnSelector({ value: _value, onChange, options }) {
             }
         },
     ]
-    
+    const filteredOptions = useMemo(() => {
+        if (!keyword) {
+            return options
+        }
+        return options.filter(item => {
+            return item.label.toLowerCase().includes(keyword.toLowerCase())
+        })
+    }, [options, keyword])
     
     useEffect(() => {
         setValue([..._value])
     }, [_value, modalVisible])
+
     return (
         <>
             <div className={styles.ColumnSelector}
@@ -704,14 +728,26 @@ function ColumnSelector({ value: _value, onChange, options }) {
                     onChange && onChange(value)
                 }}
             >
-                <div className={styles.ColumnSelectorModal}
+                <div
+                    className={styles.columnSelectorModal}
                     onClick={(e) => {
                         e.stopPropagation()
                         e.preventDefault()
                     }}
                 >
+                    <Input
+                        className={styles.filter}
+                        placeholder={t('filter')}
+                        value={keyword}
+                        allowClear
+                        size="small"
+                        onChange={e => {
+                            setKeyword(e.target.value)
+                        }}
+                    />
+
                     <Table
-                        dataSource={options}
+                        dataSource={filteredOptions}
                         columns={columns}
                         size="small"
                         bordered
