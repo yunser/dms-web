@@ -1,4 +1,4 @@
-import { Alert, Dropdown, Empty, Input, InputRef, Menu, message, Modal, Space, Tag } from 'antd';
+import { Alert, Dropdown, Empty, Input, InputRef, Menu, message, Modal, Space, Spin, Tag } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './git-home.module.less';
 import _ from 'lodash';
@@ -52,6 +52,7 @@ export function GitHome({ event$, onProject }) {
     const [view, setView] = useState('list')
     const [keyword, setKeyword] = useState('')
     const searchInputRef = useRef<InputRef>(null)
+    const [loading, setLoading] = useState(false)
     const [projects, setProjects] = useState([])
     
     const filteredProjects = useMemo(() => {
@@ -192,7 +193,9 @@ export function GitHome({ event$, onProject }) {
     }
 
     async function loadList() {
+        setLoading(true)
         let res = await request.post(`${config.host}/git/project/list`, {})
+        setLoading(false)
         if (res.success) {
             function score(item) {
                 if (item.isFavorite) {
@@ -434,7 +437,11 @@ export function GitHome({ event$, onProject }) {
                                 />
                             </div>
                         }
-                        {filteredProjects.length == 0 ?
+                        {loading ?
+                            <FullCenterBox height={320}>
+                                <Spin />
+                            </FullCenterBox>
+                        : filteredProjects.length == 0 ?
                             <FullCenterBox
                                 height={320}
                             >
