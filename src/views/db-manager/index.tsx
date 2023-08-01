@@ -1687,19 +1687,15 @@ export function DbManager({ config }) {
                                             config={config}
                                             onItem={item => {
                                                 addOrActiveTab({
-                                                    // title: 'Redis',
                                                     title: `${item.name}`,
                                                     key: 'logger-detail-' + uid(16),
                                                     type: 'logger-detail',
                                                     data: {
                                                         item,
+                                                        name: item.name,
                                                     },
-                                                }, {
-                                                    // closeCurrentTab: true,
                                                 })
                                             }}
-                                            // local={true}
-                                            // defaultPath={item.data.path}
                                         />
                                     }
                                     {item.type == 'logger-detail' &&
@@ -1707,6 +1703,17 @@ export function DbManager({ config }) {
                                             config={config}
                                             event$={event$}
                                             item={item.data.item}
+                                            onNew={() => {
+                                                addOrActiveTab({
+                                                    title: `${item.data.name}`,
+                                                    key: 'logger-detail-' + uid(16),
+                                                    type: 'logger-detail',
+                                                    data: {
+                                                        item: item.data.item,
+                                                        name: item.data.name,
+                                                    },
+                                                })
+                                            }}
                                         />
                                     }
                                     {item.type == 'model' &&

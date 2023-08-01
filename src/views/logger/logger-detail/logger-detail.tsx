@@ -241,7 +241,7 @@ function TimeSelector({ value, onChange }) {
     )
 }
 
-export function LoggerDetail({ event$, connectionId, item: detailItem, onConnect, }) {
+export function LoggerDetail({ event$, connectionId, item: detailItem, onNew, }) {
 
     const config = getGlobalConfig()
 
@@ -599,6 +599,14 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onConnect
                         </Button> */}
                     </Space>
                     <Space>
+                        <Button
+                            size="small"
+                            onClick={() => {
+                                onNew && onNew()
+                            }}
+                        >
+                            {t('new')}
+                        </Button>
                         <IconButton
                             tooltip={t('export_json')}
                             onClick={() => {

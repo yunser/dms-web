@@ -649,6 +649,7 @@ i18n
                     'hex.hex': 'Hex',
                     'hex.integer': 'Integer',
                     'error': 'Error',
+                    'new': 'New',
                 }
             },
             zh: {
@@ -1290,6 +1291,7 @@ i18n
                     'hex.hex': '十六进制',
                     'hex.integer': '整数',
                     'error': '错误',
+                    'new': '新建',
                 }
             }
         },
