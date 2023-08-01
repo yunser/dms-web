@@ -69,8 +69,9 @@ export function GitHome({ event$, onProject }) {
     const [projectModalVisible, setProjectModalVisible] = useState(false)
     const [createType, setCreateType] = useState(false)
     const [activeIndex, setActiveIndex] = useState(0)
-    const [alertVisible] = useState(() => {
-        return storage.get('alertVisible', true)
+    const [alertVisible, setAlertVisible] = useState(() => {
+        // return storage.get('alertVisible', true)
+        return false
     })
     const inputIngRef = useRef(false)
     const [config, setConfig] = useState(() => {
@@ -184,6 +185,9 @@ export function GitHome({ event$, onProject }) {
             // 2
             const { agent, installed, major, minor, patch } = res.data.version
             setVersion(`${major}.${minor}.${patch}`)
+        }
+        else {
+            setAlertVisible(true)
         }
     }
 
@@ -657,7 +661,9 @@ export function GitHome({ event$, onProject }) {
                     }}
                 />
             }
-            <div className={styles.version}>Git v{version}</div>
+            {!!version &&
+                <div className={styles.version}>Git v{version}</div>
+            }
         </div>
     )
 }
