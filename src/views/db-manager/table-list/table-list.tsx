@@ -13,6 +13,7 @@ import { SorterResult } from 'antd/lib/table/interface';
 import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';;
 import filesize from 'file-size'
+import { SearchUtil } from '@/utils/search';
 
 function getHightlight(title: string, keyword: string) {
     const index = title.toLocaleLowerCase().indexOf(keyword.toLowerCase())
@@ -252,11 +253,11 @@ export function TableList({ config, onJson, connectionId, onTab, dbName, data = 
         },
     ])
     const filterList = useMemo(() => {
-        if (!keyword) {
-            return list
-        }
-        return list.filter(item => {
-            return item.TABLE_NAME.toLowerCase().includes(keyword.toLowerCase())
+        // return list.filter(item => {
+        //     return !item.TABLE_COMMENT.includes('@deprecated')
+        // })
+        return SearchUtil.searchLike(list, keyword, {
+            attributes: ['TABLE_NAME', 'TABLE_COMMENT'],
         })
     }, [list, keyword])
     // const treeData: any[] = [
