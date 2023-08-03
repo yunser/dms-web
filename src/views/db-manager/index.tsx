@@ -742,11 +742,11 @@ export function DbManager({ config }) {
             key: 'file',
             group: 'file',
         },
-        {
-            label: t('terminal'),
-            key: 'terminal',
-            group: 'tool',
-        },
+        // {
+        //     label: t('terminal'),
+        //     key: 'terminal',
+        //     group: 'tool',
+        // },
         {
             label: t('json'),
             key: 'json',
