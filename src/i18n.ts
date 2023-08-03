@@ -650,6 +650,8 @@ i18n
                     'hex.integer': 'Integer',
                     'error': 'Error',
                     'new': 'New',
+                    'yes': 'YES',
+                    'no': 'NO',
                 }
             },
             zh: {
@@ -1292,6 +1294,8 @@ i18n
                     'hex.integer': '整数',
                     'error': '错误',
                     'new': '新建',
+                    'yes': '是',
+                    'no': '否',
                 }
             }
         },

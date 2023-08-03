@@ -20,6 +20,12 @@ export function ExportDoc({ config, connectionId, dbName }: any) {
     const { t } = useTranslation()
     const [html, setHtml] = useState('')
     const [loading, setLoading] = useState(false)
+    // const [ignoreTables, setIgnoreTables] = useState(() => {
+    //     // return storage.get('export_ignore_tables')
+    //     return [
+    //         // "QRTZ_BLOB_TRIGGERS",
+    //     ]
+    // })
 
     function handleData(tables, columns) {
         const tableHtmls = []
@@ -29,6 +35,15 @@ export function ExportDoc({ config, connectionId, dbName }: any) {
                 return a.TABLE_NAME.localeCompare(b.TABLE_NAME)
             })
         for (let table of sortedTables) {
+            // if (table.TABLE_COMMENT) {
+            //     continue
+            // }
+            if (table.TABLE_COMMENT?.includes('@deprecated')) {
+                continue
+            }
+            // if (ignoreTables.includes(table.TABLE_NAME)) {
+            //     continue
+            // }
             const tableColumns = columns.filter(item => item.TABLE_NAME == table.TABLE_NAME)
             // console.log('tableColumns', tableColumns)
             const bodyHtml = []
@@ -36,9 +51,9 @@ export function ExportDoc({ config, connectionId, dbName }: any) {
                 bodyHtml.push(`<tr>
     <td>${column.COLUMN_NAME}</td>
     <td>${column.COLUMN_TYPE}</td>
-    <td>${column.IS_NULLABLE}</td>
-    <td>${column.COLUMN_KEY == 'PRI' ? 'YES' : ''}</td>
-    <td>${column.EXTRA == 'auto_increment' ? 'YES' : ''}</td>
+    <td>${column.IS_NULLABLE == 'YES' ? t('yes') : t('no')}</td>
+    <td>${column.COLUMN_KEY == 'PRI' ? t('yes') : ''}</td>
+    <td>${column.EXTRA == 'auto_increment' ? t('yes') : ''}</td>
     <td>${formatValue(column.COLUMN_DEFAULT)}</td>
     <td>${column.COLUMN_COMMENT}</td>
 </tr>`)
@@ -143,14 +158,19 @@ export function ExportDoc({ config, connectionId, dbName }: any) {
                                         padding: 16px;
                                     }
                                     table {
-                                        margin-bottom: 32px;
                                         border-collapse: collapse;
+                                        margin-bottom: 32px;
+                                        border-left: 1px solid #ccc;
+                                        border-top: 1px solid #ccc;
                                     }
                                     th,
                                     td {
                                         padding: 4px 8px;
                                         border: 1px solid #ccc;
                                         text-align: left;
+                                    }
+                                    th {
+                                        background-color: #f9f9f9;
                                     }
                                     </style>
                             </head>
