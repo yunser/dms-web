@@ -947,18 +947,18 @@ ${t('password')}: ${data.password}`
                         {
                             title: t('host'),
                             dataIndex: 'host',
-                            width: 400,
+                            width: 320,
                             ellipsis: true,
                         },
                         {
                             title: t('port'),
                             dataIndex: 'port',
-                            width: 160,
+                            width: 80,
                         },
                         {
                             title: t('user_name'),
                             dataIndex: 'user',
-                            width: 160,
+                            width: 120,
                         },
                         {
                             title: t('description'),
