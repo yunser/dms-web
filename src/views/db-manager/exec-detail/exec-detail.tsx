@@ -675,6 +675,10 @@ export function ExecDetail(props) {
                     return wrapName(fieldName)
                 }).join(', ')
                 const valuesText = values.map(value => {
+                    if (value === null) {
+                        return 'NULL'
+                    }
+                    // TODO int
                     return `'${value}'`
                 }).join(', ')
                 const sql = `INSERT INTO ${wrapName(dbName)}.${wrapName(tableName)} (${fieldNamesText}) VALUES (${valuesText});`
