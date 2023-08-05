@@ -1,4 +1,4 @@
-import { message, Space, Spin } from 'antd';
+import { Button, Dropdown, Menu, message, Space, Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
 import styles from './export-doc.module.less';
 import _ from 'lodash';
@@ -7,6 +7,7 @@ import { IconButton } from '@/views/db-manager/icon-button';
 import { ExportOutlined, ReloadOutlined } from '@ant-design/icons';
 import { request } from '@/views/db-manager/utils/http';
 import { saveAs } from 'file-saver';
+import { exportDocx } from './docx';
 
 function formatValue(value) {
     if (value === null) {
@@ -19,6 +20,8 @@ export function ExportDoc({ config, connectionId, dbName }: any) {
     
     const { t } = useTranslation()
     const [html, setHtml] = useState('')
+    const [exportTables, setExportTables] = useState([])
+    const [columns, setColumns] = useState([])
     const [loading, setLoading] = useState(false)
     // const [ignoreTables, setIgnoreTables] = useState(() => {
     //     // return storage.get('export_ignore_tables')
@@ -83,6 +86,8 @@ export function ExportDoc({ config, connectionId, dbName }: any) {
             `)
         }
         setHtml(tableHtmls.join(''))
+        setExportTables(sortedTables)
+        setColumns(columns)
     }
 
     async function loadData() {
@@ -115,6 +120,61 @@ export function ExportDoc({ config, connectionId, dbName }: any) {
         loadData()
     }, [])
 
+    function exportHtml() {
+        const downloadHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-size: 14px;
+        }
+        h2 {
+            font-weight: bold;
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        p {
+            margin-bottom: 1em;
+        }
+        article {
+            max-width: 1200px;
+            padding: 16px;
+        }
+        table {
+            border-collapse: collapse;
+            margin-bottom: 32px;
+            border-left: 1px solid #ccc;
+            border-top: 1px solid #ccc;
+        }
+        th,
+        td {
+            padding: 4px 8px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+        th {
+            background-color: #f9f9f9;
+        }
+        </style>
+</head>
+<body>
+    <article>
+        ${html}
+    </article>
+</body>
+</html>`
+        const blob = new Blob([downloadHtml], {type: 'text/html;charset=utf-8'});
+        saveAs(blob, `${dbName}.html`)
+    }
+
     return (
         <div className={styles.docBox}>
             <div className={styles.header}>
@@ -127,65 +187,40 @@ export function ExportDoc({ config, connectionId, dbName }: any) {
                     >
                         <ReloadOutlined />
                     </IconButton>
-                    <IconButton
-                        tooltip={t('export_html')}
-                        onClick={() => {
-                            const downloadHtml = `<!DOCTYPE html>
-                            <html lang="en">
-                            <head>
-                                <meta charset="UTF-8">
-                                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                                <title>Document</title>
-                                <style>
-                                    * {
-                                        padding: 0;
-                                        margin: 0;
-                                        box-sizing: border-box;
+                    
+                    <Dropdown
+                        overlay={
+                            <Menu
+                                onClick={({ key }) => {
+                                    if (key == 'export_html') {
+                                        exportHtml()
                                     }
-                                    body {
-                                        font-size: 14px;
+                                    else if (key == 'export_docx') {
+                                        exportDocx({
+                                            exportTables,
+                                            columns,
+                                            t, 
+                                            dbName,
+                                        })
                                     }
-                                    h2 {
-                                        font-weight: bold;
-                                        font-size: 24px;
-                                        margin-bottom: 8px;
-                                    }
-                                    p {
-                                        margin-bottom: 1em;
-                                    }
-                                    article {
-                                        max-width: 1200px;
-                                        padding: 16px;
-                                    }
-                                    table {
-                                        border-collapse: collapse;
-                                        margin-bottom: 32px;
-                                        border-left: 1px solid #ccc;
-                                        border-top: 1px solid #ccc;
-                                    }
-                                    th,
-                                    td {
-                                        padding: 4px 8px;
-                                        border: 1px solid #ccc;
-                                        text-align: left;
-                                    }
-                                    th {
-                                        background-color: #f9f9f9;
-                                    }
-                                    </style>
-                            </head>
-                            <body>
-                                <article>
-                                    ${html}
-                                </article>
-                            </body>
-                            </html>`
-                            const blob = new Blob([downloadHtml], {type: 'text/html;charset=utf-8'});
-                            saveAs(blob, `${dbName}.html`)
-                        }}
+                                }}
+                                items={[
+                                    {
+                                        label: t('export_html'),
+                                        key: 'export_html',
+                                    },
+                                    {
+                                        label: t('export_docx'),
+                                        key: 'export_docx',
+                                    },
+                                ]}
+                            />
+                        }
                     >
-                        <ExportOutlined />
-                    </IconButton>
+                        <IconButton>
+                            <ExportOutlined />
+                        </IconButton>
+                    </Dropdown>
                 </Space>
                 <div>
                 </div>
