@@ -1,4 +1,4 @@
-import { Button, Descriptions, Divider, Dropdown, Input, Menu, message, Modal, Popover, Space, Table, Tabs } from 'antd';
+import { Button, Descriptions, Divider, Dropdown, Input, Menu, message, Modal, Popover, Space, Spin, Table, Tabs } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './git-project.module.less';
 import _ from 'lodash';
@@ -330,14 +330,18 @@ export function GitProject({ event$, project, onList }) {
                                 }}
                             >
                                 {item.key == 'status' &&
-                                    <GitStatus
-                                        config={config}
-                                        projectPath={projectPath}
-                                        event$={event$}
-                                        onTab={() => {
-                                            setCurTab('commit-list')
-                                        }}
-                                    />
+                                    <>{!!config.pathSeparator ?
+                                        <GitStatus
+                                            config={config}
+                                            projectPath={projectPath}
+                                            event$={event$}
+                                            onTab={() => {
+                                                setCurTab('commit-list')
+                                            }}
+                                        />
+                                    :
+                                        <Spin />
+                                    }</>
                                 }
                                 {item.key == 'commit-list' &&
                                     <CommitList

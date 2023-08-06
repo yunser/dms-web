@@ -816,8 +816,9 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                             : diffType == 'image' ?
                                 <>
                                     <div className={styles.header}>
-                                        {/* After */}
-                                        {curFile}
+                                        <div className={styles.path}>
+                                            {curFile}
+                                        </div>
                                         {!!diffItem && diffItem.working_dir == 'M' &&
                                             <div className={styles.after}>{t('git.after')}</div>
                                         }
