@@ -1,4 +1,4 @@
-import { Button, message, Select, Space, Spin } from 'antd';
+import { Button, message, Select, Space, Spin, Checkbox } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import styles from './table-diff.module.less';
 import _ from 'lodash';
@@ -62,7 +62,7 @@ const attrLabelMap = {
     'TABLE_COLLATION': 'collation',
 }
 
-function compareColumns(diffData) {
+function compareColumns(diffData, diffField = true, diffColumn = true, diffIndex = true, chartsets = []) {
     const [data1, data2] = diffData
     const { table: table1, columns: table1Columns, indexes: table1Indexes = [] } = data1
     const { table: table2, columns: table2Columns, indexes: table2Indexes = [] } = data2
@@ -284,29 +284,55 @@ function compareColumns(diffData) {
         }
     }
 
-    sqls.push([...attrSqls, ...rowSqls, ...indexSqls].join(',\n'))
+    const attrRealSame = attrSqls.length == 0
+    const attrSame = attrRealSame || !diffField
+    console.log('attrSame', diffField)
+    const columnRealSame = diffColumns.filter(item => item.type != 'same').length == 0
+    const columnSame = columnRealSame || !diffColumn
+    const indexRealSame = diffIndexes.filter(item => item.type != 'same').length == 0
+    const indexSame = indexRealSame || !diffIndex
+    
+    const diffSqls = []
+    if (!attrSame) {
+        diffSqls.push(...attrSqls)
+    }
+    if (!columnSame) {
+        diffSqls.push(...rowSqls)
+    }
+    if (!indexSame) {
+        diffSqls.push(...indexSqls)
+    }
+    sqls.push(diffSqls.join(',\n'))
+        // + `${diffField ? 'dd' : 'bb'}`
     const sql = sqls.join('\n') + ';'
-    const attrSame = attrSqls.length == 0
-    const columnSame = diffColumns.filter(item => item.type != 'same').length == 0
-    const indexSame = diffIndexes.filter(item => item.type != 'same').length == 0
+
     return {
         sql,
         same: columnSame && indexSame && attrSame,
+        columnRealSame,
         columnSame,
+        indexRealSame,
         indexSame,
+        attrRealSame,
         attrSame,
         diffAttrs,
         diffColumns,
         diffIndexes,
+        // diffField,
+        // diffIndex,
     }
 }
 
-export function DiffResult({ diffData }) {
+export function DiffResult({ diffData, chartsets = [] }) {
     const { t } = useTranslation()
 
+    const [diffField, setDiffField] = useState(true)
+    const [diffColumn, setDiffColumn] = useState(true)
+    const [diffIndex, setDiffIndex] = useState(true)
+
     const result = useMemo(() => {
-        return compareColumns(diffData)
-    }, [diffData])
+        return compareColumns(diffData, diffField, diffColumn, diffIndex, chartsets)
+    }, [diffData, diffField, diffColumn, diffIndex])
 
     console.log('result', result)
 
@@ -314,10 +340,18 @@ export function DiffResult({ diffData }) {
         <div>
             {!!result &&
                 <div className={styles.resultBox}>
-                    {result.same ?
+                    {/* {result.same ?
                         <div>same</div>
                     :
-                        <>
+                    } */}
+                    <>
+                        {result.same ?
+                            <div className={styles.codeBox}>
+                                <code className={styles.code}>
+                                    <pre>no code</pre>
+                                </code>
+                            </div>
+                        :
                             <div className={styles.codeBox}>
                                 <code className={styles.code}>
                                     <pre>{result.sql}</pre>
@@ -334,117 +368,87 @@ export function DiffResult({ diffData }) {
                                     </Button>
                                 </div>
                             </div>
-                            <div className={styles.diffBox}>
-                                <div>
-                                    <div>
-                                    {t('sql.diff.field_diff')}: {result.attrSame ? '✅' : '❌'}
+                        }
+                        <div className={styles.diffBox}>
+                            <div>
+                                <div className={styles.header}>
+                                    <div className={styles.checkboxWrap}>
+                                        <Checkbox
+                                            checked={diffField}
+                                            onChange={e => {
+                                                setDiffField(e.target.checked)
+                                            }}
+                                            />
                                     </div>
-                                    <table className={styles.table}>
-                                        <tr>
-                                            <th>
-                                                {t('sql.diff.field_name')}
-                                            </th>
-                                            <th>
-                                                {t('type')}
-                                            </th>
-                                            <th>
-                                                {t('sql.diff')}
-                                            </th>
-                                        </tr>
-                                        {result.diffAttrs.map(item => {
-                                            return (
-                                                <tr>
-                                                    <th>
-                                                        {t(attrLabelMap[item.name])}
-                                                    </th>
-                                                    <th>
-                                                        {item.type}
-                                                    </th>
-                                                    <th>
-                                                        {item.type == 'same' &&
-                                                            <div>✅</div>
-                                                        }
-                                                        {item.type == 'added' &&
-                                                            <div>❌ {'=>'} ✅</div>
-                                                        }
-                                                        {item.type == 'deleted' &&
-                                                            <div>✅ {'=>'} ❌</div>
-                                                        }
-                                                        {item.type == 'changed' &&
-                                                            <div>
-                                                                changed
-                                                                <div>
-                                                                    {item.oldValue}
-                                                                    {'=>'}
-                                                                    {item.newValue}
-                                                                </div>
-                                                                {/* <ChangedFields list={item.changedFields} /> */}
-                                                            </div>
-                                                        }
-                                                    </th>
-                                                </tr>
-                                            )
-                                        })}
-                                    </table>
+                                    <div>
+                                        {t('sql.diff.field_diff')}: {result.attrRealSame ? '✅' : '❌'}
+                                    </div>
                                 </div>
-                                <div>
-                                    <div>
-                                        {t('sql.diff.column_diff')}: {result.columnSame ? '✅' : '❌'}
-                                    </div>
-                                    <div>
-                                        <table className={styles.table}>
+                                <table className={styles.table}>
+                                    <tr>
+                                        <th>
+                                            {t('sql.diff.field_name')}
+                                        </th>
+                                        <th>
+                                            {t('type')}
+                                        </th>
+                                        <th>
+                                            {t('sql.diff')}
+                                        </th>
+                                    </tr>
+                                    {result.diffAttrs.map(item => {
+                                        return (
                                             <tr>
                                                 <th>
-                                                    {t('sql.diff.column_name')}
+                                                    {t(attrLabelMap[item.name])}
                                                 </th>
                                                 <th>
-                                                    {t('type')}
+                                                    {item.type}
                                                 </th>
                                                 <th>
-                                                    {t('sql.diff')}
+                                                    {item.type == 'same' &&
+                                                        <div>✅</div>
+                                                    }
+                                                    {item.type == 'added' &&
+                                                        <div>❌ {'=>'} ✅</div>
+                                                    }
+                                                    {item.type == 'deleted' &&
+                                                        <div>✅ {'=>'} ❌</div>
+                                                    }
+                                                    {item.type == 'changed' &&
+                                                        <div>
+                                                            changed
+                                                            <div>
+                                                                {item.oldValue}
+                                                                {'=>'}
+                                                                {item.newValue}
+                                                            </div>
+                                                            {/* <ChangedFields list={item.changedFields} /> */}
+                                                        </div>
+                                                    }
                                                 </th>
                                             </tr>
-                                            {result.diffColumns.map(item => {
-                                                return (
-                                                    <tr>
-                                                        <th>
-                                                            {item.name}
-                                                        </th>
-                                                        <th>
-                                                            {item.type}
-                                                        </th>
-                                                        <th>
-                                                            {item.type == 'same' &&
-                                                                <div>✅</div>
-                                                            }
-                                                            {item.type == 'added' &&
-                                                                <div>❌ {'=>'} ✅</div>
-                                                            }
-                                                            {item.type == 'deleted' &&
-                                                                <div>✅ {'=>'} ❌</div>
-                                                            }
-                                                            {item.type == 'changed' &&
-                                                                <div>
-                                                                    changed
-                                                                    <ChangedFields list={item.changedFields} />
-                                                                </div>
-                                                            }
-                                                        </th>
-                                                    </tr>
-                                                )
-                                            })}
-                                        </table>
+                                        )
+                                    })}
+                                </table>
+                            </div>
+                            <div>
+                                <div className={styles.header}>
+                                    <div className={styles.checkboxWrap}>
+                                        <Checkbox
+                                            checked={diffColumn}
+                                            onChange={e => {
+                                                setDiffColumn(e.target.checked)
+                                            }}
+                                        />
                                     </div>
+                                    {t('sql.diff.column_diff')}: {result.columnRealSame ? '✅' : '❌'}
                                 </div>
                                 <div>
-                                    <div>
-                                        {t('sql.diff.index_diff')}:
-                                        {result.indexSame ? '✅' : '❌'}
-                                    </div>
                                     <table className={styles.table}>
                                         <tr>
                                             <th>
-                                                {t('sql.diff.index_name')}
+                                                {t('sql.diff.column_name')}
                                             </th>
                                             <th>
                                                 {t('type')}
@@ -453,7 +457,7 @@ export function DiffResult({ diffData }) {
                                                 {t('sql.diff')}
                                             </th>
                                         </tr>
-                                        {result.diffIndexes.map(item => {
+                                        {result.diffColumns.map(item => {
                                             return (
                                                 <tr>
                                                     <th>
@@ -475,11 +479,7 @@ export function DiffResult({ diffData }) {
                                                         {item.type == 'changed' &&
                                                             <div>
                                                                 changed
-                                                                <div>
-                                                                    {item.oldValue}
-                                                                    {'=>'}
-                                                                    {item.newValue}
-                                                                </div>
+                                                                <ChangedFields list={item.changedFields} />
                                                             </div>
                                                         }
                                                     </th>
@@ -487,11 +487,71 @@ export function DiffResult({ diffData }) {
                                             )
                                         })}
                                     </table>
-
                                 </div>
                             </div>
-                        </>
-                    }
+                            <div>
+                                <div className={styles.header}>
+                                    <div className={styles.checkboxWrap}>
+                                        <Checkbox
+                                            checked={diffIndex}
+                                            onChange={e => {
+                                                setDiffIndex(e.target.checked)
+                                            }}
+                                        />
+                                    </div>
+                                    {t('sql.diff.index_diff')}:
+                                    {result.indexRealSame ? '✅' : '❌'}
+                                </div>
+                                <table className={styles.table}>
+                                    <tr>
+                                        <th>
+                                            {t('sql.diff.index_name')}
+                                        </th>
+                                        <th>
+                                            {t('type')}
+                                        </th>
+                                        <th>
+                                            {t('sql.diff')}
+                                        </th>
+                                    </tr>
+                                    {result.diffIndexes.map(item => {
+                                        return (
+                                            <tr>
+                                                <th>
+                                                    {item.name}
+                                                </th>
+                                                <th>
+                                                    {item.type}
+                                                </th>
+                                                <th>
+                                                    {item.type == 'same' &&
+                                                        <div>✅</div>
+                                                    }
+                                                    {item.type == 'added' &&
+                                                        <div>❌ {'=>'} ✅</div>
+                                                    }
+                                                    {item.type == 'deleted' &&
+                                                        <div>✅ {'=>'} ❌</div>
+                                                    }
+                                                    {item.type == 'changed' &&
+                                                        <div>
+                                                            changed
+                                                            <div>
+                                                                {item.oldValue}
+                                                                {'=>'}
+                                                                {item.newValue}
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </th>
+                                            </tr>
+                                        )
+                                    })}
+                                </table>
+
+                            </div>
+                        </div>
+                    </>
                 </div>
             }
         </div>
@@ -706,7 +766,10 @@ and \`TABLE_TYPE\` = 'BASE TABLE';`,
                         </Button>
                         {diffData.length > 0 &&
                             <div className={styles.diffResultBox}>
-                                <DiffResult diffData={diffData} />
+                                <DiffResult
+                                    diffData={diffData}
+                                    chartsets={chartsets}
+                                />
                             </div>
                         }
                     </div>

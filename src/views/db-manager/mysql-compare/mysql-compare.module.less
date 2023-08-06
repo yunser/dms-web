@@ -1,13 +1,24 @@
 .resultBox {
     height: 100%;
-    padding: 17px;
-    overflow: auto;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    .container {
-        // width: 640px;
-        max-width: 640px;
+    .layoutLeft {
+        flex: 1 0 auto;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        // border: 1px solid #000;
+        border-right: 1px solid rgba(0, 0, 0, .12);
+        overflow: auto;
+        .container {
+            // width: 640px;
+            max-width: 800px;
+        }
+    }
+    .layoutRight {
+        flex: 0 0 320px;
+        padding: 16px;
+        // border: 1px solid #000;
     }
 }
 
@@ -39,6 +50,12 @@
             color: var(--color-text-9);
             // text-decoration: line-through;
         }
+    }
+    .tables {
+        display: flex;
+        flex-direction: row;
+        gap: 16px;
+        margin-bottom: 12px;
     }
 }
 .columnBox {

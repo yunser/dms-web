@@ -1,4 +1,4 @@
-import { Button, Descriptions, Input, message, Modal, Popover, Select, Space, Spin, Table, Tabs } from 'antd';
+import { Button, Checkbox, Descriptions, Input, message, Modal, Popover, Select, Space, Spin, Table, Tabs } from 'antd';
 import React, { useMemo } from 'react';
 import { VFC, useRef, useState, useEffect } from 'react';
 import { request } from '@/views/db-manager/utils/http';;
@@ -139,12 +139,67 @@ function DbSelector({ config, onSuccess }) {
     )
 }
 
+function AttrTable({ data }) {
+    return (
+        <div className={styles.columnBox}>
+
+            <Table
+                dataSource={data}
+                bordered
+                columns={[
+                    {
+                        title: '属性',
+                        dataIndex: 'name',
+                        width: 240,
+                    },
+                    {
+                        title: 'db1',
+                        dataIndex: 'db1',
+                        width: 80,
+                        // render(_value, item) {
+                        //     return (
+                        //         <div>
+                        //             {item.type == 'added' ? '✅' : '❌'}
+                        //         </div>
+                        //     )
+                        // }
+                    },
+                    {
+                        title: 'db2',
+                        dataIndex: 'db2',
+                        width: 80,
+                        // render(_value, item) {
+                        //     return (
+                        //         <div>
+                        //             {item.type == 'added' ? '❌' : '✅'}
+                        //         </div>
+                        //     )
+                        // }
+                    },
+                    // {
+                    //     title: '类型',
+                    //     dataIndex: 'type',
+                    //     render(value) {
+                    //         return (
+                    //             <div className={classNames(styles.cellType, styles[value])}>{value}</div>
+                    //         )
+                    //     }
+                    // },
+                ]}
+                pagination={false}
+                size="small"
+            />
+        </div>
+    )
+}
+
 function ColumnTable({ data }) {
     return (
         <div className={styles.columnBox}>
 
             <Table
                 dataSource={data}
+                bordered
                 columns={[
                     {
                         title: '列名',
@@ -357,7 +412,7 @@ async function compareColumn(tableName, table1Columns, table2Columns) {
     return diffColumns
 }
 
-async function compareDatabaseTables(db1Tables = [], db2Tables = [], db1AllColumns = [], db2AllColumns = [], db1Result = {}, db2Result = {}) {
+async function compareDatabaseTables(db1Tables = [], db2Tables = [], db1AllColumns = [], db2AllColumns = [], db1Result = {}, db2Result = {}, checkTableProps = {}) {
     // const db1Tables = []
     // const db2Tables = []
     const { ignoreTables: db1IgnoreTables } = db1Result
@@ -431,7 +486,30 @@ async function compareDatabaseTables(db1Tables = [], db2Tables = [], db1AllColum
             const table1Columns = db1AllColumns.filter(col => col.TABLE_NAME == tableName)
             const table2Columns = db2AllColumns.filter(col => col.TABLE_NAME == tableName)
             const columns = await compareColumn(tableName, table1Columns, table2Columns)
-            if (columns.length == 0) {
+
+            const toDiffTableAttrs = [
+                'TABLE_COMMENT',
+                'ENGINE',
+                'TABLE_COLLATION',
+            ]
+            console.log('com/', db1Row, db2Row)
+            const notSameAttrs = []
+            for (let attr of toDiffTableAttrs) {
+                if (!checkTableProps[attr]) {
+                    continue
+                }
+                if (db1Row[attr] != db2Row[attr]) {
+                    notSameAttrs.push({
+                        name: attr,
+                        db1: db1Row[attr],
+                        db2: db2Row[attr],
+                        // values: [db1Row[attr], db2Row[attr]]
+                    })
+                }
+            }
+
+
+            if (columns.length == 0 && notSameAttrs.length == 0) {
                 results.push({
                     tableName,
                     type: 'same',
@@ -442,6 +520,7 @@ async function compareDatabaseTables(db1Tables = [], db2Tables = [], db1AllColum
                     tableName,
                     type: 'changed',
                     columns,
+                    notSameAttrs,
                     allColumns: [
                         table1Columns,
                         table2Columns,
@@ -486,8 +565,29 @@ export function MysqlCompare({ config, connectionId, onSql }) {
     console.log('db1Data', db1Data)
     const [diffData, setDiffData] = useState([])
     const [compareModalVisible, setCompareModalVisible] = useState(false)
-
+    const [chartsets, setChartsets] = useState([])
+    const [checkTableProps, setCheckTableProps] = useState({
+        TABLE_COMMENT: false,
+        ENGINE: false,
+        TABLE_COLLATION: false,
+    })
     const stat = getStat(results)
+
+    useEffect(() => {
+        // loadCharData()
+    }, [])
+
+    async function loadCharData() {
+        let res = await request.post(`${config.host}/mysql/execSqlSimple`, {
+            connectionId,
+            sql: `SELECT *
+    FROM \`information_schema\`.\`COLLATION_CHARACTER_SET_APPLICABILITY\``,
+        })
+        if (res.success) {
+            const charData = res.data
+            setChartsets(charData)
+        }
+    }
 
     async function loadData() {
         setLoading(true)
@@ -530,7 +630,7 @@ export function MysqlCompare({ config, connectionId, onSql }) {
         })
         if (res.success) {
             const { db1Result, db2Result } = res.data
-            const results = await compareDatabaseTables(db1Result.tables, db2Result.tables, db1Result.columns, db2Result.columns, db1Result, db2Result)
+            const results = await compareDatabaseTables(db1Result.tables, db2Result.tables, db1Result.columns, db2Result.columns, db1Result, db2Result, checkTableProps)
             setResults(results.sort((a, b) => {
                 function score(item) {
                     const typeScoreMap = {
@@ -653,193 +753,244 @@ export function MysqlCompare({ config, connectionId, onSql }) {
     console.log('stat', stat)
     return (
         <div className={styles.resultBox}>
-            {/* {results.length == 0 &&
-            } */}
-            <Space className={styles.formBox} direction="vertical">
-                <div className={styles.help}>支持的功能：表的新增/删除检测，字段的新增/删除检测；不支持的功能：字段的类型和空值变化</div>
-                <div className={styles.dbSelect}>
+            <div className={styles.layoutLeft}>
+                <Space className={styles.formBox} direction="vertical">
+                    <div className={styles.help}>支持的功能：表的新增/删除检测，字段的新增/删除检测；不支持的功能：字段的类型和空值变化</div>
+                    <div className={styles.dbSelect}>
 
-                    <div>
-                        {/* <div>数据库2：</div> */}
-                        <div className={styles.label}>已经做了修改的数据库</div>
-                        <DbSelector
-                            config={config}
-                            onSuccess={data => {
-                                setDb2Data(data)
-                            }}
-                        />
-                        <div>{db1Result?._connectionId}</div>
+                        <div>
+                            {/* <div>数据库2：</div> */}
+                            <div className={styles.label}>已经做了修改的数据库</div>
+                            <DbSelector
+                                config={config}
+                                onSuccess={data => {
+                                    setDb2Data(data)
+                                }}
+                            />
+                            <div>{db1Result?._connectionId}</div>
+                        </div>
+                        <div className={styles.arrow}>
+                            <div>{'=>'}</div>
+                            <div>同步到</div>
+                        </div>
+                        <div>
+                            <div className={styles.label}>需要同步更新的数据库</div>
+                            
+                            <DbSelector
+                                config={config}
+                                onSuccess={data => {
+                                    setDb1Data(data)
+                                }}
+                            />
+                            <div>{db2Result?._connectionId}</div>
+                        </div>
                     </div>
-                    <div className={styles.arrow}>
-                        <div>{'=>'}</div>
-                        <div>同步到</div>
-                    </div>
-                    <div>
-                        <div className={styles.label}>需要同步更新的数据库</div>
-                        
-                        <DbSelector
-                            config={config}
-                            onSuccess={data => {
-                                setDb1Data(data)
-                            }}
-                        />
-                        <div>{db2Result?._connectionId}</div>
-                    </div>
-                </div>
-                {!!db1Data && !!db2Data &&
-                    <div>
-                        <Button 
-                            type="primary"
-                            onClick={() => {
-                                compare()
-                            }}
-                        >Compare</Button>
-                    </div>
-                }
-            </Space>
-            {loading ?
-                <FullCenterBox
-                    height={240}
-                >
-                    <Spin />
-                </FullCenterBox>
-            : results.length > 0 ?
-                <div className={styles.container}>
-                    {/* <div></div> */}
-                    {/* <div>结果：</div> */}
-                    {!!stat &&
-                        <div className={styles.statBox}>
-                            {/* <div>统计</div> */}
-                            <div className={styles.item}>
-                                {stat.added} 
-                                <div className={styles.added}>added</div>
-                            </div>
-                            <div className={styles.item}>
-                                {stat.deleted} 
-                                <div className={styles.deleted}>deleted</div>
-                            </div>
-                            <div className={styles.item}>{stat.changed} 
-                                <div className={styles.changed}>changed</div>
-                            </div>
-                            <div className={styles.item}>{stat.ignore} 
-                                <div className={styles.ignore}>ignore</div>
-                            </div>
+                    {!!db1Data && !!db2Data &&
+                        <div>
+                            <Button 
+                                type="primary"
+                                onClick={() => {
+                                    compare()
+                                }}
+                            >Compare</Button>
                         </div>
                     }
-                    {results.length > 0 &&
-                        <div className={styles.results}>
-                            {results.map(item => {
-                                return (
-                                    <div 
-                                        className={styles.item}
-                                    >
-                                        <div className={styles.header}>
-                                            <div className={styles.tableName}>{item.tableName}</div>
-                                            <div className={classNames(styles.type, styles[item.type])}>{item.type}</div>
+                </Space>
+                {loading ?
+                    <FullCenterBox
+                        height={240}
+                    >
+                        <Spin />
+                    </FullCenterBox>
+                : results.length > 0 ?
+                    <div className={styles.container}>
+                        {/* <div></div> */}
+                        {/* <div>结果：</div> */}
+                        {!!stat &&
+                            <div className={styles.statBox}>
+                                {/* <div>统计</div> */}
+                                <div className={styles.item}>
+                                    {stat.added} 
+                                    <div className={styles.added}>added</div>
+                                </div>
+                                <div className={styles.item}>
+                                    {stat.deleted} 
+                                    <div className={styles.deleted}>deleted</div>
+                                </div>
+                                <div className={styles.item}>{stat.changed} 
+                                    <div className={styles.changed}>changed</div>
+                                </div>
+                                <div className={styles.item}>{stat.ignore} 
+                                    <div className={styles.ignore}>ignore</div>
+                                </div>
+                            </div>
+                        }
+                        {results.length > 0 &&
+                            <div className={styles.results}>
+                                {results.map(item => {
+                                    return (
+                                        <div 
+                                            className={styles.item}
+                                        >
+                                            <div className={styles.header}>
+                                                <div className={styles.tableName}>{item.tableName}</div>
+                                                <div className={classNames(styles.type, styles[item.type])}>{item.type}</div>
+                                            </div>
+                                            {item.type == 'changed' &&
+                                                <div>
+                                                    <div className={styles.tables}>
+                                                        {item.columns.length > 0 &&
+                                                            <ColumnTable data={item.columns} />
+                                                        }
+                                                        {item.notSameAttrs.length > 0 &&
+                                                            <AttrTable data={item.notSameAttrs} />
+                                                        }
+                                                    </div>
+                                                    <div className={styles.btn}>
+                                                        <Button
+                                                            size="small"
+                                                            onClick={() => {
+                                                                getChangedScript(item)
+                                                            }}
+                                                        >
+                                                            get_changed_script
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            }
+                                            {item.type == 'added' &&
+                                                <div>
+                                                    <table className={styles.table}>
+                                                        <tr>
+                                                            <th>db1</th>
+                                                            <th>db2</th>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>✅</th>
+                                                            <th>❌</th>
+                                                        </tr>
+                                                    </table>
+                                                    <div className={styles.btn}>
+                                                        <Button
+                                                            size="small"
+                                                            onClick={() => {
+                                                                getCreateScriptDb1(item.tableName)
+                                                            }}
+                                                        >
+                                                            get_create_script
+
+                                                        </Button>
+                                                        <Button
+                                                            size="small"
+                                                            onClick={() => {
+                                                                getDeleteScript(item)
+                                                            }}
+                                                        >
+                                                            get_delete_script
+
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            }
+                                            {item.type == 'deleted' &&
+                                                <div>
+                                                    <table className={styles.table}>
+                                                        <tr>
+                                                            <th>db1</th>
+                                                            <th>db2</th>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>❌</th>
+                                                            <th>✅</th>
+                                                        </tr>
+                                                    </table>
+                                                    <div className={styles.btn}>
+                                                        <Button
+                                                            size="small"
+                                                            onClick={() => {
+                                                                getDeleteScript(item)
+                                                            }}
+                                                        >
+                                                            get_delete_script
+
+                                                        </Button>
+                                                        <Button
+                                                            size="small"
+                                                            onClick={() => {
+                                                                console.log('item', item)
+                                                                getCreateScriptDb2(item.tableName)
+                                                            }}
+                                                        >
+                                                            get_create_script
+
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            }
                                         </div>
-                                        {item.type == 'changed' &&
-                                            <div>
-                                                <ColumnTable data={item.columns} />
-                                                <div className={styles.btn}>
-                                                    <Button
-                                                        size="small"
-                                                        onClick={() => {
-                                                            getChangedScript(item)
-                                                        }}
-                                                    >
-                                                        get_changed_script
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                        }
-                                        {item.type == 'added' &&
-                                            <div>
-                                                <table className={styles.table}>
-                                                    <tr>
-                                                        <th>db1</th>
-                                                        <th>db2</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>✅</th>
-                                                        <th>❌</th>
-                                                    </tr>
-                                                </table>
-                                                <div className={styles.btn}>
-                                                    <Button
-                                                        size="small"
-                                                        onClick={() => {
-                                                            getCreateScriptDb1(item.tableName)
-                                                        }}
-                                                    >
-                                                        get_create_script
-
-                                                    </Button>
-                                                    <Button
-                                                        size="small"
-                                                        onClick={() => {
-                                                            getDeleteScript(item)
-                                                        }}
-                                                    >
-                                                        get_delete_script
-
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                        }
-                                        {item.type == 'deleted' &&
-                                            <div>
-                                                <table className={styles.table}>
-                                                    <tr>
-                                                        <th>db1</th>
-                                                        <th>db2</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>❌</th>
-                                                        <th>✅</th>
-                                                    </tr>
-                                                </table>
-                                                <div className={styles.btn}>
-                                                    <Button
-                                                        size="small"
-                                                        onClick={() => {
-                                                            getDeleteScript(item)
-                                                        }}
-                                                    >
-                                                        get_delete_script
-
-                                                    </Button>
-                                                    <Button
-                                                        size="small"
-                                                        onClick={() => {
-                                                            console.log('item', item)
-                                                            getCreateScriptDb2(item.tableName)
-                                                        }}
-                                                    >
-                                                        get_create_script
-
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                        }
-                                    </div>
-                                )
-                            })}
-                        </div>
-                    }
+                                    )
+                                })}
+                            </div>
+                        }
+                    </div>
+                :
+                    <div></div>
+                }
+            </div>
+            <div className={styles.layoutRight}>
+                <div>diff fields:</div>
+                <Checkbox
+                    checked={checkTableProps.TABLE_COMMENT}
+                    onChange={e => {
+                        setCheckTableProps({
+                            ...checkTableProps,
+                            TABLE_COMMENT: e.target.checked,
+                        })
+                    }}
+                >
+                    table comment
+                </Checkbox>
+                <div>
+                    <Checkbox
+                        checked={checkTableProps.ENGINE}
+                        onChange={e => {
+                            setCheckTableProps({
+                                ...checkTableProps,
+                                ENGINE: e.target.checked,
+                            })
+                        }}
+                    >
+                        ENGINE
+                    </Checkbox>
                 </div>
-            :
-                <div></div>
-            }
+                <div>
+                    <Checkbox
+                        checked={checkTableProps.TABLE_COLLATION}
+                        onChange={e => {
+                            setCheckTableProps({
+                                ...checkTableProps,
+                                TABLE_COLLATION: e.target.checked,
+                            })
+                        }}
+                    >
+                        TABLE_COLLATION
+                    </Checkbox>
+                </div>
+            </div>
+            
             {compareModalVisible &&
                 <Modal
-                    title="对比"
+                    title={t('sql.diff')}
                     open={true}
-                    width={1000}
+                    width={1200}
                     onCancel={() => {
                         setCompareModalVisible(false)
                     }}
                 >
-                    <DiffResult diffData={diffData} />
+                    <DiffResult
+                        diffData={diffData}
+                        chartsets={chartsets}
+                    />
                 </Modal>
             }
         </div>
