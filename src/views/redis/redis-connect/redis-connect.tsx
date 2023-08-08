@@ -144,6 +144,9 @@ export function RedisConnect({ config, event$, onConnect, }) {
     function deleteItem(item) {
         Modal.confirm({
             content: `${t('delete_confirm')} ${item.name}?`,
+            okButtonProps: {
+                danger: true,
+            },
             async onOk() {
                 // console.log('删除', )
                 // let newConnects = connections.filter(item => item.id != data.id)
@@ -511,6 +514,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
             // user: values.user,
             password: values.password || '',
             userName: values.userName,
+            httpProxyUrl: values.httpProxyUrl || '',
             defaultDatabase: values.defaultDatabase || 0,
         }
         if (editType == 'create') {
@@ -585,6 +589,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
             userName: values.userName,
             db: values.defaultDatabase || 0,
             test: true,
+            httpProxyUrl: values.httpProxyUrl,
             // remember: values.remember,
         }
         let ret = await request.post(`${config.host}/redis/connect`, reqData)
@@ -711,6 +716,12 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                     name="userName"
                     label={t('user_name')}
                     extra={t('user_name_helper')}
+                >
+                    <Input />
+                </Form.Item>
+                <Form.Item
+                    name="httpProxyUrl"
+                    label={t('http_proxy_url')}
                 >
                     <Input />
                 </Form.Item>

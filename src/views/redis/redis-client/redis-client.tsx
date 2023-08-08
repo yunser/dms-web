@@ -102,6 +102,9 @@ function DbSelector({ curDb, connectionId, onDatabaseChange, config }) {
             // dbName,
         })
         if (res.success) {
+            if (!res.data.info) {
+                return
+            }
             const infos = res.data.info.split('\r\n')
             // "db0:keys=76,expires=35,avg_ttl=67512945473"
             // 107: "db1:keys=70711,expires=26,avg_ttl=28153799"
@@ -346,6 +349,7 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
             password: item.password,
             userName: item.userName,
             db: item.defaultDatabase || 0,
+            httpProxyUrl: item.httpProxyUrl,
             // remember: values.remember,
         }
         // if (values.remember) {
@@ -1436,6 +1440,17 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
                         tabBarExtraContent={{
                             right: (
                                 <div className={styles.layoutRightHeaderTabExtra}>
+                                    <div className={styles.addBox}>
+
+                                    </div>
+                                    <Button
+                                        size="small"
+                                        onClick={() => {
+                                            setOpenModalVisible(true)
+                                        }}
+                                    >
+                                        {t('redis.key.open')}
+                                    </Button>
                                     <Space>
                                         {tabInfo.items.length > 0 &&
                                             <Dropdown
