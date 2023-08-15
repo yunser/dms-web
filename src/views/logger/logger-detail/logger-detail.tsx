@@ -1,4 +1,4 @@
-import { Button, Checkbox, Col, Descriptions, Divider, Drawer, Empty, Form, Input, InputNumber, message, Modal, Pagination, Popover, Row, Select, Space, Table, Tabs, Tag } from 'antd';
+import { Button, Checkbox, Col, DatePicker, Descriptions, Divider, Drawer, Empty, Form, Input, InputNumber, message, Modal, Pagination, Popover, Row, Select, Space, Table, Tabs, Tag } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import styles from './logger-detail.module.less';
 import _ from 'lodash';
@@ -16,6 +16,7 @@ import { IconButton } from '@/views/db-manager/icon-button';
 import { ExportOutlined } from '@ant-design/icons';
 import { getGlobalConfig } from '@/config';
 
+const { RangePicker } = DatePicker
 
 
 function LogCell({ value }) {
@@ -58,6 +59,9 @@ function TimeSelector({ value, onChange }) {
         'hour': t('hour')
     }
 
+    const [date,setDate] = useState(moment().format('YYYY-MM-DD'))
+    const [startHour,setStartHour] = useState('00:00')
+    const [endHour,setEndHour] = useState('24:00')
     const [startTime,setStartTime] = useState(moment().add(-1, 'hours').format('YYYY-MM-DD HH:mm:ss'))
     const [endTime,setEndTime] = useState(moment().format('YYYY-MM-DD HH:mm:ss'))
 
@@ -103,7 +107,21 @@ function TimeSelector({ value, onChange }) {
             unit: 'hour',
         },
     ]
-
+    const hours = []
+    for (let hour = 0; hour <= 24; hour++) {
+        const timeStart = `${`${hour}`.padStart(2, '0')}:00`
+        hours.push({
+            label: timeStart,
+            value: timeStart,
+        })
+        if (hour != 24) {
+            const timeHalf = `${`${hour}`.padStart(2, '0')}:30`
+            hours.push({
+                label: timeHalf,
+                value: timeHalf,
+            })
+        }
+    }
     function showModal() {
         setTab(value.type)
         setOpen(true)
@@ -217,6 +235,68 @@ function TimeSelector({ value, onChange }) {
                                         {t('ok')}
                                     </Button>
                                 </Space>
+                            </div>
+                            <div className={styles.sectionTitle}>
+                                {t('date_time')}
+                                <div>
+                                    <Space>
+                                        <DatePicker
+                                            value={moment(date)}
+                                            onChange={value => {
+                                                if (!value) {
+                                                    return
+                                                }
+                                                setDate(value?.clone().format('YYYY-MM-DD'))
+                                            }}
+                                        />
+                                        <Select
+                                            className={styles.hourSelector}
+                                            value={startHour}
+                                            options={hours}
+                                            onChange={value => {
+                                                setStartHour(value)
+                                            }}
+                                            showSearch={true}
+                                            optionFilterProp="label"
+                                        />
+                                        ~
+                                        <Select
+                                            className={styles.hourSelector}
+                                            value={endHour}
+                                            options={hours}
+                                            onChange={value => {
+                                                setEndHour(value)
+                                            }}
+                                            showSearch={true}
+                                            optionFilterProp="label"
+                                        />
+                                        <Button
+                                            onClick={() => {
+                                                const dateM = moment(date)
+                                                const start = dateM.clone()
+                                                    .hour(parseInt(startHour.split(':')[0]))
+                                                    .minute(parseInt(startHour.split(':')[1]))
+                                                    .format('YYYY-MM-DD HH:mm:ss')
+                                                const end = dateM.clone()
+                                                    .hour(parseInt(endHour.split(':')[0]))
+                                                    .minute(parseInt(endHour.split(':')[1]))
+                                                    .format('YYYY-MM-DD HH:mm:ss')
+                                                onChange && onChange({
+                                                    type: 'custom',
+                                                    start,
+                                                    end,
+                                                })
+                                                setStartTime(start)
+                                                setEndTime(end)
+                                                setDate(dateM.clone().format('YYYY-MM-DD'))
+                                                setOpen(false)
+                                            }}
+                                            
+                                        >
+                                            {t('ok')}
+                                        </Button>
+                                    </Space>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -469,7 +549,6 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onNew, })
             // setQuery(query)
         }
     }
-    
     return (
         <div className={styles.infoBox}>
             {detailItem.type == 'file' &&
