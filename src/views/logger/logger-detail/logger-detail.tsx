@@ -15,6 +15,7 @@ import ReactJson from 'react-json-view';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { ExportOutlined } from '@ant-design/icons';
 import { getGlobalConfig } from '@/config';
+import copy from 'copy-to-clipboard';
 
 const { RangePicker } = DatePicker
 
@@ -64,6 +65,8 @@ function TimeSelector({ value, onChange }) {
     const [endHour,setEndHour] = useState('24:00')
     const [startTime,setStartTime] = useState(moment().add(-1, 'hours').format('YYYY-MM-DD HH:mm:ss'))
     const [endTime,setEndTime] = useState(moment().format('YYYY-MM-DD HH:mm:ss'))
+    const [centerTime,setCenterTime] = useState(moment().format('YYYY-MM-DD HH:mm:ss'))
+    const [offsetMinute,setOffsetMinute] = useState(30)
 
     const quickTimes = [
         {
@@ -238,65 +241,109 @@ function TimeSelector({ value, onChange }) {
                             </div>
                             <div className={styles.sectionTitle}>
                                 {t('date_time')}
-                                <div>
-                                    <Space>
-                                        <DatePicker
-                                            value={moment(date)}
-                                            onChange={value => {
-                                                if (!value) {
-                                                    return
-                                                }
-                                                setDate(value?.clone().format('YYYY-MM-DD'))
-                                            }}
-                                        />
-                                        <Select
-                                            className={styles.hourSelector}
-                                            value={startHour}
-                                            options={hours}
-                                            onChange={value => {
-                                                setStartHour(value)
-                                            }}
-                                            showSearch={true}
-                                            optionFilterProp="label"
-                                        />
-                                        ~
-                                        <Select
-                                            className={styles.hourSelector}
-                                            value={endHour}
-                                            options={hours}
-                                            onChange={value => {
-                                                setEndHour(value)
-                                            }}
-                                            showSearch={true}
-                                            optionFilterProp="label"
-                                        />
-                                        <Button
-                                            onClick={() => {
-                                                const dateM = moment(date)
-                                                const start = dateM.clone()
-                                                    .hour(parseInt(startHour.split(':')[0]))
-                                                    .minute(parseInt(startHour.split(':')[1]))
-                                                    .format('YYYY-MM-DD HH:mm:ss')
-                                                const end = dateM.clone()
-                                                    .hour(parseInt(endHour.split(':')[0]))
-                                                    .minute(parseInt(endHour.split(':')[1]))
-                                                    .format('YYYY-MM-DD HH:mm:ss')
-                                                onChange && onChange({
-                                                    type: 'custom',
-                                                    start,
-                                                    end,
-                                                })
-                                                setStartTime(start)
-                                                setEndTime(end)
-                                                setDate(dateM.clone().format('YYYY-MM-DD'))
-                                                setOpen(false)
-                                            }}
-                                            
-                                        >
-                                            {t('ok')}
-                                        </Button>
-                                    </Space>
-                                </div>
+                            </div>
+                            <div>
+                                <Space>
+                                    <DatePicker
+                                        value={moment(date)}
+                                        onChange={value => {
+                                            if (!value) {
+                                                return
+                                            }
+                                            setDate(value?.clone().format('YYYY-MM-DD'))
+                                        }}
+                                    />
+                                    <Select
+                                        className={styles.hourSelector}
+                                        value={startHour}
+                                        options={hours}
+                                        onChange={value => {
+                                            setStartHour(value)
+                                        }}
+                                        showSearch={true}
+                                        optionFilterProp="label"
+                                    />
+                                    ~
+                                    <Select
+                                        className={styles.hourSelector}
+                                        value={endHour}
+                                        options={hours}
+                                        onChange={value => {
+                                            setEndHour(value)
+                                        }}
+                                        showSearch={true}
+                                        optionFilterProp="label"
+                                    />
+                                    <Button
+                                        onClick={() => {
+                                            const dateM = moment(date)
+                                            const start = dateM.clone()
+                                                .hour(parseInt(startHour.split(':')[0]))
+                                                .minute(parseInt(startHour.split(':')[1]))
+                                                .format('YYYY-MM-DD HH:mm:ss')
+                                            const end = dateM.clone()
+                                                .hour(parseInt(endHour.split(':')[0]))
+                                                .minute(parseInt(endHour.split(':')[1]))
+                                                .format('YYYY-MM-DD HH:mm:ss')
+                                            onChange && onChange({
+                                                type: 'custom',
+                                                start,
+                                                end,
+                                            })
+                                            setStartTime(start)
+                                            setEndTime(end)
+                                            setDate(dateM.clone().format('YYYY-MM-DD'))
+                                            setOpen(false)
+                                        }}
+                                        
+                                    >
+                                        {t('ok')}
+                                    </Button>
+                                </Space>
+                            </div>
+                            <div className={styles.sectionTitle}>
+                                +=
+                            </div>
+                            <div>
+                                <Space>
+                                    <Input
+                                        value={centerTime}
+                                        onChange={e => {
+                                            setCenterTime(e.target.value)
+                                        }}
+                                    />
+                                    ±
+                                    <InputNumber
+                                        className={styles.hourSelector}
+                                        value={offsetMinute}
+                                        onChange={value => {
+                                            setOffsetMinute(value)
+                                        }}
+                                    />
+                                    {t('minute')}
+                                    <Button
+                                        onClick={() => {
+                                            const centerM = moment(centerTime)
+                                            const start = centerM.clone()
+                                                .subtract(offsetMinute, 'minutes')
+                                                .format('YYYY-MM-DD HH:mm:ss')
+                                            const end = centerM.clone()
+                                                .add(offsetMinute, 'minutes')
+                                                .format('YYYY-MM-DD HH:mm:ss')
+                                            onChange && onChange({
+                                                type: 'custom',
+                                                start,
+                                                end,
+                                            })
+                                            setStartTime(start)
+                                            setEndTime(end)
+                                            setOpen(false)
+                                        }}
+                                        
+                                    >
+                                        {t('ok')}
+                                    </Button>
+                                </Space>
                             </div>
                         </div>
                     </div>
@@ -762,8 +809,15 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onNew, })
                                     return (
                                         <div className={styles.fullCell}>
                                             <div className={styles.timeCell}>
-                                                {/* {_index}: */}
-                                                <div className={styles.timeValue}>{m.format('MM-DD HH:mm:ss')}</div>
+                                                <div
+                                                    className={styles.timeValue}
+                                                    onClick={() => {
+                                                        copy(m.format('YYYY-MM-DD HH:mm:ss'))
+                                                        message.info(t('copied'))
+                                                    }}
+                                                >
+                                                    {m.format('MM-DD HH:mm:ss')}
+                                                </div>
                                                 {!!tag &&
                                                     <Tag className={styles.timeTag}>{tag}</Tag>
                                                 }
