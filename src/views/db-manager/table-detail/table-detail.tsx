@@ -1325,10 +1325,14 @@ export function TableDetail({ config, databaseType = 'mysql', connectionId, even
             if (ItemHelper.mixValue(row, 'COLUMN_TYPE').includes('varchar') 
                 && (ItemHelper.isKeyValueChanged(row, 'CHARACTER_SET_NAME') || ItemHelper.isKeyValueChanged(row, 'COLLATION_NAME'))) {
 
-                codeSql = `CHARACTER SET ${ItemHelper.mixValue(row, 'CHARACTER_SET_NAME')}`
-                const collation = ItemHelper.mixValue(row, 'COLLATION_NAME')
-                if (collation) {
-                    codeSql += ` COLLATE ${collation}`
+                const characterSet = ItemHelper.mixValue(row, 'CHARACTER_SET_NAME')
+                // empty where new
+                if (characterSet) {
+                    codeSql = `CHARACTER SET ${characterSet}`
+                    const collation = ItemHelper.mixValue(row, 'COLLATION_NAME')
+                    if (collation) {
+                        codeSql += ` COLLATE ${collation}`
+                    }
                 }
             }
             
