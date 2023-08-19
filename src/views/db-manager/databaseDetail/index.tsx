@@ -49,6 +49,7 @@ import { TableDataExporter } from '../table-data-exporter/table-data-exporter'
 import { TableDiff } from '../table-diff'
 import { SqlDataImport } from '../data-import'
 import { SqlRealPanel } from '../sql-real/sql-real'
+import { SqlDataBackup } from '../data-backup'
 
 // console.log('ddd.0')
 // _.debounce(() => {
@@ -404,6 +405,20 @@ export function DataBaseDetail({ databaseType = 'mysql', curConnect, _connection
                     data: {
                         dbName: schemaName,
                         // tableName,
+                    },
+                })
+            }
+        }
+        else if (msg.type == 'data_backup') {
+            const { connectionId: _connectionId, schemaName } = msg.data
+            if (_connectionId == connectionId) {
+                let tabKey = '' + new Date().getTime()
+                addOrActiveTab({
+                    title: `${t('data_backup')} - ${schemaName}`,
+                    key: tabKey,
+                    type: 'data_backup',
+                    data: {
+                        dbName: schemaName,
                     },
                 })
             }
@@ -902,6 +917,21 @@ export function DataBaseDetail({ databaseType = 'mysql', curConnect, _connection
                                 }
                                 {item.type == 'data_import' &&
                                     <SqlDataImport
+                                        config={config}
+                                        connectionId={connectionId}
+                                        dbName={item.data.dbName}
+                                        onJson={onJson}
+                                        onTab={tab => {
+                                            setActiveKey(tab.key)
+                                            setTabs([
+                                                ...tabs,
+                                                tab,
+                                            ])
+                                        }}
+                                    />
+                                }
+                                {item.type == 'data_backup' &&
+                                    <SqlDataBackup
                                         config={config}
                                         connectionId={connectionId}
                                         dbName={item.data.dbName}

@@ -145,6 +145,10 @@ function TreeTitle({ keyword, loading = false, nodeData, onAction, onClick, onDo
                                     key: 'schema_use',
                                 },
                                 {
+                                    // ========
+                                    type: 'divider',
+                                },
+                                {
                                     label: t('table_list'),
                                     key: 'table_list',
                                 },
@@ -157,20 +161,32 @@ function TreeTitle({ keyword, loading = false, nodeData, onAction, onClick, onDo
                                     key: 'function_list',
                                 },
                                 {
-                                    label: t('copy_name'),
-                                    key: 'copy_name',
+                                    // ========
+                                    type: 'divider',
                                 },
                                 {
                                     label: t('export_doc'),
                                     key: 'export_doc',
                                 },
                                 {
-                                    label: t('table_diff'),
-                                    key: 'table_diff',
-                                },
-                                {
                                     label: t('data_import'),
                                     key: 'data_import',
+                                },
+                                {
+                                    label: t('mysql.backup_schema'),
+                                    key: 'data_backup',
+                                },
+                                {
+                                    // ========
+                                    type: 'divider',
+                                },
+                                {
+                                    label: t('copy_name'),
+                                    key: 'copy_name',
+                                },
+                                {
+                                    label: t('table_diff'),
+                                    key: 'table_diff',
                                 },
                             ]
                         :
@@ -1248,6 +1264,15 @@ LIMIT 1000;`
                                         else if (key == 'data_import') {
                                             event$.emit({
                                                 type: 'data_import',
+                                                data: {
+                                                    connectionId,
+                                                    schemaName: nodeData.itemData.$_name,
+                                                }
+                                            })
+                                        }
+                                        else if (key == 'data_backup') {
+                                            event$.emit({
+                                                type: 'data_backup',
                                                 data: {
                                                     connectionId,
                                                     schemaName: nodeData.itemData.$_name,
