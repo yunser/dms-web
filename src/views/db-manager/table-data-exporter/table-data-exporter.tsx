@@ -1,4 +1,4 @@
-import { Alert, Button, Descriptions, Progress, Spin } from 'antd';
+import { Alert, Button, Descriptions, Progress, Select, Space, Spin } from 'antd';
 import React from 'react';
 import { useRef, useState, useEffect } from 'react';
 import { request } from '@/views/db-manager/utils/http';
@@ -65,6 +65,9 @@ export function TaskDetail({ config, id }) {
                                 showInfo={false}
                             />
                         </div>
+                        {!!task.description && task.status == 'ing' &&
+                            <div>{task.description}</div>
+                        }
                         {task.status == 'success' && !!task.hasFile &&
                             <div className={styles.tool}>
                                 <Button
@@ -106,6 +109,7 @@ export function TableDataExporter({ config, connectionId, dbName, tableName }) {
     const [rowNum, setRowNum] = useState(0)
     const [taskId, setTaskID] = useState('')
     const [exporting, setExporting] = useState(false)
+    const [exportType, setexportType] = useState('dataOnly')
 
     async function startExport() {
         setExporting(true)
@@ -114,6 +118,7 @@ export function TableDataExporter({ config, connectionId, dbName, tableName }) {
             dbName,
             tableName,
             pageSize: 1000,
+            type: exportType,
         })
         if (res.success) {
             setTaskID(res.data.taskId)
@@ -166,14 +171,34 @@ export function TableDataExporter({ config, connectionId, dbName, tableName }) {
                             </Descriptions.Item>
                         </Descriptions>
                         <div>
-                            <Button
-                                type="primary"
-                                size="small"
-                                onClick={startExport}
-                                disabled={exporting}
-                            >
-                                {t('export')}
-                            </Button>
+                            <Space>
+                                <Select
+                                    className={styles.exportType}
+                                    value={exportType}
+                                    onChange={value => {
+                                        setexportType(value)
+                                    }}
+                                    size="small"
+                                    options={[
+                                        {
+                                            label: t('sql.export.data_only'),
+                                            value: 'dataOnly',
+                                        },
+                                        {
+                                            label: t('sql.export.data_and_struct'),
+                                            value: 'dataAndStruct',
+                                        },
+                                    ]}
+                                />
+                                <Button
+                                    type="primary"
+                                    size="small"
+                                    onClick={startExport}
+                                    disabled={exporting}
+                                >
+                                    {t('export')}
+                                </Button>
+                            </Space>
                         </div>
                         {exporting &&
                             <div>
