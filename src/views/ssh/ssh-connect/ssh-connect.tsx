@@ -5,7 +5,7 @@ import _ from 'lodash';
 import classNames from 'classnames'
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { CodeOutlined, DownloadOutlined, EllipsisOutlined, ExportOutlined, EyeInvisibleOutlined, EyeOutlined, FileOutlined, LineChartOutlined, PlusOutlined, QuestionOutlined, ReloadOutlined } from '@ant-design/icons';
+import { CodeOutlined, DownloadOutlined, EllipsisOutlined, ExportOutlined, EyeInvisibleOutlined, EyeOutlined, FileOutlined, LineChartOutlined, PlusOutlined, QuestionCircleFilled, QuestionOutlined, ReloadOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 // import { GitProject } from '../git-project';
@@ -19,6 +19,7 @@ import { FileList } from '../../file/file-list'
 import storage from '@/utils/storage';
 import { uid } from 'uid';
 import { SearchUtil } from '@/utils/search';
+import fileSize from 'filesize'
 
 function CircleProgress({ percent, width, 
     format = (percent) => `${percent}%`, 
@@ -88,6 +89,10 @@ const toplist = parseTop(topText)
 // console.log('toplist', )
 function parseSize(sizeText: string) {
     return parseInt(sizeText.replace('kB', '').trim())
+}
+
+function memSizeFormat(value) {
+    return fileSize(parseSize(value) * 1000)
 }
 
 function parseStat(stat) {
@@ -913,6 +918,12 @@ function MonitorModal({ item, onCancel, config }) {
             // https://blog.csdn.net/heymyyl/article/details/80073534
 
             // const { cpuUsage } = parseStat(res.data.stat)
+            // console.log('mem/', {
+            //     MemTotal: parseSize(memInfo.MemTotal),
+            //     MemFree: parseSize(memInfo.MemFree),
+            //     Buffers: parseSize(memInfo.Buffers),
+            //     Cached: parseSize(memInfo.Cached),
+            // })
             setResult({
                 // MemTotal: memInfo.MemTotal,
                 memoryPercent: Math.floor((parseSize(memInfo.MemTotal) - parseSize(memInfo.MemFree) - parseSize(memInfo.Buffers) - parseSize(memInfo.Cached)) / parseSize(memInfo.MemTotal) * 100),
@@ -925,6 +936,7 @@ function MonitorModal({ item, onCancel, config }) {
                 // version: res.data.version,
                 version: res.data.version.split('-')[0],
                 lsb: parseLsb(res.data.lsb),
+                memInfo,
             })
         }
     }
@@ -961,7 +973,22 @@ function MonitorModal({ item, onCancel, config }) {
 
                     <div className={styles.dataList}>
                         <div className={styles.item}>
-                            <div className={styles.key}>{t('ssh.memory')}</div>
+                            <div className={styles.key}>
+                                {t('ssh.memory')}
+                                <Popover
+                                    title={t('ssh.memory')}
+                                    content={(
+                                        <div>
+                                            <div>{t('ssh.memory.total')}: {memSizeFormat(result.memInfo.MemTotal)}</div>
+                                            <div>{t('ssh.memory.free')}: {memSizeFormat(result.memInfo.MemFree)}</div>
+                                            <div>{t('ssh.memory.cached')}: {memSizeFormat(result.memInfo.Cached)}</div>
+                                            <div>{t('ssh.memory.buffers')}: {memSizeFormat(result.memInfo.Buffers)}</div>
+                                        </div>
+                                    )}
+                                >
+                                    <QuestionCircleFilled className={styles.questionIcon} />
+                                </Popover>
+                            </div>
                             <div className={styles.value}>
                                 {/* {result.memoryPercent}% */}
                                 <CircleProgress

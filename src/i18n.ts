@@ -483,6 +483,10 @@ i18n
                     'recently_used': 'Recently Used',
                     'recommend': 'Recommend',
                     'ssh.memory': 'Memory',
+                    'ssh.memory.total': 'Total',
+                    'ssh.memory.free': 'Free',
+                    'ssh.memory.buffers': 'Buffers',
+                    'ssh.memory.cached': 'Cached',
                     'ssh.load_avg': 'Load Average',
                     'ssh.uptime': 'Uptime',
                     'ssh.cores': 'Cores',
@@ -1134,6 +1138,10 @@ i18n
                     'recently_used': '最近使用',
                     'recommend': '推荐',
                     'ssh.memory': '内存',
+                    'ssh.memory.total': '总',
+                    'ssh.memory.free': '剩余',
+                    'ssh.memory.buffers': 'Buffers', // 不知道怎么翻译
+                    'ssh.memory.cached': 'Cached', // 不知道怎么翻译
                     'ssh.load_avg': '平均负载',
                     'ssh.uptime': '正常运行时间',
                     'ssh.cores': '核',
