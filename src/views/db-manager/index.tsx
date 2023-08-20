@@ -1215,7 +1215,6 @@ export function DbManager({ config }) {
                                             onConnect={({ id, curConnect }) => {
                                                 // TODO 通过 setTimeout 解决这个问题，原因未知
                                                 // Can't perform a React state update on an unmounted component. This is a no-op, but it indicates a memory leak in your application. To fix, cancel all subscriptions and asynchronous tasks in a useEffect cleanup function
-                                                console.log('curConnect', curConnect)
                                                 setTimeout(() => {
                                                     const key = '' + new Date().getTime()
                                                     addOrActiveTab({

@@ -29,6 +29,7 @@ import { GitGraph } from '../git-graph';
 import { FetchModal } from '../fetch-modal';
 import copy from 'copy-to-clipboard';
 import { getGlobalConfig } from '@/config';
+import { FullCenterBox } from '@/views/common/full-center-box';
 // import { saveAs } from 'file-saver'
 
 export function GitProject({ event$, project, onList }) {
@@ -45,7 +46,8 @@ export function GitProject({ event$, project, onList }) {
     const [pushModalVisible, setPushModalVisible] = useState(false)
     const [userSettingModalVisible, setUserSettingModalVisible] = useState(false)
     const [allKey, setAllKey] = useState('0')
-
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState('')
     const [config, setConfig] = useState(() => {
         return getGlobalConfig()
     })
@@ -85,17 +87,23 @@ export function GitProject({ event$, project, onList }) {
     
     async function getConfig() {
         // loadBranch()
+        setLoading(true)
+        setError('')
         let res = await request.post(`${config.host}/git/info`, {
-            // projectPath,
+            projectPath,
         })
         if (res.success) {
             setConfig({
                 ...res.data,
                 ...getGlobalConfig(),
             })
+            if (!res.data.pathExists) {
+                setError(t('git.path_not_exists') + `: ${projectPath}`)
+            }
             // const list = res.data
             // setList(list)
         }
+        setLoading(false)
     }
 
     useEffect(() => {
@@ -121,6 +129,26 @@ export function GitProject({ event$, project, onList }) {
 
     async function gitFetch() {
         setFetchModalVisible(true)
+    }
+    
+    if (loading) {
+        return (
+            <div>
+                <FullCenterBox height={320}>
+                    <Spin />
+                </FullCenterBox>
+            </div>
+        )
+    }
+
+    if (error) {
+        return (
+            <FullCenterBox height={320}>
+                <div className={styles.errorBox}>
+                    {error}
+                </div>
+            </FullCenterBox>
+        )
     }
     
     return (
