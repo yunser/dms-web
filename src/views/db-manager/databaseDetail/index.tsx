@@ -1020,6 +1020,7 @@ export function DataBaseDetail({ databaseType = 'mysql', curConnect, _connection
                                             display: item.key == activeKey ? undefined : 'none',
                                         }}
                                         onJson={onJson}
+                                        curConnect={curConnect}
                                     />
                                 }
                             </div>

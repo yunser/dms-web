@@ -16,7 +16,7 @@ const { TabPane } = Tabs
 const { TextArea } = Input
 
 
-export function ExecModal({ config, connectionId, sql, onClose, onSuccess, tableName, dbName }) {
+export function ExecModal({ config, connectionId, sql, onClose, onSuccess, tableName, dbName, danger = false }) {
     const { t } = useTranslation()
 
     const [modelVisible, setModalVisible] = useState(true)
@@ -115,9 +115,10 @@ export function ExecModal({ config, connectionId, sql, onClose, onSuccess, table
                     width={1200}
                     okText={t('run')}
                     // onOk={handleOk}
-                    // okButtonProps={{
-                    //     children: t('run'),
-                    // }}
+                    okButtonProps={{
+                        // children: t('run'),
+                        danger,
+                    }}
                     onCancel={() => {
                         setModalVisible(false)
                         onClose && onClose()

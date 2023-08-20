@@ -470,7 +470,7 @@ function Cell({ item, editing, onChange, columnWithType }) {
 // }
 export function ExecDetail(props) {
     console.warn('ExecDetail/render')
-    const { config, databaseType, connectionId, onJson, data, } = props
+    const { config, databaseType, connectionId, onJson, data, danger = false } = props
     const { t } = useTranslation()
     const { 
         sql,
@@ -1546,6 +1546,7 @@ export function ExecDetail(props) {
                     config={config}
                     connectionId={connectionId}
                     sql={modelCode}
+                    danger={danger}
                     tableName={null}
                     dbName={dbName}
                     onClose={() => {

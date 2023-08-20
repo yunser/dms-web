@@ -409,7 +409,7 @@ function SqlBuilder({ connectionId, dbName, tableName, onSql }) {
 }
 
 
-function SqlBox({ config, tabViewId, event$, databaseType, connectionId, onJson, className, defaultSql = '', style, data = {} }: Props) {
+function SqlBox({ config, tabViewId, event$, databaseType, connectionId, onJson, className, defaultSql = '', style, curConnect, data = {} }: Props) {
     const { defaultDbName, defaultTableName } = data
     console.warn('SqlBox/render')
     
@@ -782,6 +782,7 @@ function SqlBox({ config, tabViewId, event$, databaseType, connectionId, onJson,
                             size="small"
                             onClick={run}
                             disabled={codeLoading}
+                            danger={curConnect.color == 'red'}
                         >
                             {t('run')}
                         </Button>
@@ -965,6 +966,7 @@ function SqlBox({ config, tabViewId, event$, databaseType, connectionId, onJson,
                                         config={config}
                                         connectionId={connectionId}
                                         onJson={onJson}
+                                        danger={curConnect.color == 'red'}
                                         // tableName, dbName
                                     />
                                 }
