@@ -43,6 +43,8 @@ import { HttpProxy } from './views/socket/socket-home/http-proxy'
 import { SocketProxy } from './views/socket/socket-home/socket-proxy'
 import { OpenAiApp } from './views/openai'
 import { HttpClient } from './views/http/editor'
+import { LowCodeApp } from './views/low-code'
+import { LowCodeDetail } from './views/low-code/low-code-detail'
 
 function GitPage() {
     return (
@@ -324,6 +326,8 @@ export default function App() {
                     <Route path="/pages/kafka/client" element={<FullApp><KafkaClientPage /></FullApp>} />
                     <Route path="/pages/docker" element={<FullApp><DockerPage /></FullApp>} />
                     <Route path="/pages/openai" element={<FullApp><OpenAiPage /></FullApp>} />
+                    <Route path="/pages/low-code" element={<FullApp><LowCodeApp /></FullApp>} />
+                    <Route path="/pages/low-code-detail" element={<FullApp><LowCodeDetail /></FullApp>} />
                 </Routes>
             </div>
         </Router>

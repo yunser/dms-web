@@ -19,12 +19,23 @@ function hasValue(value) {
     return !!value || value === 0
 }
 
-function getCode(columns) {
+function getCode(tableName, columns) {
     const colCode = columns.map(col => {
+        const keyValues = [
+            {
+                key: 'type',
+                value: 'BIGINT',
+            },
+            {
+                key: 'field',
+                value: col.COLUMN_NAME,
+            },
+        ]
+        console.log('col/', col)
         return `21212`
     }).join('\n')
     return `
-const Billing = app.model.define('billing', {
+const ${tableName} = app.model.define('${tableName}', {
     id: {
         type: BIGINT,
         primaryKey: true,
@@ -41,7 +52,7 @@ const Billing = app.model.define('billing', {
     },
 }, {
     freezeTableName: true,
-    tableName: 'biz_device_billing',
+    tableName: '${tableName}',
     timestamps: false
 })    
 `
@@ -1171,7 +1182,7 @@ export function TableViewer({ config, databaseType = 'mysql', connectionId, even
                                             {/* 生成的代码：
                                             <div>
                                                 <code>
-                                                    <pre>{getCode(filteredTableColumns)}</pre>
+                                                    <pre>{getCode(tableName, filteredTableColumns)}</pre>
                                                 </code>
                                             </div> */}
                                         </div>
