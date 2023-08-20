@@ -387,7 +387,7 @@ export function SshDetail({ config, defaultPath, item, onSftpPath, onClone }) {
             </div>
             <div className={styles.statusBox}>
                 <Space>
-                    <div>{connected ? t('connected') : t('disconnected')}</div>
+                    <div style={{ color: connected ? 'green' : 'red'}}>{connected ? t('connected') : t('disconnected')}</div>
                     {!connected &&
                         <Button
                             size="small"
