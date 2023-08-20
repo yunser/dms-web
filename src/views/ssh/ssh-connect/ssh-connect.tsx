@@ -161,18 +161,23 @@ function parseLsb(lsb: string) {
 
 function parseCpuInfo(cpuinfo: string) {
     // console.log('cpuinfo', cpuinfo)
-    const infoObj = {}
+    // const infoObj = {}
     const arr = cpuinfo.split('\n')
+    let count = 0
     for (let line of arr) {
         // console.log('line', line)
-        const _arr = line.split(':')
-        if (_arr[1]) {
-            infoObj[_arr[0].trim()] = _arr[1].trim()
+        // const _arr = line.split(':')
+        // if (_arr[1]) {
+        //     infoObj[_arr[0].trim()] = _arr[1].trim()
+        // }
+        if (line.includes('processor')) {
+            count++
         }
     }
     // console.log('infoObj', infoObj)   
     // return infoObj['cpu cores']
-    return parseInt(infoObj['siblings'])
+    // return parseInt(infoObj['siblings'])
+    return count
 }
 
 function parseDisk(disk: string) {
