@@ -92,15 +92,13 @@ function getParentPath(curPath: string) {
 
 function PathRender({ info, path, onPath }) {
 
-    if (!info) {
-        return <div>--</div>
-    }
-    
-    const arr: string[] = path.split(info.pathSeparator).filter(item => item)
+    const pathSeparator = info?.pathSeparator || '/'
+    const isWindows = info?.os == 'win32'
+    const arr: string[] = path.split(pathSeparator).filter(item => item)
     return (
         // <div>{path}</div>
         <div className={styles.pathList}>
-            {info.os != 'win32' &&
+            {!isWindows &&
                 <>
                     <IconButton
                         onClick={() => {
@@ -110,7 +108,7 @@ function PathRender({ info, path, onPath }) {
                         <HomeOutlined />
                     </IconButton>
                     {arr.length == 0 &&
-                        <div>{info.pathSeparator}</div>
+                        <div>{pathSeparator}</div>
                     }
                 </>
             }
@@ -120,7 +118,7 @@ function PathRender({ info, path, onPath }) {
                         className={styles.item}
                         onClick={() => {
                             console.log('index', index)
-                            let path = (info.os == 'win32' ? '' : '/') + arr.slice(0, index + 1).join(info.pathSeparator)
+                            let path = (isWindows ? '' : '/') + arr.slice(0, index + 1).join(pathSeparator)
                             console.log('path', path)
                             // for windows, like C:
                             if (path.match(/^[a-zA-Z]:$/)) {
