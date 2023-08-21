@@ -20,6 +20,14 @@ import { RowEditModal } from '../sql-row-edit-modal/sql-row-edit-modal';
 import { utils, writeFile } from 'xlsx'
 import { ItemHelper } from '../table-detail/table-detail';
 
+function valuesOr(arr) {
+    for (let item of arr) {
+        if (item !== undefined) {
+            return item
+        }
+    }
+}
+
 function mysqlValue(value) {
     if (value === null) {
         return 'NULL'
@@ -960,7 +968,7 @@ export function ExecDetail(props) {
             newRow[idx] = {
                 fieldName: field.name,
                 value: null,
-                newValue: targetRow[idx].newValue || targetRow[idx].value || null,
+                newValue: valuesOr([targetRow[idx].newValue, targetRow[idx].value, null]),
             }
         })
         setList([
