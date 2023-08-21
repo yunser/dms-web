@@ -30,6 +30,7 @@ import { S3InfoModal } from '@/views/s3/s3-info/s3-info';
 import VList from 'rc-virtual-list'
 import { SizeDiv } from '@/views/common/size-dev';
 import { FileDownloadModal } from '../file-download';
+import { FileOpenModal } from '../file-open';
 
 function visibleFilter(list) {
     return list.filter(item => item.visible != false)
@@ -250,6 +251,8 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
 
     const [connecting, setConnecting] = useState(false)
     const [connected, setConnected] = useState(false)
+
+    const [openModalVisible, setOpenModalVisible] = useState(false)
 
     const [renameModalVisible, setRenameModalVisible] = useState(false)
     const [renameItem, setRenameItem] = useState(null)
@@ -1547,6 +1550,9 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                         else if (key == 'download_from_url') {
                                             setDownloadModalVisible(true)
                                         }
+                                        else if (key == 'open_text_file') {
+                                            setOpenModalVisible(true)
+                                        }
                                     }}
                                     items={[
                                         {
@@ -1556,6 +1562,13 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                         {
                                             label: t('add_to_favorite'),
                                             key: 'add_to_favorite',
+                                        },
+                                        {
+                                            type: 'divider',
+                                        },
+                                        {
+                                            label: t('file.open_text_file'),
+                                            key: 'open_text_file',
                                         },
                                         {
                                             type: 'divider',
@@ -1733,8 +1746,8 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                             message.info(t('copied'))
                                                                         }
                                                                         else if (key == 'rename') {
-                                                                            setRenameModalVisible(true)
                                                                             setRenameItem(item)
+                                                                            setRenameModalVisible(true)
                                                                         }
                                                                         else if (key == 'download') {
                                                                             downloadItem(item)
@@ -2023,6 +2036,23 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                     onSuccess={() => {
                         setRenameModalVisible(false)
                         loadList()
+                    }}
+                />
+            }
+            {openModalVisible &&
+                <FileOpenModal
+                    config={config}
+                    item={renameItem}
+                    type={folderType}
+                    sourceType={sourceType}
+                    onCancel={() => {
+                        setOpenModalVisible(false)
+                    }}
+                    onSuccess={(path) => {
+                        setOpenModalVisible(false)
+                        editItem({
+                            path,
+                        })
                     }}
                 />
             }
