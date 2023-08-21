@@ -1341,7 +1341,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                     {_sourceType == 'ssh' &&
                         <div className={styles.sideBottom}>
                             <Space>
-                                <Tooltip
+                                {/* <Tooltip
                                     placement="topLeft"
                                     title={tooltips[wsStatus]}
                                     >
@@ -1350,8 +1350,28 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                             // fontWeight: 'bold',
                                             color: colors[wsStatus],
                                         }}
-                                        />
-                                </Tooltip>
+                                    />
+                                </Tooltip> */}
+                                <Popover
+                                    title={tooltips[wsStatus]}
+                                    content={(
+                                        <Button
+                                            size="small"
+                                            onClick={() => {
+                                                connect(false)
+                                            }}
+                                            >
+                                            {t('reconnect')}
+                                        </Button>
+                                    )}
+                                >
+                                    <LinkOutlined
+                                        style={{
+                                            // fontWeight: 'bold',
+                                            color: colors[wsStatus],
+                                        }}
+                                    />
+                                </Popover>
                                 {/* {sourceType} */}
                                 {wsStatus != 'connected' &&
                                     <Button
