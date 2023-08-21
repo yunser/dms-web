@@ -1,4 +1,4 @@
-import { Button, message, Space } from 'antd';
+import { Button, Drawer, message, Space, Tabs } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import styles from './ssh-home.module.less';
 import _ from 'lodash';
@@ -23,6 +23,8 @@ interface File {
 }
 
 function Commands({ config, onClickItem }) {
+    const [curTab, setCurTab] = useState('mine')
+    const [drawerVisible, setDrawerVisible] = useState(false)
     const [list, setList] = useState([
         // {
         //     id: '1',
@@ -47,19 +49,63 @@ function Commands({ config, onClickItem }) {
     }, [])
 
     return (
-        <div className={styles.commands}>
-            {list.map(item => {
-                return (
-                    <div
-                        className={styles.item}
+        <div>
+            <div className={styles.cmdBox}>
+                {list.length > 0 &&
+                    <Button
                         onClick={() => {
-                            onClickItem && onClickItem(item)
+                            setDrawerVisible(true)
                         }}
-                        key={item.id}
                     >
-                        {item.name}</div>
-                )
-            })}
+                        命令
+                    </Button>
+                }
+            </div>
+            <Drawer
+                open={drawerVisible}
+                title="我的命令"
+                width={512}
+                onClose={() => {
+                    setDrawerVisible(false)
+                }}
+                placement="left"
+            >
+                <Tabs
+                    activeKey={curTab}
+                    items={[
+                        {
+                            label: '我的命令',
+                            key: 'mine',
+                        },
+                        {
+                            label: '常用命令',
+                            key: 'common',
+                        },
+                    ]}
+                    onChange={tab => {
+                        setCurTab(tab)
+                    }}
+                />
+                {curTab == 'mine' &&
+                    <div className={styles.commands}>
+                        {list.map(item => {
+                            return (
+                                <div
+                                    className={styles.item}
+                                    onClick={() => {
+                                        onClickItem && onClickItem(item)
+                                    }}
+                                    key={item.id}
+                                >
+                                    {item.name}</div>
+                            )
+                        })}
+                    </div>
+                }
+                {curTab == 'common' &&
+                    <div>开发中...</div>
+                }
+            </Drawer>
         </div>
     )
 }
