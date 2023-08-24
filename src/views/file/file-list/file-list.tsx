@@ -244,7 +244,24 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
     const [folderVisible, setFolderVisible] = useState(false)
     const [folderType, setFolderType] = useState('')
 
-    const [activeItem, setActiveItem] = useState(null)
+    const [selectedPaths, setSelectedPaths] = useState([])
+    const selectedPathsMap = useMemo(() => {
+        const obj = {}
+        for (let path of selectedPaths) {
+            obj[path] = 1
+        }
+        return obj
+    }, [selectedPaths])
+    const [activeItem, _setActiveItem] = useState(null)
+    function setActiveItem(item) {
+        _setActiveItem(item)
+        if (item) {
+            setSelectedPaths([item.path])
+        }
+        else {
+            setSelectedPaths([])
+        }
+    }
     const [copiedItem, setCopiedItem] = useState(null)
     const [uploading, setUploading] = useState(false)
     const [processing, setProcessing] = useState(false)
@@ -713,6 +730,25 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         await request.post(`${config.host}/file/openInFinder`, {
             sourceType,
             path,
+        })
+    }
+
+    async function deleteItems() {
+        Modal.confirm({
+            content: `${t('delete')} ${selectedPaths.length} ${t('files')}?`,
+            okButtonProps: {
+                danger: true,
+            },
+            async onOk() {
+
+                let ret = await request.post(`${config.host}/file/delete`, {
+                    sourceType,
+                    paths: selectedPaths,
+                })
+                if (ret.success) {
+                    loadList()
+                }
+            }
         })
     }
 
@@ -1878,10 +1914,26 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                             }
                                                         >
                                                             <div className={classNames(styles.item, {
-                                                                [styles.active]: activeItem && activeItem.name == item.name
+                                                                [styles.active]: selectedPathsMap[item.path]
                                                             })}
-                                                                onClick={() => {
-                                                                    setActiveItem(item)
+                                                                onClick={(e) => {
+                                                                    // 多选
+                                                                    if (e.metaKey) {
+                                                                        if (selectedPaths.includes(item.path)) {
+                                                                            // 取消选择
+                                                                            setSelectedPaths(selectedPaths.filter(_item => _item != item.path))
+                                                                        }
+                                                                        else {
+                                                                            // 选择
+                                                                            setSelectedPaths([
+                                                                                ...selectedPaths,
+                                                                                item.path,
+                                                                            ])
+                                                                        }
+                                                                    }
+                                                                    else {
+                                                                        setActiveItem(item)
+                                                                    }
                                                                 }}
                                                                 onContextMenu={() => {
                                                                     setActiveItem(item)
@@ -1957,6 +2009,20 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                     </div>
                 </div>
                 <div className={styles.footer}>
+                    {selectedPaths.length > 1 &&
+                        <Button
+                            danger
+                            size="small"
+                            onClick={() => {
+                                deleteItems()
+                            }}
+                        >
+                            {t('delete')}
+                        </Button>
+                    }
+                    <Space>
+
+                    </Space>
                     <Space>
                         <div>{list.length} {t('files')}</div>
                         <Button
