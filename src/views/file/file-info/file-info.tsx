@@ -33,6 +33,14 @@ function ModeView({ mode, onSave }) {
     
     // let modeText = `${m.isDirectory() ? 'd' : '-'} ${owner} ${group} ${others}`
 
+    function mode2Int(m) {
+        function parseRole(value) {
+            return parseInt(`${value.read ? 1 : 0}${value.write ? 1 : 0}${value.execute ? 1 : 0}`, 2)
+        }
+        return parseInt(`${parseRole(m.owner)}${parseRole(m.group)}${parseRole(m.others)}`, 8)
+    }
+
+    // const code = mode2Int(m)
     const dataSource = ['owner', 'group', 'others'].map(who => {
         return {
             who,
@@ -48,7 +56,7 @@ function ModeView({ mode, onSave }) {
         <div>
             {/* {mode} */}
             <div>
-                {/* {mode}/{curMode} */}
+                {/* {mode}/{curMode}/int: {code} */}
                 {/* {modeText} */}
                 <Table
                     pagination={false}
@@ -127,7 +135,10 @@ function ModeView({ mode, onSave }) {
                         <Button
                             size="small"
                             onClick={() => {
-                                onSave && onSave(curMode)
+                                onSave && onSave({
+                                    mode: curMode,
+                                    modeInt: mode2Int(m)
+                                })
                             }}
                             disabled={mode == curMode}
                         >
@@ -166,19 +177,23 @@ export function FileInfo({ config, path, sourceType, onCancel }) {
         setLoading(false)
     }
 
-    async function updateMode(mode) {
+    async function updateMode(modeObj) {
         setLoading(true)
+        let _mode
+        if (sourceType == 'local') {
+            _mode = modeObj.mode
+        }
+        else {
+            _mode = modeObj.modeInt
+        }
         let res = await request.post(`${config.host}/file/modeUpdate`, {
             path,
             sourceType,
-            mode,
+            mode: _mode,
         })
-        // console.log('res', res)
         if (res.success) {
-            // setStat(res.data.stat)
             loadDetail()
         }
-        // setLoading(false)
     }
 
     useEffect(() => {
@@ -220,8 +235,8 @@ export function FileInfo({ config, path, sourceType, onCancel }) {
                             >
                                 <ModeView
                                     mode={stat.mode}
-                                    onSave={mode => {
-                                        updateMode(mode)
+                                    onSave={value => {
+                                        updateMode(value)
                                     }}
                                 />
                                 {/* {stat.mode} */}
