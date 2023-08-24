@@ -1,4 +1,4 @@
-import { Button, Descriptions, Dropdown, Empty, Input, Menu, message, Modal, Popover, Space, Spin, Table, Tabs, Tag } from 'antd';
+import { Button, Checkbox, Descriptions, Dropdown, Empty, Input, Menu, message, Modal, Popover, Space, Spin, Table, Tabs, Tag } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './file-info.module.less';
 import _ from 'lodash';
@@ -17,13 +17,19 @@ interface File {
     name: string
 }
 
-function ModeView({ mode }) {
+function ModeView({ mode, onSave }) {
+    const { t } = useTranslation()
+    const [curMode, setCurMode] = useState(-1)
 
-    const m = new Mode(mode)
+    useEffect(() => {
+        setCurMode(mode)
+    }, [mode])
+    
+    const m = new Mode(curMode)
 
-    let owner = `${m.owner.read ? 'r' : '-'}${m.owner.write ? 'w' : '-'}${m.owner.execute ? 'x' : '-'}`
-    let group = `${m.group.read ? 'r' : '-'}${m.group.write ? 'w' : '-'}${m.owner.execute ? 'x' : '-'}`
-    let others = `${m.others.read ? 'r' : '-'}${m.others.write ? 'w' : '-'}${m.others.execute ? 'x' : '-'}`
+    // let owner = `${m.owner.read ? 'r' : '-'}${m.owner.write ? 'w' : '-'}${m.owner.execute ? 'x' : '-'}`
+    // let group = `${m.group.read ? 'r' : '-'}${m.group.write ? 'w' : '-'}${m.owner.execute ? 'x' : '-'}`
+    // let others = `${m.others.read ? 'r' : '-'}${m.others.write ? 'w' : '-'}${m.others.execute ? 'x' : '-'}`
     
     // let modeText = `${m.isDirectory() ? 'd' : '-'} ${owner} ${group} ${others}`
 
@@ -35,10 +41,14 @@ function ModeView({ mode }) {
             execute: m[who].execute,
         }
     })
+    if (curMode == -1) {
+        return <div></div>
+    }
     return (
         <div>
             {/* {mode} */}
             <div>
+                {/* {mode}/{curMode} */}
                 {/* {modeText} */}
                 <Table
                     pagination={false}
@@ -46,32 +56,85 @@ function ModeView({ mode }) {
                     size="small"
                     columns={[
                         {
-                            title: 'who',
+                            title: t('file.mode.role'),
                             dataIndex: 'who',
+                            render(value) {
+                                return (
+                                    <div>
+                                        {t(`file.mode.role.${value}`)}
+                                    </div>
+                                )
+                            }
                         },
                         {
-                            title: 'read',
+                            title: t('file.mode.read'),
                             dataIndex: 'read',
-                            render(value) {
-                                return value ? 'Y' : '-'
+                            render(value, item) {
+                                return (
+                                    <div className={styles.checkboxBox}>
+                                        <Checkbox
+                                            checked={value}
+                                            onChange={e => {
+                                                const { checked } = e.target
+                                                m[item.who].read = checked
+                                                setCurMode(m.stat.mode)
+                                            }}
+                                        />
+                                    </div>
+                                )
                             }
                         },
                         {
-                            title: 'write',
+                            title: t('file.mode.write'),
                             dataIndex: 'write',
-                            render(value) {
-                                return value ? 'Y' : '-'
+                            render(value, item) {
+                                return (
+                                    <div className={styles.checkboxBox}>
+                                        <Checkbox
+                                            checked={value}
+                                            onChange={e => {
+                                                const { checked } = e.target
+                                                m[item.who].write = checked
+                                                setCurMode(m.stat.mode)
+                                            }}
+                                        />
+                                    </div>
+                                )
                             }
                         },
                         {
-                            title: 'execute',
+                            title: t('file.mode.execute'),
                             dataIndex: 'execute',
-                            render(value) {
-                                return value ? 'Y' : '-'
+                            render(value, item) {
+                                return (
+                                    <div className={styles.checkboxBox}>
+                                        <Checkbox
+                                            checked={value}
+                                            onChange={e => {
+                                                const { checked } = e.target
+                                                m[item.who].execute = checked
+                                                setCurMode(m.stat.mode)
+                                            }}
+                                        />
+                                    </div>
+                                )
                             }
                         },
                     ]}
                 />
+                {mode != curMode &&
+                    <div className={styles.saveBox}>
+                        <Button
+                            size="small"
+                            onClick={() => {
+                                onSave && onSave(curMode)
+                            }}
+                            disabled={mode == curMode}
+                        >
+                            {t('save')}
+                        </Button>
+                    </div>
+                }
             </div>
         </div>
     )
@@ -103,6 +166,21 @@ export function FileInfo({ config, path, sourceType, onCancel }) {
         setLoading(false)
     }
 
+    async function updateMode(mode) {
+        setLoading(true)
+        let res = await request.post(`${config.host}/file/modeUpdate`, {
+            path,
+            sourceType,
+            mode,
+        })
+        // console.log('res', res)
+        if (res.success) {
+            // setStat(res.data.stat)
+            loadDetail()
+        }
+        // setLoading(false)
+    }
+
     useEffect(() => {
         // hack 经常会因为 path 为空接口报错
         if (!path) {
@@ -128,19 +206,24 @@ export function FileInfo({ config, path, sourceType, onCancel }) {
                     {!!stat &&
                         <Descriptions column={1}>
                             <Descriptions.Item
-                                label="创建时间"
+                                label={t('create_time')}
                             >
                                 {moment(stat.createTime).format('YYYY-MM-DD HH:mm:ss')}
                             </Descriptions.Item>
                             <Descriptions.Item
-                                label="修改时间"
+                                label={t('file.modify_time')}
                             >
                                 {moment(stat.modifyTime).format('YYYY-MM-DD HH:mm:ss')}
                             </Descriptions.Item>
                             <Descriptions.Item
-                                label="权限"
+                                label={t('file.permission')}
                             >
-                                <ModeView mode={stat.mode} />
+                                <ModeView
+                                    mode={stat.mode}
+                                    onSave={mode => {
+                                        updateMode(mode)
+                                    }}
+                                />
                                 {/* {stat.mode} */}
                             </Descriptions.Item>
                         </Descriptions>
