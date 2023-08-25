@@ -25,6 +25,7 @@ import VList from 'rc-virtual-list';
 import copy from 'copy-to-clipboard';
 import { CherryPickModal } from '../cherry-pick-modal';
 import { Editor } from '@/views/db-manager/editor/Editor';
+import { PathModal } from '../path-modal';
 
 export function _if(condition: boolean, obj: object) {
     return condition ? [obj] : []
@@ -80,9 +81,10 @@ export function CommitList({ config, event$, projectPath,  }) {
     const [fileDiff, setFileDiff] = useState('')
     const [resetModalVisible, setResetModalVisible] = useState(false)
     const [resetCommit, setResetCommit] = useState('')
+    const [pathModalVisible, setPathModalVisible] = useState(false)
 
-    async function loadFile(file, item) {
-        if (curFile == file) {
+    async function loadFile(file, item, forceLoad = true) {
+        if (curFile == file && !forceLoad) {
             return
         }
         setDiffLoading(true)
@@ -156,7 +158,11 @@ export function CommitList({ config, event$, projectPath,  }) {
             // setCurFile('')
             if (_files.length > 0) {
                 setTimeout(() => {
-                    loadFile(_files[0].name, item)
+                    let _curPath = _files[0].name
+                    if (filteredFile) {
+                        _curPath = filteredFile
+                    }
+                    loadFile(_curPath, item, true)
                 }, 0)
             }
             event$.emit({
@@ -230,7 +236,6 @@ export function CommitList({ config, event$, projectPath,  }) {
         // console.log('res', res)
         if (res.success) {
             let list = res.data
-            console.log('list', list)
             if (filteredAuthor) {
                 list = list.filter(item => item.author_name == filteredAuthor.name)
             }
@@ -455,6 +460,14 @@ export function CommitList({ config, event$, projectPath,  }) {
                                 // <div className={styles.filteredFile}>{filteredFile}</div>
                             }
                             <Space>
+                                <Button
+                                    size="small"
+                                    onClick={() => {
+                                        setPathModalVisible(true)
+                                    }}
+                                >
+                                    {t('git.file_filter')}
+                                </Button>
                                 <Input.Search
                                     size="small"
                                     placeholder={t('filter')}
@@ -893,6 +906,19 @@ export function CommitList({ config, event$, projectPath,  }) {
                     />
                 </Drawer>
             }
+            {pathModalVisible &&
+                <PathModal
+                    onCancel={() => {
+                        setPathModalVisible(false)
+                    }}
+                    onSuccess={(path) => {
+                        console.log('path', path)
+                        setPathModalVisible(false)
+                        setFilteredFile(path)
+                    }}
+                />
+            }
         </div>
     )
 }
+// 
