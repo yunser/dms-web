@@ -735,7 +735,16 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
 
     async function deleteItems() {
         Modal.confirm({
-            content: `${t('delete')} ${selectedPaths.length} ${t('files')}?`,
+            title: `${t('delete')} ${selectedPaths.length} ${t('files')}\n?`,
+            content: (
+                <div className={styles.deleteFiles}>
+                    {selectedPaths.map(item => {
+                        return (
+                            <div>{item}</div>
+                        )
+                    })}
+                </div>
+            ),
             okButtonProps: {
                 danger: true,
             },
@@ -743,7 +752,13 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
 
                 let ret = await request.post(`${config.host}/file/delete`, {
                     sourceType,
-                    paths: selectedPaths,
+                    paths: selectedPaths.map(path => {
+                        const fItem = list.find(item => item.path == path)
+                        return {
+                            type: fItem?.type,
+                            path: fItem?.path,
+                        }
+                    }),
                 })
                 if (ret.success) {
                     loadList()
@@ -1177,8 +1192,8 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
             sortDirections: ['asc', 'desc'],
         },
         {
-            label: t('update_time'),
-            dataIndex: 'updateTime',
+            label: t('file.modify_time'),
+            dataIndex: 'modifyTime',
             sortDirections: ['desc', 'asc'],
         },
         {
@@ -1759,7 +1774,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                 //     console.log('scroll', e.target.scrollTop)
                                                 // }}
                                             >
-                                                {item => {
+                                                {(item, index) => {
                                                     return (
                                                         <Dropdown
                                                             key={item.name}
@@ -1931,6 +1946,22 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                             ])
                                                                         }
                                                                     }
+                                                                    else if (e.shiftKey) {
+                                                                        // 范围选择
+                                                                        if (activeItem) {
+                                                                            const startIdx = list.findIndex(item => item.path == activeItem.path)
+                                                                            const endIdx = index
+                                                                            for (let idx = startIdx; idx <= endIdx; idx++) {
+                                                                                const item = list[idx]
+                                                                                if (!selectedPaths.includes(item.path)) {
+                                                                                    selectedPaths.push(item.path)
+                                                                                    setSelectedPaths([
+                                                                                        ...selectedPaths,
+                                                                                    ])
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
                                                                     else {
                                                                         setActiveItem(item)
                                                                     }
@@ -1970,14 +2001,14 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                         }
                                                                     </div>
                                                                 </div>
-                                                                <div className={classNames(styles.cell, styles.updateTime, styles.content)}>
-                                                                    {moment(item.updateTime).format('YYYY-MM-DD HH:mm')}
+                                                                <div className={classNames(styles.cell, styles.modifyTime, styles.content)}>
+                                                                    {item.modifyTime ? moment(item.modifyTime).format('YYYY-MM-DD HH:mm') : '--'}
                                                                 </div>
                                                                 <div className={classNames(styles.cell, styles.createTime, styles.content)}>
-                                                                    {moment(item.createTime).format('YYYY-MM-DD HH:mm')}
+                                                                    {item.createTime ? moment(item.createTime).format('YYYY-MM-DD HH:mm') : '--'}
                                                                 </div>
                                                                 <div className={classNames(styles.cell, styles.accessTime, styles.content)}>
-                                                                    {moment(item.accessTime).format('YYYY-MM-DD HH:mm')}
+                                                                    {item.accessTime ? moment(item.accessTime).format('YYYY-MM-DD HH:mm') : '--'}
                                                                 </div>
                                                                 <div className={classNames(styles.cell, styles.contentType)}>
                                                                     {item.contentType || '--'}

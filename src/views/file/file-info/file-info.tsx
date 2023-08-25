@@ -223,12 +223,17 @@ export function FileInfo({ config, path, sourceType, onCancel }) {
                             <Descriptions.Item
                                 label={t('create_time')}
                             >
-                                {moment(stat.createTime).format('YYYY-MM-DD HH:mm:ss')}
+                                {stat.createTime ? moment(stat.createTime).format('YYYY-MM-DD HH:mm:ss') : '--'}
                             </Descriptions.Item>
                             <Descriptions.Item
                                 label={t('file.modify_time')}
                             >
-                                {moment(stat.modifyTime).format('YYYY-MM-DD HH:mm:ss')}
+                                {stat.modifyTime ? moment(stat.modifyTime).format('YYYY-MM-DD HH:mm:ss') : '--'}
+                            </Descriptions.Item>
+                            <Descriptions.Item
+                                label={t('access_time')}
+                            >
+                                {stat.accessTime ? moment(stat.accessTime).format('YYYY-MM-DD HH:mm:ss') : '--'}
                             </Descriptions.Item>
                             <Descriptions.Item
                                 label={t('file.permission')}
