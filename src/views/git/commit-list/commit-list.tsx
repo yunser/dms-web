@@ -26,6 +26,7 @@ import copy from 'copy-to-clipboard';
 import { CherryPickModal } from '../cherry-pick-modal';
 import { Editor } from '@/views/db-manager/editor/Editor';
 import { PathModal } from '../path-modal';
+import { BlameModal } from '../blame-modal';
 
 export function _if(condition: boolean, obj: object) {
     return condition ? [obj] : []
@@ -82,6 +83,7 @@ export function CommitList({ config, event$, projectPath,  }) {
     const [resetModalVisible, setResetModalVisible] = useState(false)
     const [resetCommit, setResetCommit] = useState('')
     const [pathModalVisible, setPathModalVisible] = useState(false)
+    const [blameModalVisible, setBlameModalVisible] = useState(false)
 
     async function loadFile(file, item, forceLoad = true) {
         if (curFile == file && !forceLoad) {
@@ -446,17 +448,27 @@ export function CommitList({ config, event$, projectPath,  }) {
                                 </Tag>
                             }
                             {!!filteredFile &&
-                                <Tag
-                                    closable
-                                    onClose={() => {
-                                        setFilteredFile('')
-                                    }}
-                                >
-                                    <Space>
-                                        <FileOutlined />
-                                        {filteredFile}
-                                    </Space>
-                                </Tag>
+                                <Space>
+                                    <Tag
+                                        closable
+                                        onClose={() => {
+                                            setFilteredFile('')
+                                        }}
+                                    >
+                                        <Space>
+                                            <FileOutlined />
+                                            {filteredFile}
+                                        </Space>
+                                    </Tag>
+                                    <Button
+                                        size="small"
+                                        onClick={() => {
+                                            setBlameModalVisible(true)
+                                        }}
+                                    >
+                                        {t('git.blame')}
+                                    </Button>
+                                </Space>
                                 // <div className={styles.filteredFile}>{filteredFile}</div>
                             }
                             <Space>
@@ -915,6 +927,15 @@ export function CommitList({ config, event$, projectPath,  }) {
                         console.log('path', path)
                         setPathModalVisible(false)
                         setFilteredFile(path)
+                    }}
+                />
+            }
+            {blameModalVisible &&
+                <BlameModal
+                    projectPath={projectPath}
+                    filePath={filteredFile}
+                    onCancel={() => {
+                        setBlameModalVisible(false)
                     }}
                 />
             }
