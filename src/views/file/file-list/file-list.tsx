@@ -754,15 +754,48 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
 
     async function deleteItems() {
         Modal.confirm({
-            title: `${t('delete')} ${selectedPaths.length} ${t('files')}\n?`,
+            width: 640,
+            title: `${t('delete')} ${selectedItems.length} ${t('files')}\n?`,
             content: (
-                <div className={styles.deleteFiles}>
-                    {selectedPaths.map(item => {
-                        return (
-                            <div>{item}</div>
-                        )
-                    })}
-                </div>
+                <Table
+                    columns={[
+                        {
+                            title: t('name'),
+                            dataIndex: 'name',
+                            render(name, item) {
+                                return (
+                                    <Space>
+                                        <div className={styles.fileIconBox}>
+                                            <img className={styles.vscIcon} src={`/vscode-icons/icons/${item.icon}`} />
+                                        </div>
+                                        {name}
+                                    </Space>
+                                )
+                            }
+                        },
+                        {
+                            title: t('size'),
+                            dataIndex: 'size',
+                            render(value, item) {
+                                return (
+                                    <div>
+                                        {item.type == 'FILE' ?
+                                            filesize(item.size, { fixed: 1, }).human()
+                                        :
+                                            '--'
+                                        }
+                                    </div>
+                                )
+                            }
+                        },
+                    ]}
+                    dataSource={selectedItems}
+                    size="small"
+                    scroll={{
+                        y: 480,
+                    }}
+                    pagination={false}
+                />
             ),
             okButtonProps: {
                 danger: true,
@@ -771,11 +804,10 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
 
                 let ret = await request.post(`${config.host}/file/delete`, {
                     sourceType,
-                    paths: selectedPaths.map(path => {
-                        const fItem = list.find(item => item.path == path)
+                    paths: selectedItems.map(item => {
                         return {
-                            type: fItem?.type,
-                            path: fItem?.path,
+                            type: item.type,
+                            path: item.path,
                         }
                     }),
                 })
@@ -1979,7 +2011,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                                 const item = list[idx]
                                                                                 if (!selectedPaths.includes(item.path)) {
                                                                                     selectedPaths.push(item.path)
-                                                                                    setSelectedItems.push(item)
+                                                                                    selectedItems.push(item)
                                                                                     setSelectedPaths([
                                                                                         ...selectedPaths,
                                                                                     ])
@@ -2000,7 +2032,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                 }}
                                                             >
                                                                 <div className={classNames(styles.cell, styles.name)}>
-                                                                    <div className={styles.iconBox}>
+                                                                    <div className={styles.fileIconBox}>
                                                                         <img className={styles.vscIcon} src={`/vscode-icons/icons/${item.icon}`} />
                                                                         {/* {item.type != 'FILE' ?
                                                                 :
@@ -2043,7 +2075,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                     {/* {item.size} */}
                                                                     {item.type == 'FILE' ?
                                                                         filesize(item.size, { fixed: 1, }).human()
-                                                                        :
+                                                                    :
                                                                         '--'
                                                                     }
                                                                     {/* {} */}
