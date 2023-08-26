@@ -213,7 +213,6 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
     const [error, setError] = useState('')
     const [sortBy, setSortBy] = useState('name')
     const [sortType, setSortType] = useState('asc')
-
     const [sourceType, setSourceType] = useState(_sourceType ? '' : (item ? '' : 'local'))
 
     let defaultPath = ''
@@ -335,14 +334,29 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         return comData.current.historyInput
     }
 
-    const filteredList = useMemo(() => {
-        if (!keyword) {
-            return list
+    const filteredAndSOrtedList = useMemo(() => {
+        function getSize(item) {
+            if (item.type == 'DIRECTORY') {
+                return -1
+            }
+            return item.size || 0
         }
-        return list.filter(item => {
+        const sortTypeValue = sortType == 'asc' ? 1 : -1
+        
+        const sorter = (a, b) => {
+            if (sortBy == 'size') {
+                return (getSize(a) - getSize(b)) * sortTypeValue
+            }
+            return (a[sortBy] || '').localeCompare(b[sortBy] || '') * sortTypeValue
+        }
+        if (!keyword) {
+            return list.sort(sorter)
+        }
+        const filteredList = list.filter(item => {
             return item.name.toLowerCase().includes(keyword.toLowerCase())
         })
-    }, [list, keyword])
+        return filteredList.sort(sorter)
+    }, [list, keyword, sortBy, sortType])
 
     function sortList(col) {
         const field: string = col.dataIndex
@@ -354,21 +368,8 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         else {
             _sortType = col.sortDirections[0] || 'asc'
         }
-        const sortTypeValue = _sortType == 'asc' ? 1 : -1
-        function getSize(item) {
-            if (item.type == 'DIRECTORY') {
-                return -1
-            }
-            return item.size || 0
-        }
         setSortBy(field)
         setSortType(_sortType)
-        setList(comData.current.originList.sort((a, b) => {
-            if (field == 'size') {
-                return (getSize(a) - getSize(b)) * sortTypeValue
-            }
-            return (a[field] || '').localeCompare(b[field] || '') * sortTypeValue
-        }))
     }
 
     async function loadReadme() {
@@ -1773,7 +1774,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                     >
                                         <div className={styles.error}>{error}</div>
                                     </FullCenterBox>
-                                    : filteredList.length == 0 ?
+                                    : filteredAndSOrtedList.length == 0 ?
                                         <FullCenterBox>
                                             <Empty />
                                         </FullCenterBox>
@@ -1784,7 +1785,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                             <VList
                                                 className={styles.list}
                                                 ref={listRef}
-                                                data={filteredList} 
+                                                data={filteredAndSOrtedList} 
                                                 height={size.height} 
                                                 itemHeight={40} 
                                                 itemKey="hash"
