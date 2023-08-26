@@ -935,7 +935,7 @@ function MonitorModal({ item, onCancel, config }) {
                 processes: parseTop(res.data.top),
                 // version: res.data.version,
                 version: res.data.version.split('-')[0],
-                lsb: parseLsb(res.data.lsb),
+                lsb: parseLsb(res.data.lsb) || res.data.centos,
                 memInfo,
             })
         }
