@@ -201,6 +201,14 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
     const { t } = useTranslation()
     const listElem = useRef(null)
     const [list, setList] = useState<File[]>([])
+    const totalSize = useMemo(() => {
+        let total = 0
+        for (let item of list) {
+            total += item.size || 0
+        }
+        return total
+    }, [list])
+    
     const listRef = useRef(null)
     const [error, setError] = useState('')
     const [sortBy, setSortBy] = useState('name')
@@ -245,6 +253,14 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
     const [folderType, setFolderType] = useState('')
 
     const [selectedPaths, setSelectedPaths] = useState([])
+    const [selectedItems, setSelectedItems] = useState([])
+    const selectedSize = useMemo(() => {
+        let total = 0
+        for (let item of selectedItems) {
+            total += item.size || 0
+        }
+        return total
+    }, [selectedItems])
     const selectedPathsMap = useMemo(() => {
         const obj = {}
         for (let path of selectedPaths) {
@@ -257,9 +273,11 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         _setActiveItem(item)
         if (item) {
             setSelectedPaths([item.path])
+            setSelectedItems([item])
         }
         else {
             setSelectedPaths([])
+            setSelectedItems([])
         }
     }
     const [copiedItem, setCopiedItem] = useState(null)
@@ -1937,12 +1955,17 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                         if (selectedPaths.includes(item.path)) {
                                                                             // 取消选择
                                                                             setSelectedPaths(selectedPaths.filter(_item => _item != item.path))
+                                                                            setSelectedItems(selectedItems.filter(_item => _item.path != item.path))
                                                                         }
                                                                         else {
                                                                             // 选择
                                                                             setSelectedPaths([
                                                                                 ...selectedPaths,
                                                                                 item.path,
+                                                                            ])
+                                                                            setSelectedItems([
+                                                                                ...selectedItems,
+                                                                                item,
                                                                             ])
                                                                         }
                                                                     }
@@ -1955,9 +1978,11 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                                 const item = list[idx]
                                                                                 if (!selectedPaths.includes(item.path)) {
                                                                                     selectedPaths.push(item.path)
+                                                                                    setSelectedItems.push(item)
                                                                                     setSelectedPaths([
                                                                                         ...selectedPaths,
                                                                                     ])
+                                                                                    setSelectedItems([...selectedItems])
                                                                                 }
                                                                             }
                                                                         }
@@ -2041,21 +2066,26 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                 </div>
                 <div className={styles.footer}>
                     {selectedPaths.length > 1 &&
-                        <Button
-                            danger
-                            size="small"
-                            onClick={() => {
-                                deleteItems()
-                            }}
-                        >
-                            {t('delete')}
-                        </Button>
+                        <Space>
+                            <div>{selectedPaths.length} {t('selected')}</div>
+                            <div>{filesize(selectedSize, { fixed: 1, }).human()}</div>
+                            <Button
+                                danger
+                                size="small"
+                                onClick={() => {
+                                    deleteItems()
+                                }}
+                            >
+                                {t('delete')}
+                            </Button>
+                        </Space>
                     }
                     <Space>
 
                     </Space>
                     <Space>
                         <div>{list.length} {t('files')}</div>
+                        <div>{filesize(totalSize, { fixed: 1, }).human()}</div>
                         <Button
                             size="small"
                             onClick={() => {
