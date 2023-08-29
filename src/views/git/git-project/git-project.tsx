@@ -30,7 +30,25 @@ import { FetchModal } from '../fetch-modal';
 import copy from 'copy-to-clipboard';
 import { getGlobalConfig } from '@/config';
 import { FullCenterBox } from '@/views/common/full-center-box';
+import { marked } from 'marked';
 // import { saveAs } from 'file-saver'
+
+function ReadMe({ content }) {
+    const html = useMemo(() => {
+        return marked.parse(content)
+    }, [content])
+
+    return (
+        <div>
+            <div
+                className={styles.article}
+                dangerouslySetInnerHTML={{
+                    __html: marked.parse(content)
+                }}
+            ></div>
+        </div>
+    )
+}
 
 export function GitProject({ event$, project, onList }) {
     const projectPath = project.path
@@ -48,6 +66,7 @@ export function GitProject({ event$, project, onList }) {
     const [allKey, setAllKey] = useState('0')
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
+    const [readme, setReadme] = useState('')
     const [config, setConfig] = useState(() => {
         return getGlobalConfig()
     })
@@ -74,6 +93,12 @@ export function GitProject({ event$, project, onList }) {
             key: 'git-more',
         },
     ]
+    if (readme) {
+        tabs.push({
+            label: t('readme'),
+            key: 'readme',
+        })
+    }
 
     event$.useSubscription(msg => {
         // console.log('CommitList/onmessage', msg)
@@ -97,6 +122,7 @@ export function GitProject({ event$, project, onList }) {
                 ...res.data,
                 ...getGlobalConfig(),
             })
+            setReadme(res.data.readme)
             if (!res.data.pathExists) {
                 setError(t('git.path_not_exists') + `: ${projectPath}`)
             }
@@ -400,6 +426,11 @@ export function GitProject({ event$, project, onList }) {
                                         <a href="https://git-scm.com/doc" target="_blank">
                                             {t('doc')}
                                         </a>
+                                    </div>
+                                }
+                                {item.key == 'readme' &&
+                                    <div className={styles.readmeBox}>
+                                        <ReadMe content={readme} />
                                     </div>
                                 }
                             </div>

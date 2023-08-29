@@ -12,6 +12,7 @@ i18n
             en: {
                 translations: {
                     site_title: 'DMS - Next Generation Data Management System',
+                    readme: 'ReadMe',
                     mysql: 'MySQL',
                     run: 'Run',
                     connect: 'Connect',
@@ -681,6 +682,7 @@ i18n
             zh: {
                 translations: {
                     site_title: 'DMS - 下一代数据管理系统',
+                    readme: '说明',
                     mysql: 'MySQL',
                     run: '执行',
                     connect: '连接',
