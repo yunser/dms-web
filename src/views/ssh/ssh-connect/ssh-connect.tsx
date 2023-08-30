@@ -199,9 +199,15 @@ function parseDisk(disk: string) {
             if (line.includes('/dev/vd')) {
                 const name = arr[0].replace('/dev/', '')
                 const percent = parseInt(arr[4].replace('%', '').trim())
+                const size = arr[1]
+                const used = arr[2]
+                const avail = arr[3]
                 results.push({
                     name,
                     percent,
+                    size,
+                    used,
+                    avail,
                     // text: `${name}：${percent}%`,
                 })
             }
@@ -1072,13 +1078,23 @@ function MonitorModal({ item, onCancel, config }) {
                                     <div className={styles.disks}>
                                         {result.disks.map(disk => {
                                             return (
-                                                <div className={styles.item}>
-                                                    <div className={styles.name}>{disk.name}</div>
-                                                    <LineProgress
-                                                        className={styles.progress} 
-                                                        percent={disk.percent} 
-                                                        size="small" />
-                                                </div>
+                                                <Tooltip
+                                                    title={
+                                                        <div>
+                                                            <div>{t('size')}: {disk.size}</div>
+                                                            <div>{t('ssh.disk.used')}: {disk.used}</div>
+                                                            <div>{t('ssh.disk.avail')}: {disk.avail}</div>
+                                                        </div>
+                                                    }
+                                                >
+                                                    <div className={styles.item}>
+                                                        <div className={styles.name}>{disk.name}</div>
+                                                        <LineProgress
+                                                            className={styles.progress} 
+                                                            percent={disk.percent} 
+                                                            size="small" />
+                                                    </div>
+                                                </Tooltip>
                                             )
                                         })}
                                     </div>
