@@ -16,6 +16,7 @@ import { EllipsisOutlined, ExportOutlined, EyeInvisibleOutlined, EyeOutlined, Ey
 import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/common/full-center-box';
+import { SearchUtil } from '@/utils/search';
 
 
 function InputPassword(props) {
@@ -54,6 +55,12 @@ export function MqttConnect({ config, event$, onConnect, }) {
         //     name: 'XXX2',
         // },
     ])
+    const [keyword, setKeyword] = useState('')
+    const filteredConnections = useMemo(() => {
+        return SearchUtil.searchLike(connections, keyword, {
+            attributes: ['name', 'host', 'username'],
+        })
+    }, [connections, keyword])
     const [view, setView] = useState('list')
     const [loading, setLoading] = useState(false)
     // const [form] = Form.useForm()
@@ -325,19 +332,29 @@ export function MqttConnect({ config, event$, onConnect, }) {
                         </IconButton>
                     </Space>
                 </div>
+                <div className={styles.searchBox}>
+                    <Input
+                        placeholder={t('filter')}
+                        value={keyword}
+                        allowClear
+                        onChange={e => {
+                            setKeyword(e.target.value)
+                        }}
+                    />
+                </div>
                 {loading ?
                     <FullCenterBox
                         height={320}
                     >
                         <Spin />
                     </FullCenterBox>
-                : connections.length == 0 ?
+                : filteredConnections.length == 0 ?
                     <Empty
                         description="没有记录"
                     />
                 : view == 'list' ?
                     <div className={styles.list}>
-                        {connections.map((item, index) => {
+                        {filteredConnections.map((item, index) => {
                             return (
                                 <div
                                     key={item.id}
@@ -369,7 +386,7 @@ export function MqttConnect({ config, event$, onConnect, }) {
                     </div>
                 :
                     <Table
-                        dataSource={connections}
+                        dataSource={filteredConnections}
                         pagination={false}
                         columns={columns}
                         bordered
