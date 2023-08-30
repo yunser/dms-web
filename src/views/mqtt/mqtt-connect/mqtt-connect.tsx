@@ -17,6 +17,7 @@ import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/common/full-center-box';
 import { SearchUtil } from '@/utils/search';
+import copy from 'copy-to-clipboard';
 
 
 function InputPassword(props) {
@@ -166,6 +167,13 @@ export function MqttConnect({ config, event$, onConnect, }) {
                     <Menu
                         items={[
                             {
+                                label: t('share'),
+                                key: 'key_share',
+                            },
+                            {
+                                type: 'divider',
+                            },
+                            {
                                 label: t('edit'),
                                 key: 'edit',
                             },
@@ -202,6 +210,15 @@ export function MqttConnect({ config, event$, onConnect, }) {
                             else if (key == 'edit') {
                                 setModalItem((item))
                                 setModalVisible(true)
+                            }
+                            else if (key == 'key_share') {
+                                const shareContent = `${t('host')}: ${item.host}
+${t('port')}: ${item.port}
+${t('user')}: ${item.userName}
+${t('password')}: ${item.password}`
+                                copy(shareContent)
+                                message.info(t('copied'))
+
                             }
                         }}
                     />
