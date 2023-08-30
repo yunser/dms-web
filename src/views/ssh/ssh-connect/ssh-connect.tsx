@@ -20,6 +20,7 @@ import storage from '@/utils/storage';
 import { uid } from 'uid';
 import { SearchUtil } from '@/utils/search';
 import fileSize from 'filesize'
+import copy from 'copy-to-clipboard';
 
 function CircleProgress({ percent, width, 
     format = (percent) => `${percent}%`, 
@@ -515,6 +516,13 @@ export function SshConnect({ config, tabKey, onSSh, onSftp, event$ }) {
                                                             <Menu
                                                                 items={[
                                                                     {
+                                                                        label: t('share'),
+                                                                        key: 'key_share',
+                                                                    },
+                                                                    {
+                                                                        type: 'divider',
+                                                                    },
+                                                                    {
                                                                         label: t('edit'),
                                                                         key: 'edit',
                                                                     },
@@ -533,6 +541,15 @@ export function SshConnect({ config, tabKey, onSSh, onSftp, event$ }) {
                                                                     else if (key == 'edit') {
                                                                         setModalVisible(true)
                                                                         setModalItem((item))
+                                                                    }
+                                                                    else if (key == 'key_share') {
+                                                                        const shareContent = `${t('host')}: ${item.host}
+${t('port')}: ${item.port}
+${t('user')}: ${item.username}
+${t('password')}: ${item.password}`
+                                                                        copy(shareContent)
+                                                                        message.info(t('copied'))
+                                        
                                                                     }
                                                                 }}
                                                             />
