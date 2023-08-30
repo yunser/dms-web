@@ -14,6 +14,7 @@ import { IconButton } from '@/views/db-manager/icon-button';
 import { request } from '@/views/db-manager/utils/http';
 import URLParse from 'url-parse'
 import { SearchUtil } from '@/utils/search';
+import copy from 'copy-to-clipboard';
 
 
 
@@ -181,6 +182,13 @@ export function RedisConnect({ config, event$, onConnect, }) {
                     <Menu
                         items={[
                             {
+                                label: t('share'),
+                                key: 'key_share',
+                            },
+                            {
+                                type: 'divider',
+                            },
+                            {
                                 label: t('edit'),
                                 key: 'edit',
                             },
@@ -217,6 +225,14 @@ export function RedisConnect({ config, event$, onConnect, }) {
                             else if (key == 'edit') {
                                 setModalItem((item))
                                 setModalVisible(true)
+                            }
+                            else if (key == 'key_share') {
+                                const userText = item.userName ? `${t('user')}: ${item.userName}\n` : ''
+                                const shareContent = `${t('host')}: ${item.host}
+${t('port')}: ${item.port}
+${userText}${t('password')}: ${item.password}`
+                                copy(shareContent)
+                                message.info(t('copied'))
                             }
                         }}
                     />
