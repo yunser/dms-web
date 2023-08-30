@@ -985,6 +985,14 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                     return
                 }
             }
+            else if (e.code == 'Enter') {
+                if (activeItem) {
+                    e.preventDefault() // 不加上会导致重命名弹窗关闭
+                    setRenameItem(activeItem)
+                    setRenameModalVisible(true)
+                }
+                return
+            }
             else if (e.code == 'KeyX') {
                 if (e.metaKey || e.ctrlKey) {
                     if (activeItem) {
