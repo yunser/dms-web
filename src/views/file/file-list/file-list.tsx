@@ -212,6 +212,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
     }, [list])
     
     const listRef = useRef(null)
+    const [showDotFile, setShowDotFile] = useState(false)
     const [error, setError] = useState('')
     const [sortBy, setSortBy] = useState('name')
     const [sortType, setSortType] = useState('asc')
@@ -351,14 +352,20 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
             }
             return (a[sortBy] || '').localeCompare(b[sortBy] || '') * sortTypeValue
         }
-        if (!keyword) {
-            return list.sort(sorter)
+        const filter = item => {
+            if (showDotFile) {
+                return true
+            }
+            return !item.name.startsWith('.')
         }
-        const filteredList = list.filter(item => {
+        if (!keyword) {
+            return list.filter(filter).sort(sorter)
+        }
+        const filteredList = list.filter(filter).filter(item => {
             return item.name.toLowerCase().includes(keyword.toLowerCase())
         })
         return filteredList.sort(sorter)
-    }, [list, keyword, sortBy, sortType])
+    }, [list, keyword, sortBy, sortType, showDotFile])
 
     function sortList(col) {
         const field: string = col.dataIndex
@@ -642,9 +649,6 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         if (res.success) {
             // setProjects([])
             const list = (res.data.list as File[])
-                .filter(file => {
-                    return !file.name.startsWith('.')
-                })
                 .sort((a, b) => {
                     return a.name.localeCompare(b.name)
                 })
@@ -1680,17 +1684,30 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                 <UploadOutlined />
                             </IconButton>
                         }
-                        {sourceType != 'local' &&
-                            <Button
-                                size="small"
-                                // tooltip={t('upload')}
-                                onClick={() => {
-                                    onSshPath && onSshPath(curPath)
-                                }}
-                            >
-                                SSH
-                            </Button>
-                        }
+                        <Space>
+                            {sourceType != 'local' &&
+                                <Button
+                                    size="small"
+                                    // tooltip={t('upload')}
+                                    onClick={() => {
+                                        onSshPath && onSshPath(curPath)
+                                    }}
+                                >
+                                    SSH
+                                </Button>
+                            }
+                            <Tooltip title={t('file.dot_file_toggle')}>
+                                <Button
+                                    size="small"
+                                    type={showDotFile ? 'primary' : 'default'}
+                                    onClick={() => {
+                                        setShowDotFile(!showDotFile)
+                                    }}
+                                >
+                                    .
+                                </Button>
+                            </Tooltip>
+                        </Space>
                         <Dropdown
                             overlay={
                                 <Menu
