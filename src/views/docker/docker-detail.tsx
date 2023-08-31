@@ -79,10 +79,11 @@ export function DockerDetail({ connection }) {
 
     const networks = useMemo(() => {
         return _networks.map(network => {
-            const fItem = _services.find(c => c.Endpoint.VirtualIPs.find(it => it.NetworkID == network.Id))
+            const fItems = _services.filter(c => c.Endpoint.VirtualIPs.find(it => it.NetworkID == network.Id))
             return {
                 ...network,
-                isUsed: !!fItem,
+                isUsed: fItems.length > 0,
+                services: fItems.map(item => item._name)
             }
         })
     }, [_networks, _services])
@@ -399,11 +400,21 @@ export function DockerDetail({ connection }) {
                     {
                         title: t('docker.used'),
                         dataIndex: 'isUsed',
-                        width: 64,
-                        // ellipsis: true,
-                        render(value) {
+                        width: 364,
+                        render(value, item) {
                             return (
-                                <div>{value ? <Tag color="green">{t('docker.in_use')}</Tag> : ''}</div>
+                                <div>
+                                    {value ? <Tag color="green">{t('docker.in_use')}</Tag> : ''}
+                                    {value &&
+                                        <div>
+                                            {item.services.map(name => {
+                                                return (
+                                                    <div>{name}</div>
+                                                )
+                                            })}
+                                        </div>
+                                    }
+                                </div>
                             )
                         }
                     },
