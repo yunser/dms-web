@@ -1,4 +1,4 @@
-import { Button, Drawer, message, Space, Tabs } from 'antd';
+import { Button, Drawer, Input, message, Space, Tabs } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import styles from './ssh-home.module.less';
 import _ from 'lodash';
@@ -20,6 +20,30 @@ import { uid } from 'uid';
 
 interface File {
     name: string
+}
+
+function CommandBuilder({ onCommand }) {
+    const [input, setInput] = useState('')
+    return (
+        <Space>
+            <Input
+                placeholder="container id"
+                value={input}
+                onChange={e => {
+                    setInput(e.target.value)
+                }}
+            />
+            <Button
+                onClick={() => {
+                    const cmd = `docker exec -it ${input} bash`
+                    onCommand && onCommand(cmd)
+                    setInput('')
+                }}
+            >
+                ok
+            </Button>
+        </Space>
+    )
 }
 
 function Commands({ config, onClickItem }) {
@@ -92,12 +116,27 @@ function Commands({ config, onClickItem }) {
                             return (
                                 <div
                                     className={styles.item}
-                                    onClick={() => {
-                                        onClickItem && onClickItem(item)
-                                    }}
                                     key={item.id}
                                 >
-                                    {item.name}</div>
+                                    <div className={styles.name}
+                                        onClick={() => {
+                                            onClickItem && onClickItem(item.command)
+                                            setDrawerVisible(false)
+                                        }}
+                                    >
+                                        {item.name}
+                                    </div>
+                                    {item.name.includes('docker exec') &&
+                                        <div>
+                                            <CommandBuilder
+                                                onCommand={cmd => {
+                                                    onClickItem && onClickItem(cmd)
+                                                    setDrawerVisible(false)
+                                                }}
+                                            />
+                                        </div>
+                                    }
+                                </div>
                             )
                         })}
                     </div>
@@ -421,10 +460,10 @@ export function SshDetail({ config, defaultPath, item, onSftpPath, onClone }) {
             <div>
                 <Commands
                     config={config}
-                    onClickItem={item => {
+                    onClickItem={command => {
                         wsRef.current.send(JSON.stringify({
                             type: 'command',
-                            data: item.command,
+                            data: command,
                             //  + '\r'
                         }))
                         term.focus()
