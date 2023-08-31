@@ -89,16 +89,14 @@ export function GitProject({ event$, project, onList }) {
             key: 'git-stat',
         },
         {
+            label: t('readme'),
+            key: 'readme',
+        },
+        {
             label: t('more'),
             key: 'git-more',
         },
     ]
-    if (readme) {
-        tabs.push({
-            label: t('readme'),
-            key: 'readme',
-        })
-    }
 
     event$.useSubscription(msg => {
         // console.log('CommitList/onmessage', msg)
@@ -430,7 +428,21 @@ export function GitProject({ event$, project, onList }) {
                                 }
                                 {item.key == 'readme' &&
                                     <div className={styles.readmeBox}>
-                                        <ReadMe content={readme} />
+                                        {!!readme ?
+                                            <ReadMe content={readme} />
+                                        :
+                                            <div>
+                                                {t('git.readme.help')}
+                                                <a
+                                                    className={styles.refresh}
+                                                    onClick={() => {
+                                                        getConfig()
+                                                    }}
+                                                >
+                                                    {t('refresh')}
+                                                </a>
+                                            </div>
+                                        }
                                     </div>
                                 }
                             </div>
