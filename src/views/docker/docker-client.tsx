@@ -26,7 +26,7 @@ export function DockerClient() {
         })
         console.log('res', res)
         if (res.success) {
-            setConnections(res.data.list)
+            setConnections(res.data.list.sort((a, b) => b.name.localeCompare(a.name)))
         }
     }
 
