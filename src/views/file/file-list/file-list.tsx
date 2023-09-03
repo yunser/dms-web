@@ -93,6 +93,28 @@ function getParentPath(curPath: string) {
     return newPath || '/'
 }
 
+function FixedFileList({ list = [], onItemClick }) {
+    return (
+        <div className={styles.fixedFileBox}>
+            <div className={styles.list}>
+                {list.map(item => {
+                    return (
+                        <div className={styles.item}
+                            onClick={() => {
+                                onItemClick && onItemClick(item)
+                            }}
+                        >
+                            <div className={styles.name}>
+                                {item.name}
+                            </div>
+                        </div>
+                    )
+                })}
+            </div>
+        </div>
+    )
+}
+
 function PathRender({ info, path, onPath }) {
 
     const pathSeparator = info?.pathSeparator || '/'
@@ -236,10 +258,16 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
     const [curPath, setCurPath] = useState(defaultPath)
     const [loading, setLoading] = useState(false)
     const [fileDetailModalVisible, setFileDetialModalVisible] = useState(false)
-    const [fileModalPath, setFileModalPath] = useState('')
+    const [fileModalItem, setFileModalItem] = useState(null)
     const [fileEditModalVisible, setFileEditModalVisible] = useState(false)
     const [pathModalVisible, setPathModalVisible] = useState(false)
 
+    const [fixedFiles, setFixedFiles] = useState([
+        // {
+        //     name: 'test.png',
+        //     path: '/test.png',   
+        // }
+    ])
     const [s3InfoItem, setS3InfoItem] = useState(true)
     const [s3InfoVisible, setS3InfoVisible] = useState(false)
 
@@ -1214,7 +1242,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                     return
                 }
             }
-            setFileModalPath(item.path)
+            setFileModalItem(item)
             setFileDetialModalVisible(true)
         }
         else {
@@ -1234,7 +1262,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
     }
 
     async function editItem(item) {
-        setFileModalPath(item.path)
+        setFileModalItem(item)
         setFileEditModalVisible(true)
     }
 
@@ -1908,7 +1936,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                         className={styles.listBox}
                                         render={size => (
                                             <VList
-                                                className={styles.list}
+                                                className={styles.mainFileList}
                                                 ref={listRef}
                                                 data={filteredAndSOrtedList} 
                                                 height={size.height} 
@@ -2247,10 +2275,18 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
             {fileDetailModalVisible &&
                 <FileDetail
                     config={config}
-                    path={fileModalPath}
+                    path={fileModalItem.path}
                     sourceType={sourceType}
                     onCancel={() => {
                         setFileDetialModalVisible(false)
+                    }}
+                    onMin={() => {
+                        setFileDetialModalVisible(false)
+                        let oldList = fixedFiles.filter(item => item.path!= fileModalItem.path)
+                        setFixedFiles([
+                            fileModalItem,
+                            ...oldList,
+                        ])
                     }}
                 />
             }
@@ -2267,7 +2303,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
             {fileEditModalVisible &&
                 <FileEdit
                     config={config}
-                    path={fileModalPath}
+                    path={fileModalItem.path}
                     sourceType={sourceType}
                     onCancel={() => {
                         setFileEditModalVisible(false)
@@ -2421,6 +2457,15 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                     onSuccess={() => {
                         setDownloadModalVisible(false)
                         loadList()
+                    }}
+                />
+            }
+            {fixedFiles.length > 0 &&
+                <FixedFileList
+                    list={fixedFiles}
+                    onItemClick={item => {
+                        viewItem(item)
+                        setFixedFiles([...fixedFiles.filter(_item => _item.path != item.path)])
                     }}
                 />
             }

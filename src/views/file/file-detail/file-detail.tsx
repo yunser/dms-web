@@ -322,7 +322,7 @@ function TableViewer({ content }) {
     )
 }
 
-export function FileDetail({ config, path, sourceType, onCancel }) {
+export function FileDetail({ config, path, sourceType, onCancel, onMin }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [loading, setLoading] = useState(true)
@@ -391,7 +391,17 @@ export function FileDetail({ config, path, sourceType, onCancel }) {
             width={isPureText ? 1200 : 800}
             centered={isPureText}
             onCancel={onCancel}
-            footer={null}
+            footer={
+                <div>
+                    <Button
+                        onClick={() => {
+                            onMin && onMin()       
+                        }}
+                    >
+                        {t('minimize')}
+                    </Button>
+                </div>
+            }
             destroyOnClose={true}
         >
             {loading ?

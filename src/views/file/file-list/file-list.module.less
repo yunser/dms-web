@@ -222,7 +222,7 @@
     height: 100%;
     // border: 1px solid #000;
 }
-.list {
+.mainFileList {
     height: 100%;
     // border: 1px solid #000;
     // padding: 16px;
@@ -301,5 +301,31 @@
     .vscIcon {
         max-width: 100%;
         max-height: 100%;
+    }
+}
+.fixedFileBox {
+    position: fixed;
+    bottom: 48px;
+    right: 0;
+    width: 200px;
+    border: 1px solid rgba(0, 0, 0, .12);
+    background-color: #fff;
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+    .list {}
+    .item {
+        height: 40px;
+        padding: 0 16px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        border-bottom: 1px solid rgba(0, 0, 0, .12);
+        cursor: pointer;
+        &:last-child {
+            border-bottom: none;
+        }
+        &:hover {
+            background-color: var(--color-f9);
+        }
     }
 }
