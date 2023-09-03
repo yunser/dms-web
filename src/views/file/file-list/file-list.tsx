@@ -2288,6 +2288,10 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                             ...oldList,
                         ])
                     }}
+                    onEdit={() => {
+                        setFileDetialModalVisible(false)
+                        editItem(fileModalItem)
+                    }}
                 />
             }
             {infoVisible &&

@@ -1,33 +1,17 @@
-import { Button, Descriptions, Dropdown, Empty, Input, Menu, message, Modal, Pagination, Popover, Space, Spin, Table, Tabs, Tag } from 'antd';
+import { Button, Empty, message, Modal, Space, Spin } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './file-detail.module.less';
 import _ from 'lodash';
-import classNames from 'classnames'
-// console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { DownloadOutlined, EllipsisOutlined, FileOutlined, FolderOutlined, LeftOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
-import saveAs from 'file-saver';
-import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
-import { IconButton } from '@/views/db-manager/icon-button';
-
-import moment from 'moment';
-// import { saveAs } from 'file-saver'
-import filesize from 'file-size'
-import { FileList } from '../file-list'
 import { marked } from 'marked'
 import { FileUtil } from '../utils/utl';
 import { Editor } from '@/views/db-manager/editor/Editor';
 import { ZipList } from '../zip-list';
 import { pdfjs, Document, Page } from 'react-pdf'
-import { read, writeFileXLSX, utils } from "xlsx";
+import { read, utils } from "xlsx";
 import copy from 'copy-to-clipboard';
 import { FullCenterBox } from '@/views/common/full-center-box';
-
-interface File {
-    name: string
-}
 
 // pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.worker.min.js'
 pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.js/2.12.313/pdf.worker.min.js'
@@ -128,7 +112,7 @@ function ImageViewer({ src }) {
     )
 }
 
-function XlsxViewer({ src, content }) {
+function XlsxViewer({ src }) {
     const { t } = useTranslation()
     const [loading, setLoading] = useState(false)
     const [table, setTable] = useState({
@@ -221,7 +205,7 @@ function XlsxViewer({ src, content }) {
                 dealWorkBook(workbook)
                 setLoading(false)
             })
-            .catch(err => {
+            .catch(() => {
                 setLoading(false)
                 message.error(t('fail'))
             })
@@ -322,33 +306,51 @@ function TableViewer({ content }) {
     )
 }
 
-export function FileDetail({ config, path, sourceType, onCancel, onMin }) {
+export function FileDetail({ config, path, sourceType, onCancel, onMin, onEdit }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [loading, setLoading] = useState(true)
     const [content, setContent] = useState('')
     const contentRef = useRef('')
     const isImage = FileUtil.isImage(path)
-    const isMarkdown = path.endsWith('.md')
-    const isAudio = path.endsWith('.mp3')
-        || path.endsWith('.wav')
-        || path.endsWith('.ogg')
-        || path.endsWith('.m4a')
-        // || path.endsWith('.mid')
-    const isPdf = path.endsWith('.pdf')
-    const isVideo = path.endsWith('.mp4')
-        || path.endsWith('.3gp')
-        || path.endsWith('.webm')
+    let mediaType = ''
+    let isText = false
+    if (isImage) {
+        mediaType = 'image'
+    }
+    else if (path.endsWith('.mp4') || path.endsWith('.3gp') || path.endsWith('.webm')) {
         // || path.endsWith('.avi')
         // || path.endsWith('.flv')
-    const isZip = path.endsWith('.zip')
-    const isTable = path.endsWith('.csv')
-    const isXlsx = path.endsWith('.xlsx')
+        mediaType = 'video'
+    }
+    else if (path.endsWith('.mp3') || path.endsWith('.wav') || path.endsWith('.ogg') || path.endsWith('.m4a')) {
+        // || path.endsWith('.mid'))
+        mediaType = 'audio'
+    }
+    else if (path.endsWith('.pdf')) {
+        mediaType = 'pdf'
+    }
+    else if (path.endsWith('.zip')) {
+        mediaType = 'zip'
+    }
+    else if (path.endsWith('.csv')) {
+        mediaType = 'csv'
+        isText = true
+    }
+    else if (path.endsWith('.xlsx')) {
+        mediaType = 'xlsx'
+    }
+    else if (path.endsWith('.md')) {
+        mediaType = 'md'
+        isText = true
+    }
+    else {
+        isText = true
+    }
 
     
 
-    const isPureText = !isImage && !isAudio && !isVideo && !isMarkdown
-        && !isPdf && !isXlsx
+    const isPureText = (mediaType != 'image') && (mediaType != 'audio') && !mediaType
 
     async function loadDetail() {
         setLoading(true)
@@ -376,7 +378,7 @@ export function FileDetail({ config, path, sourceType, onCancel, onMin }) {
         if (!path) {
             return
         }
-        if (isPureText || isMarkdown || isZip) {
+        if (isPureText || mediaType == 'md' || mediaType == 'zip') {
             loadDetail()
         }
         else {
@@ -392,7 +394,7 @@ export function FileDetail({ config, path, sourceType, onCancel, onMin }) {
             centered={isPureText}
             onCancel={onCancel}
             footer={
-                <div>
+                <Space>
                     <Button
                         onClick={() => {
                             onMin && onMin()       
@@ -400,7 +402,16 @@ export function FileDetail({ config, path, sourceType, onCancel, onMin }) {
                     >
                         {t('minimize')}
                     </Button>
-                </div>
+                    {isText &&
+                        <Button
+                            onClick={() => {
+                                onEdit && onEdit()       
+                            }}
+                        >
+                            {t('edit')}
+                        </Button>
+                    }
+                </Space>
             }
             destroyOnClose={true}
         >
@@ -408,7 +419,7 @@ export function FileDetail({ config, path, sourceType, onCancel, onMin }) {
                 <FullCenterBox>
                     <Spin />
                 </FullCenterBox>
-            : isZip ?
+            : mediaType == 'zip' ?
                 <div>
                     <ZipList
                         config={config}
@@ -416,19 +427,19 @@ export function FileDetail({ config, path, sourceType, onCancel, onMin }) {
                         path={path}
                     />
                 </div>
-            : isTable ?
+            : mediaType == 'csv' ?
                 <div>
                     <TableViewer
                         content={content}
                     />
                 </div>
-            : isXlsx ?
+            : mediaType == 'xlsx' ?
                 <div>
                     <XlsxViewer
                         src={`${config.host}/file/imagePreview?sourceType=${sourceType}&path=${encodeURIComponent(path)}`}
                     />
                 </div>
-            : isAudio ?
+            : mediaType == 'audio' ?
                 <div className={styles.audioBox}>
                     <audio
                         className={styles.video}
@@ -437,7 +448,7 @@ export function FileDetail({ config, path, sourceType, onCancel, onMin }) {
                         autoPlay
                     ></audio>
                 </div>
-            : isVideo ?
+            : mediaType == 'video' ?
                 <div className={styles.videoBox}>
                     <video
                         className={styles.video}
@@ -446,7 +457,7 @@ export function FileDetail({ config, path, sourceType, onCancel, onMin }) {
                         autoPlay
                     ></video>
                 </div>
-            : isMarkdown ?
+            : mediaType == 'md' ?
                 <div>
                     <div className={styles.article} dangerouslySetInnerHTML={{
                         __html: marked.parse(content)
@@ -454,11 +465,11 @@ export function FileDetail({ config, path, sourceType, onCancel, onMin }) {
 
                     </div>
                 </div>
-            : isPdf ?
+            : mediaType == 'pdf' ?
                 <PdfViewer
                     src={`${config.host}/file/imagePreview?sourceType=${sourceType}&path=${encodeURIComponent(path)}`}
                 />
-            : isImage ?
+            : mediaType == 'image' ?
                 <ImageViewer
                     src={`${config.host}/file/imagePreview?sourceType=${sourceType}&path=${encodeURIComponent(path)}`}
                 />
