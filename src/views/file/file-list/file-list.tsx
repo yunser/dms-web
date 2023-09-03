@@ -2127,10 +2127,12 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                     else if (e.shiftKey) {
                                                                         // 范围选择
                                                                         if (activeItem) {
-                                                                            const startIdx = list.findIndex(item => item.path == activeItem.path)
+                                                                            const startIdx = filteredAndSOrtedList.findIndex(item => item.path == activeItem.path)
                                                                             const endIdx = index
-                                                                            for (let idx = startIdx; idx <= endIdx; idx++) {
-                                                                                const item = list[idx]
+                                                                            const minIdx = Math.min(startIdx, endIdx)
+                                                                            const maxIdx = Math.max(startIdx, endIdx)
+                                                                            for (let idx = minIdx; idx <= maxIdx; idx++) {
+                                                                                const item = filteredAndSOrtedList[idx]
                                                                                 if (!selectedPaths.includes(item.path)) {
                                                                                     selectedPaths.push(item.path)
                                                                                     selectedItems.push(item)
