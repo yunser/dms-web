@@ -51,6 +51,8 @@ export function DockerDetail({ connection }) {
     const [_images, setImages] = useState([])
     const [imageKeyword, setImageKeyword] = useState('')
     const [_services, setServices] = useState([])
+    const [plugins, setPlugins] = useState([])
+    const [pluginKeyword, setPluginKeyword] = useState('')
     const [serviceKeyword, setServiceKeyword] = useState('')
     const [_networks, setNetworks] = useState([])
     const [volumeDetailVisible, setVolumeDetailVisible] = useState(false)
@@ -70,6 +72,12 @@ export function DockerDetail({ connection }) {
             // dataIndex: ['Spec', 'Name'],
         })
     }, [_services, serviceKeyword])
+
+    const filteredPlugins = useMemo(() => {
+        return SearchUtil.search(plugins, pluginKeyword, {
+            attributes: ['Id', 'Name'],
+        })
+    }, [plugins, pluginKeyword])
 
     const connectionId = connection.id
 
@@ -171,6 +179,18 @@ export function DockerDetail({ connection }) {
                 })
                 .sort((a, b) => a.Spec.Name.localeCompare(b.Spec.Name))
             setServices(list)
+        }
+    }
+
+    async function loadPlugins() {
+        setServices([])
+        let res = await request.post(`${config.host}/docker/plugins`, {
+            connectionId,
+        })
+        if (res.success) {
+            const list = res.data.list
+                .sort((a, b) => a.Name.localeCompare(b.Name))
+                setPlugins(list)
         }
     }
 
@@ -307,6 +327,7 @@ export function DockerDetail({ connection }) {
         loadServices()
         loadNetworks()
         loadVolumes()
+        loadPlugins()
     }
 
     
@@ -454,6 +475,56 @@ export function DockerDetail({ connection }) {
                                 </div>
                             )
                         }
+                    },
+                ]}
+            />
+        </div>
+    )
+
+    const pluginTab = (
+        <div>
+            <div className={styles.filterBox}>
+                <Input
+                    className={styles.keyword}
+                    placeholder={t('filter')}
+                    value={pluginKeyword}
+                    allowClear
+                    onChange={e => {
+                        setPluginKeyword(e.target.value)
+                    }}
+                />
+            </div>
+            <Table
+                dataSource={filteredPlugins}
+                size="small"
+                pagination={false}
+                columns={[
+                    {
+                        title: t('id'),
+                        dataIndex: 'Id',
+                        width: 120,
+                        ellipsis: true,
+                    },
+                    {
+                        title: t('name'),
+                        dataIndex: 'Name',
+                        ellipsis: true,
+                        width: 280,
+                    },
+                    {
+                        title: t('enabled'),
+                        dataIndex: ['Enabled'],
+                        render(value) {
+                            return (
+                                <div>
+                                    <Tag
+                                        color={value ? 'green' : 'red'}
+                                    >
+                                        {value ? '是' : '否'}
+                                    </Tag>
+                                </div>
+                            )
+                        },
                     },
                 ]}
             />
@@ -847,6 +918,10 @@ export function DockerDetail({ connection }) {
                         key: 'volume',
                         label: t('docker.volume'),
                     },
+                    {
+                        key: 'plugin',
+                        label: t('docker.plugin'),
+                    },
                 ]}
             />
             <div>
@@ -873,6 +948,11 @@ export function DockerDetail({ connection }) {
                 {tab == 'image' &&
                     <div>
                         {imageTab}
+                    </div>
+                }
+                {tab == 'plugin' &&
+                    <div>
+                        {pluginTab}
                     </div>
                 }
             </div>

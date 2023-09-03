@@ -13,6 +13,7 @@ i18n
                 translations: {
                     site_title: 'DMS - Next Generation Data Management System',
                     readme: 'ReadMe',
+                    enabled: 'Enabled',
                     mysql: 'MySQL',
                     run: 'Run',
                     connect: 'Connect',
@@ -607,6 +608,7 @@ i18n
                     'docker.volume': 'Volumes',
                     'docker.network': 'Networks',
                     'docker.service': 'Services',
+                    'docker.plugin': 'Plugins',
                     'docker.start': 'Start',
                     'docker.stop': 'Stop',
                     'docker.in_use': 'In Use',
@@ -687,6 +689,7 @@ i18n
                 translations: {
                     site_title: 'DMS - 下一代数据管理系统',
                     readme: '说明',
+                    enabled: '启用',
                     mysql: 'MySQL',
                     run: '执行',
                     connect: '连接',
@@ -1280,6 +1283,7 @@ i18n
                     'docker.volume': '数据卷',
                     'docker.network': '网络',
                     'docker.service': '服务',
+                    'docker.plugin': '插件',
                     'docker.start': '开始',
                     'docker.stop': '停止',
                     'docker.in_use': '在使用',
