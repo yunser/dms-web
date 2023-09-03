@@ -201,8 +201,14 @@ export function DbManager({ config }) {
         //     data: {},
         // },
     ]
-    
-    const [tabs, setTabs] = useState(tabs_default)
+    // tabs 存在闭包问题，不知怎么解决，故引入 tabRef
+    // 复现：开两个 ssh tab，在第二个 ssh tab 打开 sftp，会覆盖当前 tab 而不是新开 tab
+    const tabRef = useRef(tabs_default)
+    const [tabs, _setTabs] = useState(tabs_default)
+    function setTabs(list) {
+        _setTabs(list)
+        tabRef.current = list
+    }
     const [activeKey, _setActiveKey] = useState(() => {
         return tabs[0].key
     })
@@ -317,9 +323,11 @@ export function DbManager({ config }) {
     function closeTabByKey(targetKey) {
         // console.log('closeTabByKey', key)
         // setTabs(tabs.filter(item => item.key != key))
+        let keyIdx = -1
         for (let i = 0; i < tabs.length; i++) {
             if (tabs[i].key === targetKey) {
                 tabs.splice(i, 1)
+                keyIdx = i
                 break
             }
         }
@@ -329,20 +337,43 @@ export function DbManager({ config }) {
         setTabs([
             ...tabs,
         ])
-        setActiveKey(tabs[tabs.length - 1].key)
+        if (tabs[keyIdx - 1]) {
+            setActiveKey(tabs[keyIdx - 1].key)
+        }
+        else {
+            setActiveKey(tabs[tabs.length - 1].key)
+        }
     }
 
     function closeCurrentTab() {
         closeTabByKey(activeKey)
     }
 
-    function addOrActiveTab(tab, { closeCurrentTab = false,} = {}) {
+    // const _render_tabs_length = tabs.length
+    // console.log('_render_tabs_length', _render_tabs_length)
+
+    function addOrActiveTab(tab, { closeCurrentTab = false, afterKey } = {}) {
+        const tabs = tabRef.current
         const exists = tabs.find(t => t.key == tab.key)
         if (!exists) {
             let newTabs = [
                 ...tabs,
-                tab,
+                // tab,
             ]
+            // console.log('新新新', _render_tabs_length, JSON.parse(JSON.stringify(tabs)))
+            // console.log('tabRef.current', tabRef.current)
+            if (afterKey) {
+                const keyIdx = tabs.findIndex(t => t.key == afterKey)
+                if (keyIdx == tabs.length - 1) {
+                    newTabs.push(tab)
+                }
+                else {
+                    newTabs.splice(keyIdx + 1, 0, tab)
+                }
+            }
+            else {
+                newTabs.push(tab)
+            }
             if (closeCurrentTab) {
                 newTabs = newTabs.filter(item => item.key != activeKey)
             }
@@ -1170,7 +1201,7 @@ export function DbManager({ config }) {
                     ref={tabContentRef}
                     // onKeyDown={e }
                 >
-                    {tabs.map(item => {
+                    {tabs.map((item, tabIndex) => {
                         return (
                             <div
                                 className={styles.tabContent}
@@ -1190,6 +1221,7 @@ export function DbManager({ config }) {
                                                         url,
                                                     },
                                                 }, {
+                                                    afterKey: item.key,
                                                     closeCurrentTab: true,
                                                 })
                                                 // setTabs([
@@ -1228,6 +1260,7 @@ export function DbManager({ config }) {
                                                             curConnect,
                                                         }
                                                     }, {
+                                                        afterKey: item.key,
                                                         // closeCurrentTab: true,
                                                     })
                                                 }, 0)
@@ -1295,6 +1328,7 @@ export function DbManager({ config }) {
                                                         databaseType: 'alasql',
                                                     }
                                                 }, {
+                                                    afterKey: item.key,
                                                     // closeCurrentTab: true,
                                                 })
                                             }}
@@ -1322,6 +1356,7 @@ export function DbManager({ config }) {
                                                         // defaultDatabase,
                                                     },
                                                 }, {
+                                                    afterKey: item.key,
                                                     // closeCurrentTab: true,
                                                 })
                                             }}
@@ -1371,6 +1406,7 @@ export function DbManager({ config }) {
                                                         defaultDatabase,
                                                     },
                                                 }, {
+                                                    afterKey: item.key,
                                                     // closeCurrentTab: true,
                                                 })
                                             }}
@@ -1398,6 +1434,7 @@ export function DbManager({ config }) {
                                                         project,
                                                     },
                                                 }, {
+                                                    afterKey: item.key,
                                                     closeCurrentTab: !openInNewTab,
                                                 })
                                             }}
@@ -1417,6 +1454,7 @@ export function DbManager({ config }) {
                                                     type: 'git-project',
                                                     data: {},
                                                 }, {
+                                                    afterKey: item.key,
                                                     closeCurrentTab: true,
                                                 })
                                             }}
@@ -1425,20 +1463,22 @@ export function DbManager({ config }) {
                                     {item.type == 'oss-home' &&
                                         <OssHome
                                             event$={event$}
-                                            onClickItem={item => {
-                                                console.log('item', item)
+                                            onClickItem={ossItem => {
+                                                console.log('item', ossItem)
                                                 // return
                                                 addOrActiveTab({
                                                     // title: t('oss') + `-${(window._fileCount++) + 1}`,
-                                                    title: item.name,
+                                                    title: ossItem.name,
                                                     // key: 'redis-' + uid(16),
                                                     key: `file-${uid(16)}`,
                                                     type: 'file-home',
                                                     data: {
-                                                        sourceType: 'oss:' + item.bucket,
-                                                        ossItem: item,
+                                                        sourceType: 'oss:' + ossItem.bucket,
+                                                        ossItem: ossItem,
                                                         // url,
                                                     },
+                                                }, {
+                                                    afterKey: item.key,
                                                 })
                                             }}
                                         />
@@ -1446,20 +1486,22 @@ export function DbManager({ config }) {
                                     {item.type == 's3-home' &&
                                         <S3Home
                                             event$={event$}
-                                            onItem={item => {
-                                                console.log('item', item)
+                                            onItem={s3Item => {
+                                                console.log('item', s3Item)
                                                 // return
                                                 addOrActiveTab({
                                                     // title: t('oss') + `-${(window._fileCount++) + 1}`,
-                                                    title: item.name,
+                                                    title: s3Item.name,
                                                     // key: 'redis-' + uid(16),
                                                     key: `file-${uid(16)}`,
                                                     type: 's3-client',
                                                     data: {
-                                                        sourceType: 's3:' + item.id,
-                                                        s3Item: item,
+                                                        sourceType: 's3:' + s3Item.id,
+                                                        s3Item: s3Item,
                                                         // url,
                                                     },
+                                                }, {
+                                                    afterKey: item.key,
                                                 })
                                             }}
                                         />
@@ -1488,18 +1530,20 @@ export function DbManager({ config }) {
                                     }
                                     {item.type == 'webdav-home' &&
                                         <WebDavHome
-                                            onClickItem={item => {
+                                            onClickItem={davItem => {
                                                 addOrActiveTab({
-                                                    title: item.name,
+                                                    title: davItem.name,
                                                     // title: t('webdav') + `-${(window._fileCount++) + 1}`,
                                                     // key: 'redis-' + uid(16),
                                                     key: `file-${uid(16)}`,
                                                     type: 'file-home',
                                                     data: {
-                                                        sourceType: 'oss:' + item.bucket,
-                                                        webdavItem: item,
+                                                        sourceType: 'oss:' + davItem.bucket,
+                                                        webdavItem: davItem,
                                                         // url,
                                                     },
+                                                }, {
+                                                    afterKey: item.key,
                                                 })
                                             }}
                                         />
@@ -1523,6 +1567,8 @@ export function DbManager({ config }) {
                                                         ...item.data,
                                                         path: defaultPath,
                                                     },
+                                                }, {
+                                                    afterKey: item.key,
                                                 })
                                             }}
                                         />
@@ -1532,24 +1578,28 @@ export function DbManager({ config }) {
                                             config={config}
                                             event$={event$}
                                             tabKey={item.key}
-                                            onSSh={({ item }) => {
+                                            onSSh={({ item: sshItem }) => {
                                                 addOrActiveTab({
-                                                    title: item.name,
+                                                    title: sshItem.name,
                                                     key: `terminal-${uid(16)}`,
                                                     type: 'ssh-detail',
                                                     data: {
-                                                        item,
+                                                        item: sshItem,
                                                     },
+                                                }, {
+                                                    afterKey: item.key,
                                                 })
                                             }}
-                                            onSftp={({ item }) => {
+                                            onSftp={({ item: sftpItem }) => {
                                                 addOrActiveTab({
-                                                    title: item.name,
+                                                    title: sftpItem.name,
                                                     key: `terminal-${uid(16)}`,
                                                     type: 'sftp-detail',
                                                     data: {
-                                                        item,
+                                                        item: sftpItem,
                                                     },
+                                                }, {
+                                                    afterKey: item.key,
                                                 })
                                             }}
                                         />
@@ -1568,8 +1618,10 @@ export function DbManager({ config }) {
                                             local={true}
                                             defaultPath={item.data.path}
                                             item={item.data.item}
+                                            tabIndex={tabIndex}
                                             onSftpPath={path => {
-                                                console.log('onSftpPath', path, item.data.item)
+                                                console.log('onSftpPath', path, item)
+                                                console.log('onSftpPath/tabIndex', tabIndex)
                                                 addOrActiveTab({
                                                     title: item.data.item.name,
                                                     key: `terminal-${uid(16)}`,
@@ -1578,6 +1630,8 @@ export function DbManager({ config }) {
                                                         item: item.data.item,
                                                         defaultPath: path,
                                                     },
+                                                }, {
+                                                    afterKey: item.key,
                                                 })
                                             }}
                                             onClone={() => {
@@ -1586,6 +1640,8 @@ export function DbManager({ config }) {
                                                     key: `terminal-${uid(16)}`,
                                                     type: 'ssh-detail',
                                                     data: item.data,
+                                                }, {
+                                                    afterKey: item.key,
                                                 })
                                             }}
                                         />
@@ -1609,6 +1665,8 @@ export function DbManager({ config }) {
                                                         item: item.data.item,
                                                         path,
                                                     },
+                                                }, {
+                                                    afterKey: item.key,
                                                 })
                                             }}
                                             onClone={({ defaultPath }) => {
@@ -1620,6 +1678,8 @@ export function DbManager({ config }) {
                                                         ...item.data,
                                                         defaultPath,
                                                     },
+                                                }, {
+                                                    afterKey: item.key,
                                                 })
                                             }}
                                         />
@@ -1684,15 +1744,17 @@ export function DbManager({ config }) {
                                     {item.type == 'logger-home' &&
                                         <LoggerHome
                                             config={config}
-                                            onItem={item => {
+                                            onItem={loggerItem => {
                                                 addOrActiveTab({
-                                                    title: `${item.name}`,
+                                                    title: `${loggerItem.name}`,
                                                     key: 'logger-detail-' + uid(16),
                                                     type: 'logger-detail',
                                                     data: {
-                                                        item,
-                                                        name: item.name,
+                                                        item: loggerItem,
+                                                        name: loggerItem.name,
                                                     },
+                                                }, {
+                                                    afterKey: item.key,
                                                 })
                                             }}
                                         />
@@ -1711,6 +1773,8 @@ export function DbManager({ config }) {
                                                         item: item.data.item,
                                                         name: item.data.name,
                                                     },
+                                                }, {
+                                                    afterKey: item.key,
                                                 })
                                             }}
                                         />
@@ -1722,7 +1786,7 @@ export function DbManager({ config }) {
                                         <MongoHome
                                             config={config}
                                             event$={event$}
-                                            onConnect={({ connectionId, name, item }) => {
+                                            onConnect={({ connectionId, name, item: mongoItem }) => {
                                                 console.log('onConnect', connectionId)
                                                 addOrActiveTab({
                                                     // title: 'Redis',
@@ -1731,9 +1795,10 @@ export function DbManager({ config }) {
                                                     type: 'mongo-client',
                                                     data: {
                                                         connectionId,
-                                                        item,
+                                                        item: mongoItem,
                                                     },
                                                 }, {
+                                                    afterKey: item.key,
                                                     // closeCurrentTab: true,
                                                 })
                                             }}
@@ -1764,6 +1829,7 @@ export function DbManager({ config }) {
                                                         databaseType: 'alasql',
                                                     }
                                                 }, {
+                                                    afterKey: item.key,
                                                     // closeCurrentTab: true,
                                                 })
                                             }}
