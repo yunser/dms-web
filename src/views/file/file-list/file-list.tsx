@@ -763,6 +763,12 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         console.log('link', link)
     }
 
+    function downloadItems() {
+        for (let item of selectedItems) {
+            downloadItem(item)
+        }
+    }
+
     function openWithLog(item) {
         const downloadUrl = `${config.host}/file/download?sourceType=${sourceType}&fileName=${encodeURIComponent(item.name)}&path=${encodeURIComponent(item.path)}`
         window.open(`http://localhost:3002?data=${encodeURIComponent(downloadUrl)}`, '_blank')
@@ -2251,6 +2257,16 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                             >
                                 {t('cut')}
                             </Button>
+                            {sourceType != 'local' &&
+                                <Button
+                                    size="small"
+                                    onClick={() => {
+                                        downloadItems()
+                                    }}
+                                >
+                                    {t('download')}
+                                </Button>
+                            }
                         </Space>
                     }
                     <Space>
