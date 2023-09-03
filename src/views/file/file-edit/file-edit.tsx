@@ -23,7 +23,7 @@ interface File {
     name: string
 }
 
-export function FileEdit({ config, path, sourceType, onSuccess, onCancel }) {
+export function FileEdit({ config, path, initContent = '', sourceType, onSuccess, onCancel, onMin }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [content, setContent] = useState('')
@@ -42,7 +42,7 @@ export function FileEdit({ config, path, sourceType, onSuccess, onCancel }) {
         })
         // console.log('res', res)
         if (res.success) {
-            setContent(res.data.content)
+            setContent(initContent || res.data.content)
         }
         setLoading(false)
     }
@@ -76,10 +76,32 @@ export function FileEdit({ config, path, sourceType, onSuccess, onCancel }) {
             width={1200}
             centered
             onCancel={onCancel}
-            onOk={handleOk}
+            // onOk={handleOk}
             maskClosable={false}
             confirmLoading={saveLoading}
-            // footer={null}
+            footer={
+                <Space>
+                    <Button
+                        onClick={() => {
+                            const content = editorRef.current.getValue()
+                            onMin && onMin(content)
+                        }}
+                    >
+                        {t('minimize')}
+                    </Button>
+                    <Button
+                        onClick={onCancel}
+                    >
+                        {t('cancel')}
+                    </Button>
+                    <Button
+                        type="primary"
+                        onClick={handleOk}
+                    >
+                        {t('ok')}
+                    </Button>
+                </Space>
+            }
         >
             {/* <Input.TextArea
                 value={content}

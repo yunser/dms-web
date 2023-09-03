@@ -264,6 +264,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
 
     const [fixedFiles, setFixedFiles] = useState([
         // {
+        //     opType: 'view',
         //     name: 'test.png',
         //     path: '/test.png',   
         // }
@@ -2284,7 +2285,10 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                         setFileDetialModalVisible(false)
                         let oldList = fixedFiles.filter(item => item.path!= fileModalItem.path)
                         setFixedFiles([
-                            fileModalItem,
+                            {
+                                ...fileModalItem,
+                                opType: 'view',
+                            },
                             ...oldList,
                         ])
                     }}
@@ -2308,6 +2312,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                 <FileEdit
                     config={config}
                     path={fileModalItem.path}
+                    initContent={fileModalItem.content}
                     sourceType={sourceType}
                     onCancel={() => {
                         setFileEditModalVisible(false)
@@ -2315,6 +2320,18 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                     onSuccess={() => {
                         setFileEditModalVisible(false)
                         loadList()
+                    }}
+                    onMin={(content) => {
+                        setFileEditModalVisible(false)
+                        let oldList = fixedFiles.filter(item => item.path!= fileModalItem.path)
+                        setFixedFiles([
+                            {
+                                ...fileModalItem,
+                                opType: 'edit',
+                                content,
+                            },
+                            ...oldList,
+                        ])
                     }}
                 />
             }
@@ -2468,7 +2485,12 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                 <FixedFileList
                     list={fixedFiles}
                     onItemClick={item => {
-                        viewItem(item)
+                        if (item.opType == 'view') {
+                            viewItem(item)
+                        }
+                        else {
+                            editItem(item)
+                        }
                         setFixedFiles([...fixedFiles.filter(_item => _item.path != item.path)])
                     }}
                 />
