@@ -2438,7 +2438,9 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                     open={true}
                     title={t('upload')}
                     footer={false}
-                    closable={false}
+                    onCancel={() => {
+                        setUploading(false)
+                    }}
                 >
                     {t('uploading')}
                 </Modal>
@@ -2448,7 +2450,9 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                     open={true}
                     title={t('processing')}
                     footer={false}
-                    closable={false}
+                    onCancel={() => {
+                        setProcessing(false)
+                    }}
                 >
                     {t('processing')}
                 </Modal>
