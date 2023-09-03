@@ -29,7 +29,7 @@ export function FileDownloadModal({ config, info, curPath, type, item, onSuccess
 
     return (
         <Modal
-            title={t('rename')}
+            title={t('file.download_from_url')}
             open={true}
             onCancel={onCancel}
             onOk={handleOk}

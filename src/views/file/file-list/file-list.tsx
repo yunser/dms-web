@@ -1635,6 +1635,9 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                             setFolderVisible(true)
                                             setFolderType('FILE')
                                         }
+                                        else if (key == 'download_from_url') {
+                                            setDownloadModalVisible(true)
+                                        }
                                     }}
                                     items={[
                                         {
@@ -1644,6 +1647,13 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                         {
                                             label: t('folder'),
                                             key: 'create_folder',
+                                        },
+                                        {
+                                            type: 'divider',
+                                        },
+                                        {
+                                            label: t('file.download_from_url'),
+                                            key: 'download_from_url',
                                         },
                                     ]}
                                 />
@@ -1771,9 +1781,6 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                 },
                                             })
                                         }
-                                        else if (key == 'download_from_url') {
-                                            setDownloadModalVisible(true)
-                                        }
                                         else if (key == 'open_text_file') {
                                             setOpenModalVisible(true)
                                         }
@@ -1793,13 +1800,6 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                         {
                                             label: t('file.open_text_file'),
                                             key: 'open_text_file',
-                                        },
-                                        {
-                                            type: 'divider',
-                                        },
-                                        {
-                                            label: t('file.download_from_url'),
-                                            key: 'download_from_url',
                                         },
                                         {
                                             type: 'divider',
