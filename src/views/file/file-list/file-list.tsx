@@ -160,7 +160,7 @@ function PathRender({ info, path, onPath }) {
     )
 }
 
-function CollectionList({ config, event$, onItemClick }) {
+export function FileCollectionList({ config, event$, onItemClick }) {
 
     const [list, setList] = useState([])
 
@@ -1550,7 +1550,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                 <Divider />
                             </div>
                         }
-                        <CollectionList
+                        <FileCollectionList
                             config={config}
                             event$={event$}
                             onItemClick={item => {

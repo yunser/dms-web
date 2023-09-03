@@ -17,6 +17,7 @@ import { SerializeAddon } from "xterm-addon-serialize"
 
 import '~xterm/css/xterm.css'
 import { uid } from 'uid';
+import { FileCollectionList } from '@/views/file/file-list';
 
 interface File {
     name: string
@@ -48,7 +49,8 @@ function CommandBuilder({ onCommand }) {
 
 function Commands({ config, onClickItem }) {
     const [curTab, setCurTab] = useState('mine')
-    const [drawerVisible, setDrawerVisible] = useState(false)
+    const [cmdDrawerVisible, setCmdDrawerVisible] = useState(false)
+    const [pathDrawerVisible, setPathDrawerVisible] = useState(false)
     const [list, setList] = useState([
         // {
         //     id: '1',
@@ -75,76 +77,108 @@ function Commands({ config, onClickItem }) {
     return (
         <div>
             <div className={styles.cmdBox}>
-                {list.length > 0 &&
+                <Space>
+                    {list.length > 0 &&
+                        <Button
+                            onClick={() => {
+                                setCmdDrawerVisible(true)
+                            }}
+                        >
+                            命令
+                        </Button>
+                    }
                     <Button
                         onClick={() => {
-                            setDrawerVisible(true)
+                            setPathDrawerVisible(true)
                         }}
                     >
-                        命令
+                        目录
                     </Button>
-                }
+                </Space>
             </div>
-            <Drawer
-                open={drawerVisible}
-                title="我的命令"
-                width={512}
-                onClose={() => {
-                    setDrawerVisible(false)
-                }}
-                placement="left"
-            >
-                <Tabs
-                    activeKey={curTab}
-                    items={[
-                        {
-                            label: '我的命令',
-                            key: 'mine',
-                        },
-                        {
-                            label: '常用命令',
-                            key: 'common',
-                        },
-                    ]}
-                    onChange={tab => {
-                        setCurTab(tab)
+            {cmdDrawerVisible &&
+                <Drawer
+                    open={cmdDrawerVisible}
+                    title="我的命令"
+                    width={512}
+                    onClose={() => {
+                        setCmdDrawerVisible(false)
                     }}
-                />
-                {curTab == 'mine' &&
-                    <div className={styles.commands}>
-                        {list.map(item => {
-                            return (
-                                <div
-                                    className={styles.item}
-                                    key={item.id}
-                                >
-                                    <div className={styles.name}
-                                        onClick={() => {
-                                            onClickItem && onClickItem(item.command)
-                                            setDrawerVisible(false)
-                                        }}
+                    placement="left"
+                >
+                    <Tabs
+                        activeKey={curTab}
+                        items={[
+                            {
+                                label: '我的命令',
+                                key: 'mine',
+                            },
+                            {
+                                label: '常用命令',
+                                key: 'common',
+                            },
+                        ]}
+                        onChange={tab => {
+                            setCurTab(tab)
+                        }}
+                    />
+                    {curTab == 'mine' &&
+                        <div className={styles.commands}>
+                            {list.map(item => {
+                                return (
+                                    <div
+                                        className={styles.item}
+                                        key={item.id}
                                     >
-                                        {item.name}
-                                    </div>
-                                    {item.name.includes('docker exec') &&
-                                        <div>
-                                            <CommandBuilder
-                                                onCommand={cmd => {
-                                                    onClickItem && onClickItem(cmd)
-                                                    setDrawerVisible(false)
-                                                }}
-                                            />
+                                        <div className={styles.name}
+                                            onClick={() => {
+                                                onClickItem && onClickItem(item.command)
+                                                setCmdDrawerVisible(false)
+                                            }}
+                                        >
+                                            {item.name}
                                         </div>
-                                    }
-                                </div>
-                            )
-                        })}
-                    </div>
-                }
-                {curTab == 'common' &&
-                    <div>开发中...</div>
-                }
-            </Drawer>
+                                        {item.name.includes('docker exec') &&
+                                            <div>
+                                                <CommandBuilder
+                                                    onCommand={cmd => {
+                                                        onClickItem && onClickItem(cmd)
+                                                        setCmdDrawerVisible(false)
+                                                    }}
+                                                />
+                                            </div>
+                                        }
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    }
+                    {curTab == 'common' &&
+                        <div>开发中...</div>
+                    }
+                </Drawer>
+            }
+            {pathDrawerVisible &&
+                <Drawer
+                    open={pathDrawerVisible}
+                    title="我的目录"
+                    width={512}
+                    onClose={() => {
+                        setPathDrawerVisible(false)
+                    }}
+                    placement="left"
+                >
+                    <FileCollectionList
+                        config={config}
+                        onItemClick={item => {
+                            console.log('onItemClick', item)
+                            setPathDrawerVisible(false)
+                            const cmd = `cd ${item.path}`
+                            onClickItem && onClickItem(cmd)
+                        }}
+                    />
+                </Drawer>
+            }
         </div>
     )
 }
