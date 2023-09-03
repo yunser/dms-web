@@ -661,7 +661,6 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         setLoading(true)
         setList([])
         setError('')
-        setActiveItem(null)
         let res = await request.post(`${config.host}/file/list`, {
             path: curPath,
             sourceType,
@@ -692,6 +691,14 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                 })
             comData.current.originList = _.clone(list)
             setList(list)
+            // activeItem 刷新后没了
+            if (activeItem) {
+                const activeItemExist = !!list.find(item => item.path == activeItem.path)
+                if (!activeItemExist) {
+                    setActiveItem(null)
+                }
+            }
+            
             // setCurrent(res.data.current)
             // handle readme
             const fReadMeFile = list.find(item => item.name.toLowerCase() == 'readme.md')
