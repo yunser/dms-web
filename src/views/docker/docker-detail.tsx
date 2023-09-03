@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 
 import styles from './docker.module.less'
 import classNames from 'classnames'
-import { Button, Drawer, Empty, Input, message, Modal, Space, Table, Tabs, Tag } from 'antd'
+import { Button, Drawer, Empty, Input, message, Modal, Radio, Space, Table, Tabs, Tag } from 'antd'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import storage from '../db-manager/storage'
@@ -48,6 +48,7 @@ export function DockerDetail({ connection }) {
 
     const [containers, setContainers] = useState([])
     const [containerKeyword, setContainerKeyword] = useState('')
+    const [containerType, setContainerType] = useState('running')
     const [_images, setImages] = useState([])
     const [imageKeyword, setImageKeyword] = useState('')
     const [_services, setServices] = useState([])
@@ -61,10 +62,14 @@ export function DockerDetail({ connection }) {
     const [tab, setTab] = useState('container')
 
     const filteredContainers = useMemo(() => {
-        return SearchUtil.search(containers, containerKeyword, {
+        let _list = containers
+        if (containerType == 'running') {
+            _list = containers.filter(item => item.running)
+        }
+        return SearchUtil.search(_list, containerKeyword, {
             attributes: ['Id', '_names'],
         })
-    }, [containers, containerKeyword])
+    }, [containers, containerKeyword, containerType])
 
     const filteredServices = useMemo(() => {
         return SearchUtil.search(_services, serviceKeyword, {
@@ -134,6 +139,7 @@ export function DockerDetail({ connection }) {
                 return {
                     ...item,
                     _names,
+                    running: item.Status?.includes('Up') ? true : false,
                 }
             }))
         }
@@ -661,6 +667,13 @@ export function DockerDetail({ connection }) {
                         setContainerKeyword(e.target.value)
                     }}
                 />
+                <Radio.Group
+                    value={containerType}
+                    onChange={(e) => setContainerType(e.target.value)}
+                >
+                    <Radio.Button value="running">running</Radio.Button>
+                    <Radio.Button value="all">all</Radio.Button>
+                </Radio.Group>
             </div>
             <Table
                 dataSource={filteredContainers}
@@ -685,6 +698,11 @@ export function DockerDetail({ connection }) {
                     {
                         title: t('docker.image'),
                         dataIndex: 'Image',
+                        render(value) {
+                            return (
+                                <div className={styles.cellTwoRow}>{value}</div>
+                            )
+                        }
                     },
                     {
                         title: t('command'),
