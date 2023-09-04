@@ -735,6 +735,9 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
     function removeKey(key, cb) {
         Modal.confirm({
             content: `${t('delete')}「${key}」?`,
+            okButtonProps: {
+                danger: true,
+            },
             async onOk() {
                 let res = await request.post(`${config.host}/redis/delete`, {
                     connectionId,
