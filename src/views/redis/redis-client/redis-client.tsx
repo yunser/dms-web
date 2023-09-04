@@ -816,6 +816,18 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
         })
     }
 
+    function doSearch(searchType, keyword) {
+        let _value
+        if (searchType == 'blur') {
+            _value = `*${keyword}*`
+        }
+        else {
+            _value = keyword
+        }
+        //  = value + (value.endsWith('*') ? '' : '*')
+        setSearchKeyword(_value)
+    }
+
     async function setAsDefaultDatabase() {
         let res = await request.post(`${config.host}/redis/connection/update`, {
             id: _item.id,
@@ -1096,16 +1108,7 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
                                 onSearch={(value) => {
                                     console.log('onSearch', value)
                                     if (value) {
-                                        let _value
-                                        if (searchType == 'blur') {
-                                            _value = `*${value}*`
-                                        }
-                                        else {
-                                            _value = value
-                                        }
-                                        //  = value + (value.endsWith('*') ? '' : '*')
-                                        setSearchKeyword(_value)
-                                        // setKeyword(_value)
+                                        doSearch(searchType, value)
                                     }
                                     else {
                                         setSearchKeyword('')
@@ -1314,6 +1317,10 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
                                                                     key: 'copy_key_name',
                                                                 },
                                                                 {
+                                                                    label: t('filter'),
+                                                                    key: 'filter',
+                                                                },
+                                                                {
                                                                     label: t('delete'),
                                                                     key: 'key_delete',
                                                                     danger: true,
@@ -1348,6 +1355,12 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
                                                                     setAddType(type)
                                                                     setAddPrefix(nodeData.itemData.prefix)
                                                                     setAddModalVisible(true)
+                                                                }
+                                                                else if (key == 'filter') {
+                                                                    setSearchType('match')
+                                                                    const keyword = `${nodeData.itemData.prefix}*`
+                                                                    setKeyword(keyword)
+                                                                    doSearch('match', keyword)
                                                                 }
                                                             }}
                                                         >
