@@ -1,6 +1,6 @@
 import React, { useState, useEffect, ReactNode, useMemo } from 'react'
 import styles from './index.module.less'
-import { message, Input, Button, Tabs, Space, Form, Checkbox, InputNumber, ConfigProvider } from 'antd'
+import { message, Input, Button, Tabs, Space, Form, Checkbox, InputNumber, ConfigProvider, Table } from 'antd'
 import storage from './storage'
 import DatabaseList from './databases'
 import { DataBaseDetail } from './databaseDetail'
@@ -10,15 +10,17 @@ import { IconButton } from './icon-button'
 import { CloseOutlined } from '@ant-design/icons'
 import enUS from 'antd/es/locale/en_US';
 import zhCN from 'antd/es/locale/zh_CN';
+import { getGlobalConfig } from '@/config'
 
 // console.log('styles', styles)
 const { TextArea } = Input
 const { TabPane } = Tabs
 
-export function EsConnector({ config, onConnect }) {
+export function EsConnector({ onConnect }) {
     const { t } = useTranslation()
-
+    const config = getGlobalConfig()
     const [loading, setLoading] = useState(false)
+    const [connections, setConnections] = useState([])
     const [form] = Form.useForm()
     const [code, setCode] = useState(`{
     "host": "",
@@ -41,6 +43,19 @@ export function EsConnector({ config, onConnect }) {
             remember: true,
         })
         form.setFieldsValue(dbInfo)
+    }, [])
+
+    async function loadConnection() {
+        let res = await request.post(`${config.host}/es/connection/list`, {
+        })
+        console.log('res', res)
+        if (res.success) {
+            setConnections(res.data.list.sort((a, b) => b.name.localeCompare(a.name)))
+        }
+    }
+
+    useEffect(() => {
+        loadConnection()
     }, [])
 
     async function  connect() {
@@ -84,6 +99,33 @@ export function EsConnector({ config, onConnect }) {
     return (
         <div className={styles.connectBox}>
             {/* <Test asd={Asd} /> */}
+            <div>
+                <Table
+                    dataSource={connections}
+                    columns={[
+                        {
+                            title: 'name',
+                            dataIndex: 'name',
+                        },
+                        {
+                            title: t('actions'),
+                            dataIndex: '_op',
+                            render(_, item) {
+                                return (
+                                    <Button
+                                        size="small"
+                                        onClick={() => {
+                                            form.setFieldValue('url', item.url)
+                                        }}
+                                    >
+                                        {t('select')}
+                                    </Button>
+                                )
+                            }
+                        }
+                    ]}
+                />
+            </div>
             <div className={styles.content}>
                 <Form
                     form={form}
