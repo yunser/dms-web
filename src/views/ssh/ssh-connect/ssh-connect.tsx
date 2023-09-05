@@ -266,7 +266,7 @@ function InputPassword(props) {
     )
 }
 
-export function SshConnect({ config, tabKey, onSSh, onSftp, event$ }) {
+export function SshConnect({ config, tabKey, onSSh, onSftp, onDocker, event$ }) {
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [modalVisible, setModalVisible] = useState(false)
@@ -537,6 +537,13 @@ export function SshConnect({ config, tabKey, onSSh, onSftp, event$ }) {
                                                                         key: 'delete',
                                                                         danger: true,
                                                                     },
+                                                                    {
+                                                                        type: 'divider',
+                                                                    },
+                                                                    {
+                                                                        label: t('docker'),
+                                                                        key: 'docker',
+                                                                    },
                                                                 ]}
                                                                 onClick={({ key, domEvent }) => {
                                                                     // domEvent.preventDefault()
@@ -556,6 +563,9 @@ ${t('password')}: ${item.password}`
                                                                         copy(shareContent)
                                                                         message.info(t('copied'))
                                         
+                                                                    }
+                                                                    else if (key == 'docker') {
+                                                                        onDocker && onDocker({ item })
                                                                     }
                                                                 }}
                                                             />

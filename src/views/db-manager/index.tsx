@@ -52,6 +52,7 @@ import { RedisClient } from '../redis/redis-client'
 import { TextEditor } from '../text/text'
 import { S3Home } from '../s3/s3-home'
 import { HexEditor } from '../hex/hex-editor'
+import { DockerDetail } from '../docker/docker-detail'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -1590,13 +1591,25 @@ export function DbManager({ config }) {
                                                     afterKey: item.key,
                                                 })
                                             }}
-                                            onSftp={({ item: sftpItem }) => {
+                                            onSftp={({ item: sshItem }) => {
                                                 addOrActiveTab({
-                                                    title: sftpItem.name,
+                                                    title: sshItem.name,
                                                     key: `terminal-${uid(16)}`,
                                                     type: 'sftp-detail',
                                                     data: {
-                                                        item: sftpItem,
+                                                        item: sshItem,
+                                                    },
+                                                }, {
+                                                    afterKey: item.key,
+                                                })
+                                            }}
+                                            onDocker={({ item: sshItem }) => {
+                                                addOrActiveTab({
+                                                    title: `${sshItem.name} - Docker`,
+                                                    key: `docker-${uid(16)}`,
+                                                    type: 'docker-detail',
+                                                    data: {
+                                                        item: sshItem,
                                                     },
                                                 }, {
                                                     afterKey: item.key,
@@ -1645,6 +1658,15 @@ export function DbManager({ config }) {
                                                 })
                                             }}
                                         />
+                                    }
+                                    {item.type == 'docker-detail' &&
+                                        <div className={styles.dockerBox}>
+                                            <DockerDetail
+                                                connection={{
+                                                    id: `ssh:${item.data.item.id}`,
+                                                }}
+                                            />
+                                        </div>
                                     }
                                     {item.type == 'sftp-detail' &&
                                         <FileList
