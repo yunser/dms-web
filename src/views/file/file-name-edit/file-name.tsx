@@ -50,6 +50,7 @@ export function FileNameModal({ config, type, path, onSuccess, sourceType, onCan
             name: values.name,
             sourceType,
             type,
+            link: values.link,
         })
         if (res.success) {
             onSuccess && onSuccess()
@@ -101,6 +102,15 @@ export function FileNameModal({ config, type, path, onSuccess, sourceType, onCan
                         // disabled={!(editType == 'create')}
                     />
                 </Form.Item>
+                {type == 'LINK' &&
+                    <Form.Item
+                        name="link"
+                        label={t('file.link')}
+                        rules={[ { required: true, }, ]}
+                    >
+                        <Input />
+                    </Form.Item>
+                }
             </Form>
         </Modal>
     )

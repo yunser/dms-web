@@ -1651,6 +1651,10 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                         else if (key == 'download_from_url') {
                                             setDownloadModalVisible(true)
                                         }
+                                        else if (key == 'create_link') {
+                                            setFolderVisible(true)
+                                            setFolderType('LINK')
+                                        }
                                     }}
                                     items={[
                                         {
@@ -1663,6 +1667,10 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                         },
                                         {
                                             type: 'divider',
+                                        },
+                                        {
+                                            label: t('file.link'),
+                                            key: 'create_link',
                                         },
                                         {
                                             label: t('file.download_from_url'),
