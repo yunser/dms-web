@@ -69,6 +69,10 @@ function ConnectionList() {
 
 export function LowCodeApp({ tabKey, config, onClickItem }) {
 
+    useEffect(() => {
+        document.title = 'Low Code'
+    }, [])
+
     return (
         <div className={styles.app}
             onKeyDown={(e) => {

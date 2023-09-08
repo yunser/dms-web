@@ -420,6 +420,7 @@ export function LowCodeDetail({ tabKey, onClickItem }) {
             // const { list } = res.data
             // setList(list)
             const { data } = res
+            document.title = `${data.name} - Lode Code`
             setLoading(false)
             setAppDetail(data)
             if (data.statusUrl) {
