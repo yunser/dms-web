@@ -245,6 +245,16 @@ export function LoggerHome({ config, onItem, event$ }) {
                                                     >
                                                         open
                                                     </Button>
+                                                    {!!item.home &&
+                                                        <Button
+                                                            size="small"
+                                                            onClick={() => {
+                                                                window.open(item.home, '_blank')
+                                                            }}
+                                                        >
+                                                            home
+                                                        </Button>
+                                                    }
                                                     {/* <Button
                                                         size="small"
                                                         onClick={() => {
