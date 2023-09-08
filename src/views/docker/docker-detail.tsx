@@ -67,7 +67,7 @@ export function DockerDetail({ connection }) {
             _list = containers.filter(item => item.running)
         }
         return SearchUtil.search(_list, containerKeyword, {
-            attributes: ['Id', '_names'],
+            attributes: ['Id', '_names', '_ports'],
         })
     }, [containers, containerKeyword, containerType])
 
@@ -136,9 +136,11 @@ export function DockerDetail({ connection }) {
                 if (item.Names) {
                     _names = item.Names.join(', ')
                 }
+                let _ports = (item.Ports || []).map(port => `${port.PublicPort || ''}-${port.PrivatePort || ''}`)
                 return {
                     ...item,
                     _names,
+                    _ports,
                     running: item.Status?.includes('Up') ? true : false,
                 }
             }))
