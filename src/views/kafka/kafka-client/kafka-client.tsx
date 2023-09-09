@@ -314,6 +314,7 @@ export function KafkaClient({ onClickItem }) {
     const [topicLoading, setTopicLoading] = useState(false)
     const [connections, setConnections] = useState([])
     const [topics, setTopics] = useState([])
+    const [topicDetail, setTopicDetail] = useState(null)
     const [groups, setGroups] = useState([])
     const [groupLoding, setGroupLoading] = useState(false)
     const [groupItem, setGroupItem] = useState(null)
@@ -415,7 +416,12 @@ export function KafkaClient({ onClickItem }) {
     }
 
     async function viewTopic(item) {
-        
+        let res = await request.post(`${config.host}/kafka/topic/detail`, {
+            topic: item.name,
+        })
+        if (res.success) {
+            setTopicDetail(res.data)
+        }
     }
 
     async function removeTopic(item) {
@@ -526,14 +532,14 @@ export function KafkaClient({ onClickItem }) {
                                     render(_value, item) {
                                         return (
                                             <Space>
-                                                {/* <Button
+                                                <Button
                                                     size="small"
                                                     onClick={() => {
                                                         viewTopic(item)
                                                     }}
                                                 >
                                                     查看
-                                                </Button> */}
+                                                </Button>
                                                 <Button
                                                     size="small"
                                                     danger
@@ -570,11 +576,31 @@ export function KafkaClient({ onClickItem }) {
                         })} */}
                     </div>
                     
-                    <br />
-                    <hr />
-                    <br />
+                    {!!topicDetail &&
+                        <>
+                            <br />
+                            <hr />
+                            <br />
 
-                    <div>12</div>
+                            <div className={styles.topicDetail}>
+                                <div className={styles.topicName}>{topicDetail.name}</div>
+                                <div className={styles.offsets}>
+                                    {topicDetail.offsets.map(item => {
+                                        return (
+                                            <div className={styles.item}>
+                                                <div className={styles.name}>
+                                                    partition {item.partition}
+                                                </div>
+                                                <div>offset: {item.offset}</div>
+                                                <div>low: {item.low}</div>
+                                                <div>high: {item.high}</div>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+                        </>
+                    }
                 </div>
                 <div>
                     
