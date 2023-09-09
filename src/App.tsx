@@ -239,7 +239,8 @@ function SocketProxyPage() {
 
 function KafkaClientPage() {
     const { t } = useTranslation()
-    useTitle(t('http_server'))
+    // useTitle(t('http_server'))
+    useTitle('Kafka')
 
     return (
         <div className={styles.pageFull}>

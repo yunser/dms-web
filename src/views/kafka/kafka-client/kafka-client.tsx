@@ -312,9 +312,10 @@ export function KafkaClient({ onClickItem }) {
     
     const [offsets, setOffsets] = useState([])
     const [topicLoading, setTopicLoading] = useState(false)
+    const [connections, setConnections] = useState([])
     const [topics, setTopics] = useState([])
     const [groups, setGroups] = useState([])
-    const [groupLoding, setGroupLoading] = useState([])
+    const [groupLoding, setGroupLoading] = useState(false)
     const [groupItem, setGroupItem] = useState(null)
     const [groupDetailLoading, setGroupDetailLoading] = useState(false)
     const [topic, setTopic] = useState('dms-topic-test')
@@ -325,6 +326,24 @@ export function KafkaClient({ onClickItem }) {
         connectTime: 0,
         connectionId: '',
     })
+
+    useEffect(() => {
+        loadConnections()
+    }, [])
+
+    async function loadConnections() {
+        setTopicLoading(true)
+        let res = await request.post(`${config.host}/kafka/connection/list`, {
+            // connectionId,
+        })
+        setTopicLoading(false)
+        if (res.success) {
+            const sorter = (a, b) => {
+                return a.name.localeCompare(b.name)
+            }
+            setConnections(res.data.list.sort(sorter))
+        }
+    }
 
     async function loadTopics() {
         setTopicLoading(true)
@@ -354,24 +373,6 @@ export function KafkaClient({ onClickItem }) {
         }
     }
 
-    async function init() {
-        let res = await request.post(`${config.host}/kafka/init`, {
-            // connectionId,
-        }, {
-            // noMessage: true,
-            // timeout: 2000,
-        })
-        if (res.success) {
-            loadTopics()
-            loadGroups()
-            // setErr('')
-            // setCurSchema('')
-        }
-        else {
-            // setErr('Connect rrror')
-        }
-    }
-
     async function loadGroupDetail(item) {
         setGroupDetailLoading(true)
         let res = await request.post(`${config.host}/kafka/groupDetail`, {
@@ -398,6 +399,23 @@ export function KafkaClient({ onClickItem }) {
             message.success(t('success'))
             // setOffsets(res.data.offsets)
         }
+    }
+
+    async function viewConnection(item) {
+        console.log('item', item)
+        let res = await request.post(`${config.host}/kafka/init`, {
+            connectionId: item.id,
+            clientId: 'dms-client-01',
+            groupId: 'dms-group-01',
+        })
+        if (res.success) {
+            loadTopics()
+            loadGroups()
+        }
+    }
+
+    async function viewTopic(item) {
+        
     }
 
     async function removeTopic(item) {
@@ -438,10 +456,6 @@ export function KafkaClient({ onClickItem }) {
         })
     }
 
-    useEffect(() => {
-        init()
-    }, [])
-
     return (
         <div className={styles.kafkaApp}>
             <div className={styles.layoutHeader}>
@@ -451,6 +465,39 @@ export function KafkaClient({ onClickItem }) {
                 init()
             }}>刷新</Button> */}
             <div className={styles.layoutBody}>
+                <div>
+                    <div className={styles.sectionName}>connections:</div>
+                    <Table
+                        dataSource={connections}
+                        pagination={false}
+                        rowKey="name"
+                        size="small"
+                        columns={[
+                            {
+                                title: 'name',
+                                dataIndex: 'name',
+                            },
+                            {
+                                title: t('actions'),
+                                dataIndex: '_op',
+                                render(_value, item) {
+                                    return (
+                                        <Space>
+                                            <Button
+                                                size="small"
+                                                onClick={() => {
+                                                    viewConnection(item)
+                                                }}
+                                            >
+                                                查看
+                                            </Button>
+                                        </Space>
+                                    )
+                                }
+                            },
+                        ]}
+                    />
+                </div>
                 <div>
                     
                     <div className={styles.sectionName}>topics:</div>
@@ -478,17 +525,25 @@ export function KafkaClient({ onClickItem }) {
                                     dataIndex: '_op',
                                     render(_value, item) {
                                         return (
-                                            <div>
+                                            <Space>
+                                                {/* <Button
+                                                    size="small"
+                                                    onClick={() => {
+                                                        viewTopic(item)
+                                                    }}
+                                                >
+                                                    查看
+                                                </Button> */}
                                                 <Button
-                                                size="small"
-                                                danger
-                                                onClick={() => {
-                                                    removeTopic(item)
-                                                }}
-                                            >
-                                                删除
-                                            </Button>
-                                            </div>
+                                                    size="small"
+                                                    danger
+                                                    onClick={() => {
+                                                        removeTopic(item)
+                                                    }}
+                                                >
+                                                    删除
+                                                </Button>
+                                            </Space>
                                         )
                                     }
                                 },
@@ -514,6 +569,12 @@ export function KafkaClient({ onClickItem }) {
                             )
                         })} */}
                     </div>
+                    
+                    <br />
+                    <hr />
+                    <br />
+
+                    <div>12</div>
                 </div>
                 <div>
                     
@@ -658,6 +719,7 @@ export function KafkaClient({ onClickItem }) {
                 </div>
                 <div>
                     <div className={styles.sectionName}>接收消息</div>
+                    <div>group ID: dms-group-01</div>
                     <KafkaConsumer />
                 </div>
             </div>
