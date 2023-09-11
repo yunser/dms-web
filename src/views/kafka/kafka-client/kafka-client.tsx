@@ -1,4 +1,4 @@
-import { Button, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Radio, Space, Spin, Table, Tabs, Tag, Tree } from 'antd';
+import { Button, Descriptions, Drawer, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Radio, Space, Spin, Table, Tabs, Tag, Tree } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './kafka-client.module.less';
 import _ from 'lodash';
@@ -16,6 +16,7 @@ import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/common/full-center-box';
 import moment from 'moment';
 import { getGlobalConfig } from '@/config';
+import { SearchUtil } from '@/utils/search';
 // import { saveAs } from 'file-saver'
 
 function Content({ item, showInfo = false }) {
@@ -310,10 +311,17 @@ export function KafkaClient({ onClickItem }) {
     const config = getGlobalConfig()
     const [socketType, setSocketType] = useState('udp_server')
     
+    const [curGroupId, setCurGroupId] = useState('dms-group-01')
     const [offsets, setOffsets] = useState([])
     const [topicLoading, setTopicLoading] = useState(false)
     const [connections, setConnections] = useState([])
     const [topics, setTopics] = useState([])
+    const [topicKeyword, setTopickeyword] = useState('')
+    const filteredTopics = useMemo(() => {
+        return SearchUtil.searchLike(topics, topicKeyword, {
+            attributes: ['name'],
+        })
+    }, [topics, topicKeyword])
     const [topicDetail, setTopicDetail] = useState(null)
     const [groups, setGroups] = useState([])
     const [groupLoding, setGroupLoading] = useState(false)
@@ -333,11 +341,11 @@ export function KafkaClient({ onClickItem }) {
     }, [])
 
     async function loadConnections() {
-        setTopicLoading(true)
+        // setTopicLoading(true)
         let res = await request.post(`${config.host}/kafka/connection/list`, {
             // connectionId,
         })
-        setTopicLoading(false)
+        // setTopicLoading(false)
         if (res.success) {
             const sorter = (a, b) => {
                 return a.name.localeCompare(b.name)
@@ -428,6 +436,9 @@ export function KafkaClient({ onClickItem }) {
         Modal.confirm({
             autoFocusButton: 'cancel',
             content: `确认删除「${item.name}」？`,
+            okButtonProps: {
+                danger: true,
+            },
             onOk: async () => {
                 let res = await request.post(`${config.host}/kafka/topic/remove`, {
                     // connectionId,
@@ -447,6 +458,9 @@ export function KafkaClient({ onClickItem }) {
         Modal.confirm({
             autoFocusButton: 'cancel',
             content: `确认删除「${item.groupId}」？`,
+            okButtonProps: {
+                danger: true,
+            },
             onOk: async () => {
                 let res = await request.post(`${config.host}/kafka/group/remove`, {
                     // connectionId,
@@ -473,6 +487,14 @@ export function KafkaClient({ onClickItem }) {
             <div className={styles.layoutBody}>
                 <div>
                     <div className={styles.sectionName}>connections:</div>
+                    <Button
+                        onClick={() => {
+                            loadConnections()
+                        }}
+                    >
+                        刷新
+                    </Button>
+
                     <Table
                         dataSource={connections}
                         pagination={false}
@@ -514,10 +536,19 @@ export function KafkaClient({ onClickItem }) {
                     >
                         刷新
                     </Button>
+                    <div>
+                        <Input
+                            placeholder='filter'
+                            value={topicKeyword}
+                            onChange={e => {
+                                setTopickeyword(e.target.value)
+                            }}
+                        />
+                    </div>
                     <div className={styles.topics}>
                         <Table
                             loading={topicLoading}
-                            dataSource={topics}
+                            dataSource={filteredTopics}
                             pagination={false}
                             rowKey="name"
                             size="small"
@@ -577,11 +608,13 @@ export function KafkaClient({ onClickItem }) {
                     </div>
                     
                     {!!topicDetail &&
-                        <>
-                            <br />
-                            <hr />
-                            <br />
-
+                        <Drawer
+                            title="topic detail"
+                            open={true}
+                            onClose={() => {
+                                setTopicDetail(null)
+                            }}
+                        >
                             <div className={styles.topicDetail}>
                                 <div className={styles.topicName}>{topicDetail.name}</div>
                                 <div className={styles.offsets}>
@@ -599,7 +632,7 @@ export function KafkaClient({ onClickItem }) {
                                     })}
                                 </div>
                             </div>
-                        </>
+                        </Drawer>
                     }
                 </div>
                 <div>
@@ -682,8 +715,47 @@ export function KafkaClient({ onClickItem }) {
                         />
                     </div>
                 </div>
+                
                 <div>
-                    <div className={styles.sectionName}>group detail</div>
+                    <div className={styles.sectionName}>发送消息</div>
+                    <div>
+                        <Input
+                            value={topic}
+                            onChange={e => {
+                                setTopic(e.target.value)
+                            }}
+                        />
+                    </div>
+                    <Input.TextArea
+                        value={content}
+                        onChange={e => {
+                            setContent(e.target.value)
+                        }}
+                    />
+                    <Button
+                        onClick={() => {
+                            send()
+                        }}
+                    >
+                        发送
+                    </Button>
+
+                </div>
+                <div>
+                    <div className={styles.sectionName}>接收消息</div>
+                    <div>group ID: {curGroupId}</div>
+                    <KafkaConsumer />
+                </div>
+            </div>
+            {!!groupItem &&
+                <Drawer
+                    title="group detail"
+                    open={true}
+                    onClose={() => {
+                        setGroupItem(null)
+                    }}
+                >
+                    {/* <div className={styles.sectionName}>group detail</div> */}
                     {groupDetailLoading ?
                         <Spin />
                     :
@@ -717,38 +789,8 @@ export function KafkaClient({ onClickItem }) {
 
                         </div>
                     }
-                </div>
-                <div>
-                    <div className={styles.sectionName}>发送消息</div>
-                    <div>
-                        <Input
-                            value={topic}
-                            onChange={e => {
-                                setTopic(e.target.value)
-                            }}
-                        />
-                    </div>
-                    <Input.TextArea
-                        value={content}
-                        onChange={e => {
-                            setContent(e.target.value)
-                        }}
-                    />
-                    <Button
-                        onClick={() => {
-                            send()
-                        }}
-                    >
-                        发送
-                    </Button>
-
-                </div>
-                <div>
-                    <div className={styles.sectionName}>接收消息</div>
-                    <div>group ID: dms-group-01</div>
-                    <KafkaConsumer />
-                </div>
-            </div>
+                </Drawer>
+            }
         </div>
     )
 }
