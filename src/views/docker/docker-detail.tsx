@@ -46,6 +46,7 @@ export function DockerDetail({ connection }) {
     const { t } = useTranslation()
     const config = getGlobalConfig()
 
+    const [version, setVersion] = useState(null)
     const [containers, setContainers] = useState([])
     const [containerKeyword, setContainerKeyword] = useState('')
     const [containerType, setContainerType] = useState('running')
@@ -201,6 +202,23 @@ export function DockerDetail({ connection }) {
                 setPlugins(list)
         }
     }
+    
+    async function loadVersion() {
+        let res = await request.post(`${config.host}/docker/version`, {
+            connectionId,
+        })
+        if (res.success) {
+            setVersion(res.data)
+        }
+    }
+
+    // async function loadConfigs() {
+    //     let res = await request.post(`${config.host}/docker/config/list`, {
+    //         connectionId,
+    //     })
+    //     if (res.success) {
+    //     }
+    // }
 
     async function loadNetworks() {
         setNetworks([])
@@ -336,6 +354,8 @@ export function DockerDetail({ connection }) {
         loadNetworks()
         loadVolumes()
         loadPlugins()
+        // loadConfigs()
+        loadVersion()
     }
 
     
@@ -911,6 +931,11 @@ export function DockerDetail({ connection }) {
                 >
                     {t('refresh')}
                 </Button>
+                {!!version &&
+                    <div>
+                        v{version.Version}
+                    </div>
+                }
             </Space>
             <Tabs
                 activeKey={tab}
