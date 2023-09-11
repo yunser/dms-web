@@ -222,7 +222,7 @@ export function ServiceHome({ onClickItem }) {
         {
             title: '状态',
             dataIndex: '_id',
-            width: 240,
+            width: 280,
             render(value = true, item) {
                 const colorMap = {
                     ok: 'green',
@@ -258,7 +258,7 @@ export function ServiceHome({ onClickItem }) {
                                         查看结果
                                     </Button>
                                 }
-                                {(item.hasResult && item.status != 'ok') &&
+                                {!!item.hasResult &&
                                     <Button
                                         size="small"
                                         // disabled={! item.status}
