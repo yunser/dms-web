@@ -33,6 +33,14 @@ function Content({ item, showInfo = false }) {
     )
 }
 
+function sunOffset(offsets) {
+    let total = 0
+    for (let item of offsets) {
+        total += parseInt(item.offset)
+    }
+    return total
+}
+
 function KafkaConsumer() {
     const [topic, setTopic] = useState('dms-topic-test')
     const config = getGlobalConfig()
@@ -617,6 +625,10 @@ export function KafkaClient({ onClickItem }) {
                         >
                             <div className={styles.topicDetail}>
                                 <div className={styles.topicName}>{topicDetail.name}</div>
+                                <div>
+                                    total offset:
+                                    {sunOffset(topicDetail.offsets)}
+                                </div>
                                 <div className={styles.offsets}>
                                     {topicDetail.offsets.map(item => {
                                         return (
