@@ -322,6 +322,7 @@ export function KafkaClient({ onClickItem }) {
     const [curGroupId, setCurGroupId] = useState('dms-group-01')
     const [offsets, setOffsets] = useState([])
     const [topicLoading, setTopicLoading] = useState(false)
+    const [curConnection, setCurConnection] = useState(null)
     const [connections, setConnections] = useState([])
     const [topics, setTopics] = useState([])
     const [topicKeyword, setTopickeyword] = useState('')
@@ -419,6 +420,7 @@ export function KafkaClient({ onClickItem }) {
     }
 
     async function viewConnection(item) {
+        setCurConnection(item)
         console.log('item', item)
         let res = await request.post(`${config.host}/kafka/init`, {
             connectionId: item.id,
@@ -535,7 +537,11 @@ export function KafkaClient({ onClickItem }) {
                     />
                 </div>
                 <div>
-                    
+                    {!!curConnection &&
+                        <div>
+                            {curConnection.name}
+                        </div>
+                    }
                     <div className={styles.sectionName}>topics:</div>
                     <Button
                         onClick={() => {
@@ -648,7 +654,11 @@ export function KafkaClient({ onClickItem }) {
                     }
                 </div>
                 <div>
-                    
+                    {!!curConnection &&
+                        <div>
+                            {curConnection.name}
+                        </div>
+                    }
                     <div className={styles.sectionName}>groups:</div>
                         <Button
                             onClick={() => {
