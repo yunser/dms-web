@@ -1,4 +1,4 @@
-import { Button, Descriptions, Drawer, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Radio, Space, Spin, Table, Tabs, Tag, Tree } from 'antd';
+import { Button, Descriptions, Drawer, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Progress, Radio, Space, Spin, Table, Tabs, Tag, Tree } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './kafka-client.module.less';
 import _ from 'lodash';
@@ -628,6 +628,7 @@ export function KafkaClient({ onClickItem }) {
                             onClose={() => {
                                 setTopicDetail(null)
                             }}
+                            width={560}
                         >
                             <div className={styles.topicDetail}>
                                 <div className={styles.topicName}>{topicDetail.name}</div>
@@ -648,6 +649,36 @@ export function KafkaClient({ onClickItem }) {
                                             </div>
                                         )
                                     })}
+                                </div>
+                                <br />
+                                <hr />
+                                <br />
+                                <div className={styles.groupSectionName}>groups</div>
+                                <div className={styles.groups}>
+                                    {topicDetail.groups.map(group => {
+                                        return (
+                                            <div className={styles.item}>
+                                                <div className={styles.groupName}>{group.groupId}</div>
+                                                {group.partitions.map((partition, partIdx) => {
+                                                    const _part = topicDetail.offsets[partIdx]
+                                                    let percent = Math.floor(parseInt(partition.offset) / parseInt(_part.offset) * 100)
+                                                    return (
+                                                        <div className={styles.offsetItem}>
+                                                            <Space>
+                                                                <div>partition {partition.partition}: </div>
+                                                                <div>offset {partition.offset} / {_part.offset}</div>
+                                                            </Space>
+                                                            <Progress
+                                                                className={styles.progress}
+                                                                percent={percent}
+                                                            />
+                                                        </div>
+                                                    )
+                                                })}
+                                            </div>
+                                        )
+                                    })}
+
                                 </div>
                             </div>
                         </Drawer>
@@ -773,6 +804,7 @@ export function KafkaClient({ onClickItem }) {
                 <Drawer
                     title="group detail"
                     open={true}
+                    width={560}
                     onClose={() => {
                         setGroupItem(null)
                     }}
@@ -781,10 +813,11 @@ export function KafkaClient({ onClickItem }) {
                     {groupDetailLoading ?
                         <Spin />
                     :
-                        <div>
+                        <div className={styles.groupDetail}>
                             {!!groupItem &&
                                 <div>
-                                    {groupItem.groupId}:
+                                    <div className={styles.groupName}>{groupItem.groupId}</div>
+                                    
                                     <div>
                                         {offsets.map(offset => {
                                             return (
@@ -792,12 +825,17 @@ export function KafkaClient({ onClickItem }) {
                                                     <div>{offset.topic}</div>
                                                     <div className={styles.partitions}>
                                                         {offset.partitions.map(partition => {
+                                                            let percent = Math.floor(parseInt(partition.offset) / parseInt(partition.topicOffset) * 100)
                                                             return (
                                                                 <div className={styles.item}>
                                                                     <Space>
                                                                         <div>{partition.offset}/{partition.topicOffset}</div>
                                                                         <div>leg:{partition.topicOffset - partition.offset}</div>
                                                                     </Space>
+                                                                    <Progress
+                                                                        className={styles.progress}
+                                                                        percent={percent}
+                                                                    />
                                                                 </div>
                                                             )
                                                         })}

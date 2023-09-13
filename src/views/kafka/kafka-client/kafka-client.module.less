@@ -57,10 +57,24 @@
     }
 }
 
-.partitions {
-    // border: 1px solid #000;
-    .item {
-        border: 1px solid #000;
+.groupDetail {
+    .groupName {
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: 16px;
+    }
+    .partitions {
+        // border: 1px solid #000;
+        .item {
+            border-bottom: 1px solid #000;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .progress {
+            width: 120px;
+        }
     }
 }
 
@@ -98,6 +112,26 @@
     .offsets {
         .item {
             border: 1px solid #000;
+        }
+    }
+    .groupSectionName {
+        font-size: 24px;
+    }
+    .groups {
+        .item {
+            border: 1px solid #000;
+        }
+        .offsetItem {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .groupName {
+            font-weight: bold;
+        }
+        .progress {
+            width: 120px;
         }
     }
 }
