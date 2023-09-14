@@ -877,7 +877,6 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
     }
 
     async function deleteItem(item: File) {
-        const deletedIndex = filteredAndSOrtedList.findIndex(_item => _item.path == item.path)
         Modal.confirm({
             content: `${t('delete')}「${item.name}」?`,
             okButtonProps: {
@@ -897,8 +896,18 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                     // message.success(t('success'))
                     // onClose && onClose()
                     // onSuccess && onSuccess()
+                    const deletedIndex = filteredAndSOrtedList.findIndex(_item => _item.path == item.path)
+                    let nextActivePath = null
+                    // 优先选中下一项
+                    if (filteredAndSOrtedList[deletedIndex + 1]) {
+                        nextActivePath = filteredAndSOrtedList[deletedIndex + 1].path
+                    }
+                    // 下一项不存在则优先选中上一项
+                    else if (filteredAndSOrtedList[deletedIndex - 1]) {
+                        nextActivePath = filteredAndSOrtedList[deletedIndex - 1].path
+                    }
                     loadList({
-                        nextActivePath: filteredAndSOrtedList[deletedIndex + 1] ? filteredAndSOrtedList[deletedIndex + 1].path : null,
+                        nextActivePath,
                     })
                 }
             }
@@ -2405,9 +2414,11 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                     onCancel={() => {
                         setRenameModalVisible(false)
                     }}
-                    onSuccess={() => {
+                    onSuccess={({ newPath }) => {
                         setRenameModalVisible(false)
-                        loadList()
+                        loadList({
+                            nextActivePath: newPath,
+                        })
                     }}
                 />
             }
