@@ -474,10 +474,15 @@ const [detailVisible, setDetailVisible] = useState(true)
                                             <Button
                                                 size="small"
                                                 onClick={() => {
-                                                    setBranchModaRemote(item.name)
-                                                    setBranchModalVisible(true)
+                                                    if (item.name.startsWith('remotes/')) {
+                                                        setBranchModaRemote(item.name)
+                                                        setBranchModalVisible(true)
+                                                    }
+                                                    else {
+                                                        setManageVisible(false)
+                                                        switchItem(item)
+                                                    }
                                                 }}
-                                                disabled={!item.name.startsWith('remotes/')}
                                             >{t('git.checkout')}</Button>
                                             <Button
                                                 size="small"
