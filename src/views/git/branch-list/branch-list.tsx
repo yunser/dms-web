@@ -17,6 +17,7 @@ import { BranchModal } from '../branch-modal';
 import moment from 'moment';
 import copy from 'copy-to-clipboard';
 import { BranchRenameModal } from '../branch-rename';
+import { SearchUtil } from '@/utils/search';
 // import { saveAs } from 'file-saver'
 
 export function BranchList({ config, event$, projectPath, onBranch }) {
@@ -28,6 +29,12 @@ export function BranchList({ config, event$, projectPath, onBranch }) {
     const [editBranch, setEditBranch] = useState(null)
     const [current, setCurrent] = useState('')
     const [allBranches, setAllBranches] = useState([])
+    const [branchKeyword, setBranchKeyword] = useState('')
+    const filteredBranches = useMemo(() => {
+        return SearchUtil.searchLike(allBranches, branchKeyword, {
+            attributes: ['name'],
+        })
+    }, [allBranches, branchKeyword])
     const [branches, setBranches] = useState([])
 const [detailVisible, setDetailVisible] = useState(true)
     const [branchModalRemote, setBranchModaRemote] = useState('')
@@ -385,17 +392,30 @@ const [detailVisible, setDetailVisible] = useState(true)
             {manageVisible &&
                 <Modal
                     open={true}
-                    title={t('git.branch')}
+                    title={t('git.branches')}
                     width={1200}
                     onCancel={() => {
                         setManageVisible(false)
                     }}
                     footer={null}
                 >
+                    <div className={styles.searchBox}>
+                        <Input
+                            placeholder={t('filter')}
+                            value={branchKeyword}
+                            allowClear={true}
+                            onChange={e => {
+                                setBranchKeyword(e.target.value)
+                            }}
+                        />
+                    </div>
                     <Table
-                        dataSource={allBranches}
+                        dataSource={filteredBranches}
                         size="small"
                         pagination={false}
+                        scroll={{
+                            y: 560,
+                        }}
                         columns={[
                             {
                                 title: t('name'),
@@ -404,6 +424,7 @@ const [detailVisible, setDetailVisible] = useState(true)
                             {
                                 title: t('type'),
                                 dataIndex: 'type',
+                                width: 80,
                                 render(_value, item) {
                                     let type
                                     if (item.name.startsWith('remotes/')) {
@@ -419,6 +440,7 @@ const [detailVisible, setDetailVisible] = useState(true)
                             },
                             {
                                 title: t('git.commit'),
+                                width: 100,
                                 dataIndex: 'commit',
                             },
                             {
