@@ -1087,7 +1087,7 @@ export function DbManager({ config }) {
                 >
                     {lang == 'zh' ? 'English' : '中文'}
                 </Button>
-                <IconButton
+                {/* <IconButton
                     size="small"
                     tooltip={t('toggle_theme')}
                     onClick={async () => {
@@ -1098,19 +1098,10 @@ export function DbManager({ config }) {
                                 theme: getTheme(),
                             }
                         })
-                        // message.info('正在开发...')
-                        // const code = getCode()
-                        // let res = await request.post(`${config.host}/mysql/sql/create`, {
-                            //     name: '123',
-                            //     sql: code,
-                            // })
-                            // if (res.success) {
-                                //     message.success('保存成功')
-                                // }
                     }}
                 >
                     <BulbOutlined />
-                </IconButton>
+                </IconButton> */}
             </Space>
         </div>
     )

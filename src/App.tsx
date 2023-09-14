@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import 'antd/dist/antd.css'; 
 import '@yunser/style-reset/dist/index.css'
 import './app.less'
 import './global.css'

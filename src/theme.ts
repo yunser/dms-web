@@ -1,5 +1,5 @@
-import { darkStyle } from './dark'
-import { lightStyle } from './light'
+// import { darkStyle } from './dark'
+// import { lightStyle } from './light'
 // 
 // console.log('darkStyle', darkStyle)
 
@@ -11,13 +11,13 @@ const handleSkin = (theme: string) => {
     html.classList.remove('theme-dark')
     html.classList.remove('theme-light')
     html.classList.add(`theme-${theme}`)
-    if (theme == 'light') {
-      // 明亮主题
-        addSkin(lightStyle)
-    } else {
-      // 暗色主题
-     addSkin(darkStyle)
-    }
+    // 明亮主题
+      // addSkin(lightStyle)
+    // if (theme == 'light') {
+    // } else {
+    //   // 暗色主题
+    //  addSkin(darkStyle)
+    // }
   }
 // 添加皮肤的方法
 function addSkin(content: string) {
