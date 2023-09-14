@@ -649,7 +649,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         connect()
     }, [item])
 
-    async function loadList() {
+    async function loadList({ nextActivePath } = {}) {
         if (!curPath) {
             console.warn('no curPath')
             return
@@ -691,8 +691,18 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                 })
             comData.current.originList = _.clone(list)
             setList(list)
+            // 删除后选中下一个
+            if (nextActivePath) {
+                const fItem = list.find(item => item.path == nextActivePath)
+                if (fItem) {
+                    setActiveItem(fItem)
+                }
+                else {
+                    setActiveItem(null)
+                }
+            }
             // activeItem 刷新后没了
-            if (activeItem) {
+            else if (activeItem) {
                 const activeItemExist = !!list.find(item => item.path == activeItem.path)
                 if (!activeItemExist) {
                     setActiveItem(null)
@@ -867,6 +877,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
     }
 
     async function deleteItem(item: File) {
+        const deletedIndex = filteredAndSOrtedList.findIndex(_item => _item.path == item.path)
         Modal.confirm({
             content: `${t('delete')}「${item.name}」?`,
             okButtonProps: {
@@ -886,7 +897,9 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                     // message.success(t('success'))
                     // onClose && onClose()
                     // onSuccess && onSuccess()
-                    loadList()
+                    loadList({
+                        nextActivePath: filteredAndSOrtedList[deletedIndex + 1] ? filteredAndSOrtedList[deletedIndex + 1].path : null,
+                    })
                 }
             }
         })
