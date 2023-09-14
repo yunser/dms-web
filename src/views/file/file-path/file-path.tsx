@@ -38,7 +38,8 @@ export function FilePathModal({ config, type, path, onSuccess, sourceType, onCan
 
     async function handleOk() {
         const values = await form.validateFields()
-        onSuccess && onSuccess(values.path)
+        const path = values.path == '/' ? '/' : values.path.replace(/\/$/, '')
+        onSuccess && onSuccess(path)
     }
 
     useEffect(() => {
