@@ -19,6 +19,10 @@ import copy from 'copy-to-clipboard';
 
 const { RangePicker } = DatePicker
 
+function splitTrace(content: string) {
+    const prefix = content.match(/track_[^\s]+/)[0]
+    return [prefix, content.substring(prefix.length)]
+}
 
 function LogCell({ value }) {
     let text
@@ -834,8 +838,9 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onNew, })
                                     let _value = value
                                     let traceId = ''
                                     if (_value.startsWith('track_')) {
-                                        _value = value.substring(15)
-                                        traceId = value.substring(0, 15)
+                                        const arr = splitTrace(value)
+                                        _value = arr[1]
+                                        traceId = arr[0]
                                     }
                                     return (
                                         <div className={styles.content}
@@ -1017,8 +1022,9 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onNew, })
                                     let _value = value
                                     let traceId = ''
                                     if (_value.startsWith('track_')) {
-                                        _value = value.substring(15)
-                                        traceId = value.substring(0, 15)
+                                        const arr = splitTrace(value)
+                                        _value = arr[1]
+                                        traceId = arr[0]
                                     }
                                     return (
                                         <div className={styles.content}
