@@ -2399,9 +2399,11 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                     onCancel={() => {
                         setFolderVisible(false)
                     }}
-                    onSuccess={() => {
+                    onSuccess={({ newPath }) => {
                         setFolderVisible(false)
-                        loadList()
+                        loadList({
+                            nextActivePath: newPath,
+                        })
                     }}
                 />
             }

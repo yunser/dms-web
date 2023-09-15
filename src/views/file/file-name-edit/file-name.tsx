@@ -52,8 +52,12 @@ export function FileNameModal({ config, type, path, onSuccess, sourceType, onCan
             type,
             link: values.link,
         })
+        // TODO
+        const newPath = path + '/' + values.name
         if (res.success) {
-            onSuccess && onSuccess()
+            onSuccess && onSuccess({
+                newPath,
+            })
         }
         setLoading(false)
     }
