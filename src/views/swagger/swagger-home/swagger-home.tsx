@@ -268,6 +268,11 @@ export function SwaggerHome({ event$, onClickItem }) {
                                                             <Menu
                                                                 items={[
                                                                     {
+                                                                        label: t('swagger.home.open'),
+                                                                        key: 'open_home',
+                                                                        _visible: !!item.home,
+                                                                    },
+                                                                    {
                                                                         label: t('edit'),
                                                                         key: 'edit',
                                                                     },
@@ -276,7 +281,7 @@ export function SwaggerHome({ event$, onClickItem }) {
                                                                         key: 'delete',
                                                                         danger: true,
                                                                     },
-                                                                ]}
+                                                                ].filter(item => item._visible !== false)}
                                                                 onClick={({ key, domEvent }) => {
                                                                     // domEvent.preventDefault()
                                                                     domEvent.stopPropagation()
@@ -285,6 +290,9 @@ export function SwaggerHome({ event$, onClickItem }) {
                                                                     }
                                                                     else if (key == 'edit') {
                                                                         editProject(item)
+                                                                    }
+                                                                    else if (key == 'open_home') {
+                                                                        window.open(item.home, '_blank')
                                                                     }
                                                                 }}
                                                             />
@@ -413,6 +421,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
         const saveOrUpdateData = {
             name: values.name || t('unnamed'),
             url: values.url,
+            home: values.home,
         }
         if (editType == 'create') {
             let res = await request.post(`${config.host}/swagger/create`, {
@@ -433,25 +442,6 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                 onSuccess && onSuccess()
             }
         }
-    }
-
-    async function handleTestConnection() {
-        const values = await form.validateFields()
-        setLoading(true)
-        const reqData = {
-            host: values.host,
-            port: values.port || 22,
-            username: values.username,
-            password: values.password,
-            test: true,
-            // remember: values.remember,
-        }
-        let ret = await request.post(`${config.host}/ssh/connect`, reqData)
-        // console.log('ret', ret)
-        if (ret.success) {
-            message.success(t('success'))
-        }
-        setLoading(false)
     }
 
     return (
@@ -523,6 +513,12 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                     <Input
                         // placeholder="localhost"
                     />
+                </Form.Item>
+                <Form.Item
+                    name="home"
+                    label={t('swagger.home.url')}
+                >
+                    <Input />
                 </Form.Item>
             </Form>
         </Modal>
