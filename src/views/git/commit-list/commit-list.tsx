@@ -361,6 +361,12 @@ export function CommitList({ config, event$, projectPath,  }) {
         })
     }
 
+    async function openInIdea(path: string) {
+        let ret = await request.post(`${config.host}/file/openInIdea`, {
+            path,
+        })
+    }
+
     async function browserFile(path: string) {
         let res = await request.post(`${config.host}/git/fileContent`, {
             projectPath,
@@ -751,6 +757,10 @@ export function CommitList({ config, event$, projectPath,  }) {
                                                                         key: 'open_in_vscode',
                                                                     },
                                                                     {
+                                                                        label: t('file.open_in_idea'),
+                                                                        key: 'open_in_idea',
+                                                                    },
+                                                                    {
                                                                         label: t('filter'),
                                                                         key: 'filter',
                                                                     },
@@ -771,6 +781,9 @@ export function CommitList({ config, event$, projectPath,  }) {
                                                                     }
                                                                     else if (key == 'open_in_vscode') {
                                                                         openInVsCode(fullPath)
+                                                                    }
+                                                                    else if (key == 'open_in_idea') {
+                                                                        openInIdea(fullPath)
                                                                     }
                                                                     else if (key == 'filter') {
                                                                         setFilteredFile(fileName)

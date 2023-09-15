@@ -481,6 +481,12 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
             path,
         })
     }
+    
+    async function openInIdea(path: string) {
+        let ret = await request.post(`${config.host}/file/openInIdea`, {
+            path,
+        })
+    }
 
     async function checkoutFile(path) {
         Modal.confirm({
@@ -746,6 +752,10 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                                                             key: 'open_in_vscode',
                                                                         },
                                                                         {
+                                                                            label: t('file.open_in_idea'),
+                                                                            key: 'open_in_idea',
+                                                                        },
+                                                                        {
                                                                             label: t('copy_path'),
                                                                             key: 'copy_path',
                                                                         },
@@ -767,6 +777,9 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                                                         }
                                                                         else if (key == 'open_in_vscode') {
                                                                             openInVsCode(fullPath)
+                                                                        }
+                                                                        else if (key == 'open_in_idea') {
+                                                                            openInIdea(fullPath)
                                                                         }
                                                                         else if (key == 'copy_path') {
                                                                             copy(fullPath)

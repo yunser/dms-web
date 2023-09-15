@@ -802,6 +802,11 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
             path,
         })
     }
+    async function openInIdea(path: string) {
+        await request.post(`${config.host}/file/openInIdea`, {
+            path,
+        })
+    }
 
     async function openInFinder(path: string) {
         await request.post(`${config.host}/file/openInFinder`, {
@@ -2040,6 +2045,9 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                         else if (key == 'open_in_vscode') {
                                                                             openInVsCode(item.path)
                                                                         }
+                                                                        else if (key == 'open_in_idea') {
+                                                                            openInIdea(item.path)
+                                                                        }
                                                                         else if (key == 'clear') {
                                                                             clearItem(item)
                                                                         }
@@ -2093,6 +2101,11 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                         {
                                                                             label: t('file.open_in_vscode'),
                                                                             key: 'open_in_vscode',
+                                                                            visible: sourceType == 'local',
+                                                                        },
+                                                                        {
+                                                                            label: t('file.open_in_idea'),
+                                                                            key: 'open_in_idea',
                                                                             visible: sourceType == 'local',
                                                                         },
                                                                         {
