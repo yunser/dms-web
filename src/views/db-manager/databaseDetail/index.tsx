@@ -6,6 +6,7 @@ import {
     Menu,
     message,
     Modal,
+    Popover,
     Space,
     Tabs,
     Tooltip,
@@ -671,17 +672,25 @@ export function DataBaseDetail({ databaseType = 'mysql', curConnect, _connection
                 />
                 <div className={styles.status}>
                     <Space>
-                        <Tooltip
-                            placement="topLeft"
+                        <Popover
                             title={tooltips[wsStatus]}
-                            >
+                            content={(
+                                <Button
+                                    size="small"
+                                    onClick={() => {
+                                        connect()
+                                    }}
+                                    >
+                                    {t('reconnect')}
+                                </Button>
+                            )}
+                        >
                             <LinkOutlined
                                 style={{
-                                    // fontWeight: 'bold',
                                     color: colors[wsStatus],
                                 }}
-                                />
-                        </Tooltip>
+                            />
+                        </Popover>
                         {wsStatus != 'connected' &&
                             <Button
                             size="small"
@@ -689,7 +698,7 @@ export function DataBaseDetail({ databaseType = 'mysql', curConnect, _connection
                                 connect()
                             }}
                             >
-                                {t('connect')}
+                                {t('reconnect')}
                             </Button>
                         }
                     </Space>
