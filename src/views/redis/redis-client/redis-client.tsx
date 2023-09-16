@@ -21,7 +21,15 @@ import { PubSubModal } from '../redis-pubsub';
 import { FullCenterBox } from '@/views/common/full-center-box';
 import moment from 'moment';
 import { RedisOpenModal } from '../redis-open';
+import classNames from 'classnames';
 
+function list2Map(list: string[]) {
+    let map = {}
+    for (let item of list) {
+        map[item] = 1
+    }
+    return map
+}
 
 function Status({ config, connectionId }) {
     const { t } = useTranslation()
@@ -243,6 +251,8 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
     // tree
     const [treeData, setTreeData] = useState([])
     const [expandedKeys, setExpandedKeys ] = useState([])
+    const [selectedKeys, setSelectedKeys ] = useState([])
+    const selectedKeyMap = list2Map(selectedKeys)
     // add
     const [addPrefix, setAddPrefix] = useState('')
     const [addType, setAddType] = useState('')
@@ -490,7 +500,10 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
         Modal.confirm({
             // title: 'Confirm',
             // icon: <ExclamationCircleOutlined />,
-            content: `确认清空当前数据库的数据?`,
+            content: t('redis.flush_current.confirm'),
+            okButtonProps: {
+                danger: true,
+            },
             async onOk() {
                 let ret = await request.post(`${config.host}/redis/flush`, {
                     connectionId,
@@ -509,9 +522,10 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
 
     async function flushAll() {
         Modal.confirm({
-            // title: 'Confirm',
-            // icon: <ExclamationCircleOutlined />,
-            content: `确认清空全部数据库的数据?`,
+            content: t('redis.flush_all.confirm'),
+            okButtonProps: {
+                danger: true,
+            },
             async onOk() {
                 let ret = await request.post(`${config.host}/redis/flushAll`, {
                     connectionId,
@@ -535,6 +549,7 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
 
     async function _loadKeys() {
         setLoading(true)
+        setSelectedKeys([])
         let res = await request.post(`${config.host}/redis/keys`, {
             // dbName,
             connectionId,
@@ -847,11 +862,43 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
         }
     }
 
+    function removeKeyList(keys) {
+        Modal.confirm({
+            title: `${t('delete')} ${keys.length} ${t('num_keys').toLowerCase()}?`,
+            content: (
+                <div>
+                    {keys.map(item => {
+                        return (
+                            <div>{item}</div>
+                        )
+                    })}
+                </div>
+            ),
+            okButtonProps: {
+                danger: true,
+            },
+            async onOk() {
+                let res = await request.post(`${config.host}/redis/delete`, {
+                    connectionId,
+                    keys,
+                })
+                if (res.success) {
+                    message.success('删除成功')
+                    loadKeys()
+                    closeTabByKeys(keys)
+                }
+            }
+        })
+    }
+
     function removeKeys(nodeData) {
         Modal.confirm({
             // title: 'Confirm',
             // icon: <ExclamationCircleOutlined />,
             content: `${t('delete')} ${nodeData.keyNum} ${t('num_keys').toLowerCase()}?`,
+            okButtonProps: {
+                danger: true,
+            },
             async onOk() {
                 console.log('list', list)
                 const keys = list
@@ -1048,7 +1095,7 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
                                             else if (key == 'flush_all') {
                                                 flushAll()
                                             }
-                                            else if (key == 'redis.export_json') {
+                                            else if (key == 'export_json') {
                                                 exportAllKeys()
                                             }
                                             else if (key == 'gen_2000') {
@@ -1155,7 +1202,9 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
                                 onExpand={(expandedKeys) => {
                                     setExpandedKeys(expandedKeys)
                                 }}
-                                onSelect={(selectedKeys, info) => {
+                                // selectedKeys={[]}
+                                // selectedKeys={selectedKeys}
+                                onSelect={(_selectedKeys, info) => {
                                     const { key, type } = info.node
                                     if (type == 'type_folder') {
                                         if (expandedKeys.includes(key)) {
@@ -1195,25 +1244,36 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
                                                                 {
                                                                     label: t('open_in_new_tab'),
                                                                     key: 'open_in_new_tab',
+                                                                    _visible: selectedKeys.length == 1,
                                                                 },
                                                                 {
                                                                     label: t('copy_key_name'),
                                                                     key: 'copy_key_name',
+                                                                    _visible: selectedKeys.length == 1,
                                                                 },
                                                                 {
                                                                     label: t('duplicate'),
                                                                     key: 'duplicate',
+                                                                    _visible: selectedKeys.length == 1,
                                                                 },
                                                                 {
                                                                     label: t('rename'),
                                                                     key: 'rename',
+                                                                    _visible: selectedKeys.length == 1,
                                                                 },
                                                                 {
                                                                     label: t('delete'),
                                                                     key: 'key_delete',
                                                                     danger: true,
+                                                                    _visible: selectedKeys.length == 1,
                                                                 },
-                                                            ]}
+                                                                {
+                                                                    label: t('delete'),
+                                                                    key: 'keys_delete',
+                                                                    danger: true,
+                                                                    _visible: selectedKeys.length > 1,
+                                                                },
+                                                            ].filter(item => item._visible !== false)}
                                                             onClick={async ({ _item, key, keyPath, domEvent }) => {
                                                                 // onAction && onAction(key)
                                                                 if (key == 'open_in_new_tab') {
@@ -1222,6 +1282,9 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
                                                                 else if (key == 'key_delete') {
                                                                     console.log('nodeData', nodeData)
                                                                     removeKey(nodeData.itemData.key)
+                                                                }
+                                                                else if (key == 'keys_delete') {
+                                                                    removeKeyList(selectedKeys)
                                                                 }
                                                                 else if (key == 'copy_key_name') {
                                                                     console.log('nodeData', nodeData)
@@ -1244,9 +1307,23 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
                                                     )}
                                                     trigger={['contextMenu']}
                                                 >
-                                                    <div className={styles.item}
-                                                        onClick={async () => {
-                                                            addKey2Tab(item.key)
+                                                    <div
+                                                        className={classNames(styles.item, {
+                                                            [styles.active]: selectedKeyMap[item.key]
+                                                        })}
+                                                        onClick={async (e) => {
+                                                            const treeKey = `key-${item.key}`
+                                                            if (e.metaKey) {
+                                                                // 多选
+                                                                setSelectedKeys([
+                                                                    ...selectedKeys,
+                                                                    item.key,
+                                                                ])
+                                                            }
+                                                            else {
+                                                                addKey2Tab(item.key)
+                                                                setSelectedKeys([item.key])
+                                                            }
                                                         }}
                                                     >
                                                         <div className={styles.type}
