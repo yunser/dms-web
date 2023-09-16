@@ -368,7 +368,7 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
         let ret = await request.post(`${config.host}/redis/connect`, reqData)
         // console.log('ret', ret)
         if (ret.success) {
-            message.success('连接成功')
+            message.success(t('connect.success'))
             setConnectionId(ret.data.connectionId)
             comData.current.connectionId = ret.data.connectionId
             initWebSocket()
@@ -510,7 +510,6 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
                 })
                 // console.log('ret', ret)
                 if (ret.success) {
-                    // message.success('连接成功')
                     message.success(t('success'))
                     loadKeys()
                     // onClose && onClose()
@@ -532,7 +531,6 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
                 })
                 // console.log('ret', ret)
                 if (ret.success) {
-                    // message.success('连接成功')
                     message.success(t('success'))
                     loadKeys()
                     // onClose && onClose()
@@ -560,7 +558,6 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
         })
         const originList = list
         if (res.success) {
-            // message.info('连接成功')
             // const list = res.data
             // console.log('res', list)
             
@@ -883,7 +880,7 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
                     keys,
                 })
                 if (res.success) {
-                    message.success('删除成功')
+                    message.success(t('success'))
                     loadKeys()
                     closeTabByKeys(keys)
                 }
@@ -911,7 +908,7 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
                 })
                 console.log('get/res', res.data)
                 if (res.success) {
-                    message.success('删除成功')
+                    message.success(t('success'))
                     loadKeys()
                     closeTabByKeys(keys)
                 }
