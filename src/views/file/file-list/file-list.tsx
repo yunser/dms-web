@@ -1092,7 +1092,12 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
             }
             else if (e.code == 'Backspace') {
                 if (e.metaKey || e.ctrlKey) {
-                    deleteItem(activeItem)
+                    if (selectedItems.length > 1) {
+                        deleteItems()   
+                    }
+                    else {
+                        deleteItem(activeItem)
+                    }
                 }
             }
             // else if (e.code == 'keyN') {
@@ -1176,7 +1181,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         return () => {
             window.removeEventListener('keydown', handleKeyDown)
         }
-    }, [activeItem, list, fileDetailModalVisible])
+    }, [activeItem, selectedItems, list, fileDetailModalVisible])
 
     function copyItems() {
         console.log('selectedItems', selectedItems)
