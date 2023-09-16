@@ -1029,16 +1029,11 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
         const values = await form.validateFields()
         setTestLoading(true)
         const reqData = {
-            name: values.name || t('unnamed'),
             host: values.host || 'localhost',
             port: values.port || 9095,
-            // password: values.password || '',
-            // userName: values.userName,
-            // test: true,
-            // remember: values.remember,
+            test: true,
         }
-        let ret = await request.post(`${config.host}/mqtt/connect`, reqData)
-        // console.log('ret', ret)
+        let ret = await request.post(`${config.host}/kafka/connect`, reqData)
         if (ret.success) {
             message.success(t('success'))
         }
@@ -1062,14 +1057,13 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                         justifyContent: 'space-between',
                     }}
                 >
-                    <div></div>
-                    {/* <Button key="back"
+                    <Button key="back"
                         loading={testLoading}
                         disabled={testLoading || loading}
                         onClick={handleTestConnection}
                     >
                         {t('test_connection')}
-                    </Button> */}
+                    </Button>
                     <Space>
                         <Button
                             // key="submit"
