@@ -326,6 +326,7 @@ export function KafkaClient({ onClickItem }) {
     const [connectionModalVisible, setConnectionModalVisible] = useState(false)
     const [modalItem, setModalItem] = useState(false)
 
+    const [connectionLoading, setConnectionLoading] = useState(false)
     const [connections, setConnections] = useState([])
     const [topics, setTopics] = useState([])
     const [topicKeyword, setTopickeyword] = useState('')
@@ -353,11 +354,11 @@ export function KafkaClient({ onClickItem }) {
     }, [])
 
     async function loadConnections() {
-        // setTopicLoading(true)
+        setConnectionLoading(true)
         let res = await request.post(`${config.host}/kafka/connection/list`, {
             // connectionId,
         })
-        // setTopicLoading(false)
+        setConnectionLoading(false)
         if (res.success) {
             const sorter = (a, b) => {
                 return a.name.localeCompare(b.name)
@@ -512,6 +513,7 @@ export function KafkaClient({ onClickItem }) {
                         <Button
                             size="small"
                             onClick={() => {
+                                setModalItem(null)
                                 setConnectionModalVisible(true)
                             }}
                         >
@@ -520,6 +522,7 @@ export function KafkaClient({ onClickItem }) {
                     </Space>
 
                     <Table
+                        loading={connectionLoading}
                         dataSource={connections}
                         pagination={false}
                         rowKey="name"
@@ -542,6 +545,15 @@ export function KafkaClient({ onClickItem }) {
                                                 }}
                                             >
                                                 查看
+                                            </Button>
+                                            <Button
+                                                size="small"
+                                                onClick={() => {
+                                                    setModalItem(item)
+                                                    setConnectionModalVisible(true)
+                                                }}
+                                            >
+                                                编辑
                                             </Button>
                                         </Space>
                                     )
