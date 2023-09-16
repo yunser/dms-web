@@ -323,6 +323,9 @@ export function KafkaClient({ onClickItem }) {
     const [offsets, setOffsets] = useState([])
     const [topicLoading, setTopicLoading] = useState(false)
     const [curConnection, setCurConnection] = useState(null)
+    const [connectionModalVisible, setConnectionModalVisible] = useState(false)
+    const [modalItem, setModalItem] = useState(false)
+
     const [connections, setConnections] = useState([])
     const [topics, setTopics] = useState([])
     const [topicKeyword, setTopickeyword] = useState('')
@@ -497,13 +500,24 @@ export function KafkaClient({ onClickItem }) {
             <div className={styles.layoutBody}>
                 <div>
                     <div className={styles.sectionName}>connections:</div>
-                    <Button
-                        onClick={() => {
-                            loadConnections()
-                        }}
-                    >
-                        刷新
-                    </Button>
+                    <Space>
+                        <Button
+                            size="small"
+                            onClick={() => {
+                                loadConnections()
+                            }}
+                        >
+                            刷新
+                        </Button>
+                        <Button
+                            size="small"
+                            onClick={() => {
+                                setConnectionModalVisible(true)
+                            }}
+                        >
+                            新增
+                        </Button>
+                    </Space>
 
                     <Table
                         dataSource={connections}
@@ -851,7 +865,268 @@ export function KafkaClient({ onClickItem }) {
                     }
                 </Drawer>
             }
+            {connectionModalVisible &&
+                <DatabaseModal
+                    item={modalItem}
+                    config={config}
+                    onCancel={() => {
+                        setConnectionModalVisible(false)
+                    }}
+                    onSuccess={() => {
+                        setConnectionModalVisible(false)
+                        loadConnections()
+                    }}
+                />
+            }
         </div>
     )
 }
 
+function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
+    const { t } = useTranslation()
+
+    const editType = item ? 'update' : 'create'
+    const [testLoading, setTestLoading] = useState(false)
+    const [loading, setLoading] = useState(false)
+    const [form] = Form.useForm()
+//     const [code, setCode] = useState(`{
+//     "host": "",
+//     "user": "",
+//     "password": ""
+// }`)
+
+    
+
+    useEffect(() => {
+        if (item) {
+            form.setFieldsValue({
+                ...item,
+            })
+        }
+        else {
+            form.setFieldsValue({
+                name: '',
+                host: '',
+                port: null,
+                password: '',
+                userName: '',
+            })
+        }
+    }, [item])
+
+    async function handleOk() {
+        const values = await form.validateFields()
+        setLoading(true)
+        let _connections
+        const saveOrUpdateData = {
+            name: values.name || t('unnamed'),
+            host: values.host || 'localhost',
+            port: values.port || 9095,
+            // password: values.password || '',
+            // userName: values.userName,
+        }
+        if (editType == 'create') {
+            // const connections = storage.get('redis-connections', [])
+            // if (connections.length) {
+            //     _connections = connections
+            // }
+            // else {
+            //     _connections = []
+            // }
+            // _connections.unshift({
+            //     id: uid(32),
+                
+            //     // db: values.db,
+            // })
+            let res = await request.post(`${config.host}/kafka/connection/create`, {
+                // id: item.id,
+                // data: {
+                // }
+                ...saveOrUpdateData,
+            })
+            if (res.success) {
+                onSuccess && onSuccess()
+            }
+        }
+        else {
+            // const connections = storage.get('redis-connections', [])
+            // if (connections.length) {
+            //     _connections = connections
+            // }
+            // else {
+            //     _connections = []
+            // }
+            // const idx = _connections.findIndex(_item => _item.id == item.id)
+            // _connections[idx] = {
+            //     ..._connections[idx],
+            //     ...saveOrUpdateData,
+            // }
+            let res = await request.post(`${config.host}/kafka/connection/update`, {
+                id: item.id,
+                data: {
+                    ...saveOrUpdateData,
+                    // name: values.name || t('unnamed'),
+                    // host: values.host || 'localhost',
+                    // port: values.port || 22,
+                    // password: values.password,
+                    // username: values.username,
+                }
+            })
+            if (res.success) {
+                onSuccess && onSuccess()
+            }
+            
+            
+        }
+        setLoading(false)
+        // storage.set('redis-connections', _connections)
+        // onSuccess && onSuccess()
+        // else {
+        //     message.error('Fail')
+        // }
+    }
+
+    async function handleTestConnection() {
+        const values = await form.validateFields()
+        setTestLoading(true)
+        const reqData = {
+            name: values.name || t('unnamed'),
+            host: values.host || 'localhost',
+            port: values.port || 9095,
+            // password: values.password || '',
+            // userName: values.userName,
+            // test: true,
+            // remember: values.remember,
+        }
+        let ret = await request.post(`${config.host}/mqtt/connect`, reqData)
+        // console.log('ret', ret)
+        if (ret.success) {
+            message.success(t('success'))
+        }
+        setTestLoading(false)
+    }
+
+    return (
+        <Modal
+            title={editType == 'create' ? t('connection_create') : t('connection_update')}
+            visible={true}
+            maskClosable={false}
+            onCancel={onCancel}
+            // onOk={async () => {
+                
+            // }}
+            footer={(
+                <div
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                    }}
+                >
+                    <div></div>
+                    {/* <Button key="back"
+                        loading={testLoading}
+                        disabled={testLoading || loading}
+                        onClick={handleTestConnection}
+                    >
+                        {t('test_connection')}
+                    </Button> */}
+                    <Space>
+                        <Button
+                            // key="submit"
+                            // type="primary"
+                            disabled={testLoading || loading}
+                            onClick={onCancel}
+                        >
+                            {t('cancel')}
+                        </Button>
+                        <Button
+                            type="primary"
+                            loading={loading}
+                            disabled={testLoading || loading}
+                            onClick={handleOk}
+                        >
+                            {t('ok')}
+                        </Button>
+                    </Space>
+                </div>
+            )}
+        >
+            <Form
+                form={form}
+                labelCol={{ span: 8 }}
+                wrapperCol={{ span: 16 }}
+            >
+                <Form.Item
+                    name="name"
+                    label={t('name')}
+                    // rules={[ { required: true, }, ]}
+                >
+                    <Input />
+                </Form.Item>
+                <Form.Item
+                    name="host"
+                    label={t('host')}
+                    // rules={[ { required: true, }, ]}
+                >
+                    <Input
+                        placeholder="localhost"
+                    />
+                </Form.Item>
+                <Form.Item
+                    name="port"
+                    label={t('port')}
+                    // rules={[{ required: true, },]}
+                >
+                    <InputNumber
+                        placeholder="9095"
+                    />
+                </Form.Item>
+                {/* <Form.Item
+                    name="user"
+                    label="User"
+                    rules={[{ required: true, },]}
+                >
+                    <Input />
+                </Form.Item> */}
+                {/* <Form.Item
+                    name="userName"
+                    label={t('user_name')}
+                >
+                    <Input />
+                </Form.Item>
+                <Form.Item
+                    name="password"
+                    label={t('password')}
+                    // rules={[{ required: true, },]}
+                >
+                    <Input.Password />
+                </Form.Item> */}
+                {/* <Form.Item
+                    name="ppppp"
+                    label={t('ppppppp')}
+                    rules={[{ required: true, },]}
+                >
+                    <Input.Password
+                        size="small"
+                        autoComplete="new-password"
+                    />
+                </Form.Item> */}
+                
+                {/* <Form.Item name="remember" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>
+                    <Checkbox>Remember me</Checkbox>
+                </Form.Item> */}
+                {/* <Form.Item
+                    wrapperCol={{ offset: 8, span: 16 }}
+                >
+                    <Space>
+                        <Button
+                            loading={loading}
+                            type="primary"
+                            onClick={connect}>{t('connect')}</Button>
+                    </Space>
+                </Form.Item> */}
+            </Form>
+        </Modal>
+    );
+}
