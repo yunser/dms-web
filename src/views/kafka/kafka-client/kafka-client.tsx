@@ -490,6 +490,24 @@ export function KafkaClient({ onClickItem }) {
         })
     }
 
+    function deleteItem(item) {
+        Modal.confirm({
+            content: `${t('delete_confirm')} ${item.name}?`,
+            okButtonProps: {
+                danger: true,
+            },
+            async onOk() {
+                let res = await request.post(`${config.host}/kafka/connection/delete`, {
+                    id: item.id,
+                })
+                if (res.success) {
+                    message.success(t('success'))
+                    loadConnections()
+                }
+            }
+        })
+    }
+
     return (
         <div className={styles.kafkaApp}>
             <div className={styles.layoutHeader}>
@@ -554,6 +572,15 @@ export function KafkaClient({ onClickItem }) {
                                                 }}
                                             >
                                                 编辑
+                                            </Button>
+                                            <Button
+                                                size="small"
+                                                danger
+                                                onClick={() => {
+                                                    deleteItem(item)
+                                                }}
+                                            >
+                                                删除
                                             </Button>
                                         </Space>
                                     )
