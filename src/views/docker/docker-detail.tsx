@@ -267,6 +267,9 @@ export function DockerDetail({ connection }) {
     async function removeItem(item) {
         Modal.confirm({
             content: `${t('delete_confirm')} ${item.Id}?`,
+            okButtonProps: {
+                danger: true,
+            },
             async onOk() {
                 let res = await request.post(`${config.host}/docker/container/remove`, {
                     connectionId,

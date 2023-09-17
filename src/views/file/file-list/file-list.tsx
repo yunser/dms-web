@@ -4,7 +4,7 @@ import styles from './file-list.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
 import { useTranslation } from 'react-i18next';
-import { AppstoreOutlined, CodeOutlined, CreditCardOutlined, DatabaseOutlined, DownloadOutlined, DownOutlined, EditOutlined, EllipsisOutlined, FileOutlined, FileSearchOutlined, FileWordOutlined, FolderOutlined, HomeOutlined, LeftOutlined, LinkOutlined, PlusOutlined, ReloadOutlined, SaveOutlined, UploadOutlined, UpOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, CodeOutlined, CreditCardOutlined, DatabaseOutlined, DeleteOutlined, DownloadOutlined, DownOutlined, EditOutlined, EllipsisOutlined, FileOutlined, FileSearchOutlined, FileWordOutlined, FolderOutlined, HomeOutlined, LeftOutlined, LinkOutlined, PlusOutlined, ReloadOutlined, SaveOutlined, UploadOutlined, UpOutlined } from '@ant-design/icons';
 import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/common/full-center-box';
@@ -155,15 +155,11 @@ function PathRender({ info, path, onPath }) {
 }
 
 export function FileCollectionList({ config, event$, onItemClick }) {
-
+    const { t } = useTranslation()
     const [list, setList] = useState([])
 
     async function loadList() {
-        let res = await request.post(`${config.host}/file/collection/list`, {
-        }, {
-            noMessage: true,
-        })
-        // console.log('res', res)
+        let res = await request.post(`${config.host}/file/collection/list`)
         if (res.success) {
             setList(res.data.list)
         }
@@ -174,18 +170,28 @@ export function FileCollectionList({ config, event$, onItemClick }) {
     }, [])
 
     event$ && event$.useSubscription(msg => {
-        console.log('Status/onmessage', msg)
-        // console.log(val);
         if (msg.type == 'refresh_side') {
             loadList()
         }
-        // else if (msg.type == 'event_reload_use') {
-        //     const { connectionId: _connectionId, schemaName } = msg.data
-        //     if (_connectionId == connectionId) {
-        //         heartBeat()
-        //     }
-        // }
     })
+
+    async function removeItem(item) {
+        Modal.confirm({
+            content: `${t('delete_confirm')} ${item.name}?`,
+            okButtonProps: {
+                danger: true,
+            },
+            async onOk() {
+                let res = await request.post(`${config.host}/file/collection/remove`, {
+                    id: item.id,
+                })
+                if (res.success) {
+                    loadList()
+                }
+            }
+        })
+        
+    }
 
     return (
         <div className={styles.collList}>
@@ -202,7 +208,19 @@ export function FileCollectionList({ config, event$, onItemClick }) {
                         {item.type == 'DIRECTORY' &&
                             <FolderOutlined className={styles.icon} />
                         }
-                        {item.name}
+                        <div className={styles.name}>
+                            {item.name}
+                        </div>
+                        <IconButton
+                            className={styles.deleteBtn}
+                            tooltip={t('delete')}
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                removeItem(item)
+                            }}
+                        >
+                            <DeleteOutlined />
+                        </IconButton>
                     </div>
                 )
             })}
@@ -1426,7 +1444,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
     return (
         <div ref={rootRef} className={styles.fileBox}>
             {showSide &&
-                <div className={styles.side}>
+                <div className={styles.layoutSide}>
                     <div className={styles.sideTop}>
                         {_sourceType == 'ssh' &&
                             <div>
@@ -1647,7 +1665,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                     }
                 </div>
             }
-            <div className={styles.main}>
+            <div className={styles.layoutMain}>
                 <div className={styles.header}>
                     <div className={styles.headerLeft}>
                         <IconButton
