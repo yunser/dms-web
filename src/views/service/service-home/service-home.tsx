@@ -78,7 +78,7 @@ export function ServiceHome({ onClickItem }) {
 
     async function _testItem(service) {
         const fIdx = list.findIndex(item => item.id == service.id)
-        const { url } = service
+        const { type, url, sqlConnectionId } = service
         console.log('url', url)
         list[fIdx]._id = new Date().getTime()
         list[fIdx].loading = true
@@ -86,33 +86,53 @@ export function ServiceHome({ onClickItem }) {
         const startTime = new Date()
         let res
         let isTimeout = false
-        try {
-            res = await axios.post(`${config.host}/http/proxy`, {
-                url,
-            }, {
-                timeout: 4000,
-                // noMessage: true,
-            })
-        }
-        catch (err) {
-            console.log('err', err)
-            isTimeout = err.message && err.message.includes('timeout')
-        }
-        console.log('res', res)
-        // if ()
         let isSuccess
-        if (service.field) {
-            isSuccess = res?.status == 200 && (typeof res?.data == 'object') && res.data[service.field] == 'success'
+
+        if (type == 'database') {
+            try {
+                res = await axios.post(`${config.host}/mysql/health`, {
+                    connectionId: sqlConnectionId,
+                }, {
+                    timeout: 4000,
+                    // noMessage: true,
+                })
+                isSuccess = true
+            }
+            catch (err) {
+                console.log('err', err)
+                isTimeout = err.message && err.message.includes('timeout')
+                isSuccess = false
+            }
         }
         else {
-            isSuccess = res && res.status == 200
+            
+            try {
+                res = await axios.post(`${config.host}/http/proxy`, {
+                    url,
+                }, {
+                    timeout: 4000,
+                    // noMessage: true,
+                })
+            }
+            catch (err) {
+                console.log('err', err)
+                isTimeout = err.message && err.message.includes('timeout')
+            }
+            console.log('res', res)
+            // if ()
+            
+            if (service.field) {
+                isSuccess = res?.status == 200 && (typeof res?.data == 'object') && res.data[service.field] == 'success'
+            }
+            else {
+                isSuccess = res && res.status == 200
+            }
         }
-        
         list[fIdx].hasResult = true
         list[fIdx]._id = new Date().getTime()
+        list[fIdx].status = isSuccess ? 'ok' : 'fail'
         list[fIdx].time = new Date().getTime() - startTime.getTime()
         list[fIdx].loading = false
-        list[fIdx].status = isSuccess ? 'ok' : 'fail'
         list[fIdx].isTimeout = isTimeout
 
         comData.current.result.success = list.filter(item => item.hasResult && item.status == 'ok').length

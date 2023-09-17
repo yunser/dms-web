@@ -118,7 +118,7 @@ const OpTypes = [
     },
 ]
 
-function SqlBuilder({ connectionId, dbName, tableName, onSql }) {
+function SqlBuilder({ databaseType, connectionId, dbName, tableName, onSql }) {
     const { t } = useTranslation()
     const config = getGlobalConfig()
     const [modalVisible, setModalVisible] = useState(false)
@@ -141,6 +141,7 @@ function SqlBuilder({ connectionId, dbName, tableName, onSql }) {
         let colRes = await request.post(`${config.host}/mysql/execSqlSimple`, {
             connectionId,
             sql: `select * from \`information_schema\`.\`COLUMNS\` where TABLE_SCHEMA = '${dbName}' and TABLE_NAME = '${tableName}';`,
+            databaseType
         })
         if (colRes.success) {
             const columns = colRes.data
@@ -160,7 +161,9 @@ function SqlBuilder({ connectionId, dbName, tableName, onSql }) {
     }
 
     useEffect(() => {
-        loadData()
+        if (databaseType == 'mysql') {
+            loadData()
+        }
     }, [dbName, tableName])
 
     function genSql() {
@@ -873,6 +876,7 @@ function SqlBox({ config, tabViewId, event$, databaseType, connectionId, onJson,
                         </Dropdown>
                         <div>
                             <SqlBuilder
+                                databaseType={databaseType}
                                 connectionId={connectionId}
                                 dbName={defaultDbName}
                                 tableName={defaultTableName}
