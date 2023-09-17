@@ -1,29 +1,23 @@
-import { Button, Descriptions, Divider, Dropdown, Empty, Input, Menu, message, Modal, Popover, Space, Spin, Table, Tabs, Tag, Tooltip } from 'antd';
+import { Button, Divider, Dropdown, Empty, Input, Menu, message, Modal, Popover, Space, Spin, Table, Tag, Tooltip } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './file-list.module.less';
 import _ from 'lodash';
 import classNames from 'classnames'
-// console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { AppstoreOutlined, CodeOutlined, CreditCardOutlined, DatabaseOutlined, DownloadOutlined, DownOutlined, EditOutlined, EllipsisOutlined, FileOutlined, FileSearchOutlined, FileWordOutlined, FolderAddOutlined, FolderOutlined, HomeOutlined, LeftOutlined, LinkOutlined, PlusOutlined, ReloadOutlined, SaveOutlined, UploadOutlined, UpOutlined } from '@ant-design/icons';
-import saveAs from 'file-saver';
-import { useEventEmitter } from 'ahooks';
+import { AppstoreOutlined, CodeOutlined, CreditCardOutlined, DatabaseOutlined, DownloadOutlined, DownOutlined, EditOutlined, EllipsisOutlined, FileOutlined, FileSearchOutlined, FileWordOutlined, FolderOutlined, HomeOutlined, LeftOutlined, LinkOutlined, PlusOutlined, ReloadOutlined, SaveOutlined, UploadOutlined, UpOutlined } from '@ant-design/icons';
 import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { FullCenterBox } from '@/views/common/full-center-box';
 import moment from 'moment';
-// import { saveAs } from 'file-saver'
 import filesize from 'file-size'
 import { FileDetail } from '../file-detail';
 import { FileNameModal } from '../file-name-edit';
 import { FileEdit } from '../file-edit';
 import copy from 'copy-to-clipboard';
 import { FileRenameModal } from '../file-rename';
-import { FileUtil } from '../utils/utl';
 import { FilePathModal } from '../file-path';
 import { FileInfo } from '../file-info';
-import { getIconForFile, getIconForFolder, getIconForOpenFolder } from 'vscode-icons-js';
+import { getIconForFile } from 'vscode-icons-js';
 import { FilePasteModal } from '../file-paste';
 import { OssInfoModal } from '@/views/oss/oss-info/oss-info';
 import { S3InfoModal } from '@/views/s3/s3-info/s3-info';
@@ -202,7 +196,12 @@ export function FileCollectionList({ config, event$, onItemClick }) {
                             onItemClick && onItemClick(item)
                         }}
                     >
-                        <FolderOutlined className={styles.icon} />
+                        {item.type == 'FILE' &&
+                            <FileOutlined className={styles.icon} />
+                        }
+                        {item.type == 'DIRECTORY' &&
+                            <FolderOutlined className={styles.icon} />
+                        }
                         {item.name}
                     </div>
                 )
@@ -1291,7 +1290,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
             setFileModalItem(item)
             setFileDetialModalVisible(true)
         }
-        else {
+        else if (item.type == 'DIRECTORY') {
             setKeyword('')
             setCurPath(item.path)
         }
@@ -1312,8 +1311,9 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
         setFileEditModalVisible(true)
     }
 
-    async function favorite(path) {
+    async function favoriteCreate({ path, type }) {
         let res = await request.post(`${config.host}/file/collection/create`, {
+            type,
             path,
         })
         // console.log('res', res)
@@ -1593,7 +1593,7 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                             config={config}
                             event$={event$}
                             onItemClick={item => {
-                                setCurPath(item.path)
+                                viewItem(item)
                             }}
                         />
                     </div>
@@ -1811,7 +1811,10 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                             message.info(t('copied'))
                                         }
                                         else if (key == 'add_to_favorite') {
-                                            favorite(curPath)
+                                            favoriteCreate({
+                                                type: 'DIRECTORY',
+                                                path: curPath,
+                                            })
                                         }
                                         else if (key == 'export_json') {
                                             event$.emit({
@@ -2065,15 +2068,15 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                         else if (key == 's3_info') {
                                                                             viewItemS3Info(item)
                                                                         }
+                                                                        else if (key == 'add_to_favorite') {
+                                                                            console.log('item', item)
+                                                                            favoriteCreate(item)
+                                                                        }
                                                                     }}
                                                                     items={visibleFilter([
                                                                         {
                                                                             label: t('open'),
                                                                             key: 'open',
-                                                                        },
-                                                                        {
-                                                                            label: t('open_with_text_editor'),
-                                                                            key: 'edit',
                                                                         },
                                                                         {
                                                                             label: t('oss_info'),
@@ -2092,6 +2095,17 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                                                         {
                                                                             label: t('info'),
                                                                             key: 'info',
+                                                                        },
+                                                                        {
+                                                                            label: t('add_to_favorite'),
+                                                                            key: 'add_to_favorite',
+                                                                        },
+                                                                        {
+                                                                            type: 'divider',
+                                                                        },
+                                                                        {
+                                                                            label: t('open_with_text_editor'),
+                                                                            key: 'edit',
                                                                         },
                                                                         {
                                                                             label: t('file.open_in_file_manager'),
