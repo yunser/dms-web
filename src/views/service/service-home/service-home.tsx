@@ -78,7 +78,7 @@ export function ServiceHome({ onClickItem }) {
 
     async function _testItem(service) {
         const fIdx = list.findIndex(item => item.id == service.id)
-        const { type, url, sqlConnectionId } = service
+        const { type, url, connectionId } = service
         console.log('url', url)
         list[fIdx]._id = new Date().getTime()
         list[fIdx].loading = true
@@ -91,7 +91,23 @@ export function ServiceHome({ onClickItem }) {
         if (type == 'database') {
             try {
                 res = await axios.post(`${config.host}/mysql/health`, {
-                    connectionId: sqlConnectionId,
+                    connectionId,
+                }, {
+                    timeout: 4000,
+                    // noMessage: true,
+                })
+                isSuccess = true
+            }
+            catch (err) {
+                console.log('err', err)
+                isTimeout = err.message && err.message.includes('timeout')
+                isSuccess = false
+            }
+        }
+        else if (type == 'redis') {
+            try {
+                res = await axios.post(`${config.host}/redis/health`, {
+                    connectionId,
                 }, {
                     timeout: 4000,
                     // noMessage: true,
@@ -105,7 +121,6 @@ export function ServiceHome({ onClickItem }) {
             }
         }
         else {
-            
             try {
                 res = await axios.post(`${config.host}/http/proxy`, {
                     url,
