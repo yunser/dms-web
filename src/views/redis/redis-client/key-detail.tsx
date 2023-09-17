@@ -1,16 +1,12 @@
-import { Button, Checkbox, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Select, Space, Spin, Table, Tabs, Tree } from 'antd';
-import React, { useEffect, useMemo, useState } from 'react';
+import { Button, Dropdown, Empty, Input, Menu, message, Space, Spin } from 'antd';
+import React, { useEffect, useState } from 'react';
 import styles from './redis-client.module.less';
 import _ from 'lodash';
-import classNames from 'classnames'
-// console.log('lodash', _)
-import { useTranslation } from 'react-i18next';
 import { request } from '@/views/db-manager/utils/http';
 import { IconButton } from '@/views/db-manager/icon-button';
-import { DeleteOutlined, EllipsisOutlined, FolderOutlined, HeartOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EllipsisOutlined, HeartOutlined, ReloadOutlined } from '@ant-design/icons';
 
 import humanFormat from 'human-format'
-import { ListPushHandler } from './list-push';
 import { StreamContent } from './key-detail-stream';
 import { ListContent } from './key-detail-list';
 import { SetContent } from './key-detail-set';
@@ -21,12 +17,14 @@ import { t } from 'i18next';
 import { RedisTtlModal } from '../redis-ttl';
 import { StringContent } from './key-detail-string';
 import { FullCenterBox } from '@/views/common/full-center-box';
+import { RedisLikeModal } from '../redis-like/redis-like-modal';
 
 
 export function RedisKeyDetail({ config, event$, connectionId, redisKey, onRemove }) {
 
     console.warn('RedisKeyDetail/render')
-
+    const [likeModalVisible, setLikeModalVisible] = useState(false)
+    const [likeModalItem, setLikeModalItem] = useState(null)
     const [detaiLoading, setDetailLoading] = useState(false)
     const [editType, setEditType] = useState('update')
     const [result, setResult] = useState(null)
@@ -130,30 +128,19 @@ export function RedisKeyDetail({ config, event$, connectionId, redisKey, onRemov
         })
     }
     
-    
     async function like() {
-        let res = await request.post(`${config.host}/redis/key/create`, {
-            connectionId: connectionId,
+        setLikeModalItem({
+            name: redisKey,
             key: redisKey,
-            // dbName,
         })
-        console.log('get/res', res.data)
-        if (res.success) {
-            message.success(t('success'))
-            // setResult({
-            //     key: redisKey,
-            //     ...res.data,
-            // })
-            // setInputValue(res.data.value)
-            // setEditType('update')
-        }
+        setLikeModalVisible(true)
     }
+
     async function loadKey() {
         setDetailLoading(true)
         let res = await request.post(`${config.host}/redis/get`, {
             connectionId: connectionId,
             key: redisKey,
-            // dbName,
         })
         console.log('get/res', res.data)
         if (res.success) {
@@ -173,19 +160,9 @@ export function RedisKeyDetail({ config, event$, connectionId, redisKey, onRemov
 
     if (detaiLoading) {
         return (
-            <FullCenterBox
-                // height={320}
-            >
-                {/* <div>Loading</div> */}
-                {/* <ReactLoading
-                    type="bars"
-                    color={'#09c'}
-                    height={66.7}
-                    width={37.5}
-                /> */}
+            <FullCenterBox>
                 <Spin />
             </FullCenterBox>
-            // <div>Loading</div>
         )
     }
 
@@ -206,17 +183,8 @@ export function RedisKeyDetail({ config, event$, connectionId, redisKey, onRemov
                     <div className={styles.header}>
                         <div>{result.key}</div>
                         <Space>
-                            {/* <Button
-                                size="small"
-                                onClick={async () => {
-                                    loadKey()
-                                }}
-                            >
-                                {t('refresh')}
-                            </Button> */}
                             <IconButton
                                 tooltip={t('refresh')}
-                                // size="small"
                                 className={styles.refresh}
                                 onClick={() => {
                                     loadKey()
@@ -226,7 +194,6 @@ export function RedisKeyDetail({ config, event$, connectionId, redisKey, onRemov
                             </IconButton>
                             <IconButton
                                 tooltip={t('favorite_key')}
-                                // size="small"
                                 className={styles.refresh}
                                 onClick={() => {
                                     like()
@@ -236,7 +203,6 @@ export function RedisKeyDetail({ config, event$, connectionId, redisKey, onRemov
                             </IconButton>
                             <IconButton
                                 tooltip={t('delete')}
-                                // size="small"
                                 className={styles.refresh}
                                 onClick={() => {
                                     onRemove && onRemove({
@@ -424,6 +390,21 @@ export function RedisKeyDetail({ config, event$, connectionId, redisKey, onRemov
                     onSuccess={() => {
                         setTtlModalVisible(false)
                         loadKey(result.key)
+                    }}
+                />
+            }
+            {likeModalVisible &&
+                <RedisLikeModal
+                    config={config}
+                    event$={event$}
+                    connectionId={connectionId}
+                    item={likeModalItem}
+                    // onSuccess={() => {
+                    //     setEditModalVisible(false)
+                    //     loadList()
+                    // }}
+                    onClose={() => {
+                        setLikeModalVisible(false)
                     }}
                 />
             }
