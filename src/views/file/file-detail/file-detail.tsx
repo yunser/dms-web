@@ -1,4 +1,4 @@
-import { Button, Empty, message, Modal, Space, Spin } from 'antd';
+import { Button, Empty, message, Modal, Space, Spin, Tabs } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './file-detail.module.less';
 import _ from 'lodash';
@@ -264,7 +264,10 @@ function XlsxViewer({ src }) {
 function TableViewer({ content }) {
 
     const table = useMemo(() => {
-        return content.split('\n').map(line => line.split(','))
+        return content.split('\n')
+            .map(item => item.trim())
+            .filter(item => item)
+            .map(line => line.split(','))
     }, [content])
 
     return (
@@ -310,6 +313,7 @@ export function FileDetail({ config, path, sourceType, onCancel, onMin, onEdit }
     // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [loading, setLoading] = useState(true)
+    const [tab, setTab] = useState('text')
     const [content, setContent] = useState('')
     const contentRef = useRef('')
     const isImage = FileUtil.isImage(path)
@@ -348,9 +352,29 @@ export function FileDetail({ config, path, sourceType, onCancel, onMin, onEdit }
         isText = true
     }
 
-    
-
     const isPureText = (mediaType != 'image') && (mediaType != 'audio') && !mediaType
+
+    const tabs = []
+    if (mediaType) {
+        tabs.push({
+            key: 'viewer',
+            label: t('viewer'),
+        })
+    }
+    if (isText) {
+        tabs.push({
+            key: 'text',
+            label: t('text'),
+        })
+    }
+    useEffect(() => {
+        if (mediaType) {
+            setTab('viewer')
+        }
+        else {
+            setTab('text')
+        }
+    }, [])
 
     async function loadDetail() {
         setLoading(true)
@@ -378,7 +402,7 @@ export function FileDetail({ config, path, sourceType, onCancel, onMin, onEdit }
         if (!path) {
             return
         }
-        if (isPureText || mediaType == 'md' || mediaType == 'zip') {
+        if (isText || isPureText || mediaType == 'md' || mediaType == 'zip') {
             loadDetail()
         }
         else {
@@ -419,109 +443,139 @@ export function FileDetail({ config, path, sourceType, onCancel, onMin, onEdit }
                 <FullCenterBox>
                     <Spin />
                 </FullCenterBox>
-            : mediaType == 'zip' ?
-                <div>
-                    <ZipList
-                        config={config}
-                        event$={null}
-                        path={path}
-                    />
-                </div>
-            : mediaType == 'csv' ?
-                <div>
-                    <TableViewer
-                        content={content}
-                    />
-                </div>
-            : mediaType == 'xlsx' ?
-                <div>
-                    <XlsxViewer
-                        src={`${config.host}/file/imagePreview?sourceType=${sourceType}&path=${encodeURIComponent(path)}`}
-                    />
-                </div>
-            : mediaType == 'audio' ?
-                <div className={styles.audioBox}>
-                    <audio
-                        className={styles.video}
-                        src={`${config.host}/file/imagePreview?sourceType=${sourceType}&path=${encodeURIComponent(path)}`}
-                        controls
-                        autoPlay
-                    ></audio>
-                </div>
-            : mediaType == 'video' ?
-                <div className={styles.videoBox}>
-                    <video
-                        className={styles.video}
-                        src={`${config.host}/file/imagePreview?sourceType=${sourceType}&path=${encodeURIComponent(path)}`}
-                        controls
-                        autoPlay
-                    ></video>
-                </div>
-            : mediaType == 'md' ?
-                <div>
-                    <div className={styles.article} dangerouslySetInnerHTML={{
-                        __html: marked.parse(content)
-                    }}>
-
-                    </div>
-                </div>
-            : mediaType == 'pdf' ?
-                <PdfViewer
-                    src={`${config.host}/file/imagePreview?sourceType=${sourceType}&path=${encodeURIComponent(path)}`}
-                />
-            : mediaType == 'image' ?
-                <ImageViewer
-                    src={`${config.host}/file/imagePreview?sourceType=${sourceType}&path=${encodeURIComponent(path)}`}
-                />
-                // file:///Users/yunser/Desktop/face.jpg
-            : content == '' ?
-                <FullCenterBox>
-                    <Empty />
-                </FullCenterBox>
             :
                 <div>
-                    <div className={styles.toolBox}>
-                        <Button
-                            size="small" 
-                            onClick={() => {
-                                copy(content)
-                                message.info(t('copied'))
+                    {/* <Space>
+                    </Space> */}
+                    {(tabs.length > 1) ?
+                        <Tabs
+                            activeKey={tab}
+                            onChange={key => {
+                                setTab(key)
                             }}
-                        >
-                            {t('copy')}
-                        </Button>
-                    </div>
-                    <div className={styles.editorBox}>
-                        <Editor
-                            lang={FileUtil.getLang(path)}
-                            value={content}
-                            autoFocus={false}
-                            // value=""
-                            // event$={event$}
-                            // onChange={value => setCodeASD(value)}
-                            // autoFoucs={true}
-                            // destroy={true}
-                            // onEditor={editor => {
-                            //     // setEditor(editor)
-                            //     // console.log('degg', content == contentRef.current, content, contentRef.current)
-                            //     editor.setValue(content)
-                            //     // content
-                            // }}
-                            // onSelectionChange={({selection, selectionTextLength}) => {
-                            //     console.log('selection', selection)
-                            //     selectionEvent.emit({
-                            //         data: {
-                            //             selection: {
-                            //                 ...selection,
-                            //                 textLength: selectionTextLength,
-                            //             }
-                            //         }
-                            //     })
-                            // }}
+                            items={tabs}
                         />
-                    </div>
+                    :
+                        <div></div>
+                    }
+                    {tab != 'text' &&
+                        <div>
+                            {mediaType == 'zip' ?
+                                <div>
+                                    <ZipList
+                                        config={config}
+                                        event$={null}
+                                        path={path}
+                                    />
+                                </div>
+                            : mediaType == 'csv' ?
+                                <div>
+                                    <TableViewer
+                                        content={content}
+                                    />
+                                </div>
+                            : mediaType == 'xlsx' ?
+                                <div>
+                                    <XlsxViewer
+                                        src={`${config.host}/file/imagePreview?sourceType=${sourceType}&path=${encodeURIComponent(path)}`}
+                                    />
+                                </div>
+                            : mediaType == 'audio' ?
+                                <div className={styles.audioBox}>
+                                    <audio
+                                        className={styles.video}
+                                        src={`${config.host}/file/imagePreview?sourceType=${sourceType}&path=${encodeURIComponent(path)}`}
+                                        controls
+                                        autoPlay
+                                    ></audio>
+                                </div>
+                            : mediaType == 'video' ?
+                                <div className={styles.videoBox}>
+                                    <video
+                                        className={styles.video}
+                                        src={`${config.host}/file/imagePreview?sourceType=${sourceType}&path=${encodeURIComponent(path)}`}
+                                        controls
+                                        autoPlay
+                                    ></video>
+                                </div>
+                            : mediaType == 'md' ?
+                                <div>
+                                    <div className={styles.article} dangerouslySetInnerHTML={{
+                                        __html: marked.parse(content)
+                                    }}>
+
+                                    </div>
+                                </div>
+                            : mediaType == 'pdf' ?
+                                <PdfViewer
+                                    src={`${config.host}/file/imagePreview?sourceType=${sourceType}&path=${encodeURIComponent(path)}`}
+                                />
+                            : mediaType == 'image' ?
+                                <ImageViewer
+                                    src={`${config.host}/file/imagePreview?sourceType=${sourceType}&path=${encodeURIComponent(path)}`}
+                                />
+                            :
+                                <div>?</div>
+                        }
+
+                        </div>
+                    }
+                    {tab == 'text' &&
+                        <div>
+                        {
+                            content == '' ?
+                            <FullCenterBox>
+                                <Empty />
+                            </FullCenterBox>
+                        :
+                            <div>
+                                <div className={styles.toolBox}>
+                                    <Button
+                                        size="small" 
+                                        onClick={() => {
+                                            copy(content)
+                                            message.info(t('copied'))
+                                        }}
+                                    >
+                                        {t('copy')}
+                                    </Button>
+                                </div>
+                                <div className={styles.editorBox}>
+                                    <Editor
+                                        lang={FileUtil.getLang(path)}
+                                        value={content}
+                                        autoFocus={false}
+                                        // value=""
+                                        // event$={event$}
+                                        // onChange={value => setCodeASD(value)}
+                                        // autoFoucs={true}
+                                        // destroy={true}
+                                        // onEditor={editor => {
+                                        //     // setEditor(editor)
+                                        //     // console.log('degg', content == contentRef.current, content, contentRef.current)
+                                        //     editor.setValue(content)
+                                        //     // content
+                                        // }}
+                                        // onSelectionChange={({selection, selectionTextLength}) => {
+                                        //     console.log('selection', selection)
+                                        //     selectionEvent.emit({
+                                        //         data: {
+                                        //             selection: {
+                                        //                 ...selection,
+                                        //                 textLength: selectionTextLength,
+                                        //             }
+                                        //         }
+                                        //     })
+                                        // }}
+                                    />
+                                </div>
+                            </div>
+                            // <pre>{content}</pre>
+                        }
+
+                        </div>
+                    }
                 </div>
-                // <pre>{content}</pre>
             }
         </Modal>
     )

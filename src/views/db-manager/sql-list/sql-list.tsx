@@ -51,7 +51,7 @@ export function SqlList({ config, connectionId, event$ }: any) {
         {
             title: 'Name',
             dataIndex: 'name',
-            width: 160,
+            width: 240,
             ellipsis: true,
         },
         {
