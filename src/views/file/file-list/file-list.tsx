@@ -1596,15 +1596,6 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                     </>
                                 }
                                 <Divider />
-                                <div className={styles.item}
-                                    onClick={() => {
-                                        setCurPath(info.homePath + '/.yunser/dms-cli')
-                                    }}
-                                >
-                                    <DatabaseOutlined className={styles.icon} />
-                                    DMS - DB
-                                </div>
-                                <Divider />
                             </div>
                         }
                         <FileCollectionList
