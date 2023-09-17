@@ -40,7 +40,7 @@ export function SqlEditHandler(props) {
         <>
             {NewElem}
             {modalVisible &&
-                <DatabaseModal
+                <SqlLikeModal
                     config={config}
                     event$={event$}
                     connectionId={connectionId}
@@ -58,35 +58,30 @@ export function SqlEditHandler(props) {
 }
 
 
-export function DatabaseModal({ config, event$, item, getCode, onClose, onSuccess, onConnect, }) {
+export function SqlLikeModal({ config, event$, item, getCode, onClose, onSuccess, onConnect, }) {
     const { t } = useTranslation()
 
-    const [loading, setLoading] = useState(false)
-    const [characterSetMap, setCharacterSetMap] = useState({})
     const [form] = Form.useForm()
-    const characterSet = Form.useWatch('characterSet', form)
-    const [characterSets, setCharacterSets] = useState([])
     const editType = item ? 'update' : 'create'
-    const collations = useMemo(() => {
-        if (!characterSet) {
-            return []
+
+    useEffect(() => {
+        if (item) {
+            form.setFieldsValue({
+                ...item,
+            })
         }
-        if (!characterSetMap[characterSet]) {
-            return []
+        else {
+            form.setFieldsValue({
+                name: '',  
+                sql: getCode(),
+            })
         }
-        return characterSetMap[characterSet].map(item => {
-            return {
-                label: item,
-                value: item,
-            }
-        })
-    }, [characterSet, characterSetMap])
+    }, [item])
 
     return (
         <Modal
-            // title={editType == 'create' ? t('db_create') : t('db_edit')}
-            title="Save SQL"
-            visible={true}
+            title={editType == 'create' ? t('sql.like.create') : t('sql.like.update')}
+            open={true}
             onCancel={onClose}
             maskClosable={false}
             onOk={async () => {
@@ -94,12 +89,9 @@ export function DatabaseModal({ config, event$, item, getCode, onClose, onSucces
                 if (editType == 'create') {
                     let ret = await request.post(`${config.host}/mysql/sql/create`, {
                         name: values.name,
-                        sql: getCode(),
+                        sql: values.sql,
                     })
-                    // console.log('ret', ret)
                     if (ret.success) {
-                        // message.success('连接成功')
-                        // onConnect && onConnect()
                         message.success(t('saved'))
                         event$.emit({
                             type: 'event_sql_list_refresh',
@@ -110,54 +102,42 @@ export function DatabaseModal({ config, event$, item, getCode, onClose, onSucces
                     }
                 }
                 else {
-                    let sql = `ALTER SCHEMA \`${item.SCHEMA_NAME}\``
-                    if (values.characterSet) {
-                        sql += ` DEFAULT CHARACTER SET ${values.characterSet}`
-                    }
-                    if (values.collation) {
-                        sql += ` COLLATE ${values.collation}`
-                    }
-                    console.log('sql', sql)
-                    // return
-                    let ret = await request.post(`${config.host}/mysql/execSql`, {
-                        sql,
+                    let ret = await request.post(`${config.host}/mysql/sql/update`, {
+                        id: item.id,
+                        data: {
+                            name: values.name,
+                            sql: values.sql,
+                        }
                     })
-                    // console.log('ret', ret)
                     if (ret.success) {
-                        // message.success('连接成功')
-                        // onConnect && onConnect()
-                        message.success('Success')
+                        message.success(t('saved'))
                         onClose && onClose()
                         onSuccess && onSuccess()
                     }
                 }
-                // else {
-                //     message.error('Fail')
-                // }
             }}
         >
             <Form
                 form={form}
-                labelCol={{ span: 6 }}
-                wrapperCol={{ span: 18 }}
-                initialValues={{
-                    // port: 6379,
-                    // db: 0,
-                }}
-                // layout={{
-                //     labelCol: { span: 0 },
-                // }}
+                labelCol={{ span: 4 }}
+                wrapperCol={{ span: 20 }}
             >
                 <Form.Item
                     name="name"
-                    label="Title"
+                    label={t('name')}
                     rules={[ { required: true, }, ]}
                 >
-                    <Input
-                        // disabled={!(editType == 'create')}
+                    <Input />
+                </Form.Item>
+                <Form.Item
+                    name="sql"
+                    label={t('sql')}
+                    rules={[ { required: true, }, ]}
+                >
+                    <Input.TextArea
+                        rows={8}
                     />
                 </Form.Item>
-                
             </Form>
         </Modal>
     );

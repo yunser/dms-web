@@ -1,24 +1,22 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import styles from './index.module.less'
-import { message, Input, Modal, Button, Table, Popover, Space, Empty, Result, Tabs, Select, Tooltip, Spin, Dropdown, Menu, Checkbox, Divider } from 'antd'
+import { message, Input, Modal, Button, Space, Tabs, Select, Spin, Dropdown, Menu, Checkbox, Divider } from 'antd'
 // import http from '@/utils/http'
 import classNames from 'classnames'
 import { Editor } from '../../editor/Editor'
-import copy from 'copy-to-clipboard';
 import { request } from '../../utils/http'
 import { format } from 'sql-formatter'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import {  SqlParser } from '../../sql-parse-lib/sqlParser'
 import { ExecDetail } from '../../exec-detail/exec-detail'
 import { uid } from 'uid'
-import { useTranslation, Trans } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import { HistoryList } from '../../sql-history'
-import { CloseOutlined, EllipsisOutlined } from '@ant-design/icons'
+import { EllipsisOutlined, HeartOutlined } from '@ant-design/icons'
 import { IconButton } from '../../icon-button'
 import storage from '@/utils/storage'
 import { CloseCircleOutlined } from '@ant-design/icons'
 import { CheckCircleOutlined } from '@ant-design/icons'
-import { SaveOutlined } from '@ant-design/icons'
 import { SqlEditHandler } from '../../sql-edit'
 import { FullCenterBox } from '@/views/common/full-center-box'
 import { getGlobalConfig } from '@/config'
@@ -828,7 +826,7 @@ function SqlBox({ config, tabViewId, event$, databaseType, connectionId, onJson,
                                 // type="primary"
                                 size="small" 
                                 // onClick={run}
-                                icon={<SaveOutlined />}
+                                icon={<HeartOutlined />}
                             ></Button>
                             {/* <IconButton
                                 size="small"

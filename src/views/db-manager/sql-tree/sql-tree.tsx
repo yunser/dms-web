@@ -1,15 +1,12 @@
-import { Button, Descriptions, Dropdown, Input, InputProps, Menu, message, Modal, Popover, Space, Spin, Table, Tabs, Tooltip, Tree } from 'antd';
+import { Dropdown, Input, InputProps, Menu, message, Space, Spin, Tree } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './sql-tree.module.less';
 import _, { debounce } from 'lodash';
-import classNames from 'classnames'
 import { useTranslation } from 'react-i18next';
-import { Editor } from '@/views/db-manager/editor/Editor';
 import { IconButton } from '@/views/db-manager/icon-button';
-import { AimOutlined, CodeOutlined, ConsoleSqlOutlined, DatabaseOutlined, DeploymentUnitOutlined, EllipsisOutlined, FormatPainterOutlined, HistoryOutlined, InfoCircleOutlined, PlusOutlined, QuestionCircleOutlined, ReloadOutlined, SyncOutlined, TableOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
+import { AimOutlined, HeartOutlined, DatabaseOutlined, DeploymentUnitOutlined, EllipsisOutlined, HistoryOutlined, InfoCircleOutlined, QuestionCircleOutlined, ReloadOutlined, SyncOutlined, TableOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
 import { getTableFieldMap, setAllFields, setTabbleAllFields, suggestionAdd, suggestionAddSchemas } from '../suggestion';
 import { request } from '@/views/db-manager/utils/http';;
-import { i18n } from '@/i18n';
 import { FullCenterBox } from '@/views/common/full-center-box'
 import copy from 'copy-to-clipboard';
 import moment from 'moment';
@@ -1034,7 +1031,7 @@ LIMIT 1000;`
                         <HistoryOutlined />
                     </IconButton>
                     <IconButton
-                        tooltip={t('sql_manage')}
+                        tooltip={t('sql.like.list')}
                         onClick={() => {
                             event$.emit({
                                 type: 'event_show_sqls',
@@ -1044,8 +1041,7 @@ LIMIT 1000;`
                             })
                         }}
                     >
-                        {/* <CodeOutlined /> */}
-                        <ConsoleSqlOutlined />
+                        <HeartOutlined />
                     </IconButton>
                     <IconButton
                         tooltip={t('info')}

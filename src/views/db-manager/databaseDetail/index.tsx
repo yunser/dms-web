@@ -306,7 +306,7 @@ export function DataBaseDetail({ databaseType = 'mysql', curConnect, _connection
             if (_connectionId == connectionId) {
                 const history_tab = {
                     type: 'type_sqls',
-                    title: '$i18n.sql_manage',
+                    title: '$i18n.sql.like.list',
                     key: 'sqls-0-0',
                 }
                 addOrActiveTab(history_tab)
