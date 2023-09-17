@@ -27,9 +27,11 @@ export function StringContent({ curDb, event$, connectionId, onSuccess, data, co
     const editType = 'update'
     const [code, setCode] = useState(data.value || '')
     const [lang, setLang] = useState(() => {
-        const code = data.value.trim()
-        if (code.startsWith('{') && code.endsWith('}')) {
-            return 'json'
+        if (data.value) {
+            const code = data.value.trim()
+            if (code.startsWith('{') && code.endsWith('}')) {
+                return 'json'
+            }
         }
         return 'plain'
     })
