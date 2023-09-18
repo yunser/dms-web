@@ -181,7 +181,7 @@ export function MergeModal({ config, event$, projectPath, onSuccess, onCancel })
             }
             setLoading(false)
         }
-        else {
+        else if (tab == 'mergeTo') {
             message.info(`正在切换分支到 ${values.branch}`)
             setLoading(true)
             let res = await request.post(`${config.host}/git/checkout`, {
@@ -205,28 +205,26 @@ export function MergeModal({ config, event$, projectPath, onSuccess, onCancel })
                         }
                     })
                 }
-                // message.success('连接成功')
-                // onConnect && onConnect()
-                // message.success(t('success'))
-                // onClose && onClose()
-                // onSuccess && onSuccess()
-                // loadBranches()
-                // event$.emit({
-                //     type: 'event_reload_history',
-                //     data: {
-                //         commands: res.data.commands,
-                //     }
-                // })
-                // event$.emit({
-                //     type: 'event_refresh_commit_list',
-                //     data: {
-                //         commands: res.data.commands,
-                //     }
-                // })
             }
             else {
                 setLoading(false)
             }
+        }
+        else if (tab == 'abort') {
+            setLoading(true)
+            let res = await request.post(`${config.host}/git/mergeAbort`, {
+                projectPath,
+            })
+            if (res.success) {
+                onSuccess && onSuccess()
+                event$.emit({
+                    type: 'event_reload_history',
+                    data: {
+                        commands: res.data.commands,
+                    }
+                })
+            }
+            setLoading(false)
         }
     }
 
@@ -265,8 +263,19 @@ export function MergeModal({ config, event$, projectPath, onSuccess, onCancel })
                             label: t('git.merge.merge_to'),
                             key: 'mergeTo',
                         },
+                        {
+                            label: t('git.merge.abort'),
+                            key: 'abort',
+                        },
                     ]}
                 />
+                {tab == 'abort' &&
+                    <div>
+                        <code>
+                            <pre>git merge --abort</pre>
+                        </code>
+                    </div>
+                }
                 <Form
                     form={form}
                     labelCol={{ span: 8 }}

@@ -537,6 +537,10 @@ export function GitProject({ event$, project, onList }) {
                             type: 'event_refresh_branch',
                             data: {},
                         })
+                        event$.emit({
+                            type: 'event_refresh_status',
+                            data: {},
+                        })
                     }}
                 />
             }
