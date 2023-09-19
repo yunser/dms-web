@@ -405,6 +405,10 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
                                 label: 'SQL Server',
                                 value: 'mssql',
                             },
+                            {
+                                label: 'Oracle',
+                                value: 'oracle',
+                            },
                         ]}
                     />
                 </Form.Item>

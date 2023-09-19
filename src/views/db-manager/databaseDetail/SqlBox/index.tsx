@@ -575,7 +575,10 @@ function SqlBox({ config, tabViewId, event$, databaseType, connectionId, onJson,
             // console.log('noCommentLine', noCommentLine)
             let lineCode = explain ? ('EXPLAIN ' + rawLine) : rawLine
             if (lineCode.toLowerCase().includes('select') && !lineCode.toLowerCase().includes('limit') && limit != -1) {
-                if (databaseType != 'mssql') {
+                if (databaseType == 'oracle') {
+
+                }
+                else if (databaseType != 'mssql') {
                     lineCode += ` limit ${limit}`
                 }
             }

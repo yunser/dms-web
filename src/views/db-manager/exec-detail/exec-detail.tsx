@@ -1011,7 +1011,7 @@ export function ExecDetail(props) {
         }
         console.log('fields', fields)
         console.log('pkField', pkField)
-        const pkColIdx = fields.findIndex(item => item.name == pkField)
+        const pkColIdx = fields.findIndex(item => item.name == pkField || item.name == 'DMS_ROWID')
         console.log('pkColIdx', pkColIdx)
         if (pkColIdx == -1) {
             message.error('找不到表格主键')
@@ -1019,7 +1019,12 @@ export function ExecDetail(props) {
         }
         
         const codes = selectedRowKeys.map(rowKey => {
-            return `DELETE FROM \`${dbName}\`.\`${tableName}\` WHERE \`${pkField}\` = '${list[rowKey][pkColIdx].value}';`
+            if (databaseType == 'oracle') {
+                return `DELETE FROM "${dbName}"."${tableName}" WHERE "ROWID" = '${list[rowKey][pkColIdx].value}';`
+            }
+            else {
+                return `DELETE FROM \`${dbName}\`.\`${tableName}\` WHERE \`${pkField}\` = '${list[rowKey][pkColIdx].value}';`
+            }
         })
         // console.log('codes', codes)
         // setModalCode(codes.join('\n'))

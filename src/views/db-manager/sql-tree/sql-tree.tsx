@@ -455,6 +455,9 @@ export function SqlTree({ databaseType, curConnect, config, event$, connectionId
         else if (databaseType == 'alasql') {
 
         }
+        else if (databaseType == 'oracle') {
+
+        }
         else {
             request.post(`${config.host}/mysql/execSql`, {
                 connectionId,
@@ -871,6 +874,9 @@ LIMIT 1000;`
         else if (databaseType == 'alasql') {
             
         }
+        else if (databaseType == 'oracle') {
+            
+        }
         else {
             loadAllFields(schemaName)
         }
@@ -959,6 +965,9 @@ LIMIT 1000;`
         }
         else if (databaseType == 'postgresql') {
             sql = `SELECT *\nFROM "${schemaName}"."${tableName}"\nLIMIT 20;`
+        }
+        else if (databaseType == 'oracle') {
+            sql = `SELECT ROWIDTOCHAR(ROWID) "DMS_ROWID", "${schemaName}"."${tableName}".*\nFROM "${schemaName}"."${tableName}"\nWHERE ROWNUM <= 20`
         }
         else {
             sql = `SELECT *\nFROM \`${schemaName}\`.\`${tableName}\`\nLIMIT 20;`
