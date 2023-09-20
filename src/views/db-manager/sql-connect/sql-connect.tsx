@@ -257,6 +257,9 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
             type: values.type,
             databasePath: values.databasePath,
         }
+        if (type == 'oracle') {
+            saveOrUpdateData.service = values.service
+        }
         console.log('saveOrUpdateData', saveOrUpdateData)
         // return
         if (editType == 'create') {
@@ -319,6 +322,9 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
             databasePath: values.databasePath,
             type: values.type,
             // remember: values.remember,
+        }
+        if (type == 'oracle') {
+            reqData.service = values.service
         }
         let ret = await request.post(`${config.host}/mysql/connect`, reqData)
         // console.log('ret', ret)
@@ -465,6 +471,15 @@ function ConnectModal({ config, editType, item, onCancel, onSuccess }) {
                     <Form.Item
                         name="databasePath"
                         label={t('path')}
+                        rules={[{ required: true, },]}
+                    >
+                        <Input />
+                    </Form.Item>
+                }
+                {type == 'oracle' &&
+                    <Form.Item
+                        name="service"
+                        label={t('sql.service_name')}
                         rules={[{ required: true, },]}
                     >
                         <Input />
