@@ -202,7 +202,7 @@ export function ServiceHome({ onClickItem }) {
         //     const 
         // }
         comData.current.result = {
-            total: 0,
+            total: filteredList.length,
             success: 0,
             fail: 0,
         }
@@ -448,6 +448,7 @@ export function ServiceHome({ onClickItem }) {
                 />
             </div>
             <div className={styles.statBox}>
+                总：{totalResult.total}；
                 成功：{totalResult.success}；
                         
                 失败：
