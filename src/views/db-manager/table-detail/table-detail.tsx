@@ -1796,6 +1796,15 @@ ${[...attrSqls, ...rowSqls, ...idxSqls, ...partSqls].join(' ,\n')};`)
             }),
         },
         {
+            title: t('length'),
+            dataIndex: 'DATA_LENGTH',
+            render: EditableCellRender({
+                dataIndex: 'DATA_LENGTH',
+                onChange: onColumnCellChange,
+            }),
+            visible: databaseType == 'oracle',
+        },
+        {
             // title: t('nullable'),
             title: (
                 <Tooltip title={t('nullable')}>
@@ -1932,6 +1941,7 @@ ${[...attrSqls, ...rowSqls, ...idxSqls, ...partSqls].join(' ,\n')};`)
             dataIndex: '__empty',
         },
     ]
+    .filter(item => item.visible !== false)
 
     const indexColumns = [
         {

@@ -6,5 +6,6 @@ export const dbFunConfigMap = {
         partition: {},
         trigger: {},
         autoIncrement: {},
-    }
+    },
+    oracle: {},
 }

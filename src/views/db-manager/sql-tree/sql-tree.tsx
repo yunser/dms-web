@@ -982,7 +982,7 @@ LIMIT 1000;`
             dbName: schemaName,
             tableName,
         })
-        if (databaseType != 'sqlite' && databaseType != 'mssql' && databaseType != 'alasql') {
+        if (databaseType != 'sqlite' && databaseType != 'mssql' && databaseType != 'alasql' && databaseType != 'oracle') {
             loadTableFields({schemaName, tableName})
         }
     }
