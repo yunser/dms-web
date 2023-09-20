@@ -788,6 +788,10 @@ LIMIT 1000;`
             const { $__schemaName, $_table_name } = nodeData.itemData
             sql = `SELECT COUNT(*) FROM [${$__schemaName}].[${$_table_name}]`
         }
+        else if (databaseType == 'oracle') {
+            const { $__schemaName, $_table_name } = nodeData.itemData
+            sql = `SELECT COUNT(*) FROM "${$__schemaName}"."${$_table_name}"`
+        }
         else {
             sql = `SELECT COUNT(*) FROM \`${schemaName}\`.\`${tableName}\`;`
         }

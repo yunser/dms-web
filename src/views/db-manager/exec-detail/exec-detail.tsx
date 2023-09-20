@@ -578,6 +578,9 @@ export function ExecDetail(props) {
         })
     }, [list, filterKeyword])
     async function loadTableInfo() {
+        if (databaseType == 'oracle') {
+            return
+        }
         if (dbName && tableName) {
             let res = await request.post(`${config.host}/mysql/tableInfo`, {
                 connectionId,
