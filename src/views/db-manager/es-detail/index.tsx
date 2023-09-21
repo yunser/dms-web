@@ -340,39 +340,7 @@ export function EsDetail({ dbName, event$, config }) {
     }
 
     
-    // console.log('tabs', tabs)
-
-    async function showCreateTable(nodeData) {
-        const tableName = nodeData.key // TODO @p2
-        const sql = `show create table \`${tableName}\`;`
-        // setSql(sql)
-        showSqlInNewtab({
-            title: 'Show create table',
-            sql,
-        })
-    }
-
-    async function truncate(nodeData) {
-        // console.log('nodeData', nodeData)
-        const tableName = nodeData.key // TODO @p2
-        const sql = `TRUNCATE TABLE \`${tableName}\`;`
-        console.log('truncate', sql)
-        // setSql(sql)
-        showSqlInNewtab({
-            title: 'TRUNCATE TABLE',
-            sql,
-        })
-    }
-
-    async function drop(nodeData) {
-        const tableName = nodeData.key // TODO @p2
-        const sql = `DROP TABLE \`${tableName}\`;`
-        // setSql(sql)
-        showSqlInNewtab({
-            title: 'DROP TABLE',
-            sql,
-        })
-    }
+   
 
     return (
         <div className={styles.layout}>

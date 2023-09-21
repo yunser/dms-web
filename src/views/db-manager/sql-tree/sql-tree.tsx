@@ -663,11 +663,13 @@ LIMIT 1000;`
             // sqlite 不支持 TRUNCATE
             sql = `DELETE FROM \`${schemaName}\`.\`${tableName}\`;`
         }
+        if (databaseType == 'oracle') {
+            sql = `TRUNCATE TABLE "${schemaName}"."${tableName}";`
+        }
         else {
             sql = `TRUNCATE TABLE \`${schemaName}\`.\`${tableName}\`;`
         }
         showSqlInNewtab({
-            // title: 'Truncate Table',
             title: `${t('truncate')} ${tableName}`,
             sql,
         })
