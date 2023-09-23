@@ -202,7 +202,7 @@ export function ServiceHome({ onClickItem }) {
         //     const 
         // }
         comData.current.result = {
-            total: filteredList.length,
+            total: filteredList.filter(item => item.enable !== false).length,
             success: 0,
             fail: 0,
         }
