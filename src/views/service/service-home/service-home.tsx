@@ -390,6 +390,18 @@ export function ServiceHome({ onClickItem }) {
                         </Button>
                         <Button
                             size="small"
+                            onClick={() => {
+                                setEditItem({
+                                    ...item,
+                                    id: '', // 根据 ID 判断新增还是编辑
+                                })
+                                setEditVisible(true)
+                            }}
+                        >
+                            克隆
+                        </Button>
+                        <Button
+                            size="small"
                             danger
                             onClick={() => {
                                 removeItem(item)
@@ -503,7 +515,7 @@ export function ServiceHome({ onClickItem }) {
 function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
     const { t } = useTranslation()
 
-    const editType = item ? 'update' : 'create'
+    const editType = item?.id ? 'update' : 'create'
     const [loading, setLoading] = useState(false)
     const [form] = Form.useForm()
 //     const [code, setCode] = useState(`{
