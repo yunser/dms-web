@@ -18,6 +18,7 @@ import { SerializeAddon } from "xterm-addon-serialize"
 import '~xterm/css/xterm.css'
 import { uid } from 'uid';
 import { FileCollectionList } from '@/views/file/file-list';
+import { FolderOutlined, PlusOutlined } from '@ant-design/icons';
 
 interface File {
     name: string
@@ -522,6 +523,7 @@ export function SshDetail({ config, defaultPath, item, onSftpPath, onClone }) {
                         onClick={() => {
                             newTab()
                         }}
+                        icon={<PlusOutlined />}
                     >
                         {t('new_tab')}
                     </Button>
@@ -531,6 +533,7 @@ export function SshDetail({ config, defaultPath, item, onSftpPath, onClone }) {
                             onClick={() => {
                                 checkConnection()
                             }}
+                            icon={<FolderOutlined />}
                         >
                             SFTP
                         </Button>

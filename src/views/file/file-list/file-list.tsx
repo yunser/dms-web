@@ -1788,17 +1788,6 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                             </IconButton>
                         }
                         <Space>
-                            {sourceType != 'local' &&
-                                <Button
-                                    size="small"
-                                    // tooltip={t('upload')}
-                                    onClick={() => {
-                                        onSshPath && onSshPath(curPath)
-                                    }}
-                                >
-                                    SSH
-                                </Button>
-                            }
                             <Tooltip title={t('file.dot_file_toggle')}>
                                 <Button
                                     size="small"
@@ -2360,9 +2349,22 @@ export function FileList({ config, sourceType: _sourceType = 'local', event$, ta
                                     defaultPath: curPath,
                                 })
                             }}
+                            icon={<PlusOutlined />}
                         >
                             {t('new_tab')}
                         </Button>
+                        {sourceType != 'local' &&
+                            <Button
+                                size="small"
+                                // tooltip={t('upload')}
+                                onClick={() => {
+                                    onSshPath && onSshPath(curPath)
+                                }}
+                                icon={<CodeOutlined />}
+                            >
+                                SSH
+                            </Button>
+                        }
                     </Space>
                     {!!readmeContent &&
                         <div className={styles.readme}>{readmeContent}</div>
