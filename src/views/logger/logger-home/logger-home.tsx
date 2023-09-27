@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { CodeOutlined, DownloadOutlined, EllipsisOutlined, ExportOutlined, EyeInvisibleOutlined, EyeOutlined, FileOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
+import { CodeOutlined, DownloadOutlined, EllipsisOutlined, ExportOutlined, EyeInvisibleOutlined, EyeOutlined, FileOutlined, HomeOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 // import { GitProject } from '../git-project';
@@ -236,25 +236,24 @@ export function LoggerHome({ config, onItem, event$ }) {
                                                         e.stopPropagation()
                                                     }}
                                                 >
-                                                    <Button
-                                                        size="small"
-                                                        onClick={() => {
-                                                            onItem && onItem(item)
-                                                        }}
-                                                        // icon={<CodeOutlined />}
-                                                    >
-                                                        open
-                                                    </Button>
                                                     {!!item.home &&
                                                         <Button
                                                             size="small"
                                                             onClick={() => {
                                                                 window.open(item.home, '_blank')
                                                             }}
+                                                            icon={<HomeOutlined />}
                                                         >
-                                                            home
                                                         </Button>
                                                     }
+                                                    <Button
+                                                        size="small"
+                                                        onClick={() => {
+                                                            onItem && onItem(item)
+                                                        }}
+                                                    >
+                                                        open
+                                                    </Button>
                                                     {/* <Button
                                                         size="small"
                                                         onClick={() => {
