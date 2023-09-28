@@ -13,7 +13,7 @@ import moment from 'moment';
 import { request } from '@/views/db-manager/utils/http';
 import ReactJson from 'react-json-view';
 import { IconButton } from '@/views/db-manager/icon-button';
-import { ExportOutlined } from '@ant-design/icons';
+import { ExportOutlined, PlusOutlined } from '@ant-design/icons';
 import { getGlobalConfig } from '@/config';
 import copy from 'copy-to-clipboard';
 
@@ -734,6 +734,7 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onNew, })
                             onClick={() => {
                                 onNew && onNew()
                             }}
+                            icon={<PlusOutlined />}
                         >
                             {t('new')}
                         </Button>
@@ -769,7 +770,18 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onNew, })
                         }}
                         // size="small"
                     />
-                    <div className={styles.query}>{query} {queryTime}</div>
+                    <div className={styles.query}>
+                        <div 
+                            className={styles.queryContent}
+                            onClick={() => {
+                                copy(query)
+                                message.info(t('copied'))
+                            }}
+                        >
+                            {query}
+                        </div>
+                        <div className={styles.queryTime}>{queryTime}</div>
+                    </div>
                 </div>
                 <div className={styles.body}>
                     {/* <div className={styles.logList}></div> */}

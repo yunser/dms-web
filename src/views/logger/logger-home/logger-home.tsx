@@ -224,7 +224,14 @@ export function LoggerHome({ config, onItem, event$ }) {
                                                 }}
                                             >
                                                 <Space>
-                                                    <div className={styles.name}>{item.name}</div>
+                                                    <div 
+                                                        className={styles.name}
+                                                        onClick={() => {
+                                                            onItem && onItem(item)
+                                                        }}
+                                                    >
+                                                        {item.name}
+                                                    </div>
                                                     {!!item.type &&
                                                         <Tag>{item.type}</Tag>
                                                     }
@@ -246,14 +253,14 @@ export function LoggerHome({ config, onItem, event$ }) {
                                                         >
                                                         </Button>
                                                     }
-                                                    <Button
+                                                    {/* <Button
                                                         size="small"
                                                         onClick={() => {
                                                             onItem && onItem(item)
                                                         }}
                                                     >
                                                         open
-                                                    </Button>
+                                                    </Button> */}
                                                     {/* <Button
                                                         size="small"
                                                         onClick={() => {
