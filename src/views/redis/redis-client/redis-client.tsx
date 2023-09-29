@@ -1478,17 +1478,25 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
                             connectionId={connectionId}
                         /> */}
                         {/* {wsStatus} */}
-                        <Tooltip
-                            placement="topLeft"
+                        <Popover
                             title={tooltips[wsStatus]}
+                            content={(
+                                <Button
+                                    size="small"
+                                    onClick={() => {
+                                        reconnect()
+                                    }}
+                                    >
+                                    {t('reconnect')}
+                                </Button>
+                            )}
                         >
                             <LinkOutlined
                                 style={{
-                                    // fontWeight: 'bold',
                                     color: colors[wsStatus],
                                 }}
                             />
-                        </Tooltip>
+                        </Popover>
                         {wsStatus != 'connected' &&
                             <Button
                                 size="small"
