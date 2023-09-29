@@ -28,15 +28,22 @@ export function GitGraph({ config, event$, projectPath, }) {
 
     const [listLoading, setListLoading] = useState(false)
     const [result, setResult] = useState('')
+    const [error, setError] = useState('')
 
     async function loadGraph() {
+        setError('')
         setListLoading(true)
         let res = await request.post(`${config.host}/git/graph`, {
             projectPath,
+        }, {
+            noMessage: true,
         })
         if (res.success) {
             const { result } = res.data
             setResult(result)
+        }
+        else {
+            setError(res.data.message)
         }
         setListLoading(false)
     }
@@ -65,6 +72,12 @@ export function GitGraph({ config, event$, projectPath, }) {
             {listLoading ?
                 <FullCenterBox>
                     <Spin />
+                </FullCenterBox>
+                : !!error ?
+                <FullCenterBox>
+                    <div className={styles.errorBox}>
+                        {error}
+                    </div>
                 </FullCenterBox>
                 : !result ?
                     <FullCenterBox
