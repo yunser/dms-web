@@ -47,19 +47,34 @@ export function DockerDetail({ connection }) {
     const config = getGlobalConfig()
 
     const [version, setVersion] = useState(null)
+
+
+    const [containerLoading, setContainerLoading] = useState(false)
     const [containers, setContainers] = useState([])
     const [containerKeyword, setContainerKeyword] = useState('')
     const [containerType, setContainerType] = useState('running')
+
+
+    const [imageLoading, setImageLoading] = useState(false)
     const [_images, setImages] = useState([])
     const [imageKeyword, setImageKeyword] = useState('')
+
+    const [serviceLoading, setServiceLoading] = useState(false)
     const [_services, setServices] = useState([])
+    const [serviceKeyword, setServiceKeyword] = useState('')
+
+    const [pluginLoading, setPluginLoading] = useState([])
     const [plugins, setPlugins] = useState([])
     const [pluginKeyword, setPluginKeyword] = useState('')
-    const [serviceKeyword, setServiceKeyword] = useState('')
+
+    const [networkLoading, setNetworkLoading] = useState(true)
     const [_networks, setNetworks] = useState([])
+
+    const [volumeLoading, setVolumeLoading] = useState([])
+    const [volumes, setVolumes] = useState([])
     const [volumeDetailVisible, setVolumeDetailVisible] = useState(false)
     const [volumeDetailItem, setVolumeDetailItem] = useState(null)
-    const [volumes, setVolumes] = useState([])
+
     const [tab, setTab] = useState('container')
 
     const filteredContainers = useMemo(() => {
@@ -127,10 +142,12 @@ export function DockerDetail({ connection }) {
 
     async function loadContainers() {
         setContainers([])
+        setContainerLoading(true)
         let res = await request.post(`${config.host}/docker/container/list`, {
             connectionId,
         })
         console.log('res', res)
+        setContainerLoading(false)
         if (res.success) {
             setContainers(res.data.list.map(item => {
                 let _names = ''
@@ -149,11 +166,13 @@ export function DockerDetail({ connection }) {
     }
 
     async function loadImages() {
+        setImageLoading(true)
         setImages([])
         let res = await request.post(`${config.host}/docker/images`, {
             connectionId,
         })
         console.log('res', res)
+        setImageLoading(false)
         if (res.success) {
             setImages(res.data.list.map(item => {
                 let _repoTags = ''
@@ -169,6 +188,7 @@ export function DockerDetail({ connection }) {
     }
 
     async function loadServices() {
+        setServiceLoading(true)
         setServices([])
         let res = await request.post(`${config.host}/docker/services`, {
             connectionId,
@@ -189,13 +209,16 @@ export function DockerDetail({ connection }) {
                 .sort((a, b) => a.Spec.Name.localeCompare(b.Spec.Name))
             setServices(list)
         }
+        setServiceLoading(false)
     }
 
     async function loadPlugins() {
         setServices([])
+        setPluginLoading(true)
         let res = await request.post(`${config.host}/docker/plugins`, {
             connectionId,
         })
+        setPluginLoading(false)
         if (res.success) {
             const list = res.data.list
                 .sort((a, b) => a.Name.localeCompare(b.Name))
@@ -221,21 +244,25 @@ export function DockerDetail({ connection }) {
     // }
 
     async function loadNetworks() {
+        setNetworkLoading(true)
         setNetworks([])
         let res = await request.post(`${config.host}/docker/networks`, {
             connectionId,
         })
         console.log('res', res)
+        setNetworkLoading(false)
         if (res.success) {
             setNetworks(res.data.list)
         }
     }
 
     async function loadVolumes() {
+        setVolumeLoading(true)
         setVolumes([])
         let res = await request.post(`${config.host}/docker/volumes`, {
             connectionId,
         })
+        setVolumeLoading(false)
         console.log('res', res)
         if (res.success) {
             setVolumes(res.data.list.Volumes)
@@ -368,6 +395,7 @@ export function DockerDetail({ connection }) {
         <div>
             {/* <div>volumes</div> */}
             <Table
+                loading={volumeLoading}
                 dataSource={volumes}
                 pagination={false}
                 size="small"
@@ -433,6 +461,7 @@ export function DockerDetail({ connection }) {
     const networkTab = (
         <div>
             <Table
+                loading={networkLoading}
                 dataSource={networks}
                 pagination={false}
                 size="small"
@@ -526,6 +555,7 @@ export function DockerDetail({ connection }) {
                 />
             </div>
             <Table
+                loading={pluginLoading}
                 dataSource={filteredPlugins}
                 size="small"
                 pagination={false}
@@ -576,6 +606,7 @@ export function DockerDetail({ connection }) {
                 />
             </div>
             <Table
+                loading={serviceLoading}
                 dataSource={filteredServices}
                 size="small"
                 pagination={false}
@@ -701,6 +732,7 @@ export function DockerDetail({ connection }) {
                 </Radio.Group>
             </div>
             <Table
+                loading={containerLoading}
                 dataSource={filteredContainers}
                 size="small"
                 pagination={false}
@@ -840,6 +872,7 @@ export function DockerDetail({ connection }) {
                 />
             </div>
             <Table
+                loading={imageLoading}
                 dataSource={filteredImages}
                 size="small"
                 pagination={false}
