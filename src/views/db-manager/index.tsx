@@ -1777,13 +1777,17 @@ export function DbManager({ config }) {
                                             config={config}
                                             event$={event$}
                                             item={item.data.item}
-                                            onNew={() => {
+                                            onNew={({ keyword, time } = {}) => {
                                                 addOrActiveTab({
                                                     title: `${item.data.name}`,
                                                     key: 'logger-detail-' + uid(16),
                                                     type: 'logger-detail',
                                                     data: {
-                                                        item: item.data.item,
+                                                        item: {
+                                                            ...item.data.item,
+                                                            defaultKeyword: keyword,
+                                                            defaultTime: time,
+                                                        },
                                                         name: item.data.name,
                                                     },
                                                 }, {

@@ -13,15 +13,26 @@ import moment from 'moment';
 import { request } from '@/views/db-manager/utils/http';
 import ReactJson from 'react-json-view';
 import { IconButton } from '@/views/db-manager/icon-button';
-import { ExportOutlined, PlusOutlined } from '@ant-design/icons';
+import { CopyOutlined, ExportOutlined, PlusOutlined } from '@ant-design/icons';
 import { getGlobalConfig } from '@/config';
 import copy from 'copy-to-clipboard';
 
 const { RangePicker } = DatePicker
 
+function hasTrace(content: string) {
+    return content.startsWith('trace_')
+        || content.startsWith('track_')
+}
+
 function splitTrace(content: string) {
-    const prefix = content.match(/track_[^\s]+/)[0]
-    return [prefix, content.substring(prefix.length)]
+    if (content.startsWith('trace_')) {
+        const prefix = content.match(/trace_[^\s]+/)[0]
+        return [prefix, content.substring(prefix.length)]
+    }
+    else if (content.startsWith('track_')) {
+        const prefix = content.match(/track_[^\s]+/)[0]
+        return [prefix, content.substring(prefix.length)]
+    }
 }
 
 function LogCell({ value }) {
@@ -376,7 +387,7 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onNew, })
 
     const config = getGlobalConfig()
 
-    const [time, setTime] = useState({
+    const [time, setTime] = useState(detailItem.defaultTime || {
         type: 'relative',
         // relative
         number: 1,
@@ -410,8 +421,8 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onNew, })
     const [query, setQuery] = useState('')
     const [queryTime, setQueryTime] = useState('')
     const [loading, setLoading] = useState(false)
-    const [keyword, setKeyword] = useState('')
-    const [searchKeyword, setSearchKeyword] = useState('')
+    const [keyword, setKeyword] = useState(detailItem.defaultKeyword || '')
+    const [searchKeyword, setSearchKeyword] = useState(keyword)
     const default_limit = 100
     const [limit, setLimit] = useState(default_limit)
     // const [searchLimit, setSearchLimit] = useState(limit)
@@ -430,7 +441,6 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onNew, })
         setLoading(true)
         // const _startTime = moment().add(-1, 'hours').format('YYYY-MM-DD HH:mm:ss')
         // const _endTime = moment().format('YYYY-MM-DD HH:mm:ss')
-
         let startTime
         let endTime
         if (time) {
@@ -451,6 +461,7 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onNew, })
                 endTime = time.end
             }
         }
+        
         let _url = detailItem.url
         if (detailItem.type == 'file') {
             _url = detailItem.url + `/log/readline`
@@ -549,6 +560,19 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onNew, })
         if (fItem) {
             setKeyword(fItem.content)
             setSearchKeyword(fItem.content)
+        }
+    }
+
+    function handleTraceIdClick(isNewTab: boolean, traceId: string) {
+        if (isNewTab) {
+            onNew && onNew({
+                keyword: traceId,
+            })
+        }
+        else {
+            setPage(1)
+            setKeyword(traceId)
+            setSearchKeyword(traceId)
         }
     }
 
@@ -738,6 +762,18 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onNew, })
                         >
                             {t('new')}
                         </Button>
+                        <Button
+                            size="small"
+                            onClick={() => {
+                                onNew && onNew({
+                                    keyword: searchKeyword,
+                                    time,
+                                })
+                            }}
+                            icon={<CopyOutlined />}
+                        >
+                            {t('duplicate')}
+                        </Button>
                         <IconButton
                             tooltip={t('export_json')}
                             onClick={() => {
@@ -849,7 +885,7 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onNew, })
                                 render(value, item) {
                                     let _value = value
                                     let traceId = ''
-                                    if (_value.startsWith('track_')) {
+                                    if (hasTrace(_value)) {
                                         const arr = splitTrace(value)
                                         _value = arr[1]
                                         traceId = arr[0]
@@ -905,10 +941,8 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onNew, })
                                             </div>
                                             {!!traceId &&
                                                 <span className={styles.traceId}
-                                                    onClick={() => {
-                                                        setPage(1)
-                                                        setKeyword(traceId)
-                                                        setSearchKeyword(traceId)
+                                                    onClick={e => {
+                                                        handleTraceIdClick(e.metaKey || e.ctrlKey, traceId)
                                                     }}
                                                 >{traceId}</span>
                                             }
@@ -1033,7 +1067,7 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onNew, })
                                 render(value, item) {
                                     let _value = value
                                     let traceId = ''
-                                    if (_value.startsWith('track_')) {
+                                    if (hasTrace(_value)) {
                                         const arr = splitTrace(value)
                                         _value = arr[1]
                                         traceId = arr[0]
@@ -1046,10 +1080,8 @@ export function LoggerDetail({ event$, connectionId, item: detailItem, onNew, })
                                         >
                                             {!!traceId &&
                                                 <span className={styles.traceId}
-                                                    onClick={() => {
-                                                        setPage(1)
-                                                        setKeyword(traceId)
-                                                        setSearchKeyword(traceId)
+                                                    onClick={e => {
+                                                        handleTraceIdClick(e.metaKey || e.ctrlKey, traceId)
                                                     }}
                                                 >{traceId}</span>
                                             }
