@@ -18,6 +18,7 @@ import { getGlobalConfig } from '@/config';
 import { SearchUtil } from '@/utils/search';
 // import { saveAs } from 'file-saver'
 import axios from 'axios'
+import { parseDisk } from '@/views/ssh/ssh-connect';
 
 function getColor(time) {
     if (time > 1000) {
@@ -113,6 +114,34 @@ export function ServiceHome({ onClickItem }) {
                     // noMessage: true,
                 })
                 isSuccess = true
+            }
+            catch (err) {
+                console.log('err', err)
+                isTimeout = err.message && err.message.includes('timeout')
+                isSuccess = false
+            }
+        }
+        else if (type == 'ssh-disk') {
+            try {
+                res = await axios.post(`${config.host}/ssh/diskCheck`, {
+                    connectionId,
+                }, {
+                    timeout: 4000,
+                })
+                const result = res?.data?.dfResult?.stdout
+                if (result) {
+                    const disks = parseDisk(result)
+                    const alarmDisk = disks.find(disk => disk.percent / 100 > service.alarmValue)
+                    if (alarmDisk) {
+                        isSuccess = false
+                    }
+                    else {
+                        isSuccess = true
+                    }
+                }
+                else {
+                    isSuccess = false
+                }
             }
             catch (err) {
                 console.log('err', err)
