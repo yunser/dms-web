@@ -280,6 +280,17 @@ ${fields.map(field => {
                             <Button
                                 size="small"
                                 onClick={() => {
+                                    const code = getCode()
+                                    const formatedCode = JSON.stringify(JSON.parse(code))
+                                    copy(formatedCode)
+                                    message.info(t('copied'))
+                                }}
+                            >
+                                {t('json.copy_compressed')}
+                            </Button>
+                            <Button
+                                size="small"
+                                onClick={() => {
                                     const example = [
                                         {
                                             name: 'Alice',
