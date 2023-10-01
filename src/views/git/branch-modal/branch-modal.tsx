@@ -1,40 +1,35 @@
-import { Button, Descriptions, Form, Input, message, Modal, Popover, Select, Space, Table, Tabs } from 'antd';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import styles from './pull-modal.module.less';
+import { Form, Input, Modal, Tag } from 'antd';
+import React, { useEffect, useState } from 'react';
+import styles from './branch-modal.module.less';
 import _ from 'lodash';
-import classNames from 'classnames'
-// console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { DownloadOutlined } from '@ant-design/icons';
-import saveAs from 'file-saver';
-import { useEventEmitter } from 'ahooks';
 import { request } from '@/views/db-manager/utils/http';
 import { CommitItem } from '../commit-item';
-// import { saveAs } from 'file-saver'
 
 export function BranchModal({ config, event$, remoteName, current, projectPath, commit, onSuccess, onCancel }) {
-    // const { defaultJson = '' } = data
     const { t } = useTranslation()
 
     const [form] = Form.useForm()
-    const [remotes, setRemotes] = useState([])
-    // const [current, setCurrent] = useState('')
     const [loading, setLoading] = useState(false)
 
-
-    const [branches, setBranches] = useState([])
-
+    const names = [
+        {
+            content: 'feature-',
+        },
+        {
+            content: 'development',
+        },
+        {
+            content: 'production',
+        },
+        {
+            content: 'main',
+        },
+    ]
     
-
-    console.log('remotes', remotes)
-
     async function handleOk() {
         const values = await form.validateFields()
         setLoading(true)
-        // const values = await form.validateFields()
-        // console.log('values', values)
-        // return
         const reqData = {
             projectPath,
             name: values.name,
@@ -46,11 +41,8 @@ export function BranchModal({ config, event$, remoteName, current, projectPath, 
             reqData.remoteBranch = remoteName.substring(8)
         }
         let res = await request.post(`${config.host}/git/branch/create`, reqData)
-        console.log('pull/res', res)
         if (res.success) {
-            // setRemotes(res.data)
             onSuccess && onSuccess()
-            // setCurrent(res.data.current)
             event$.emit({
                 type: 'event_reload_history',
                 data: {
@@ -60,12 +52,6 @@ export function BranchModal({ config, event$, remoteName, current, projectPath, 
         }
         setLoading(false)
     }
-
-    useEffect(() => {
-        // loadRemotes()
-        // loadBranches()
-        // pull()
-    }, [])
 
     useEffect(() => {
         if (remoteName) {
@@ -87,9 +73,7 @@ export function BranchModal({ config, event$, remoteName, current, projectPath, 
                 confirmLoading={loading}
                 maskClosable={false}
                 okText={t('git.branch.create')}
-                // footer={null}
             >
-                {/* {loading ? 'Pulling' : 'Pull Finished'} */}
                 <Form
                     form={form}
                     labelCol={{ span: 6 }}
@@ -100,10 +84,6 @@ export function BranchModal({ config, event$, remoteName, current, projectPath, 
                     onFinish={() => {
                         handleOk()
                     }}
-                    // layout={{
-                    //     labelCol: { span: 0 },
-                    //     wrapperCol: { span: 24 },
-                    // }}
                 >
                     <Form.Item
                         name="name"
@@ -136,6 +116,20 @@ export function BranchModal({ config, event$, remoteName, current, projectPath, 
                         </Form.Item>
                     }
                 </Form>
+                <div>
+                    {names.map(name => (
+                        <Tag
+                            className={styles.tag}
+                            onClick={() => {
+                                form.setFieldsValue({
+                                    name: name.content,
+                                })
+                            }}
+                        >
+                                {name.content}
+                        </Tag>
+                    ))}
+                </div>
             </Modal>
         </div>
     )
