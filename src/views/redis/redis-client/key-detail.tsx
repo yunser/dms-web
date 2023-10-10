@@ -169,9 +169,16 @@ export function RedisKeyDetail({ config, event$, connectionId, redisKey, onRemov
     if (result && !result.exists) {
         return (
             <FullCenterBox>
-                <Empty
-                    description={t('key_is_not_exists')}
-                />
+                <div className={styles.keyEmptyBox}>
+                    <Empty
+                        description={t('key_is_not_exists')}
+                    />
+                    <Button
+                        onClick={loadKey}
+                    >
+                        {t('refresh')}
+                    </Button>
+                </div>
             </FullCenterBox>
         )
     }
