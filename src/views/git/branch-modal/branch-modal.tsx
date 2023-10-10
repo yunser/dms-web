@@ -14,7 +14,7 @@ export function BranchModal({ config, event$, remoteName, current, projectPath, 
 
     const names = [
         {
-            content: 'feature-',
+            content: 'feature/',
         },
         {
             content: 'development',
