@@ -1,4 +1,4 @@
-import { Button, Input, Modal, Space, Table } from 'antd';
+import { Button, Input, Modal, Space, Table, message } from 'antd';
 import React, { useEffect, useState } from 'react';
 import styles from './redis-like.module.less';
 import _ from 'lodash';
@@ -7,6 +7,7 @@ import { request } from '@/views/db-manager/utils/http';
 import { RedisLikeModal } from './redis-like-modal';
 import { IconButton } from '@/views/db-manager/icon-button';
 import { ReloadOutlined } from '@ant-design/icons';
+import copy from 'copy-to-clipboard';
 
 export function RedisLike({ config, event$, connectionId, onConnect, }) {
     const { t } = useTranslation()
@@ -93,6 +94,19 @@ export function RedisLike({ config, event$, connectionId, onConnect, }) {
                         title: t('key'),
                         dataIndex: 'key',
                         width: 240,
+                        render(key) {
+                            return (
+                                <div
+                                    className={styles.keyCell}
+                                    onClick={() => {
+                                        copy(key)
+                                        message.info(t('copied'))
+                                    }}
+                                >
+                                    {key}
+                                </div>
+                            )
+                        }
                     },
                     {
                         title: t('time'),
