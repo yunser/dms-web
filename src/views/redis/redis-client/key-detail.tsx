@@ -181,7 +181,15 @@ export function RedisKeyDetail({ config, event$, connectionId, redisKey, onRemov
             <div className={styles.layoutRightContent}>
                 {!!result && editType == 'update' &&
                     <div className={styles.header}>
-                        <div>{result.key}</div>
+                        <div
+                            className={styles.keyName}
+                            onClick={() => {
+                                copy(result.key)
+                                message.info(t('copied'))
+                            }}
+                        >
+                            {result.key}
+                        </div>
                         <Space>
                             <IconButton
                                 tooltip={t('refresh')}
@@ -241,7 +249,7 @@ export function RedisKeyDetail({ config, event$, connectionId, redisKey, onRemov
                                         onClick={({ key }) => {
                                             if (key == 'copy_key_name') {
                                                 copy(result.key)
-                                                message.info('Copied')
+                                                message.info(t('copied'))
                                             }
                                             else if (key == 'export_json') {
                                                 exportJson()
