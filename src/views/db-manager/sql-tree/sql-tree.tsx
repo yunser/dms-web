@@ -200,6 +200,10 @@ function TreeTitle({ keyword, loading = false, nodeData, onAction, onClick, onDo
                                 //     label: t('export_struct'),
                                 //     key: 'export_struct',
                                 // },
+                                {
+                                    label: t('copy_name'),
+                                    key: 'copy_name',
+                                },
                                 // --------
                                 {
                                     type: 'divider',
@@ -207,6 +211,10 @@ function TreeTitle({ keyword, loading = false, nodeData, onAction, onClick, onDo
                                 {
                                     label: t('count_all'),
                                     key: 'count_all',
+                                },
+                                // --------
+                                {
+                                    type: 'divider',
                                 },
                                 {
                                     label: t('duplicate'),
@@ -221,20 +229,16 @@ function TreeTitle({ keyword, loading = false, nodeData, onAction, onClick, onDo
                                     key: 'export_structure',
                                 },
                                 {
-                                    label: t('copy_name'),
-                                    key: 'copy_name',
-                                },
-                                {
                                     label: t('mysql.export_data'),
                                     key: 'export_data',
-                                },
-                                {
-                                    label: t('sql.optimize_table'),
-                                    key: 'optimize_table',
                                 },
                                 // --------
                                 {
                                     type: 'divider',
+                                },
+                                {
+                                    label: t('sql.optimize_table'),
+                                    key: 'optimize_table',
                                 },
                                 {
                                     label: t('table_truncate'),
