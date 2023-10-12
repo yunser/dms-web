@@ -26,16 +26,16 @@ export function WebSocketHome({ }) {
     }
     const [connections, setConnections] = useState([])
     const [contents, setContents] = useState([
-        {
-            "id": "1",
-            "name": "订阅用户绑定",
-            "content": "{\"type\":\"subscribe\",\"data\":{\"topic\":\"msg/mpBindSuccess/1617361602228058\"}}"
-        },
-        {
-            "id": "2",
-            "name": "ping",
-            "content": "ping"
-        }
+        // {
+        //     "id": "1",
+        //     "name": "订阅用户绑定",
+        //     "content": "{\"type\":\"subscribe\",\"data\":{\"topic\":\"msg/mpBindSuccess/1617361602228058\"}}"
+        // },
+        // {
+        //     "id": "2",
+        //     "name": "ping",
+        //     "content": "ping"
+        // }
     ])
 
 

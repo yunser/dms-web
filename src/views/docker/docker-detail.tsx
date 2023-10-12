@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 
 import styles from './docker.module.less'
 import classNames from 'classnames'
-import { Button, Drawer, Empty, Input, message, Modal, Radio, Space, Table, Tabs, Tag } from 'antd'
+import { Button, Drawer, Empty, Input, message, Modal, Popover, Radio, Space, Table, Tabs, Tag } from 'antd'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import storage from '../db-manager/storage'
@@ -508,6 +508,29 @@ export function DockerDetail({ connection }) {
                     },
                     {
                         title: t('docker.scope'),
+                        dataIndex: 'IPAM',
+                        // width: 100,
+                        ellipsis: true,
+                        render(value) {
+                            const { Config = []} = value
+                            return (
+                                <div>
+                                    {Config.map(item => {
+                                        return (
+                                            <div>
+                                                <Tag>Gateway: {item.Gateway}</Tag>
+                                                <div>
+                                                    <Tag>Subnet: {item.Subnet}</Tag>
+                                                </div>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            )
+                        }
+                    },
+                    {
+                        title: t('docker.ip'),
                         dataIndex: 'Scope',
                         width: 100,
                         ellipsis: true,
@@ -688,9 +711,28 @@ export function DockerDetail({ connection }) {
                                 return <div>--</div>
                             }
                             return (
-                                <div>{value.map(item => {
-                                    return `*:${item.PublishedPort}->${item.TargetPort}/${item.Protocol}`
-                                }).join(', ')}</div>
+                                <Popover
+                                    title="详情信息"
+                                    placement="topLeft"
+                                    content={
+                                        <div>
+                                            {value.map(item => {
+                                                return (
+                                                    <div>
+                                                        *:{item.PublishedPort}{'->'}{item.TargetPort}/{item.Protocol}
+                                                        <Tag>{item.PublishMode}</Tag>
+                                                    </div>
+                                                )
+                                            })}
+                                        </div>
+                                    }
+                                >
+                                    <div>
+                                        {value.map(item => {
+                                            return `*:${item.PublishedPort}->${item.TargetPort}/${item.Protocol}`
+                                        }).join(', ')}
+                                    </div>
+                                </Popover>
                             )
                         }
                     },
