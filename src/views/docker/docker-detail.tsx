@@ -17,6 +17,7 @@ import TimeAgo from 'javascript-time-ago'
 import en from 'javascript-time-ago/locale/en'
 import { SearchUtil } from '@/utils/search'
 import filesize from 'file-size'
+import copy from 'copy-to-clipboard'
 
 TimeAgo.addDefaultLocale(en)
 const timeAgo = new TimeAgo('en-US')
@@ -622,6 +623,19 @@ export function DockerDetail({ connection }) {
                         dataIndex: ['Spec', 'Name'],
                         ellipsis: true,
                         width: 280,
+                        render(value) {
+                            return (
+                                <div
+                                    className={styles.serviceNameCell}
+                                    onClick={() => {
+                                        copy(value)
+                                        message.info(t('copied'))
+                                    }}
+                                >
+                                    {value}
+                                </div>
+                            )
+                        }
                     },
                     {
                         title: t('docker.mode'),
@@ -742,6 +756,19 @@ export function DockerDetail({ connection }) {
                         dataIndex: 'Id',
                         width: 160,
                         ellipsis: true,
+                        render(value) {
+                            return (
+                                <div
+                                    className={styles.containerIdCell}
+                                    onClick={() => {
+                                        copy(value.substring(0, 6))
+                                        message.info(t('copied'))
+                                    }}
+                                >
+                                    {value}
+                                </div>
+                            )
+                        }
                     },
                     {
                         title: t('docker.names'),
