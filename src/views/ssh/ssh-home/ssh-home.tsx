@@ -1,4 +1,4 @@
-import { Button, Drawer, Input, message, Space, Tabs } from 'antd';
+import { Button, Drawer, Input, message, Popover, Space, Tabs } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import styles from './ssh-home.module.less';
 import _ from 'lodash';
@@ -18,7 +18,7 @@ import { SerializeAddon } from "xterm-addon-serialize"
 import '~xterm/css/xterm.css'
 import { uid } from 'uid';
 import { FileCollectionList } from '@/views/file/file-list';
-import { FolderOutlined, PlusOutlined } from '@ant-design/icons';
+import { FolderOutlined, LinkOutlined, PlusOutlined } from '@ant-design/icons';
 
 interface File {
     name: string
@@ -466,6 +466,17 @@ export function SshDetail({ config, defaultPath, item, onSftpPath, onClone }) {
         onClone && onClone()
     }
 
+    const tooltips = {
+        connected: t('connected'),
+        disconnected: t('disconnected'),
+        // unknown: 'Un Connect',
+    }
+    const colors = {
+        connected: 'green',
+        disconnected: 'red',
+    }
+    const wsStatus = connected ? 'connected' : 'disconnected'
+
     return (
         <div className={styles.terminalApp}>
             <div className={styles.terminalBox}
@@ -507,8 +518,8 @@ export function SshDetail({ config, defaultPath, item, onSftpPath, onClone }) {
             </div>
             <div className={styles.statusBox}>
                 <Space>
-                    <div style={{ color: connected ? 'green' : 'red'}}>{connected ? t('connected') : t('disconnected')}</div>
-                    {!connected &&
+                    {/* <div style={{ color: connected ? 'green' : 'red'}}>{connected ? t('connected') : t('disconnected')}</div> */}
+                    {/* {!connected &&
                         <Button
                             size="small"
                             onClick={() => {
@@ -517,7 +528,26 @@ export function SshDetail({ config, defaultPath, item, onSftpPath, onClone }) {
                         >
                             {t('connect')}
                         </Button>
-                    }
+                    } */}
+                    <Popover
+                        title={tooltips[wsStatus]}
+                        content={(
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    initWebSocket()
+                                }}
+                                >
+                                {t('reconnect')}
+                            </Button>
+                        )}
+                    >
+                        <LinkOutlined
+                            style={{
+                                color: colors[wsStatus],
+                            }}
+                        />
+                    </Popover>
                     <Button
                         size="small"
                         onClick={() => {
