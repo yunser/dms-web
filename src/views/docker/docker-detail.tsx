@@ -507,7 +507,7 @@ export function DockerDetail({ connection }) {
                         ellipsis: true,
                     },
                     {
-                        title: t('docker.scope'),
+                        title: t('docker.ip'),
                         dataIndex: 'IPAM',
                         // width: 100,
                         ellipsis: true,
@@ -530,7 +530,7 @@ export function DockerDetail({ connection }) {
                         }
                     },
                     {
-                        title: t('docker.ip'),
+                        title: t('docker.scope'),
                         dataIndex: 'Scope',
                         width: 100,
                         ellipsis: true,
