@@ -186,7 +186,7 @@ function parseCpuInfo(cpuinfo: string) {
     return count
 }
 
-function parseDisk(disk: string) {
+export function parseDisk(disk: string) {
     // console.log('disk2', disk)
     const lines = disk.split('\n')
     // console.log('rows', lines)
@@ -467,8 +467,20 @@ export function SshConnect({ config, tabKey, onSSh, onSftp, onDocker, event$ }) 
                                                 }}
                                             >
                                                 <Space>
-                                                    <div className={styles.name}>{item.name}</div>
+                                                    <div
+                                                        className={styles.name}
+                                                        onClick={() => {
+                                                            onSSh && onSSh({ item })
+                                                        }}
+                                                    >
+                                                        {item.name}
+                                                    </div>
                                                     <div className={styles.info}>{item.username}@{item.host}</div>
+                                                    {/* {!!item.isMonitor &&
+                                                        <div>
+                                                            <Tag>monitor</Tag>
+                                                        </div>
+                                                    } */}
                                                     {!!item.note &&
                                                         <Tooltip
                                                             title={item.note}
@@ -486,8 +498,6 @@ export function SshConnect({ config, tabKey, onSSh, onSftp, onDocker, event$ }) 
                                                     <Button
                                                         size="small"
                                                         onClick={() => {
-                                                            // setView('detail')
-                                                            // setCurItem(item)
                                                             onSSh && onSSh({ item })
                                                         }}
                                                         icon={<CodeOutlined />}
