@@ -79,7 +79,7 @@ export function ServiceHome({ onClickItem }) {
 
     async function _testItem(service) {
         const fIdx = list.findIndex(item => item.id == service.id)
-        const { type, url, connectionId } = service
+        const { type, url, connectionId, contentField } = service
         console.log('url', url)
         list[fIdx]._id = new Date().getTime()
         list[fIdx].loading = true
@@ -88,6 +88,7 @@ export function ServiceHome({ onClickItem }) {
         let res
         let isTimeout = false
         let isSuccess
+        let responseContent = ''
 
         if (type == 'database') {
             try {
@@ -179,6 +180,11 @@ export function ServiceHome({ onClickItem }) {
         list[fIdx].loading = false
         list[fIdx].isTimeout = isTimeout
 
+        if (contentField && res.data?.[contentField]) {
+            responseContent = res.data[contentField]
+        }
+        list[fIdx].responseContent = responseContent
+
         comData.current.result.success = list.filter(item => item.hasResult && item.status == 'ok').length
         comData.current.result.fail = list.filter(item => item.hasResult && item.status != 'ok').length
 
@@ -191,6 +197,7 @@ export function ServiceHome({ onClickItem }) {
         setTotalResult({
             ...comData.current.result,
         })
+        
         setList([...list])
     }
 
@@ -300,7 +307,10 @@ export function ServiceHome({ onClickItem }) {
                             <Space>
                                 <div
                                     className={styles.status} 
-                                    style={{ color: colorMap[item.status] }}>{item.status || '--'}</div>
+                                    style={{ color: colorMap[item.status] }}
+                                >
+                                    {item.status || '--'}
+                                </div>
                                 {!!item.hasResult &&
                                     <>
                                         {item.isTimeout ?
@@ -357,20 +367,30 @@ export function ServiceHome({ onClickItem }) {
             }
         },
         {
-            title: '标签',
-            dataIndex: 'tags',
+            title: '返回内容',
+            dataIndex: '_id',
             width: 240,
-            // ellipsis: true,
-            render(value = []) {
+            render(_, item) {
                 return (
-                    <div>
-                        {value.map(item => {
-                            return <Tag key={item}>{item}</Tag>
-                        })}
-                    </div>
+                    <div>{item.responseContent}</div>
                 )
-            }
+            },
         },
+        // {
+        //     title: '标签',
+        //     dataIndex: 'tags',
+        //     width: 240,
+        //     // ellipsis: true,
+        //     render(value = []) {
+        //         return (
+        //             <div>
+        //                 {value.map(item => {
+        //                     return <Tag key={item}>{item}</Tag>
+        //                 })}
+        //             </div>
+        //         )
+        //     }
+        // },
         {
             title: 'URL',
             dataIndex: 'url',
@@ -383,14 +403,14 @@ export function ServiceHome({ onClickItem }) {
             }
         },
         {
-            title: '字段',
+            title: '状态字段',
             dataIndex: 'field',
             width: 80,
-            // render(value = true) {
-            //     return (
-            //         <div style={{ color: value ? 'green' : 'red' }}>{value ? '是' : '否'}</div>
-            //     )
-            // }
+        },
+        {
+            title: '内容字段',
+            dataIndex: 'contentField',
+            width: 80,
         },
         {
             title: '启用',
@@ -448,6 +468,7 @@ export function ServiceHome({ onClickItem }) {
         },
     ]
 
+
     return (
         <div className={styles.app}>
             <div>
@@ -455,6 +476,11 @@ export function ServiceHome({ onClickItem }) {
                     <IconButton
                         className={styles.refresh}
                         onClick={() => {
+                            setTotalResult({
+                                total: 0,
+                                success: 0,
+                                fail: 0,
+                            })
                             loadList()
                         }}
                     >
@@ -582,6 +608,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
             name: values.name || t('unnamed'),
             url: values.url,
             field: values.field,
+            contentField: values.contentField,
             enable: values.enable == false ? false : true,
         }
         if (editType == 'create') {
@@ -722,18 +749,19 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                     label="URL"
                     rules={[ { required: true, }, ]}
                 >
-                    <Input
-                        // placeholder="localhost"
-                    />
+                    <Input />
                 </Form.Item>
                 <Form.Item
                     name="field"
-                    label="字段"
-                    // rules={[ { required: true, }, ]}
+                    label="状态字段"
                 >
-                    <Input
-                        // placeholder="localhost"
-                    />
+                    <Input />
+                </Form.Item>
+                <Form.Item
+                    name="contentField"
+                    label="内容字段"
+                >
+                    <Input />
                 </Form.Item>
                 <Form.Item
                     name="enable"
