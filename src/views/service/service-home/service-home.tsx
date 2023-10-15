@@ -1,7 +1,7 @@
 import { Button, Descriptions, Drawer, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Select, Space, Spin, Table, Tabs, Tag, Tree } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './service-home.module.less';
-import _ from 'lodash';
+import _, { get } from 'lodash';
 import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
@@ -180,8 +180,8 @@ export function ServiceHome({ onClickItem }) {
         list[fIdx].loading = false
         list[fIdx].isTimeout = isTimeout
 
-        if (contentField && res.data?.[contentField]) {
-            responseContent = res.data[contentField]
+        if (contentField) {
+            responseContent = get(res.data, contentField) || ''
         }
         list[fIdx].responseContent = responseContent
 
