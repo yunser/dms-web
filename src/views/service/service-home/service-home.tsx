@@ -161,6 +161,9 @@ export function ServiceHome({ onClickItem }) {
             }
             catch (err) {
                 console.log('err', err)
+                if (err.response) {
+                    res = err.response
+                }
                 isTimeout = err.message && err.message.includes('timeout')
             }
             console.log('res', res)
