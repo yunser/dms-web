@@ -1,4 +1,4 @@
-import { Button, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Space, Spin, Table, Tabs, Tag } from 'antd';
+import { Button, Descriptions, Dropdown, Empty, Form, Input, InputNumber, InputRef, Menu, message, Modal, Popover, Space, Spin, Table, Tabs, Tag } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './logger-home.module.less';
 import _ from 'lodash';
@@ -50,6 +50,9 @@ export function LoggerHome({ config, onItem, event$ }) {
     const [loading, setLoading] = useState(false)
     const [curItem, setCurItem] = useState(null)
     const [view, setView] = useState('list')
+    const searchInputRef = useRef<InputRef>(null)
+    const [activeIndex, setActiveIndex] = useState(0)
+    const inputIngRef = useRef(false)
     const [keyword, setKeyword] = useState('')
     // const [curTab, setCurTab] = useState('commit-list')
     const [projects, setProjects] = useState([])
@@ -109,7 +112,68 @@ export function LoggerHome({ config, onItem, event$ }) {
         loadList()
     }, [])
 
+    useEffect(() => {
+        if (searchInputRef.current) {
+            searchInputRef.current.focus()
+        }
+    }, [searchInputRef.current])   
     
+    useEffect(() => {
+        const handleCompositionStart = e => {
+            console.log('compositionstart')
+            inputIngRef.current = true
+        }
+        const handleCompositionEnd = e => {
+            console.log('compositionend')
+            inputIngRef.current = false
+        }
+        window.addEventListener('compositionstart', handleCompositionStart)
+        window.addEventListener('compositionend', handleCompositionEnd)
+        return () => {
+            window.removeEventListener('compositionstart', handleCompositionStart)
+            window.removeEventListener('compositionend', handleCompositionEnd)
+        }
+    }, [])
+
+    useEffect(() => {
+        const handleKeyDown = e => {
+            // if (document.activeElement?.nodeName == 'INPUT' || document.activeElement?.nodeName == 'TEXTAREA') {
+            //     return
+            // }
+            if (e.code == 'Enter') {
+                if (inputIngRef.current) {
+                    return
+                }
+                if (filterdProjects[activeIndex]) {
+                    onItem && onItem(filterdProjects[activeIndex])
+                }
+            }
+            else if (e.code == 'ArrowDown') {
+                let newIdx = activeIndex + 1
+                if (newIdx > filterdProjects.length - 1) {
+                    newIdx = 0
+                }
+                setActiveIndex(newIdx)
+
+                e.stopPropagation()
+                e.preventDefault()
+            }
+            else if (e.code == 'ArrowUp') {
+                let newIdx = activeIndex - 1
+                if (newIdx < 0) {
+                    newIdx = filterdProjects.length - 1
+                }
+                setActiveIndex(newIdx)
+
+                e.stopPropagation()
+                e.preventDefault()
+            }
+        }
+        window.addEventListener('keydown', handleKeyDown)
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown)
+        }
+    }, [activeIndex, filterdProjects, inputIngRef.current])
 
     function editProject(item) {
         setProjectModalVisible(true)
@@ -191,6 +255,7 @@ export function LoggerHome({ config, onItem, event$ }) {
                         </div>
                         <div>
                             <Input
+                                ref={searchInputRef}
                                 placeholder={t('filter')}
                                 value={keyword}
                                 allowClear
@@ -214,11 +279,13 @@ export function LoggerHome({ config, onItem, event$ }) {
                         :
                             <div className={styles.listWrap}>
                                 <div className={styles.list}>
-                                    {filterdProjects.map(item => {
+                                    {filterdProjects.map((item, index) => {
                                         return (
                                             <div
                                                 key={item.id}
-                                                className={styles.item}
+                                                className={classNames(styles.item, {
+                                                    [styles.active]: index == activeIndex
+                                                })}
                                                 onClick={() => {
                                                     
                                                 }}
