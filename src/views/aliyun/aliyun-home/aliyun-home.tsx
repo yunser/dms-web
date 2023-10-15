@@ -1,4 +1,4 @@
-import { Button, Col, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Row, Space, Spin, Table, Tabs, Tag, Tree } from 'antd';
+import { Button, Checkbox, Col, Descriptions, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Row, Space, Spin, Table, Tabs, Tag, Tree } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './aliyun-home.module.less';
 import _ from 'lodash';
@@ -59,6 +59,7 @@ export function AliyunHome({ config, onClickItem }) {
     const [tencentLighthouseList, setTencentLighthouseList] = useState([])
     const [tab, setTab] = useState('main')
     const [updating, setUpdating] = useState(false)
+    // const [hideExpired, setHideExpired] = useState(false)
 
     async function loadData() {
         let res = await request.post(`${config.host}/aliyun/data`, {
@@ -135,6 +136,7 @@ export function AliyunHome({ config, onClickItem }) {
                     return {
                         ...item,
                         id: uid(32),
+                        expired: moment(item.expireTime).isBefore(moment()),
                     }
                 })
             setAllList(allList)
@@ -459,6 +461,24 @@ export function AliyunHome({ config, onClickItem }) {
     const main = (
         <div>
             <div className={styles.welcome}>欢迎使用阿里云/腾讯云助手</div>
+
+            <div className={styles.toolBox}>
+                {/* <Checkbox
+                    value={hideExpired}
+                    onChange={e => {
+                        setHideExpired(e.target.value)
+                    }}
+                >
+                    隐藏已到期产品
+                </Checkbox> */}
+                <Button
+                    onClick={() => {
+                        setAllList(allList.filter(item => item.expired === false))
+                    }}
+                >
+                    隐藏已到期产品
+                </Button>
+            </div>
 
             <div className={styles.section}>
                 {/* <div className={styles.title}>一个月内快到期产品：</div> */}
