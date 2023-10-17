@@ -1,4 +1,4 @@
-import { Button, Dropdown, Empty, Input, Menu, message, Space, Spin } from 'antd';
+import { Button, Dropdown, Empty, Input, Menu, message, Space, Spin, Tag } from 'antd';
 import React, { useEffect, useState } from 'react';
 import styles from './redis-client.module.less';
 import _ from 'lodash';
@@ -188,15 +188,20 @@ export function RedisKeyDetail({ config, event$, connectionId, redisKey, onRemov
             <div className={styles.layoutRightContent}>
                 {!!result && editType == 'update' &&
                     <div className={styles.header}>
-                        <div
-                            className={styles.keyName}
-                            onClick={() => {
-                                copy(result.key)
-                                message.info(t('copied'))
-                            }}
-                        >
-                            {result.key}
-                        </div>
+                        <Space>
+                            <div>
+                                <Tag>{result.type}</Tag>
+                            </div>
+                            <div
+                                className={styles.keyName}
+                                onClick={() => {
+                                    copy(result.key)
+                                    message.info(t('copied'))
+                                }}
+                            >
+                                {result.key}
+                            </div>
+                        </Space>
                         <Space>
                             <IconButton
                                 tooltip={t('refresh')}

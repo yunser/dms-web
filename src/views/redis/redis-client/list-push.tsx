@@ -358,7 +358,8 @@ export function DatabaseModal({ config, type, redisKey, connectionId, item, onCl
                         label={t('content')}
                         rules={[ { required: true, }, ]}
                     >
-                        <Input
+                        <Input.TextArea
+                            rows={8}
                             // disabled={!(editType == 'create')}
                         />
                     </Form.Item>
