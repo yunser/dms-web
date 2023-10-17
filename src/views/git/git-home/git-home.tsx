@@ -50,7 +50,9 @@ export function GitHome({ event$, onProject }) {
     const { t } = useTranslation()
     const [curProject, setCurProject] = useState(null)
     const [view, setView] = useState('list')
-    const [keyword, setKeyword] = useState('')
+    const [keyword, setKeyword] = useState(() => {
+        return storage.get('git_keyword', '')
+    })
     const searchInputRef = useRef<InputRef>(null)
     const [loading, setLoading] = useState(false)
     const [projects, setProjects] = useState([])
@@ -166,7 +168,7 @@ export function GitHome({ event$, onProject }) {
             window.removeEventListener('compositionstart', handleCompositionStart)
             window.removeEventListener('compositionend', handleCompositionEnd)
         }
-    }, [activeIndex, filteredProjects])
+    }, [])
 
     
     // onCompositionStart={() => {
@@ -418,7 +420,9 @@ export function GitHome({ event$, onProject }) {
                                 value={keyword}
                                 allowClear
                                 onChange={e => {
-                                    setKeyword(e.target.value)
+                                    const keyword = e.target.value
+                                    storage.set('git_keyword', keyword)
+                                    setKeyword(keyword)
                                     if (activeIndex != 0) {
                                         setActiveIndex(0)
                                     }
