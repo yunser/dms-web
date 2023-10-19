@@ -10,7 +10,7 @@ import storage from '../../db-manager/storage'
 
 
 import { uid } from 'uid';
-import { EllipsisOutlined, ExportOutlined, EyeInvisibleOutlined, EyeOutlined, EyeTwoTone, PlusOutlined, ReloadOutlined, TableOutlined, UnorderedListOutlined } from '@ant-design/icons';
+import { EllipsisOutlined, ExportOutlined, EyeInvisibleOutlined, EyeOutlined, EyeTwoTone, HomeOutlined, PlusOutlined, ReloadOutlined, TableOutlined, UnorderedListOutlined } from '@ant-design/icons';
 
 
 import { request } from '@/views/db-manager/utils/http';
@@ -395,6 +395,15 @@ ${t('password')}: ${item.password}`
                                             e.stopPropagation()
                                         }}
                                     >
+                                        {!!item.home &&
+                                            <IconButton
+                                                onClick={() => {
+                                                    window.open(item.home, '_blank')
+                                                }}
+                                            >
+                                                <HomeOutlined />
+                                            </IconButton>
+                                        }
                                         {more(item)}
                                     </Space>
                                 </div>
@@ -477,6 +486,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
             port: values.port || 1883,
             password: values.password || '',
             userName: values.userName,
+            home: values.home,
         }
         if (editType == 'create') {
             // const connections = storage.get('redis-connections', [])
@@ -658,6 +668,12 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                     // rules={[{ required: true, },]}
                 >
                     <InputPassword />
+                </Form.Item>
+                <Form.Item
+                    name="home"
+                    label={t('mqtt.home')}
+                >
+                    <Input />
                 </Form.Item>
                 {/* <Form.Item
                     name="ppppp"
