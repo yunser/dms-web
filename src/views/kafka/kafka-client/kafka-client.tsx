@@ -6,7 +6,7 @@ import classNames from 'classnames'
 // console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import { DownloadOutlined, EllipsisOutlined, KeyOutlined, PlusOutlined, ReloadOutlined, StarFilled } from '@ant-design/icons';
+import { DownloadOutlined, EllipsisOutlined, HomeOutlined, KeyOutlined, PlusOutlined, ReloadOutlined, StarFilled } from '@ant-design/icons';
 import saveAs from 'file-saver';
 import { useEventEmitter } from 'ahooks';
 // import { GitProject } from '../git-project';
@@ -582,6 +582,16 @@ export function KafkaClient({ onClickItem }) {
                                             >
                                                 删除
                                             </Button>
+                                            {!!item.home &&
+                                                <Button
+                                                    size="small"
+                                                    onClick={() => {
+                                                        window.open(item.home, '_blank')
+                                                    }}
+                                                >
+                                                    <HomeOutlined />
+                                                </Button>
+                                            }
                                         </Space>
                                     )
                                 }
@@ -949,6 +959,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                 port: null,
                 password: '',
                 userName: '',
+                home: '',
             })
         }
     }, [item])
@@ -961,6 +972,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
             name: values.name || t('unnamed'),
             host: values.host || 'localhost',
             port: values.port || 9095,
+            home: values.home || '',
             // password: values.password || '',
             // userName: values.userName,
         }
@@ -1093,14 +1105,12 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                 <Form.Item
                     name="name"
                     label={t('name')}
-                    // rules={[ { required: true, }, ]}
                 >
                     <Input />
                 </Form.Item>
                 <Form.Item
                     name="host"
                     label={t('host')}
-                    // rules={[ { required: true, }, ]}
                 >
                     <Input
                         placeholder="localhost"
@@ -1109,56 +1119,17 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                 <Form.Item
                     name="port"
                     label={t('port')}
-                    // rules={[{ required: true, },]}
                 >
                     <InputNumber
                         placeholder="9095"
                     />
                 </Form.Item>
-                {/* <Form.Item
-                    name="user"
-                    label="User"
-                    rules={[{ required: true, },]}
-                >
-                    <Input />
-                </Form.Item> */}
-                {/* <Form.Item
-                    name="userName"
-                    label={t('user_name')}
+                <Form.Item
+                    name="home"
+                    label={t('common.home')}
                 >
                     <Input />
                 </Form.Item>
-                <Form.Item
-                    name="password"
-                    label={t('password')}
-                    // rules={[{ required: true, },]}
-                >
-                    <Input.Password />
-                </Form.Item> */}
-                {/* <Form.Item
-                    name="ppppp"
-                    label={t('ppppppp')}
-                    rules={[{ required: true, },]}
-                >
-                    <Input.Password
-                        size="small"
-                        autoComplete="new-password"
-                    />
-                </Form.Item> */}
-                
-                {/* <Form.Item name="remember" valuePropName="checked" wrapperCol={{ offset: 8, span: 16 }}>
-                    <Checkbox>Remember me</Checkbox>
-                </Form.Item> */}
-                {/* <Form.Item
-                    wrapperCol={{ offset: 8, span: 16 }}
-                >
-                    <Space>
-                        <Button
-                            loading={loading}
-                            type="primary"
-                            onClick={connect}>{t('connect')}</Button>
-                    </Space>
-                </Form.Item> */}
             </Form>
         </Modal>
     );
