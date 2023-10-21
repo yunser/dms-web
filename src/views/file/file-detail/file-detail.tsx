@@ -1,4 +1,4 @@
-import { Button, Empty, message, Modal, Space, Spin, Tabs } from 'antd';
+import { Button, Empty, message, Modal, Space, Spin, Table, Tabs } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './file-detail.module.less';
 import _ from 'lodash';
@@ -12,6 +12,7 @@ import { pdfjs, Document, Page } from 'react-pdf'
 import { read, utils } from "xlsx";
 import copy from 'copy-to-clipboard';
 import { FullCenterBox } from '@/views/common/full-center-box';
+import ReactEcharts from 'echarts-for-react';
 
 // pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.worker.min.js'
 pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.js/2.12.313/pdf.worker.min.js'
@@ -261,6 +262,58 @@ function XlsxViewer({ src }) {
     )
 }
 
+function EchartsViewer({ content }) {
+    let optionObj
+    try {
+        optionObj = JSON.parse(content)
+    } catch (error) {
+        
+    }
+    if (!optionObj) {
+        return <div>content is not JSON</div>
+    }
+
+    return (
+        <div>
+            <ReactEcharts
+                style={{ height: '240px' }}
+                option={optionObj}
+                lazyUpdate={true}
+            />
+        </div>
+    )
+}
+
+function JsonListViewer({ content }) {
+    let viewObj
+    try {
+        viewObj = JSON.parse(content)
+    } catch (error) {
+        
+    }
+    if (!viewObj) {
+        return <div>content is not JSON</div>
+    }
+    if (!Array.isArray(viewObj.list)) {
+        return <div>content is not view json</div>
+    }
+
+    return (
+        <div>
+            <Table
+                columns={viewObj.columns}
+                dataSource={viewObj.list}
+                size="small"
+                bordered
+                pagination={false}
+                scroll={{
+                    y: 640,
+                }}
+            />
+        </div>
+    )
+}
+
 function TableViewer({ content }) {
 
     const table = useMemo(() => {
@@ -344,6 +397,14 @@ export function FileDetail({ config, path, sourceType, onCancel, onMin, onEdit }
     else if (path.endsWith('.xlsx')) {
         mediaType = 'xlsx'
     }
+    else if (path.endsWith('.view.json')) {
+        mediaType = 'jsonView'
+        isText = true
+    }
+    else if (path.endsWith('.echarts.json')) {
+        mediaType = 'echartsView'
+        isText = true
+    }
     else if (path.endsWith('.md')) {
         mediaType = 'md'
         isText = true
@@ -414,7 +475,7 @@ export function FileDetail({ config, path, sourceType, onCancel, onMin, onEdit }
         <Modal
             title={path}
             open={true}
-            width={isPureText ? 1200 : 800}
+            width={(isPureText || (mediaType == 'jsonView')) ? 1200 : 800}
             centered={isPureText}
             onCancel={onCancel}
             footer={
@@ -466,6 +527,18 @@ export function FileDetail({ config, path, sourceType, onCancel, onMin, onEdit }
                                         config={config}
                                         event$={null}
                                         path={path}
+                                    />
+                                </div>
+                            : mediaType == 'jsonView' ?
+                                <div>
+                                    <JsonListViewer
+                                        content={content}
+                                    />
+                                </div>
+                            : mediaType == 'echartsView' ?
+                                <div>
+                                    <EchartsViewer
+                                        content={content}
                                     />
                                 </div>
                             : mediaType == 'csv' ?
