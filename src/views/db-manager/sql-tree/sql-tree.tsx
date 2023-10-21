@@ -1100,6 +1100,10 @@ LIMIT 1000;`
                                         label: t('sql.real_process'),
                                         key: 'real_process',
                                     },
+                                    {
+                                        label: t('sql.variable'),
+                                        key: 'variable',
+                                    },
                                 ]}
                                 onClick={({ key }) => {
                                     if (key == 'real_process') {
@@ -1107,6 +1111,16 @@ LIMIT 1000;`
                                             title: '$i18n.sql.real_process',
                                             key: 'real_process-0',
                                             type: 'real_process',
+                                            data: {
+                                                connectionId,
+                                            },
+                                        })
+                                    }
+                                    else if (key == 'variable') {
+                                        onTab && onTab({
+                                            title: '$i18n.sql.variable',
+                                            key: 'variable-0',
+                                            type: 'variable',
                                             data: {
                                                 connectionId,
                                             },

@@ -51,6 +51,7 @@ import { TableDiff } from '../table-diff'
 import { SqlDataImport } from '../data-import'
 import { SqlRealPanel } from '../sql-real/sql-real'
 import { SqlDataBackup } from '../data-backup'
+import { SqlVariablePanel } from '../sql-variable/sql-variable'
 
 // console.log('ddd.0')
 // _.debounce(() => {
@@ -975,6 +976,13 @@ export function DataBaseDetail({ databaseType = 'mysql', curConnect, _connection
                                 }
                                 {item.type == 'real_process' &&
                                     <SqlRealPanel
+                                        config={config}
+                                        connectionId={connectionId}
+                                        event$={event$}
+                                    />
+                                }
+                                {item.type == 'variable' &&
+                                    <SqlVariablePanel
                                         config={config}
                                         connectionId={connectionId}
                                         event$={event$}
