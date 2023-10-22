@@ -204,7 +204,7 @@ function obj2Tree(obj, handler) {
         }
         return {
             title: key,
-            key: 'folder-' + key,
+            key: `antd-folder-${prefix}:${key}`,
             itemData: {
                 prefix: prefix,
                 key,
@@ -588,7 +588,7 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
                 if (item.key.includes(':')) {
                     _.set(treeObj, item.key.replaceAll(':', '.'), node)
                 }
-                else {
+                else if (item.key != '') { // 存在空字符串的 key，暂不支持
                     _.set(treeObj, '____root____' + item.key, node)
                 }
             }
@@ -599,14 +599,13 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
             const treeData2 = obj2Tree(treeObj, (item, { level }) => {
                 return {
                     title: item.key,
-                    key: 'key-' + item.key,
+                    key: `antd-key-${item.prefix}:${item.key}`,
                     itemData: item,
                     type: 'type_key',
                     level,
                     childrem: undefined,
                 }
             })
-            // console.log('treeData2', treeData2)
             setTreeData(treeData2)
             // console.log('treeObj', treeObj)
 
@@ -915,6 +914,7 @@ export function RedisClient({ config, event$, connectionId: _connectionId,
             }
         })
     }
+
 
     return (
         <div className={styles.redisLayout}>
