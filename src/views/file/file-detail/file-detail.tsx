@@ -473,7 +473,25 @@ export function FileDetail({ config, path, sourceType, onCancel, onMin, onEdit }
 
     return (
         <Modal
-            title={path}
+            title={
+                <div
+                    className={styles.fileDetailPath}
+                    onClick={(e) => {
+                        if (e.shiftKey) {
+                            const arr = path.split('/')
+                            const fileName = arr[arr.length - 1]
+                            copy(fileName)
+                            message.info(t('copied'))
+                        }
+                        else {
+                            copy(path)
+                            message.info(t('copied'))
+                        }
+                    }}
+                >
+                    {path}
+                </div>
+            }
             open={true}
             width={(isPureText || (mediaType == 'jsonView')) ? 1200 : 800}
             centered={isPureText}
