@@ -61,7 +61,6 @@ export function RowDetailModal({ originColumns, item, onCancel, onSuccess, table
                             <InfoCircleOutlined style={{ opacity: columnMap[value]?.COLUMN_COMMENT ? 1 : 0.4}} />
                         </Popover>
                         {value}
-
                     </LeftRightLayout>
                 )
             }
@@ -75,7 +74,17 @@ export function RowDetailModal({ originColumns, item, onCancel, onSuccess, table
                         <div className={styles.null}>NULL</div>
                     )
                 }
-                return <div>{value}</div>
+                return (
+                    <div
+                        className={styles.value}
+                        onClick={() => {
+                            copy(value)
+                            message.info(t('copied'))
+                        }}
+                    >
+                        {value}
+                    </div>
+                )
             }
         },
     ]

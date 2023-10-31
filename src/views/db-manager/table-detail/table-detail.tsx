@@ -8,7 +8,7 @@ import { ExecModal } from '../exec-modal/exec-modal';
 import { uid } from 'uid';
 import { useTranslation } from 'react-i18next';
 import { IconButton } from '@/views/db-manager/icon-button';
-import { ArrowDownOutlined, ArrowUpOutlined, InsertRowAboveOutlined, PlusOutlined, QuestionOutlined, ReloadOutlined } from '@ant-design/icons';
+import { ArrowDownOutlined, ArrowUpOutlined, InsertRowAboveOutlined, InsertRowBelowOutlined, PlusOutlined, QuestionOutlined, ReloadOutlined } from '@ant-design/icons';
 import filesize from 'file-size';
 import { CodeDebuger } from '../code-debug';
 import moment from 'moment';
@@ -2600,6 +2600,19 @@ ${[...attrSqls, ...rowSqls, ...idxSqls, ...partSqls].join(' ,\n')};`)
                                                             }}
                                                         >
                                                             {t('insert_above')}
+                                                        </Button>
+                                                        <Button
+                                                            size="small"
+                                                            disabled={!(colSelectedRowKeys.length == 1)}
+                                                            icon={<InsertRowBelowOutlined />}
+                                                            onClick={() => {
+                                                                const rowKey = colSelectedRowKeys[0]
+                                                                console.log('rowKey', rowKey)
+                                                                const rowIdx = tableColumns.findIndex(_item => _item.__id == rowKey)
+                                                                addColumn(rowIdx + 1)
+                                                            }}
+                                                        >
+                                                            {t('insert_below')}
                                                         </Button>
                                                         <Button
                                                             size="small"

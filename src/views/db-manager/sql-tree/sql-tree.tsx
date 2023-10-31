@@ -1063,19 +1063,6 @@ LIMIT 1000;`
                         <HeartOutlined />
                     </IconButton>
                     <IconButton
-                        tooltip={t('info')}
-                        onClick={() => {
-                            event$.emit({
-                                type: 'event_show_info',
-                                data: {
-                                    connectionId,
-                                },
-                            })
-                        }}
-                    >
-                        <InfoCircleOutlined />
-                    </IconButton>
-                    <IconButton
                         tooltip={t('quick_sql')}
                         onClick={() => {
                             // let tabKey = '' + new Date().getTime()
@@ -1108,6 +1095,10 @@ LIMIT 1000;`
                                         label: t('sql.memory'),
                                         key: 'memory',
                                     },
+                                    {
+                                        label: t('info'),
+                                        key: 'info',
+                                    },
                                 ]}
                                 onClick={({ key }) => {
                                     if (key == 'real_process') {
@@ -1135,6 +1126,14 @@ LIMIT 1000;`
                                             title: '$i18n.sql.memory',
                                             key: 'memory-0',
                                             type: 'memory',
+                                            data: {
+                                                connectionId,
+                                            },
+                                        })
+                                    }
+                                    else if (key == 'info') {
+                                        event$.emit({
+                                            type: 'event_show_info',
                                             data: {
                                                 connectionId,
                                             },
