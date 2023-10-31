@@ -21,6 +21,7 @@ export function HistoryList({ config, onSql }) {
     const { t } = useTranslation()
     const [loading, setLoading] = useState(false)
     const [page, setPage] = useState(1)
+    const [keyword, setKeyword] = useState('')
     const [total, setTotal] = useState(0)
     const [list, setList] = useState([])
 
@@ -149,6 +150,7 @@ export function HistoryList({ config, onSql }) {
             // dbName,
             page,
             pageSize: 10,
+            keyword,
         })
         if (res.success) {
             // message.info('连接成功')
@@ -162,7 +164,7 @@ export function HistoryList({ config, onSql }) {
 
     useEffect(() => {
         loadData()
-    }, [page])
+    }, [page, keyword])
 
     return (
         <div className={styles.historyBox}>
@@ -185,18 +187,11 @@ export function HistoryList({ config, onSql }) {
                                 content: `${t('delete_all_confirm')}`,
                                 async onOk() {
                                     let res = await request.post(`${config.host}/mysql/history/clear`, {
-                                        // dbName,
                                         page,
                                         pageSize: 10,
                                     })
                                     if (res.success) {
                                         loadData()
-                                        // message.info('连接成功')
-                                        
-                                        // const data = res.data
-                                        // // console.log('res', list)
-                                        // setList(data.list)
-                                        // setTotal(data.total)
                                     }
                                 }
                             })
@@ -204,6 +199,14 @@ export function HistoryList({ config, onSql }) {
                     >
                         <ClearOutlined />
                     </IconButton>
+                    <Input.Search
+                        placeholder={t('search')}
+                        allowClear
+                        onSearch={value => {
+                            setKeyword(value)
+                        }}
+                        style={{ width: 200 }}
+                    />
                 </Space>
             </div>
             {/* <div className={styles.debug}>
