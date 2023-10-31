@@ -54,6 +54,8 @@ export function DockerDetail({ connection }) {
     const [containers, setContainers] = useState([])
     const [containerKeyword, setContainerKeyword] = useState('')
     const [containerType, setContainerType] = useState('running')
+    const [containerDetailVisible, setContainerDetailVisible] = useState(false)
+    const [containerDetailItem, setContainerDetailItem] = useState(null)
 
 
     const [imageLoading, setImageLoading] = useState(false)
@@ -686,6 +688,42 @@ export function DockerDetail({ connection }) {
                         }
                     },
                     {
+                        title: t('labels'),
+                        dataIndex: 'Spec',
+                        width: 80,
+                        render(value = {}) {
+                            const labelMap = value.Labels || {}
+                            const labels = []
+                            for (let key in labelMap) {
+                                labels.push({
+                                    key,
+                                    value: labelMap[key],
+                                })
+                            }
+                            return (
+                                <div>
+                                    <Popover
+                                        title="属性"
+                                        content={(
+                                            <div className={styles.labels}>
+                                                {labels.map(item => {
+                                                    return (
+                                                        <div className={styles.item}>
+                                                            <Tag>{item.key}</Tag>
+                                                            <div>{item.value}</div>
+                                                        </div>
+                                                    )
+                                                })}
+                                            </div>
+                                        )}
+                                    >
+                                        <Tag>{labels.length}</Tag>
+                                    </Popover>
+                                </div>
+                            )
+                        }
+                    },
+                    {
                         title: t('docker.image'),
                         dataIndex: ['Spec', 'Labels', 'com.docker.stack.image'],
                         width: 320,
@@ -815,31 +853,76 @@ export function DockerDetail({ connection }) {
                     {
                         title: t('docker.names'),
                         dataIndex: 'Names',
-                        render(value) {
+                        render(value, item) {
                             return (
-                                <div>{value.join(', ')}</div>
+                                <div
+                                    className={styles.nameLink}
+                                    onClick={() => {
+                                        setContainerDetailVisible(true)
+                                        setContainerDetailItem(item)
+                                        console.log('item/', item)
+                                    }}
+                                >
+                                    {value.join(', ')}
+                                </div>
                             )
                         }
                     },
+                    // {
+                    //     title: t('docker.image'),
+                    //     dataIndex: 'Image',
+                    //     render(value) {
+                    //         return (
+                    //             <div className={styles.cellTwoRow}>{value}</div>
+                    //         )
+                    //     }
+                    // },
+                    // {
+                    //     title: t('command'),
+                    //     dataIndex: 'Command',
+                    //     width: 220,
+                    //     ellipsis: true,
+                    // },
                     {
-                        title: t('docker.image'),
-                        dataIndex: 'Image',
-                        render(value) {
+                        title: t('labels'),
+                        dataIndex: 'Labels',
+                        width: 80,
+                        // ellipsis: true,
+                        render(labelMap = {}) {
+                            const labels = []
+                            for (let key in labelMap) {
+                                labels.push({
+                                    key,
+                                    value: labelMap[key],
+                                })
+                            }
                             return (
-                                <div className={styles.cellTwoRow}>{value}</div>
+                                <div>
+                                    <Popover
+                                        title="属性"
+                                        content={(
+                                            <div className={styles.labels}>
+                                                {labels.map(item => {
+                                                    return (
+                                                        <div className={styles.item}>
+                                                            <Tag>{item.key}</Tag>
+                                                            <div>{item.value}</div>
+                                                        </div>
+                                                    )
+                                                })}
+                                            </div>
+                                        )}
+                                    >
+                                        <Tag>{labels.length}</Tag>
+                                    </Popover>
+                                </div>
                             )
                         }
-                    },
-                    {
-                        title: t('command'),
-                        dataIndex: 'Command',
-                        width: 220,
-                        ellipsis: true,
                     },
                     {
                         title: t('status'),
                         dataIndex: 'Status',
-                        width: 220,
+                        width: 160,
                         render(value) {
                             let color
                             if (value?.includes('Up')) {
@@ -1115,6 +1198,15 @@ export function DockerDetail({ connection }) {
                     }}
                 />
             }
+            {containerDetailVisible &&
+                <ContainerDetail
+                    item={containerDetailItem}
+                    connectionId={connectionId}
+                    onClose={() => {
+                        setContainerDetailVisible(false)
+                    }}
+                />
+            }
         </div>
     )
 }
@@ -1147,6 +1239,58 @@ function VolumeDetail({ connectionId, item, onClose }) {
         >
             {!!detail &&
                 <div>{detail.Name}</div>
+            }
+        </Drawer>
+    )
+}
+
+
+function ContainerDetail({ connectionId, item, onClose }) {
+    const { t } = useTranslation()
+
+    const networks = Object.keys(item.NetworkSettings.Networks)
+        .map(name => {
+            return {
+                name,
+                ...item.NetworkSettings.Networks[name],
+            }
+        })
+    
+    return (
+        <Drawer
+            title="container detail"
+            open={true}
+            onClose={onClose}
+            width={800}
+        >
+            {!!item &&
+                <div>
+                    <div>{t('docker.image')}:</div>
+                    {item.Image}
+                    <hr />
+                    <div>{t('command')}:</div>
+                    {item.Command}
+                    <hr />
+                    <div>mounts:</div>
+                    <div>
+                        {item.Mounts.map(mount => {
+                            return (
+                                <div>
+                                    {mount.Source} : {mount.Destination}
+                                </div>
+                            )
+                        })}
+                    </div>
+                    <hr />
+                    <div>networks:</div>
+                    {networks.map(network => {
+                        return (
+                            <div>{network.name}</div>
+                        )
+                    })}
+                    
+
+                </div>
             }
         </Drawer>
     )
