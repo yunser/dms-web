@@ -1,24 +1,31 @@
-import { Button, Descriptions, Drawer, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Select, Space, Spin, Table, Tabs, Tag, Tree } from 'antd';
+import { Button, Descriptions, Drawer, Dropdown, Empty, Form, Input, InputNumber, Menu, message, Modal, Popover, Radio, Select, Space, Spin, Table, Tabs, Tag, Tree } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './service-home.module.less';
 import _, { get } from 'lodash';
-import classNames from 'classnames'
-// console.log('lodash', _)
 import { useTranslation } from 'react-i18next';
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { DownloadOutlined, EllipsisOutlined, KeyOutlined, PlusOutlined, ReloadOutlined, StarFilled } from '@ant-design/icons';
-import saveAs from 'file-saver';
-import { useEventEmitter } from 'ahooks';
-// import { GitProject } from '../git-project';
 import { request } from '@/views/db-manager/utils/http';
-// import { ProjectEditor } from '../project-edit';
 import { IconButton } from '@/views/db-manager/icon-button';
-import { FullCenterBox } from '@/views/common/full-center-box';
 import { getGlobalConfig } from '@/config';
 import { SearchUtil } from '@/utils/search';
-// import { saveAs } from 'file-saver'
 import axios from 'axios'
 import { parseDisk } from '@/views/ssh/ssh-connect';
+
+function checkSuccess(data, field: string) {
+    if (field) {
+        if (field.startsWith('/') && field.endsWith('/')) {
+            const regExp = field.substring(1, field.length - 1)
+            return (typeof data == 'string') && new RegExp(regExp).test(data)
+                || (typeof data == 'object') && new RegExp(regExp).test(JSON.stringify(data))
+        }
+        else {
+            return (typeof data == 'object') && data[field] == 'success'
+        }
+    }
+    else {
+        return true
+    }
+}
 
 function getColor(time) {
     if (time > 1000) {
@@ -31,17 +38,14 @@ function getColor(time) {
 }
 
 export function ServiceHome({ onClickItem }) {
-    // const { defaultJson = '' } = data
     const { t } = useTranslation()
     const [form] = Form.useForm()
-    const [connecting, setConnecting] = useState(false)
     const [connected, setConnected] = useState(false)
 
     useEffect(() => {
         document.title = t('monitor')
     }, [])
 
-    // total
     const [totalResult, setTotalResult] = useState({
         total: 0,
         success: 0,
@@ -57,6 +61,7 @@ export function ServiceHome({ onClickItem }) {
     const [content, setContent] = useState('')
     const [list, setList] = useState([])
     const [ keyword, setKeyword ] = useState('')
+    const [ filterPriority, setFilterPriority ] = useState(0)
     const config = getGlobalConfig()
     const comData = useRef({
         result: {
@@ -66,16 +71,23 @@ export function ServiceHome({ onClickItem }) {
         }
     })
     const filteredList = useMemo(() => {
-        return SearchUtil.searchLike(list, keyword, {
+        let _list = SearchUtil.searchLike(list, keyword, {
             attributes: ['name', 'url'],
         })
-        
+        if (filterPriority) {
+            _list = _list.filter(item => item.priority <= filterPriority)
+        }
+        return _list
         // if (!keyword) {
         //     return projects    
         // }
         // return projects.filter(p => p.name.toLowerCase().includes(keyword.toLowerCase()))
         // return projects
-    }, [list, keyword])
+    }, [list, keyword, filterPriority])
+
+    const enableNum = useMemo(() => {
+        return filteredList.filter(item => item.enable != false).length
+    }, [filteredList])
 
     async function _testItem(service) {
         const fIdx = list.findIndex(item => item.id == service.id)
@@ -150,12 +162,33 @@ export function ServiceHome({ onClickItem }) {
                 isSuccess = false
             }
         }
+        else if (type == 'ping') {
+            try {
+                res = await axios.post(`${config.host}/ping/pingCheck`, {
+                    ip: url,
+                }, {
+                    timeout: 4000,
+                })
+                const result = res?.data?.success
+                if (result) {
+                    isSuccess = true
+                }
+                else {
+                    isSuccess = false
+                }
+            }
+            catch (err) {
+                console.log('err', err)
+                isTimeout = err.message && err.message.includes('timeout')
+                isSuccess = false
+            }
+        }
         else {
             try {
                 res = await axios.post(`${config.host}/http/proxy`, {
                     url,
                 }, {
-                    timeout: 4000,
+                    timeout: 2 * 1000,
                     // noMessage: true,
                 })
             }
@@ -166,16 +199,19 @@ export function ServiceHome({ onClickItem }) {
                 }
                 isTimeout = err.message && err.message.includes('timeout')
             }
-            console.log('res', res)
+            console.log('res/', res)
             // if ()
             
-            if (service.field) {
-                isSuccess = res?.status == 200 && (typeof res?.data == 'object') && res.data[service.field] == 'success'
-            }
-            else {
-                isSuccess = res && res.status == 200
-            }
+            isSuccess = res?.status == 200 && checkSuccess(res?.data, service.field)
+
+            // if (service.field) {
+            //     isSuccess = res?.status == 200 && (typeof res?.data == 'object') && res?.data[service.field] == 'success'
+            // }
+            // else {
+            //     isSuccess = res && res.status == 200
+            // }
         }
+        console.log('flow/2', )
         list[fIdx].hasResult = true
         list[fIdx]._id = new Date().getTime()
         list[fIdx].status = isSuccess ? 'ok' : 'fail'
@@ -184,7 +220,16 @@ export function ServiceHome({ onClickItem }) {
         list[fIdx].isTimeout = isTimeout
 
         if (contentField) {
-            responseContent = get(res.data, contentField) || ''
+            if (contentField == 'TEXT') {
+                responseContent = (typeof res?.data == 'string') ? res.data : ''
+            }
+            else {
+                function hasValue(value) {
+                    return !!value || value === 0
+                }
+                const value = get(res?.data, contentField)
+                responseContent = hasValue(value) ? (typeof value == 'string' ? value : JSON.stringify(value)) : ''
+            }
         }
         list[fIdx].responseContent = responseContent
 
@@ -195,6 +240,7 @@ export function ServiceHome({ onClickItem }) {
             list[fIdx].response = {
                 status: res.status,
                 data: res.data,
+                isJson: res.headers?.['content-type']?.includes('application/json'),
             }
         }
         setTotalResult({
@@ -268,9 +314,17 @@ export function ServiceHome({ onClickItem }) {
             // onSuccess && onSuccess()
             // message.success(t('success'))
             // setConnected(true)
-            setList(res.data.list.sort((a, b) => {
-                return a.name.localeCompare(b.name)
-            }))
+            const list = res.data.list
+                .map(item => {
+                    return {
+                        priority: item.priority || 3,
+                        ...item,
+                    }
+                })
+                .sort((a, b) => {
+                    return a.name.localeCompare(b.name)
+                })
+            setList(list)
         }
         // setConnecting(false)
     }
@@ -292,6 +346,37 @@ export function ServiceHome({ onClickItem }) {
             title: '服务名称',
             dataIndex: 'name',
             width: 240,
+            render(name, item) {
+                const { enable = true } = item
+                return (
+                    <div
+                        style={{
+                            // textDecoration: enable ? 'none' : 'line-through',
+                        }}
+                    >
+                        {name}
+                    </div>
+                )
+            }
+        },
+        {
+            title: '优先级',
+            dataIndex: 'priority',
+            width: 64,
+            render(priority, item) {
+                const { enable = true } = item
+                if (!enable) {
+                    return <div></div>
+                }
+                const colors = {
+                    1: 'red',
+                    2: 'orange',
+                    3: 'blue',
+                    4: 'default',
+                    5: 'default',
+                }
+                return <Tag color={colors[priority]}>{priority}</Tag>
+            }
         },
         {
             title: '状态',
@@ -504,11 +589,11 @@ export function ServiceHome({ onClickItem }) {
                             setEditVisible(true)
                         }}
                     >
-                        新增
+                        新增 
                     </Button>
                 </Space>
             </div>
-            <div>
+            <Space>
                 <Input
                     placeholder={t('filter')}
                     className={styles.keywordInput}
@@ -516,13 +601,35 @@ export function ServiceHome({ onClickItem }) {
                     allowClear
                     onChange={e => setKeyword(e.target.value)}
                 />
-            </div>
+                <Radio.Group
+                    value={filterPriority}
+                    onChange={(e) => setFilterPriority(e.target.value)}
+                >
+                    <Radio.Button value={0}>all</Radio.Button>
+                    <Radio.Button value={1}>P1</Radio.Button>
+                    <Radio.Button value={2}>P2</Radio.Button>
+                    <Radio.Button value={3}>P3</Radio.Button>
+                    {/* <Radio.Button value={4}>P4</Radio.Button> */}
+                    {/* <Radio.Button value={5}>P5</Radio.Button> */}
+                </Radio.Group>
+            </Space>
             <div className={styles.statBox}>
-                总：{totalResult.total}；
-                成功：{totalResult.success}；
-                        
-                失败：
-                <span style={{ color: 'red' }}>{totalResult.fail}</span>
+                <div className={styles.item}>
+                    总：{totalResult.total}
+                </div>
+                <div className={styles.item}>
+                    成功：{totalResult.success}
+                </div>
+                <div className={styles.item}>
+                    失败：
+                    <span style={{ color: 'red' }}>{totalResult.fail}</span>
+                </div>
+                <div className={styles.item}>
+                    列表数：{filteredList.length}
+                </div>
+                <div className={styles.item}>
+                    启用：{enableNum}
+                </div>
             </div>
             <Table
                 dataSource={filteredList}
@@ -536,17 +643,31 @@ export function ServiceHome({ onClickItem }) {
                 <Drawer
                     title="详情"
                     open={true}
+                    width={640}
                     onClose={() => {
                         setDetailVisible(false)
                     }}
                     
                 >
                     {!!detailItem?.response &&
-                        <div>
-                            <div>status: {detailItem.response.status}</div>
-                            <div>
-                                {JSON.stringify(detailItem.response.data)}
+                        <div className={styles.responseBox}>
+                            <div className={styles.header}>
+                                <Space>
+                                    status: 
+                                    <Tag color={detailItem.response.status == 200 ? 'green' : 'red'}>
+                                        {detailItem.response.status}
+                                    </Tag>
+                                </Space>
                             </div>
+                            {!!detailItem.response.isJson ?
+                                <pre>
+                                    {JSON.stringify(detailItem.response.data, null, 4)}
+                                </pre>
+                            :
+                                <pre>
+                                    {JSON.stringify(detailItem.response.data)}
+                                </pre>
+                            }
                         </div>
                     }
                 </Drawer>
@@ -589,6 +710,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
             form.setFieldsValue({
                 ...item,
                 defaultDatabase: item.defaultDatabase || 0,
+                priority: item.priority || 3,
             })
         }
         else {
@@ -599,6 +721,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                 password: '',
                 defaultDatabase: null,
                 userName: '',
+                priority: 3,
             })
         }
     }, [item])
@@ -612,6 +735,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
             url: values.url,
             field: values.field,
             contentField: values.contentField,
+            priority: values.priority,
             enable: values.enable == false ? false : true,
         }
         if (editType == 'create') {
@@ -657,13 +781,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
         setLoading(false)
         console.log('res', res)
         // if ()
-        let isSuccess
-        if (values.field) {
-            isSuccess = res?.status == 200 && (typeof res?.data == 'object') && res.data[values.field] == 'success'
-        }
-        else {
-            isSuccess = res && res.status == 200
-        }
+        let isSuccess = res?.status == 200 && checkSuccess(res?.data, values.field)
         if (isSuccess) {
             message.success(t('success'))
         }
@@ -765,6 +883,12 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                     label="内容字段"
                 >
                     <Input />
+                </Form.Item>
+                <Form.Item
+                    name="priority"
+                    label="优先级（1-5）"
+                >
+                    <InputNumber />
                 </Form.Item>
                 <Form.Item
                     name="enable"
