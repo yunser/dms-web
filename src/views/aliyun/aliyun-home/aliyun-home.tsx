@@ -235,6 +235,18 @@ export function AliyunHome({ config, onClickItem }) {
                         ellipsis: true,
                     },
                     {
+                        title: 'IP',
+                        dataIndex: 'ip',
+                        width: 160,
+                        ellipsis: true,
+                        render(value, item) {
+                            if (item.publicIpAddress?.ipAddress?.length) {
+                                return item.publicIpAddress?.ipAddress.join(', ')
+                            }
+                            return item.eipAddress.ipAddress || '--'
+                        }
+                    },
+                    {
                         title: '到期时间',
                         dataIndex: 'expiredTime',
                         render: ExpireTimeRender,
