@@ -13,6 +13,7 @@ i18n
                 translations: {
                     site_title: 'DMS - Next Generation Data Management System',
                     'common.home': 'Home',
+                    'common.total': 'Total',
                     readme: 'ReadMe',
                     enabled: 'Enabled',
                     minimize: 'Minimize',
@@ -130,6 +131,7 @@ i18n
                     'sql.generation_type': 'Generation Type',
                     'sql.real_process': 'Process',
                     'sql.variable': 'Variables',
+                    'sql.memory': 'Memory',
                     'sql.table.not_exists': 'Table is not exists',
                     create_time: 'Create Time',
                     update_time: 'Update Time',
@@ -710,6 +712,7 @@ i18n
                 translations: {
                     site_title: 'DMS - 下一代数据管理系统',
                     'common.home': '主页',
+                    'common.total': '总',
                     readme: '说明',
                     enabled: '启用',
                     minimize: '最小化',
@@ -827,6 +830,7 @@ i18n
                     'sql.generation_type': '虚拟类型',
                     'sql.real_process': '实时会话',
                     'sql.variable': '变量',
+                    'sql.memory': '内存',
                     'sql.table.not_exists': '表不存在',
                     create_time: '创建时间',
                     update_time: '更新时间',

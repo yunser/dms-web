@@ -87,6 +87,10 @@ export function SqlRealPanel({ config, connectionId, event$ }) {
                         checkedChildren={t('sql.auto_refresh')}
                     />
                 </Space>
+                <Space>
+                    {t('common.total')}
+                    {list.length}
+                </Space>
             </div>
             <Table
                 loading={loading}

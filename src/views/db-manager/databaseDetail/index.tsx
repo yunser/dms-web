@@ -52,6 +52,7 @@ import { SqlDataImport } from '../data-import'
 import { SqlRealPanel } from '../sql-real/sql-real'
 import { SqlDataBackup } from '../data-backup'
 import { SqlVariablePanel } from '../sql-variable/sql-variable'
+import { SqlMemoryPanel } from '../sql-memory/sql-memory'
 
 // console.log('ddd.0')
 // _.debounce(() => {
@@ -983,6 +984,13 @@ export function DataBaseDetail({ databaseType = 'mysql', curConnect, _connection
                                 }
                                 {item.type == 'variable' &&
                                     <SqlVariablePanel
+                                        config={config}
+                                        connectionId={connectionId}
+                                        event$={event$}
+                                    />
+                                }
+                                {item.type == 'memory' &&
+                                    <SqlMemoryPanel
                                         config={config}
                                         connectionId={connectionId}
                                         event$={event$}

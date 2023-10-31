@@ -8,6 +8,68 @@ import { ReloadOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { IconButton } from '../icon-button';
 import { SearchUtil } from '@/utils/search';
+import fileSize from 'filesize'
+
+export const variables_dic = {
+    'innodb_buffer_pool_size': {
+        format: 'size',
+    },
+    'key_buffer_size': {
+        format: 'size',
+    },
+    'innodb_log_buffer_size': {
+        format: 'size',
+    },
+    'innodb_buffer_pool_chunk_size': {
+        format: 'size',
+    },
+    'innodb_log_file_size': {
+        format: 'size',
+    },
+    'thread_stack': {
+        format: 'size',
+    },
+    'tmp_table_size': {
+        format: 'size',
+    },
+    'join_buffer_size': {
+        format: 'size',
+    },
+    'sort_buffer_size': {
+        format: 'size',
+    },
+    'query_cache_size': {
+        format: 'size',
+    },
+    'binlog_cache_size': {
+        format: 'size',
+    },
+    'max_binlog_cache_size': {
+        format: 'size',
+    },
+    'read_buffer_size': {
+        format: 'size',
+    },
+    'read_rnd_buffer_size': {
+        format: 'size',
+    },
+    'innodb_max_undo_log_size': {
+        format: 'size',
+    },
+    'innodb_ft_total_cache_size': {
+        format: 'size',
+    },
+    'thread_cache_size': {
+        format: 'size',
+    },
+    'max_connections': {
+        desc: '用于设置同时连接到MySQL服务器的最大客户端数量。一旦超过这个数量，新的客户端连接将无法被接受并返回错误信息',
+    },
+    // 
+    'Binlog_cache_disk_use': {
+        desc: '因事务使用的临时二进制日志缓存超出 binlog_cache_size 的设置而使用临时文件存储的数量。',
+    },
+}
 
 export function SqlVariablePanel({ config, connectionId, event$ }) {
     const { t } = useTranslation()
@@ -89,7 +151,21 @@ export function SqlVariablePanel({ config, connectionId, event$ }) {
                     {
                         title: 'value',
                         dataIndex: 'Value',
+                        width: 240, // 有些很长，如 optimizer_switch
+                        ellipsis: true,
+                    },
+                    {
+                        title: 'format',
+                        dataIndex: 'format',
                         width: 320,
+                        render(_value, item) {
+                            if (variables_dic[item.Variable_name]?.format == 'size') {
+                                return (
+                                    <div>{fileSize(parseInt(item.Value), {base: 2})}</div>
+                                )
+                            }
+                            return <div></div>
+                        }
                     },
                     {
                         title: '',
