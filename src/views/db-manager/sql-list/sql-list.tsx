@@ -1,4 +1,4 @@
-import { Button, Input, Modal, Popover, Space, Table } from 'antd';
+import { Button, Input, Modal, Popover, Space, Table, message } from 'antd';
 import React, { useEffect, useState } from 'react';
 import styles from './sql-list.module.less';
 import _ from 'lodash';
@@ -7,6 +7,7 @@ import { IconButton } from '@/views/db-manager/icon-button';
 import { ReloadOutlined } from '@ant-design/icons';
 import { request } from '@/views/db-manager/utils/http';
 import { SqlLikeModal } from '../sql-edit';
+import copy from 'copy-to-clipboard';
 
 export function SqlList({ config, connectionId, event$ }: any) {
     const { t } = useTranslation()
@@ -84,7 +85,7 @@ export function SqlList({ config, connectionId, event$ }: any) {
             title: t('actions'),
             dataIndex: 'actions',
             fixed: 'right',
-            width: 160,
+            width: 240,
             render(value, item) {
                 return (
                     <Space>
@@ -112,6 +113,16 @@ export function SqlList({ config, connectionId, event$ }: any) {
                             }}
                         >
                             {t('edit')}
+                        </Button>
+                        <Button
+                            type="link"
+                            size="small"
+                            onClick={() => {
+                                copy(item.sql)
+                                message.info(t('copied'))
+                            }}
+                        >
+                            {t('copy')}
                         </Button>
                         <Button
                             type="link"
