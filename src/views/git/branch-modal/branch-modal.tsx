@@ -5,6 +5,7 @@ import _ from 'lodash';
 import { useTranslation } from 'react-i18next';
 import { request } from '@/views/db-manager/utils/http';
 import { CommitItem } from '../commit-item';
+import moment from 'moment';
 
 export function BranchModal({ config, event$, remoteName, current, projectPath, commit, onSuccess, onCancel }) {
     const { t } = useTranslation()
@@ -15,6 +16,15 @@ export function BranchModal({ config, event$, remoteName, current, projectPath, 
     const names = [
         {
             content: 'feature/',
+        },
+        {
+            content: 'feature/{date}-',
+        },
+        {
+            content: 'fix/',
+        },
+        {
+            content: 'fix/{date}-',
         },
         {
             content: 'development',
@@ -122,7 +132,7 @@ export function BranchModal({ config, event$, remoteName, current, projectPath, 
                             className={styles.tag}
                             onClick={() => {
                                 form.setFieldsValue({
-                                    name: name.content,
+                                    name: name.content.replace('{date}', moment().format('YYMMDD')),
                                 })
                             }}
                         >
