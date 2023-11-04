@@ -1337,7 +1337,7 @@ export function DbManager({ config }) {
                                         <MqttConnect
                                             config={config}
                                             event$={event$}
-                                            onConnect={({ connectionId, name }) => {
+                                            onConnect={({ connectionId, item, name }) => {
                                                 console.log('onConnect', connectionId)
                                                 addOrActiveTab({
                                                     title: `${name}`,
@@ -1345,6 +1345,7 @@ export function DbManager({ config }) {
                                                     type: 'mqtt-detail',
                                                     data: {
                                                         connectionId,
+                                                        item,
                                                         // defaultDatabase,
                                                     },
                                                 }, {

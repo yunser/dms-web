@@ -1,4 +1,4 @@
-import { Button, Descriptions, Form, Input, message, Modal, Popover, Space, Table, Tabs } from 'antd';
+import { Button, Descriptions, Form, Input, message, Modal, Popover, Space, Table, Tabs, Tag } from 'antd';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styles from './mqtt-home.module.less';
 import _ from 'lodash';
@@ -12,7 +12,7 @@ import { sleep } from '@yunser/sleep'
 
 
 export function MqttHome({ config, data }) {
-    const { connectionId } = data
+    const { connectionId, item: detailItem } = data
     const { t } = useTranslation()
 
     const WsStatusLabelMap = {
@@ -178,11 +178,11 @@ export function MqttHome({ config, data }) {
 
     useEffect(() => {
         form.setFieldsValue({
-            channel: 'msg/dms-test',
+            channel: 'test/dms-test',
             message: 'dms-msg-content-{time}'
         })
         form2.setFieldsValue({
-            channel: 'msg/#',
+            channel: 'test/#',
             // message: 'dms-msg-content'
         })
     }, [])
@@ -275,6 +275,22 @@ export function MqttHome({ config, data }) {
                                         <Input placeholder="*" />
                                     </Form.Item>
                                 </Form>
+                                <div className={styles.topics}>
+                                    {(detailItem.topics || []).map(item => {
+                                        return (
+                                            <Tag
+                                                className={styles.item}
+                                                onClick={() => {
+                                                    form2.setFieldsValue({
+                                                        channel: item.name,
+                                                    })
+                                                }}
+                                            >
+                                                {item.name}
+                                            </Tag>
+                                        )
+                                    })}
+                                </div>
                                 <Button
                                     type="primary"
                                     onClick={() => {

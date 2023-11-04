@@ -122,6 +122,7 @@ export function MqttConnect({ config, event$, onConnect, }) {
             onConnect && onConnect({
                 connectionId: ret.data.connectionId,
                 name: item.name,
+                item,
             })
         }
         // setLoading(false)
