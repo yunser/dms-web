@@ -23,6 +23,58 @@ import { lastSplit } from '@/utils/helper'
 TimeAgo.addDefaultLocale(en)
 const timeAgo = new TimeAgo('en-US')
 
+function parsePercent(percent: string) {
+    return parseFloat(percent.replace('%', ''))
+}
+
+function parseSize(size: string) {
+    let numWithUnit = size
+    if (size.includes('/')) {
+        numWithUnit = size.split('/')[0].trim()
+    }
+    let scale = 1
+    let unit = 'B'
+    const units = [
+        {
+            unit: 'GiB',
+            scale: 1024 * 1024 * 1024,
+        },
+        {
+            unit: 'GB',
+            scale: 1000 * 1000 * 1000
+        },
+        {
+            unit: 'MiB',
+            scale: 1024 * 1024,
+        },
+        {
+            unit: 'MB',
+            scale: 1000 * 1000,
+        },
+        {
+            unit: 'KiB',
+            scale: 1024,
+        },
+        {
+            unit: 'KB',
+            scale: 1000,
+        },
+    ]
+    for (let item of units) {
+        if (numWithUnit.includes(item.unit)) {
+            unit = item.unit
+            scale = item.scale
+            break
+        }
+    }
+    let num = 0
+    const m = numWithUnit.match(/[\d.]+/)
+    if (m) {
+        num = parseFloat(m[0])
+    }
+    return num * scale
+}
+
 function TimeAgoCellRender(value) {
     if (!value) {
         return <div>--</div>
@@ -40,6 +92,261 @@ function TimeAgoCellRender(value) {
         <div>
             {time}
             <Tag>{ago}</Tag>
+        </div>
+    )
+}
+
+function StatsTab({ config, connectionId }) {
+    const { t } = useTranslation()
+    const [pluginLoading, setPluginLoading] = useState(false)
+    const [plugins, setPlugins] = useState([])
+    const [pluginKeyword, setPluginKeyword] = useState('')
+    const filteredPlugins = useMemo(() => {
+        return SearchUtil.search(plugins, pluginKeyword, {
+            attributes: ['Id', 'Name'],
+        })
+    }, [plugins, pluginKeyword])
+
+
+    useEffect(() => {
+        loadPlugins()
+    }, [connectionId])
+
+    async function loadPlugins() {
+        // setPlugins([
+        //     {
+        //         "BlockIO": "119kB / 4.1kB",
+        //         "CPUPerc": "1.00%",
+        //         "Container": "445ee427b18a",
+        //         "ID": "445ee427b18a",
+        //         "MemPerc": "4.00%",
+        //         "MemUsage": "947.1MiB / 15GiB",
+        //         "Name": "test-1",
+        //         "NetIO": "136GB / 260GB",
+        //         "PIDs": "2"
+        //     },
+        //     {
+        //         "BlockIO": "0B / 44.8MB",
+        //         "CPUPerc": "2.00%",
+        //         "Container": "78bba52a4b10",
+        //         "ID": "78bba52a4b10",
+        //         "MemPerc": "6.00%",
+        //         "MemUsage": "174.8MiB / 15GiB",
+        //         "Name": "test-2",
+        //         "NetIO": "75.8GB / 63.6GB",
+        //         "PIDs": "23"
+        //     },
+        //     {
+        //         "BlockIO": "0B / 44.8MB",
+        //         "CPUPerc": "3.00%",
+        //         "Container": "9170fb36b808",
+        //         "ID": "9170fb36b808",
+        //         "MemPerc": "5.00%",
+        //         "MemUsage": "196.7MiB / 15GiB",
+        //         "Name": "test-3",
+        //         "NetIO": "75.8GB / 63.6GB",
+        //         "PIDs": "23"
+        //     }
+        // ])
+        // return
+
+        setPlugins([])
+        setPluginLoading(true)
+        let res = await request.post(`${config.host}/docker/stats`, {
+            connectionId,
+        })
+        setPluginLoading(false)
+        if (res.success) {
+            const list = res.data.list
+                // .sort((a, b) => a.Name.localeCompare(b.Name))
+                setPlugins(list)
+        }
+    }
+
+    return (
+        <div>
+            <div className={styles.filterBox}>
+                {/* <Input
+                    className={styles.keyword}
+                    placeholder={t('filter')}
+                    value={pluginKeyword}
+                    allowClear
+                    onChange={e => {
+                        setPluginKeyword(e.target.value)
+                    }}
+                /> */}
+                <Button
+                    size="small"
+                    onClick={loadPlugins}
+                >
+                    {t('refresh')}
+                </Button>
+            </div>
+            <Table
+                loading={pluginLoading}
+                dataSource={filteredPlugins}
+                size="small"
+                pagination={false}
+                columns={[
+                    {
+                        title: t('Container ID'),
+                        dataIndex: 'ID',
+                        ellipsis: true,
+                        width: 120,
+                    },
+                    {
+                        title: t('Name'),
+                        dataIndex: 'Name',
+                        ellipsis: true,
+                        width: 240,
+                    },
+                    // {
+                    //     title: t('Container'),
+                    //     dataIndex: 'Container',
+                    //     ellipsis: true,
+                    //     width: 120,
+                    // },
+                    {
+                        title: t('CPU %'),
+                        dataIndex: 'CPUPerc',
+                        ellipsis: true,
+                        width: 100,
+                        sorter: (a, b) => parsePercent(a.CPUPerc) - parsePercent(b.CPUPerc),
+                        sortDirections: ['descend'],
+                    },
+                    {
+                        title: t('Mem Usage / Limit'),
+                        dataIndex: 'MemUsage',
+                        ellipsis: true,
+                        width: 160,
+                        sorter: (a, b) => parseSize(a.MemUsage) - parseSize(b.MemUsage),
+                        sortDirections: ['descend'],
+                    },
+                    {
+                        title: t('Mem %'),
+                        dataIndex: 'MemPerc',
+                        ellipsis: true,
+                        width: 100,
+                        sorter: (a, b) => parsePercent(a.MemPerc) - parsePercent(b.MemPerc),
+                        sortDirections: ['descend'],
+                    },
+                    {
+                        title: t('Net I/O'),
+                        dataIndex: 'NetIO',
+                        ellipsis: true,
+                        width: 160,
+                    },
+                    {
+                        title: t('Block I/O'),
+                        dataIndex: 'BlockIO',
+                        width: 140,
+                        ellipsis: true,
+                    },
+                    {
+                        title: t('PIDs'),
+                        dataIndex: 'PIDs',
+                        ellipsis: true,
+                        // width: 120,
+                    },
+                    // {
+                    //     title: t('enabled'),
+                    //     dataIndex: ['Enabled'],
+                    //     render(value) {
+                    //         return (
+                    //             <div>
+                    //                 <Tag
+                    //                     color={value ? 'green' : 'red'}
+                    //                 >
+                    //                     {value ? '是' : '否'}
+                    //                 </Tag>
+                    //             </div>
+                    //         )
+                    //     },
+                    // },
+                ]}
+            />
+        </div>
+    )
+}
+
+function PluginTab({ config, connectionId }) {
+    const { t } = useTranslation()
+    const [pluginLoading, setPluginLoading] = useState(false)
+    const [plugins, setPlugins] = useState([])
+    const [pluginKeyword, setPluginKeyword] = useState('')
+    const filteredPlugins = useMemo(() => {
+        return SearchUtil.search(plugins, pluginKeyword, {
+            attributes: ['Id', 'Name'],
+        })
+    }, [plugins, pluginKeyword])
+
+
+    useEffect(() => {
+        loadPlugins()
+    }, [])
+
+    async function loadPlugins() {
+        setPlugins([])
+        setPluginLoading(true)
+        let res = await request.post(`${config.host}/docker/plugins`, {
+            connectionId,
+        })
+        setPluginLoading(false)
+        if (res.success) {
+            const list = res.data.list
+                .sort((a, b) => a.Name.localeCompare(b.Name))
+                setPlugins(list)
+        }
+    }
+
+    return (
+        <div>
+            <div className={styles.filterBox}>
+                <Input
+                    className={styles.keyword}
+                    placeholder={t('filter')}
+                    value={pluginKeyword}
+                    allowClear
+                    onChange={e => {
+                        setPluginKeyword(e.target.value)
+                    }}
+                />
+            </div>
+            <Table
+                loading={pluginLoading}
+                dataSource={filteredPlugins}
+                size="small"
+                pagination={false}
+                columns={[
+                    {
+                        title: t('id'),
+                        dataIndex: 'Id',
+                        width: 120,
+                        ellipsis: true,
+                    },
+                    {
+                        title: t('name'),
+                        dataIndex: 'Name',
+                        ellipsis: true,
+                        width: 280,
+                    },
+                    {
+                        title: t('enabled'),
+                        dataIndex: ['Enabled'],
+                        render(value) {
+                            return (
+                                <div>
+                                    <Tag
+                                        color={value ? 'green' : 'red'}
+                                    >
+                                        {value ? '是' : '否'}
+                                    </Tag>
+                                </div>
+                            )
+                        },
+                    },
+                ]}
+            />
         </div>
     )
 }
@@ -98,9 +405,7 @@ export function DockerDetail({ connection }) {
         return _list
     }, [_services, serviceKeyword, serviceNs])
 
-    const [pluginLoading, setPluginLoading] = useState([])
-    const [plugins, setPlugins] = useState([])
-    const [pluginKeyword, setPluginKeyword] = useState('')
+    
 
     const [networkLoading, setNetworkLoading] = useState(true)
     const [_networks, setNetworks] = useState([])
@@ -128,12 +433,7 @@ export function DockerDetail({ connection }) {
 
     
 
-    const filteredPlugins = useMemo(() => {
-        return SearchUtil.search(plugins, pluginKeyword, {
-            attributes: ['Id', 'Name'],
-        })
-    }, [plugins, pluginKeyword])
-
+    
     const connectionId = connection.id
 
     useEffect(() => {
@@ -246,20 +546,6 @@ export function DockerDetail({ connection }) {
         setServiceLoading(false)
     }
 
-    async function loadPlugins() {
-        setServices([])
-        setPluginLoading(true)
-        let res = await request.post(`${config.host}/docker/plugins`, {
-            connectionId,
-        })
-        setPluginLoading(false)
-        if (res.success) {
-            const list = res.data.list
-                .sort((a, b) => a.Name.localeCompare(b.Name))
-                setPlugins(list)
-        }
-    }
-    
     async function loadVersion() {
         let res = await request.post(`${config.host}/docker/version`, {
             connectionId,
@@ -410,20 +696,15 @@ export function DockerDetail({ connection }) {
         })
     }
     
-
     function loadAll() {
         loadContainers()
         loadImages()
         loadServices()
         loadNetworks()
         loadVolumes()
-        loadPlugins()
         // loadConfigs()
         loadVersion()
     }
-
-    
-
 
     const volumeTab = (
         <div>
@@ -592,57 +873,6 @@ export function DockerDetail({ connection }) {
                                 </div>
                             )
                         }
-                    },
-                ]}
-            />
-        </div>
-    )
-
-    const pluginTab = (
-        <div>
-            <div className={styles.filterBox}>
-                <Input
-                    className={styles.keyword}
-                    placeholder={t('filter')}
-                    value={pluginKeyword}
-                    allowClear
-                    onChange={e => {
-                        setPluginKeyword(e.target.value)
-                    }}
-                />
-            </div>
-            <Table
-                loading={pluginLoading}
-                dataSource={filteredPlugins}
-                size="small"
-                pagination={false}
-                columns={[
-                    {
-                        title: t('id'),
-                        dataIndex: 'Id',
-                        width: 120,
-                        ellipsis: true,
-                    },
-                    {
-                        title: t('name'),
-                        dataIndex: 'Name',
-                        ellipsis: true,
-                        width: 280,
-                    },
-                    {
-                        title: t('enabled'),
-                        dataIndex: ['Enabled'],
-                        render(value) {
-                            return (
-                                <div>
-                                    <Tag
-                                        color={value ? 'green' : 'red'}
-                                    >
-                                        {value ? '是' : '否'}
-                                    </Tag>
-                                </div>
-                            )
-                        },
                     },
                 ]}
             />
@@ -1244,6 +1474,10 @@ export function DockerDetail({ connection }) {
                         key: 'plugin',
                         label: t('docker.plugin'),
                     },
+                    {
+                        key: 'stats',
+                        label: t('docker.stats'),
+                    },
                 ]}
             />
             <div>
@@ -1274,7 +1508,18 @@ export function DockerDetail({ connection }) {
                 }
                 {tab == 'plugin' &&
                     <div>
-                        {pluginTab}
+                        <PluginTab
+                            config={config}
+                            connectionId={connectionId}
+                        />
+                    </div>
+                }
+                {tab == 'stats' &&
+                    <div>
+                        <StatsTab
+                            config={config}
+                            connectionId={connectionId}
+                        />
                     </div>
                 }
             </div>
