@@ -18,6 +18,7 @@ import en from 'javascript-time-ago/locale/en'
 import { SearchUtil } from '@/utils/search'
 import filesize from 'file-size'
 import copy from 'copy-to-clipboard'
+import { lastSplit } from '@/utils/helper'
 
 TimeAgo.addDefaultLocale(en)
 const timeAgo = new TimeAgo('en-US')
@@ -54,8 +55,19 @@ export function DockerDetail({ connection }) {
     const [containers, setContainers] = useState([])
     const [containerKeyword, setContainerKeyword] = useState('')
     const [containerType, setContainerType] = useState('running')
+    const [containerNs, setContainerNs] = useState('')
     const [containerDetailVisible, setContainerDetailVisible] = useState(false)
     const [containerDetailItem, setContainerDetailItem] = useState(null)
+    const containerNamespaces = useMemo(() => {
+        const set = new Set()
+        for (let container of containers) {
+            if (container.Labels['com.docker.stack.namespace']) {
+                set.add(container.Labels['com.docker.stack.namespace'])
+            }
+        }
+        return Array.from(set)
+    }, [containers])
+    console.log('namespaces', containerNamespaces)
 
 
     const [imageLoading, setImageLoading] = useState(false)
@@ -65,6 +77,26 @@ export function DockerDetail({ connection }) {
     const [serviceLoading, setServiceLoading] = useState(false)
     const [_services, setServices] = useState([])
     const [serviceKeyword, setServiceKeyword] = useState('')
+    const [serviceNs, setServiceNs] = useState('')
+    const serviceNamespaces = useMemo(() => {
+        const set = new Set()
+        for (let service of _services) {
+            if (service.Spec?.Labels?.['com.docker.stack.namespace']) {
+                set.add(service.Spec.Labels['com.docker.stack.namespace'])
+            }
+        }
+        return Array.from(set)
+    }, [_services])
+    const filteredServices = useMemo(() => {
+        let _list = SearchUtil.search(_services, serviceKeyword, {
+            attributes: ['ID', '_name'],
+            // dataIndex: ['Spec', 'Name'],
+        })
+        if (serviceNs) {
+            _list = _list.filter(item => item.Spec?.Labels?.['com.docker.stack.namespace'] == serviceNs)
+        }
+        return _list
+    }, [_services, serviceKeyword, serviceNs])
 
     const [pluginLoading, setPluginLoading] = useState([])
     const [plugins, setPlugins] = useState([])
@@ -85,17 +117,16 @@ export function DockerDetail({ connection }) {
         if (containerType == 'running') {
             _list = containers.filter(item => item.running)
         }
-        return SearchUtil.search(_list, containerKeyword, {
+        _list = SearchUtil.search(_list, containerKeyword, {
             attributes: ['Id', '_names', '_ports'],
         })
-    }, [containers, containerKeyword, containerType])
+        if (containerNs) {
+            _list = _list.filter(item => item.Labels['com.docker.stack.namespace'] == containerNs)
+        }
+        return _list
+    }, [containers, containerKeyword, containerType, containerNs])
 
-    const filteredServices = useMemo(() => {
-        return SearchUtil.search(_services, serviceKeyword, {
-            attributes: ['ID', '_name'],
-            // dataIndex: ['Spec', 'Name'],
-        })
-    }, [_services, serviceKeyword])
+    
 
     const filteredPlugins = useMemo(() => {
         return SearchUtil.search(plugins, pluginKeyword, {
@@ -630,6 +661,19 @@ export function DockerDetail({ connection }) {
                         setServiceKeyword(e.target.value)
                     }}
                 />
+                {serviceNamespaces.length > 1 &&
+                    <Radio.Group
+                        value={serviceNs}
+                        onChange={(e) => setServiceNs(e.target.value)}
+                    >
+                        <Radio.Button value="">all</Radio.Button>
+                        {serviceNamespaces.map(ns => {
+                            return (
+                                <Radio.Button value={ns}>{ns}</Radio.Button>
+                            )
+                        })}
+                    </Radio.Group>
+                }
             </div>
             <Table
                 loading={serviceLoading}
@@ -821,9 +865,22 @@ export function DockerDetail({ connection }) {
                     value={containerType}
                     onChange={(e) => setContainerType(e.target.value)}
                 >
-                    <Radio.Button value="running">running</Radio.Button>
                     <Radio.Button value="all">all</Radio.Button>
+                    <Radio.Button value="running">running</Radio.Button>
                 </Radio.Group>
+                {containerNamespaces.length > 1 &&
+                    <Radio.Group
+                        value={containerNs}
+                        onChange={(e) => setContainerNs(e.target.value)}
+                    >
+                        <Radio.Button value="">all</Radio.Button>
+                        {containerNamespaces.map(ns => {
+                            return (
+                                <Radio.Button value={ns}>{ns}</Radio.Button>
+                            )
+                        })}
+                    </Radio.Group>
+                }
             </div>
             <Table
                 loading={containerLoading}
@@ -851,9 +908,41 @@ export function DockerDetail({ connection }) {
                         }
                     },
                     {
+                        title: t('type'),
+                        // dataIndex: 'Command',
+                        width: 80,
+                        ellipsis: true,
+                        render(_, item) {
+                            if (item.Image.includes('mysql')) {
+                                return <div>MySQL</div>
+                            }
+                            if (item.Image.includes('kafka')) {
+                                return <div>Kafka</div>
+                            }
+                            if (item.Image.includes('redis')) {
+                                return <div>Redis</div>
+                            }
+                            if (item.Image.includes('mongo')) {
+                                return <div>Mongo</div>
+                            }
+                            return <div></div>
+                        }
+                    },
+                    {
                         title: t('docker.names'),
                         dataIndex: 'Names',
                         render(value, item) {
+                            let showName = value.join(', ')
+                            if (item.Labels) {
+                                const taskName = item.Labels['com.docker.swarm.task.name']
+                                if (taskName?.includes('.')) {
+                                    const [prefix] = lastSplit(taskName, '.')
+                                    showName = prefix
+                                }
+                            }
+                            // {projectName}_{serviceName}.1.rcrpdj5drusfyic3s0q70mzxl
+                            // {projectName}_{serviceName}.jgj0cddykbgvoa2uxeatd1v6e.inq0tv3bc6eu8whp9do8idb8z
+                            
                             return (
                                 <div
                                     className={styles.nameLink}
@@ -863,7 +952,7 @@ export function DockerDetail({ connection }) {
                                         console.log('item/', item)
                                     }}
                                 >
-                                    {value.join(', ')}
+                                    {showName}
                                 </div>
                             )
                         }
@@ -1136,16 +1225,16 @@ export function DockerDetail({ connection }) {
                         label: t('docker.container'),
                     },
                     {
-                        key: 'image',
-                        label: t('docker.images'),
-                    },
-                    {
                         key: 'service',
                         label: t('docker.service'),
                     },
                     {
                         key: 'network',
                         label: t('docker.network'),
+                    },
+                    {
+                        key: 'image',
+                        label: t('docker.images'),
                     },
                     {
                         key: 'volume',
