@@ -26,7 +26,7 @@ function findInTreeData(list, cb) {
     return null
 }
 
-function ZKTree({ config, connectionId, onData }) {
+function ZKTree({ config, connectionId, onSelectItem, onData }) {
 
     const [list, setList] = useState([])
     const [treeData, setTreeData] = useState([])
@@ -36,30 +36,6 @@ function ZKTree({ config, connectionId, onData }) {
     useEffect(() => {
         loadTree('/')
     }, [])
-
-    async function loadData(path) {
-        console.log('loadTree', path)
-        // const values = await form2.validateFields();
-        // const topic = values.channel || '*'
-        let res = await request.post(`${config.host}/zookeeper/getData`, {
-            connectionId,
-            // topic,
-            path,
-        })
-        if (res.success) {
-            onData && onData({
-                path,
-                data: res.data.data,
-            })
-            // setList(res.data.list)
-            // message.success('订阅成功')
-            // setIsSub(true)
-            // setSubscribeTopic(topic)
-            // if (res.data.list.length == 0) {
-            //     return
-            // }
-        }
-    }
 
     async function loadTree(path) {
         console.log('loadTree', path)
@@ -111,7 +87,7 @@ function ZKTree({ config, connectionId, onData }) {
                 if (fItem) {
                     // console.log('treeData[fIdx]', treeData[fIdx])
                     if (subTree.length == 0) {
-                        message.info('empty')
+                        // message.info('empty')
                         // return
                         fItem.isLeaf = true
                     }
@@ -138,12 +114,16 @@ function ZKTree({ config, connectionId, onData }) {
                     height={640}
                     autoExpandParent={true}
                     expandedKeys={expandedKeys}
+                    onExpand={expandedKeys => {
+                        setExpandedKeys(expandedKeys)
+                    }}
                     titleRender={node => {
                         return (
                             // <div>{nodeData.name}</div>
                             <div
                                 onClick={() => {
                                     // console.log('item', item)
+                                    onSelectItem && onSelectItem(node.path)
                                     loadTree(node.path)
                                     if (!expandedKeys.includes(node.key)) {
                                         // expandedKeys.push(node.key)
@@ -162,16 +142,9 @@ function ZKTree({ config, connectionId, onData }) {
                                     :
                                         <QuestionCircleFilled />
                                     }
-                                    {node.name}
-                                    <Button
-                                        size="small"
-                                        onClick={(e) => {
-                                            e.stopPropagation()
-                                            loadData(node.path)
-                                        }}
-                                    >
-                                        查看数据
-                                    </Button>
+                                    <div className={styles.nodeName}>
+                                        {node.name}
+                                    </div>
                                 </Space>
                             </div>
                         )   
@@ -217,8 +190,9 @@ export function ZookeeperDetail({ config, data }) {
     const [loading, setLoading] = useState(false)
     const [wsStatus, setWsStatus] = useState('notConnected')
     const [wsAction, setWsAction] = useState('')
-    const [detailPath, setDetailPath] = useState('')
+    const [detailPath, setDetailPath] = useState('/')
     const [nodeData, setNodeData] = useState('')
+    const [nodeDataVisible, setNodeDataVisible] = useState(false)
 
     async function subscribe() {
         const values = await form2.validateFields();
@@ -353,11 +327,32 @@ export function ZookeeperDetail({ config, data }) {
         }
     }, [])
 
+    async function remove() {
+        Modal.confirm({
+            content: `${t('delete')}「${detailPath}」?`,
+            async onOk() {
+                let res = await request.post(`${config.host}/zookeeper/remove`, {
+                    connectionId,
+                    path: detailPath,
+                })
+                if (res.success) {
+                    setNodeDataVisible(false)
+                    setDetailPath('/')
+                }
+            }
+        })
+    }
 
-    // useEffect(() => {
-    //     // loadList()
-    // }, [page])
-    
+    async function loadData() {
+        let res = await request.post(`${config.host}/zookeeper/getData`, {
+            connectionId,
+            path: detailPath,
+        })
+        if (res.success) {
+            setNodeData(res.data.data)
+            setNodeDataVisible(true)
+        }
+    }
 
     useEffect(() => {
         form.setFieldsValue({
@@ -371,203 +366,228 @@ export function ZookeeperDetail({ config, data }) {
     }, [])
 
     return (
-        <div className={styles.mqttBox}>
-            {/* <div className={styles.welcome}>
-                {t('welcome')}
-            </div> */}
-            <div>
-                WebSocket 状态：{WsStatusLabelMap[wsStatus]}{wsAction}
-                {wsStatus != 'connected' &&
+        <div className={styles.zkBox}>
+            <div className={styles.layoutLeft}>
+                <div className={styles.header}>
+                    WebSocket 状态：{WsStatusLabelMap[wsStatus]}{wsAction}
+                    {wsStatus != 'connected' &&
+                        <div>
+                            <Button onClick={connect}>连接</Button>
+                        </div>
+                    }
+                </div>
+                <ZKTree
+                    config={config}
+                    connectionId={connectionId}
+                    // onData={({path, data}) => {
+                    //     setDetailPath(path)
+                    //     setNodeData(data)
+                    // }}
+                    onSelectItem={(path) => {
+                        setDetailPath(path)
+                        setNodeData(null)
+                        setNodeDataVisible(false)
+                    }}
+                />
+            </div>
+            <div className={styles.layoutRight}>
+                <div className={styles.header}>
+                    {/* path: */}
+                    <div className={styles.detailPath}>
+                        {detailPath}
+                    </div>
+                </div>
+                {/* <div>
+                data:
+                </div> */}
+                <div>
+                    <Space>
+                        <Button
+                            size="small"
+                            onClick={(e) => {
+                                loadData()
+                            }}
+                        >
+                            查看数据
+                        </Button>
+                        <Button
+                            size="small"
+                            danger
+                            onClick={(e) => {
+                                remove()
+                            }}
+                        >
+                            删除
+                        </Button>
+                    </Space>
+                </div>
+                {nodeDataVisible &&
                     <div>
-                        <Button onClick={connect}>连接</Button>
+                    {nodeData || 'no data'}
                     </div>
                 }
             </div>
-            <div className={styles.sections}>
+            {false &&
                 <div className={styles.section}>
-                    <ZKTree
-                        config={config}
-                        connectionId={connectionId}
-                        onData={({path, data}) => {
-                            setDetailPath(path)
-                            setNodeData(data)
+                    <div className={styles.title}>发布</div>
+                    <Form
+                        form={form}
+                        // {...layout}
+                        // name="basic"
+                        // initialValues={{
+                        //     channel: 'msg/dms-test',
+                        //     message: 'dms-msg-content'
+                        // }}
+                        // onFinish={onFinish}
+                        // onFinishFailed={onFinishFailed}
+                    >
+                        <Form.Item
+                            label="主题"
+                            name="channel"
+                            rules={[ { required: true, } ]}
+                        >
+                            <Input />
+                        </Form.Item>
+                        <Form.Item
+                            label="消息"
+                            name="message"
+                            rules={[ { required: true, } ]}
+                        >
+                            <Input.TextArea rows={8} />
+                        </Form.Item>
+                    </Form>
+                    <Button
+                        type="primary"
+                        onClick={() => {
+                            publish()
+                        }}
+                    >
+                        发布
+                    </Button>
+
+                </div>
+            }
+            {false &&
+                <div className={styles.section}>
+                    <div className={styles.toolBox}>
+                        <div className={styles.title}>订阅</div>
+                        {isSub ?
+                            <Space>
+                                {subscribeTopic}
+                                <Button
+                                    size="small"
+                                    onClick={() => {
+                                        setList([])
+                                    }}
+                                >
+                                    清除
+                                </Button>
+                                <Button
+                                    size="small"
+                                    onClick={() => {
+                                        unSubscribe()
+                                    }}
+                                >
+                                    取消订阅
+                                </Button>
+                            </Space>
+                        :
+                            <div>
+                                <Form
+                                    form={form2}
+                                >
+                                    <Form.Item
+                                        label="主题"
+                                        name="channel"
+                                        // rules={[ { required: true, } ]}
+                                    >
+                                        <Input placeholder="*" />
+                                    </Form.Item>
+                                </Form>
+                                <div className={styles.topics}>
+                                    {(detailItem.topics || []).map(item => {
+                                        return (
+                                            <Tag
+                                                className={styles.item}
+                                                onClick={() => {
+                                                    form2.setFieldsValue({
+                                                        channel: item.name,
+                                                    })
+                                                }}
+                                            >
+                                                {item.name}
+                                            </Tag>
+                                        )
+                                    })}
+                                </div>
+                                <Button
+                                    type="primary"
+                                    onClick={() => {
+                                        subscribe()
+                                    }}
+                                >
+                                    订阅
+                                </Button>
+
+                            </div>
+                        }
+                    </div>
+                    {/* <div className={styles.help}>暂不支持在界面显示，消息请在后端控制台查看</div> */}
+                    <Table
+                        loading={loading}
+                        dataSource={list}
+                        bordered
+                        size="small"
+                        pagination={false}
+                        // pagination={{
+                        //     total,
+                        //     current: page,
+                        //     pageSize,
+                        //     showSizeChanger: false,
+                        // }}
+                        rowKey="id"
+                        columns={[
+                            {
+                                title: t('时间'),
+                                dataIndex: 'time',
+                                width: 80,
+                                render(value) {
+                                    return moment(value).format('HH:mm:ss')
+                                }
+                            },
+                            {
+                                title: t('topic'),
+                                dataIndex: 'topic',
+                                width: 200,
+                            },
+                            {
+                                title: t('message'),
+                                dataIndex: 'message',
+                                // width: 240,
+                            },
+                            // {
+                            //     title: '',
+                            //     dataIndex: '_empty',
+                            // },
+                        ]}
+                        onChange={({ current }) => {
+                            // setPage(current)
                         }}
                     />
+
+                    {/* <hr /> */}
+
+                    {/* <Button
+                        type="primary"
+                        onClick={() => {
+                            pubsub()
+                        }}
+                    >
+                        pubsub
+                    </Button> */}
+
                 </div>
-                <div className={styles.section}>
-                    <div>
-                        path:
-                    </div>
-                    {detailPath}
-                    <div>
-                    data:
-                    </div>
-                    <div>
-                    {nodeData}
-                    </div>
-                </div>
-                {false &&
-                    <div className={styles.section}>
-                        <div className={styles.title}>发布</div>
-                        <Form
-                            form={form}
-                            // {...layout}
-                            // name="basic"
-                            // initialValues={{
-                            //     channel: 'msg/dms-test',
-                            //     message: 'dms-msg-content'
-                            // }}
-                            // onFinish={onFinish}
-                            // onFinishFailed={onFinishFailed}
-                        >
-                            <Form.Item
-                                label="主题"
-                                name="channel"
-                                rules={[ { required: true, } ]}
-                            >
-                                <Input />
-                            </Form.Item>
-                            <Form.Item
-                                label="消息"
-                                name="message"
-                                rules={[ { required: true, } ]}
-                            >
-                                <Input.TextArea rows={8} />
-                            </Form.Item>
-                        </Form>
-                        <Button
-                            type="primary"
-                            onClick={() => {
-                                publish()
-                            }}
-                        >
-                            发布
-                        </Button>
-
-                    </div>
-                }
-                {false &&
-                    <div className={styles.section}>
-                        <div className={styles.toolBox}>
-                            <div className={styles.title}>订阅</div>
-                            {isSub ?
-                                <Space>
-                                    {subscribeTopic}
-                                    <Button
-                                        size="small"
-                                        onClick={() => {
-                                            setList([])
-                                        }}
-                                    >
-                                        清除
-                                    </Button>
-                                    <Button
-                                        size="small"
-                                        onClick={() => {
-                                            unSubscribe()
-                                        }}
-                                    >
-                                        取消订阅
-                                    </Button>
-                                </Space>
-                            :
-                                <div>
-                                    <Form
-                                        form={form2}
-                                    >
-                                        <Form.Item
-                                            label="主题"
-                                            name="channel"
-                                            // rules={[ { required: true, } ]}
-                                        >
-                                            <Input placeholder="*" />
-                                        </Form.Item>
-                                    </Form>
-                                    <div className={styles.topics}>
-                                        {(detailItem.topics || []).map(item => {
-                                            return (
-                                                <Tag
-                                                    className={styles.item}
-                                                    onClick={() => {
-                                                        form2.setFieldsValue({
-                                                            channel: item.name,
-                                                        })
-                                                    }}
-                                                >
-                                                    {item.name}
-                                                </Tag>
-                                            )
-                                        })}
-                                    </div>
-                                    <Button
-                                        type="primary"
-                                        onClick={() => {
-                                            subscribe()
-                                        }}
-                                    >
-                                        订阅
-                                    </Button>
-
-                                </div>
-                            }
-                        </div>
-                        {/* <div className={styles.help}>暂不支持在界面显示，消息请在后端控制台查看</div> */}
-                        <Table
-                            loading={loading}
-                            dataSource={list}
-                            bordered
-                            size="small"
-                            pagination={false}
-                            // pagination={{
-                            //     total,
-                            //     current: page,
-                            //     pageSize,
-                            //     showSizeChanger: false,
-                            // }}
-                            rowKey="id"
-                            columns={[
-                                {
-                                    title: t('时间'),
-                                    dataIndex: 'time',
-                                    width: 80,
-                                    render(value) {
-                                        return moment(value).format('HH:mm:ss')
-                                    }
-                                },
-                                {
-                                    title: t('topic'),
-                                    dataIndex: 'topic',
-                                    width: 200,
-                                },
-                                {
-                                    title: t('message'),
-                                    dataIndex: 'message',
-                                    // width: 240,
-                                },
-                                // {
-                                //     title: '',
-                                //     dataIndex: '_empty',
-                                // },
-                            ]}
-                            onChange={({ current }) => {
-                                // setPage(current)
-                            }}
-                        />
-
-                        {/* <hr /> */}
-
-                        {/* <Button
-                            type="primary"
-                            onClick={() => {
-                                pubsub()
-                            }}
-                        >
-                            pubsub
-                        </Button> */}
-
-                    </div>
-                }
-            </div>
+            }
             
         </div>
     )

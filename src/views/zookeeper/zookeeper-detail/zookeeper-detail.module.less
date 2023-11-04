@@ -1,5 +1,32 @@
-.mqttBox {
-    padding: 16px;
+.zkBox {
+    display: flex;
+    height: 100%;
+    flex-direction: row;
+    // align-items: center;
+    // border: 1px solid #000;
+    .layoutLeft {
+        flex: 0 0 480px;
+        border-right: 1px solid var(--border-color);
+        padding: 16px;
+        & > .header {
+            margin-bottom: 16px;
+        }
+    }
+    .layoutRight {
+        flex: 1 0 auto;
+        width: 0;
+        // border: 1px solid #000;
+        padding: 16px;
+        & > .header {
+            margin-bottom: 16px;
+        }
+        .detailPath {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            // max-width: 640px;
+        }
+    }
 }
 .sections {
     display: flex;
@@ -30,4 +57,10 @@
     .item {
         cursor: pointer;
     }
+}
+.nodeName {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    // max-width: 240px;
 }
