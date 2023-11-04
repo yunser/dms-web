@@ -26,11 +26,52 @@ function findInTreeData(list, cb) {
     return null
 }
 
+function NodeEditModal({ config, connectionId, onClose, onSuccess, }) {
+    const { t } = useTranslation()
+
+    const [form] = Form.useForm()
+
+    return (
+        <Modal
+            title={'create node'}
+            open={true}
+            onCancel={onClose}
+            maskClosable={false}
+            onOk={async () => {
+                const values = await form.validateFields()
+                let ret = await request.post(`${config.host}/zookeeper/create`, {
+                    connectionId,
+                    path: values.path,
+                })
+                if (ret.success) {
+                    message.success(t('success'))
+                    // onClose && onClose()
+                    onSuccess && onSuccess()
+                }
+            }}
+        >
+            <Form
+                form={form}
+                labelCol={{ span: 4 }}
+                wrapperCol={{ span: 20 }}
+            >
+                <Form.Item
+                    name="path"
+                    label={t('path')}
+                    rules={[ { required: true, }, ]}
+                >
+                    <Input />
+                </Form.Item>
+            </Form>
+        </Modal>
+    );
+}
+
 function ZKTree({ config, connectionId, onSelectItem, onData }) {
 
-    const [list, setList] = useState([])
     const [treeData, setTreeData] = useState([])
     const [expandedKeys, setExpandedKeys] = useState([])
+    const [editModalVisible, setEditModalVisible] = useState(false)
     
     const treeRef = useRef([])
     useEffect(() => {
@@ -38,22 +79,11 @@ function ZKTree({ config, connectionId, onSelectItem, onData }) {
     }, [])
 
     async function loadTree(path) {
-        console.log('loadTree', path)
-        // const values = await form2.validateFields();
-        // const topic = values.channel || '*'
         let res = await request.post(`${config.host}/zookeeper/tree`, {
             connectionId,
-            // topic,
             path,
         })
         if (res.success) {
-            setList(res.data.list)
-            // message.success('订阅成功')
-            // setIsSub(true)
-            // setSubscribeTopic(topic)
-            // if (res.data.list.length == 0) {
-            //     return
-            // }
             const subTree = res.data.list.map(item => {
                 const subPath = (path == '/' ? '' : path) + '/' + item.name
                 return {
@@ -69,11 +99,8 @@ function ZKTree({ config, connectionId, onSelectItem, onData }) {
                         </div>
                     ),
                     key: subPath,
-                    // name: item.name,
                     name: item.name,
                     path: subPath,
-                    // children: [],
-                    // isLeaf: false,
                 }
             })
             if (path == '/') {
@@ -108,6 +135,26 @@ function ZKTree({ config, connectionId, onSelectItem, onData }) {
 
     return (
         <div>
+            <div className={styles.treeToolBox}>
+                <Space>
+                    <Button
+                        size="small"
+                        onClick={() => {
+                            loadTree('/')
+                        }}
+                    >
+                        刷新
+                    </Button>
+                    <Button
+                        size="small"
+                        onClick={() => {
+                            setEditModalVisible(true)
+                        }}
+                    >
+                        新增
+                    </Button>
+                </Space>
+            </div>
             <div>
                 <Tree
                     treeData={treeData}
@@ -151,16 +198,19 @@ function ZKTree({ config, connectionId, onSelectItem, onData }) {
                     }}
                 />
             </div>
-            {/* <div>
-                {list.map(item => {
-                    return (
-                        <div>
-                            <div>name: {item.name}</div>
-                            <div>path: {item.name}</div>
-                        </div>
-                    )
-                })}
-            </div> */}
+            {editModalVisible &&
+                <NodeEditModal
+                    config={config}
+                    connectionId={connectionId}
+                    onClose={() => {
+                        setEditModalVisible(false)
+                    }}
+                    onSuccess={() => {
+                        setEditModalVisible(false)
+                        loadTree('/')
+                    }}
+                />
+            }
         </div>
     )
 }
