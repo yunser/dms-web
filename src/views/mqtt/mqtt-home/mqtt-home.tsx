@@ -28,7 +28,7 @@ export function MqttHome({ config, data }) {
     const [form] = Form.useForm()
     const [form2] = Form.useForm()
     const [isSub, setIsSub] = useState(false)
-    const [modalVisible, setModalVisible] = useState(false)
+    const [subscribeTopic, setSubscribeTopic] = useState('')
     const [list, setList] = useState([])
     const pageSize = 10
     const [page, setPage] = useState(1)
@@ -36,23 +36,26 @@ export function MqttHome({ config, data }) {
     const [loading, setLoading] = useState(false)
     const [wsStatus, setWsStatus] = useState('notConnected')
     const [wsAction, setWsAction] = useState('')
+
     async function subscribe() {
         const values = await form2.validateFields();
+        const topic = values.channel || '*'
         let res = await request.post(`${config.host}/mqtt/subscribe`, {
-            // connectionId,
-            channel: values.channel || '*',
+            connectionId,
+            topic,
         })
         if (res.success) {
             message.success('订阅成功')
             setIsSub(true)
+            setSubscribeTopic(topic)
         }
     }
 
     async function unSubscribe() {
         const values = await form2.validateFields();
-        let res = await request.post(`${config.host}/mqtt/unSubscribe`, {
-            // connectionId,
-            channel: values.channel || '*',
+        let res = await request.post(`${config.host}/mqtt/unsubscribe`, {
+            connectionId,
+            topic: subscribeTopic,
         })
         if (res.success) {
             message.success('取消订阅成功')
@@ -237,55 +240,53 @@ export function MqttHome({ config, data }) {
 
                 </div>
                 <div className={styles.section}>
-                    <div className={styles.title}>订阅</div>
-                    {isSub ?
-                        <Space>
-                            {/* <Button
-                                type="primary"
-                                onClick={() => {
-                                    unSubscribe()
-                                }}
-                            >
-                                取消订阅
-                            </Button> */}
-                            
-
-                        </Space>
-                    :
-                        <div>
-                            <Form
-                                form={form2}
-                            >
-                                <Form.Item
-                                    label="主题"
-                                    name="channel"
-                                    // rules={[ { required: true, } ]}
+                    <div className={styles.toolBox}>
+                        <div className={styles.title}>订阅</div>
+                        {isSub ?
+                            <Space>
+                                {subscribeTopic}
+                                <Button
+                                    size="small"
+                                    onClick={() => {
+                                        setList([])
+                                    }}
                                 >
-                                    <Input placeholder="*" />
-                                </Form.Item>
-                            </Form>
-                            {/* <Button
-                                type="primary"
-                                onClick={() => {
-                                    subscribe()
-                                }}
-                            >
-                                订阅
-                            </Button> */}
+                                    清除
+                                </Button>
+                                <Button
+                                    size="small"
+                                    onClick={() => {
+                                        unSubscribe()
+                                    }}
+                                >
+                                    取消订阅
+                                </Button>
+                            </Space>
+                        :
+                            <div>
+                                <Form
+                                    form={form2}
+                                >
+                                    <Form.Item
+                                        label="主题"
+                                        name="channel"
+                                        // rules={[ { required: true, } ]}
+                                    >
+                                        <Input placeholder="*" />
+                                    </Form.Item>
+                                </Form>
+                                <Button
+                                    type="primary"
+                                    onClick={() => {
+                                        subscribe()
+                                    }}
+                                >
+                                    订阅
+                                </Button>
 
-                        </div>
-                    }
-                    <Space>
-                        <Button
-                            size="small"
-                            onClick={() => {
-                                setList([])
-                            }}
-                        >
-                            清除
-                        </Button>
-                    </Space>
-
+                            </div>
+                        }
+                    </div>
                     {/* <div className={styles.help}>暂不支持在界面显示，消息请在后端控制台查看</div> */}
                     <Table
                         loading={loading}
