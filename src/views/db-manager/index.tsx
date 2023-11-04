@@ -54,6 +54,7 @@ import { S3Home } from '../s3/s3-home'
 import { HexEditor } from '../hex/hex-editor'
 import { DockerDetail } from '../docker/docker-detail'
 import { ZookeeperConnect } from '../zookeeper/zookeeper-connect/zookeeper-connect'
+import { ZookeeperDetail } from '../zookeeper/zookeeper-detail/zookeeper-detail'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -89,6 +90,7 @@ const tagIconLabel = {
     'redis-client': 'RDS',
     'redis-connect': 'RDS',
     'zookeeper-home': 'ZK',
+    'zookeeper-detail': 'ZK',
     'mqtt-home': 'MQTT',
     'mqtt-detail': 'MQTT',
     'websocket-home': 'WS',
@@ -1359,8 +1361,8 @@ export function DbManager({ config }) {
                                                 console.log('onConnect', connectionId)
                                                 addOrActiveTab({
                                                     title: `${name}`,
-                                                    key: 'mqtt-' + uid(16),
-                                                    type: 'mqtt-detail',
+                                                    key: 'zookeeper-' + uid(16),
+                                                    type: 'zookeeper-detail',
                                                     data: {
                                                         connectionId,
                                                         item,
@@ -1372,6 +1374,13 @@ export function DbManager({ config }) {
                                                 })
                                             }}
                                             // data={item.data}
+                                        />
+                                    }
+                                    {item.type == 'zookeeper-detail' &&
+                                        <ZookeeperDetail
+                                            config={config}
+                                            event$={event$}
+                                            data={item.data}
                                         />
                                     }
                                     {item.type == 'mqtt-home' &&
