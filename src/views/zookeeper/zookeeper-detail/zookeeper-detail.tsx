@@ -404,6 +404,18 @@ export function ZookeeperDetail({ config, data }) {
         }
     }
 
+    async function saveData() {
+        let res = await request.post(`${config.host}/zookeeper/setData`, {
+            connectionId,
+            path: detailPath,
+            data: nodeData,
+        })
+        if (res.success) {
+            setNodeData(res.data.data)
+            setNodeDataVisible(true)
+        }
+    }
+
     useEffect(() => {
         form.setFieldsValue({
             channel: 'test/dms-test',
@@ -473,7 +485,23 @@ export function ZookeeperDetail({ config, data }) {
                 </div>
                 {nodeDataVisible &&
                     <div>
-                    {nodeData || 'no data'}
+                    {/* {nodeData || 'no data'} */}
+                    <Input.TextArea
+                        rows={8}
+                        value={nodeData}
+                        onChange={e => {
+                            setNodeData(e.target.value)
+                        }}
+                    />
+                    <div>
+                        <Button
+                            onClick={() => {
+                                saveData()
+                            }}
+                        >
+                            保存
+                        </Button>
+                    </div>
                     </div>
                 }
             </div>
