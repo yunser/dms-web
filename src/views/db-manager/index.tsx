@@ -53,6 +53,7 @@ import { TextEditor } from '../text/text'
 import { S3Home } from '../s3/s3-home'
 import { HexEditor } from '../hex/hex-editor'
 import { DockerDetail } from '../docker/docker-detail'
+import { ZookeeperConnect } from '../zookeeper/zookeeper-connect/zookeeper-connect'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -87,6 +88,7 @@ const tagIconLabel = {
     'ssh-connect': 'SSH',
     'redis-client': 'RDS',
     'redis-connect': 'RDS',
+    'zookeeper-home': 'ZK',
     'mqtt-home': 'MQTT',
     'mqtt-detail': 'MQTT',
     'websocket-home': 'WS',
@@ -460,6 +462,17 @@ export function DbManager({ config }) {
                     // connectionId: 'alasql',
                     // databaseType: 'alasql',
                 }
+            }, {
+                // closeCurrentTab: true,
+            })
+        }
+        else if (key == 'zookeeper') {
+            addOrActiveTab({
+                // title: `${curConnect.name || 'Unnamed'}`,
+                title: t('zookeeper'),
+                key,
+                type: 'zookeeper-home',
+                data: {}
             }, {
                 // closeCurrentTab: true,
             })
@@ -886,6 +899,11 @@ export function DbManager({ config }) {
         {
             label: t('mqtt'),
             key: 'mqtt',
+            group: 'data',
+        },
+        {
+            label: t('zookeeper'),
+            key: 'zookeeper',
             group: 'data',
         },
         {
@@ -1331,6 +1349,29 @@ export function DbManager({ config }) {
                                             config={config}
                                             event$={event$}
                                             data={item.data}
+                                        />
+                                    }
+                                    {item.type == 'zookeeper-home' &&
+                                        <ZookeeperConnect
+                                            config={config}
+                                            event$={event$}
+                                            onConnect={({ connectionId, item, name }) => {
+                                                console.log('onConnect', connectionId)
+                                                addOrActiveTab({
+                                                    title: `${name}`,
+                                                    key: 'mqtt-' + uid(16),
+                                                    type: 'mqtt-detail',
+                                                    data: {
+                                                        connectionId,
+                                                        item,
+                                                        // defaultDatabase,
+                                                    },
+                                                }, {
+                                                    afterKey: item.key,
+                                                    // closeCurrentTab: true,
+                                                })
+                                            }}
+                                            // data={item.data}
                                         />
                                     }
                                     {item.type == 'mqtt-home' &&
