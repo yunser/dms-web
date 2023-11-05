@@ -115,7 +115,7 @@ export function InfluxdbConnect({ config, event$, onConnect, }) {
         // if (values.remember) {
         //     storage.set('redisInfo', reqData)
         // }
-        let ret = await request.post(`${config.host}/zookeeper/connect`, reqData)
+        let ret = await request.post(`${config.host}/influxdb/connect`, reqData)
         // console.log('ret', ret)
         if (ret.success) {
             // message.success('连接成功')
@@ -140,7 +140,7 @@ export function InfluxdbConnect({ config, event$, onConnect, }) {
                 // setConnections(newConnects)
                 // storage.set('connections', newConnects)
                 // loadList()
-                let res = await request.post(`${config.host}/zookeeper/connection/delete`, {
+                let res = await request.post(`${config.host}/influxdb/connection/delete`, {
                     id: item.id,
                 })
                 console.log('get/res', res.data)
@@ -484,9 +484,9 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
         const saveOrUpdateData = {
             name: values.name || t('unnamed'),
             host: values.host || 'localhost',
-            port: values.port || 2181,
+            port: values.port || 8086,
             password: values.password || '',
-            userName: values.userName,
+            username: values.username,
             home: values.home,
         }
         if (editType == 'create') {
@@ -502,7 +502,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                 
             //     // db: values.db,
             // })
-            let res = await request.post(`${config.host}/zookeeper/connection/create`, {
+            let res = await request.post(`${config.host}/influxdb/connection/create`, {
                 // id: item.id,
                 // data: {
                 // }
@@ -525,7 +525,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
             //     ..._connections[idx],
             //     ...saveOrUpdateData,
             // }
-            let res = await request.post(`${config.host}/zookeeper/connection/update`, {
+            let res = await request.post(`${config.host}/influxdb/connection/update`, {
                 id: item.id,
                 data: {
                     ...saveOrUpdateData,
@@ -556,13 +556,13 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
         const reqData = {
             name: values.name || t('unnamed'),
             host: values.host || 'localhost',
-            port: values.port || 2181,
-            // password: values.password || '',
-            // userName: values.userName,
+            port: values.port || 8086,
+            password: values.password || '',
+            username: values.username,
             test: true,
             // remember: values.remember,
         }
-        let ret = await request.post(`${config.host}/zookeeper/connect`, reqData)
+        let ret = await request.post(`${config.host}/influxdb/connect`, reqData)
         // console.log('ret', ret)
         if (ret.success) {
             message.success(t('success'))
@@ -647,7 +647,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                     // rules={[{ required: true, },]}
                 >
                     <InputNumber
-                        placeholder="2181"
+                        placeholder="8086"
                     />
                 </Form.Item>
                 {/* <Form.Item
@@ -657,8 +657,8 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                 >
                     <Input />
                 </Form.Item> */}
-                {/* <Form.Item
-                    name="userName"
+                <Form.Item
+                    name="username"
                     label={t('user_name')}
                 >
                     <Input />
@@ -668,7 +668,7 @@ function DatabaseModal({ config, onCancel, item, onSuccess, onConnect, }) {
                     label={t('password')}
                 >
                     <InputPassword />
-                </Form.Item> */}
+                </Form.Item>
                 <Form.Item
                     name="home"
                     label={t('mqtt.home')}
