@@ -67,7 +67,84 @@ function NodeEditModal({ config, connectionId, onClose, onSuccess, }) {
     );
 }
 
-function ZKTree({ config, connectionId, onSelectItem, onData }) {
+function QueryPanel({ config, connectionId, database, table }) {
+    const [sql, setSql] = useState('SELECT * FROM ')
+    const [list, setList] = useState([])
+    const [loading, setLoading] = useState(false)
+    const [columns, setColumns] = useState([])
+
+    useEffect(() => {
+        if (!table) {
+            return
+        }
+        const sql = `SELECT * FROM "${table}"\nLIMIT 20`
+        setSql(sql)
+    }, [table])
+
+    async function query() {
+        setLoading(true)
+        let res = await request.post(`${config.host}/influxdb/query`, {
+            connectionId,
+            database,
+            sql,
+        })
+        
+        if (res.success) {
+            console.log('result', res.data)
+            // setNodeData(res.data.data)
+            // setNodeDataVisible(true)
+            const { columns, values } = res.data
+            const _columns = columns.map(colName => {
+                return {
+                    title: colName,
+                    dataIndex: colName,
+                }
+            })
+            setColumns(_columns)
+            const _list = values.map(row => {
+                const rowObj = {}
+                for (let idx = 0; idx < columns.length; idx++) {
+                    rowObj[columns[idx]] = row[idx]
+                }
+                return rowObj
+            })
+            setList(_list)
+        }
+        setLoading(false)
+    }
+
+    return (
+        <div>
+            {/* 查询面板 */}
+            <Input.TextArea
+                value={sql}
+                onChange={e => {
+                    setSql(e.target.value)
+                }}
+                rows={8}
+            />
+            <div>
+                <Button
+                    onClick={() => {
+                        query()
+                    }}
+                >
+                    查询
+                </Button>
+            </div>
+            <Table
+                loading={loading}
+                columns={columns}
+                dataSource={list}
+                bordered
+                size="small"
+                pagination={false}
+            />
+        </div>
+    )
+}
+
+function ZKTree({ config, connectionId, onSelectDB, onSelectTable, onSelectItem, onData }) {
 
     const [databases, setDatabases] = useState([])
     const [measurements, setMeasurements] = useState([])
@@ -187,9 +264,10 @@ function ZKTree({ config, connectionId, onSelectItem, onData }) {
                             <Button
                                 onClick={() => {
                                     viewDb(db.name)
+                                    onSelectDB && onSelectDB(db.name)
                                 }}
                             >
-                                查看表
+                                选择
                             </Button>
                         </div>
                     )
@@ -200,6 +278,13 @@ function ZKTree({ config, connectionId, onSelectItem, onData }) {
                         return (
                             <div>
                                 {tbl.name}
+                                <Button
+                                    onClick={() => {
+                                        onSelectTable && onSelectTable(tbl.name)
+                                    }}
+                                >
+                                    选择
+                                </Button>
                             </div>
                         )
                     })}
@@ -288,6 +373,8 @@ export function InfluxdbDetail({ config, data }) {
     const [loading, setLoading] = useState(false)
     const [wsStatus, setWsStatus] = useState('notConnected')
     const [wsAction, setWsAction] = useState('')
+    const [curDb, setCurDb] = useState('')
+    const [curTable, setCurTable] = useState('')
     const [detailPath, setDetailPath] = useState('/')
     const [nodeData, setNodeData] = useState('')
     const [nodeDataVisible, setNodeDataVisible] = useState(false)
@@ -493,19 +580,29 @@ export function InfluxdbDetail({ config, data }) {
                     //     setDetailPath(path)
                     //     setNodeData(data)
                     // }}
-                    onSelectItem={(path) => {
-                        setDetailPath(path)
-                        setNodeData(null)
-                        setNodeDataVisible(false)
+                    onSelectDB={(db) => {
+                        setCurDb(db)
+                    }}
+                    onSelectTable={(table) => {
+                        setCurTable(table)
                     }}
                 />
             </div>
             <div className={styles.layoutRight}>
-                {/* <div className={styles.header}>
+
+                <div className={styles.header}>
                     <div className={styles.detailPath}>
-                        {detailPath}
+                        {curDb}.{curTable}
                     </div>
-                </div> */}
+                </div>
+                {!!curDb &&
+                    <QueryPanel 
+                        config={config}
+                        connectionId={connectionId}
+                        database={curDb}
+                        table={curTable}
+                    />
+                }
                 {/* <div>
                 data:
                 </div> */}
