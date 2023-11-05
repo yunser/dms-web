@@ -725,15 +725,7 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                                                 diff(item.path, true)
                                                             }}
                                                         >
-                                                            {item.working_dir == '?' ?
-                                                                <div className={classNames(styles.icon, styles.added)}>
-                                                                    <QuestionOutlined />
-                                                                </div>
-                                                            : item.working_dir == 'M' ?
-                                                                <div className={classNames(styles.icon, styles.modified)}>
-                                                                    <EllipsisOutlined />
-                                                                </div>
-                                                            : item.index == 'R' ?
+                                                            {item.index == 'R' ?
                                                                 <div className={classNames(styles.icon, styles.modified)}>
                                                                     <div>R</div>
                                                                 </div>
@@ -741,9 +733,25 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                                                 <div className={classNames(styles.icon, styles.added)}>
                                                                     <div>A</div>
                                                                 </div>
+                                                            : item.index == 'M' ?
+                                                                <div className={classNames(styles.icon, styles.modified)}>
+                                                                    <div>M</div>
+                                                                </div>
                                                             : item.index == 'U' ?
                                                                 <div className={classNames(styles.icon, styles.modified)}>
                                                                     <div>U</div>
+                                                                </div>
+                                                            : item.index == '?' ?
+                                                                <div className={classNames(styles.icon, styles.modified)}>
+                                                                    <QuestionOutlined />
+                                                                </div>
+                                                            :item.working_dir == '?' ?
+                                                                <div className={classNames(styles.icon, styles.added)}>
+                                                                    <QuestionOutlined />
+                                                                </div>
+                                                            : item.working_dir == 'M' ?
+                                                                <div className={classNames(styles.icon, styles.modified)}>
+                                                                    <EllipsisOutlined />
                                                                 </div>
                                                             : item.working_dir == 'D' ?
                                                                 <div className={classNames(styles.icon, styles.deleted)}>
