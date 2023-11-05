@@ -55,6 +55,7 @@ import { HexEditor } from '../hex/hex-editor'
 import { DockerDetail } from '../docker/docker-detail'
 import { ZookeeperConnect } from '../zookeeper/zookeeper-connect/zookeeper-connect'
 import { ZookeeperDetail } from '../zookeeper/zookeeper-detail/zookeeper-detail'
+import { InfluxdbConnect } from '../influxdb/influxdb-connect/influxdb-connect'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -470,13 +471,18 @@ export function DbManager({ config }) {
         }
         else if (key == 'zookeeper') {
             addOrActiveTab({
-                // title: `${curConnect.name || 'Unnamed'}`,
                 title: t('zookeeper'),
                 key,
                 type: 'zookeeper-home',
                 data: {}
-            }, {
-                // closeCurrentTab: true,
+            })
+        }
+        else if (key == 'influxdb') {
+            addOrActiveTab({
+                title: t('influxdb'),
+                key,
+                type: 'influxdb-home',
+                data: {}
             })
         }
         else if (key == 'mqtt') {
@@ -906,6 +912,11 @@ export function DbManager({ config }) {
         {
             label: t('zookeeper'),
             key: 'zookeeper',
+            group: 'data',
+        },
+        {
+            label: t('influxdb'),
+            key: 'influxdb',
             group: 'data',
         },
         {
@@ -1363,6 +1374,29 @@ export function DbManager({ config }) {
                                                     title: `${name}`,
                                                     key: 'zookeeper-' + uid(16),
                                                     type: 'zookeeper-detail',
+                                                    data: {
+                                                        connectionId,
+                                                        item,
+                                                        // defaultDatabase,
+                                                    },
+                                                }, {
+                                                    afterKey: item.key,
+                                                    // closeCurrentTab: true,
+                                                })
+                                            }}
+                                            // data={item.data}
+                                        />
+                                    }
+                                    {item.type == 'influxdb-home' &&
+                                        <InfluxdbConnect
+                                            config={config}
+                                            event$={event$}
+                                            onConnect={({ connectionId, item, name }) => {
+                                                console.log('onConnect', connectionId)
+                                                addOrActiveTab({
+                                                    title: `${name}`,
+                                                    key: 'influxdb-' + uid(16),
+                                                    type: 'influxdb-detail',
                                                     data: {
                                                         connectionId,
                                                         item,
