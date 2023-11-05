@@ -70,6 +70,7 @@ function NodeEditModal({ config, connectionId, onClose, onSuccess, }) {
 function ZKTree({ config, connectionId, onSelectItem, onData }) {
 
     const [databases, setDatabases] = useState([])
+    const [measurements, setMeasurements] = useState([])
     const [treeData, setTreeData] = useState([])
     const [expandedKeys, setExpandedKeys] = useState([])
     const [editModalVisible, setEditModalVisible] = useState(false)
@@ -82,6 +83,16 @@ function ZKTree({ config, connectionId, onSelectItem, onData }) {
         })
         if (res.success) {
             setDatabases(res.data.list)
+        }
+    }
+
+    async function viewDb(database) {
+        let res = await request.post(`${config.host}/influxdb/measurements`, {
+            connectionId,
+            database,
+        })
+        if (res.success) {
+            setMeasurements(res.data.list)
         }
     }
 
@@ -168,13 +179,31 @@ function ZKTree({ config, connectionId, onSelectItem, onData }) {
                 </Space>
             </div> */}
             <div>
+                数据库：
                 {databases.map(db => {
                     return (
                         <div>
                             {db.name}
+                            <Button
+                                onClick={() => {
+                                    viewDb(db.name)
+                                }}
+                            >
+                                查看表
+                            </Button>
                         </div>
                     )
                 })}
+                表：
+                <div>
+                    {measurements.map(tbl => {
+                        return (
+                            <div>
+                                {tbl.name}
+                            </div>
+                        )
+                    })}
+                </div>
                 {/* <Tree
                     treeData={treeData}
                     height={640}
