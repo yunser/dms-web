@@ -57,7 +57,7 @@ export function DiffText({ text, editable = false, onDiscard, onConflictResolve 
     const { t } = useTranslation()
     const isDiff = text.includes('@@')
     
-    const [selectedLine, setSelectedLine] = useState(null)
+    const [selectedLines, setSelectedLines] = useState([])
 
     const lines = useMemo(() => {
         const arr = text.split('\n')
@@ -196,21 +196,50 @@ export function DiffText({ text, editable = false, onDiscard, onConflictResolve 
                         itemKey="id"
                     >
                         {(line, index) => {
+                            const isSelected = !!selectedLines.find(item => item.id == line.id)
                             return (
                                 <div
                                     className={classNames(styles.lineItem, {
-                                        [styles.active]: selectedLine && selectedLine.id == line.id,
+                                        [styles.active]: isSelected,
                                     })}
                                     key={index}
-                                    onClick={() => {
+                                    style={{
+                                        userSelect: selectedLines.length > 0 ? 'none' : undefined, // 防止多选时选中文字
+                                    }}
+                                    onClick={(e) => {
                                         if (!editable) {
                                             return
                                         }
                                         if (line.type == 'added' || line.type == 'deleted' || line.type == 'conflict') {
-                                            setSelectedLine(line)
+                                            if (e.metaKey || e.ctrlKey) {
+                                                const exists = selectedLines.some(item => item.id == line.id)
+                                                if (exists) {
+                                                    setSelectedLines(selectedLines.filter(item => item.id != line.id))
+                                                }
+                                                else {
+                                                    setSelectedLines([
+                                                        ...selectedLines,
+                                                        line
+                                                    ])
+                                                }
+                                            }
+                                            else if (e.shiftKey) {
+                                                // 暂只支持上到下选择
+                                                if (selectedLines[0]) {
+                                                    const startIdx = selectedLines[0].index
+                                                    const endIdx = line.index
+                                                    setSelectedLines(lines.filter(line => (line.index >= startIdx) && (line.index <= endIdx)))
+                                                }
+                                                else {
+                                                    setSelectedLines([line])
+                                                }
+                                            }
+                                            else {
+                                                setSelectedLines([line])
+                                            }
                                         }
                                         else {
-                                            setSelectedLine(null)
+                                            setSelectedLines([])
                                         }
                                     }}
                                 >
@@ -277,15 +306,11 @@ export function DiffText({ text, editable = false, onDiscard, onConflictResolve 
                                             }
                                         </div>
                                     </div>
-                                    {selectedLine && selectedLine.id == line.id &&
+                                    {selectedLines.length && selectedLines[0].id == line.id &&
                                         <div className={styles.action}>
                                             <a className={styles.discard}
                                                 onClick={() => {
-                                                    onDiscard && onDiscard({
-                                                        type: line.type,
-                                                        line: line.index,
-                                                        content: line.content,
-                                                    })
+                                                    onDiscard && onDiscard(selectedLines)
                                                 }}
                                             >
                                                 {t('git.discard')}

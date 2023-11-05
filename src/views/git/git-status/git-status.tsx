@@ -505,13 +505,18 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
         }
     }
 
-    async function discardFile(filePath, line) {
+    async function discardFile(filePath, lines) {
         let res = await request.post(`${config.host}/git/fileDiscard`, {
             projectPath,
             filePath,
-            line: line.line - 1,
-            type: line.type,
-            lineContent: line.content,
+            lines: lines.map(line => {
+                console.log('line', line)
+                return {
+                    line: line.index - 1,
+                    type: line.type,
+                    content: line.content,
+                }
+            })
         })
         if (res.success) {
             diff(filePath)
@@ -981,8 +986,8 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                         <DiffText
                                             text={diffText}
                                             editable={true}
-                                            onDiscard={(line) => {
-                                                discardFile(curFile, line)
+                                            onDiscard={(lines) => {
+                                                discardFile(curFile, lines)
                                             }}
                                             onConflictResolve={(params) => {
                                                 fileConflictResolve(curFile, params)

@@ -28,6 +28,17 @@
             padding: 16px;
             overflow: auto;
         }
+        & > .footer {
+            height: 32px;
+            border-top: 1px solid var(--border-color);
+            padding: 0 16px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            .name {
+                color: #999;
+            }
+        }
         .pageBox {
             height: 40px;
             display: flex;
@@ -35,7 +46,6 @@
             align-items: center;
             justify-content: space-between;
             // margin-bottom: 8px;
-            // border: 1px solid #000;
             border-bottom: 1px solid var(--border-color);
             padding: 0 16px;
             .query {
@@ -79,8 +89,11 @@
         font-size: 12px;
     }
     .view {
-        // margin-right: 8px;
         color: #1890ff;
+        cursor: pointer;
+    }
+    .viewTrace {
+        color: #50870c;
         cursor: pointer;
     }
     .traceId {
@@ -162,6 +175,15 @@
 .hourSelector {
     width: 88px;
 }
+.hours {
+    margin-top: 4px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    max-width: 410px;
+}
 .logSubList {
     // border: 1px solid #000;
     .item {
@@ -185,5 +207,113 @@
     }
     .weak {
         color: var(--color-text-9);
+    }
+}
+.sqlTag {
+    display: inline-block;
+    color: #fff;
+    font-size: 12px;
+    padding: 2px 4px;
+    border-radius: 4px;
+    margin-right: 4px;
+    background-color: #000;
+    user-select: none;
+    &.link {
+        cursor: pointer;
+    }
+    &.SQL {
+        background-color: blue;
+    }
+    &.HTTP {
+        background-color: green;
+    }
+    &.RPC {
+        background-color: orange;
+    }
+    &.MQ {
+        background-color: orange;
+    }
+    &.Res {
+        background-color: purple;
+    }
+    &.Req {
+        background-color: purple;
+    }
+    &.TASK {
+        background-color: rgb(18, 212, 183);
+    }
+    &.200 {
+        background-color: green;
+    }
+}
+.logItem {
+    padding-right: 12px;
+    // & + .logItem {
+    //     margin-right: 16px;
+    // }
+}
+.logItemLink {
+    cursor: pointer;
+    &:hover {
+        text-decoration: underline;
+    }
+}
+.linkTag {
+    cursor: pointer;
+}
+.reqBox {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    // flex-wrap: wrap;
+    gap: 16px;
+}
+.messages {
+    display: inline;
+}
+.commonTraceId {
+    display: inline-block;
+    margin-right: 4px;
+    // color: #333;
+    // color: #fff;
+    // background-color: #333;
+    color: #999;
+    background-color: #f9f9f9;
+    padding: 2px 4px;
+}
+.sqlView {
+    cursor: pointer;
+    .icon {
+        margin-right: 4px;
+    }
+}
+.simpleTable {
+    display: inline-block;
+    // .table {
+    // }
+    // margin-bottom: 16px;
+    // border: 1px solid #f00;
+    margin-top: 4px;
+    border-collapse: collapse;
+    // margin-left: 4px;
+    tr {
+        &:first-child {
+            th,
+            td {
+                border-top: 1px solid rgba(0, 0, 0, .12);
+            }
+        }
+        // border-left: 1px solid rgba(0, 0, 0, .12);
+        // border-top: 1px solid rgba(0, 0, 0, .12);
+    }
+    th,
+    td {
+        padding: 4px 8px;
+        border-right: 1px solid rgba(0, 0, 0, .12);
+        border-bottom: 1px solid rgba(0, 0, 0, .12);
+        font-size: 12px;
+        &:first-child {
+            border-left: 1px solid rgba(0, 0, 0, .12);
+        }
     }
 }
