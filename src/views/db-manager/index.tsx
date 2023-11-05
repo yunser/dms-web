@@ -56,6 +56,7 @@ import { DockerDetail } from '../docker/docker-detail'
 import { ZookeeperConnect } from '../zookeeper/zookeeper-connect/zookeeper-connect'
 import { ZookeeperDetail } from '../zookeeper/zookeeper-detail/zookeeper-detail'
 import { InfluxdbConnect } from '../influxdb/influxdb-connect/influxdb-connect'
+import { InfluxdbDetail } from '../influxdb/influxdb-detail/influxdb-detail'
 
 // console.log('styles', styles)
 const { TextArea } = Input
@@ -1387,6 +1388,13 @@ export function DbManager({ config }) {
                                             // data={item.data}
                                         />
                                     }
+                                    {item.type == 'zookeeper-detail' &&
+                                        <ZookeeperDetail
+                                            config={config}
+                                            event$={event$}
+                                            data={item.data}
+                                        />
+                                    }
                                     {item.type == 'influxdb-home' &&
                                         <InfluxdbConnect
                                             config={config}
@@ -1410,8 +1418,8 @@ export function DbManager({ config }) {
                                             // data={item.data}
                                         />
                                     }
-                                    {item.type == 'zookeeper-detail' &&
-                                        <ZookeeperDetail
+                                    {item.type == 'influxdb-detail' &&
+                                        <InfluxdbDetail
                                             config={config}
                                             event$={event$}
                                             data={item.data}

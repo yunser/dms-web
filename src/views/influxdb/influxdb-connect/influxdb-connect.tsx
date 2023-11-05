@@ -107,9 +107,8 @@ export function InfluxdbConnect({ config, event$, onConnect, }) {
         const reqData = {
             host: item.host,
             port: item.port,
-            user: item.user,
             password: item.password,
-            userName: item.userName,
+            username: item.username,
             // remember: values.remember,
         }
         // if (values.remember) {
