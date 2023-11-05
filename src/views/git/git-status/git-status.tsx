@@ -305,6 +305,7 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
     const [curFileType, setCurFileType] = useState('')
     const [status, setStatus] = useState(null)
     // const [current, setCurrent] = useState('')
+    const [stagedList, setStagedList] = useState([])
     const [unstagedList, setUnstagedList] = useState([])
     const [diffItem, setDiffItem ] = useState(null)
     const [diffType, setDiffType ] = useState('text')
@@ -334,8 +335,40 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
             const { status } = res.data
             setStatus(status)
             // setCurrent(res.data.current)
+            // status.deleted: 删除的文件，暂存后不为空
+            // status.conflicted: 有冲突的文件，冲突解决暂存后为空，取消暂存恢复冲突后也为空
+            // status.staged: 已暂存的文件
+            // status.renamed: 重命名的文件
+            // status.modified: 修改过内容的文件，暂存后不为空
+            // status.not_added: 未添加到 git 跟踪的文件，暂存后为空，放到 status.created
+            // status.created: 新添加的，且暂存后的文件
+            // status.files: 所有文件，暂存和未暂存的
+            // 
+            // files 示例：
+            // [
+            //     {
+            //         "path": "delete-test.md",
+            //         "index": " ",
+            //         "working_dir": "D"
+            //     },
+            //     {
+            //         "path": "modify-test.md",
+            //         "index": " ",
+            //         "working_dir": "M"
+            //     },
+            //     {
+            //         "path": "rename-test.md",
+            //         "index": "R",
+            //         "working_dir": " "
+            //     },
+            //     {
+            //         "path": "new-test.md",
+            //         "index": "?",
+            //         "working_dir": "?"
+            //     }
+            // ],
             const _unstagedList = status.files.filter(item => {
-                return item.working_dir != ' '
+                return !status.staged.includes(item.path) && !status.renamed.find(rItem => rItem.to == item.path)
             })
             if (_unstagedList.length) {
                 if (lastFile) {
@@ -357,10 +390,10 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                 }
             }
             setUnstagedList(_unstagedList)
-            // setUnstagedList(status.modified.filter(file => {
-            //     return !status.staged.includes(file)
-            // }))
-            
+            const _stagedList = status.files.filter(item => {
+                return status.staged.includes(item.path) || status.renamed.find(rItem => rItem.to == item.path)
+            })
+            setStagedList(_stagedList)
         }
     }
 
@@ -602,37 +635,57 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                     <div className={styles.header}>
                                         <Checkbox
                                             checked
-                                            disabled={status.staged.length == 0}
+                                            disabled={stagedList.length == 0}
                                             onClick={() => {
                                                 // console.log('add', item.path)
-                                                reset(status.staged)
+                                                reset(stagedList.map(item => item.path))
                                             }}
                                         />
                                         <div className={styles.title}>{t('git.staged')}</div>
                                     </div>
                                     <div className={styles.body}>
                                         <div className={styles.list}>
-                                            {status.staged.map(item => {
+                                            {stagedList.map(item => {
                                                 return (
                                                     <div
                                                         className={classNames(styles.item, {
-                                                            [styles.active]: item == curFile && curFileType == 'cached'
+                                                            [styles.active]: item.path == curFile && curFileType == 'cached'
                                                         })}
-                                                        key={item}
+                                                        key={item.path}
                                                     >
                                                         <Checkbox
                                                             checked
+                                                            disabled={item.index == 'R'}
                                                             onClick={() => {
-                                                                console.log('add', item)
-                                                                reset([item])
+                                                                console.log('add', item.path)
+                                                                reset([item.path])
                                                             }}
                                                         />
                                                         <div className={styles.fileName}
                                                             onClick={() => {
-                                                                diff(item, true)
+                                                                diff(item.path, true)
                                                             }}
                                                         >
-                                                            <div className={styles.path}>{item}</div>
+                                                            {item.working_dir == '?' ?
+                                                                <div className={classNames(styles.icon, styles.added)}>
+                                                                    <QuestionOutlined />
+                                                                </div>
+                                                            : item.working_dir == 'M' ?
+                                                                <div className={classNames(styles.icon, styles.modified)}>
+                                                                    <EllipsisOutlined />
+                                                                </div>
+                                                            : item.index == 'R' ?
+                                                                <div className={classNames(styles.icon, styles.modified)}>
+                                                                    <div>R</div>
+                                                                </div>
+                                                            : item.working_dir == 'D' ?
+                                                                <div className={classNames(styles.icon, styles.deleted)}>
+                                                                    <MinusOutlined />
+                                                                </div>
+                                                            :
+                                                                <Tag>{item.working_dir}</Tag>
+                                                            }
+                                                            <div className={styles.path}>{item.path}</div>
                                                         </div>
                                                         <Dropdown
                                                             trigger={['click']}
@@ -646,8 +699,8 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                                                     ]}
                                                                     onClick={({ key }) => {
                                                                         if (key == 'finder') {
-                                                                            console.log('item', item)
-                                                                            openInFinder(projectPath + config.pathSeparator + item.replace(/\//g, config.pathSeparator))
+                                                                            console.log('item', item.path)
+                                                                            openInFinder(projectPath + config.pathSeparator + item.path.replace(/\//g, config.pathSeparator))
                                                                         }
                                                                     }}
                                                                 />
@@ -708,6 +761,10 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                                             : item.working_dir == 'M' ?
                                                                 <div className={classNames(styles.icon, styles.modified)}>
                                                                     <EllipsisOutlined />
+                                                                </div>
+                                                            : item.index == 'R' ?
+                                                                <div className={classNames(styles.icon, styles.modified)}>
+                                                                    <div>R</div>
                                                                 </div>
                                                             : item.working_dir == 'D' ?
                                                                 <div className={classNames(styles.icon, styles.deleted)}>
@@ -883,7 +940,7 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                 config={config}
                                 event$={event$}
                                 projectPath={projectPath}
-                                stagedLength={status.staged.length}
+                                stagedLength={stagedList.length}
                                 onSuccess={() => {
                                     // loadList()
                                     onTab && onTab()
