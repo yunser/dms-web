@@ -135,45 +135,45 @@ export function LoggerHome({ config, onItem, event$ }) {
         }
     }, [])
 
-    useEffect(() => {
-        const handleKeyDown = e => {
-            // if (document.activeElement?.nodeName == 'INPUT' || document.activeElement?.nodeName == 'TEXTAREA') {
-            //     return
-            // }
-            if (e.code == 'Enter') {
-                if (inputIngRef.current) {
-                    return
-                }
-                if (filterdProjects[activeIndex]) {
-                    onItem && onItem(filterdProjects[activeIndex])
-                }
+    const handleKeyDown = e => {
+        // if (document.activeElement?.nodeName == 'INPUT' || document.activeElement?.nodeName == 'TEXTAREA') {
+        //     return
+        // }
+        if (e.code == 'Enter') {
+            if (inputIngRef.current) {
+                return
             }
-            else if (e.code == 'ArrowDown') {
-                let newIdx = activeIndex + 1
-                if (newIdx > filterdProjects.length - 1) {
-                    newIdx = 0
-                }
-                setActiveIndex(newIdx)
-
-                e.stopPropagation()
-                e.preventDefault()
-            }
-            else if (e.code == 'ArrowUp') {
-                let newIdx = activeIndex - 1
-                if (newIdx < 0) {
-                    newIdx = filterdProjects.length - 1
-                }
-                setActiveIndex(newIdx)
-
-                e.stopPropagation()
-                e.preventDefault()
+            if (filterdProjects[activeIndex]) {
+                onItem && onItem(filterdProjects[activeIndex])
             }
         }
-        window.addEventListener('keydown', handleKeyDown)
-        return () => {
-            window.removeEventListener('keydown', handleKeyDown)
+        else if (e.code == 'ArrowDown') {
+            let newIdx = activeIndex + 1
+            if (newIdx > filterdProjects.length - 1) {
+                newIdx = 0
+            }
+            setActiveIndex(newIdx)
+
+            e.stopPropagation()
+            e.preventDefault()
         }
-    }, [activeIndex, filterdProjects, inputIngRef.current])
+        else if (e.code == 'ArrowUp') {
+            let newIdx = activeIndex - 1
+            if (newIdx < 0) {
+                newIdx = filterdProjects.length - 1
+            }
+            setActiveIndex(newIdx)
+
+            e.stopPropagation()
+            e.preventDefault()
+        }
+    }
+    // useEffect(() => {
+    //     window.addEventListener('keydown', handleKeyDown)
+    //     return () => {
+    //         window.removeEventListener('keydown', handleKeyDown)
+    //     }
+    // }, [activeIndex, filterdProjects, inputIngRef.current])
 
     function editProject(item) {
         setProjectModalVisible(true)
@@ -262,6 +262,7 @@ export function LoggerHome({ config, onItem, event$ }) {
                                 onChange={e => {
                                     setKeyword(e.target.value)
                                 }}
+                                // onKeyDown={handleKeyDown}
                             />
                         </div>
                         {loading ?
