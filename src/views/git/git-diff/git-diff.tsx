@@ -53,7 +53,7 @@ function parseHunkLine(line: string) {
     }
 }
 
-export function DiffText({ text, editable = false, onDiscard }) {
+export function DiffText({ text, editable = false, onDiscard, onConflictResolve }) {
     const { t } = useTranslation()
     const isDiff = text.includes('@@')
     
@@ -75,7 +75,25 @@ export function DiffText({ text, editable = false, onDiscard }) {
             let type = ''
             let symbol = ''
             let content = line
-            if (line.startsWith('@@')) {
+            let conflict = {
+                position: '',
+            }
+            if (line.startsWith('++<<<<<<<')) {
+                type = 'conflict'
+                conflict.position = 'start'
+                newLineCurrent++
+            }
+            else if (line.startsWith('++>>>>>>>')) {
+                type = 'conflict'
+                conflict.position = 'end'
+                newLineCurrent++
+            }
+            else if (line.startsWith('++=======')) {
+                type = 'conflict'
+                conflict.position = 'center'
+                newLineCurrent++
+            }
+            else if (line.startsWith('@@')) {
                 type = 'desc'
                 isCode = true
                 newLineIndex = i
@@ -112,7 +130,7 @@ export function DiffText({ text, editable = false, onDiscard }) {
                 }
                 newLineCurrent++
             }
-            if (isCode || type == 'desc') {
+            if (isCode || type == 'desc' || type == 'conflict') {
                 results.push({
                     id: i,
                     index: newLineCurrent,
@@ -120,11 +138,36 @@ export function DiffText({ text, editable = false, onDiscard }) {
                     symbol,
                     content,
                     blockInfo,
+                    conflict,
                 })
             }
         }
         return results
     }, [text])
+
+    function conflictResolve(index: number, type: string) {
+        const start = index
+        let center
+        let end
+        for (let i = index; i < lines.length; i++) {
+            const line = lines[i]
+            if (line.type == 'conflict') {
+                if (line.conflict.position == 'center') {
+                    center = i
+                }
+                else if (line.conflict.position == 'end') {
+                    end = i
+                    break
+                }
+            }
+        }
+        onConflictResolve({
+            start: start - 1,
+            center: center - 1,
+            end: end - 1,
+            type,
+        })
+    }
 
     if (!text) {
         return (
@@ -163,7 +206,7 @@ export function DiffText({ text, editable = false, onDiscard }) {
                                         if (!editable) {
                                             return
                                         }
-                                        if (line.type == 'added' || line.type == 'deleted') {
+                                        if (line.type == 'added' || line.type == 'deleted' || line.type == 'conflict') {
                                             setSelectedLine(line)
                                         }
                                         else {
@@ -172,7 +215,7 @@ export function DiffText({ text, editable = false, onDiscard }) {
                                     }}
                                 >
                                     <div className={styles.noBox}>
-                                        {(line.type == 'desc' || line.type == 'deleted') ? '' : line.index}
+                                        {(line.type == 'desc' || line.type == 'deleted') ? '' : (line.index + 1)}
                                     </div>
                                     <div 
                                         className={classNames(styles.lineWrap, {
@@ -195,6 +238,39 @@ export function DiffText({ text, editable = false, onDiscard }) {
                                                             // fileDiscard
                                                         }}
                                                     >丢弃区块</a> */}
+                                                </div>
+                                            : line.type == 'conflict' ?
+                                                <div className={styles.conflict}>
+                                                    <pre>{line.content}</pre>
+                                                    {line.conflict.position == 'start' &&
+                                                        <div className={styles.conflictBtns}>
+                                                            ({t('git.conflict.change.current')})
+                                                            <a
+                                                                onClick={() => {
+                                                                    conflictResolve(index, 'current')
+                                                                }}
+                                                            >
+                                                                {t('git.conflict.accept.current')}
+                                                            </a>
+                                                            <a
+                                                                onClick={() => {
+                                                                    conflictResolve(index, 'incoming')
+                                                                }}
+                                                            >
+                                                                {t('git.conflict.accept.incoming')}
+                                                            </a>
+                                                            <a
+                                                                onClick={() => {
+                                                                    conflictResolve(index, 'both')
+                                                                }}
+                                                            >
+                                                                {t('git.conflict.accept.both')}
+                                                            </a>
+                                                        </div>
+                                                    }
+                                                    {line.conflict.position == 'end' &&
+                                                        <div className={styles.conflictInfo}>({t('git.conflict.change.incoming')})</div>
+                                                    }
                                                 </div>
                                             :
                                                 <pre>{line.content}</pre>

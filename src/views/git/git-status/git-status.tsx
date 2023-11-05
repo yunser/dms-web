@@ -367,6 +367,44 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
             //         "working_dir": "?"
             //     }
             // ],
+            // 合并后，如果有冲突，已暂存的文件中，files 可能是：
+            // [
+            //     {
+            //         "path": "README.md",
+            //         "index": "U",
+            //         "working_dir": "U"
+            //     },
+            //     {
+            //         "path": "delete-test.md",
+            //         "index": "A",
+            //         "working_dir": " "
+            //     },
+            //     {
+            //         "path": "modify-test.md",
+            //         "index": "A",
+            //         "working_dir": " "
+            //     },
+            //     {
+            //         "path": "rename-test-old.md",
+            //         "index": "A",
+            //         "working_dir": " "
+            //     },
+            //     {
+            //         "path": "tmp-a.md",
+            //         "index": "A",
+            //         "working_dir": " "
+            //     },
+            //     {
+            //         "path": "tmp-b.md",
+            //         "index": "A",
+            //         "working_dir": " "
+            //     },
+            //     {
+            //         "path": "new-test.md",
+            //         "index": "?",
+            //         "working_dir": "?"
+            //     }
+            // ]
             const _unstagedList = status.files.filter(item => {
                 return !status.staged.includes(item.path) && !status.renamed.find(rItem => rItem.to == item.path)
             })
@@ -474,6 +512,22 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
             line: line.line - 1,
             type: line.type,
             lineContent: line.content,
+        })
+        if (res.success) {
+            diff(filePath)
+        }
+    }
+
+    async function fileConflictResolve(filePath, params) {
+        const { start, center, end, type } = params
+        let res = await request.post(`${config.host}/git/fileConflictResolve`, {
+            projectPath,
+            ...params,
+            filePath,
+            start,
+            center,
+            end,
+            type,
         })
         if (res.success) {
             diff(filePath)
@@ -677,6 +731,14 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                                             : item.index == 'R' ?
                                                                 <div className={classNames(styles.icon, styles.modified)}>
                                                                     <div>R</div>
+                                                                </div>
+                                                            : item.index == 'A' ?
+                                                                <div className={classNames(styles.icon, styles.added)}>
+                                                                    <div>A</div>
+                                                                </div>
+                                                            : item.index == 'U' ?
+                                                                <div className={classNames(styles.icon, styles.modified)}>
+                                                                    <div>U</div>
                                                                 </div>
                                                             : item.working_dir == 'D' ?
                                                                 <div className={classNames(styles.icon, styles.deleted)}>
@@ -921,6 +983,9 @@ export function GitStatus({ config, event$, projectPath, onTab, }) {
                                             editable={true}
                                             onDiscard={(line) => {
                                                 discardFile(curFile, line)
+                                            }}
+                                            onConflictResolve={(params) => {
+                                                fileConflictResolve(curFile, params)
                                             }}
                                         />
                                     </div>
