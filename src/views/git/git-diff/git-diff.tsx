@@ -57,6 +57,8 @@ export function DiffText({ text, editable = false, onDiscard, onConflictResolve 
     const { t } = useTranslation()
     const isDiff = text.includes('@@')
     
+     // 防止多选时选中文字
+    const [userSelectable, setUserSelectable] = useState(true)
     const [selectedLines, setSelectedLines] = useState([])
 
     const lines = useMemo(() => {
@@ -169,6 +171,26 @@ export function DiffText({ text, editable = false, onDiscard, onConflictResolve 
         })
     }
 
+    useEffect(() => {
+        const handleKeyDown = e => {
+            if (e.code == 'ShiftLeft' || e.code == 'ShiftRight') {
+                setUserSelectable(false)
+            }
+        }
+        const handleKeyUp = e => {
+            if (e.code == 'ShiftLeft' || e.code == 'ShiftRight') {
+                setUserSelectable(true)
+            }
+        }
+        
+        window.addEventListener('keydown', handleKeyDown)
+        window.addEventListener('keyup', handleKeyUp)
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown)
+            window.removeEventListener('keyup', handleKeyUp)
+        }
+    }, [])
+
     if (!text) {
         return (
             <FullCenterBox>
@@ -204,7 +226,7 @@ export function DiffText({ text, editable = false, onDiscard, onConflictResolve 
                                     })}
                                     key={index}
                                     style={{
-                                        userSelect: selectedLines.length > 0 ? 'none' : undefined, // 防止多选时选中文字
+                                        userSelect: userSelectable ? undefined : 'none',
                                     }}
                                     onClick={(e) => {
                                         if (!editable) {
@@ -212,6 +234,7 @@ export function DiffText({ text, editable = false, onDiscard, onConflictResolve 
                                         }
                                         if (line.type == 'added' || line.type == 'deleted' || line.type == 'conflict') {
                                             if (e.metaKey || e.ctrlKey) {
+                                                // 单个多选
                                                 const exists = selectedLines.some(item => item.id == line.id)
                                                 if (exists) {
                                                     setSelectedLines(selectedLines.filter(item => item.id != line.id))
@@ -224,6 +247,7 @@ export function DiffText({ text, editable = false, onDiscard, onConflictResolve 
                                                 }
                                             }
                                             else if (e.shiftKey) {
+                                                // 快速多选
                                                 // 暂只支持上到下选择
                                                 if (selectedLines[0]) {
                                                     const startIdx = selectedLines[0].index
@@ -235,7 +259,14 @@ export function DiffText({ text, editable = false, onDiscard, onConflictResolve 
                                                 }
                                             }
                                             else {
-                                                setSelectedLines([line])
+                                                // 单个选择
+                                                const exists = selectedLines.some(item => item.id == line.id)
+                                                if (exists) {
+                                                    setSelectedLines([])
+                                                }
+                                                else {
+                                                    setSelectedLines([line])
+                                                }
                                             }
                                         }
                                         else {
@@ -306,7 +337,7 @@ export function DiffText({ text, editable = false, onDiscard, onConflictResolve 
                                             }
                                         </div>
                                     </div>
-                                    {selectedLines.length && selectedLines[0].id == line.id &&
+                                    {(selectedLines.length > 0) && (selectedLines[0].id == line.id) &&
                                         <div className={styles.action}>
                                             <a className={styles.discard}
                                                 onClick={() => {
